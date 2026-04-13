@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { LEADERS } from '@/lib/content/leadership';
 
 const executives = LEADERS.filter(
-  (l) => l.role === 'Executive Director, CEO' || l.role === 'Chief Operating Officer'
+  (l) => l.section !== 'consultant' && (l.role === 'Executive Director, CEO' || l.role === 'Chief Operating Officer')
 );
-const boardMembers = LEADERS.filter((l) => l.role.startsWith('Board Member'));
+const boardMembers = LEADERS.filter(
+  (l) => l.section !== 'consultant' && l.role.startsWith('Board Member')
+);
+const leadConsultants = LEADERS.filter((l) => l.section === 'consultant');
 
 export default function LeadershipContent() {
   return (
@@ -50,7 +53,7 @@ export default function LeadershipContent() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <article
-                  className="stitch-card"
+                  className="portal-card portal-card--flat"
                   style={{
                     background: 'var(--surface-container)',
                     borderRadius: 'var(--radius-xl, 1rem)',
@@ -68,8 +71,10 @@ export default function LeadershipContent() {
                   }}
                 >
                   <div
+                    className="leadership-exec-photo"
                     style={{
-                      aspectRatio: '4/5',
+                      aspectRatio: '3/4',
+                      maxHeight: 320,
                       position: 'relative',
                       overflow: 'hidden',
                     }}
@@ -82,14 +87,6 @@ export default function LeadershipContent() {
                       priority={index === 0}
                       style={{
                         objectFit: 'cover',
-                        filter: 'grayscale(100%)',
-                        transition: 'filter 0.4s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.target as HTMLElement).style.filter = 'grayscale(0%)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.target as HTMLElement).style.filter = 'grayscale(100%)';
                       }}
                     />
                     {leader.founder && (
@@ -138,8 +135,8 @@ export default function LeadershipContent() {
                     </h3>
                     {leader.missionRelevance && (
                       <p
+                        className="leader-mission-callout"
                         style={{
-                          color: 'var(--color-accent)',
                           fontSize: '0.8rem',
                           fontWeight: 500,
                           marginBottom: '0.75rem',
@@ -194,33 +191,172 @@ export default function LeadershipContent() {
             </h2>
           </div>
 
-          <div className="leadership-board-bento">
-            {boardMembers.map((leader, idx) => {
-              const colSpan = idx === 0 ? 'span 4' : idx === 1 ? 'span 2' : 'span 6';
-              const isWide = idx === 0 || idx === 2;
+          <div className="leadership-board-equal">
+            {boardMembers.map((leader) => (
+              <Link
+                key={leader.slug}
+                href={`/leadership/${leader.slug}`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <article
+                  className="leadership-board-card leadership-board-card-equal"
+                  style={{
+                    background: 'var(--surface-container-lowest)',
+                    borderRadius: 'var(--radius-xl, 1rem)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    gap: '1rem',
+                    padding: '2rem 1.5rem',
+                    height: '100%',
+                    transition: 'background 0.2s ease, transform 0.2s ease',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--surface-container)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--surface-container-lowest)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div
+                    className="leadership-board-photo"
+                    style={{
+                      width: 152,
+                      height: 152,
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      position: 'relative',
+                    }}
+                  >
+                    <Image
+                      src={leader.image}
+                      alt={leader.name}
+                      fill
+                      sizes="152px"
+                      style={{
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </div>
 
-              return (
+                  <div className="leadership-board-body" style={{ flex: 1, minWidth: 0 }}>
+                    <span
+                      className="text-label-upper"
+                      style={{
+                        color: 'var(--color-accent)',
+                        fontSize: '0.65rem',
+                        letterSpacing: '0.1em',
+                        display: 'block',
+                        marginBottom: '0.35rem',
+                      }}
+                    >
+                      {leader.role}
+                    </span>
+                    <h3
+                      style={{
+                        color: 'var(--color-on-surface)',
+                        fontSize: '1.2rem',
+                        fontWeight: 600,
+                        margin: '0 0 0.5rem',
+                      }}
+                    >
+                      {leader.name}
+                    </h3>
+                    {leader.missionRelevance && (
+                      <p
+                        className="leader-mission-callout"
+                        style={{
+                          fontSize: '0.78rem',
+                          fontWeight: 500,
+                          marginBottom: '0.5rem',
+                          lineHeight: 1.5,
+                          textAlign: 'left',
+                        }}
+                      >
+                        {leader.missionRelevance}
+                      </p>
+                    )}
+                    <p
+                      style={{
+                        color: 'var(--color-on-surface-variant)',
+                        fontSize: '0.88rem',
+                        lineHeight: 1.6,
+                        margin: 0,
+                        textAlign: 'left',
+                      }}
+                    >
+                      {leader.cardBio}
+                    </p>
+                  </div>
+
+                  <span
+                    className="material-symbols-outlined"
+                    style={{
+                      color: 'var(--color-accent)',
+                      opacity: 0.7,
+                      fontSize: '1.25rem',
+                    }}
+                   aria-hidden="true">
+                    arrow_forward
+                  </span>
+                </article>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Lead Consultant (bottom, before CTA) ── */}
+      {leadConsultants.length > 0 ? (
+        <section className="content-section">
+          <div className="container" style={{ maxWidth: 1400 }}>
+            <div style={{ marginBottom: '3rem' }}>
+              <span
+                className="text-label-upper"
+                style={{
+                  color: 'var(--color-accent)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.1em',
+                  display: 'block',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                Advisory
+              </span>
+              <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+                Lead Consultant
+              </h2>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '2rem',
+                alignItems: 'stretch',
+              }}
+            >
+              {leadConsultants.map((leader) => (
                 <Link
                   key={leader.slug}
                   href={`/leadership/${leader.slug}`}
-                  style={{
-                    gridColumn: colSpan,
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <article
-                    className="leadership-board-card"
+                    className="portal-card portal-card--flat"
                     style={{
                       background: 'var(--surface-container-lowest)',
                       borderRadius: 'var(--radius-xl, 1rem)',
                       overflow: 'hidden',
-                      display: isWide ? 'grid' : 'flex',
-                      gridTemplateColumns: isWide ? 'auto 1fr auto' : undefined,
-                      flexDirection: isWide ? undefined : 'column',
-                      alignItems: isWide ? 'center' : undefined,
-                      gap: isWide ? '2rem' : '1.25rem',
-                      padding: isWide ? '2rem' : '1.75rem',
+                      height: '100%',
                       transition: 'background 0.2s ease, transform 0.2s ease',
                       cursor: 'pointer',
                     }}
@@ -233,45 +369,65 @@ export default function LeadershipContent() {
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    <div
-                      className="leadership-board-photo"
-                      style={{
-                        width: isWide ? 120 : 72,
-                        height: isWide ? 120 : 72,
-                        borderRadius: '50%',
-                        overflow: 'hidden',
-                        flexShrink: 0,
-                        position: 'relative',
-                      }}
-                    >
-                      <Image
-                        src={leader.image}
-                        alt={leader.name}
-                        fill
-                        sizes={isWide ? '120px' : '72px'}
+                    {leader.image && leader.image.trim().length > 0 ? (
+                      <div
                         style={{
-                          objectFit: 'cover',
-                          filter: 'grayscale(100%)',
-                          transition: 'filter 0.4s ease',
+                          aspectRatio: '16/10',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          maxHeight: 260,
                         }}
-                        onMouseEnter={(e) => {
-                          (e.target as HTMLElement).style.filter = 'grayscale(0%)';
+                      >
+                        <Image
+                          src={leader.image}
+                          alt={leader.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 480px"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        aria-hidden
+                        style={{
+                          padding: '1.75rem 1.75rem 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
                         }}
-                        onMouseLeave={(e) => {
-                          (e.target as HTMLElement).style.filter = 'grayscale(100%)';
-                        }}
-                      />
-                    </div>
-
-                    <div className="leadership-board-body" style={{ flex: 1, minWidth: 0 }}>
+                      >
+                        <span
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: '2.25rem',
+                            color: 'var(--color-accent)',
+                            opacity: 0.85,
+                          }}
+                         aria-hidden="true">
+                          support_agent
+                        </span>
+                        <span
+                          style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            color: 'var(--color-on-surface-variant)',
+                          }}
+                        >
+                          Photo coming soon
+                        </span>
+                      </div>
+                    )}
+                    <div style={{ padding: '1.5rem 1.75rem 2rem' }}>
                       <span
                         className="text-label-upper"
                         style={{
                           color: 'var(--color-accent)',
-                          fontSize: '0.6rem',
-                          letterSpacing: '0.1em',
+                          fontSize: '0.65rem',
+                          letterSpacing: '0.08em',
                           display: 'block',
-                          marginBottom: '0.35rem',
+                          marginBottom: '0.5rem',
                         }}
                       >
                         {leader.role}
@@ -279,60 +435,44 @@ export default function LeadershipContent() {
                       <h3
                         style={{
                           color: 'var(--color-on-surface)',
-                          fontSize: isWide ? '1.25rem' : '1.1rem',
+                          fontSize: '1.25rem',
                           fontWeight: 600,
-                          margin: '0 0 0.35rem',
+                          margin: '0 0 0.5rem',
                         }}
                       >
                         {leader.name}
                       </h3>
-                      {leader.missionRelevance && isWide && (
+                      {leader.missionRelevance ? (
                         <p
+                          className="leader-mission-callout"
                           style={{
-                            color: 'var(--color-accent)',
-                            fontSize: '0.78rem',
+                            fontSize: '0.8rem',
                             fontWeight: 500,
-                            marginBottom: '0.5rem',
+                            marginBottom: '0.75rem',
                             lineHeight: 1.5,
                           }}
                         >
                           {leader.missionRelevance}
                         </p>
-                      )}
+                      ) : null}
                       <p
                         style={{
                           color: 'var(--color-on-surface-variant)',
-                          fontSize: '0.83rem',
-                          lineHeight: 1.6,
+                          fontSize: '0.875rem',
+                          lineHeight: 1.65,
                           margin: 0,
-                          display: '-webkit-box',
-                          WebkitLineClamp: isWide ? 4 : 3,
-                          WebkitBoxOrient: 'vertical' as const,
-                          overflow: 'hidden',
                         }}
                       >
                         {leader.cardBio}
                       </p>
                     </div>
-
-                    <span
-                      className="material-symbols-outlined"
-                      style={{
-                        color: 'var(--color-on-surface-variant)',
-                        opacity: 0.4,
-                        fontSize: '1.25rem',
-                        alignSelf: isWide ? 'center' : 'flex-end',
-                      }}
-                    >
-                      arrow_forward
-                    </span>
                   </article>
                 </Link>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* ── CTA Section ── */}
       <section className="content-section">
@@ -355,7 +495,7 @@ export default function LeadershipContent() {
                 opacity: 0.85,
                 display: 'block',
               }}
-            >
+             aria-hidden="true">
               group_add
             </span>
             <h2
@@ -401,7 +541,7 @@ export default function LeadershipContent() {
                   transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
                   mail
                 </span>
                 Get in Touch
@@ -423,7 +563,7 @@ export default function LeadershipContent() {
                   transition: 'background 0.15s ease',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
                   school
                 </span>
                 View Programs

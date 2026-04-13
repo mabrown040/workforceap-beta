@@ -3,32 +3,32 @@ import type { TourStep } from '@/components/onboarding/PortalTour';
 export const MEMBER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-dashboard',
-    title: 'Your home base',
-    body: 'Track your application status, program progress, and next steps.',
+    title: 'Dashboard',
+    body: 'Your home base. Track your application status, program progress, and next steps all in one place.',
+    placement: 'right',
+  },
+  {
+    targetId: 'tour-ai-tools',
+    title: 'AI Tools',
+    body: 'Power up your job search with AI — resume help, cover letters, interview practice, and more.',
+    placement: 'right',
+  },
+  {
+    targetId: 'tour-learning',
+    title: 'Learning',
+    body: 'Access your courses, training materials, and skill-building resources.',
+    placement: 'right',
+  },
+  {
+    targetId: 'tour-messages',
+    title: 'Messages',
+    body: 'Stay connected with your counselor and the WorkforceAP team.',
     placement: 'right',
   },
   {
     targetId: 'tour-profile',
-    title: 'Complete your profile',
-    body: 'A complete profile helps us match you to jobs faster.',
-    placement: 'right',
-  },
-  {
-    targetId: 'tour-programs',
-    title: 'Your program',
-    body: 'Course materials, progress tracking, and certification milestones.',
-    placement: 'right',
-  },
-  {
-    targetId: 'tour-jobs',
-    title: 'Job board',
-    body: 'Curated jobs matched to your program and skills. Apply directly.',
-    placement: 'right',
-  },
-  {
-    targetId: 'tour-resources',
-    title: 'Resources',
-    body: 'Resume templates, interview prep, and career guides.',
+    title: 'Profile',
+    body: 'Keep your profile up to date so we can match you with the best opportunities.',
     placement: 'right',
   },
 ];
@@ -49,7 +49,7 @@ export const EMPLOYER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-jobs',
     title: 'Job postings',
-    body: 'Post new roles, import from your ATS or LinkedIn, and manage live postings.',
+    body: 'Post new roles, import from your job board or LinkedIn, and manage live postings.',
     placement: 'right',
   },
   {
@@ -61,7 +61,7 @@ export const EMPLOYER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-pipeline',
     title: 'Hiring pipeline',
-    body: 'Track candidates from reviewed → interviewed → offered. Kanban-style.',
+    body: 'Track candidates from reviewed → interviewed → offered on a visual board.',
     placement: 'right',
   },
   {

@@ -1,7 +1,36 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { formatPortalDate } from '@/lib/formatDate';
+import AiResultRenderer from '@/components/portal/AiResultRenderer';
+
+const TOOL_ICONS: Record<string, string> = {
+  job_match_scorer: 'target',
+  resume_analysis: 'analytics',
+  resume_rewriter: 'description',
+  cover_letter: 'mail',
+  interview_practice: 'record_voice_over',
+  interview_coach: 'forum',
+  voice_interview_video: 'videocam',
+  linkedin_headline: 'badge',
+  linkedin_about: 'person',
+  salary_negotiation: 'payments',
+  gap_analyzer: 'troubleshoot',
+  career_counselor: 'psychology',
+  skill_assessment: 'radar',
+};
+
+const TOOL_ACCENT: Record<string, string> = {
+  resume_rewriter: 'var(--color-accent)',
+  cover_letter: 'var(--color-blue, #2b7bb9)',
+  interview_practice: 'var(--color-green, #4a9b4f)',
+  interview_coach: 'var(--color-green, #4a9b4f)',
+  linkedin_headline: '#0a66c2',
+  linkedin_about: '#0a66c2',
+  salary_negotiation: 'var(--color-gold)',
+  skill_assessment: 'var(--color-accent)',
+  job_match_scorer: 'var(--color-accent)',
+};
 
 type Result = {
   id: string;
@@ -12,105 +41,118 @@ type Result = {
   createdAt: Date;
 };
 
+const FILTER_OPTIONS = [
+  { value: '', label: 'All tools' },
+  { value: 'resume_rewriter', label: 'Resume Rewriter' },
+  { value: 'cover_letter', label: 'Cover Letter' },
+  { value: 'interview_practice', label: 'Interview Practice' },
+  { value: 'interview_coach', label: 'AI Interview Coach' },
+  { value: 'linkedin_headline', label: 'LinkedIn Headline' },
+  { value: 'linkedin_about', label: 'LinkedIn About' },
+  { value: 'skill_assessment', label: 'Skill Mapper' },
+  { value: 'job_match_scorer', label: 'Job Match Scorer' },
+  { value: 'resume_analysis', label: 'Resume Analysis' },
+  { value: 'salary_negotiation', label: 'Salary Negotiation' },
+  { value: 'gap_analyzer', label: 'Gap Analyzer' },
+  { value: 'career_counselor', label: 'Career Counselor' },
+  { value: 'voice_interview_video', label: 'Voice Interview Recording' },
+];
+
 export default function AIHistoryList({ results, initialFilter = '' }: { results: Result[]; initialFilter?: string }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>(initialFilter);
 
   const filtered = filter
-    ? results.filter((r) => r.toolType === filter || r.toolLabel.toLowerCase().includes(filter.toLowerCase()))
+    ? results.filter((r) => r.toolType === filter)
     : results;
 
-  const formatOutput = (output: string, toolType: string): string => {
-    if (toolType === 'interview_practice') {
-      try {
-        const raw = typeof output === 'string' ? output : JSON.stringify(output);
-        const jsonMatch = raw.match(/\[[\s\S]*\]/);
-        const jsonStr = jsonMatch ? jsonMatch[0] : raw;
-        const parsed = JSON.parse(jsonStr);
-        const arr = Array.isArray(parsed) ? parsed : (parsed?.questions ? parsed.questions : []);
-        if (!Array.isArray(arr) || arr.length === 0) return output || 'No questions available.';
-        return arr
-          .map((item: unknown, i: number) => {
-            const q = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
-            const question = (q.question ?? q.Question ?? '') as string;
-            const type = (q.type ?? q.Type ?? '') as string;
-            const tip = (q.tip ?? q.Tip ?? '') as string;
-            const parts = [question ? `${i + 1}. ${question}` : '', type ? `Type: ${type}` : '', tip].filter(Boolean);
-            return parts.join('\n');
-          })
-          .filter(Boolean)
-          .join('\n\n');
-      } catch {
-        return typeof output === 'string' ? output : 'Unable to display format.';
-      }
-    }
-    if (toolType === 'linkedin_headline') {
-      try {
-        const arr = JSON.parse(typeof output === 'string' ? output : JSON.stringify(output));
-        return Array.isArray(arr) ? arr.map((x: unknown) => (typeof x === 'string' ? x : String(x))).join('\n\n') : String(output);
-      } catch {
-        return typeof output === 'string' ? output : '';
-      }
-    }
-    return typeof output === 'string' ? output : 'Unable to display.';
-  };
-
-  const getPreview = (output: string, toolType: string, maxLen = 100) => {
-    const formatted = formatOutput(output, toolType);
-    const text = formatted.replace(/\s+/g, ' ').trim();
-    if (text.length <= maxLen) return text;
-    return text.slice(0, maxLen) + '…';
-  };
-
   return (
-    <div className="ai-history">
-      <div className="ai-history-filters">
-        <label>
-          Filter:
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="">All tools</option>
-            <option value="job_match_scorer">Job Match Scorer</option>
-            <option value="resume_rewriter">Resume Rewriter</option>
-            <option value="cover_letter">Cover Letter</option>
-            <option value="interview_practice">Interview Practice</option>
-            <option value="linkedin_headline">LinkedIn Headline</option>
-            <option value="linkedin_about">LinkedIn About</option>
-            <option value="salary_negotiation">Salary Negotiation</option>
-            <option value="gap_analyzer">Gap Analyzer</option>
-          </select>
-        </label>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {/* Filter row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>Filter:</span>
+        <select
+          value={filter}
+          onChange={(e) => { setFilter(e.target.value); setExpandedId(null); }}
+          style={{ padding: '0.4rem 0.75rem', borderRadius: '0.625rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}
+        >
+          {FILTER_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        {filter && (
+          <button
+            type="button"
+            onClick={() => { setFilter(''); setExpandedId(null); }}
+            style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            Clear
+          </button>
+        )}
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginLeft: 'auto' }}>
+          {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+        </span>
       </div>
-      <ul className="ai-history-list">
-        {filtered.map((r) => (
-          <li key={r.id} className="ai-history-item">
-            <button
-              type="button"
-              className="ai-history-header"
-              onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
-            >
-              <span className="ai-history-tool">{r.toolLabel}</span>
-              <span className="ai-history-summary">{r.inputSummary}</span>
-              <span className="ai-history-date">
-                {new Date(r.createdAt).toLocaleDateString()}
-              </span>
-              <span className="ai-history-chevron">{expandedId === r.id ? '▼' : '▶'}</span>
-            </button>
-            <p className="ai-history-preview">{getPreview(r.output, r.toolType)}</p>
-            {expandedId === r.id && (
-              <div className="ai-history-output">
-                <pre>{formatOutput(r.output, r.toolType)}</pre>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => navigator.clipboard.writeText(formatOutput(r.output, r.toolType))}
-                >
-                  Copy
-                </button>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+
+      {/* Result cards */}
+      {filtered.length === 0 ? (
+        <div className="portal-card portal-card--flat" style={{ padding: '2rem', textAlign: 'center' }}>
+          <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>No results for this filter.</p>
+        </div>
+      ) : (
+        filtered.map((r) => {
+          const isExpanded = expandedId === r.id;
+          const icon = TOOL_ICONS[r.toolType] ?? 'auto_awesome';
+          const accent = TOOL_ACCENT[r.toolType] ?? 'var(--color-accent)';
+
+          return (
+            <div key={r.id} className="portal-card portal-card--flat" style={{ overflow: 'hidden', transition: 'box-shadow 0.15s' }}>
+              {/* Card header */}
+              <button
+                type="button"
+                onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                {/* Tool icon */}
+                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: `color-mix(in srgb, ${accent} 12%, transparent)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: accent, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+                </div>
+                {/* Label + summary */}
+                <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{r.toolLabel}</span>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: `color-mix(in srgb, ${accent} 10%, transparent)`, color: accent, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                      {formatPortalDate(r.createdAt)}
+                    </span>
+                  </div>
+                  {r.inputSummary && (
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {r.inputSummary}
+                    </p>
+                  )}
+                </div>
+                {/* Expand chevron */}
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>
+                  expand_more
+                </span>
+              </button>
+
+              {/* Expanded content */}
+              {isExpanded && (
+                <div style={{ padding: '0 1rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ paddingTop: '0.875rem' }}>
+                    <AiResultRenderer
+                      toolType={r.toolType}
+                      output={r.output}
+                      showCopy
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, HelpCircle, GraduationCap, Mail } from 'lucide-react';
-import { blogListingCardImage } from '@/lib/blog/blogListingImage';
+import { blogListingCardAlt, blogListingCardImage } from '@/lib/blog/blogListingImage';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 type Post = {
@@ -126,14 +126,21 @@ export default function BlogListingClient({
 
         <div className="blog-listing-grid">
           {filtered.map((post) => {
-            const cardSrc = blogListingCardImage(post.heroImage, post.coverImage);
+            const cardSrc = blogListingCardImage(post.heroImage, post.coverImage, post.category, post.slug);
+            const cardAlt = blogListingCardAlt({
+              title: post.title,
+              heroImage: post.heroImage,
+              coverImage: post.coverImage,
+              category: post.category,
+              slug: post.slug,
+            });
             return (
               <article key={post.id} className="blog-card">
                 <Link href={`/blog/${post.slug}`} className="blog-card-link">
                   <div className="blog-card-cover">
                     <Image
                       src={cardSrc}
-                      alt={post.title ? `Cover image for ${post.title}` : 'Blog post cover image'}
+                      alt={cardAlt}
                       width={400}
                       height={250}
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
@@ -149,7 +156,7 @@ export default function BlogListingClient({
                       <> · {new Date(post.publishedAt).toLocaleDateString('en-US')}</>
                     )}
                   </div>
-                  <span className="blog-card-cta">Read More →</span>
+                  <span className="blog-card-cta">{post.title ? `Read more: ${post.title}` : 'Read more'}</span>
                 </Link>
               </article>
             );
@@ -197,16 +204,19 @@ export default function BlogListingClient({
         {/* Bottom CTA */}
         <div className="blog-listing-bottom-cta">
           <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.95 }} aria-hidden />
-          <h3>Want personalized career guidance?</h3>
+          <h3>Ready to take the next step?</h3>
           <p>
-            Read our blog for tips, or get started finding the right program for your goals.
+            WorkforceAP offers no-cost career training paths for qualifying members — with guided tools, counselor support, and employer-aligned credentials.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
-              Take Career Quiz
+              Find Your Career Path
             </Link>
             <Link href="/programs" className="btn blog-listing-bottom-cta__ghost">
-              Browse Programs
+              Explore Programs
+            </Link>
+            <Link href="/apply" className="btn blog-listing-bottom-cta__ghost">
+              Apply Now
             </Link>
           </div>
         </div>

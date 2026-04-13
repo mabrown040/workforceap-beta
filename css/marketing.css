@@ -22,19 +22,31 @@ html.dark .partner-logos-small span {
 }
 
 /*
- * Marketing mobile vs desktop (768px) — pairs with `wa-hidden md:wa-block` / `md:wa-hidden`.
- * Use `.marketing-desktop` on desktop-only trees and `.marketing-mobile` on Stitch/mobile-only trees
- * so a single breakpoint stays consistent even if utility classes fail to load.
+ * Marketing mobile vs desktop (768px) — REMOVED — site is now fully responsive.
  */
-@media (max-width: 767px) {
-  .marketing-desktop {
-    display: none !important;
+
+/* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
+.marketing-stack {
+  max-width: min(1200px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marketing-stack--enter {
+    animation: marketing-stack-fade-in 0.42s ease-out both;
   }
 }
 
-@media (min-width: 768px) {
-  .marketing-mobile {
-    display: none !important;
+@keyframes marketing-stack-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -87,22 +99,45 @@ html.dark .marketing-mobile {
   }
 }
 
+/*
+ * /what-we-do (desktop): full-bleed photo hero. Never use var(--color-white) for hero copy — in html.dark,
+ * --color-white maps to a dark surface and text disappears on the scrim. Inline styles use #fff; rules
+ * below reinforce contrast for nested links/icons.
+ */
+.wwd-photo-hero .wwd-photo-hero__cta-primary,
+.wwd-photo-hero .wwd-photo-hero__cta-secondary {
+  color: #ffffff;
+}
+
+html.dark .wwd-photo-hero h1.wwd-photo-hero__title {
+  color: #ffffff;
+}
+
 /* Home hero: dark scrim over image — keep headline/body readable when site theme is light */
 .home-hero {
   --home-hero-fg: #f2f2f5;
   --home-hero-fg-muted: rgba(242, 242, 245, 0.88);
 }
 
+/*
+ * Hero secondary CTA: must NOT use .btn-secondary — that applies a light surface fill and makes
+ * light hero text invisible (white-on-white). Dark glass + light text works on any scrim.
+ */
+.home-hero-partner-cta,
 .home-hero-outline-cta {
-  border-color: rgba(255, 255, 255, 0.38) !important;
-  color: var(--home-hero-fg) !important;
-  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.58) !important;
+  color: #f5f5f8 !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 }
 
+.home-hero-partner-cta:hover,
 .home-hero-outline-cta:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.55) !important;
-  color: #fff !important;
+  background: rgba(0, 0, 0, 0.58) !important;
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  color: #ffffff !important;
 }
 
 /* Credibility strip dividers + logo treatment per theme */
@@ -132,17 +167,17 @@ html.dark .home-credibility-bar .home-cred-logo {
 
 /* Fixed mobile tab bar: readable in both themes */
 .marketing-bottom-nav {
-  --mbn-inactive-fg: #584144;
-  --mbn-bg: rgba(252, 249, 248, 0.92);
-  --mbn-border: rgba(222, 191, 194, 0.35);
+  --mbn-inactive-fg: rgba(236, 238, 240, 0.92);
+  --mbn-bg: rgba(22, 24, 26, 0.94);
+  --mbn-border: rgba(255, 255, 255, 0.1);
   background: var(--mbn-bg);
   border-top: 1px solid var(--mbn-border);
 }
 
 html.dark .marketing-bottom-nav {
-  --mbn-inactive-fg: rgba(236, 238, 240, 0.92);
-  --mbn-bg: rgba(22, 24, 26, 0.94);
-  --mbn-border: rgba(255, 255, 255, 0.1);
+  --mbn-inactive-fg: #584144;
+  --mbn-bg: rgba(252, 249, 248, 0.92);
+  --mbn-border: rgba(222, 191, 194, 0.35);
 }
 
 .marketing-bottom-nav__link {
@@ -150,31 +185,75 @@ html.dark .marketing-bottom-nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 12px;
+  gap: 3px;
+  padding: 8px 12px;
   border-radius: 12px;
   min-width: 56px;
+  min-height: 44px;
   transition: background 150ms ease, color 150ms ease;
   text-decoration: none;
   color: var(--mbn-inactive-fg);
 }
 
+/*
+ * Mobile bottom bar: never use partial font-variation-settings inline — WebKit (iOS) can drop
+ * other axes and ligatures fail, so icon names render as plain text. Keep full axis tuple in CSS.
+ */
+.marketing-bottom-nav .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
+}
+
+.marketing-bottom-nav__link--active .material-symbols-outlined {
+  --ms-fill: 1;
+}
+
 .marketing-bottom-nav__link--active {
-  background: linear-gradient(135deg, #8c0f37, #ad2c4d);
-  color: #fff;
+  background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
+  color: var(--color-white);
 }
 
 .marketing-bottom-nav__link--active .marketing-bottom-nav__label {
-  color: #fff;
+  color: var(--color-white);
 }
 
 .marketing-bottom-nav__label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   line-height: 1;
   color: inherit;
+}
+
+/* Portal variants: ensure 44px min touch targets */
+.mobile-bottom-nav--portal .marketing-bottom-nav__link,
+.mobile-bottom-nav--employer .marketing-bottom-nav__link,
+.mobile-bottom-nav--counselor .marketing-bottom-nav__link,
+.mobile-bottom-nav--partner .marketing-bottom-nav__link {
+  padding: 8px 6px;
+  min-width: 0;
+  min-height: 44px;
+  flex: 1 1 0;
+}
+
+.mobile-bottom-nav--portal .marketing-bottom-nav__label,
+.mobile-bottom-nav--employer .marketing-bottom-nav__label,
+.mobile-bottom-nav--counselor .marketing-bottom-nav__label,
+.mobile-bottom-nav--partner .marketing-bottom-nav__label {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.mobile-bottom-nav--partner .marketing-bottom-nav__label {
+  font-size: 9px;
+}
+
+.mobile-bottom-nav--partner .marketing-bottom-nav__link {
+  gap: 2px;
 }
 
 /*
@@ -194,14 +273,16 @@ html.has-marketing-main-nav {
 
 /*
  * Fixed `MobileBottomNav` (~56px row + vertical padding) plus device safe area.
- * Use on mobile marketing roots so content is not covered; match sticky CTAs with sticky-above class.
+ * Only apply on mobile where the bottom nav is actually rendered.
  */
-.marketing-mobile-pb-for-bottom-nav {
-  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-}
+@media (max-width: 767px) {
+  .marketing-mobile-pb-for-bottom-nav {
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
 
-.marketing-mobile-sticky-above-bottom-nav {
-  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  .marketing-mobile-sticky-above-bottom-nav {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* /programs: mobile sticky quiz CTA clears last catalog rows */

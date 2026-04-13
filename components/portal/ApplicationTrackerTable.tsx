@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 import { TableSkeleton } from '@/components/ui/Skeleton';
+import { useScrollAffordance } from './useScrollAffordance';
 
 type JobApplication = {
   id: string;
@@ -53,6 +54,7 @@ export default function ApplicationTrackerTable() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
+  const scrollRef = useScrollAffordance<HTMLDivElement>();
 
   const filteredApplications = applications.filter((app) => {
     if (statusFilter !== 'all') {
@@ -328,7 +330,7 @@ export default function ApplicationTrackerTable() {
           <p className="application-tracker-scroll-hint application-tracker-scroll-hint--desktop-only">
             On a small screen, use the card view below or scroll the table sideways.
           </p>
-          <div className="application-tracker-table-wrap application-tracker-table-desktop">
+          <div className="application-tracker-table-wrap application-tracker-table-desktop" ref={scrollRef}>
           <table className="application-tracker-table">
             <thead>
               <tr>
@@ -343,9 +345,9 @@ export default function ApplicationTrackerTable() {
             <tbody>
               {filteredApplications.map((app) => (
                 <tr key={app.id}>
-                  <td>{app.company}</td>
-                  <td>{app.role}</td>
-                  <td>
+                  <td data-label="Company">{app.company}</td>
+                  <td data-label="Role">{app.role}</td>
+                  <td data-label="Status">
                     <select
                       value={app.status}
                       onChange={(e) => handleStatusChange(app.id, e.target.value)}
@@ -356,7 +358,7 @@ export default function ApplicationTrackerTable() {
                       ))}
                     </select>
                   </td>
-                  <td>
+                  <td data-label="Applied">
                     {editingId === app.id ? (
                       <input
                         type="date"
@@ -368,7 +370,7 @@ export default function ApplicationTrackerTable() {
                       <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '— (add date)'}</span>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Link">
                     {editingId === app.id ? (
                       <input
                         type="url"
@@ -385,7 +387,7 @@ export default function ApplicationTrackerTable() {
                       '—'
                     )}
                   </td>
-                  <td>
+                  <td data-label="Actions">
                     {editingId === app.id ? (
                       <span style={{ display: 'flex', gap: '0.5rem' }}>
                         <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit}>

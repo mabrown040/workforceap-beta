@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState, type ComponentProps } from 'react';
-import PortalTour, { type TourStep } from '@/components/onboarding/PortalTour';
+import { useRouter } from 'next/navigation';
+import { useTour } from './TourContext';
 import MemberOnboardingWizard from '@/components/onboarding/MemberOnboardingWizard';
 import EmployerOnboardingWizard from '@/components/onboarding/EmployerOnboardingWizard';
 import PartnerOnboardingWizard from '@/components/onboarding/PartnerOnboardingWizard';
 import OnboardingDevReset from '@/components/onboarding/OnboardingDevReset';
+import type { TourStep } from './PortalTour';
 
 type Portal = 'member' | 'employer' | 'partner';
 
@@ -16,6 +18,8 @@ type PartnerWizardProps = ComponentProps<typeof PartnerOnboardingWizard>;
 type PortalEntryClientProps =
   | {
       portal: 'member';
+      /** Scope localStorage/sessionStorage tour flags so shared devices do not suppress tours for the next signed-in user. */
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -25,6 +29,7 @@ type PortalEntryClientProps =
     }
   | {
       portal: 'employer';
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -34,6 +39,7 @@ type PortalEntryClientProps =
     }
   | {
       portal: 'partner';
+      tourStorageUserId: string;
       showOnboardingWizard: boolean;
       showTour: boolean;
       isSuperAdmin: boolean;
@@ -43,18 +49,38 @@ type PortalEntryClientProps =
     };
 
 export default function PortalEntryClient(props: PortalEntryClientProps) {
-  const { portal, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
+  const { portal, tourStorageUserId, showOnboardingWizard, showTour, isSuperAdmin, tourSteps, children } = props;
   const [wizardOpen, setWizardOpen] = useState(showOnboardingWizard);
-  const [tourOpen, setTourOpen] = useState(!showOnboardingWizard && showTour);
+  const router = useRouter();
+  const { startTour } = useTour();
+  const tourAutoStartKey = `wa:tour:auto-started:${portal}:${tourStorageUserId}`;
 
   useEffect(() => {
     setWizardOpen(showOnboardingWizard);
-    setTourOpen(!showOnboardingWizard && showTour);
-  }, [showOnboardingWizard, showTour]);
+    if (!showOnboardingWizard && showTour) {
+      // Check both localStorage (persistent) and sessionStorage (legacy) so the
+      // tour never fires twice — even across new browser sessions when tourCompletedAt
+      // hasn't propagated from the DB yet.
+      const alreadyAutoStarted =
+        typeof window !== 'undefined' &&
+        (window.localStorage.getItem(tourAutoStartKey) === '1' ||
+          window.sessionStorage.getItem(tourAutoStartKey) === '1');
+      if (alreadyAutoStarted) return;
+      const timer = setTimeout(() => {
+        startTour(tourSteps, portal);
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(tourAutoStartKey, '1');
+          window.sessionStorage.setItem(tourAutoStartKey, '1');
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [showOnboardingWizard, showTour, tourSteps, portal, startTour, tourAutoStartKey]);
 
   const onWizardDone = () => {
     setWizardOpen(false);
-    if (showTour) setTourOpen(true);
+    /* Re-fetch RSC payload so overview reflects saved onboarding data; useEffect starts tour when showTour is true */
+    void router.refresh();
   };
 
   return (
@@ -68,10 +94,7 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
       {portal === 'partner' && wizardOpen ? (
         <PartnerOnboardingWizard {...props.wizardProps} onComplete={onWizardDone} />
       ) : null}
-      {tourOpen ? (
-        <PortalTour steps={tourSteps} portal={portal} onComplete={() => setTourOpen(false)} />
-      ) : null}
-      {isSuperAdmin ? <OnboardingDevReset portal={portal} /> : null}
+      {isSuperAdmin && process.env.NODE_ENV !== 'production' ? <OnboardingDevReset portal={portal} /> : null}
       {children}
     </>
   );

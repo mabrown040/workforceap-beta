@@ -109,6 +109,8 @@ export async function listVoices(): Promise<
 
 /**
  * Create a signed conversational session URL for ElevenLabs Conversational AI.
+ * Dynamic prompt/context must be sent from the client via `Conversation.startSession({ overrides })`
+ * (see `@elevenlabs/client`); appending overrides to the signed URL is not reliably applied.
  */
 export async function createConversationalSession(agentId: string): Promise<{
   signedUrl: string;
@@ -119,7 +121,7 @@ export async function createConversationalSession(agentId: string): Promise<{
     throw new Error('ELEVENLABS_API_KEY is not set');
   }
 
-  const url = `${ELEVENLABS_API_URL}/convai/conversation/get_signed_url?agent_id=${encodeURIComponent(agentId)}`;
+  const url = `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?agent_id=${encodeURIComponent(agentId)}`;
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -132,16 +134,24 @@ export async function createConversationalSession(agentId: string): Promise<{
     throw new Error(`ElevenLabs Conversational API error (${response.status}): ${errorText}`);
   }
 
-  const data = (await response.json()) as { signed_url?: string; expires_at_unix_secs?: number };
-  if (!data.signed_url) {
-    throw new Error('ElevenLabs did not return signed_url');
+  const data = (await response.json()) as Record<string, unknown>;
+  const signedUrl =
+    (typeof data.signed_url === 'string' ? data.signed_url : undefined) ??
+    (typeof data.signedUrl === 'string' ? data.signedUrl : undefined);
+  if (!signedUrl) {
+    throw new Error('ElevenLabs did not return a signed conversation URL');
   }
 
+  const unix =
+    typeof data.expires_at_unix_secs === 'number'
+      ? data.expires_at_unix_secs
+      : typeof data.expires_at_unix_secs === 'string'
+        ? Number(data.expires_at_unix_secs)
+        : NaN;
+
   return {
-    signedUrl: data.signed_url,
-    expiresAt: data.expires_at_unix_secs
-      ? new Date(data.expires_at_unix_secs * 1000).toISOString()
-      : undefined,
+    signedUrl,
+    expiresAt: Number.isFinite(unix) ? new Date(unix * 1000).toISOString() : undefined,
   };
 }
 

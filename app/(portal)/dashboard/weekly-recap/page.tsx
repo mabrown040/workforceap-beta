@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Weekly Recap',
@@ -28,14 +29,22 @@ export default async function WeeklyRecapPage() {
 
   const weekStart = getWeekStart(new Date());
   const { generateWeeklyRecap } = await import('@/lib/recap/generate');
-  // Always regenerate so activity counts stay fresh
-  const recap = await generateWeeklyRecap(user.id, weekStart);
+  let recap: Awaited<ReturnType<typeof generateWeeklyRecap>> | null = null;
+  try {
+    recap = await generateWeeklyRecap(user.id, weekStart);
+  } catch (e) {
+    console.error('[WeeklyRecapPage] generateWeeklyRecap failed', e);
+  }
 
   if (recap && !recap.openedAt) {
-    await prisma.weeklyRecap.update({
-      where: { id: recap.id },
-      data: { openedAt: new Date() },
-    });
+    try {
+      await prisma.weeklyRecap.update({
+        where: { id: recap.id },
+        data: { openedAt: new Date() },
+      });
+    } catch (e) {
+      console.error('[WeeklyRecapPage] openedAt update failed', e);
+    }
   }
 
   const recapData = recap?.recapJson as {
@@ -47,27 +56,20 @@ export default async function WeeklyRecapPage() {
   } | null;
 
   return (
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <Link href="/dashboard/career-brief" className="resource-back-link">
-            ← Back to Career Brief
-          </Link>
-          <h1>Your Weekly Recap</h1>
-          <p>Your personalized summary and recommended next actions.</p>
-        </div>
-      </section>
-
-      <section className="content-section">
-        <div className="container">
-          <WeeklyRecapClient
-            recap={recap}
-            recapData={recapData}
-            weekStart={weekStart.toISOString()}
-          />
-        </div>
-      </section>
-
-    </div>
+    <>
+      <div style={{ paddingBottom: '5rem' }}>
+        <PageHeader
+          title="Weekly Recap"
+          subtitle="Your activity summary and recommended next actions."
+          breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
+        />
+        <WeeklyRecapClient
+          recap={recap}
+          recapData={recapData}
+          weekStart={weekStart.toISOString()}
+        />
+      </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

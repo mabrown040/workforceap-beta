@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 export type OrgBranding = {
@@ -9,7 +10,7 @@ export type OrgBranding = {
 export { DEFAULT_BRAND_ACCENT, DEFAULT_BRAND_ACCENT_DARK } from '@/lib/platform/brandColors';
 
 export async function getDefaultOrgBranding(): Promise<OrgBranding> {
-  if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
+  if (process.env.__PRISMA_PLACEHOLDER_DB === '1' || shouldSkipOptionalDbQueriesAtBuild()) {
     return { primaryColor: null, logo: null };
   }
   try {

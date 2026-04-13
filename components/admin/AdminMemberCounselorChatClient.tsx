@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import {
+  adminMessagingSurface,
+  counselorStaffMessagingSurface,
+} from '@/lib/portal/messagingSurfaces';
 
 type ThreadDto = {
   id: string;
@@ -31,9 +36,15 @@ type InitialPayload = {
 export default function AdminMemberCounselorChatClient({
   initial,
   messagesApiBase,
+  compact,
+  messagingSurface = 'counselor',
 }: {
   initial: InitialPayload;
   messagesApiBase?: string;
+  /** Hide sync / read-receipt helper (e.g. inbox split layout). */
+  compact?: boolean;
+  /** Gradient shell like voice agents; `none` for plain layout. */
+  messagingSurface?: 'counselor' | 'admin' | 'none';
 }) {
   const { staffUserId, member } = initial;
   const apiBase = messagesApiBase ?? `/api/admin/members/${member.id}/messages`;
@@ -153,12 +164,23 @@ export default function AdminMemberCounselorChatClient({
     }
   };
 
-  return (
+  const readLine = !compact
+    ? `Messages sync in real time. Member last read: ${
+        thread.memberLastReadAt ? new Date(thread.memberLastReadAt).toLocaleString() : '—'
+      }`
+    : '';
+
+  const surfacePreset =
+    messagingSurface === 'admin' ? adminMessagingSurface : counselorStaffMessagingSurface;
+  const useSurface = !compact && messagingSurface !== 'none';
+
+  const inner = (
     <div className="admin-member-counselor-chat">
-      <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-        Messages sync in real time. Member last read:{' '}
-        {thread.memberLastReadAt ? new Date(thread.memberLastReadAt).toLocaleString() : '—'}
-      </p>
+      {!compact && !useSurface ? (
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+          {readLine}
+        </p>
+      ) : null}
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -201,4 +223,17 @@ export default function AdminMemberCounselorChatClient({
       </form>
     </div>
   );
+
+  if (useSurface) {
+    return (
+      <VoiceAgentSurface
+        {...surfacePreset}
+        subtext={readLine || surfacePreset.subtext}
+      >
+        {inner}
+      </VoiceAgentSurface>
+    );
+  }
+
+  return inner;
 }

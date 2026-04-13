@@ -13,38 +13,43 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await params;
-  const job = await prisma.job.findUnique({
-    where: { id },
-    include: { employer: { select: { contactEmail: true, companyName: true } } },
-  });
+    const { id } = await params;
+    const job = await prisma.job.findUnique({
+      where: { id },
+      include: { employer: { select: { contactEmail: true, companyName: true } } },
+    });
 
-  if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-  if (job.status !== 'pending') {
-    return NextResponse.json({ error: 'Job is not pending' }, { status: 400 });
+    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    if (job.status !== 'pending') {
+      return NextResponse.json({ error: 'Job is not pending' }, { status: 400 });
+    }
+
+    const body = await request.json().catch(() => null);
+    const parsed = rejectSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Reason is required' }, { status: 400 });
+    }
+
+    await prisma.job.update({
+      where: { id },
+      data: { status: 'closed' },
+    });
+
+    await sendJobRejectedEmail({
+      to: job.employer.contactEmail,
+      jobTitle: job.title,
+      companyName: job.employer.companyName,
+      reason: parsed.data.reason,
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('[admin/jobs/[id]/reject POST] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const body = await request.json().catch(() => null);
-  const parsed = rejectSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Reason is required' }, { status: 400 });
-  }
-
-  await prisma.job.update({
-    where: { id },
-    data: { status: 'closed' },
-  });
-
-  await sendJobRejectedEmail({
-    to: job.employer.contactEmail,
-    jobTitle: job.title,
-    companyName: job.employer.companyName,
-    reason: parsed.data.reason,
-  });
-
-  return NextResponse.json({ ok: true });
 }

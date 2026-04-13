@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/auth/server';
+import { checkForgotPasswordRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkForgotPasswordRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: 'Too many reset requests. Please try again in an hour.' },
+      { status: 429, headers: { 'Retry-After': '3600' } }
+    );
+  }
+
   let body: { email?: string };
   try {
     body = await request.json();
@@ -22,9 +33,13 @@ export async function POST(request: Request) {
     redirectTo,
   });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  // Uniform response — avoids revealing whether the email is registered
+  if (error && process.env.NODE_ENV === 'development') {
+    console.warn('[forgot-password]', error.message);
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    message: 'If an account exists for that email, you will receive reset instructions shortly.',
+  });
 }

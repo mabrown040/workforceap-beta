@@ -13,7 +13,7 @@ export type EnrollmentFundingInitial = {
 } | null;
 
 const FUNDING_SOURCE_LABELS: Record<FundingSource, string> = {
-  GRANT: 'WIOA / Grant',
+  GRANT: 'Government Grant (WIOA)',
   EMPLOYER: 'Employer-Paid',
   PARTNER_ORG: 'Partner Organization Sponsored',
   SELF: 'Self-Pay',
@@ -108,7 +108,7 @@ export default function AdminMemberEnrollmentFundingForm({
           value={fundingNotes}
           onChange={(e) => setFundingNotes(e.target.value)}
           rows={3}
-          placeholder="e.g. WIOA Title I, employer PO#1234, partner org name…"
+          placeholder="e.g. grant name, employer purchase order, partner org name…"
           style={{
             width: '100%',
             padding: '0.4rem 0.6rem',

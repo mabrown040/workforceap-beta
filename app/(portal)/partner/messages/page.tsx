@@ -8,6 +8,10 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import { getOrCreatePartnerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PortalCard from '@/components/portal/ui/PortalCard';
+import { InboxRowLayout } from '@/components/portal/ui/inbox/InboxPrimitives';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -29,25 +33,70 @@ export default async function PartnerMessagesPage() {
     orderBy: { createdAt: 'asc' },
   });
 
+  const serializedMessages = messages.map(serializeMessage);
+  const last = serializedMessages[serializedMessages.length - 1] as { body?: string } | undefined;
+
   return (
-    <div>
-      <PageHeader
-        title="Messages"
-        subtitle="Chat with the WorkforceAP team about referrals, member progress, and partner resources."
-      />
-      <PortalTeamChatClient
-        apiPath="/api/partner/messages"
-        initial={{
-          thread: {
-            id: thread.id,
-            portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
-          },
-          messages: messages.map(serializeMessage),
-          portalUserId: user.id,
-        }}
-        subtitle="We typically reply within one business day."
-        emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
-      />
-    </div>
+    <PortalPageFrame>
+      <>
+        <PageHeader
+          title="Messages"
+          subtitle={
+            <>
+              <span className="wa-block wa-md:wa-hidden">Direct line to your WorkforceAP partnership team</span>
+              <span className="wa-hidden wa-md:wa-block">Direct line to your WorkforceAP partnership team — referrals, milestones, and resources.</span>
+            </>
+          }
+        />
+        <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+          <div className="portal-pad-x wa-mb-4">
+            <PortalCard>
+              <div className="portal-inbox-row__inner" style={{ padding: '0.25rem 0' }}>
+                <InboxRowLayout
+                  title="WorkforceAP Team"
+                  preview={serializedMessages.length > 0 ? last?.body ?? 'No messages yet' : 'No messages yet — ask us anything'}
+                  badge={<span className="material-symbols-outlined" aria-hidden>chevron_right</span>}
+                />
+              </div>
+            </PortalCard>
+          </div>
+
+          <div className="portal-pad-x">
+            <PortalTeamChatClient
+              surfaceVariant="partner"
+              apiPath="/api/partner/messages"
+              initial={{
+                thread: {
+                  id: thread.id,
+                  portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
+                },
+                messages: serializedMessages,
+                portalUserId: user.id,
+              }}
+              subtitle="We typically reply within one business day."
+              emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
+            />
+          </div>
+          <MobileBottomNav variant="partner" />
+        </div>
+
+        <div className="wa-hidden wa-md:wa-block">
+          <PortalTeamChatClient
+            surfaceVariant="partner"
+            apiPath="/api/partner/messages"
+            initial={{
+              thread: {
+                id: thread.id,
+                portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
+              },
+              messages: serializedMessages,
+              portalUserId: user.id,
+            }}
+            subtitle="We typically reply within one business day."
+            emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
+          />
+        </div>
+      </>
+    </PortalPageFrame>
   );
 }

@@ -14,6 +14,105 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/admin/diagnostics',
 });
 
+const STATUS_COLOR: Record<string, string> = {
+  ok: 'rgba(74,155,79,0.12)',
+  success: 'rgba(74,155,79,0.12)',
+  inspection: 'rgba(43,123,185,0.1)',
+  fallback: 'rgba(255,187,0,0.1)',
+  fallback_used: 'rgba(255,187,0,0.1)',
+  warn: 'rgba(255,187,0,0.1)',
+  error: 'rgba(173,44,77,0.1)',
+  errored: 'rgba(173,44,77,0.1)',
+  failed: 'rgba(173,44,77,0.1)',
+};
+
+const STATUS_TEXT_COLOR: Record<string, string> = {
+  ok: 'var(--color-green, #4a9b4f)',
+  success: 'var(--color-green, #4a9b4f)',
+  inspection: 'var(--color-blue, #2b7bb9)',
+  fallback: 'var(--color-gold)',
+  fallback_used: 'var(--color-gold)',
+  warn: 'var(--color-gold)',
+  error: 'var(--color-accent)',
+  errored: 'var(--color-accent)',
+  failed: 'var(--color-accent)',
+};
+
+function statusIcon(status: string): string {
+  if (status === 'ok' || status === 'success') return 'check_circle';
+  if (status === 'inspection') return 'search';
+  if (status === 'fallback' || status === 'fallback_used' || status === 'warn') return 'warning';
+  return 'error';
+}
+
+type DiagnosticRow = Awaited<ReturnType<typeof prisma.workflowDiagnostic.findMany>>[number];
+
+function DiagnosticsCards({ rows, emptyText }: { rows: DiagnosticRow[]; emptyText?: string }) {
+  if (rows.length === 0) {
+    return <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>{emptyText ?? 'No diagnostics captured yet.'}</p>;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {rows.map((row) => {
+        const bg = STATUS_COLOR[row.status] ?? 'var(--surface-container-low)';
+        const textColor = STATUS_TEXT_COLOR[row.status] ?? 'var(--color-on-surface-variant)';
+        const icon = statusIcon(row.status);
+        return (
+          <div key={row.id} className="portal-card portal-card--flat" style={{ padding: '0.875rem 1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
+              {/* Status icon */}
+              <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '0.125rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: textColor, fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+              </div>
+              {/* Content */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                    {row.workflow}
+                  </span>
+                  <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: bg, color: textColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    {row.status}
+                  </span>
+                  {row.provider && (
+                    <span style={{ fontSize: '0.625rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', background: 'var(--surface-container)', padding: '0.1rem 0.35rem', borderRadius: '0.25rem' }}>
+                      {row.provider}
+                    </span>
+                  )}
+                  {row.method && (
+                    <span style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)' }}>via {row.method}</span>
+                  )}
+                </div>
+                {row.summary && (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem', lineHeight: 1.45 }}>{row.summary}</p>
+                )}
+                {(row.fallbackPath || row.failureReason) && (
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', margin: '0 0 0.25rem' }}>
+                    {[row.fallbackPath, row.failureReason].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+                {row.metadata && (
+                  <details style={{ marginTop: '0.25rem' }}>
+                    <summary style={{ cursor: 'pointer', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>Metadata</summary>
+                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginTop: '0.375rem', lineHeight: 1.4, maxHeight: '200px', overflowY: 'auto', background: 'var(--surface-container-lowest)', padding: '0.5rem', borderRadius: '0.375rem' }}>
+                      {JSON.stringify(row.metadata, null, 2)}
+                    </pre>
+                  </details>
+                )}
+              </div>
+              {/* Timestamp */}
+              <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                {row.createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                <br />
+                <span style={{ fontSize: '0.625rem' }}>{row.createdAt.toLocaleDateString()}</span>
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function AdminDiagnosticsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/diagnostics');
@@ -27,95 +126,188 @@ export default async function AdminDiagnosticsPage() {
     method: 'page_load',
   });
 
-  const [recentDiagnostics, recentImports, recentRecommendations] = await Promise.all([
+  const [recentDiagnostics, recentImports, recentRecommendations, enrolledUsersForDrift] = await Promise.all([
     prisma.workflowDiagnostic.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }),
     prisma.workflowDiagnostic.findMany({ where: { workflow: { startsWith: 'employer_import' } }, orderBy: { createdAt: 'desc' }, take: 10 }),
     prisma.workflowDiagnostic.findMany({ where: { workflow: { in: ['admin_job_matches', 'admin_match_suggestions'] } }, orderBy: { createdAt: 'desc' }, take: 10 }),
+    prisma.user.findMany({
+      where: { enrolledProgram: { not: null }, deletedAt: null },
+      select: {
+        id: true,
+        fullName: true,
+        enrolledProgram: true,
+        courseEnrollment: { select: { programSlug: true } },
+      },
+      take: 500,
+    }),
   ]);
+
+  const driftRecords = enrolledUsersForDrift.filter((u) =>
+    !u.courseEnrollment || u.enrolledProgram !== u.courseEnrollment.programSlug
+  );
+
+  // Count by status for summary metrics
+  const statusCounts = recentDiagnostics.reduce<Record<string, number>>((acc, d) => {
+    acc[d.status] = (acc[d.status] ?? 0) + 1;
+    return acc;
+  }, {});
+  const errorCount = (statusCounts['error'] ?? 0) + (statusCounts['errored'] ?? 0) + (statusCounts['failed'] ?? 0);
+  const warnCount =
+    (statusCounts['warn'] ?? 0) + (statusCounts['fallback'] ?? 0) + (statusCounts['fallback_used'] ?? 0);
+  const okCount = (statusCounts['ok'] ?? 0) + (statusCounts['success'] ?? 0);
 
   return (
     <div>
       <PageHeader
         title="Diagnostics"
-        subtitle="Trace brittle workflows, fallback paths, and likely abandonment / false-confidence moments."
+        subtitle="Trace brittle workflows, fallback paths, and likely abandonment moments across key admin workflows."
       />
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Key funnels and signals</h2>
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {FUNNEL_DEFINITIONS.map((funnel) => (
-            <article key={funnel.funnel} className="admin-card" style={{ padding: '1rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
-              <p style={{ marginBottom: '0.35rem', color: 'var(--color-accent)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.8rem' }}>
-                {funnel.audience}
-              </p>
-              <h3 style={{ marginBottom: '0.75rem' }}>{funnel.funnel}</h3>
-              <p><strong>Steps:</strong> {funnel.steps.join(' → ')}</p>
-              <p><strong>Outcomes:</strong> {funnel.outcomes.join(' · ')}</p>
-              <p><strong>Abandonment / confusion:</strong> {funnel.confusionSignals.join(' · ')}</p>
-              <p><strong>False confidence:</strong> {funnel.falseConfidenceSignals.join(' · ')}</p>
-            </article>
-          ))}
+      {/* Summary metric strip */}
+      <div className="portal-metric-strip" style={{ marginBottom: '1.5rem' }}>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>error</span>
+          </div>
+          <p className="portal-metric-card__value" style={{ color: errorCount > 0 ? 'var(--color-accent)' : undefined }}>{errorCount}</p>
+          <p className="portal-metric-card__label">Errors</p>
         </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>warning</span>
+          </div>
+          <p className="portal-metric-card__value">{warnCount}</p>
+          <p className="portal-metric-card__label">Warnings</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          </div>
+          <p className="portal-metric-card__value">{okCount}</p>
+          <p className="portal-metric-card__label">Success</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>sync_problem</span>
+          </div>
+          <p className="portal-metric-card__value" style={{ color: driftRecords.length > 0 ? 'var(--color-accent)' : undefined }}>{driftRecords.length}</p>
+          <p className="portal-metric-card__label">Drift Issues</p>
+        </div>
+      </div>
+
+      {/* Enrollment drift */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <div className="portal-dash-section-header">
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>
+            Enrollment Drift {driftRecords.length > 0 ? <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>({driftRecords.length} issues)</span> : null}
+          </h2>
+        </div>
+        {driftRecords.length === 0 ? (
+          <div className="portal-card portal-card--flat portal-card--padded" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.25rem' }}>check_circle</span>
+            <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
+              No enrollment drift detected. User.enrolledProgram and CourseEnrollment are in sync for all {enrolledUsersForDrift.length} enrolled members.
+            </span>
+          </div>
+        ) : (
+          <div className="portal-card portal-card--flat" style={{ overflow: 'auto' }}>
+            <table className="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>User.enrolledProgram</th>
+                  <th>CourseEnrollment</th>
+                  <th>Issue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {driftRecords.slice(0, 25).map((u) => (
+                  <tr key={u.id}>
+                    <td>
+                      <a href={`/admin/members/${u.id}/lifecycle`} style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}>
+                        {u.fullName ?? u.id}
+                      </a>
+                    </td>
+                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.enrolledProgram}</td>
+                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.courseEnrollment?.programSlug ?? '—'}</td>
+                    <td>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)' }}>
+                        {!u.courseEnrollment ? 'No record' : 'Slug mismatch'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {driftRecords.length > 25 ? (
+              <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                Showing 25 of {driftRecords.length} drift issues.{' '}
+                <a href="/api/admin/lifecycle/drift" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                  View full results (JSON)
+                </a>
+              </p>
+            ) : null}
+          </div>
+        )}
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Recent import diagnostics</h2>
-        <DiagnosticsTable rows={recentImports} />
+      {/* Key funnels — collapsible */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <details>
+          <summary style={{ cursor: 'pointer', padding: '0.875rem 0', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>funnel</span>
+            Key Funnels &amp; Signals
+          </summary>
+          <div style={{ display: 'grid', gap: '0.625rem', marginTop: '0.75rem' }}>
+            {FUNNEL_DEFINITIONS.map((funnel) => (
+              <div key={funnel.funnel} className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                  <div style={{ padding: '0.2rem 0.5rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: 'var(--color-accent)', flexShrink: 0 }}>
+                    {funnel.audience}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>{funnel.funnel}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                      <strong style={{ color: 'var(--color-on-surface)' }}>Steps:</strong> {funnel.steps.join(' → ')}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                      <strong style={{ color: 'var(--color-on-surface)' }}>Outcomes:</strong> {funnel.outcomes.join(' · ')}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                      <strong style={{ color: 'var(--color-accent)' }}>⚠ Signals:</strong> {funnel.confusionSignals.join(' · ')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
       </section>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Recent recommendation diagnostics</h2>
-        <DiagnosticsTable rows={recentRecommendations} />
+      {/* Import diagnostics */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <div className="portal-dash-section-header">
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Import Diagnostics</h2>
+        </div>
+        <DiagnosticsCards rows={recentImports} emptyText="No import diagnostics yet." />
       </section>
 
+      {/* Recommendation diagnostics */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <div className="portal-dash-section-header">
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Recommendation Diagnostics</h2>
+        </div>
+        <DiagnosticsCards rows={recentRecommendations} emptyText="No recommendation diagnostics yet." />
+      </section>
+
+      {/* Full workflow log */}
       <section>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Latest workflow log</h2>
-        <DiagnosticsTable rows={recentDiagnostics} />
+        <div className="portal-dash-section-header">
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Latest Workflow Log</h2>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>Last 50 entries</span>
+        </div>
+        <DiagnosticsCards rows={recentDiagnostics} />
       </section>
-    </div>
-  );
-}
-
-type DiagnosticRow = Awaited<ReturnType<typeof prisma.workflowDiagnostic.findMany>>[number];
-
-function DiagnosticsTable({ rows }: { rows: DiagnosticRow[] }) {
-  if (rows.length === 0) {
-    return <p style={{ color: 'var(--color-on-surface-variant)' }}>No diagnostics captured yet.</p>;
-  }
-
-  return (
-    <div style={{ overflowX: 'auto' }}>
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>Workflow</th>
-            <th>Status</th>
-            <th>Provider / method</th>
-            <th>Fallback / failure</th>
-            <th>Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td>{row.createdAt.toLocaleString()}</td>
-              <td>{row.workflow}</td>
-              <td>{row.status}</td>
-              <td>{[row.provider, row.method].filter(Boolean).join(' / ') || '—'}</td>
-              <td>{[row.fallbackPath, row.failureReason].filter(Boolean).join(' / ') || '—'}</td>
-              <td>
-                <div>{row.summary}</div>
-                {row.metadata ? (
-                  <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.75rem', marginTop: '0.35rem' }}>
-                    {JSON.stringify(row.metadata, null, 2)}
-                  </pre>
-                ) : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }

@@ -32,7 +32,7 @@ export async function GET() {
 
   if (!dbUser) return NextResponse.json({ jobs: [] });
 
-  // Fetch active/approved jobs
+  // Fetch active/approved jobs (limit to avoid full-table scan)
   const jobs = await prisma.job.findMany({
     where: {
       status: { in: ['approved', 'live'] },
@@ -40,6 +40,7 @@ export async function GET() {
     include: {
       employer: { select: { companyName: true } },
     },
+    take: 50,
   });
 
   const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;

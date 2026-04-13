@@ -1,5 +1,10 @@
 {
   "projectId": "18255988866302206897",
+  "stitchMcpSync": {
+    "note": "Cursor user-stitch MCP must be authenticated (e.g. GOOGLE_STITCH_API_KEY in Cursor MCP config). Then call list_screens with this projectId, match screens by title for Employer/Partner/Counselor Messages, copy each screen id into portal.*Messages.screenId below, and refresh HTML via get_screen (resource name projects/18255988866302206897/screens/{screenId}).",
+    "listScreensTool": "list_screens",
+    "getScreenTool": "get_screen"
+  },
   "mobile": {
     "homepage": {
       "screenId": "b82d6493702e43ee972aa9554cef8797",
@@ -113,10 +118,25 @@
       "title": "Employer Applications (Mobile Light)",
       "file": ".stitch/portal-employer-applications.html"
     },
+    "employerMessages": {
+      "screenId": null,
+      "title": "Employer Messages (reference HTML — set screenId after Stitch list_screens)",
+      "file": ".stitch/portal-employer-messages.html"
+    },
     "counselorStudents": {
       "screenId": "8413073271314d7f975edae913321a3e",
       "title": "Counselor Dashboard (Mobile Light)",
       "file": ".stitch/portal-counselor-students.html"
+    },
+    "counselorMessages": {
+      "screenId": null,
+      "title": "Counselor Messages (reference HTML — set screenId after Stitch list_screens)",
+      "file": ".stitch/portal-counselor-messages.html"
+    },
+    "partnerMessages": {
+      "screenId": null,
+      "title": "Partner Messages (reference HTML — set screenId after Stitch list_screens)",
+      "file": ".stitch/portal-partner-messages.html"
     }
   }
 }

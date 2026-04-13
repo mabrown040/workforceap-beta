@@ -17,14 +17,20 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
   const hasContext = location || programShortLabel || applicationsCount > 0 || jobSearchUrl;
   const hasActions = recommendedActions.length > 0;
 
-  if (!hasContext && !hasActions) {
-    return null;
-  }
-
   return (
     <div className="career-brief-for-you">
       <h2 className="career-brief-for-you-title">For You</h2>
       <div className="career-brief-for-you-content">
+        {!hasContext && !hasActions ? (
+          <p className="career-brief-for-you-line" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 0 }}>
+            Personalized tips will appear here as you add your location, program interests, and applications. Until then, use the
+            weekly briefs below and explore the{' '}
+            <a href="/dashboard/ai-tools" className="career-brief-for-you-link">
+              AI Career Toolkit
+            </a>
+            .
+          </p>
+        ) : null}
         {programShortLabel && (
           <p className="career-brief-for-you-line">
             You&apos;re targeting <strong>{programShortLabel}</strong>

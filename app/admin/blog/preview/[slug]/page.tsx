@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
+import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
 type Props = { params: Promise<{ slug: string }> };
 
 export default async function AdminBlogPreviewPage({ params }: Props) {
@@ -64,7 +65,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
             }}
           >
             <Image
-              src={post.coverImage}
+              src={resolveBlogHeroImage(post.coverImage, post.category, post.slug).src}
               alt=""
               width={680}
               height={383}

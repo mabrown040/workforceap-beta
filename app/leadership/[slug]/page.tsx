@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildPageMetadata, SITE_URL } from '@/app/seo';
+import { buildPageMetadata, DEFAULT_OG_IMAGE, SITE_URL } from '@/app/seo';
 import Footer from '@/components/Footer';
 import {
   getLeaderBySlug,
@@ -23,11 +23,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const leader = getLeaderBySlug(slug);
   if (!leader) return { title: 'Leadership' };
 
+  const ogImage =
+    leader.image && leader.image.trim().length > 0 ? `${SITE_URL}${leader.image}` : DEFAULT_OG_IMAGE;
+
   return buildPageMetadata({
     title: `${leader.name} — ${leader.title}`,
     description: `Learn more about ${leader.name}, ${leader.title} at Workforce Advancement Project.`,
     path: `/leadership/${slug}`,
-    image: `${SITE_URL}${leader.image}`,
+    image: ogImage,
   });
 }
 
@@ -94,15 +97,17 @@ export default async function LeaderBioPage({ params }: Props) {
   const achievementTiles = leader.achievementTiles ?? [];
   const hasSideColumn = spotlightCards.length > 0;
 
+  const hasPortrait = Boolean(leader.image && leader.image.trim().length > 0);
+
   return (
     <div className="inner-page ld-page">
       {/* ── Hero: 12-col grid ── */}
       <section className="ld-hero" aria-labelledby="ld-heading">
-        <div className="ld-hero-inner">
+        <div className={`ld-hero-inner${hasPortrait ? '' : ' ld-hero-inner--text-only'}`}>
           {/* Left: text (5 col) */}
           <div className="ld-hero-text">
             <span className="ld-hero-badge">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden>verified</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', '--ms-fill': 1 }} aria-hidden>verified</span>
               {heroBadgeFor(leader)}
             </span>
 
@@ -126,36 +131,47 @@ export default async function LeaderBioPage({ params }: Props) {
               ))}
             </div>
 
-            <a
-              href={leader.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ld-linkedin-btn"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>open_in_new</span>
-              LinkedIn Profile
-            </a>
+            {leader.linkedin ? (
+              <a
+                href={leader.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ld-linkedin-btn"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>open_in_new</span>
+                LinkedIn Profile
+              </a>
+            ) : null}
           </div>
 
-          {/* Right: portrait (7 col) */}
-          <div className="ld-hero-portrait-wrap">
-            <div className="ld-hero-portrait">
-              <Image
-                src={leader.image}
-                alt={`Portrait of ${leader.name}`}
-                fill
-                priority
-                className="ld-hero-portrait-img"
-                sizes="(max-width: 767px) 100vw, 58%"
-              />
+          {/* Right: portrait (or quote-only when no photo yet) */}
+          {hasPortrait ? (
+            <div className="ld-hero-portrait-wrap">
+              <div className="ld-hero-portrait">
+                <Image
+                  src={leader.image}
+                  alt={`Portrait of ${leader.name}`}
+                  fill
+                  priority
+                  className="ld-hero-portrait-img"
+                  sizes="(max-width: 767px) 100vw, 58%"
+                />
+              </div>
+              {heroQuote ? (
+                <div className="ld-hero-quote-card">
+                  <span className="material-symbols-outlined ld-hero-quote-icon" aria-hidden>format_quote</span>
+                  <p>{heroQuote}</p>
+                </div>
+              ) : null}
             </div>
-            {heroQuote ? (
-              <div className="ld-hero-quote-card">
+          ) : heroQuote ? (
+            <div className="ld-hero-quote-only">
+              <div className="ld-hero-quote-card ld-hero-quote-card--standalone">
                 <span className="material-symbols-outlined ld-hero-quote-icon" aria-hidden>format_quote</span>
                 <p>{heroQuote}</p>
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -211,7 +227,7 @@ export default async function LeaderBioPage({ params }: Props) {
                 <div key={p.name} className="ld-partner-card">
                   <span
                     className="material-symbols-outlined ld-partner-icon"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
+                    style={{ '--ms-fill': 1 }}
                     aria-hidden
                   >
                     {p.icon}
@@ -237,7 +253,7 @@ export default async function LeaderBioPage({ params }: Props) {
                 <div key={a.title} className="ld-achievement-card">
                   <span
                     className="material-symbols-outlined ld-achievement-icon"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
+                    style={{ '--ms-fill': 1 }}
                     aria-hidden
                   >
                     {a.icon}

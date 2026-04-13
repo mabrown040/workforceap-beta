@@ -7,6 +7,14 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import CounselorNotesPanel from './CounselorNotesPanel';
+import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
+import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -38,7 +46,26 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
-    select: { id: true, fullName: true, email: true, enrolledProgram: true, programInterest: true },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      enrolledProgram: true,
+      programInterest: true,
+      assessmentScorePct: true,
+      coursesCompleted: true,
+      wioaQualificationJson: true,
+      wioaReviewStatus: true,
+      wioaReviewedAt: true,
+      wioaReviewedByUserId: true,
+      wioaReviewNotes: true,
+      profile: {
+        select: {
+          resumeOriginalPath: true,
+          resumeEnhancedPath: true,
+        },
+      },
+    },
   });
   if (!member) notFound();
 
@@ -65,6 +92,35 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const initials = getInitials(member.fullName ?? 'U');
   const program = member.enrolledProgram ?? member.programInterest ?? '—';
+  const enrollmentBadge = counselorStudentStatusBadge({
+    enrolledProgram: member.enrolledProgram,
+    assessmentScorePct: member.assessmentScorePct,
+  });
+  const enrollmentBadgeVariant = counselorStudentStatusBadgeVariant({
+    enrolledProgram: member.enrolledProgram,
+    assessmentScorePct: member.assessmentScorePct,
+  });
+
+  // Program progress — real data from enrolled program courses
+  const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
+  const programCourses = programMeta?.courses ?? [];
+  const completedSlugs = new Set(parseCourseSlugList(member.coursesCompleted));
+  const progressPct = programCourses.length > 0
+    ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
+    : 0;
+
+  const hasResumeFiles =
+    !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
+
+  const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
+  let wioaReviewerName: string | null = null;
+  if (member.wioaReviewedByUserId) {
+    const rev = await prisma.user.findUnique({
+      where: { id: member.wioaReviewedByUserId },
+      select: { fullName: true },
+    });
+    wioaReviewerName = rev?.fullName ?? null;
+  }
 
   return (
     <>
@@ -84,7 +140,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               textDecoration: 'none',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               arrow_back
             </span>
             All Students
@@ -98,7 +154,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               background: '#fff',
               borderRadius: '1rem',
               padding: '1.25rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
@@ -108,7 +164,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   width: 56,
                   height: 56,
                   borderRadius: '0.875rem',
-                  background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
+                  background: 'var(--color-accent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -119,76 +175,37 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <h1
-                  className="truncate"
+                  className="wa-truncate"
                   style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}
                 >
                   {member.fullName}
                 </h1>
                 <p
-                  className="truncate"
+                  className="wa-truncate"
                   style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}
                 >
                   {program}
                 </p>
-                <span
-                  style={{
-                    padding: '0.125rem 0.625rem',
-                    borderRadius: '9999px',
-                    background: '#dcfce7',
-                    color: '#166534',
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase' as const,
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  On Track
-                </span>
+                <StatusBadge label={enrollmentBadge.label} variant={enrollmentBadgeVariant} />
               </div>
             </div>
 
             {/* Action buttons */}
             <div style={{ display: 'flex', gap: '0.625rem' }}>
-              <button
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0',
-                  background: 'var(--surface-container)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: 'var(--color-on-surface)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                }}
+              <Link
+                href="/counselor/messages"
+                className="btn btn-outline"
+                style={{ flex: 1, fontSize: '0.8rem' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-                  chat
-                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">chat</span>
                 Message
-              </button>
+              </Link>
               <button
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0',
-                  background: 'var(--color-accent)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                }}
+                disabled
+                className="btn btn-primary"
+                style={{ flex: 1, fontSize: '0.8rem', opacity: 0.5, cursor: 'not-allowed' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
                   event
                 </span>
                 Schedule
@@ -204,142 +221,94 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               background: '#fff',
               borderRadius: '0.75rem',
               padding: '1.25rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
             }}
           >
             <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Program Progress
             </h3>
-            {/* Overall progress bar */}
-            <div style={{ marginBottom: '1rem' }}>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}
-              >
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                  Overall Completion
-                </span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>68%</span>
-              </div>
-              <div
-                style={{
-                  height: 6,
-                  background: 'var(--surface-container)',
-                  borderRadius: '9999px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: '68%',
-                    background: 'linear-gradient(90deg,#8c0f37,#ad2c4d)',
-                    borderRadius: '9999px',
-                  }}
-                />
-              </div>
-            </div>
-            {/* Module list */}
-            {[
-              { name: 'Module 1: Introduction', done: true },
-              { name: 'Module 2: Core Skills', done: true },
-              { name: 'Module 3: Applied Practice', done: false, inProgress: true },
-              { name: 'Module 4: Capstone', done: false },
-            ].map((mod) => (
-              <div
-                key={mod.name}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '0.8rem',
-                  padding: '0.375rem 0',
-                  borderTop: '1px solid #f0edec',
-                  opacity: mod.done || mod.inProgress ? 1 : 0.5,
-                }}
-              >
-                <span style={{ color: 'var(--color-on-surface-variant)' }}>{mod.name}</span>
-                {mod.done ? (
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }}>
-                    check_circle
-                  </span>
-                ) : mod.inProgress ? (
-                  <span
-                    style={{
-                      padding: '0.125rem 0.5rem',
-                      borderRadius: '9999px',
-                      background: '#fef3c7',
-                      color: 'var(--color-gold)',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    In Progress
-                  </span>
-                ) : (
-                  <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
-                )}
-              </div>
-            ))}
+            {programCourses.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                {member.enrolledProgram ? 'No course data available for this program.' : 'Not enrolled in a program yet.'}
+              </p>
+            ) : (
+              <>
+                {/* Overall progress bar */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                      Overall Completion
+                    </span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{progressPct}%</span>
+                  </div>
+                  <div style={{ height: 6, background: 'var(--surface-container)', borderRadius: '9999px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-accent)', borderRadius: '9999px' }} />
+                  </div>
+                </div>
+                {/* Course list */}
+                {programCourses.map((course) => {
+                  const done = completedSlugs.has(course.slug);
+                  return (
+                    <div
+                      key={course.slug}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '0.8rem',
+                        padding: '0.375rem 0',
+                        borderTop: '1px solid var(--outline-variant)',
+                        opacity: done ? 1 : 0.6,
+                      }}
+                    >
+                      <span style={{ color: 'var(--color-on-surface-variant)' }}>{course.name}</span>
+                      {done ? (
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }} aria-hidden="true">check_circle</span>
+                      ) : (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
 
         {/* Counselor Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: '0.75rem',
-              padding: '1.25rem',
-              border: '1px solid #ebe7e7',
-            }}
-          >
+          <CounselorNotesPanel memberId={member.id} />
+        </div>
+
+        {wioaSnap ? (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <WioaScreeningReadonly
+              snapshot={wioaSnap}
+              reviewStatus={member.wioaReviewStatus}
+              reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+              reviewerName={wioaReviewerName}
+              reviewNotes={member.wioaReviewNotes}
+            />
+          </div>
+        ) : null}
+
+        {hasResumeFiles ? (
+          <div style={{ padding: '0 1rem 1.5rem' }}>
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
+                background: '#fff',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                border: '1px solid var(--outline-variant)',
               }}
             >
-              <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                Counselor Notes
+              <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+                Resumes
               </h3>
-              <button
-                style={{
-                  padding: '0.25rem 0.625rem',
-                  background: 'var(--surface-container)',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  color: 'var(--color-on-surface)',
-                }}
-              >
-                Add Note
-              </button>
-            </div>
-            {/* Latest 2 notes (static placeholder — notes model not yet in schema) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ borderLeft: '3px solid #8c0f37', paddingLeft: '0.75rem' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                  Most recent · You
-                </p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                  Student is progressing well. Recommended additional exercises for current module.
-                </p>
-              </div>
-              <div style={{ borderLeft: '3px solid #debfc2', paddingLeft: '0.75rem' }}>
-                <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                  Previous · You
-                </p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
-                  Completed initial intake session. Reviewed program goals and expectations.
-                </p>
-              </div>
+              <StaffMemberResumePanel memberId={member.id} />
             </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
@@ -351,10 +320,40 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           >
             ← Back to students
           </Link>
-          <PageHeader title={member.fullName} subtitle={member.email} />
+          <PageHeader
+            title={member.fullName}
+            subtitle={member.email}
+            breadcrumbs={[
+              { label: 'Students', href: '/counselor/students' },
+              { label: 'Student Details' },
+            ]}
+          />
+
+          {wioaSnap ? (
+            <section style={{ marginTop: '1.5rem' }}>
+              <WioaScreeningReadonly
+                snapshot={wioaSnap}
+                reviewStatus={member.wioaReviewStatus}
+                reviewedAt={member.wioaReviewedAt?.toISOString() ?? null}
+                reviewerName={wioaReviewerName}
+                reviewNotes={member.wioaReviewNotes}
+              />
+            </section>
+          ) : null}
+
+          {hasResumeFiles ? (
+            <section style={{ marginTop: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>
+              <div
+                className="portal-card portal-card--flat"
+                style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
+              >
+                <StaffMemberResumePanel memberId={member.id} />
+              </div>
+            </section>
+          ) : null}
 
           <section style={{ marginTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Messages</h2>
             <AdminMemberCounselorChatClient
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{

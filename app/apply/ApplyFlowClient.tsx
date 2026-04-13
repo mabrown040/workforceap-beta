@@ -387,7 +387,7 @@ export default function ApplyFlowClient() {
       {step === 1 && (
         <div>
           <h2 style={s.stepTitle}>
-            <span className="material-symbols-outlined" style={{ fontSize: 24, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-accent)' }}>fact_check</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 24, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-accent)' }} aria-hidden="true">fact_check</span>
             Personal Information
           </h2>
           <p style={s.stepDesc}>See if you qualify for funding assistance. Answer these quick questions to see what options may be available.</p>
@@ -420,12 +420,12 @@ export default function ApplyFlowClient() {
             <div style={{ ...s.banner, ...(qualifies ? s.bannerQualify : s.bannerNeutral) }}>
               {qualifies ? (
                 <p style={{ margin: 0 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-green)' }}>check_circle</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-green)' }} aria-hidden="true">check_circle</span>
                   <strong>You may qualify for funding assistance.</strong> Complete your application and we&apos;ll connect you with available resources.
                 </p>
               ) : (
                 <p style={{ margin: 0 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-gold)' }}>info</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-gold)' }} aria-hidden="true">info</span>
                   <strong>Your answers do not match our typical funding profile -- you can still apply.</strong> A counselor
                   will review your situation. If you want a gentler first step while you wait, explore{' '}
                   <Link href="/programs/digital-literacy-empowerment-class" style={{ color: 'var(--color-accent)' }}>Digital Literacy</Link> or the{' '}
@@ -437,7 +437,7 @@ export default function ApplyFlowClient() {
 
           {!canContinue && (
             <p style={{ color: 'var(--color-accent)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-3)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4 }}>warning</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4 }} aria-hidden="true">warning</span>
               Please answer all questions to continue.
             </p>
           )}
@@ -451,7 +451,7 @@ export default function ApplyFlowClient() {
               style={{ ...s.primaryBtn, opacity: canContinue ? 1 : 0.5 }}
             >
               Continue to Step 2
-              <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginLeft: 'var(--space-2)' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginLeft: 'var(--space-2)' }} aria-hidden="true">arrow_forward</span>
             </button>
           </div>
 
@@ -466,7 +466,7 @@ export default function ApplyFlowClient() {
       {step === 2 && (
         <div>
           <h2 style={s.stepTitle}>
-            <span className="material-symbols-outlined" style={{ fontSize: 24, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-accent)' }}>description</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 24, verticalAlign: 'middle', marginRight: 'var(--space-2)', color: 'var(--color-accent)' }} aria-hidden="true">description</span>
             Complete your application
           </h2>
           <p style={s.stepDesc}>Fill out the form below and a counselor will contact you within 24-48 hours.</p>
@@ -474,13 +474,13 @@ export default function ApplyFlowClient() {
           {/* Eligibility checklist */}
           <div style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-md)', padding: 'var(--space-4) var(--space-6)', marginBottom: 'var(--space-6)' }}>
             <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4 }}>checklist</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4 }} aria-hidden="true">checklist</span>
               Who Can Apply?
             </h3>
             <ul style={s.eligibilityList}>
               {eligibility.map((item, i) => (
                 <li key={i} style={{ ...s.eligibilityItem, borderBottom: i < eligibility.length - 1 ? '1px solid var(--outline-variant)' : 'none' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-green)' }}>check</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-green)' }} aria-hidden="true">check</span>
                   {item}
                 </li>
               ))}
@@ -648,12 +648,12 @@ export default function ApplyFlowClient() {
 
             <div style={s.btnRow}>
               <button type="button" onClick={() => setStep(1)} style={s.secondaryBtn}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 4 }}>arrow_back</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginRight: 4 }} aria-hidden="true">arrow_back</span>
                 Return to Overview
               </button>
               <button type="submit" disabled={submitting} style={{ ...s.primaryBtn, opacity: submitting ? 0.7 : 1, width: 'auto' }}>
                 {submitting ? 'Submitting...' : 'Submit Application'}
-                <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginLeft: 'var(--space-2)' }}>send</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, verticalAlign: 'middle', marginLeft: 'var(--space-2)' }} aria-hidden="true">send</span>
               </button>
             </div>
 

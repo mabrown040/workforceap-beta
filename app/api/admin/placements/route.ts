@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { trackEvent } from '@/lib/events/track';
 
 const placementSchema = z.object({
   userId: z.string().uuid(),
@@ -90,6 +91,15 @@ export async function POST(request: NextRequest) {
       },
     },
   });
+
+  // Lifecycle event: placement_recorded (always — even on update)
+  trackEvent({
+    userId,
+    eventName: 'placement_recorded',
+    entityType: 'PlacementRecord',
+    entityId: placement.id,
+    metadata: { employerName, jobTitle, isNew: !prior, isEdit: !!prior, daysToPlacement },
+  }).catch(() => {});
 
   if (!prior) {
     await sendPartnerMilestoneEmail(userId, 'Job placement', {

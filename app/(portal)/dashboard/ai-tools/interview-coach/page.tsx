@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import InterviewCoach from '@/components/portal/tools/InterviewCoach';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -43,7 +44,7 @@ export default async function InterviewCoachPage() {
           >
             AI Tools
           </Link>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
             chevron_right
           </span>
           <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>AI Interview Coach</span>
@@ -54,17 +55,12 @@ export default async function InterviewCoachPage() {
         </h1>
       </div>
 
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem' }}>
+      <div style={{ paddingBottom: '6rem' }}>
+        <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <InterviewCoach />
+          <ToolHistoryPanel userId={user.id} toolType="interview_coach" />
         </div>
         <MobileBottomNav variant="portal" />
-      </div>
-
-      <div className="wa-hidden wa-md:wa-block">
-        <div style={{ maxWidth: 980, margin: '0 auto', padding: '2rem 1.5rem' }}>
-          <InterviewCoach />
-        </div>
       </div>
     </div>
   );

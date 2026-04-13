@@ -116,11 +116,152 @@ export const PROGRAMS: Program[] = [
 /** Canonical number of training tracks in the public catalog (keep stats + hero aligned). */
 export const WORKFORCEAP_PROGRAM_CATALOG_SIZE = PROGRAMS.length;
 
-export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
+/**
+ * Maps each program slug to skill scores across the 6 modern radar axes.
+ * Scores 0–100 reflect how much the program builds competency on each axis.
+ * Used by Skill Mapper to recommend programs that close skill gaps.
+ */
+export const PROGRAM_AXIS_MAP: Record<string, Record<string, number>> = {
+  // Digital Literacy
+  'digital-literacy-empowerment-class': {
+    Analytics: 20, Engineering: 20, Design: 15, Strategy: 15, Ethics: 35, Research: 20,
+  },
+  // AI & Software Dev
+  'ai-professional-developer-certificate-ibm': {
+    Analytics: 75, Engineering: 85, Design: 20, Strategy: 25, Ethics: 35, Research: 60,
+  },
+  'software-developer-professional-certificate-ibm': {
+    Analytics: 40, Engineering: 90, Design: 35, Strategy: 25, Ethics: 25, Research: 35,
+  },
+  // Cloud & Data
+  'aws-cloud-technology-amazon': {
+    Analytics: 55, Engineering: 90, Design: 15, Strategy: 45, Ethics: 30, Research: 35,
+  },
+  'data-analytics-professional-certificate-google': {
+    Analytics: 90, Engineering: 45, Design: 40, Strategy: 35, Ethics: 25, Research: 60,
+  },
+  'data-science-professional-certificate-ibm': {
+    Analytics: 90, Engineering: 60, Design: 25, Strategy: 30, Ethics: 25, Research: 75,
+  },
+  // IT & Cybersecurity
+  'comptia-a-professional-certificate': {
+    Analytics: 40, Engineering: 80, Design: 10, Strategy: 25, Ethics: 35, Research: 30,
+  },
+  'comptia-network-professional-certificate': {
+    Analytics: 45, Engineering: 85, Design: 10, Strategy: 25, Ethics: 30, Research: 30,
+  },
+  'comptia-security-professional-certificate': {
+    Analytics: 55, Engineering: 75, Design: 10, Strategy: 40, Ethics: 65, Research: 40,
+  },
+  'it-support-professional-certificate-ibm': {
+    Analytics: 30, Engineering: 70, Design: 10, Strategy: 20, Ethics: 45, Research: 25,
+  },
+  'it-automation-with-python-google': {
+    Analytics: 45, Engineering: 85, Design: 10, Strategy: 30, Ethics: 25, Research: 35,
+  },
+  'cybersecurity-professional-certificate-google': {
+    Analytics: 55, Engineering: 75, Design: 10, Strategy: 35, Ethics: 70, Research: 45,
+  },
+  // Business
+  'project-management-professional-certificate-microsoft': {
+    Analytics: 40, Engineering: 25, Design: 15, Strategy: 90, Ethics: 40, Research: 35,
+  },
+  'digital-marketing-e-commerce-google': {
+    Analytics: 55, Engineering: 20, Design: 60, Strategy: 65, Ethics: 30, Research: 45,
+  },
+  'ux-design-professional-certificate-google': {
+    Analytics: 35, Engineering: 25, Design: 90, Strategy: 30, Ethics: 35, Research: 55,
+  },
+  // Healthcare
+  'health-information-technology-mchit': {
+    Analytics: 50, Engineering: 30, Design: 10, Strategy: 25, Ethics: 75, Research: 55,
+  },
+  // Manufacturing
+  'certified-production-technician-cpt': {
+    Analytics: 35, Engineering: 70, Design: 15, Strategy: 30, Ethics: 45, Research: 25,
+  },
+  'certified-logistics-technician-clt': {
+    Analytics: 55, Engineering: 40, Design: 10, Strategy: 65, Ethics: 30, Research: 30,
+  },
+  'construction-readiness-certificate-osha-10': {
+    Analytics: 25, Engineering: 55, Design: 20, Strategy: 25, Ethics: 60, Research: 20,
+  },
+};
 
-export function getProgramBySlug(slug: string): Program | undefined {
-  return PROGRAMS.find((p) => p.slug === slug);
+export type RadarAxis = 'Analytics' | 'Engineering' | 'Design' | 'Strategy' | 'Ethics' | 'Research';
+export const RADAR_AXES: RadarAxis[] = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'];
+
+export interface ProgramRecommendation {
+  program: Program;
+  /** Which gap axis this program primarily addresses */
+  primaryAxis: string;
+  /** How much the program boosts the gap axis (0–100) */
+  axisScore: number;
+  /** Human-readable reason */
+  reason: string;
+  /** Total relevance score across all gap axes */
+  relevance: number;
 }
+
+/**
+ * Given a member skill profile and an optional target profile, recommend programs
+ * that best close the member's skill gaps.
+ */
+export function recommendProgramsForGaps(
+  memberProfile: { axis: string; value: number }[],
+  targetProfile?: { axis: string; value: number }[],
+  maxResults = 4,
+): ProgramRecommendation[] {
+  // Compute gap per axis (value is 0–1 scale)
+  const gaps: { axis: string; gap: number; memberVal: number; targetVal: number }[] = RADAR_AXES.map((axis) => {
+    const memberVal = memberProfile.find((p) => p.axis === axis)?.value ?? 0;
+    const targetVal = targetProfile
+      ? (targetProfile.find((p) => p.axis === axis)?.value ?? 0)
+      : 0.7; // Default target: 70% if no occupation selected
+    const gap = Math.max(0, targetVal - memberVal);
+    return { axis, gap, memberVal, targetVal };
+  }).filter((g) => g.gap > 0.1) // Only axes with >10% gap
+    .sort((a, b) => b.gap - a.gap);
+
+  if (gaps.length === 0) return [];
+
+  // Score each program by how well it addresses the top gaps
+  const scored: ProgramRecommendation[] = [];
+  for (const program of PROGRAMS) {
+    const axisMap = PROGRAM_AXIS_MAP[program.slug];
+    if (!axisMap) continue;
+
+    let totalRelevance = 0;
+    let bestAxis = '';
+    let bestScore = 0;
+
+    for (const gap of gaps) {
+      const programScore = axisMap[gap.axis] ?? 0;
+      // Weight by gap magnitude — bigger gaps matter more
+      const weighted = (programScore / 100) * gap.gap;
+      totalRelevance += weighted;
+      if (programScore > bestScore) {
+        bestScore = programScore;
+        bestAxis = gap.axis;
+      }
+    }
+
+    if (totalRelevance > 0 && bestScore >= 40) {
+      scored.push({
+        program,
+        primaryAxis: bestAxis,
+        axisScore: bestScore,
+        reason: `Builds ${bestAxis} skills (${bestScore}%)`,
+        relevance: Math.round(totalRelevance * 100),
+      });
+    }
+  }
+
+  scored.sort((a, b) => b.relevance - a.relevance);
+  return scored.slice(0, maxResults);
+}
+
+export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
 
 /** Resolve program from stored interest (slug or full title from apply/signup lists). */
 export function getProgramByInterestValue(interest: string): Program | undefined {
@@ -132,4 +273,12 @@ export function getProgramByInterestValue(interest: string): Program | undefined
   const bySlugGuess = PROGRAMS.find((p) => p.slug === slugGuess);
   if (bySlugGuess) return bySlugGuess;
   return PROGRAMS.find((p) => p.title === trimmed);
+}
+
+/**
+ * Resolve a catalog program from a slug or other stored label (e.g. `enrolledProgram` may be a
+ * canonical slug or a full program title). Prefer this over matching `slug` alone.
+ */
+export function getProgramBySlug(slug: string): Program | undefined {
+  return getProgramByInterestValue(slug);
 }

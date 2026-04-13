@@ -3,41 +3,11 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { validateFileType } from '@/lib/resume/file-validation';
 
 // Create bucket "member-resumes" in Supabase Dashboard → Storage if it doesn't exist
 const BUCKET = 'member-resumes';
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-
-const ALLOWED_MIME_TYPES = new Set([
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'text/plain',
-]);
-
-const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt']);
-
-// Magic bytes for allowed file types
-const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
-  { ext: 'pdf', bytes: [0x25, 0x50, 0x44, 0x46] }, // %PDF
-  { ext: 'doc', bytes: [0xD0, 0xCF, 0x11, 0xE0] }, // OLE2 (DOC)
-  { ext: 'docx', bytes: [0x50, 0x4B, 0x03, 0x04] }, // PK (ZIP/DOCX)
-];
-
-function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
-  const ext = fileName.split('.').pop()?.toLowerCase() || '';
-  if (!ALLOWED_EXTENSIONS.has(ext)) return false;
-  if (!ALLOWED_MIME_TYPES.has(mimeType)) return false;
-
-  // For txt files, skip magic bytes check as text files don't have standard magic bytes
-  if (ext === 'txt') return true;
-
-  // Check magic bytes
-  if (buffer.length < 4) return false;
-  return MAGIC_BYTES.some(
-    (m) => m.ext === ext && m.bytes.every((b, i) => buffer[i] === b)
-  );
-}
 
 export async function POST(
   request: Request,

@@ -15,6 +15,15 @@ import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
+import {
+  employerAiMatchStatusBadgeVariant,
+  employerMatchPipelineLabel,
+} from '@/lib/employer/aiMatchPipelineLabels';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -77,6 +86,23 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   } else if (!adminUser) {
     notFound();
   }
+
+  const [applications, aiMatches] = await Promise.all([
+    prisma.jobPostingApplication.findMany({
+      where: { studentId: memberId },
+      orderBy: { appliedAt: 'desc' },
+      include: {
+        job: { select: { id: true, title: true, employer: { select: { companyName: true } } } },
+      },
+    }),
+    prisma.aIJobMatch.findMany({
+      where: { studentId: memberId },
+      orderBy: { matchScore: 'desc' },
+      include: {
+        job: { select: { id: true, title: true, employer: { select: { companyName: true } } } },
+      },
+    }),
+  ]);
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const messages = await prisma.message.findMany({
@@ -309,6 +335,95 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </div>
           </div>
         ) : null}
+
+        {/* Job Pipeline */}
+        <div style={{ padding: '0 1rem 1.5rem' }}>
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: '0.75rem',
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+              Job Pipeline
+            </h3>
+
+            {applications.length === 0 && aiMatches.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                No applications or AI matches yet.
+              </p>
+            ) : null}
+
+            {applications.length > 0 ? (
+              <div style={{ marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Applications
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {applications.map((app) => (
+                    <div
+                      key={app.id}
+                      style={{
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--surface-container-low)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-on-surface)', margin: 0 }}>{app.job.title}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{app.job.employer.companyName}</p>
+                        </div>
+                        <StatusBadge
+                          label={employerJobPostingApplicationStatusLabel(app.status)}
+                          variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {aiMatches.length > 0 ? (
+              <div>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  AI Matches
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {aiMatches.map((m) => (
+                    <div
+                      key={m.id}
+                      style={{
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--surface-container-low)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-on-surface)', margin: 0 }}>{m.job.title}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{m.job.employer.companyName}</p>
+                        </div>
+                        <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
+                          <div style={{ marginTop: '0.25rem' }}>
+                            <StatusBadge
+                              label={employerMatchPipelineLabel(m.status)}
+                              variant={employerAiMatchStatusBadgeVariant(m.status)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
@@ -372,6 +487,66 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 })),
               }}
             />
+          </section>
+
+          {/* Job Pipeline — Desktop */}
+          <section style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Job Pipeline</h2>
+            {applications.length === 0 && aiMatches.length === 0 ? (
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}>
+                <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications or AI matches yet.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '1rem' }}>
+                {applications.length > 0 ? (
+                  <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}>
+                    <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Applications</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {applications.map((app) => (
+                        <div key={app.id} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                            <div>
+                              <p style={{ fontWeight: 700, margin: 0 }}>{app.job.title}</p>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{app.job.employer.companyName}</p>
+                            </div>
+                            <StatusBadge
+                              label={employerJobPostingApplicationStatusLabel(app.status)}
+                              variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                {aiMatches.length > 0 ? (
+                  <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}>
+                    <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>AI Matches</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {aiMatches.map((m) => (
+                        <div key={m.id} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                            <div>
+                              <p style={{ fontWeight: 700, margin: 0 }}>{m.job.title}</p>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{m.job.employer.companyName}</p>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
+                              <div style={{ marginTop: '0.25rem' }}>
+                                <StatusBadge
+                                  label={employerMatchPipelineLabel(m.status)}
+                                  variant={employerAiMatchStatusBadgeVariant(m.status)}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            )}
           </section>
 
           {adminUser ? (

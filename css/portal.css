@@ -2233,6 +2233,12 @@ html.dark .employer-applications-table.admin-table thead th {
   opacity: 0.7;
 }
 
+/* Light mode: darker gold for KPI values to maintain contrast on light surfaces */
+html:not(.dark) .portal-kpi-card__value[style*="var(--color-gold)"],
+html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
+  color: #92400e !important;
+}
+
 /* =============================================
    Import Job Page — portal-wide design tokens
    ============================================= */

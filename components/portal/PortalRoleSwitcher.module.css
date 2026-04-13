@@ -29,7 +29,7 @@
   transition: transform 0.2s ease;
 }
 
-.portal-role-switcher-chevron.open {
+.open {
   transform: rotate(180deg);
 }
 

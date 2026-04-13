@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import PortalNav from './PortalNav';
 import PortalRoleSwitcher from './PortalRoleSwitcher';
 import type { PortalRole } from '@/lib/nav/portalNav';
-import { PORTAL_NAV } from '@/lib/nav/portalNav';
 
 const MEMBER_PORTAL_PREFIXES = ['/dashboard', '/programs', '/apply', '/certifications', '/profile'];
 const DEDICATED_SHELL_PREFIXES = ['/employer', '/partner', '/counselor'];
@@ -26,7 +25,6 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userRoles, setUserRoles] = useState<{ role: PortalRole; roleLabel: string; homeHref: string }[]>([]);
   const [currentRole, setCurrentRole] = useState<PortalRole>('member');
-  const [loading, setLoading] = useState(true);
 
   // Fetch user roles and determine current portal
   useEffect(() => {
@@ -66,16 +64,15 @@ export default function PortalShell({ children }: { children: React.ReactNode })
           roles.push({ role: 'admin', roleLabel: 'Admin', homeHref: '/admin' });
         }
         
-        // Always include member portal
-        if (!roles.some(r => r.role === current) || current === 'member') {
+        // Always include member portal so multi-role users can switch back.
+        if (!roles.some((r) => r.role === 'member')) {
           roles.unshift({ role: 'member', roleLabel: 'Member', homeHref: '/dashboard' });
         }
-        
+
         setUserRoles(roles);
         setCurrentRole(current);
-        setLoading(false);
       } catch {
-        setLoading(false);
+        /* ignore */
       }
     })();
     return () => {

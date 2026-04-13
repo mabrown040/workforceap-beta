@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import type { PortalRole } from '@/lib/nav/portalNav';
 import styles from './PortalRoleSwitcher.module.css';
 
@@ -13,9 +12,7 @@ interface PortalRoleSwitcherProps {
 
 export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRoleSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname() ?? '';
-
-  const currentRoleConfig = userRoles.find(r => r.role === currentRole);
+  const currentRoleConfig = userRoles.find((r) => r.role === currentRole);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,7 +38,7 @@ export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRol
         aria-haspopup="true"
       >
         <span className={styles['portal-role-switcher-current']}>{currentRoleConfig?.roleLabel || currentRole}</span>
-        <svg className={`${styles['portal-role-switcher-chevron']} ${isOpen ? styles.open : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className={`${styles['portal-role-switcher-chevron']} ${isOpen ? styles['open'] : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>

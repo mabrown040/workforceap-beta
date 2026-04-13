@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SignOutButton } from './SignOutButton';
-import { MEMBER_PORTAL_NAV_ITEMS, PORTER_PORTAL_NAV_ITEMS, PARTNER_PORTAL_NAV_ITEMS, COUNSELOR_PORTAL_NAV_ITEMS, ADMIN_PORTAL_NAV_ITEMS, PORTAL_NAV } from '@/lib/nav/portalNav';
+import { MEMBER_PORTAL_NAV_ITEMS, PORTAL_NAV } from '@/lib/nav/portalNav';
 import { isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import type { PortalRole } from '@/lib/nav/portalNav';

@@ -17,8 +17,11 @@ export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get('q')?.trim() ?? '';
   const limit = Math.min(parseInt(request.nextUrl.searchParams.get('limit') ?? '50', 10) || 50, 100);
 
+  const role = request.nextUrl.searchParams.get('role')?.trim() ?? '';
+
   const where: Prisma.UserWhereInput = {
     deletedAt: null,
+    ...(role ? { profile: { role } } : {}),
   };
 
   if (q) {

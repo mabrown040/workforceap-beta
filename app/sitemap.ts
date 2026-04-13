@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { PROGRAMS } from '@/lib/content/programs';
 import { LEADERS } from '@/lib/content/leadership';
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 
 const SITE_URL = 'https://www.workforceap.org';
 
@@ -16,7 +17,7 @@ const routes = [
   '/faq',
   '/find-your-path',
   '/how-it-works',
-  '/jobs',
+  '/impact',
   '/leadership',
   '/partners',
   '/partner-signup',
@@ -46,19 +47,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   let blogPages: MetadataRoute.Sitemap = [];
-  try {
-    const blogPosts = await prisma.blogPost.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
-    });
-    blogPages = blogPosts.map((p) => ({
-      url: `${SITE_URL}/blog/${p.slug}`,
-      lastModified: p.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }));
-  } catch {
-    // DB unavailable at build time (e.g. CI)
+  if (!shouldSkipOptionalDbQueriesAtBuild()) {
+    try {
+      const blogPosts = await prisma.blogPost.findMany({
+        where: { published: true },
+        select: { slug: true, updatedAt: true },
+      });
+      blogPages = blogPosts.map((p) => ({
+        url: `${SITE_URL}/blog/${p.slug}`,
+        lastModified: p.updatedAt,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }));
+    } catch {
+      // DB unavailable at build/runtime.
+    }
   }
 
   const leadershipPages = LEADERS.map((l) => ({

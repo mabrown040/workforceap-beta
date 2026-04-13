@@ -23,6 +23,11 @@ export type EventName =
   | 'pathway_step_completed'
   | 'pathway_completed'
   | 'certification_marked_complete'
+  | 'certification_earned'
+  | 'program_enrolled'
+  | 'program_change_approved'
+  | 'course_completed'
+  | 'placement_recorded'
   | 'application_added'
   | 'application_updated'
   | 'application_status_changed'
@@ -41,7 +46,8 @@ export type EventName =
   | 'weekly_recap_viewed'
   | 'training_access_requested'
   | 'training_access_approved'
-  | 'training_access_activated';
+  | 'training_access_activated'
+  | 'partner_invite_sent';
 
 type TrackEventParams = {
   userId: string;

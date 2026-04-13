@@ -5,14 +5,16 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
+import EmployerMessagesInboxClient from '@/components/portal/EmployerMessagesInboxClient';
 import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
+import { buildEmployerInbox } from '@/lib/messages/employerInbox';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
-  description: 'Message the WorkforceAP team.',
+  description: 'Message candidates and the WorkforceAP team.',
   path: '/employer/messages',
 });
 
@@ -24,84 +26,54 @@ export default async function EmployerMessagesPage() {
   if (!ctx) redirect('/employers');
 
   const thread = await getOrCreateEmployerMessageThread(ctx.employerId);
-
   const messages = await prisma.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });
 
   const serializedMessages = messages.map(serializeMessage);
+  const { team: teamRow, candidates: candidateRows } = await buildEmployerInbox(ctx.employerId, user.id);
 
   return (
-    <>
-      {/* ── Mobile section ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 0.25rem' }}>Messages</h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Chat with the WorkforceAP team</p>
-        </div>
-
-        {/* Conversation list / preview */}
-        <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
-          <div style={{ background: '#fff', borderRadius: '0.875rem', border: '1px solid #ebe7e7', overflow: 'hidden', boxShadow: '0 1px 4px rgba(28,27,27,0.06)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem' }}>
-              <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '9999px', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#fff' }}>support_agent</span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>WorkforceAP Team</div>
-                <div className="truncate" style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)' }}>
-                  {serializedMessages.length > 0
-                    ? (serializedMessages[serializedMessages.length - 1] as { body?: string })?.body ?? 'No messages yet'
-                    : 'No messages yet — ask us anything'}
-                </div>
-              </div>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline-variant)', flexShrink: 0 }}>chevron_right</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Full chat client stacked below */}
-        <div style={{ padding: '0 1rem' }}>
-          <PortalTeamChatClient
-            apiPath="/api/employer/messages"
-            initial={{
-              thread: {
-                id: thread.id,
-                portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
-              },
-              messages: serializedMessages,
-              portalUserId: user.id,
-            }}
-            subtitle="We typically reply within one business day."
-            emptyHint="No messages yet. Ask a question about job postings, applications, or candidate matches."
-          />
-        </div>
+    <PortalPageFrame>
+      <PageHeader
+        title="Messages"
+        subtitle={
+          <>
+            <span className="wa-block wa-md:wa-hidden">Candidates and WorkforceAP team</span>
+            <span className="wa-hidden wa-md:wa-block">Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.</span>
+          </>
+        }
+      />
+      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+        <EmployerMessagesInboxClient
+          portalUserId={user.id}
+          teamRow={teamRow}
+          candidateRows={candidateRows}
+          teamInitial={{
+            thread: {
+              id: thread.id,
+              portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
+            },
+            messages: serializedMessages,
+          }}
+        />
         <MobileBottomNav variant="employer" />
       </div>
-
-      {/* ── Desktop section ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <div>
-          <PageHeader
-            title="Messages"
-            subtitle="Chat with the WorkforceAP team about your jobs, applicants, and hiring pipeline."
-          />
-          <PortalTeamChatClient
-            apiPath="/api/employer/messages"
-            initial={{
-              thread: {
-                id: thread.id,
-                portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
-              },
-              messages: serializedMessages,
-              portalUserId: user.id,
-            }}
-            subtitle="We typically reply within one business day."
-            emptyHint="No messages yet. Ask a question about job postings, applications, or candidate matches."
-          />
-        </div>
+        <EmployerMessagesInboxClient
+          portalUserId={user.id}
+          teamRow={teamRow}
+          candidateRows={candidateRows}
+          teamInitial={{
+            thread: {
+              id: thread.id,
+              portalUserLastReadAt: thread.portalUserLastReadAt?.toISOString() ?? null,
+            },
+            messages: serializedMessages,
+          }}
+        />
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

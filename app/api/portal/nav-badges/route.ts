@@ -13,7 +13,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const counts = await getNavBadgeCountsForUser(roleParam, user.id);
-    return NextResponse.json(counts);
+    return NextResponse.json(counts, {
+      headers: {
+        // Private per-user counts; short TTL reduces duplicate work when tab refetches.
+        'Cache-Control': 'private, max-age=15, stale-while-revalidate=30',
+      },
+    });
   } catch {
     return NextResponse.json({}, { status: 200 });
   }

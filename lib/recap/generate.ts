@@ -47,7 +47,12 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
     (p) => p.status === 'completed' && p.completedAt && p.completedAt >= weekStart && p.completedAt <= end
   ).length;
 
-  const score = await computeReadinessScore(userId);
+  let score: number | null = null;
+  try {
+    score = await computeReadinessScore(userId);
+  } catch (e) {
+    console.error('[generateWeeklyRecap] readiness score failed', userId, e);
+  }
 
   const recapData = {
     weekInReview: { applicationsAdded, resourcesCompleted, aiToolsUsed, pathwayStepsCompleted },

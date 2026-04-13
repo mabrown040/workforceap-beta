@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 
 export default function AdminError({
@@ -10,10 +11,12 @@ export default function AdminError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  if (isRedirectError(error)) {
+    throw error;
+  }
+
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.error(error);
-    }
+    console.error('[admin/error]', error.message, error.digest ?? '');
   }, [error]);
 
   return (

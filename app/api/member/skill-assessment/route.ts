@@ -1,0 +1,63 @@
+import { NextResponse } from 'next/server';
+import { AIToolType } from '@prisma/client';
+
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
+import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { trackEvent } from '@/lib/events/track';
+import { saveSkillAssessmentSchema } from '@/lib/validation/skillAssessment';
+
+export async function POST(request: Request) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await request.json().catch(() => null);
+  const parsed = saveSkillAssessmentSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    await ensureUserInDb(user);
+
+    const result = await prisma.aIToolResult.create({
+      data: {
+        userId: user.id,
+        toolType: AIToolType.skill_assessment,
+        inputSummary: `${parsed.data.occupationTitle} (${parsed.data.occupationCode})`,
+        output: JSON.stringify({
+          occupationTitle: parsed.data.occupationTitle,
+          occupationCode: parsed.data.occupationCode,
+          radarAxes: parsed.data.radarAxes,
+          skills: parsed.data.skills,
+        }),
+      },
+    });
+
+    await trackEvent({
+      userId: user.id,
+      eventName: 'ai_tool_result_saved',
+      entityType: 'ai_tool_result',
+      entityId: result.id,
+      metadata: {
+        tool: 'skill_assessment',
+        occupationTitle: parsed.data.occupationTitle,
+        occupationCode: parsed.data.occupationCode,
+      },
+      sourcePage: '/dashboard/skills-assessment',
+    });
+
+    return NextResponse.json({
+      ok: true,
+      resultId: result.id,
+      savedAt: result.createdAt.toISOString(),
+    });
+  } catch (error) {
+    console.error('[POST /api/member/skill-assessment]', error);
+    const message = error instanceof Error ? error.message : 'Database error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

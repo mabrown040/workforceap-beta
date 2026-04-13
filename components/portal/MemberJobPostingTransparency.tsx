@@ -44,7 +44,7 @@ export default async function MemberJobPostingTransparency({ userId }: { userId:
           </li>
         ))}
       </ul>
-      <Link href="/jobs" className="member-job-posting-link">
+      <Link href="/dashboard/jobs" className="member-job-posting-link">
         Browse open jobs
       </Link>
     </aside>

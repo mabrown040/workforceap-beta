@@ -44,8 +44,8 @@ export const READINESS_SECTIONS: ReadinessSection[] = [
     section: 3,
     title: 'Certificate Training Completed or In Progress',
     items: [
-      { key: 'cert_identified', label: 'Identified certification or training critical to finding a job', type: 'checkbox' },
-      { key: 'cert_provider_identified', label: 'Identified who offers the certification', type: 'checkbox' },
+      { key: 'cert_identified', label: 'Identified certificate or training critical to finding a job', type: 'checkbox' },
+      { key: 'cert_provider_identified', label: 'Identified who offers the certificate', type: 'checkbox' },
       { key: 'cert_completed', label: 'Client has successfully completed their professional certificate program', type: 'checkbox' },
       { key: 'cert_completed_when', label: 'When completed', type: 'text', placeholder: 'Date or timeframe' },
       { key: 'cert_confirmed', label: 'Completion confirmed with strong performance and understanding', type: 'checkbox' },
@@ -64,7 +64,7 @@ export const READINESS_SECTIONS: ReadinessSection[] = [
     title: 'Professional Resume Prepared',
     items: [
       { key: 'resume_updated', label: 'Client has an updated, professional 1–2 page tailored resume', type: 'checkbox' },
-      { key: 'resume_highlights', label: 'Resume highlights certifications, technical and soft skills, and hands-on experience', type: 'checkbox' },
+      { key: 'resume_highlights', label: 'Resume highlights certificates, technical and soft skills, and hands-on experience', type: 'checkbox' },
       { key: 'resume_professional', label: 'Resume status: Professional', type: 'checkbox' },
       { key: 'resume_who_when', label: 'If no: who will make it professional + by when', type: 'text', placeholder: 'e.g. Counselor by 4/15' },
     ],
@@ -75,7 +75,7 @@ export const READINESS_SECTIONS: ReadinessSection[] = [
     items: [
       { key: 'wit_profile', label: 'Client has created a WorkInTexas profile with complete and professional information', type: 'checkbox' },
       { key: 'wit_resume', label: 'Client has uploaded a professional resume to WorkInTexas', type: 'checkbox' },
-      { key: 'wit_complete', label: 'Profile includes certifications, relevant skills, professional photo, and portfolio links (if applicable)', type: 'checkbox' },
+      { key: 'wit_complete', label: 'Profile includes certificates, relevant skills, professional photo, and portfolio links (if applicable)', type: 'checkbox' },
     ],
   },
   {
@@ -84,7 +84,7 @@ export const READINESS_SECTIONS: ReadinessSection[] = [
     items: [
       { key: 'linkedin_profile', label: 'Client has created a LinkedIn profile with complete and professional information', type: 'checkbox' },
       { key: 'linkedin_photo', label: 'Client has uploaded a professional photo', type: 'checkbox' },
-      { key: 'linkedin_complete', label: 'Profile includes certifications, relevant skills, and portfolio links (if applicable)', type: 'checkbox' },
+      { key: 'linkedin_complete', label: 'Profile includes certificates, relevant skills, and portfolio links (if applicable)', type: 'checkbox' },
     ],
   },
   {
@@ -165,7 +165,7 @@ export const READINESS_SECTIONS: ReadinessSection[] = [
     section: 13,
     title: 'Continued Learning & Growth',
     items: [
-      { key: 'learning_trends', label: 'Client is keeping up with industry tools, trends, and optional certifications', type: 'checkbox' },
+      { key: 'learning_trends', label: 'Client is keeping up with industry tools, trends, and optional certificates', type: 'checkbox' },
       { key: 'learning_upskill', label: 'Counselor has discussed future upskilling or continuing education plans', type: 'checkbox' },
     ],
   },

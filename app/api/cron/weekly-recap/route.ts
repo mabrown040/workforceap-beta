@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { generateWeeklyRecap } from '@/lib/recap/generate';
-import { getWeekBounds } from '@/lib/recap/generate';
 import { sendWeeklyRecapEmail } from '@/lib/email';
+import { generateWeeklyRecap } from '@/lib/recap/generate';
 
 /**
- * Cron endpoint to generate and email weekly recaps.
- * Run Sundays 6 PM (e.g. via Vercel Cron: "0 18 * * 0").
- * Protected with CRON_SECRET header.
+ * GET /api/cron/weekly-recap
+ *
+ * Sends weekly recap emails to all active members who have not
+ * received one this week. Secured by CRON_SECRET header.
+ *
+ * Deploy with Vercel Cron: schedule "0 9 * * 1" (Monday 9AM UTC)
+ *
+ * Or trigger manually from admin at /admin/weekly-recap.
  */
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
@@ -16,79 +20,61 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const now = new Date();
-  const { start: weekStart, end: weekEnd } = getWeekBounds(now);
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
+  weekStart.setHours(0, 0, 0, 0);
 
-  // Active members: enrolled, not deleted, opted into updates
+  // Get active members who haven't had a recap opened this week
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
       enrolledProgram: { not: null },
-      notificationsUpdates: true,
+      // Members who have no recap for this week yet
+      weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
     },
-    select: { id: true, email: true, fullName: true },
+    select: { id: true, email: true, fullName: true, enrolledProgram: true },
+    take: 500,
   });
 
-  const results = await Promise.all(
-    members.map(async (member) => {
-      try {
-        const recap = await generateWeeklyRecap(member.id, weekStart, weekEnd);
+  let sent = 0;
+  let failed = 0;
 
-        const recapJson = recap.recapJson as {
-          weekInReview?: {
-            applicationsAdded?: number;
-            resourcesCompleted?: number;
-            aiToolsUsed?: number;
-            pathwayStepsCompleted?: number;
-          };
-          recommendedActions?: string[];
-        };
-        const review = recapJson?.weekInReview ?? {};
-        const lines: string[] = [];
-        lines.push(`Applications added: ${review.applicationsAdded ?? 0}`);
-        lines.push(`Resources completed: ${review.resourcesCompleted ?? 0}`);
-        lines.push(`AI tools used: ${review.aiToolsUsed ?? 0}`);
-        lines.push(`Pathway steps completed: ${review.pathwayStepsCompleted ?? 0}`);
-        if (recapJson?.recommendedActions?.length) {
-          lines.push(`Next: ${recapJson.recommendedActions[0]}`);
-        }
-        const recapSummary = lines.join('. ');
+  for (const member of members) {
+    try {
+      const recap = await generateWeeklyRecap(member.id, weekStart);
+      if (!recap) { failed++; continue; }
 
-        const result = await sendWeeklyRecapEmail({
-          to: member.email,
-          fullName: member.fullName,
-          recapSummary,
-        });
+      const recapData = recap.recapJson as {
+        weekInReview?: { applicationsAdded?: number; resourcesCompleted?: number; aiToolsUsed?: number; pathwayStepsCompleted?: number };
+        recommendedActions?: string[];
+        readinessScoreSnapshot?: number;
+      } | null;
 
-        let emailSent = false;
-        if (result.ok) {
-          emailSent = true;
-          try {
-            await prisma.weeklyRecap.update({
-              where: { id: recap.id },
-              data: { emailedAt: new Date() },
-            });
-          } catch (dbErr) {
-            console.error(`Failed to update emailedAt for user ${member.id}:`, dbErr);
-          }
-        }
-        return { generated: true, emailed: emailSent };
-      } catch (err) {
-        console.error(`Weekly recap failed for user ${member.id}:`, err);
-        return { generated: false, emailed: false };
+      const review = recapData?.weekInReview ?? {};
+      const actions = (recapData?.recommendedActions ?? []).slice(0, 3).map(a => `• ${a}`).join('\n');
+      const recapSummary = [
+        `Applications added: ${review.applicationsAdded ?? 0}`,
+        `Resources completed: ${review.resourcesCompleted ?? 0}`,
+        `AI tools used: ${review.aiToolsUsed ?? 0}`,
+        actions ? `\nRecommended this week:\n${actions}` : '',
+      ].filter(Boolean).join('\n');
+
+      await sendWeeklyRecapEmail({
+        to: member.email,
+        fullName: member.fullName ?? member.email,
+        recapSummary,
+      });
+
+      // Mark as opened (closest proxy for "sent" in schema)
+      if (!recap.openedAt) {
+        await prisma.weeklyRecap.update({ where: { id: recap.id }, data: { openedAt: new Date() } }).catch(() => {});
       }
-    })
-  );
+      sent++;
+    } catch (e) {
+      console.error('[cron/weekly-recap] failed for', member.email, e);
+      failed++;
+    }
+  }
 
-  const generated = results.filter((r) => r.generated).length;
-  const emailed = results.filter((r) => r.emailed).length;
-
-  return NextResponse.json({
-    ok: true,
-    checkedAt: now.toISOString(),
-    weekStart: weekStart.toISOString(),
-    membersProcessed: members.length,
-    recapsGenerated: generated,
-    emailsSent: emailed,
-  });
+  return NextResponse.json({ sent, failed, total: members.length });
 }

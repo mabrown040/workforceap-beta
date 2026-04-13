@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { PrismaClient, ApplicationStatus } from '@prisma/client';
 import { seedBlogPosts } from './seed-blog';
+import { seedOnetCareerData } from './seed-onet-career';
 import { seedOrganizationProgramCatalog } from '../lib/platform/seedProgramCatalog';
 import { DEFAULT_BRAND_ACCENT } from '../lib/platform/brandColors';
 
@@ -28,6 +29,152 @@ async function ensureDefaultOrgId(): Promise<string> {
 
 /** Dev/staging QA only — set SEED_TEST_ACCOUNTS=true. Supabase passwords (create users in Dashboard): TestWfAP2026! */
 
+const PUBLIC_DEMO_JOB_EMAIL = 'public-job-demo@example.com';
+const PUBLIC_DEMO_EMPLOYER_NAME = 'Capital Area Employer Network';
+const PUBLIC_DEMO_JOB_TITLE_PREFIX = '[Demo] ';
+
+/**
+ * Ensures a few live jobs exist for the public /jobs board without SEED_TEST_ACCOUNTS.
+ * Idempotent: skips if enough [Demo] live jobs already exist for the demo employer.
+ */
+async function seedPublicDemoJobs(organizationId: string) {
+  const user = await prisma.user.upsert({
+    where: { email: PUBLIC_DEMO_JOB_EMAIL },
+    create: {
+      id: randomUUID(),
+      organizationId,
+      email: PUBLIC_DEMO_JOB_EMAIL,
+      fullName: 'Public job board seed',
+    },
+    update: {},
+  });
+
+  const employer = await prisma.employer.upsert({
+    where: { userId: user.id },
+    create: {
+      organizationId,
+      userId: user.id,
+      companyName: PUBLIC_DEMO_EMPLOYER_NAME,
+      contactName: 'WorkforceAP',
+      contactEmail: PUBLIC_DEMO_JOB_EMAIL,
+      tier: 'basic',
+    },
+    update: {
+      companyName: PUBLIC_DEMO_EMPLOYER_NAME,
+    },
+  });
+
+  const demoLiveCount = await prisma.job.count({
+    where: {
+      employerId: employer.id,
+      status: 'live',
+      title: { startsWith: PUBLIC_DEMO_JOB_TITLE_PREFIX },
+    },
+  });
+
+  if (demoLiveCount >= 4) {
+    console.log('Public demo jobs: already seeded (', demoLiveCount, 'live), skipping');
+    return;
+  }
+
+  await prisma.job.deleteMany({
+    where: {
+      employerId: employer.id,
+      title: { startsWith: PUBLIC_DEMO_JOB_TITLE_PREFIX },
+    },
+  });
+
+  const specs: Array<{
+    title: string;
+    description: string;
+    location: string;
+    locationType: 'remote' | 'hybrid' | 'onsite';
+    jobType: 'fulltime' | 'parttime' | 'contract';
+    salaryMin?: number;
+    salaryMax?: number;
+    suggestedPrograms: string[];
+    youthAppropriate: boolean;
+    minimumAge: number | null;
+  }> = [
+    {
+      title: `${PUBLIC_DEMO_JOB_TITLE_PREFIX}IT Support Specialist`,
+      description:
+        'Entry-level help desk role for a growing Austin team. You will troubleshoot hardware and software issues, document tickets, and support staff onboarding. Training provided; CompTIA pathway preferred.',
+      location: 'Austin, TX',
+      locationType: 'hybrid',
+      jobType: 'fulltime',
+      salaryMin: 42000,
+      salaryMax: 52000,
+      suggestedPrograms: ['it-support-professional-certificate-ibm'],
+      youthAppropriate: false,
+      minimumAge: 18,
+    },
+    {
+      title: `${PUBLIC_DEMO_JOB_TITLE_PREFIX}Patient Services Representative`,
+      description:
+        'Front-desk and scheduling support at an outpatient clinic. Strong communication, basic computer skills, and a professional demeanor. HIPAA training provided.',
+      location: 'Round Rock, TX',
+      locationType: 'onsite',
+      jobType: 'fulltime',
+      salaryMin: 36000,
+      salaryMax: 44000,
+      suggestedPrograms: ['health-information-technology-mchit'],
+      youthAppropriate: false,
+      minimumAge: 18,
+    },
+    {
+      title: `${PUBLIC_DEMO_JOB_TITLE_PREFIX}Remote Data Support Clerk`,
+      description:
+        'Part-time remote role updating records and light reporting in spreadsheets. Reliable internet and attention to detail required.',
+      location: 'Texas (remote)',
+      locationType: 'remote',
+      jobType: 'parttime',
+      salaryMin: 32000,
+      salaryMax: 40000,
+      suggestedPrograms: ['digital-literacy-empowerment-class', 'data-analytics-professional-certificate-google'],
+      youthAppropriate: true,
+      minimumAge: 16,
+    },
+    {
+      title: `${PUBLIC_DEMO_JOB_TITLE_PREFIX}Cloud Operations Trainee`,
+      description:
+        'Rotational trainee supporting AWS-based workloads: monitoring, ticketing, and documentation. Ideal for certificate graduates seeking first cloud role.',
+      location: 'San Antonio, TX',
+      locationType: 'hybrid',
+      jobType: 'fulltime',
+      salaryMin: 48000,
+      salaryMax: 62000,
+      suggestedPrograms: ['aws-cloud-technology-amazon'],
+      youthAppropriate: false,
+      minimumAge: 18,
+    },
+  ];
+
+  for (const s of specs) {
+    await prisma.job.create({
+      data: {
+        organizationId,
+        employerId: employer.id,
+        title: s.title,
+        description: s.description,
+        location: s.location,
+        locationType: s.locationType,
+        jobType: s.jobType,
+        salaryMin: s.salaryMin,
+        salaryMax: s.salaryMax,
+        suggestedPrograms: s.suggestedPrograms,
+        youthAppropriate: s.youthAppropriate,
+        minimumAge: s.minimumAge,
+        status: 'live',
+        requirements: ['Reliable attendance', 'Eligible to work in the U.S.'],
+        preferredCertifications: [],
+      },
+    });
+  }
+
+  console.log('Seeded public demo jobs:', specs.length, 'for', PUBLIC_DEMO_EMPLOYER_NAME);
+}
+
 async function main() {
   const defaultOrgId = await ensureDefaultOrgId();
 
@@ -44,8 +191,10 @@ async function main() {
   await seedOrganizationProgramCatalog(defaultOrgId);
   console.log('Seeded organization program catalog from static PROGRAMS list');
 
-  // Seed admin users (mabrown040 is super_admin for testing all portal views)
-  const superAdminEmails = ['mabrown040@gmail.com'];
+  await seedOnetCareerData(prisma);
+
+  // Seed admin users (Michael's personal + workforceap.org accounts are super_admin for real admin access)
+  const superAdminEmails = ['mabrown040@gmail.com', 'michael.brown@workforceap.org'];
   for (const email of superAdminEmails) {
     const user = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
     if (user?.profile) {
@@ -111,6 +260,8 @@ async function main() {
     });
     console.log('Set employer tier=partner for michael.brown@workforceap.org (demo)');
   }
+
+  await seedPublicDemoJobs(defaultOrgId);
 
   if (process.env.SEED_TEST_ACCOUNTS === 'true') {
     const memberRole = await prisma.role.findUnique({ where: { name: 'member' } });

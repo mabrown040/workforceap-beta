@@ -15,38 +15,44 @@ const categories = [
 
 const faqData: Record<string, { q: string; a: string; link?: { text: string; href: string } }[]> = {
   'General Questions': [
-    { q: 'What is WorkforceAP?', a: 'WorkforceAP (Workforce Advancement Project) is a nonprofit that provides free, WIOA-aligned career training and certifications. We help individuals gain industry-recognized credentials and connect them with employers hiring for those roles.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
-    { q: 'Who can apply?', a: 'To apply: (1) 16 years or older, (2) U.S. citizen or permanent resident, (3) high school diploma or GED (or in process), (4) committed to program completion, (5) willing to participate in job placement, (6) access to reliable internet and computer. We welcome applicants from all backgrounds.', link: { text: 'Start Your Application', href: '/apply' } },
-    { q: 'Is there any cost?', a: 'No. Our programs are available at no cost to members. No hidden fees, no textbook costs, no application charges. This is made possible through grants, employer partnerships, and community funding.' },
-    { q: 'How long are the programs?', a: 'Most programs take 3-5 months at 10 hours per week. Digital Literacy is shorter at 6-7 weeks. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Programs', href: '/programs' } },
+    {
+      q: 'What is Workforce Investment Project (WorkforceAP)?',
+      a: 'Workforce Advancement Project (WorkforceAP) is a nonprofit that provides free, WIOA-aligned career training and certifications. We help individuals gain industry-recognized credentials and connect them with employers hiring for those roles.',
+      link: { text: 'Learn About Our Mission', href: '/what-we-do' },
+    },
+    { q: 'Is it really free?', a: 'Yes — completely. No tuition, no application fee, no hidden costs, no textbooks to buy, and no certification exam fees. Our programs are funded through federal workforce grants, employer partnerships, and community support. You will never receive a bill from us.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Who qualifies?', a: "Most people who apply do qualify. You need to be 16 or older, a U.S. citizen or permanent resident, and have (or be working toward) a high school diploma or GED. We prioritize people who are unemployed, underemployed, or looking to change careers. If you're unsure whether you qualify, apply anyway — we'll let you know within 24–48 hours.", link: { text: 'Start Your Application', href: '/apply' } },
+    { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Our Digital Literacy track is shorter at 6–7 weeks. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Can I talk to someone before I apply?', a: "Absolutely. If you have questions or just want to talk through whether this is a good fit, reach out. Our team responds within 24–48 hours and is happy to have a real conversation before you commit to anything.", link: { text: 'Contact Us', href: '/contact' } },
   ],
   Admissions: [
+    { q: 'What if I\'m not technical?', a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history, no prior tech experience required. We've helped career-changers, people re-entering the workforce, and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to showing up and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
+    { q: "What if I'm starting over?", a: "Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, are leaving a difficult situation, or are just ready for a different path — we work with you from where you are now. Your counselor will help you pick the right program, set a realistic pace, and stay on track through the whole process.", link: { text: 'Find Your Path', href: '/find-your-path' } },
     { q: 'What are the eligibility requirements?', a: 'To apply: (1) 16 years or older, (2) U.S. citizen or permanent resident, (3) high school diploma or GED (or in process), (4) committed to program completion, (5) willing to participate in job placement, (6) access to reliable internet and computer. We welcome applicants from all backgrounds — no prior tech experience needed.', link: { text: 'View All Programs', href: '/programs' } },
-    { q: 'Do I need prior tech experience to apply?', a: "No. Our programs are built for beginners. We've trained career-changers, unemployed workers, and people with zero tech experience. We start with fundamentals. The main thing we look for is commitment to learning and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
-    { q: 'What is the application process?', a: "Simple: (1) Fill out our online form with your info and program interest, (2) We review within 48 hours, (3) We schedule a brief call to discuss your goals and answer questions, (4) You get your start date and onboarding. No test, no gatekeeping.", link: { text: 'Start Your Application', href: '/apply' } },
+    { q: 'What happens after I apply?', a: "Here's what to expect: (1) You submit our online application — takes about 10 minutes. (2) We review it and follow up within 48 hours. (3) We schedule a brief call to understand your goals and answer your questions. (4) If it's a good fit, you get a start date and onboarding instructions. No test, no gatekeeping, no waiting months for a decision.", link: { text: 'Start Your Application', href: '/apply' } },
     { q: 'Is there an application fee?', a: 'No. Zero fees. We review your goals, confirm fit, and share next steps. No cost to apply, no cost to participate if you qualify.' },
     { q: 'When do programs start?', a: "Rolling basis. New programs start monthly or bi-weekly depending on the track. Once approved, we'll connect you with the next available start.", link: { text: 'See How It Works', href: '/how-it-works' } },
   ],
   'Cost & Funding': [
-    { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'Compare All Programs', href: '/program-comparison' } },
+    { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'View Programs', href: '/programs' } },
     { q: "What does 'qualifying' mean?", a: "16+, US citizen or permanent resident, unemployed or underemployed, household income under $60K — you likely qualify. We also consider special circumstances. Apply and we'll confirm within 24-48 hours.", link: { text: 'Check Your Eligibility', href: '/apply' } },
     { q: 'Do I need to pay anything back?', a: 'No. This is not a loan. Training is funded through grants and partnerships. There are no income-sharing agreements (ISAs), no loans, and no hidden costs. Ever.', link: { text: 'Read Success Stories', href: '/blog' } },
     { q: 'Are certification exam fees included?', a: 'Yes. Certification exam fees are covered for members. There are no out-of-pocket costs for exams when you complete the program through WorkforceAP.', link: { text: 'View Programs', href: '/programs' } },
   ],
   'Programs & Training': [
-    { q: 'How long are the programs?', a: 'Most programs take 3-5 months at 10 hours per week. Digital Literacy is shorter at 6-7 weeks. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Program Details', href: '/programs' } },
-    { q: 'Are programs online or in person?', a: 'Virtual and hybrid — you can complete training from home with an internet connection. Some programs offer optional in-person events and career fairs.', link: { text: 'See Available Programs', href: '/programs' } },
-    { q: 'Do I need my own computer?', a: 'Access to a computer and internet is required to participate. Upon successful program completion, you may earn a refurbished laptop through our Loaner Laptop Program.', link: { text: 'Learn About Support', href: '/what-we-do' } },
+    { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at 6–7 weeks. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Program Details', href: '/programs' } },
+    { q: 'Is this online?', a: "Yes. All training is delivered virtually — you can participate from home, a library, or anywhere with a reliable internet connection. You don't need to commute, relocate, or take time off work to attend. Some programs include optional in-person events and local career fairs if you want them.", link: { text: 'See Available Programs', href: '/programs' } },
+    { q: 'Do I need a laptop?', a: "You need access to a computer and a reliable internet connection to participate. If you don't have a laptop, apply anyway — upon successfully completing a program, you may qualify for a refurbished laptop through our Loaner Laptop Program. We won't turn away a committed member over equipment.", link: { text: 'Learn About Support', href: '/what-we-do' } },
     { q: 'What certifications will I earn?', a: "You'll earn industry-recognized certificates from partners like Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials employers hire against.", link: { text: 'View Certification Paths', href: '/salary-guide' } },
     { q: 'What if I fail a certification exam?', a: 'Many certification providers allow retakes. We work with you to prepare for exams and, when available, support retake options. Your counselor can help you understand the specific retake policy for your program.', link: { text: 'See How It Works', href: '/how-it-works' } },
   ],
   'Job Placement': [
-    { q: 'Will you help me find a job?', a: 'Yes. We provide 100% job search support including resume building, interview prep, and connections to employers hiring for your role.', link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
+    { q: 'Do you help members find jobs?', a: "Yes — job placement is a core part of what we do, not an afterthought. We provide resume building, interview prep, LinkedIn coaching, and direct connections to employers who are actively hiring for the roles you're training for. Most graduates secure employment within 3–6 months of certification.", link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
     { q: 'What kind of jobs will I qualify for?', a: 'Entry-level to mid-level roles in IT, cybersecurity, data analytics, project management, healthcare, and skilled trades. Starting salaries range from $38K to $145K depending on the program.', link: { text: 'See Salary Guide', href: '/salary-guide' } },
     { q: 'How soon after graduating can I get hired?', a: 'Many members begin applying during training. Most graduates secure employment within 3-6 months of certification.', link: { text: 'Read Career Tips', href: '/blog' } },
   ],
   'For Members': [
-    { q: 'What support do I get during training?', a: 'You receive a dedicated counselor, access to our member portal with AI tools (resume help, interview practice), career readiness resources, and job placement assistance.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
+    { q: 'What support do I get during training?', a: 'You receive a dedicated counselor, access to our member portal with career readiness tools (resume help, interview practice), and job placement assistance from intake through your first job.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
     { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned a counselor who supports you from intake through job placement. Your counselor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
     { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. The 10-hour weekly commitment is manageable alongside most work schedules.', link: { text: 'Check Program Flexibility', href: '/programs' } },
     { q: 'What if I fall behind?', a: "Your counselor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.", link: { text: 'Meet the Team', href: '/leadership' } },
@@ -128,7 +134,7 @@ export default function FAQContent() {
                           transition: 'background-color 0.15s, color 0.15s',
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>{cat.icon}</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">{cat.icon}</span>
                         {key}
                       </button>
                     );
@@ -145,7 +151,7 @@ export default function FAQContent() {
               borderRadius: '0.75rem',
               border: '1px solid var(--outline-variant)',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>support_agent</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">support_agent</span>
               <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Still need support?</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
                 Our team responds within 24-48 hours.
@@ -180,7 +186,7 @@ export default function FAQContent() {
                 alignItems: 'center',
                 gap: '1rem',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }}>handshake</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }} aria-hidden="true">handshake</span>
                 <div>
                   <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', fontSize: '0.95rem' }}>Employer Partnership Inquiries</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
@@ -193,7 +199,7 @@ export default function FAQContent() {
             {/* Section heading */}
             <div style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">
                   {categories.find((c) => c.key === activeCategory)?.icon ?? 'help_outline'}
                 </span>
                 {activeCategory}
@@ -244,7 +250,7 @@ export default function FAQContent() {
                           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                           flexShrink: 0,
                         }}
-                      >
+                       aria-hidden="true">
                         expand_more
                       </span>
                     </button>
@@ -266,7 +272,7 @@ export default function FAQContent() {
                               }}
                             >
                               {item.link.text}
-                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                             </Link>
                           </p>
                         )}
@@ -332,7 +338,7 @@ export default function FAQContent() {
             aspectRatio: '4/3',
           }}>
             <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }}>forum</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }} aria-hidden="true">forum</span>
               <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>We&rsquo;re here to help</p>
             </div>
           </div>

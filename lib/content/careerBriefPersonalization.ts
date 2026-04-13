@@ -123,7 +123,7 @@ export function assembleCareerBriefContext(
     recommendedActions.push({ label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' });
   }
   if (applicationsCount === 0) {
-    recommendedActions.push({ label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' });
+    recommendedActions.push({ label: 'Log your first application', href: '/dashboard/job-applications' });
   }
   if (!scoreBreakdown.complete2Resources.done) {
     recommendedActions.push({ label: 'Complete 2 resources', href: '/resources' });
@@ -132,7 +132,7 @@ export function assembleCareerBriefContext(
     recommendedActions.push({ label: 'Set your goals', href: '/dashboard' });
   }
   if (recommendedActions.length === 0) {
-    recommendedActions.push({ label: 'Add another application', href: '/dashboard/ai-tools/application-tracker' });
+    recommendedActions.push({ label: 'Add another application', href: '/dashboard/job-applications' });
   }
 
   const jobSearchUrl = buildJobSearchUrl(programShortLabel, city, state);
@@ -166,7 +166,95 @@ export async function loadMemberCareerBriefBundle(userId: string, options?: { ac
   return { user: rows.user, careerBrief };
 }
 
+const emptyScoreBreakdown = (): ScoreBreakdown =>
+  buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], null);
+
+/**
+ * Same as loadMemberCareerBriefBundle but survives transient DB errors: retries with a single
+ * user query + empty satellite rows so the dashboard still renders.
+ */
+export async function loadMemberCareerBriefBundleSafe(
+  userId: string,
+  options?: { activeMemberOnly?: boolean }
+): Promise<{ user: MemberCareerBriefUser | null; careerBrief: CareerBriefContext }> {
+  try {
+    return await loadMemberCareerBriefBundle(userId, options);
+  } catch (firstErr) {
+    console.error('[loadMemberCareerBriefBundleSafe] primary load failed', firstErr);
+    try {
+      const where = options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId };
+      const user = await prisma.user.findUnique({
+        where,
+        include: memberCareerBriefInclude,
+      });
+      if (!user) {
+        return { user: null, careerBrief: assembleCareerBriefContext(null, emptyScoreBreakdown()) };
+      }
+      const scoreBreakdown = buildScoreBreakdownFromRelations(
+        user,
+        [],
+        user.aiToolResults ?? [],
+        [],
+        [],
+        [],
+        user.jobApplications ?? [],
+        [],
+        null
+      );
+      return { user, careerBrief: assembleCareerBriefContext(user, scoreBreakdown) };
+    } catch (secondErr) {
+      console.error('[loadMemberCareerBriefBundleSafe] include-based fallback failed', secondErr);
+      try {
+        const user = await prisma.user.findUnique({
+          where: options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            enrolledProgram: true,
+            enrolledAt: true,
+            assessmentCompleted: true,
+            assessmentCompletedAt: true,
+            assessmentScorePct: true,
+            coursesCompleted: true,
+            profile: true,
+            applications: { orderBy: { createdAt: 'desc' }, take: 1 },
+            jobApplications: true,
+            aiToolResults: { select: { toolType: true } },
+          },
+        });
+        if (!user) {
+          return { user: null, careerBrief: assembleCareerBriefContext(null, emptyScoreBreakdown()) };
+        }
+        const scoreBreakdown = buildScoreBreakdownFromRelations(
+          user,
+          [],
+          user.aiToolResults ?? [],
+          [],
+          [],
+          [],
+          user.jobApplications ?? [],
+          [],
+          null
+        );
+        return {
+          user: user as unknown as MemberCareerBriefUser,
+          careerBrief: assembleCareerBriefContext(user as unknown as MemberCareerBriefUser, scoreBreakdown),
+        };
+      } catch (thirdErr) {
+        console.error('[loadMemberCareerBriefBundleSafe] minimal select failed', thirdErr);
+        throw firstErr;
+      }
+    }
+  }
+}
+
 export async function getCareerBriefContext(userId: string): Promise<CareerBriefContext> {
-  const { careerBrief } = await loadMemberCareerBriefBundle(userId);
-  return careerBrief;
+  try {
+    const { careerBrief } = await loadMemberCareerBriefBundleSafe(userId);
+    return careerBrief;
+  } catch (e) {
+    console.error('[getCareerBriefContext]', e);
+    return assembleCareerBriefContext(null, emptyScoreBreakdown());
+  }
 }

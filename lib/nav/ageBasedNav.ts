@@ -10,8 +10,8 @@ export function filterNavItemsByAge(items: PortalNavItem[], ageGroup: AgeGroup):
   if (ageGroup === 'under14') {
     return items.filter((item) => {
       // Hide job board and job applications
-      if (item.href === '/jobs') return false;
-      if (item.href === '/dashboard/ai-tools/application-tracker') return false;
+      if (item.href === '/dashboard/jobs') return false;
+      if (item.href === '/dashboard/job-applications') return false;
       // Keep training, learning, messages, profile
       return true;
     });

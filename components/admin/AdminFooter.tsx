@@ -8,7 +8,7 @@ export default function AdminFooter() {
         marginTop: 'auto',
         fontSize: '0.8125rem',
         color: 'var(--color-on-surface-variant)',
-        background: 'var(--color-white)',
+        background: 'var(--surface-container-lowest)',
       }}
     >
       © {new Date().getFullYear()} Workforce Advancement Project

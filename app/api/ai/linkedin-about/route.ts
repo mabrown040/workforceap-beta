@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { linkedinAboutSchema } from '@/lib/validation/linkedinAbout';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -31,6 +32,16 @@ export async function POST(request: Request) {
 
   const { role, bullets } = parsed.data;
 
+  let resumeContext = '';
+  try {
+    const text = await getMemberResumePlainText(user.id, 4500);
+    if (text.trim().length > 80) {
+      resumeContext = text.trim();
+    }
+  } catch {
+    /* optional context */
+  }
+
   const systemPrompt = `You are a LinkedIn profile expert. Write a polished 3-paragraph LinkedIn About section.
 
 Guidelines:
@@ -44,13 +55,24 @@ Guidelines:
 - Total length: 200-400 words (LinkedIn limit is 2600 chars, so we have room)
 - Output plain text, no headers or labels`;
 
-  const userPrompt = `Target role: ${role}
+  const userPrompt =
+    `Target role: ${role}
 
-Bullet points about the person:
+Highlights / bullet points (member-provided):
 ---
 ${bullets}
 ---
+` +
+    (resumeContext
+      ? `
 
+Full resume text (from their WorkforceAP file — use for facts, roles, skills; do not invent experience not supported below):
+---
+${resumeContext}
+---
+`
+      : '') +
+    `
 Write a 3-paragraph LinkedIn About section.`;
 
   try {
@@ -64,7 +86,7 @@ Write a 3-paragraph LinkedIn About section.`;
 
     if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
 
-    const summary = `${role} — ${bullets.slice(0, 50)}${bullets.length > 50 ? '...' : ''}`;
+    const summary = `${role} — ${bullets.slice(0, 50)}${bullets.length > 50 ? '...' : ''}${resumeContext ? ' [+resume]' : ''}`;
     try {
       await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'linkedin_about', summary, output);

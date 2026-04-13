@@ -7,6 +7,7 @@ import {
   assertEmployerUserCanAccessThread,
 } from '@/lib/messages/portalThreads';
 import { normalizeMessageBody, serializeMessage } from '@/lib/messages/counselorThread';
+import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 
 export async function GET() {
   const user = await getUser();
@@ -53,6 +54,14 @@ export async function POST(request: NextRequest) {
   const normalized = normalizeMessageBody(text);
   if (!normalized.ok) {
     return NextResponse.json({ error: normalized.error }, { status: 400 });
+  }
+
+  const rl = checkMessageRateLimit(user.id);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: 'Too many messages. Please wait a moment.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) } }
+    );
   }
 
   const thread = await getOrCreateEmployerMessageThread(ctx.employerId);

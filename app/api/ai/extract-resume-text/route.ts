@@ -1,6 +1,8 @@
+import { Buffer } from 'node:buffer';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -25,50 +27,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
   }
 
-  const ext = file.name.split('.').pop()?.toLowerCase();
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
 
   try {
-    if (ext === 'pdf') {
+    if (ext === 'pdf' || ext === 'docx' || ext === 'doc' || ext === 'txt') {
       const buffer = Buffer.from(await file.arrayBuffer());
-      let text = '';
-
-      // Try pdf-parse first (best quality extraction)
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const pdfParse = require('pdf-parse/lib/pdf-parse.js');
-        const data = await pdfParse(buffer);
-        text = data.text?.trim() || '';
-      } catch {
-        // Fallback: raw text extraction from PDF binary
-        // Extracts readable text by stripping non-printable characters
-        const raw = buffer.toString('utf-8');
-        text = raw
-          .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-          .replace(/\s{3,}/g, '\n')
-          .replace(/\n{3,}/g, '\n\n')
-          .trim();
-      }
-
-      if (!text) {
+      const text = await extractTextFromResumeBuffer(buffer, ext);
+      if (ext === 'pdf' && !text) {
         return NextResponse.json(
-          { error: 'Could not extract text from this PDF. It may be a scanned image. Try pasting your resume text instead.' },
+          {
+            error:
+              'Could not extract text from this PDF. It may be a scanned image. Try pasting your resume text instead.',
+          },
           { status: 400 }
         );
       }
-
       return NextResponse.json({ text });
-    }
-
-    if (ext === 'docx' || ext === 'doc') {
-      const mammoth = await import('mammoth');
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const result = await mammoth.extractRawText({ buffer });
-      return NextResponse.json({ text: result.value?.trim() || '' });
-    }
-
-    if (ext === 'txt') {
-      const text = await file.text();
-      return NextResponse.json({ text: text.trim() });
     }
 
     return NextResponse.json(

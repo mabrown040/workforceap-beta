@@ -91,10 +91,8 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <Link href="/admin/subgroups" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
-        &larr; Back to Subgroups
-      </Link>
       <PageHeader
+        breadcrumbs={[{ label: 'Subgroups', href: '/admin/subgroups' }, { label: 'Subgroup Details' }]}
         title={subgroup.name}
         subtitle={`${subgroup.type} · Leader: ${subgroup.leader.fullName}${subgroup.partner ? ` · Linked to ${subgroup.partner.name}` : ''}`}
         action={<Link href={`/admin/subgroups/${id}/edit`} className="btn btn-outline">Edit</Link>}

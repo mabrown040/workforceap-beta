@@ -7,11 +7,11 @@ import { MEMBER_PORTAL_NAV } from '@/lib/nav/memberPortalNav';
 import { isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
-export default function PortalNav() {
+export default function PortalNav({ className }: { className?: string }) {
   const pathname = usePathname() ?? '';
 
   return (
-    <nav className="portal-nav" aria-label={`${PRODUCT_COPY.memberWorkspace} navigation`}>
+    <nav className={`portal-nav${className ? ` ${className}` : ''}`} aria-label={`${PRODUCT_COPY.memberWorkspace} navigation`}>
       <div className="portal-nav-inner">
         <ul className="portal-nav-links">
           {MEMBER_PORTAL_NAV.map(({ href, label, aliases }) => {

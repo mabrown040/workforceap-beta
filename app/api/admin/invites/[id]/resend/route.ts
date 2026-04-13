@@ -13,77 +13,100 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id)))
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id)))
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { success: rateOk } = await checkAdminInviteRateLimit(user.id);
-  if (!rateOk) {
-    return NextResponse.json(
-      { error: 'Rate limit exceeded. Max 10 invites per hour. Try again later.' },
-      { status: 429 }
-    );
+    const { success: rateOk } = await checkAdminInviteRateLimit(user.id);
+    if (!rateOk) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Max 10 invites per hour. Try again later.' },
+        { status: 429 }
+      );
+    }
+
+    const { id } = await params;
+
+    const invitation = await prisma.invitation.findUnique({
+      where: { id },
+      include: { invitedBy: { select: { fullName: true } } },
+    });
+
+    if (!invitation) {
+      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
+    }
+
+    if (invitation.status !== 'pending') {
+      return NextResponse.json(
+        { error: 'Only pending invitations can be resent.' },
+        { status: 400 }
+      );
+    }
+
+    if (new Date() > invitation.expiresAt) {
+      return NextResponse.json(
+        { error: 'Invitation has expired. Create a new invite instead.' },
+        { status: 400 }
+      );
+    }
+
+    const newToken = randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + INVITE_EXPIRY_DAYS);
+
+    const inviteUrl = `${SITE_URL}/invite?token=${newToken}`;
+    const roleLabel =
+      invitation.role === 'admin'
+        ? 'Admin'
+        : invitation.role === 'partner'
+          ? 'Partner'
+          : invitation.role === 'counselor'
+            ? 'Counselor'
+            : 'Student';
+
+    const previousToken = invitation.token;
+    const previousExpiresAt = invitation.expiresAt;
+
+    // Persist new token before emailing so the message never contains a token that is not in the DB.
+    await prisma.invitation.update({
+      where: { id },
+      data: { token: newToken, expiresAt },
+    });
+
+    const emailResult = await sendInvitationEmail({
+      to: invitation.email,
+      inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',
+      role: roleLabel,
+      personalMessage: invitation.personalMessage,
+      inviteUrl,
+    });
+
+    if (!emailResult.ok) {
+      try {
+        await prisma.invitation.update({
+          where: { id },
+          data: { token: previousToken, expiresAt: previousExpiresAt },
+        });
+      } catch (revertErr) {
+        console.error('[admin/invites resend] failed to revert token after email failure:', revertErr);
+      }
+      return NextResponse.json(
+        {
+          error:
+            emailResult.error === 'Email not configured'
+              ? 'Email is not configured (RESEND_API_KEY). Copy the invite link from the list or configure Resend.'
+              : 'Failed to send email. The previous invitation link is still valid — try again.',
+          emailSent: false,
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, message: 'Invitation resent.', emailSent: true });
+  } catch (error) {
+    console.error('[admin/invites/[id]/resend POST] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const { id } = await params;
-
-  const invitation = await prisma.invitation.findUnique({
-    where: { id },
-    include: { invitedBy: { select: { fullName: true } } },
-  });
-
-  if (!invitation) {
-    return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
-  }
-
-  if (invitation.status !== 'pending') {
-    return NextResponse.json(
-      { error: 'Only pending invitations can be resent.' },
-      { status: 400 }
-    );
-  }
-
-  if (new Date() > invitation.expiresAt) {
-    return NextResponse.json(
-      { error: 'Invitation has expired. Create a new invite instead.' },
-      { status: 400 }
-    );
-  }
-
-  const newToken = randomBytes(32).toString('hex');
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + INVITE_EXPIRY_DAYS);
-
-  await prisma.invitation.update({
-    where: { id },
-    data: { token: newToken, expiresAt },
-  });
-
-  const inviteUrl = `${SITE_URL}/invite?token=${newToken}`;
-  const roleLabel =
-    invitation.role === 'admin'
-      ? 'Admin'
-      : invitation.role === 'partner'
-        ? 'Partner'
-        : invitation.role === 'counselor'
-          ? 'Counselor'
-          : 'Student';
-
-  const emailResult = await sendInvitationEmail({
-    to: invitation.email,
-    inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',
-    role: roleLabel,
-    personalMessage: invitation.personalMessage,
-    inviteUrl,
-  });
-
-  if (!emailResult.ok) {
-    return NextResponse.json(
-      { error: 'Failed to send email. Please try again.' },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json({ ok: true, message: 'Invitation resent.' });
 }

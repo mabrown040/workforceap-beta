@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, ChevronRight, FolderOpen } from 'lucide-react';
+import { BookOpen, ChevronRight, FolderOpen, ShieldCheck } from 'lucide-react';
 import { trackLearningHubNavigate } from '@/lib/analytics/events';
+
+const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
 
 export default function LearningHubDestinationCards() {
   return (
@@ -16,7 +18,7 @@ export default function LearningHubDestinationCards() {
         <ul className="learning-hub-destinations" role="list">
           <li>
             <Link
-              href="/resources"
+              href="/dashboard/career-library"
               className="learning-hub-card"
               onClick={() => trackLearningHubNavigate('career_library')}
             >
@@ -49,6 +51,39 @@ export default function LearningHubDestinationCards() {
               </span>
               <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />
             </Link>
+          </li>
+          <li>
+            {WIOA_AVAILABLE ? (
+              <Link
+                href="/dashboard/learning/wioa-qualification"
+                className="learning-hub-card"
+                onClick={() => trackLearningHubNavigate('wioa_screening')}
+              >
+                <span className="learning-hub-card-icon" aria-hidden>
+                  <ShieldCheck size={26} strokeWidth={1.75} />
+                </span>
+                <span className="learning-hub-card-body">
+                  <span className="learning-hub-card-title">Funding eligibility check</span>
+                  <span className="learning-hub-card-desc">
+                    Quick self-screening to see if you qualify for funded training through a government workforce program.
+                  </span>
+                </span>
+                <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />
+              </Link>
+            ) : (
+              <div className="learning-hub-card" aria-disabled="true" style={{ opacity: 0.7, cursor: 'not-allowed' }}>
+                <span className="learning-hub-card-icon" aria-hidden>
+                  <ShieldCheck size={26} strokeWidth={1.75} />
+                </span>
+                <span className="learning-hub-card-body">
+                  <span className="learning-hub-card-title">Funding eligibility check</span>
+                  <span className="learning-hub-card-desc">
+                    Coming soon. We’re connecting WIOA screening to your state’s workflow and review queue.
+                  </span>
+                </span>
+                <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />
+              </div>
+            )}
           </li>
         </ul>
       </div>

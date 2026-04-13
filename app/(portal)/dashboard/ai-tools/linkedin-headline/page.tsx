@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'LinkedIn Headline Generator',
@@ -16,6 +18,7 @@ export default async function LinkedInHeadlinePage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/linkedin-headline');
 
   return (
+    <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       {/* Header */}
       <div
@@ -37,7 +40,7 @@ export default async function LinkedInHeadlinePage() {
             marginBottom: '0.75rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">arrow_back</span>
           Back to AI Tools
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -52,7 +55,7 @@ export default async function LinkedInHeadlinePage() {
               justifyContent: 'center',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>badge</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">badge</span>
           </div>
           <div>
             <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>LinkedIn Headline Generator</h1>
@@ -65,10 +68,13 @@ export default async function LinkedInHeadlinePage() {
 
       {/* Main content */}
       <div style={{ maxWidth: '720px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-        <div className="stitch-card" style={{ padding: '1.5rem' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
           <LinkedInHeadlineForm />
         </div>
+        <ToolHistoryPanel userId={user.id} toolType="linkedin_headline" />
       </div>
     </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

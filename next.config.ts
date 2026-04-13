@@ -1,13 +1,20 @@
 import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Same POSTGRES_* defaults as scripts/prisma-env.js so `next build` can run Prisma without errors
 const require = createRequire(import.meta.url);
 require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
+  // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.
+  outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
+  serverExternalPackages: ['pdf-parse', 'mammoth'],
   async headers() {
     return [
       {
@@ -20,13 +27,14 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          // camera=(self) so mock-interview / practice video can use getUserMedia; mic already (self)
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
           {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
-              "connect-src 'self' https://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
+              `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
               "img-src 'self' data: https: blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
@@ -53,10 +61,18 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    qualities: [85],
+    localPatterns: [
+      {
+        pathname: '/images/**',
+        search: '',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -75,6 +91,16 @@ const nextConfig: NextConfig = {
     return [
       // Legacy .html redirects
       { source: '/index.html', destination: '/', permanent: true },
+
+      // Public marketing route aliases restored after responsive merge
+      { source: '/about', destination: '/what-we-do', permanent: true },
+      { source: '/about/', destination: '/what-we-do', permanent: true },
+      { source: '/services', destination: '/what-we-do', permanent: true },
+      { source: '/services/', destination: '/what-we-do', permanent: true },
+      { source: '/careers', destination: '/find-your-path', permanent: true },
+      { source: '/careers/', destination: '/find-your-path', permanent: true },
+      { source: '/confirmation', destination: '/apply/confirmation', permanent: false },
+      { source: '/confirmation/', destination: '/apply/confirmation', permanent: false },
       { source: '/apply.html', destination: '/apply', permanent: true },
       { source: '/programs.html', destination: '/programs', permanent: true },
       { source: '/what-we-do.html', destination: '/what-we-do', permanent: true },
@@ -107,6 +133,18 @@ const nextConfig: NextConfig = {
       // Employer dashboard canonical redirect
       { source: '/employer/dashboard', destination: '/employer', permanent: true },
 
+      // Admin WIOA queue — short / legacy URLs
+      { source: '/admin/wioa', destination: '/admin/wioa-screening', permanent: false },
+      { source: '/admin/wioa/', destination: '/admin/wioa-screening', permanent: false },
+
+      // Member workspace canonical URLs (legacy paths → /dashboard/*)
+      { source: '/resources', destination: '/dashboard/career-library', permanent: false },
+      { source: '/resources/', destination: '/dashboard/career-library', permanent: false },
+      { source: '/help', destination: '/dashboard/help', permanent: false },
+      { source: '/help/', destination: '/dashboard/help', permanent: false },
+      { source: '/account', destination: '/dashboard/account', permanent: false },
+      { source: '/account/', destination: '/dashboard/account', permanent: false },
+
       // Member portal: AI Tools, Career Brief, Learning, Weekly Recap live under /dashboard/*
       { source: '/ai-tools', destination: '/dashboard/ai-tools', permanent: true },
       { source: '/ai-tools/:path*', destination: '/dashboard/ai-tools/:path*', permanent: true },
@@ -114,6 +152,10 @@ const nextConfig: NextConfig = {
       { source: '/career-brief/:path*', destination: '/dashboard/career-brief/:path*', permanent: true },
       { source: '/learning', destination: '/dashboard/learning', permanent: true },
       { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
+
+      // Member portal legacy route fixes (QA-ISSUE-001)
+      { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
+      { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },
     ];
   },
 };

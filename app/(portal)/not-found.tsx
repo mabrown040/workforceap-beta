@@ -9,7 +9,7 @@ export default function PortalNotFound() {
     >
       <p className="portal-route-fallback__hint">
         Looking for a job posting? Try the{' '}
-        <Link href="/jobs" className="portal-route-fallback__inline-link">
+        <Link href="/dashboard/jobs" className="portal-route-fallback__inline-link">
           public job board
         </Link>
         .

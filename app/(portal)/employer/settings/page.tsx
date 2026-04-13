@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Company settings',
@@ -38,52 +39,56 @@ export default async function EmployerSettingsPage() {
   if (!employer) redirect('/employers');
 
   return (
-    <div className="employer-settings-page">
-      <PageHeader
-        title="Company settings"
-        subtitle="Update your company profile and primary hiring contact. Changes save to your employer record immediately."
-      />
+    <>
+      <div style={{ maxWidth: '720px', margin: '0 auto', paddingBottom: '5rem' }}>
+        <PageHeader
+          title="Company Settings"
+          subtitle="Update your company profile, logo, and hiring contact."
+          breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Settings' }]}
+        />
 
-      <section className="employer-settings-form-section employer-dash-panel" aria-label="Company profile form">
-        <EmployerSettingsForm initial={employer} />
-      </section>
+        {/* Logo + form card */}
+        <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
+          <div className="portal-profile-section-card__header">
+            <h2 className="portal-profile-section-card__title">Company Profile</h2>
+          </div>
+          <div className="portal-profile-section-card__body">
+            <EmployerSettingsForm initial={employer} />
+          </div>
+        </div>
 
-      <div className="employer-settings-next-steps" role="region" aria-label="Where to go next">
-        <h2 className="employer-settings-next-steps__title">What you can do now</h2>
-        <ul className="employer-settings-next-steps__list">
-          <li>
-            <Link href="/employer/jobs" className="employer-settings-next-steps__link">
-              Manage job postings
-            </Link>
-            <span className="employer-settings-next-steps__desc">Create, edit, submit for review, and publish roles.</span>
-          </li>
-          <li>
-            <Link href="/employer/applications" className="employer-settings-next-steps__link">
-              Review applicants
-            </Link>
-            <span className="employer-settings-next-steps__desc">See applications and update hiring status.</span>
-          </li>
-          <li>
-            <Link href="/employer/messages" className="employer-settings-next-steps__link">
-              Messages / support
-            </Link>
-            <span className="employer-settings-next-steps__desc">Ask WorkforceAP to update billing contacts, users, or company details.</span>
-          </li>
-          <li>
-            <Link href="/contact" className="employer-settings-next-steps__link">
-              Contact form
-            </Link>
-            <span className="employer-settings-next-steps__desc">General inquiries: program partnerships, press, or other topics.</span>
-          </li>
-        </ul>
+        {/* Quick nav */}
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+          <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.875rem' }}>
+            What you can do now
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {[
+              { href: '/employer/jobs', icon: 'work', label: 'Manage job postings', desc: 'Create, edit, submit for review, and publish roles.' },
+              { href: '/employer/applications', icon: 'grading', label: 'Review applicants', desc: 'See applications and update hiring status.' },
+              { href: '/employer/messages', icon: 'forum', label: 'Messages & support', desc: 'Contact WorkforceAP about billing, users, or details.' },
+            ].map((item) => (
+              <Link key={item.href} href={item.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
+                <div className="portal-quick-action-item__icon">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="portal-quick-action-item__label">{item.label}</p>
+                  <p className="portal-quick-action-item__desc">{item.desc}</p>
+                </div>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+              </Link>
+            ))}
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>
+            For urgent changes email{' '}
+            <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              info@workforceap.org
+            </a>.
+          </p>
+        </div>
       </div>
-      <p className="employer-settings-footnote">
-        For urgent account changes, email{' '}
-        <a href="mailto:info@workforceap.org" className="employer-settings-mailto">
-          info@workforceap.org
-        </a>
-        .
-      </p>
-    </div>
+      <MobileBottomNav variant="employer" />
+    </>
   );
 }

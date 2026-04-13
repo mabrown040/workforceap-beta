@@ -403,7 +403,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       </div>
 
       <div className="form-group">
-        <label htmlFor="job-certs">Preferred Certifications (comma-separated)</label>
+        <label htmlFor="job-certs">Preferred Certificates (comma-separated)</label>
         <input id="job-certs" type="text" name="preferredCertifications" placeholder="CompTIA A+, AWS Certified" defaultValue={prefill?.preferredCertifications?.join(', ') ?? ''} disabled={status === 'saving'} />
       </div>
 

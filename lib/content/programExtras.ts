@@ -14,10 +14,10 @@ export type ProgramExtra = {
 
 export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'digital-literacy-empowerment-class': {
-    bestFor: 'Anyone building foundational digital skills — no tech background needed.',
-    jobOutcomes: ['Office roles', 'Customer service', 'Administrative support'],
+    bestFor: 'Members who are new to computers and the internet — no tech background required. If you already use email and browse the web daily, a program like IT Support or Cybersecurity may be a stronger fit.',
+    jobOutcomes: ['Office Support Specialist', 'Customer Service Representative', 'Administrative Assistant'],
     difficulty: 1,
-    rampNote: 'No tech background required. Our shortest program.',
+    rampNote: 'No tech background required. Six weeks, beginner pace. Start here if technology feels unfamiliar.',
   },
   'ai-professional-developer-certificate-ibm': {
     bestFor: 'Career changers with some coding interest. Best if you can invest 4–6 months.',
@@ -46,10 +46,10 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     jobOutcomes: ['Security Analyst', 'Security Administrator', 'Compliance Analyst'],
   },
   'cybersecurity-professional-certificate-google': {
-    bestFor: 'Career changers into security. No prior cyber experience required.',
-    jobOutcomes: ['Cybersecurity Analyst', 'SOC Analyst', 'Security Operations'],
+    bestFor: 'Career changers ready to enter the security field. You do not need a security background, but comfort with computers helps — members new to technology entirely should complete Digital Literacy or IT Support first.',
+    jobOutcomes: ['Cybersecurity Analyst', 'SOC Analyst', 'Security Operations Specialist'],
     difficulty: 3,
-    rampNote: 'Moderate ramp. Strong demand and salary.',
+    rampNote: 'Assumes basic computer comfort. Strong employer demand and higher salary ceiling than most entry tracks.',
   },
   'data-analytics-professional-certificate-google': {
     bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',
@@ -80,8 +80,10 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     jobOutcomes: ['IT Automation Specialist', 'DevOps Engineer', 'Systems Engineer'],
   },
   'health-information-technology-mchit': {
-    bestFor: 'Healthcare administration focus. Medical coding, EHR, HIPAA.',
+    bestFor: 'Members drawn to healthcare who want an administrative role rather than a clinical one. No prior medical background needed — this program starts from fundamentals. If your interest is more in tech than healthcare, an IT or data track may be a better path.',
     jobOutcomes: ['Medical Coder', 'Health Information Technician', 'Billing Specialist'],
+    difficulty: 2,
+    rampNote: 'Starts from healthcare fundamentals. No prior clinical experience required.',
   },
   'production-technology-certificate-cpt': {
     bestFor: 'Hands-on learners. CNC, manufacturing, quality control.',

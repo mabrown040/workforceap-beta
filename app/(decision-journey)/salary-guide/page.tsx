@@ -51,41 +51,6 @@ const GROWTH_PHASES = [
   { num: '04', title: 'Mastery', desc: 'Industry expert. Multiple career options. Many alumni return to WorkforceAP as mentors or instructors.' },
 ];
 
-const MOBILE_SALARY_CARDS = [
-  {
-    category: 'AI & Software',
-    program: 'AI Professional Developer',
-    entry: '$85k – $105k',
-    mid: '$115k – $145k',
-    certs: ['IBM', 'Python', 'PyTorch'],
-    borderColor: '#8c0f37',
-  },
-  {
-    category: 'IT and Cyber',
-    program: 'Cybersecurity Architect',
-    entry: '$92k – $112k',
-    mid: '$130k – $165k',
-    certs: ['CompTIA Security+', 'CISSP'],
-    borderColor: '#ffbb00',
-  },
-  {
-    category: 'Cloud',
-    program: 'AWS Solutions Associate',
-    entry: '$78k – $95k',
-    mid: '$110k – $140k',
-    certs: ['AWS Certified', 'Terraform'],
-    borderColor: '#ad2c4d',
-  },
-  {
-    category: 'Business',
-    program: 'Data Analytics Manager',
-    entry: '$82k – $98k',
-    mid: '$125k – $155k',
-    certs: ['Tableau', 'SQL Expert'],
-    borderColor: '#7b5800',
-  },
-];
-
 export default function SalaryGuidePage() {
   const salaryRows = buildSalaryGuideRows();
   const guideStats = salaryGuideSummaryStats(salaryRows);

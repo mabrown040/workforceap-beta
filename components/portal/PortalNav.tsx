@@ -3,18 +3,23 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SignOutButton } from './SignOutButton';
-import { MEMBER_PORTAL_NAV } from '@/lib/nav/memberPortalNav';
+import { MEMBER_PORTAL_NAV_ITEMS, PORTER_PORTAL_NAV_ITEMS, PARTNER_PORTAL_NAV_ITEMS, COUNSELOR_PORTAL_NAV_ITEMS, ADMIN_PORTAL_NAV_ITEMS, PORTAL_NAV } from '@/lib/nav/portalNav';
 import { isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import type { PortalRole } from '@/lib/nav/portalNav';
 
-export default function PortalNav({ className }: { className?: string }) {
-  const pathname = usePathname() ?? '';
+export default function PortalNav({ className, currentRole, currentPath }: { className?: string; currentRole?: PortalRole; currentPath?: string; }) {
+  const pathname = currentPath ?? usePathname() ?? '';
+
+  // Get nav items for current role
+  const navItems = currentRole ? PORTAL_NAV[currentRole] : MEMBER_PORTAL_NAV_ITEMS;
+  const workspaceLabel = currentRole === 'admin' ? 'Admin' : currentRole === 'employer' ? 'Employer workspace' : currentRole === 'partner' ? 'Partner workspace' : currentRole === 'counselor' ? 'Counselor workspace' : PRODUCT_COPY.memberWorkspace;
 
   return (
-    <nav className={`portal-nav${className ? ` ${className}` : ''}`} aria-label={`${PRODUCT_COPY.memberWorkspace} navigation`}>
+    <nav className={`portal-nav${className ? ` ${className}` : ''}`} aria-label={`${workspaceLabel} navigation`}>
       <div className="portal-nav-inner">
         <ul className="portal-nav-links">
-          {MEMBER_PORTAL_NAV.map(({ href, label, aliases }) => {
+          {navItems.map(({ href, label, aliases }) => {
             const isActive = isActiveRoute(pathname, href, aliases);
             return (
               <li key={href}>

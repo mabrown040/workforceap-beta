@@ -13,7 +13,7 @@ function valueColor(accent: NonNullable<Props['accent']>) {
     case 'accent':
       return 'var(--color-accent)';
     case 'gold':
-      return '#92400e';
+      return 'var(--color-gold)';
     case 'blue':
       return 'var(--color-blue)';
     case 'green':

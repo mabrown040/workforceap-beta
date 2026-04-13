@@ -22,6 +22,10 @@ async function updateMentorAction(formData: FormData) {
   if (action === 'deactivate') {
     await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: false } });
   }
+
+  if (action === 'activate') {
+    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true } });
+  }
 }
 
 export default async function AdminMentorsPage() {
@@ -73,11 +77,20 @@ export default async function AdminMentorsPage() {
                       <button type="submit" style={{ border: 0, borderRadius: '0.45rem', padding: '0.45rem 0.7rem', background: 'var(--color-accent)', color: '#fff', fontWeight: 600 }}>Approve</button>
                     </form>
                   ) : null}
-                  <form action={updateMentorAction}>
-                    <input type="hidden" name="mentorId" value={mentor.id} />
-                    <input type="hidden" name="action" value="deactivate" />
-                    <button type="submit" style={{ border: 0, borderRadius: '0.45rem', padding: '0.45rem 0.7rem', background: '#a91b3f', color: '#fff', fontWeight: 600 }}>Deactivate</button>
-                  </form>
+                  {mentor.approvedAt && mentor.isActive ? (
+                    <form action={updateMentorAction}>
+                      <input type="hidden" name="mentorId" value={mentor.id} />
+                      <input type="hidden" name="action" value="deactivate" />
+                      <button type="submit" style={{ border: 0, borderRadius: '0.45rem', padding: '0.45rem 0.7rem', background: '#a91b3f', color: '#fff', fontWeight: 600 }}>Deactivate</button>
+                    </form>
+                  ) : null}
+                  {mentor.approvedAt && !mentor.isActive ? (
+                    <form action={updateMentorAction}>
+                      <input type="hidden" name="mentorId" value={mentor.id} />
+                      <input type="hidden" name="action" value="activate" />
+                      <button type="submit" style={{ border: 0, borderRadius: '0.45rem', padding: '0.45rem 0.7rem', background: 'var(--color-accent)', color: '#fff', fontWeight: 600 }}>Activate</button>
+                    </form>
+                  ) : null}
                 </td>
               </tr>
             ))}

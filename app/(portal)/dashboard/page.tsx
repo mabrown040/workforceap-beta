@@ -302,6 +302,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   /* Mobile progress percentage for orb */
   const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
+  const mobileProgressSummary = totalCourses > 0
+    ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
+    : 'Courses will appear once your program is set';
   const orbCircumference = 251.2;
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
@@ -409,7 +413,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
 
           {/* Progress ring */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
             <div
               className="portal-progress-ring"
               style={{
@@ -431,9 +435,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   strokeLinecap="round"
                 />
               </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.1rem' }}>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
                 <span className="wa-text-lg wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
-                <span className="wa-text-[10px] wa-font-semibold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>Complete</span>
+                <span className="wa-text-[9px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
+                  {mobileProgressTone}
+                </span>
               </div>
             </div>
             <div
@@ -448,6 +454,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 Training progress
               </span>
             </div>
+            <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
+              {mobileProgressSummary}
+            </p>
           </div>
         </section>
 

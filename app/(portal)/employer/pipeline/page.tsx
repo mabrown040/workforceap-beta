@@ -29,7 +29,7 @@ export default async function EmployerPipelinePage() {
   if (!ctx) redirect('/employers');
 
   const jobs = await prisma.job.findMany({
-    where: { employerId: ctx.employerId },
+    where: { employerId: ctx.employerId, status: 'live' },
     select: { id: true, title: true },
     orderBy: { updatedAt: 'desc' },
   });

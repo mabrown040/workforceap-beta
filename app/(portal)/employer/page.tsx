@@ -69,11 +69,12 @@ export default async function EmployerDashboardPage() {
   });
 
   const jobIds = jobs.map((j) => j.id);
+  const liveJobIds = jobs.filter((j) => j.status === 'live').map((j) => j.id);
 
   const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount, offerStageCount] = await Promise.all([
-    jobIds.length === 0
+    liveJobIds.length === 0
       ? Promise.resolve(0)
-      : prisma.aIJobMatch.count({ where: { jobId: { in: jobIds } } }),
+      : prisma.aIJobMatch.count({ where: { jobId: { in: liveJobIds } } }),
     prisma.jobPostingApplication.count({
       where: {
         job: { employerId: ctx.employerId },

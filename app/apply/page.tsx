@@ -276,7 +276,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
               Loading application form… If it doesn&apos;t appear, call{' '}
               <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
               {' '}or email{' '}
-              <a href="mailto:info@workforceap.com" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.com</a>.
+              <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>.
             </p>
           </div>
           <noscript>
@@ -286,7 +286,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                 If the form doesn&apos;t load, call{' '}
                 <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
                 {' '}or email{' '}
-                <a href="mailto:info@workforceap.com" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.com</a>.
+                <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>.
               </p>
             </div>
           </noscript>

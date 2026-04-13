@@ -351,7 +351,7 @@ export default function SignupForm() {
         <div style={s.brandContent}>
           <span className="material-symbols-outlined" style={{ fontSize: 48, opacity: 0.9, marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">account_balance</span>
           <h1 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: 'var(--space-4)', letterSpacing: '-0.02em' }}>
-            The modern institutional archive
+            Free career training built for real hiring momentum
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.75, lineHeight: 'var(--line-height-normal)' }}>
             Industry-recognized credentials. Career-changing programs. Zero cost to qualifying participants.

@@ -61,7 +61,7 @@ export default async function EmployerCandidateProfilePage({
 
   const [matches, applications] = await Promise.all([
     prisma.aIJobMatch.findMany({
-      where: { studentId, job: { employerId: ctx.employerId } },
+      where: { studentId, job: { employerId: ctx.employerId, status: 'live' } },
       orderBy: { createdAt: 'desc' },
       include: {
         job: { select: { id: true, title: true } },

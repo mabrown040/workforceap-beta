@@ -25,7 +25,7 @@ export default async function EmployerMatchesPage() {
   if (!ctx) redirect('/employers');
 
   const matches = await prisma.aIJobMatch.findMany({
-    where: { job: { employerId: ctx.employerId } },
+    where: { job: { employerId: ctx.employerId, status: 'live' } },
     orderBy: { createdAt: 'desc' },
     include: {
       job: { select: { id: true, title: true } },

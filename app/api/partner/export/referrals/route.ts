@@ -67,7 +67,14 @@ export async function GET(request: NextRequest) {
     }),
   ];
 
-  const csv = lines.join('\r\n');
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const brandingHeader = [
+    `# Workforce Advancement Project — Partner ${preset === 'outcomes' ? 'Outcomes' : 'Referrals'} Export`,
+    `# workforceap.org | Generated: ${date}`,
+    `# Partner: ${ctx.partner.name}`,
+    '#',
+  ].join('\r\n');
+  const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
   const suffix = preset === 'outcomes' ? 'outcomes' : 'referrals';
 
   return new NextResponse(csv, {

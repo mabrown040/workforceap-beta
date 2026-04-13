@@ -5,8 +5,11 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
-
-const PROGRAM_STORAGE_KEY = 'apply_program_slug';
+import {
+  APPLY_PROGRAM_RANKED_KEY,
+  APPLY_PROGRAM_SLUG_KEY,
+  getCareerQuizPayloadFromStorage,
+} from '@/lib/apply/applyProgramStorage';
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' }, { abbr: 'AK', name: 'Alaska' }, { abbr: 'AZ', name: 'Arizona' },
@@ -31,7 +34,7 @@ const US_STATES: { abbr: string; name: string }[] = [
 export default function ApplyCreateAccountForm() {
   const searchParams = useSearchParams();
   const [init, setInit] = useState<'loading' | 'missing' | 'ready'>('loading');
-  const [programSlug, setProgramSlug] = useState<string | null>(null);
+  const [programRankedSlugs, setProgramRankedSlugs] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [verifyEmailMode, setVerifyEmailMode] = useState(false);
@@ -64,7 +67,7 @@ export default function ApplyCreateAccountForm() {
     confirmPassword?: string;
   }>({});
   const completedRef = useRef(false);
-  const dropoffRef = useRef({ startedFields: 0, smsOptIn: false, programSlug: null as string | null });
+  const dropoffRef = useRef({ startedFields: 0, smsOptIn: false, program_slugs: null as string[] | null });
 
   useEffect(() => {
     trackApplyFunnel(3, 'account_create_view');
@@ -77,13 +80,26 @@ export default function ApplyCreateAccountForm() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const slug = sessionStorage.getItem(PROGRAM_STORAGE_KEY);
+    try {
+      const rankedRaw = sessionStorage.getItem(APPLY_PROGRAM_RANKED_KEY);
+      if (rankedRaw) {
+        const parsed = JSON.parse(rankedRaw) as unknown;
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.every((x) => typeof x === 'string')) {
+          setProgramRankedSlugs(parsed as string[]);
+          setInit('ready');
+          return;
+        }
+      }
+    } catch {
+      /* fall through */
+    }
+    const slug = sessionStorage.getItem(APPLY_PROGRAM_SLUG_KEY);
     if (!slug) {
       trackApplyFunnel(3, 'account_missing_program');
       setInit('missing');
       return;
     }
-    setProgramSlug(slug);
+    setProgramRankedSlugs([slug]);
     setInit('ready');
   }, []);
 
@@ -92,9 +108,9 @@ export default function ApplyCreateAccountForm() {
       startedFields: [firstName, lastName, email, phone, addressLine1, city, stateVal, zip, password, confirmPassword].filter(Boolean)
         .length,
       smsOptIn,
-      programSlug,
+      program_slugs: programRankedSlugs,
     };
-  }, [addressLine1, city, confirmPassword, email, firstName, lastName, password, phone, programSlug, smsOptIn, stateVal, zip]);
+  }, [addressLine1, city, confirmPassword, email, firstName, lastName, password, phone, programRankedSlugs, smsOptIn, stateVal, zip]);
 
   useEffect(() => {
     return () => {
@@ -102,7 +118,7 @@ export default function ApplyCreateAccountForm() {
         trackApplyFunnel(3, 'account_create_dropoff', {
           started_fields: dropoffRef.current.startedFields,
           sms_opt_in: dropoffRef.current.smsOptIn,
-          program_slug: dropoffRef.current.programSlug,
+          program_slugs: dropoffRef.current.program_slugs,
         });
       }
     };
@@ -177,13 +193,13 @@ export default function ApplyCreateAccountForm() {
       return;
     }
 
-    if (!programSlug) {
-      setError('We lost your selected program. Go back to step 2 and choose the program you want to discuss first.');
+    if (!programRankedSlugs?.length) {
+      setError('We lost your selected program(s). Go back to step 2 and choose at least one program.');
       return;
     }
 
     setLoading(true);
-    trackApplyFunnel(3, 'account_create_submit', { program_slug: programSlug, sms_opt_in: smsOptIn });
+    trackApplyFunnel(3, 'account_create_submit', { program_slugs: programRankedSlugs, sms_opt_in: smsOptIn });
 
     try {
       let referralRef: string | null = null;
@@ -194,6 +210,8 @@ export default function ApplyCreateAccountForm() {
           /* ignore */
         }
       }
+
+      const careerPayload = typeof window !== 'undefined' ? getCareerQuizPayloadFromStorage() : null;
 
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
@@ -211,20 +229,25 @@ export default function ApplyCreateAccountForm() {
           zip: zip.trim(),
           smsOptIn,
           password,
-          programSlug,
+          programRankedSlugs,
           referralRef: referralRef?.trim() || undefined,
+          recommendedOnetCode: careerPayload?.recommendedOnetCode ?? undefined,
+          recommendedCareerTitle: careerPayload?.recommendedCareerTitle ?? undefined,
+          careerRecommendationJson: careerPayload?.careerRecommendationJson ?? undefined,
+          needsComputerSupportFollowUp: careerPayload?.needsComputerSupportFollowUp ?? undefined,
         }),
       });
       const data = await res.json();
 
       if (!res.ok) {
         setError(data.error ?? 'We could not create your account yet. Please try again.');
-        trackApplyFunnel(3, 'account_create_error', { program_slug: programSlug, error_message: data.error ?? 'unknown_error' });
+        trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: data.error ?? 'unknown_error' });
         setLoading(false);
         return;
       }
 
-      sessionStorage.removeItem(PROGRAM_STORAGE_KEY);
+      sessionStorage.removeItem(APPLY_PROGRAM_SLUG_KEY);
+      sessionStorage.removeItem(APPLY_PROGRAM_RANKED_KEY);
       sessionStorage.removeItem('apply_eligibility');
       try {
         sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
@@ -232,7 +255,7 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       completedRef.current = true;
-      trackApplyFunnel(3, 'account_created', { program_slug: programSlug, redirect_to: data.redirectTo ?? '/dashboard' });
+      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: data.redirectTo ?? '/dashboard' });
 
       // If the API returned a verification message (no session yet), show the verify-email screen
       if (data.message) {
@@ -245,7 +268,7 @@ export default function ApplyCreateAccountForm() {
       window.location.href = data.redirectTo ?? '/dashboard';
     } catch {
       setError('Something went wrong while creating your account. Please try again, or call (512) 777-1808 if you need help finishing.');
-      trackApplyFunnel(3, 'account_create_error', { program_slug: programSlug, error_message: 'network_or_unknown' });
+      trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });
       setLoading(false);
     }
   };
@@ -253,7 +276,7 @@ export default function ApplyCreateAccountForm() {
   if (verifyEmailMode) {
     return (
       <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }}>mark_email_unread</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
         <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
           We sent a verification link to:
@@ -492,7 +515,7 @@ export default function ApplyCreateAccountForm() {
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>
@@ -521,7 +544,7 @@ export default function ApplyCreateAccountForm() {
             aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showConfirmPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>

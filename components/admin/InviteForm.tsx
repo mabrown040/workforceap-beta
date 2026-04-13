@@ -3,6 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+type InvitePostResponse = {
+  ok?: boolean;
+  emailSent?: boolean;
+  inviteUrl?: string;
+  warning?: string;
+  error?: string;
+};
+
 type SubgroupOpt = { id: string; name: string };
 type ProgramOpt = { slug: string; title: string };
 type PartnerOpt = { id: string; name: string };
@@ -24,11 +32,14 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
   const [personalMessage, setPersonalMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualLink, setManualLink] = useState<{ url: string; message: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
     setError(null);
+    setManualLink(null);
     try {
       const res = await fetch('/api/admin/invites', {
         method: 'POST',
@@ -42,13 +53,30 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
           personalMessage: personalMessage.trim() || null,
         }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as InvitePostResponse;
       if (!res.ok) throw new Error(data.error ?? 'Failed to send invite');
+      if (data.emailSent === false && data.inviteUrl && data.warning) {
+        setManualLink({ url: data.inviteUrl, message: data.warning });
+        router.refresh();
+        setSending(false);
+        return;
+      }
       router.refresh();
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
       setSending(false);
+    }
+  };
+
+  const copyManualLink = async () => {
+    if (!manualLink) return;
+    try {
+      await navigator.clipboard.writeText(manualLink.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError('Could not copy — select the link and copy manually.');
     }
   };
 
@@ -112,6 +140,55 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
               </div>
             )}
 
+            {manualLink && (
+              <div
+                role="status"
+                style={{
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  background: '#fff8e6',
+                  border: '1px solid #e6c200',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem',
+                  color: '#5c4a00',
+                }}
+              >
+                <p style={{ margin: '0 0 0.5rem' }}>{manualLink.message}</p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <code
+                    style={{
+                      flex: '1 1 200px',
+                      fontSize: '0.8rem',
+                      wordBreak: 'break-all',
+                      background: 'white',
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                    }}
+                  >
+                    {manualLink.url}
+                  </code>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()} aria-label="Copy link">
+                    {copied ? (
+                      <>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">content_copy</span>
+                        Copy link
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem' }}>
+                  The invite is saved. Close when you&apos;re done, or configure <code>RESEND_API_KEY</code> and use
+                  Resend on the list.
+                </p>
+              </div>
+            )}
+
             <div style={{ marginBottom: '1rem' }}>
               <label htmlFor="invite-email" style={labelStyle}>
                 Email address
@@ -152,7 +229,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'counselor' && partners.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-counselor-partner" style={labelStyle}>
-                  Partner affiliation (optional)
+                  Partner affiliation (for counselors)
                 </label>
                 <select
                   id="invite-counselor-partner"
@@ -176,7 +253,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'partner' && subgroups.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-subgroup" style={labelStyle}>
-                  Subgroup (optional)
+                  Subgroup (for partners)
                 </label>
                 <select
                   id="invite-subgroup"
@@ -197,7 +274,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'member' && programs.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-program" style={labelStyle}>
-                  Program pre-assignment (optional)
+                  Assign to program (for students)
                 </label>
                 <select
                   id="invite-program"
@@ -231,9 +308,9 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
 
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
               <button type="button" onClick={onClose} className="btn btn-outline">
-                Cancel
+                {manualLink ? 'Done' : 'Cancel'}
               </button>
-              <button type="submit" disabled={sending} className="btn btn-primary">
+              <button type="submit" disabled={sending || !!manualLink} className="btn btn-primary">
                 {sending ? 'Sending...' : 'Send Invite'}
               </button>
             </div>

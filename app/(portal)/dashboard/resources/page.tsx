@@ -7,22 +7,19 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
+import ResourcesClient from './ResourcesClient';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Program resources',
+  title: 'Program Resources',
   description: 'AI career tools, external guides, and program-specific resources for your track.',
   path: '/dashboard/resources',
 });
 
-const CAREER_TOOLS = [
-  { title: 'Resume Tips', url: 'https://www.coursera.org/articles/resume-tips', description: 'External resource' },
-  { title: 'Interview Prep', url: 'https://www.coursera.org/articles/interview-tips', description: 'External resource' },
-  { title: 'LinkedIn Profile Guide', url: 'https://www.linkedin.com/help/linkedin/answer/a521928', description: 'External resource' },
-];
-
 const CATEGORY_LABELS: Record<string, string> = {
   'digital-literacy': 'Digital Literacy',
-  'ai-software': 'AI & Software Dev',
+  'ai-software': 'AI & Software Development',
   'cloud-data': 'Cloud & Data',
   'it-cyber': 'IT & Cybersecurity',
   business: 'Business',
@@ -54,152 +51,161 @@ export default async function DashboardResourcesPage() {
 
   const program = dbUser?.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
   const category = program?.category ?? 'ai-software';
+  const categoryLabel = CATEGORY_LABELS[category] ?? category;
 
-  let suggestedActions: Array<{ label: string; href: string }> = [];
+  let suggestedAiTools: Array<{ label: string; href: string }> = [];
   try {
     const briefContext = await getCareerBriefContext(user.id);
-    suggestedActions = briefContext.recommendedActions.filter((a) => a.href.startsWith('/dashboard/ai-tools'));
+    suggestedAiTools = briefContext.recommendedActions
+      .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
+      .slice(0, 4);
   } catch {
-    suggestedActions = [
-      { label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' },
-      { label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' },
-      { label: 'Log your first application', href: '/dashboard/ai-tools/application-tracker' },
+    suggestedAiTools = [
+      { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter' },
+      { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach' },
+      { label: 'Job Match Scorer', href: '/dashboard/ai-tools/job-match-scorer' },
     ];
   }
 
-  const suggestedAiTools = suggestedActions
-    .filter((a) => a.href.startsWith('/dashboard/ai-tools'))
-    .slice(0, 4);
+  const programResources = getResourcesForCategory(category);
 
   return (
-    <div className="portal-resources-page">
-      <nav className="learning-hub-breadcrumb" aria-label="Learning hub">
-        <Link href="/dashboard/learning">Learning hub</Link>
-        <span className="learning-hub-breadcrumb-sep" aria-hidden>
-          /
-        </span>
-        <span className="learning-hub-breadcrumb-current">Program resources</span>
-      </nav>
-      <h1 className="portal-resources-title">Program resources &amp; tools</h1>
-      <p className="portal-resources-lead">
-        AI tools, career tips, and links matched to your program category — plus ways to reach the team.
-      </p>
+    <>
+      <div style={{ maxWidth: '60rem', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
+        {/* Breadcrumb */}
+        <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
+          <PortalBreadcrumb
+            items={[
+              { href: '/dashboard', label: 'Member Portal' },
+              { href: '/dashboard/learning', label: 'Learning Hub' },
+              { label: 'Program Resources' },
+            ]}
+          />
+        </nav>
 
-      {suggestedAiTools.length > 0 && (
-        <section className="portal-resources-section">
-          <h2 className="portal-resources-section-title">Suggested for you</h2>
-          <p className="portal-resources-section-lead">
-            Based on your progress — try these AI tools next:
+        {/* Header */}
+        <header style={{ marginBottom: '2rem' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+            {categoryLabel}
           </p>
-          <div className="portal-resources-suggested-row">
-            {suggestedAiTools.map((a) => (
-              <Link key={a.href + a.label} href={a.href} className="portal-resources-pill-link">
-                {a.label} →
+          <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
+            Program Resources &amp; Tools
+          </h1>
+          <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+            AI tools, career tips, and links matched to your program — plus ways to reach the team.
+          </p>
+        </header>
+
+        {/* Suggested AI tools */}
+        {suggestedAiTools.length > 0 && (
+          <section style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+              Suggested for you
+            </h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {suggestedAiTools.map((a) => (
+                <Link
+                  key={a.href + a.label}
+                  href={a.href}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '999px',
+                    background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
+                    color: 'var(--color-accent)',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">auto_awesome</span>
+                  {a.label}
+                </Link>
+              ))}
+              <Link
+                href="/dashboard/ai-tools"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '999px',
+                  background: 'var(--surface-container)',
+                  border: '1px solid var(--outline-variant)',
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                }}
+              >
+                All AI tools →
               </Link>
-            ))}
+            </div>
+          </section>
+        )}
+
+        {/* Program resources with inline preview */}
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+            {categoryLabel} resources
+          </h2>
+          <ResourcesClient resources={programResources} />
+        </section>
+
+        {/* Support + Counselor */}
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+            Support
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
+            {/* Counselor card */}
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">support_agent</span>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Your Counselor</h3>
+              </div>
+              {counselorContact ? (
+                <>
+                  <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>{counselorContact.fullName}</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+                    <a href={`mailto:${counselorContact.email}`} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>{counselorContact.email}</a>
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.55 }}>
+                  A counselor will be assigned as you move through enrollment.
+                </p>
+              )}
+              <Link href="/dashboard/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
+                Open messages
+                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
+              </Link>
+            </div>
+
+            {/* General contact */}
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">mail</span>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Contact</h3>
+              </div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', lineHeight: 1.55 }}>
+                <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}>info@workforceap.org</a>
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+                (512) 777-1808
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.55 }}>
+                <strong>Loaner Laptop:</strong> Earned upon program completion. <Link href="/how-it-works" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Learn more</Link>
+              </p>
+            </div>
           </div>
         </section>
-      )}
+      </div>
 
-      <section className="portal-resources-section">
-        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
-          All AI Career Tools
-        </h2>
-        <p className="portal-resources-section-lead">
-          Resume builder, LinkedIn headline, cover letter, interview practice, and more — powered by AI.
-        </p>
-        <Link href="/dashboard/ai-tools" className="portal-resources-cta-primary">
-          Open AI Tools →
-        </Link>
-      </section>
-
-      <section className="portal-resources-section">
-        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
-          Career Tips
-        </h2>
-        <div className="portal-resources-link-grid">
-          {CAREER_TOOLS.map((t) => (
-            <a key={t.title} href={t.url} target="_blank" rel="noopener noreferrer" className="portal-resources-link-card">
-              <strong>{t.title}</strong>
-              <span className="portal-resources-link-card-meta">— {t.description}</span>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="portal-resources-section">
-        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
-          Program Resources
-        </h2>
-        <p className="portal-resources-section-lead">
-          Filtered for your program category: {CATEGORY_LABELS[category] ?? category}
-        </p>
-        <div className="portal-resources-grid-cards">
-          {getResourcesForCategory(category).map((r) => (
-            <a
-              key={r.url}
-              href={r.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="portal-resources-link-card portal-resources-link-card--filled"
-            >
-              <div className="portal-resources-link-card-title">{r.title}</div>
-              <div className="portal-resources-link-card-desc">{r.description}</div>
-              <span className="portal-resources-link-card-cta">Visit Resource →</span>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="portal-resources-section">
-        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
-          Support
-        </h2>
-        <div className="portal-resources-support-grid">
-          <p>
-            <strong>Email:</strong>{' '}
-            <a href="mailto:info@workforceap.org">info@workforceap.org</a>
-          </p>
-          <p>
-            <strong>Phone:</strong> (512) 777-1808
-          </p>
-          <p className="portal-resources-support-text">
-            <strong>Loaner Laptop:</strong> Earned upon successful program completion — see{' '}
-            <Link href="/how-it-works">How It Works</Link>
-          </p>
-        </div>
-      </section>
-
-      <section className="portal-resources-section">
-        <h2 className="portal-resources-section-title portal-resources-section-title--tight">
-          Your counselor
-        </h2>
-        <div className="portal-resources-counselor-card">
-          {counselorContact ? (
-            <>
-              <p className="portal-resources-counselor-name">{counselorContact.fullName}</p>
-              <p className="portal-resources-counselor-email">
-                <a href={`mailto:${counselorContact.email}`}>{counselorContact.email}</a>
-              </p>
-              <p className="portal-resources-counselor-body">
-                Message your counselor anytime from{' '}
-                <Link href="/dashboard/messages" className="portal-resources-inline-em">
-                  Messages
-                </Link>
-                . Scheduling tools will be added here when available.
-              </p>
-            </>
-          ) : (
-            <p className="portal-resources-counselor-body--plain">
-              A counselor will be assigned as you move through enrollment. For now, reach the team through{' '}
-              <Link href="/dashboard/messages" className="portal-resources-inline-em">
-                Messages
-              </Link>{' '}
-              or <a href="mailto:info@workforceap.org">info@workforceap.org</a>.
-            </p>
-          )}
-        </div>
-      </section>
-    </div>
+      <MobileBottomNav variant="portal" />
+    </>
   );
 }

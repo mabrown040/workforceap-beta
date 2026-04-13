@@ -20,10 +20,10 @@ export const getProfileRole = cache(async function getProfileRole(userId: string
   return profile?.role ?? 'member';
 });
 
-export async function isSuperAdmin(userId: string): Promise<boolean> {
+export const isSuperAdmin = cache(async function isSuperAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
   return profileRole === 'super_admin';
-}
+});
 
 export async function isAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
@@ -57,9 +57,17 @@ export async function isPartner(userId: string): Promise<boolean> {
   return isSuperAdmin(userId);
 }
 
+export type PartnerPortalContext = {
+  partnerId: string;
+  partner: { id: string; name: string; slug: string };
+  /** User has a real `partner_users` row (not super-admin viewing first partner). */
+  hasDirectPartnerLink: boolean;
+};
+
 export async function getPartnerForUser(
-  userId: string
-): Promise<{ partnerId: string; partner: { id: string; name: string; slug: string } } | null> {
+  userId: string,
+  options?: { isSuperAdminHint?: boolean }
+): Promise<PartnerPortalContext | null> {
   const row = await prisma.partnerUser.findUnique({
     where: { userId },
     include: { partner: { select: { id: true, name: true, slug: true, active: true } } },
@@ -67,14 +75,15 @@ export async function getPartnerForUser(
   if (row) {
     if (!row.partner.active) return null;
     const { active: _a, ...partner } = row.partner;
-    return { partnerId: row.partnerId, partner };
+    return { partnerId: row.partnerId, partner, hasDirectPartnerLink: true };
   }
-  if (await isSuperAdmin(userId)) {
+  const superUser = options?.isSuperAdminHint ?? (await isSuperAdmin(userId));
+  if (superUser) {
     const first = await prisma.partner.findFirst({
       where: { active: true },
       select: { id: true, name: true, slug: true },
     });
-    if (first) return { partnerId: first.id, partner: first };
+    if (first) return { partnerId: first.id, partner: first, hasDirectPartnerLink: false };
   }
   return null;
 }
@@ -195,14 +204,17 @@ function mapEmployerRow(row: {
 /**
  * Employer portal context. Super-admins can open a specific employer via Admin → Employers ("Open portal"),
  * stored in a cookie; otherwise they fall back to their own employer row (if any) or the first active company.
+ * Pass `isSuperAdminHint` when the caller already computed it to avoid duplicate `profile` reads.
  */
 export async function getEmployerForUser(
-  userId: string
+  userId: string,
+  options?: { isSuperAdminHint?: boolean }
 ): Promise<{
   employerId: string;
   employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null };
 } | null> {
-  const superUser = await isSuperAdmin(userId);
+  const superUser =
+    options?.isSuperAdminHint !== undefined ? options.isSuperAdminHint : await isSuperAdmin(userId);
 
   if (superUser) {
     const cookieStore = await cookies();

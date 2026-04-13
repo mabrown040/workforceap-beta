@@ -34,6 +34,7 @@ type Q2Answer = 'brand_new' | 'some_knowledge' | 'work_experience' | 'certificat
 type Q3Answer = 'as_fast' | '3_5_months' | 'planning_ahead' | 'employed_switch';
 type Q4Answer = 'salary' | 'stability' | 'remote' | 'community' | 'hands';
 type Q5Answer = 'comfortable' | 'basic_apps' | 'tech_savvy' | 'basics';
+type Q6Answer = 'yes_computer' | 'no_computer' | 'needs_device';
 
 export type QuizAnswers = {
   q1: Q1Answer;
@@ -41,6 +42,7 @@ export type QuizAnswers = {
   q3: Q3Answer;
   q4: Q4Answer;
   q5: Q5Answer;
+  q6: Q6Answer;
 };
 
 export function scoreQuiz(answers: QuizAnswers): CategoryWeights {
@@ -147,6 +149,16 @@ export function scoreQuiz(answers: QuizAnswers): CategoryWeights {
       w['digital-literacy'] += 3;
       break;
     case 'comfortable':
+      break;
+  }
+
+  // Q6 - Computer access affects digital literacy priority
+  switch (answers.q6) {
+    case 'no_computer':
+    case 'needs_device':
+      w['digital-literacy'] += 2;
+      break;
+    case 'yes_computer':
       break;
   }
 

@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 
 type MatchRow = {
   id: string;
@@ -61,14 +64,17 @@ export default function EmployerPipelineClient({
               <strong>{m.student.fullName}</strong>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{m.student.email}</div>
               <div style={{ fontSize: '0.8rem', marginTop: '0.35rem' }}>
-                Score: {m.matchScore}
+                Score: {matchScoreAsPercent(m.matchScore)}%
                 {m.matchReasons?.length ? (
                   <span style={{ color: 'var(--color-on-surface-variant)' }}> · {m.matchReasons.slice(0, 2).join(' · ')}</span>
                 ) : null}
               </div>
             </div>
             <div className="employer-pipeline-match-actions">
-              <span className="employer-pipeline-status">{m.status.replace(/_/g, ' ')}</span>
+              <StatusBadge
+                label={employerMatchPipelineLabel(m.status)}
+                variant={employerAiMatchStatusBadgeVariant(m.status)}
+              />
               <select
                 value={m.status}
                 disabled={busy === m.student.id}

@@ -10,10 +10,29 @@ const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
 const HIRE_VOLUME = [
   { value: '', label: 'Select…' },
-  { value: '1-2', label: '1–2' },
-  { value: '3-5', label: '3–5' },
+  { value: '1', label: '1' },
+  { value: '2-3', label: '2–3' },
+  { value: '4-5', label: '4–5' },
   { value: '6-10', label: '6–10' },
   { value: '10+', label: '10+' },
+];
+
+const HIRING_TIMELINE = [
+  { value: '', label: 'Select…' },
+  { value: 'immediately', label: 'Immediately' },
+  { value: '30-60_days', label: '30–60 days' },
+  { value: '60-90_days', label: '60–90 days' },
+  { value: '3-6_months', label: '3–6 months' },
+  { value: 'planning', label: 'Planning ahead' },
+];
+
+const INTEREST_USE_CASE = [
+  { value: '', label: 'Select…' },
+  { value: 'direct_hiring', label: 'Direct hiring' },
+  { value: 'pipeline_building', label: 'Pipeline building' },
+  { value: 'internship_apprenticeship', label: 'Internship / apprenticeship' },
+  { value: 'upskilling', label: 'Upskilling current staff' },
+  { value: 'partnership', label: 'Long-term talent partnership' },
 ];
 
 export default function EmployerContactForm() {
@@ -38,17 +57,19 @@ export default function EmployerContactForm() {
     const company = String(formData.get('company') || '').trim();
     const roleTitle = String(formData.get('role_title') || '').trim();
     const rolesHiring = String(formData.get('roles_hiring') || '').trim();
-    const hireVolume = String(formData.get('hire_volume') || '').trim();
+    const openRoles = String(formData.get('open_roles') || '').trim();
+    const hiringTimeline = String(formData.get('hiring_timeline') || '').trim();
+    const interestUseCase = String(formData.get('interest_use_case') || '').trim();
 
     const message = [
       company ? `Company: ${company}` : '',
       roleTitle ? `Role / title: ${roleTitle}` : '',
+      openRoles ? `Open roles in next 6 months: ${openRoles}` : '',
+      hiringTimeline ? `Hiring timeline: ${hiringTimeline}` : '',
+      interestUseCase ? `Interest / use case: ${interestUseCase}` : '',
       '',
       'What roles are you hiring for?',
       rolesHiring || '(Not specified)',
-      '',
-      'Hires in the next 6 months (estimate):',
-      hireVolume || '(Not specified)',
     ]
       .filter(Boolean)
       .join('\n');
@@ -58,7 +79,7 @@ export default function EmployerContactForm() {
       last_name,
       email: formData.get('email'),
       phone: formData.get('phone') || '',
-      topic: 'Employer Inquiry',
+      topic: 'Employer Partnership Intake',
       message,
       sms_preferred: false,
     };
@@ -95,25 +116,56 @@ export default function EmployerContactForm() {
     return (
       <div
         style={{
+          background: 'var(--surface-container)',
+          borderRadius: 'var(--radius-xl)',
           padding: '2rem',
-          background: 'rgba(74, 155, 79, 0.1)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(74, 155, 79, 0.3)',
-          textAlign: 'center',
         }}
       >
-        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-          Thank you — we received your inquiry
-        </p>
-        <p style={{ color: 'var(--color-on-surface-variant)' }}>
-          We&rsquo;ll reach out within 24–48 hours.
-        </p>
+        <div
+          style={{
+            padding: '2rem',
+            background: 'rgba(74, 155, 79, 0.1)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(74, 155, 79, 0.3)',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+            Thank you — we received your inquiry
+          </p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>
+            We&rsquo;ll reach out within 24–48 hours.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
+    <div
+      style={{
+        background: 'var(--surface-container)',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+      }}
+    >
     <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
+      <div
+        style={{
+          marginBottom: '1.25rem',
+          padding: '1rem 1.1rem',
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--surface-container-high)',
+          border: '1px solid var(--outline-variant)',
+        }}
+      >
+        <p style={{ margin: 0, color: 'var(--color-on-surface)', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.5 }}>
+          Employer intake for hiring managers, talent leaders, and program owners.
+        </p>
+        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+          Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 24–48 hours and route you to the right partnership path.
+        </p>
+      </div>
       {status === 'error' && errorMsg && (
         <div
           style={{
@@ -149,6 +201,36 @@ export default function EmployerContactForm() {
         <input id="employer-phone" type="tel" name="phone" disabled={status === 'sending'} />
       </div>
       <div className="form-group">
+        <label htmlFor="employer-open-roles">How many roles do you expect to hire in the next 6 months? *</label>
+        <select id="employer-open-roles" name="open_roles" className="form-control" required disabled={status === 'sending'} aria-required="true">
+          {HIRE_VOLUME.map((o) => (
+            <option key={o.value || 'empty'} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="employer-hiring-timeline">When do you expect to hire? *</label>
+        <select id="employer-hiring-timeline" name="hiring_timeline" className="form-control" required disabled={status === 'sending'} aria-required="true">
+          {HIRING_TIMELINE.map((o) => (
+            <option key={o.value || 'empty'} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="employer-interest-use-case">What best describes your hiring use case? *</label>
+        <select id="employer-interest-use-case" name="interest_use_case" className="form-control" required disabled={status === 'sending'} aria-required="true">
+          {INTEREST_USE_CASE.map((o) => (
+            <option key={o.value || 'empty'} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
         <label htmlFor="employer-roles-hiring">What roles are you hiring for? *</label>
         <textarea
           id="employer-roles-hiring"
@@ -157,18 +239,8 @@ export default function EmployerContactForm() {
           required
           disabled={status === 'sending'}
           aria-required="true"
-          placeholder="Titles, locations, full-time or contract, timeline…"
+          placeholder="Include titles, locations, full-time or contract, must-have skills, and timeline…"
         />
-      </div>
-      <div className="form-group">
-        <label htmlFor="employer-hire-volume">How many hires are you looking for in the next 6 months? *</label>
-        <select id="employer-hire-volume" name="hire_volume" className="form-control" required disabled={status === 'sending'} aria-required="true">
-          {HIRE_VOLUME.map((o) => (
-            <option key={o.value || 'empty'} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
       </div>
       {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY ? (
         <div className="form-group employer-contact-turnstile">
@@ -187,11 +259,12 @@ export default function EmployerContactForm() {
         style={{ width: '100%', padding: '1rem' }}
         disabled={status === 'sending'}
       >
-        {status === 'sending' ? 'Sending…' : 'Submit inquiry'}
+        {status === 'sending' ? 'Sending…' : 'Submit employer intake'}
       </button>
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.85rem' }}>
         We respond within 24–48 hours.
       </p>
     </form>
+    </div>
   );
 }

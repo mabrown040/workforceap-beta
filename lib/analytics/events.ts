@@ -49,7 +49,9 @@ export function trackApplyFunnel(
   });
 }
 
-export function trackLearningHubNavigate(destination: 'career_library' | 'program_resources') {
+export function trackLearningHubNavigate(
+  destination: 'career_library' | 'program_resources' | 'wioa_screening'
+) {
   pushEvent({
     event: 'learning_hub_navigate',
     learning_hub_destination: destination,
@@ -142,6 +144,14 @@ export function trackConversionRouteView(route: string) {
   pushEvent({
     event: 'conversion_route_view',
     conversion_route: route,
+  });
+}
+
+/** Member / employer / partner / counselor / admin workspace views (for GA4 exploration). */
+export function trackPortalRouteView(route: string) {
+  pushEvent({
+    event: 'portal_route_view',
+    portal_route: route,
   });
 }
 

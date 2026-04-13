@@ -17,13 +17,24 @@ export default function MatchedRoles() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/member/matched-jobs')
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    fetch('/api/member/matched-jobs', { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data.jobs)) setJobs(data.jobs);
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => {
+        clearTimeout(timeout);
+        setLoading(false);
+      });
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   if (loading) {
@@ -43,7 +54,7 @@ export default function MatchedRoles() {
         <h2 className="dashboard-today-label">Roles that match you</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
           No matched jobs available yet. Check back soon as we add new employer opportunities, 
-          or visit the <Link href="/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
+          or visit the <Link href="/dashboard/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
         </p>
       </section>
     );
@@ -61,7 +72,7 @@ export default function MatchedRoles() {
           return (
             <Link
               key={job.id}
-              href={`/jobs/${job.id}`}
+              href={`/dashboard/jobs/${job.id}`}
               style={{
                 display: 'block',
                 padding: '1rem 1.25rem',

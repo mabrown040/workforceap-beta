@@ -16,66 +16,76 @@ const employerSchema = z.object({
 });
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const employers = await prisma.employer.findMany({
-    orderBy: { companyName: 'asc' },
-    include: {
-      user: { select: { email: true, fullName: true } },
-      _count: { select: { jobs: true } },
-    },
-  });
+    const employers = await prisma.employer.findMany({
+      orderBy: { companyName: 'asc' },
+      include: {
+        user: { select: { email: true, fullName: true } },
+        _count: { select: { jobs: true } },
+      },
+    });
 
-  return NextResponse.json(employers);
+    return NextResponse.json(employers);
+  } catch (error) {
+    console.error('[admin/employers GET] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const body = await request.json().catch(() => null);
-  const parsed = employerSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
-  }
+    const body = await request.json().catch(() => null);
+    const parsed = employerSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+    }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { id: parsed.data.userId },
-    select: { id: true },
-  });
-  if (!existingUser) return NextResponse.json({ error: 'User not found' }, { status: 400 });
-
-  const existingEmployer = await prisma.employer.findUnique({
-    where: { userId: parsed.data.userId },
-    select: { id: true },
-  });
-  if (existingEmployer) return NextResponse.json({ error: 'User is already an employer' }, { status: 400 });
-
-  const organizationId = await getDefaultOrganizationId();
-  const employer = await prisma.employer.create({
-    data: {
-      organizationId,
-      userId: parsed.data.userId,
-      companyName: parsed.data.companyName,
-      companyWebsite: parsed.data.companyWebsite ?? undefined,
-      companyDescription: parsed.data.companyDescription ?? undefined,
-      contactName: parsed.data.contactName,
-      contactEmail: parsed.data.contactEmail,
-      contactPhone: parsed.data.contactPhone ?? undefined,
-    },
-  });
-
-  const employerRole = await prisma.role.findUnique({ where: { name: 'employer' } });
-  if (employerRole) {
-    await prisma.userRole.upsert({
-      where: { userId_roleId: { userId: parsed.data.userId, roleId: employerRole.id } },
-      create: { userId: parsed.data.userId, roleId: employerRole.id },
-      update: {},
+    const existingUser = await prisma.user.findUnique({
+      where: { id: parsed.data.userId },
+      select: { id: true },
     });
-  }
+    if (!existingUser) return NextResponse.json({ error: 'User not found' }, { status: 400 });
 
-  return NextResponse.json(employer, { status: 201 });
+    const existingEmployer = await prisma.employer.findUnique({
+      where: { userId: parsed.data.userId },
+      select: { id: true },
+    });
+    if (existingEmployer) return NextResponse.json({ error: 'User is already an employer' }, { status: 400 });
+
+    const organizationId = await getDefaultOrganizationId();
+    const employer = await prisma.employer.create({
+      data: {
+        organizationId,
+        userId: parsed.data.userId,
+        companyName: parsed.data.companyName,
+        companyWebsite: parsed.data.companyWebsite ?? undefined,
+        companyDescription: parsed.data.companyDescription ?? undefined,
+        contactName: parsed.data.contactName,
+        contactEmail: parsed.data.contactEmail,
+        contactPhone: parsed.data.contactPhone ?? undefined,
+      },
+    });
+
+    const employerRole = await prisma.role.findUnique({ where: { name: 'employer' } });
+    if (employerRole) {
+      await prisma.userRole.upsert({
+        where: { userId_roleId: { userId: parsed.data.userId, roleId: employerRole.id } },
+        create: { userId: parsed.data.userId, roleId: employerRole.id },
+        update: {},
+      });
+    }
+
+    return NextResponse.json(employer, { status: 201 });
+  } catch (error) {
+    console.error('[admin/employers POST] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

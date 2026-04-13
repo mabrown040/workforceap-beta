@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Exports',
@@ -19,7 +20,7 @@ export default async function PartnerExportsPage() {
   if (!ctx) redirect('/dashboard');
 
   return (
-    <div>
+    <div style={{ paddingBottom: '6rem' }} className="wa-md:wa-pb-8">
       <PageHeader
         title="Exports"
         subtitle="Download a CSV of every referred member, stage, program progress, and last update (partner-scoped)."
@@ -34,6 +35,9 @@ export default async function PartnerExportsPage() {
         <a href="/api/partner/export/referrals?preset=outcomes" className="btn btn-secondary">
           Outcomes preset (placement columns)
         </a>
+      </div>
+      <div className="wa-md:wa-hidden">
+        <MobileBottomNav variant="partner" />
       </div>
     </div>
   );

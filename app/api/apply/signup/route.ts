@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
@@ -8,6 +9,7 @@ import { checkSignupRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -29,8 +31,13 @@ const applySignupSchema = z.object({
   zip: z.string().trim().min(1, 'Enter your ZIP code.').max(20),
   smsOptIn: z.boolean().optional().default(false),
   password: z.string().min(8, 'Create a password with at least 8 characters.'),
-  programSlug: z.string().min(1, 'Please choose a program before creating your account.'),
+  /** Primary = [0]; up to 3 preferences in order */
+  programRankedSlugs: z.array(z.string().min(1)).min(1).max(3),
   referralRef: z.string().max(100).optional().nullable(),
+  recommendedOnetCode: z.string().max(32).optional().nullable(),
+  recommendedCareerTitle: z.string().max(200).optional().nullable(),
+  careerRecommendationJson: z.any().optional().nullable(),
+  needsComputerSupportFollowUp: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -55,15 +62,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Please review your information and try again.' }, { status: 400 });
   }
 
-  const { firstName, lastName, email, phone, addressLine1, addressLine2, city, state, zip, smsOptIn, password, programSlug, referralRef } =
-    parsed.data;
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    addressLine1,
+    addressLine2,
+    city,
+    state,
+    zip,
+    smsOptIn,
+    password,
+    programRankedSlugs,
+    referralRef,
+    recommendedOnetCode,
+    recommendedCareerTitle,
+    careerRecommendationJson,
+    needsComputerSupportFollowUp,
+  } = parsed.data;
 
   const profileAddress = [addressLine1, addressLine2?.trim()].filter(Boolean).join(', ');
 
+  const programSlug = programRankedSlugs[0];
   const program = getProgramBySlug(programSlug);
   if (!program) {
     return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
   }
+  const secondaryTitles = programRankedSlugs
+    .slice(1)
+    .map((s) => getProgramBySlug(s)?.title)
+    .filter(Boolean) as string[];
+  const programInterestSummary =
+    secondaryTitles.length > 0 ? `${program.title} (preferences: ${secondaryTitles.join(', ')})` : program.title;
 
   let referralPartnerId: string | null = null;
   let referralSource: string | null = null;
@@ -90,6 +121,7 @@ export async function POST(request: NextRequest) {
 
   const cookieStore = await cookies();
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: getSupabaseCookieOptions(),
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -145,14 +177,39 @@ export async function POST(request: NextRequest) {
           phone,
           enrolledProgram: programSlug,
           enrolledAt: new Date(),
+          needsComputerSupportFollowUp: needsComputerSupportFollowUp === true,
+          careerRecommendationJson: careerRecommendationJson ?? undefined,
         },
         update: {
           fullName,
           phone,
           enrolledProgram: programSlug,
           ...(priorUser && !priorUser.enrolledAt ? { enrolledAt: new Date() } : {}),
+          ...(needsComputerSupportFollowUp === true ? { needsComputerSupportFollowUp: true } : {}),
+          ...(careerRecommendationJson !== undefined && careerRecommendationJson !== null
+            ? { careerRecommendationJson }
+            : {}),
         },
       });
+
+      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+      // Self-serve enroll (POST /api/member/enroll) and admin create both do this.
+      // Signup must do the same so inactivity crons and reporting see consistent state.
+      if (programSlug) {
+        await tx.courseEnrollment.upsert({
+          where: { userId: user.id },
+          create: {
+            organizationId,
+            userId: user.id,
+            programSlug,
+            enrolledAt: new Date(),
+          },
+          update: {
+            programSlug,
+            enrolledAt: new Date(),
+          },
+        });
+      }
 
       await tx.profile.upsert({
         where: { userId: user.id },
@@ -179,7 +236,10 @@ export async function POST(request: NextRequest) {
         data: {
           userId: user.id,
           status: ApplicationStatus.PENDING,
-          programInterest: program.title,
+          programInterest: programInterestSummary,
+          programRankedSlugs,
+          recommendedOnetCode: recommendedOnetCode ?? null,
+          recommendedCareerTitle: recommendedCareerTitle ?? null,
           submittedAt: new Date(),
           referralSource,
           referralPartnerId,
@@ -191,11 +251,11 @@ export async function POST(request: NextRequest) {
       eventName: 'apply_signup_completed',
       entityType: 'program',
       entityId: programSlug,
-      metadata: { smsOptIn: smsOptIn ?? false },
+      metadata: { smsOptIn: smsOptIn ?? false, program_ranked_slugs: programRankedSlugs },
       sourcePage: '/apply/create-account',
     });
   } catch (dbError) {
-    console.error('Apply signup DB error:', dbError);
+    captureApiError(dbError, { route: 'POST /api/apply/signup' });
     return NextResponse.json({ error: 'Your account was started, but we could not finish saving it. Please try again, or contact us if this keeps happening.' }, { status: 500 });
   }
 

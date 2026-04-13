@@ -1,7 +1,10 @@
 /**
- * Derives a student's current pipeline stage from their existing data.
- * No new DB column needed — computed from what's already tracked.
+ * Derives a student's pipeline stage for /admin/pipeline.
+ * If `pipelineBoardStage` is set, that manual column wins (Trello-style board).
+ * Otherwise stage is computed from enrollment, courses, certifications, and placement.
  */
+
+import type { PipelineBoardStage as DbPipelineBoardStage } from '@prisma/client';
 
 export type PipelineStage =
   | 'applied'
@@ -24,11 +27,17 @@ export interface PipelineStudent {
   placementRecord?: { employerName: string; jobTitle: string; salaryOffered: number | null; placedAt: Date } | null;
   userCertifications?: { certName: string; earnedAt: Date }[];
   applications?: { status: string; submittedAt: Date | null }[];
+  /** When set, admin kanban column override (see User.pipelineBoardStage). */
+  pipelineBoardStage?: DbPipelineBoardStage | null;
 }
 
 export function getPipelineStage(student: PipelineStudent): PipelineStage {
   // Closed/deleted
   if (student.deletedAt) return 'closed';
+
+  if (student.pipelineBoardStage) {
+    return student.pipelineBoardStage as PipelineStage;
+  }
 
   // Placed
   if (student.placementRecord) return 'placed';

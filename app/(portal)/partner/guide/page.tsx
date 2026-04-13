@@ -4,13 +4,33 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
-import PageHeader from '@/components/portal/PageHeader';
+import { prisma } from '@/lib/db/prisma';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner referral guide',
   description: 'How to refer members and track progress in the partner portal.',
   path: '/partner/guide',
 });
+
+const FAQS = [
+  {
+    q: "What if someone doesn't qualify?",
+    a: "If a candidate doesn't meet program requirements, let them know what the gaps are and encourage them to reapply when they're ready. Some candidates may qualify for a different program track — our team can help assess.",
+  },
+  {
+    q: 'How do I know if my referral was accepted?',
+    a: 'Referred members appear on your dashboard once their application is received. You can see their enrollment status and progress stages in real time.',
+  },
+  {
+    q: 'Can I refer someone who is already employed?',
+    a: "Yes — we work with people who are underemployed or actively trying to change careers. If they're committed to the process, they can benefit from the program.",
+  },
+  {
+    q: 'What if they need additional support?',
+    a: 'Every member gets a dedicated counselor. If someone you referred needs extra support, flag it from their profile on your dashboard and our team will follow up.',
+  },
+];
 
 export default async function PartnerGuidePage() {
   const user = await getUser();
@@ -19,45 +39,208 @@ export default async function PartnerGuidePage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect('/dashboard');
 
+  // Referral impact stats
+  const [totalReferred, assessmentCount, placedCount] = await Promise.all([
+    prisma.application.count({ where: { referralPartnerId: ctx.partnerId } }),
+    prisma.user.count({
+      where: {
+        applications: { some: { referralPartnerId: ctx.partnerId } },
+        assessmentCompleted: true,
+      },
+    }),
+    prisma.user.count({
+      where: {
+        applications: { some: { referralPartnerId: ctx.partnerId } },
+        jobPostingApplications: { some: { status: 'hired' } },
+      },
+    }),
+  ]);
+
+  const partnerName = ctx.partner.name;
+
   return (
-    <div>
-      <PageHeader
-        title="Referral guide"
-        subtitle={`Practical steps for ${ctx.partner.name} staff when introducing candidates to WorkforceAP.`}
-      />
+    <div style={{ maxWidth: '56rem', margin: '0 auto', paddingBottom: '6rem' }} className="wa-md:wa-pb-12">
+      {/* Breadcrumb */}
+      <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
+        <Link href="/partner" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
+          ← Back to dashboard
+        </Link>
+      </nav>
 
-      <ol className="partner-guide-steps">
-        <li>
-          <strong>Confirm eligibility</strong> — Candidate is committed to training, can attend live or async sessions,
-          and meets program prerequisites we publish on the public site.
-        </li>
-        <li>
-          <strong>Point them to Apply</strong> — Direct applicants to{' '}
-          <Link href="/apply" style={{ color: 'var(--color-accent)' }}>
-            workforceap.org/apply
-          </Link>
-          . Ask them to list your organization when asked how they heard about us so the referral is attributed.
-        </li>
-        <li>
-          <strong>Track in this portal</strong> — Referred members appear on your{' '}
-          <Link href="/partner" style={{ color: 'var(--color-accent)' }}>
-            dashboard
-          </Link>{' '}
-          with program progress and milestones. Open a member row for more detail.
-        </li>
-        <li>
-          <strong>Stay in touch</strong> — Encourage members to complete readiness steps and certifications; celebrate
-          placements when they reach hiring outcomes.
-        </li>
-      </ol>
+      {/* Header */}
+      <header style={{ marginBottom: '2.5rem' }}>
+        <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+          Referral Guide
+        </p>
+        <h1 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.75rem', lineHeight: 1.15 }}>
+          How to Refer Members to WorkforceAP
+        </h1>
+        <p style={{ fontSize: '1.0625rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, maxWidth: '40rem' }}>
+          A practical guide for {partnerName} staff.
+        </p>
+      </header>
 
-      <p className="partner-guide-note">
-        Questions? Contact WorkforceAP at{' '}
-        <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)' }}>
-          info@workforceap.org
-        </a>
-        .
-      </p>
+      {/* Who is WorkforceAP for */}
+      <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+          Who is WorkforceAP for?
+        </h2>
+        <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1rem' }}>
+          Job seekers who are <strong style={{ color: 'var(--color-on-surface)' }}>unemployed, underemployed, or changing careers</strong>.
+        </p>
+        <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+          The program is <strong style={{ color: 'var(--color-on-surface)' }}>completely free</strong> for members.
+          Your referrals help them access job training, AI career tools, counseling, and employer connections.
+        </p>
+      </section>
+
+      {/* 3-Step Referral Process */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+          3-step referral process
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {[
+            {
+              num: '1',
+              title: 'Identify a candidate',
+              desc: 'Look for someone who is committed, available, and motivated to work. They should be ready to engage — not just interested.',
+              detail: 'Criteria: unemployed, underemployed, or career-changing. Committed to training and available to participate.',
+              icon: 'person_search',
+            },
+            {
+              num: '2',
+              title: 'Send them to Apply',
+              desc: 'Direct them to workforceap.org/apply — the application takes about 10 minutes.',
+              detail: `Ask them to list "${partnerName}" as how they heard about us so the referral is attributed to your organization.`,
+              icon: 'open_in_new',
+              link: { label: 'workforceap.org/apply', href: '/apply' },
+            },
+            {
+              num: '3',
+              title: 'Track their progress',
+              desc: 'Referred members appear on your dashboard with stage updates as they move through the program.',
+              detail: 'You\'ll see when they enroll, complete assessments, and reach hiring outcomes.',
+              icon: 'monitoring',
+              link: { label: 'View your dashboard', href: '/partner' },
+            },
+          ].map((step) => (
+            <div key={step.num} style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+              <div style={{
+                width: '2.75rem',
+                height: '2.75rem',
+                borderRadius: '50%',
+                background: 'var(--color-accent)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                fontSize: '0.875rem',
+                fontWeight: 800,
+                color: '#fff',
+              }}>
+                {step.num}
+              </div>
+              <div className="portal-card portal-card--flat" style={{ flex: 1, padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{step.icon}</span>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{step.title}</h3>
+                </div>
+                <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '0.75rem' }}>
+                  {step.desc}
+                </p>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, background: 'var(--surface-container-low)', padding: '0.75rem', borderRadius: '0.5rem', borderLeft: '3px solid color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
+                  {step.detail}
+                </p>
+                {step.link && (
+                  <Link href={step.link.href} style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    marginTop: '0.875rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: 'var(--color-accent)',
+                    textDecoration: 'none',
+                  }}>
+                    {step.link.label}
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                  </Link>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Referral Impact */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+          Your referral impact
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          {[
+            { label: 'Members referred', value: totalReferred, icon: 'group_add' },
+            { label: 'Completed assessment', value: assessmentCount, icon: 'assignment_turned_in' },
+            { label: 'Placed in jobs', value: placedCount, icon: 'work' },
+          ].map((stat) => (
+            <div key={stat.label} className="portal-card portal-card--flat" style={{ padding: '1.5rem', textAlign: 'center' }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem', display: 'block', marginBottom: '0.75rem' }}>{stat.icon}</span>
+              <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: '0.375rem' }}>
+                {stat.value}
+              </p>
+              <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+          Common questions
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {FAQS.map((faq) => (
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
+                {faq.q}
+              </h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65 }}>
+                {faq.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Contact */}
+      <div style={{
+        padding: '1.5rem 2rem',
+        background: 'var(--surface-container-lowest)',
+        border: '1px solid rgba(88,65,68,0.1)',
+        borderRadius: '0.875rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+        flexWrap: 'wrap',
+      }}>
+        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem', flexShrink: 0 }}>mail</span>
+        <div>
+          <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>Questions?</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+            Reach us at{' '}
+            <a href="mailto:partnersupport@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+              partnersupport@workforceap.org
+            </a>
+          </p>
+        </div>
+      </div>
+      <div className="wa-md:wa-hidden">
+        <MobileBottomNav variant="partner" />
+      </div>
     </div>
   );
 }

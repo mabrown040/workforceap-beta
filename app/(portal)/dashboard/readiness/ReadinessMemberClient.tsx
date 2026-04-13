@@ -12,30 +12,84 @@ type Section = {
     label: string;
     type: string;
     completed: boolean;
-    valueText?: string;
+    valueText?: string | null;
   }>;
 };
 
-export default function ReadinessMemberClient() {
-  const [sections, setSections] = useState<Section[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+function buildExpanded(sections: Section[]): Record<number, boolean> {
+  return sections.reduce<Record<number, boolean>>((acc, s) => {
+    acc[s.section] = true;
+    return acc;
+  }, {});
+}
+
+type ReadinessMemberClientProps = {
+  /** Server-rendered checklist (live DB + template). Prefer this over client-only fetch. */
+  initialSections?: Section[];
+  /** Set when the server could not load checklist rows */
+  loadError?: string | null;
+};
+
+export default function ReadinessMemberClient({
+  initialSections = [],
+  loadError = null,
+}: ReadinessMemberClientProps) {
+  const [sections, setSections] = useState<Section[]>(initialSections);
+  const [error, setError] = useState<string | null>(loadError);
+  const [loading, setLoading] = useState(
+    () => initialSections.length === 0 && loadError == null
+  );
+
+  const [expandedMap, setExpandedMap] = useState<Record<number, boolean>>(() =>
+    initialSections.length ? buildExpanded(initialSections) : {}
+  );
 
   useEffect(() => {
+    if (initialSections.length > 0 || loadError != null) return;
+
+    let cancelled = false;
     fetch('/api/member/readiness')
-      .then((r) => r.json())
-      .then((d) => {
-        setSections(d.sections ?? []);
-        setExpanded(d.sections?.reduce((acc: Record<number, boolean>, s: Section) => ({ ...acc, [s.section]: true }), {}) ?? {});
+      .then(async (r) => {
+        const data = (await r.json()) as { sections?: Section[]; error?: string };
+        if (!r.ok) {
+          throw new Error(typeof data.error === 'string' ? data.error : 'Failed to load readiness checklist');
+        }
+        return data;
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .then((d) => {
+        if (cancelled) return;
+        const next = d.sections ?? [];
+        setSections(next);
+        setExpandedMap(buildExpanded(next));
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load readiness checklist');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialSections.length, loadError]);
 
   const totalItems = sections.reduce((acc, s) => acc + s.items.length, 0);
   const completedItems = sections.reduce((acc, s) => acc + s.items.filter((i) => i.completed).length, 0);
   const pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   if (loading) return <ReadinessSkeleton />;
+
+  if (error) {
+    return (
+      <div className="readiness-member-content" role="alert" style={{ padding: '1rem 0' }}>
+        <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{error}</p>
+        <button type="button" className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => window.location.reload()}>
+          Reload page
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="readiness-member-content">
@@ -55,12 +109,12 @@ export default function ReadinessMemberClient() {
             <button
               type="button"
               className="readiness-section-header"
-              onClick={() => setExpanded((e) => ({ ...e, [sec.section]: !e[sec.section] }))}
+              onClick={() => setExpandedMap((e) => ({ ...e, [sec.section]: !e[sec.section] }))}
             >
-              <span>{expanded[sec.section] !== false ? <ChevronDown size={20} /> : <ChevronRight size={20} />}</span>
+              <span>{expandedMap[sec.section] !== false ? <ChevronDown size={20} /> : <ChevronRight size={20} />}</span>
               <span>Section {sec.section} — {sec.title}</span>
             </button>
-            {expanded[sec.section] !== false && (
+            {expandedMap[sec.section] !== false && (
               <div className="readiness-section-body">
                 {sec.items.map((item) => (
                   <div key={item.key} className="readiness-member-item">

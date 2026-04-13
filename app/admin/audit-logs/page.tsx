@@ -1,0 +1,187 @@
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import type { Prisma } from '@prisma/client';
+import { buildPageMetadata } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import AuditLogsClient from './AuditLogsClient';
+import PageHeader from '@/components/portal/PageHeader';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Admin – Audit Logs',
+  description: 'Compliance registry and system event audit trail.',
+  path: '/admin/audit-logs',
+});
+
+const PAGE_SIZE = 50;
+
+function buildWhere(
+  thirtyDaysAgo: Date,
+  q: string,
+  eventName: string
+): Prisma.MemberEventWhereInput {
+  const trimmed = q.trim();
+  const base: Prisma.MemberEventWhereInput = {
+    createdAt: { gte: thirtyDaysAgo },
+    ...(eventName ? { eventName } : {}),
+  };
+  if (!trimmed) return base;
+  return {
+    AND: [
+      base,
+      {
+        OR: [
+          { user: { fullName: { contains: trimmed, mode: 'insensitive' } } },
+          { user: { email: { contains: trimmed, mode: 'insensitive' } } },
+          { eventName: { contains: trimmed, mode: 'insensitive' } },
+          { entityType: { contains: trimmed, mode: 'insensitive' } },
+          { sourcePage: { contains: trimmed, mode: 'insensitive' } },
+        ],
+      },
+    ],
+  };
+}
+
+type Props = {
+  searchParams?: Promise<{ page?: string; q?: string; event?: string }>;
+};
+
+export default async function AdminAuditLogsPage({ searchParams }: Props) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/audit-logs');
+
+  const superAdmin = await isSuperAdmin(user.id);
+  if (!superAdmin) redirect('/admin');
+
+  const sp = (await searchParams) ?? {};
+  const page = Math.max(1, parseInt(sp.page ?? '1', 10) || 1);
+  const q = (sp.q ?? '').trim();
+  const eventFilter = (sp.event ?? '').trim();
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const windowWhere: Prisma.MemberEventWhereInput = { createdAt: { gte: thirtyDaysAgo } };
+  const listWhere = buildWhere(thirtyDaysAgo, q, eventFilter);
+
+  const [totalInWindow, uniqueUsersInWindow, topEventRow, eventTypeGroups, totalMatching] = await Promise.all([
+    prisma.memberEvent.count({ where: windowWhere }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: windowWhere,
+      _count: true,
+    }).then((rows) => rows.length),
+    prisma.memberEvent.groupBy({
+      by: ['eventName'],
+      where: windowWhere,
+      _count: { eventName: true },
+      orderBy: { _count: { eventName: 'desc' } },
+      take: 1,
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['eventName'],
+      where: windowWhere,
+      _count: { eventName: true },
+      orderBy: { eventName: 'asc' },
+    }),
+    prisma.memberEvent.count({ where: listWhere }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalMatching / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+
+  const events = await prisma.memberEvent.findMany({
+    where: listWhere,
+    orderBy: { createdAt: 'desc' },
+    skip: (safePage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+    include: {
+      user: { select: { id: true, fullName: true, email: true } },
+    },
+  });
+
+  const stats = {
+    total30d: totalInWindow,
+    uniqueUsers: uniqueUsersInWindow,
+    topEvent: topEventRow[0]?.eventName ?? '—',
+  };
+
+  const eventTypesForSelect = eventTypeGroups.map((g) => ({
+    name: g.eventName,
+    count: g._count.eventName,
+  }));
+
+  const serialized = events.map((e) => ({
+    id: e.id,
+    userId: e.userId,
+    userName: e.user.fullName,
+    userEmail: e.user.email,
+    eventName: e.eventName,
+    entityType: e.entityType,
+    entityId: e.entityId,
+    metadata: e.metadata as Record<string, unknown> | null,
+    sourcePage: e.sourcePage,
+    sessionId: e.sessionId,
+    createdAt: e.createdAt.toISOString(),
+  }));
+
+  return (
+    <>
+      <PageHeader
+        title="Audit Logs"
+        subtitle="Compliance registry — 30-day event trail (paginated)"
+      />
+
+      {/* Stats row */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 'var(--space-4)',
+          marginBottom: 'var(--space-6)',
+        }}
+      >
+        {[
+          { label: 'Events (30d)', value: stats.total30d.toLocaleString(), icon: 'timeline', color: 'var(--color-accent)' },
+          { label: 'Active Users', value: stats.uniqueUsers.toString(), icon: 'group', color: 'var(--color-blue)' },
+          { label: 'Top Event', value: stats.topEvent, icon: 'trending_up', color: 'var(--color-green)' },
+        ].map((s) => (
+          <div
+            key={s.label}
+            style={{
+              background: 'var(--surface-container)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 'var(--space-5)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-4)',
+            }}
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '1.5rem', color: s.color, '--ms-fill': 1 }}
+            >
+              {s.icon}
+            </span>
+            <div>
+              <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>{s.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <AuditLogsClient
+        events={serialized}
+        page={safePage}
+        totalPages={totalPages}
+        pageSize={PAGE_SIZE}
+        totalMatching={totalMatching}
+        initialQ={q}
+        initialEvent={eventFilter}
+        eventTypes={eventTypesForSelect}
+      />
+    </>
+  );
+}

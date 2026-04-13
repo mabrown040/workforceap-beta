@@ -1,7 +1,18 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import {
+  InboxEmpty,
+  InboxHeader,
+  InboxList,
+  InboxPane,
+  InboxRowButton,
+  InboxRowLayout,
+  InboxSearch,
+  InboxShell,
+  InboxUnreadBadge,
+} from '@/components/portal/ui/inbox/InboxPrimitives';
 
 type SlaInfo = {
   needsCounselorReply: boolean;
@@ -135,10 +146,31 @@ function threadListTitle(t: ThreadRow): string {
   return t.partnerName;
 }
 
-function threadListSubtitle(t: ThreadRow): string {
-  if (t.kind === 'member') return t.counselorName ?? 'No counselor on thread';
-  if (t.kind === 'employer') return t.employerContactEmail;
+function getInitials(name: string): string {
+  return name.split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function detailTitle(d: ThreadDetail): string {
+  if (d.kind === 'member') return d.member.fullName;
+  if (d.kind === 'employer') return d.employer.companyName;
+  return d.partner.name;
+}
+
+function detailSubtitle(d: ThreadDetail): string {
+  if (d.kind === 'member') return d.member.email;
+  if (d.kind === 'employer') return d.employer.contactEmail;
+  return 'Partner organization';
+}
+
+function kindLabel(kind: string): string {
+  if (kind === 'member') return 'Member';
+  if (kind === 'employer') return 'Employer';
   return 'Partner';
+}
+
+function isFromPortalUser(d: ThreadDetail, m: ThreadDetail['messages'][number]): boolean {
+  if (d.kind === 'member') return (m as ThreadDetailMember['messages'][number]).isFromMember;
+  return (m as ThreadDetailEmployer['messages'][number]).isFromPortalUser;
 }
 
 export default function AdminSuperMessagesClient() {
@@ -161,11 +193,70 @@ export default function AdminSuperMessagesClient() {
   const [staffDraft, setStaffDraft] = useState('');
   const [staffSending, setStaffSending] = useState(false);
   const [staffErr, setStaffErr] = useState<string | null>(null);
+  const [mobileView, setMobileView] = useState<'list' | 'thread'>('list');
+  const [showAdminControls, setShowAdminControls] = useState(false);
+  const [showCompose, setShowCompose] = useState(false);
+  const [composeQuery, setComposeQuery] = useState('');
+  const [composeResults, setComposeResults] = useState<Array<{ id: string; fullName: string; email: string }>>([]);
+  const [composeLoading, setComposeLoading] = useState(false);
+  const [composeCreating, setComposeCreating] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const composeInputRef = useRef<HTMLInputElement>(null);
+
+  const isMobileThreadView = mobileView === 'thread' && Boolean(selectedId);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
     return () => clearTimeout(t);
   }, [search]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [detail?.messages.length]);
+
+  // Compose: search members
+  useEffect(() => {
+    if (!showCompose) return;
+    const q = composeQuery.trim();
+    if (q.length < 2) { setComposeResults([]); return; }
+    const timer = setTimeout(async () => {
+      setComposeLoading(true);
+      try {
+        const r = await fetch(`/api/admin/members?q=${encodeURIComponent(q)}&limit=10&role=member`, { credentials: 'include' });
+        if (r.ok) setComposeResults(await r.json());
+      } catch { /* ignore */ }
+      finally { setComposeLoading(false); }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [composeQuery, showCompose]);
+
+  useEffect(() => {
+    if (showCompose) {
+      setTimeout(() => composeInputRef.current?.focus(), 100);
+    } else {
+      setComposeQuery('');
+      setComposeResults([]);
+    }
+  }, [showCompose]);
+
+  const startConversation = async (memberId: string) => {
+    setComposeCreating(true);
+    try {
+      const r = await fetch('/api/admin/messages/threads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId }),
+        credentials: 'include',
+      });
+      if (!r.ok) return;
+      const data = (await r.json()) as { threadId: string };
+      setShowCompose(false);
+      setSelectedId(data.threadId);
+      setMobileView('thread');
+      refreshList();
+    } catch { /* ignore */ }
+    finally { setComposeCreating(false); }
+  };
 
   const loadThreads = useCallback(
     async (opts: { reset: boolean; appendCursor?: string | null }) => {
@@ -218,6 +309,7 @@ export default function AdminSuperMessagesClient() {
       setDetail(null);
       setStaffDraft('');
       setStaffErr(null);
+      setShowAdminControls(false);
       return;
     }
     let cancelled = false;
@@ -255,6 +347,11 @@ export default function AdminSuperMessagesClient() {
     }
   };
 
+  const selectThread = (id: string) => {
+    setSelectedId(id);
+    setMobileView('thread');
+  };
+
   const assignCounselor = async (counselorUserId: string) => {
     if (!detail || detail.kind !== 'member') return;
     setAssigningCounselor(true);
@@ -271,7 +368,7 @@ export default function AdminSuperMessagesClient() {
         setAssignmentMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Assignment failed' });
         return;
       }
-      setAssignmentMsg({ type: 'ok', text: 'Counselor assigned. Member was notified via email.' });
+      setAssignmentMsg({ type: 'ok', text: 'Counselor assigned.' });
       setTimeout(() => setAssignmentMsg(null), 5000);
       if (selectedId) {
         const detailRes = await fetch(`/api/admin/messages/thread/${selectedId}`, { credentials: 'include' });
@@ -320,60 +417,65 @@ export default function AdminSuperMessagesClient() {
 
   return (
     <div className="admin-main-content admin-super-messages">
-      <header style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.35rem' }}>Portal messages</h1>
-        <p className="admin-muted-text" style={{ maxWidth: '48rem', lineHeight: 1.55 }}>
-          Members, employers, and partners each have a thread with WorkforceAP. Member threads use the counselor SLA
-          (&gt;48h without reply). Employer and partner threads show when their last message needs a staff reply.
-        </p>
-        {stats ? (
-          <ul
-            className="admin-super-messages-stats"
-            style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', listStyle: 'none', padding: 0 }}
-          >
-            <li>
-              <strong>{stats.threadsWithMessages}</strong> member threads with messages
-            </li>
-            <li>
-              <strong style={{ color: 'var(--color-accent)' }}>{stats.slaBreaches48h}</strong> member SLA &gt;48h
-            </li>
-            <li>
-              <strong>{stats.slaBreaches72h}</strong> member SLA &gt;72h
-            </li>
-          </ul>
-        ) : null}
-      </header>
+      <InboxShell
+        className="wa-flex-col wa-lg:wa-flex-row"
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+          minHeight: '70vh',
+        }}
+      >
+        <InboxPane
+          variant="list"
+          className={isMobileThreadView ? 'wa-hidden wa-lg:wa-flex' : 'wa-flex'}
+          style={{
+            width: '100%',
+            maxWidth: 360,
+            flexShrink: 0,
+            borderRight: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+            overflowY: 'auto',
+          }}
+        >
+          <InboxHeader
+            title="Threads"
+            subtitle="Filter + search, then open a thread."
+            right={
+              stats ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <span className="portal-inbox-unread" title="Threads with messages">
+                    {stats.threadsWithMessages} threads
+                  </span>
+                  <span className="portal-inbox-unread" title="Member SLA >48h">
+                    {stats.slaBreaches48h} &gt;48h
+                  </span>
+                  <span className="portal-inbox-unread" title="Member SLA >72h">
+                    {stats.slaBreaches72h} &gt;72h
+                  </span>
+                </div>
+              ) : null
+            }
+          />
 
-      <div className="admin-super-messages-layout">
-        <aside className="admin-super-messages-sidebar">
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-            {(['member', 'employer', 'partner', 'all'] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                className={`btn btn-sm ${inbox === tab && !alertsOnly ? 'btn-primary' : 'btn-outline'}`}
-                disabled={alertsOnly && tab !== 'member'}
-                onClick={() => {
-                  setAlertsOnly(false);
-                  setInbox(tab);
-                }}
-              >
-                {tab === 'all' ? 'All' : tab === 'member' ? 'Members' : tab === 'employer' ? 'Employers' : 'Partners'}
-              </button>
-            ))}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
-            <label className="admin-form-hint" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              Search names, email, or message text
-              <input
-                type="search"
-                className="admin-form-input"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Keyword…"
-                autoComplete="off"
-              />
-            </label>
+          <div className="portal-inbox__search" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {(['member', 'employer', 'partner', 'all'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`btn btn-sm ${inbox === tab && !alertsOnly ? 'btn-primary' : 'btn-outline'}`}
+                  disabled={alertsOnly && tab !== 'member'}
+                  onClick={() => {
+                    setAlertsOnly(false);
+                    setInbox(tab);
+                  }}
+                >
+                  {tab === 'all' ? 'All' : tab === 'member' ? 'Members' : tab === 'employer' ? 'Employers' : 'Partners'}
+                </button>
+              ))}
+            </div>
+
+            <InboxSearch value={search} onChange={setSearch} placeholder="Search name, email, or message…" />
+
             <label className="admin-form-hint" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
               <input
                 type="checkbox"
@@ -385,75 +487,87 @@ export default function AdminSuperMessagesClient() {
               />
               Only member SLA alerts (&gt;48h no counselor reply)
             </label>
+
             <button type="button" className="btn btn-outline btn-sm" onClick={refreshList} style={{ alignSelf: 'flex-start' }}>
               Refresh list
             </button>
           </div>
 
-          {loading ? (
-            <p className="admin-muted-text">Loading threads…</p>
-          ) : threads.length === 0 ? (
-            <p className="admin-muted-text">No threads match your filters.</p>
-          ) : (
-            <ul className="admin-super-messages-thread-list">
-              {threads.map((t) => (
-                <li key={t.id}>
-                  <button
-                    type="button"
-                    className={`admin-super-messages-thread-btn${selectedId === t.id ? ' is-active' : ''}`}
-                    onClick={() => setSelectedId(t.id)}
+          <InboxList>
+            {loading ? (
+              <InboxEmpty title="Loading threads…" />
+            ) : threads.length === 0 ? (
+              <InboxEmpty title="No threads found" description="Try adjusting filters or search." />
+            ) : (
+              threads.map((t) => {
+                const kindLabel =
+                  t.kind === 'member' ? 'Member' : t.kind === 'employer' ? 'Employer' : 'Partner';
+                const alertBadge =
+                  t.kind === 'member'
+                    ? t.sla.breached72h
+                      ? '>72h'
+                      : t.sla.breached48h
+                        ? '>48h'
+                        : null
+                    : t.needsStaffReply
+                      ? 'Needs reply'
+                      : null;
+                return (
+                  <InboxRowButton
+                    key={t.id}
+                    active={selectedId === t.id}
+                    unread={Boolean(alertBadge)}
+                    onClick={() => selectThread(t.id)}
                   >
-                    <span className="admin-super-messages-thread-title">{threadListTitle(t)}</span>
-                    <span className="admin-muted-text" style={{ fontSize: '0.75rem', textTransform: 'capitalize' }}>
-                      {t.kind}
-                    </span>
-                    <span className="admin-muted-text" style={{ fontSize: '0.8rem' }}>
-                      {threadListSubtitle(t)}
-                    </span>
-                    {t.lastMessagePreview ? (
-                      <span className="admin-muted-text" style={{ fontSize: '0.82rem', marginTop: '0.25rem', textAlign: 'left' }}>
-                        {t.lastMessagePreview}
-                      </span>
-                    ) : null}
-                    <span className="admin-super-messages-thread-meta">
-                      {t.kind === 'member' && t.sla.breached72h ? (
-                        <span className="admin-super-messages-badge admin-super-messages-badge--72">&gt;72h</span>
-                      ) : null}
-                      {t.kind === 'member' && t.sla.breached48h && !t.sla.breached72h ? (
-                        <span className="admin-super-messages-badge admin-super-messages-badge--48">&gt;48h</span>
-                      ) : null}
-                      {t.kind !== 'member' && t.needsStaffReply ? (
-                        <span className="admin-super-messages-badge admin-super-messages-badge--48">Needs reply</span>
-                      ) : null}
-                      {t.lastMessageAt ? (
-                        <span className="admin-muted-text" style={{ fontSize: '0.75rem' }}>
-                          {new Date(t.lastMessageAt).toLocaleString()}
-                        </span>
-                      ) : null}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                    <InboxRowLayout
+                      title={threadListTitle(t)}
+                      meta={kindLabel}
+                      preview={t.lastMessagePreview}
+                      badge={
+                        alertBadge ? (
+                          <span className="portal-inbox-unread">{alertBadge}</span>
+                        ) : undefined
+                      }
+                    />
+                  </InboxRowButton>
+                );
+              })
+            )}
+          </InboxList>
+
           {cursor ? (
+            <div style={{ padding: '0.75rem 1rem' }}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                style={{ width: '100%' }}
+                disabled={loadingMore}
+                onClick={() => void loadThreads({ reset: false, appendCursor: cursor })}
+              >
+                {loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            </div>
+          ) : null}
+        </InboxPane>
+
+        <InboxPane
+          variant="thread"
+          className={isMobileThreadView ? 'wa-flex' : 'wa-hidden wa-lg:wa-flex'}
+          style={{ flex: 1, overflow: 'auto', padding: '1rem', minWidth: 0 }}
+        >
+          <div className="wa-flex wa-lg:wa-hidden" style={{ marginBottom: '0.75rem' }}>
             <button
               type="button"
-              className="btn btn-ghost btn-sm"
-              style={{ marginTop: '1rem', width: '100%' }}
-              disabled={loadingMore}
-              onClick={() => void loadThreads({ reset: false, appendCursor: cursor })}
+              className="btn btn-outline btn-sm"
+              onClick={() => setMobileView('list')}
             >
-              {loadingMore ? 'Loading…' : 'Load more'}
+              ← Back to threads
             </button>
-          ) : null}
-        </aside>
-
-        <section className="admin-super-messages-detail">
+          </div>
           {!selectedId ? (
-            <p className="admin-muted-text">Select a thread to view the full history.</p>
+            <InboxEmpty title="Select a thread" description="Pick a conversation from the left to view the full history." />
           ) : detailLoading ? (
-            <p className="admin-muted-text">Loading conversation…</p>
+            <InboxEmpty title="Loading conversation…" />
           ) : detail && detail.kind === 'member' ? (
             <>
               <div style={{ marginBottom: '1rem' }}>
@@ -470,7 +584,11 @@ export default function AdminSuperMessagesClient() {
 
                 {assignmentMsg ? (
                   <p
-                    style={{ marginTop: '0.75rem', fontSize: '0.9rem', color: assignmentMsg.type === 'ok' ? '#166534' : '#b91c1c' }}
+                    style={{
+                      marginTop: '0.75rem',
+                      fontSize: '0.9rem',
+                      color: assignmentMsg.type === 'ok' ? '#166534' : '#b91c1c',
+                    }}
                     role="status"
                   >
                     {assignmentMsg.text}
@@ -480,7 +598,11 @@ export default function AdminSuperMessagesClient() {
                 <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
                     <div style={{ flex: 1 }}>
-                      <label htmlFor="assign-counselor" className="admin-form-hint" style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem' }}>
+                      <label
+                        htmlFor="assign-counselor"
+                        className="admin-form-hint"
+                        style={{ display: 'block', marginBottom: '0.35rem', fontSize: '0.85rem' }}
+                      >
                         Assign counselor
                       </label>
                       <select
@@ -503,13 +625,11 @@ export default function AdminSuperMessagesClient() {
                     </div>
                   </div>
 
-                  {detail.counselors.length === 0 ? (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                      Add counselors under Admin → Counselors (WorkforceAP or a partner).
-                    </p>
-                  ) : null}
-
-                  <Link href={`/admin/members/${detail.member.id}`} className="btn btn-outline btn-sm" style={{ display: 'inline-flex', alignSelf: 'flex-start' }}>
+                  <Link
+                    href={`/admin/members/${detail.member.id}`}
+                    className="btn btn-outline btn-sm"
+                    style={{ display: 'inline-flex', alignSelf: 'flex-start' }}
+                  >
                     Open member detail page
                   </Link>
                 </div>
@@ -520,10 +640,7 @@ export default function AdminSuperMessagesClient() {
               </div>
               <ul className="admin-super-messages-bubbles">
                 {detail.messages.map((m) => (
-                  <li
-                    key={m.id}
-                    className={`admin-super-messages-bubble${m.isFromMember ? ' is-member' : ' is-staff'}`}
-                  >
+                  <li key={m.id} className={`admin-super-messages-bubble${m.isFromMember ? ' is-member' : ' is-staff'}`}>
                     <div className="admin-super-messages-bubble-meta">
                       <strong>{m.isFromMember ? 'Member' : m.authorName}</strong>
                       <span className="admin-muted-text">{new Date(m.createdAt).toLocaleString()}</span>
@@ -540,14 +657,13 @@ export default function AdminSuperMessagesClient() {
                 <p className="admin-muted-text" style={{ fontSize: '0.9rem' }}>
                   {detail.employer.contactEmail}
                 </p>
-                <p className="admin-muted-text" style={{ marginTop: '0.75rem', fontSize: '0.85rem' }}>{detail.readOnlyNote}</p>
+                <p className="admin-muted-text" style={{ marginTop: '0.75rem', fontSize: '0.85rem' }}>
+                  {detail.readOnlyNote}
+                </p>
               </div>
               <ul className="admin-super-messages-bubbles">
                 {detail.messages.map((m) => (
-                  <li
-                    key={m.id}
-                    className={`admin-super-messages-bubble${m.isFromPortalUser ? ' is-member' : ' is-staff'}`}
-                  >
+                  <li key={m.id} className={`admin-super-messages-bubble${m.isFromPortalUser ? ' is-member' : ' is-staff'}`}>
                     <div className="admin-super-messages-bubble-meta">
                       <strong>{m.isFromPortalUser ? 'Employer' : m.authorName}</strong>
                       <span className="admin-muted-text">{new Date(m.createdAt).toLocaleString()}</span>
@@ -582,14 +698,13 @@ export default function AdminSuperMessagesClient() {
             <>
               <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.15rem', fontWeight: 600 }}>{detail.partner.name}</h2>
-                <p className="admin-muted-text" style={{ marginTop: '0.75rem', fontSize: '0.85rem' }}>{detail.readOnlyNote}</p>
+                <p className="admin-muted-text" style={{ marginTop: '0.75rem', fontSize: '0.85rem' }}>
+                  {detail.readOnlyNote}
+                </p>
               </div>
               <ul className="admin-super-messages-bubbles">
                 {detail.messages.map((m) => (
-                  <li
-                    key={m.id}
-                    className={`admin-super-messages-bubble${m.isFromPortalUser ? ' is-member' : ' is-staff'}`}
-                  >
+                  <li key={m.id} className={`admin-super-messages-bubble${m.isFromPortalUser ? ' is-member' : ' is-staff'}`}>
                     <div className="admin-super-messages-bubble-meta">
                       <strong>{m.isFromPortalUser ? 'Partner' : m.authorName}</strong>
                       <span className="admin-muted-text">{new Date(m.createdAt).toLocaleString()}</span>
@@ -621,10 +736,10 @@ export default function AdminSuperMessagesClient() {
               </form>
             </>
           ) : (
-            <p className="admin-muted-text">Could not load this thread.</p>
+            <InboxEmpty title="Could not load this thread" description="Try selecting it again from the list." />
           )}
-        </section>
-      </div>
+        </InboxPane>
+      </InboxShell>
     </div>
   );
 }

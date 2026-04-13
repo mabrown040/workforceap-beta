@@ -1,0 +1,166 @@
+/**
+ * Dynamic variables for ElevenLabs ConvAI agents (portal voice).
+ * Agent prompts in ElevenLabs should reference these keys for WorkforceAP nonprofit / workforce context.
+ *
+ * Keys by surface:
+ * - Member (readiness, interview, resume): member_name, program_*, organization_*, interview_eligible, + resume_* for resume coach
+ * - WIOA prequal: member fields above plus wioa_* screening snapshot fields when present
+ * - Counselor: staff_name, partner_name, partner_id
+ * - Employer: staff_name, employer_company_name, employer_tier, employer_id
+ * - Partner: staff_name, partner_org_name, partner_slug, partner_id
+ * - All: site_name, support_context (nonprofit workforce framing)
+ */
+
+import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { getCounselorForUser, getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+
+/** Merged into every voice session for consistent nonprofit / site framing in ElevenLabs prompts. */
+const VOICE_DEFAULTS: Record<string, string> = {
+  site_name: 'WorkforceAP',
+  support_context:
+    'Nonprofit workforce development: practical, respectful coaching for people building careers. No medical, legal, or financial advice.',
+};
+
+function withVoiceDefaults(vars: Record<string, string>): Record<string, string> {
+  return { ...VOICE_DEFAULTS, ...vars };
+}
+
+/** Core member context: program, org, eligibility — use for readiness, interview, resume coach (plus resume fields). */
+export async function fetchMemberPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { organization: { select: { name: true, slug: true } } },
+    });
+    if (!dbUser) {
+      return {};
+    }
+
+    const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
+
+    return withVoiceDefaults({
+      member_name: dbUser.fullName ?? '',
+      program_title: program?.title ?? '',
+      program_skills: program?.skills?.join(', ') ?? '',
+      enrolled_program_slug: dbUser.enrolledProgram ?? '',
+      organization_name: dbUser.organization?.name ?? '',
+      organization_slug: dbUser.organization?.slug ?? '',
+      interview_eligible: dbUser.interviewEligible ? 'true' : 'false',
+    });
+  } catch (err) {
+    console.error('[elevenlabsPortalContext] member context error:', err);
+    return {};
+  }
+}
+
+export async function fetchWioaPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { organization: { select: { name: true, slug: true } } },
+    });
+    if (!dbUser) return {};
+
+    const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
+    const snapshot = parseWioaQualificationSnapshot(dbUser.wioaQualificationJson);
+
+    return withVoiceDefaults({
+      member_name: dbUser.fullName ?? '',
+      program_title: program?.title ?? '',
+      program_skills: program?.skills?.join(', ') ?? '',
+      enrolled_program_slug: dbUser.enrolledProgram ?? '',
+      organization_name: dbUser.organization?.name ?? '',
+      organization_slug: dbUser.organization?.slug ?? '',
+      interview_eligible: dbUser.interviewEligible ? 'true' : 'false',
+      wioa_age_bracket: snapshot?.answers.ageBracket ?? '',
+      wioa_county_or_zip: snapshot?.answers.countyOrZip ?? '',
+      wioa_primary_barrier: snapshot?.answers.primaryBarrier ?? '',
+      wioa_dislocated_worker: snapshot?.answers.dislocatedWorker ? 'true' : 'false',
+      wioa_low_income_self_report: snapshot?.answers.lowIncomeSelfReport ? 'true' : 'false',
+      wioa_training_interest: snapshot?.answers.trainingInterest ? 'true' : 'false',
+      wioa_completed_intake_self_report: snapshot?.answers.completedIntakeSelfReport ? 'true' : 'false',
+      wioa_signal: snapshot?.signal ?? '',
+    });
+  } catch (err) {
+    console.error('[elevenlabsPortalContext] wioa context error:', err);
+    return {};
+  }
+}
+
+/** Career counselor voice — staff identity + partner affiliation. */
+export async function fetchCounselorPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
+  try {
+    const [user, counselorCtx] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { fullName: true },
+      }),
+      getCounselorForUser(userId),
+    ]);
+
+    return withVoiceDefaults({
+      staff_name: user?.fullName ?? '',
+      partner_name: counselorCtx?.partnerName ?? 'WorkforceAP',
+      partner_id: counselorCtx?.partnerId ?? '',
+    });
+  } catch (err) {
+    console.error('[elevenlabsPortalContext] counselor context error:', err);
+    return {};
+  }
+}
+
+/** Employer portal voice — company + logged-in employer user. */
+export async function fetchEmployerPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
+  try {
+    const [user, employerCtx] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { fullName: true },
+      }),
+      getEmployerForUser(userId),
+    ]);
+
+    if (!employerCtx) {
+      return withVoiceDefaults({ staff_name: user?.fullName ?? '' });
+    }
+
+    return withVoiceDefaults({
+      staff_name: user?.fullName ?? '',
+      employer_company_name: employerCtx.employer.companyName,
+      employer_tier: employerCtx.employer.tier,
+      employer_id: employerCtx.employerId,
+    });
+  } catch (err) {
+    console.error('[elevenlabsPortalContext] employer context error:', err);
+    return {};
+  }
+}
+
+/** Partner portal voice — partner org + staff user. */
+export async function fetchPartnerPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
+  try {
+    const [user, partnerCtx] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { fullName: true },
+      }),
+      getPartnerForUser(userId),
+    ]);
+
+    if (!partnerCtx) {
+      return withVoiceDefaults({ staff_name: user?.fullName ?? '' });
+    }
+
+    return withVoiceDefaults({
+      staff_name: user?.fullName ?? '',
+      partner_org_name: partnerCtx.partner.name,
+      partner_slug: partnerCtx.partner.slug,
+      partner_id: partnerCtx.partnerId,
+    });
+  } catch (err) {
+    console.error('[elevenlabsPortalContext] partner context error:', err);
+    return {};
+  }
+}

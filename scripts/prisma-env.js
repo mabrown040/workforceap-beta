@@ -17,7 +17,9 @@ if (cmd) {
     process.exit(0);
   }
   const { spawnSync } = require('child_process');
-  // Use npx to resolve local binaries (e.g. prisma) when not running via npm script
-  const r = spawnSync(cmd, args, { stdio: 'inherit', env: process.env, shell: true });
+  // Use npx to resolve local binaries (e.g. prisma) when not running via npm script.
+  // On some hosts npm script PATH injection does not survive nested node spawns.
+  const spawnArgs = cmd === 'npx' ? args : [cmd, ...args];
+  const r = spawnSync('npx', spawnArgs, { stdio: 'inherit', env: process.env, shell: true });
   process.exit(r.status ?? 1);
 }

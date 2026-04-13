@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 
 export default async function DashboardLayout({
@@ -12,34 +11,38 @@ export default async function DashboardLayout({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      deletedAt: true,
-      enrolledProgram: true,
-      coursesCompleted: true,
-    },
-  });
+  let dbUser: {
+    deletedAt: Date | null;
+    profile: { resumeOriginalPath: string | null; resumeEnhancedPath: string | null } | null;
+  } | null = null;
+  try {
+    dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        deletedAt: true,
+        profile: {
+          select: {
+            resumeOriginalPath: true,
+            resumeEnhancedPath: true,
+          },
+        },
+      },
+    });
+  } catch (e) {
+    console.error('[dashboard layout] profile/resume query failed', e);
+    /* Assume resume on file so we do not flash a misleading upload banner when DB is flaky */
+    dbUser = { deletedAt: null, profile: null };
+  }
 
   if (dbUser?.deletedAt) {
     redirect('/login?deleted=1');
   }
 
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  const coursesCompleted = (dbUser?.coursesCompleted as string[] | null) ?? [];
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const totalCourses = program?.courses.length ?? 0;
-  const completedCount = program
-    ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
-    : 0;
+  const hasResume = !!(
+    dbUser?.profile?.resumeOriginalPath || dbUser?.profile?.resumeEnhancedPath
+  );
 
   return (
-    <MemberWorkspaceShell
-      programTitle={program?.title}
-      completedCount={completedCount}
-      totalCount={totalCourses}
-    >
-      {children}
-    </MemberWorkspaceShell>
+    <MemberWorkspaceShell hasResume={hasResume}>{children}</MemberWorkspaceShell>
   );
 }

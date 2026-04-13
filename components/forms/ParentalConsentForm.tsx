@@ -112,8 +112,9 @@ export default function ParentalConsentForm({
             value={formData.parentGuardianEmail}
             onChange={(e) => updateField('parentGuardianEmail', e.target.value)}
             required
+            aria-describedby="parent-email-hint"
           />
-          <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+          <small id="parent-email-hint" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
             We&rsquo;ll send confirmation and program updates to this email
           </small>
         </div>

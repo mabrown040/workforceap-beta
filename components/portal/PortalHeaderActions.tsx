@@ -5,15 +5,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Menu, X } from 'lucide-react';
 import DevViewToggle from './DevViewToggle';
 import ThemeToggle from '@/components/theme/ThemeToggle';
-import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
+import NotificationBell from './NotificationBell';
 import { SignOutButton } from './SignOutButton';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 
 function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   return (
     <>
+      <NotificationBell />
       <ThemeToggle variant="portal" />
-      <SuperAdminViewSwitcher />
       <DevViewToggle />
       <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
         {PRODUCT_COPY.publicSiteLabel}

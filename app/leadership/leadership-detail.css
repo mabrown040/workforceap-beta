@@ -1,6 +1,6 @@
 /* =============================================
    LEADERSHIP DETAIL PAGE — Stitch Mockup Rebuild
-   WAP branding · CSS vars · Material Symbols
+   WorkforceAP branding · CSS vars · Material Symbols
    ============================================= */
 
 /* ── Page shell ── */
@@ -16,6 +16,21 @@
   padding: var(--space-16) 0 var(--space-12);
 }
 
+/* Ensure text contrast on hero background - FORCE white text on dark hero */
+.ld-hero .ld-hero-name {
+  color: #fff !important;
+}
+
+.ld-hero .ld-hero-title,
+.ld-hero .ld-hero-desc {
+  color: #fff !important;
+  opacity: 0.9;
+}
+
+.ld-hero .ld-hero-credentials {
+  color: #ffd700 !important; /* Gold for credentials to pop */
+}
+
 .ld-hero-inner {
   display: grid;
   grid-template-columns: 5fr 7fr;
@@ -24,6 +39,22 @@
   margin: 0 auto;
   padding: 0 var(--space-6);
   align-items: center;
+}
+
+/* No headshot yet: single column + quote card */
+.ld-hero-inner--text-only {
+  grid-template-columns: 1fr;
+  max-width: 48rem;
+}
+
+.ld-hero-quote-only {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ld-hero-quote-card--standalone {
+  position: static;
+  max-width: 36rem;
 }
 
 /* ── Hero text ── */
@@ -105,7 +136,7 @@
   color: var(--color-on-surface-variant);
 }
 
-/* ── LinkedIn button ── */
+/* ── LinkedIn button (default — light sections) ── */
 .ld-linkedin-btn {
   display: inline-flex;
   align-items: center;
@@ -113,19 +144,46 @@
   padding: 0.65rem 1.25rem;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--color-on-surface);
-  background: transparent;
-  border: 1px solid var(--outline-variant);
+  color: #0077b5;
+  background: #fff;
+  border: 2px solid #0077b5;
   border-radius: var(--radius-md);
   text-decoration: none;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast),
+    box-shadow var(--transition-fast);
   width: fit-content;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
 .ld-linkedin-btn:hover {
-  background: var(--surface-container-high);
-  border-color: var(--color-accent);
-  color: var(--color-on-surface);
+  background: #e8f4fc;
+  border-color: #006097;
+  color: #006097;
+  box-shadow: 0 2px 8px rgba(0, 119, 181, 0.2);
+}
+
+.ld-linkedin-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary), 0 0 0 4px #fff;
+}
+
+/* Hero sits on dark `--color-primary` — previous transparent + dark text was nearly invisible */
+.ld-hero .ld-linkedin-btn {
+  color: #fff;
+  background: #0077b5;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.ld-hero .ld-linkedin-btn:hover {
+  background: #006097;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.ld-hero .ld-linkedin-btn:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px #0077b5;
 }
 
 /* ── Hero portrait ── */
@@ -207,7 +265,7 @@
 .ld-section-heading .material-symbols-outlined {
   color: var(--color-accent);
   font-size: 1.5rem;
-  font-variation-settings: 'FILL' 1;
+  --ms-fill: 1;
 }
 
 /* ── Biography bento ── */
@@ -303,7 +361,7 @@
 .ld-bio-side-icon-wrap .material-symbols-outlined {
   color: var(--color-accent);
   font-size: 1.375rem;
-  font-variation-settings: 'FILL' 1;
+  --ms-fill: 1;
 }
 
 .ld-bio-side-icon-wrap--accent {
@@ -532,6 +590,10 @@
     gap: var(--space-8);
   }
 
+  .ld-hero-inner--text-only {
+    max-width: var(--max-width);
+  }
+
   .ld-hero-portrait-wrap {
     order: -1;
     display: flex;
@@ -539,9 +601,14 @@
     gap: var(--space-4);
   }
 
+  /* Keep leader faces visible on tablet/mobile (avoid wide 16:9 head crop) */
   .ld-hero-portrait {
-    aspect-ratio: 16 / 9;
-    max-height: 400px;
+    aspect-ratio: 4 / 5;
+    max-height: 520px;
+  }
+
+  .ld-hero-portrait-img {
+    object-position: center 18%;
   }
 
   /* Flow quote below photo so it never covers the portrait on tablet/mobile */

@@ -1,0 +1,17 @@
+## 2025-03-30 - Password visibility toggle on Signup form
+**Learning:** Implemented a show/hide password toggle on the signup form to improve usability. It's a common micro-UX improvement that reduces friction and mistyped passwords, especially since the form lacks a "confirm password" field.
+**Action:** When adding custom interactive elements like a password toggle inside an input wrapper, remember to add adequate padding (e.g. `paddingRight: 'var(--space-8)'`) to the input field so typed text doesn't overlap with the absolute positioned toggle button. Always ensure buttons have explicit `type="button"` to avoid accidental form submissions. Use `aria-pressed` and dynamic `aria-label` for screen reader accessibility.
+
+## 2025-04-01 - Accessible Expandable Breakdowns
+**Learning:** Expanding/collapsing sections (like the Job Readiness Score breakdown) without appropriate ARIA labels leaves screen reader users blind to the state change and unaware of what content the toggle controls. It also lacks visual feedback without an icon.
+**Action:** When creating toggle buttons for collapsible sections, always use `aria-expanded={isExpanded}` to announce state, add `aria-controls="section-id"` linked to the content container's `id`, and provide a visual chevron icon (e.g. `expand_more`) that rotates to clearly indicate the current state and expected action.
+
+## 2025-04-04 - Accessible visual feedback for share buttons
+**Learning:** Adding visual feedback to clipboard operations like a "copy link" button confirms the action for users, reducing uncertainty. Additionally, when using ligature-based icons (like Material Symbols) inside buttons that already contain visible text, it's essential to add `aria-hidden="true"` to the icon element to prevent screen readers from reading the raw icon name (e.g., "content_copy") alongside the button text. Buttons with multiple internal elements should also have an explicit `aria-label` describing the full action to provide a unified, clear announcement to assistive technologies.
+**Action:** Always provide state-based visual feedback (like changing an icon to a checkmark and updating text temporarily) for asynchronous or clipboard actions. Add `aria-hidden="true"` to decorative or redundant icon fonts and ensure the parent interactive element has a comprehensive `aria-label`. Ensure any Tailwind utility classes respect project-specific prefixes (like `wa-`).
+## 2024-03-24 - Accessibility for inline instructional text in custom forms
+**Learning:** When building custom forms without standard UI component libraries like Radix, inline instructional or helper text placed adjacent to inputs is not automatically read by screen readers, leading to confusing or incomplete experiences.
+**Action:** Always map helper or hint text directly to the associated `<input>` using the `aria-describedby` attribute pointing to the ID of the helper text container.
+## 2026-04-12 - Prevent screen readers from reading Material Symbols ligature text
+**Learning:** Found that many decorative `material-symbols-outlined` icons were missing `aria-hidden="true"`. Screen readers will read the raw text of the ligature (e.g. 'add_circle' or 'check_circle') instead of treating them as icons, leading to poor accessibility. In icon-only buttons, the button needs an `aria-label` and the icon inside needs `aria-hidden="true"`.
+**Action:** Always add `aria-hidden="true"` to ligature-based icons (like Material Symbols). If the icon acts as a button on its own, ensure the wrapper `<button>` has an `aria-label`.

@@ -3,42 +3,52 @@ import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
-import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Career Training & Industry Certifications | Workforce Advancement Project',
+  title: 'Career Training & Industry Certificates | Workforce Advancement Project',
   description:
-    'No-cost career certification training in Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Employer-aligned programs with placement support. Apply today.',
+    'Occupational and career training at no cost to members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
   path: '/',
 });
 
-const HERO_IMAGE_SRC =
-  'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=1920&q=80';
-const HERO_IMAGE_THUMB =
-  'https://images.unsplash.com/photo-1531218150217-54595bc2b934?auto=format&fit=crop&w=640&q=70';
-
-const MILESTONES = [
-  { num: '01', title: 'Application', desc: 'Submit your application online in about 10 minutes.' },
-  { num: '02', title: 'Assessment', desc: 'Quick skills and interest review to find your best fit.' },
-  { num: '03', title: 'Enrollment', desc: 'Get matched with a program track and cohort.' },
-  { num: '04', title: 'Orientation', desc: 'Meet your mentors and get set up with tools.' },
-  { num: '05', title: 'Core Training', desc: 'Intensive skill-building with industry experts.' },
-  { num: '06', title: 'Lab Projects', desc: 'Hands-on work simulating real employer needs.' },
-  { num: '07', title: 'Certification', desc: 'Earn recognized industry credentials.' },
-  { num: '08', title: 'Resume + Portfolio', desc: 'Build job-ready materials with AI support.' },
-  { num: '09', title: 'Interview Prep', desc: 'Mock interviews and feedback from hiring managers.' },
-  { num: '10', title: 'Placement', desc: 'Direct introductions to our employer partner network.' },
-  { num: '11', title: 'Career Growth', desc: 'Ongoing alumni support and advancement resources.' },
-];
+const HERO_IMAGE_SRC = '/images/hero-people.jpg';
+const HERO_IMAGE_THUMB = '/images/hero-people.jpg';
+const HERO_IMAGE_BLUR =
+  'data:image/jpeg;base64,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';
 
 export default async function HomePage() {
-  const activePrograms = await getActivePrograms();
+  let activePrograms: Awaited<ReturnType<typeof getActivePrograms>> = [];
+  try {
+    activePrograms = await getActivePrograms();
+  } catch (e) {
+    console.error('[homepage] getActivePrograms failed', e);
+    activePrograms = [];
+  }
   const featured = activePrograms.filter((p) => p.featured);
-  const homeProgramShowcase = (featured.length ? featured : activePrograms).slice(0, 3);
-  const programCount = activePrograms.length;
+  const homeProgramShowcase =
+    activePrograms.length > 0
+      ? (featured.length ? featured : activePrograms).slice(0, 3)
+      : PROGRAMS.slice(0, 3).map((p, i) => ({
+          slug: p.slug,
+          name: p.title,
+          description: null,
+          category: p.categoryLabel,
+          deliveryType: 'internal',
+          deliveryUrl: null,
+          deliveryDetails: null,
+          certifications: [],
+          duration: p.duration,
+          status: 'active',
+          displayOrder: i,
+          featured: false,
+          static: p,
+        }));
+  const programCount = activePrograms.length > 0 ? activePrograms.length : WORKFORCEAP_PROGRAM_CATALOG_SIZE;
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
@@ -59,12 +69,15 @@ export default async function HomePage() {
           fill
           priority
           sizes="100vw"
+          placeholder="blur"
+          blurDataURL={HERO_IMAGE_BLUR}
           style={{ objectFit: 'cover', objectPosition: 'center' }}
         />
         {/* Gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(18,20,22,0.82) 0%, rgba(18,20,22,0.92) 60%, var(--color-background-dark) 100%)',
+          /* Brighter overlay — more uplifting while keeping text readable */
+          background: 'linear-gradient(180deg, rgba(28,31,36,0.42) 0%, rgba(28,31,36,0.58) 55%, var(--color-background-dark) 100%)',
           zIndex: 1,
         }} />
 
@@ -76,17 +89,7 @@ export default async function HomePage() {
           padding: 'clamp(5.5rem, 12vw, 8rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 8vw, 6rem)',
         }}
         >
-          {/* Badge pill */}
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.4rem 1rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.2)', border: '1px solid rgba(173,44,77,0.4)',
-            color: 'var(--color-accent)', fontSize: '0.75rem', fontWeight: 700,
-            letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1.5rem',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>location_on</span>
-            Austin Launch Community
-          </span>
+
 
           <h1
             className="text-display-lg"
@@ -108,22 +111,37 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.7,
           }}>
-            Intentional education designed for modern industry. We connect talented members with employers through {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs and AI-powered support — nationwide.
+            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, and Workforce Readiness with AI-powered tools designed to help people move forward.
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+            <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
+              Find Your Career
+            </Link>
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
-                { id: 'control', label: 'Start Your Journey', className: 'btn btn-primary btn-large', href: '/apply' },
-                { id: 'urgency', label: 'Apply Now — Free', className: 'btn btn-primary btn-large', href: '/apply' },
+                {
+                  id: 'control',
+                  label: 'Apply Now — Free',
+                  className: 'btn btn-outline btn-large',
+                  href: '/apply',
+                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
+                },
+                {
+                  id: 'urgency',
+                  label: 'Start Your Application',
+                  className: 'btn btn-outline btn-large',
+                  href: '/apply',
+                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
+                },
               ]}
             />
-            <Link href="/partners" className="btn btn-secondary btn-large">
+            <Link href="/partners" className="btn btn-large home-hero-partner-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
               Partner With Us
             </Link>
-            <Link href="/find-your-path" className="btn btn-outline btn-large home-hero-outline-cta">
-              Find Your Path
+            <Link href="/employers" className="btn btn-outline btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
+              For Employers
             </Link>
           </div>
         </div>
@@ -145,30 +163,111 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== Experience Behind WAP — Prelaunch Honest Messaging ===== */}
-      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
-          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-            Experience Behind WorkforceAP
-          </span>
-          <h2 className="text-display-sm" style={{ marginBottom: '1.5rem' }}>
-            Built on Proven Results
-          </h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem' }}>
-            WorkforceAP is prelaunch — we don&apos;t have graduate stories on this site yet. What we do have is a long run of workforce outcomes through{' '}
-            <strong>Consulting Solutions.Net (CSN)</strong>: training aligned to real job requirements, strong completion and placement support, and thousands of people coached into industry credentials and work. That same leadership team is building WorkforceAP for scale.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
-            <Link href="/blog" className="btn btn-primary btn-small">Blog &amp; Updates</Link>
-            <Link href="/leadership" className="btn btn-secondary btn-small">Leadership &amp; Board</Link>
-            <Link href="/what-we-do" className="btn btn-secondary btn-small">What We Do</Link>
+      {/* ===== A Network Built for Success — Stakeholder Cards (Partnerships) ===== */}
+      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+              Partnerships
+            </span>
+            <h2 className="text-display-sm">A Network Built for Success</h2>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gap: '2rem',
+            alignItems: 'start',
+          }}>
+            {/* For Members — first + elevated (primary audience) */}
+            <div className="portal-card portal-card--flat home-employer-elevated" style={{
+              background: 'var(--surface-container-lowest)', padding: '2rem',
+              border: '2px solid var(--color-accent)',
+              transform: 'translateY(-1rem)',
+              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
+            }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined" aria-hidden="true">person</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
+                  No tuition costs for training
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
+                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
+                  Workforce Readiness through AI-powered tools
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
+                  Placement support assistance
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
+              </div>
+            </div>
+
+            {/* For Partners */}
+            <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined" aria-hidden="true">handshake</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
+                  Educational resource sharing
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
+                  Scalable workforce solutions
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
+                  Community impact analytics
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
+              </div>
+            </div>
+
+            {/* For Employers */}
+            <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
+                <span className="material-symbols-outlined" aria-hidden="true">business</span>
+              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
+                  Vetted talent ready for work
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
+                  Customized curriculum options
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
+                  Structured hiring introductions when it fits your process
+                </li>
+              </ul>
+              <div style={{ marginTop: '1.5rem' }}>
+                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
-        <div className="home-impact-bento">
+        <div id="impact" className="home-impact-bento">
           {/* Text block (2/3) */}
           <div>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
@@ -178,10 +277,10 @@ export default async function HomePage() {
               25+ Years Breaking Barriers
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide. Through partnerships with the State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the wrap-around services that launch careers.
+              Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the loaner laptops, resume help, and job search support that launch careers.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
-              We believe education should be an investment in the future, not a debt for the present. Our program is funded through partnerships and successful placements — building toward national scale.
+              We believe education should be an investment in the future, not a debt for the present. Our program is funded through employer partnerships and grants — building toward national scale.
             </p>
           </div>
 
@@ -189,14 +288,14 @@ export default async function HomePage() {
           <div style={{
             display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem',
           }}>
-            <div className="stitch-card" style={{
+            <div className="portal-card portal-card--flat" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
               <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained</span>
             </div>
-            <div className="stitch-card" style={{
+            <div className="portal-card portal-card--flat" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
@@ -204,7 +303,7 @@ export default async function HomePage() {
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Programs</span>
             </div>
             {/* Accent card spanning full width */}
-            <div className="stitch-card" style={{
+            <div className="portal-card portal-card--flat" style={{
               gridColumn: '1 / -1',
               background: 'var(--color-accent)', color: 'white', padding: '1.5rem',
               textAlign: 'center',
@@ -221,7 +320,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-            From application to career growth — 11 milestones that define the WAP experience.
+            From application to career growth — 10 steps that define your WorkforceAP experience.
           </p>
         </div>
         <div style={{
@@ -233,8 +332,8 @@ export default async function HomePage() {
           scrollSnapType: 'x mandatory',
           WebkitOverflowScrolling: 'touch',
         }}>
-          {MILESTONES.map((step) => (
-            <div key={step.num} style={{
+          {MARKETING_JOURNEY_STEPS.map((step) => (
+            <div key={step.num} className="home-milestone-card" style={{
               flex: '0 0 260px', scrollSnapAlign: 'start',
               background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
               padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden',
@@ -245,11 +344,11 @@ export default async function HomePage() {
                 fontSize: '6rem', fontWeight: 900, lineHeight: 1,
                 color: 'var(--surface-container-highest)', opacity: 0.5,
                 pointerEvents: 'none', userSelect: 'none',
-              }}>{step.num}</span>
+              }}>{String(step.num).padStart(2, '0')}</span>
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Step {step.num}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Step {String(step.num).padStart(2, '0')}</span>
                 <h4 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem', fontSize: '1.125rem' }}>{step.title}</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.desc}</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.shortDesc}</p>
               </div>
             </div>
           ))}
@@ -275,7 +374,7 @@ export default async function HomePage() {
             <Link
               key={p.slug}
               href={`/programs/${p.slug}`}
-              className="stitch-card"
+              className="portal-card portal-card--flat"
               style={{
                 background: 'var(--surface-container-high)',
                 color: 'var(--color-on-surface)',
@@ -317,7 +416,7 @@ export default async function HomePage() {
                     padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full, 50px)',
                     background: 'var(--surface-container-lowest)', fontSize: '0.75rem', fontWeight: 600,
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>schedule</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">schedule</span>
                     {p.static?.duration ?? '3-5 months'}
                   </span>
                   {/* Cert badge */}
@@ -327,8 +426,8 @@ export default async function HomePage() {
                     background: 'rgba(173,44,77,0.15)', color: 'var(--color-accent)',
                     fontSize: '0.75rem', fontWeight: 600,
                   }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>verified</span>
-                    Certification
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">verified</span>
+                    Certificate track
                   </span>
                 </div>
               </div>
@@ -339,104 +438,6 @@ export default async function HomePage() {
           <Link href="/programs" className="btn btn-secondary">
             View All {programCount} Programs
           </Link>
-        </div>
-      </section>
-
-      {/* ===== A Network Built for Success — Stakeholder Cards ===== */}
-      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-              Community
-            </span>
-            <h2 className="text-display-sm">A Network Built for Success</h2>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-            gap: '2rem',
-            alignItems: 'start',
-          }}>
-            {/* For Members */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  No upfront costs for training
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }}>check_circle</span>
-                  Dedicated placement support
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
-              </div>
-            </div>
-
-            {/* For Employers — center card elevated */}
-            <div className="stitch-card home-employer-elevated" style={{
-              background: 'var(--surface-container-lowest)', padding: '2rem',
-              border: '2px solid var(--color-accent)',
-              transform: 'translateY(-1rem)',
-              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
-            }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">business</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Vetted talent ready for work
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Customized curriculum options
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>check_circle</span>
-                  Direct pipeline management
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
-              </div>
-            </div>
-
-            {/* For Partners */}
-            <div className="stitch-card" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(200,198,197,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c8c6c5', marginBottom: '1.5rem' }}>
-                <span className="material-symbols-outlined">handshake</span>
-              </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Educational resource sharing
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Scalable workforce solutions
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }}>check_circle</span>
-                  Community impact analytics
-                </li>
-              </ul>
-              <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -458,19 +459,22 @@ export default async function HomePage() {
 
       {/* ===== Final CTA ===== */}
       <section className="footer-cta" style={{ background: 'var(--color-accent)', padding: 'clamp(3rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            Apply now — about 10 minutes. We respond within 3–5 business days. Real certifications. Employer connections. No cost to members.
+            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No tuition cost to members.
           </p>
-          <Link href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
-            Start Your Application
-          </Link>
-          <p style={{ marginTop: '1rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}>
-            <Link href="/find-your-path" style={{ color: 'rgba(255,255,255,0.9)', textDecoration: 'underline' }}>
-              Not sure yet? Take the pathfinder quiz first.
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
+            <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
+              Find Your Career
             </Link>
-          </p>
+            <Link href="/apply" className="btn btn-large" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.5)', fontWeight: 700 }}>
+              Start Your Application
+            </Link>
+            <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.35)', fontWeight: 600 }}>
+              View Program Details
+            </Link>
+          </div>
         </div>
       </section>
 

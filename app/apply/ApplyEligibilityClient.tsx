@@ -216,7 +216,7 @@ export default function ApplyEligibilityClient() {
         </button>
         {(!canContinue || attemptedContinue) && (
           <p id="apply-eligibility-continue-hint" className="apply-continue-hint" role={attemptedContinue ? 'status' : undefined}>
-            Answer all three questions above, then continue. If you&apos;re unsure, pick the closest option — a counselor can clarify when we follow up.
+            {attemptedContinue && !canContinue ? "Please answer all questions to continue. Having trouble? Call (512) 777-1808." : "Answer all three questions above, then continue. If you're unsure, pick the closest option — a counselor can clarify when we follow up."}
           </p>
         )}
       </div>

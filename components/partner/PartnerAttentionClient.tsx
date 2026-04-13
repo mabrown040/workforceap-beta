@@ -153,7 +153,7 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
               <li key={m.memberId} className={`partner-attention-row tier-${m.riskTier}`}>
                 <div className="partner-attention-main">
                   <span className={`partner-risk-pill tier-${m.riskTier}`}>{m.riskTier}</span>
-                  <Link href={`/partner/members/${m.memberId}`} className="partner-attention-name">
+                  <Link href={`/partner/referred-members/${m.memberId}`} className="partner-attention-name">
                     {m.fullName}
                   </Link>
                   <div className="partner-attention-meta">
@@ -188,6 +188,14 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
                   <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.memberId)}>
                     Log outreach
                   </button>
+                  <a
+                    href={`/partner/messages?memberId=${m.memberId}`}
+                    className="btn btn-outline btn-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                    Message
+                  </a>
                 </div>
               </li>
             ))}

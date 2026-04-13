@@ -8,23 +8,28 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  await requireAdmin(user.id);
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    await requireAdmin(user.id);
 
-  const { id } = await params;
+    const { id } = await params;
 
-  await prisma.user.update({
-    where: { id },
-    data: {
-      assessmentCompleted: false,
-      assessmentCompletedAt: null,
-      assessmentScore: null,
-      assessmentScorePct: null,
-      assessmentAnswers: Prisma.JsonNull,
-      programInterest: null,
-    },
-  });
+    await prisma.user.update({
+      where: { id },
+      data: {
+        assessmentCompleted: false,
+        assessmentCompletedAt: null,
+        assessmentScore: null,
+        assessmentScorePct: null,
+        assessmentAnswers: Prisma.JsonNull,
+        programInterest: null,
+      },
+    });
 
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('[admin/members/[id]/reset-assessment POST] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

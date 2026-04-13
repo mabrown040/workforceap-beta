@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
@@ -11,10 +12,13 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { PROGRAMS } from '@/lib/content/programs';
 import { ArrowRight } from 'lucide-react';
+import { getDefaultImage } from '@/lib/blog/defaultImages';
+import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
+  if (shouldSkipOptionalDbQueriesAtBuild()) return [];
   try {
     const posts = await prisma.blogPost.findMany({
       where: { OR: [{ published: true }, { scheduledAt: { lte: new Date() } }] },
@@ -29,6 +33,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const now = new Date();
+  if (shouldSkipOptionalDbQueriesAtBuild()) return {};
   let post = null;
   try {
     post = await prisma.blogPost.findUnique({
@@ -39,11 +44,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) return {};
   const path = `/blog/${post.slug}`;
+  const defImg = getDefaultImage(post.category, post.slug);
   return buildPageMetadata({
     title: post.title,
     description: post.excerpt ?? post.title,
     path,
-    image: post.coverImage ?? undefined,
+    image: post.coverImage?.trim() || defImg.url,
   });
 }
 
@@ -59,6 +65,7 @@ const categoryProgramMap: Record<string, string[]> = {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const now = new Date();
+  if (shouldSkipOptionalDbQueriesAtBuild()) notFound();
   let post = null;
   try {
     post = await prisma.blogPost.findUnique({
@@ -107,46 +114,27 @@ export default async function BlogPostPage({ params }: Props) {
         <Link href="/blog" className="blog-back-link">
           ← Back to Blog
         </Link>
-        {post.coverImage ? (
-          <div
-            style={{
-              marginBottom: '2rem',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              aspectRatio: '16/9',
-            }}
-          >
-            <Image
-              src={post.coverImage}
-              alt={`Cover image for ${post.title}`}
-              width={680}
-              height={383}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </div>
-        ) : (
-          <div
-            style={{
-              marginBottom: '2rem',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              aspectRatio: '16/9',
-              background: 'var(--surface-container-highest)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '2rem',
-            }}
-          >
-            <Image
-              src="/images/logo-tight.svg"
-              alt="Workforce Advancement Project"
-              width={272}
-              height={153}
-              style={{ width: '40%', height: 'auto', opacity: 0.9, objectFit: 'contain' }}
-            />
-          </div>
-        )}
+        {(() => {
+          const hero = resolveBlogHeroImage(post.coverImage, post.category, post.slug);
+          return (
+            <div
+              style={{
+                marginBottom: '2rem',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                aspectRatio: '16/9',
+              }}
+            >
+              <Image
+                src={hero.src}
+                alt={hero.alt}
+                width={680}
+                height={383}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+          );
+        })()}
         <div className="blog-post-prose markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>
@@ -160,7 +148,7 @@ export default async function BlogPostPage({ params }: Props) {
             borderRadius: '12px',
           }}>
             <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-accent)' }}>menu_book</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 22, color: 'var(--color-accent)' }} aria-hidden="true">menu_book</span>
               Related Resources
             </h3>
             
@@ -186,7 +174,7 @@ export default async function BlogPostPage({ params }: Props) {
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>school</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">school</span>
                         {program.title}
                       </span>
                       <ArrowRight size={16} style={{ opacity: 0.5 }} />
@@ -211,7 +199,7 @@ export default async function BlogPostPage({ params }: Props) {
                   fontSize: '0.9375rem',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }}>help</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">help</span>
                 Read FAQ
                 <ArrowRight size={16} style={{ opacity: 0.5 }} />
               </Link>
@@ -238,10 +226,11 @@ export default async function BlogPostPage({ params }: Props) {
 
         <section className="blog-cta-section">
           <div className="blog-cta-card">
-            <h3>Ready to start your career?</h3>
-            <p>No-cost training for members. Industry certifications from Google, IBM, Microsoft, and more.</p>
+            <h3>Ready to take the next step?</h3>
+            <p>WorkforceAP offers no-cost career training paths for qualifying members — with guided tools, counselor support, and employer-aligned credentials.</p>
             <div className="blog-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-accent">Find Your Path</Link>
+              <Link href="/find-your-path" className="btn btn-accent">Find Your Career Path</Link>
+              <Link href="/programs" className="btn btn-ghost">Explore Programs</Link>
               <Link href="/apply" className="btn btn-ghost">Apply Now</Link>
             </div>
           </div>

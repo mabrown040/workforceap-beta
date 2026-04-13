@@ -78,12 +78,15 @@ export default function ThemeToggle({
   const marketingClasses =
     'wa-inline-flex wa-h-10 wa-w-10 wa-items-center wa-justify-center wa-rounded-full wa-border wa-border-slate-300 wa-bg-white/95 wa-p-1.5 wa-text-slate-900 wa-transition-colors hover:wa-bg-white focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-white focus-visible:wa-ring-offset-2 focus-visible:wa-ring-offset-[#111] dark:wa-border-white/20 dark:wa-bg-white/10 dark:wa-text-white dark:hover:wa-bg-white/20';
 
+  const modeLabel = dark ? 'Light mode' : 'Dark mode';
+
   return (
     <button
       type="button"
       onClick={toggle}
       className={className ?? (variant === 'portal' ? portalClasses : marketingClasses)}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={`${modeLabel} — click to switch theme`}
     >
       {dark ? (
         <Sun size={20} strokeWidth={2} className="wa-shrink-0" aria-hidden />

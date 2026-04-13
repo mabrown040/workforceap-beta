@@ -75,10 +75,8 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <Link href="/admin/partners" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
-        &larr; Back to Partners
-      </Link>
       <PageHeader
+        breadcrumbs={[{ label: 'Partners', href: '/admin/partners' }, { label: 'Partner Details' }]}
         title={partner.name}
         subtitle={`${partner._count.counselors} counselor${partner._count.counselors !== 1 ? 's' : ''} · ${partner._count.referrals} referral${partner._count.referrals !== 1 ? 's' : ''}`}
         action={

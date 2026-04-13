@@ -5,29 +5,29 @@ import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Workforce Development Training & Certifications',
+  title: 'Workforce Development Training & Industry Certificates',
   description:
-    'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
+    'WorkforceAP: 25+ years of workforce development. Employer-aligned training, no cost to members, job placement support — a proven model that scales.',
   path: '/what-we-do',
 });
 
 const BENTO_ITEMS = [
   {
     icon: 'school',
-    title: 'Employer-Led Curricula',
-    desc: 'Training programs designed in direct partnership with employers — Google, IBM, AWS, CompTIA — so every credential maps to an open role.',
+    title: 'Employer-Influenced Curricula',
+    desc: 'Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.',
     span: 'tall',
   },
   {
     icon: 'lock_open',
     title: 'Zero-Barrier Access',
-    desc: 'No tuition. No prerequisites. Funding comes from grants and employer partnerships, never from participants. Career training should be a right, not a privilege.',
+    desc: 'No tuition for members. No prerequisites. Funding comes from grants and partnerships — members are never charged for access.',
     span: 'large',
   },
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certifications. Skills assessments. Job placement support. We measure what matters — jobs landed.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
     span: 'small',
   },
   {
@@ -41,27 +41,27 @@ const BENTO_ITEMS = [
 const VALUES = [
   {
     num: '01',
-    title: 'Equity as Foundation',
-    desc: 'Fair access to opportunity — no one should pay for the training that gets them hired. We dismantle systemic barriers by design.',
+    title: 'Access as Foundation',
+    desc: 'Fair access to opportunity. We work with community organizations, public partners, and employers so more people can reach training and careers.',
   },
   {
     num: '02',
-    title: 'Outcome-Obsessed',
-    desc: 'Our success metric is your hire. When you land a job, we\'ve done our job. Every program, partnership, and dollar is measured by career outcomes.',
+    title: 'Outcome Focus',
+    desc: 'Every program, partnership, and investment is designed to expand opportunities, strengthen skills, and deliver meaningful life and career outcomes.',
   },
   {
     num: '03',
-    title: 'Radical Partnership',
-    desc: 'Government, employers, community orgs — we leverage collective strength so participants don\'t carry the load alone.',
+    title: 'Key Partnerships',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we leverage collective strength so members don\'t carry the load alone.',
   },
 ];
 
 export default function WhatWeDoPage() {
   return (
     <div className="inner-page">
-      <div className="wa-hidden md:wa-block marketing-desktop">
       {/* ── Hero ── */}
       <section
+        className="wwd-photo-hero"
         style={{
           position: 'relative',
           minHeight: '90vh',
@@ -75,8 +75,7 @@ export default function WhatWeDoPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&q=80)',
+            backgroundImage: 'url(/images/austin-skyline.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -86,108 +85,147 @@ export default function WhatWeDoPage() {
             position: 'absolute',
             inset: 0,
             background:
-              'linear-gradient(135deg, rgba(18,20,22,0.92) 0%, rgba(18,20,22,0.7) 50%, rgba(173,44,77,0.3) 100%)',
+              'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.72) 45%, rgba(173,44,77,0.28) 100%)',
           }}
+        />
+        {/* Extra bottom scrim so body copy stays readable on bright areas of the photo */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 42%)',
+            pointerEvents: 'none',
+          }}
+          aria-hidden={true}
         />
 
         <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem' }}>
           <span
+            className="wwd-photo-hero__eyebrow"
             style={{
-              display: 'inline-block',
+              display: 'inline-flex',
+              alignItems: 'center',
               padding: '0.375rem 1rem',
               borderRadius: 'var(--radius-full)',
-              background: 'rgba(255,255,255,0.1)',
+              background: 'rgba(255,255,255,0.12)',
               backdropFilter: 'var(--glass-blur)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: 'var(--color-gold)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              color: '#ffe082',
               fontSize: '0.75rem',
               fontWeight: 700,
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
               marginBottom: '1.5rem',
+              textShadow: '0 1px 3px rgba(0,0,0,0.65)',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '0.875rem', marginRight: '0.35rem', color: 'inherit' }}
+              aria-hidden
+            >
               history_edu
             </span>
-            Institutional Excellence Since 1999
+            Creating Opportunity for All Since 1999
           </span>
 
           <h1
+            className="wwd-photo-hero__title"
             style={{
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
               fontWeight: 800,
               lineHeight: 0.95,
               letterSpacing: '-0.03em',
-              color: 'var(--color-white)',
+              color: '#ffffff',
               maxWidth: '48rem',
               marginBottom: '2rem',
+              textShadow: '0 2px 32px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)',
             }}
           >
-            Redefining the Architecture{' '}
-            <span style={{ color: 'var(--color-accent)' }}>of Opportunity</span>
+            Creating{' '}
+            <span style={{ color: '#ffb2bc' }}>Opportunity</span>
           </h1>
 
           <p
+            className="wwd-photo-hero__lede"
             style={{
               fontSize: '1.25rem',
-              color: 'rgba(255,255,255,0.75)',
+              color: 'rgba(255,255,255,0.94)',
               maxWidth: '36rem',
               lineHeight: 1.6,
               marginBottom: '2.5rem',
+              textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
-            Employer-aligned training. No cost to participants. Job placement built in.
+            Employer-aligned training. No cost to members. Job placement built in.
             A model that works — and scales.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <Link
               href="/programs"
+              className="wwd-photo-hero__cta-primary"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
                 background: 'var(--color-accent)',
-                color: '#fff',
+                color: '#ffffff',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
                 textDecoration: 'none',
                 transition: 'var(--transition-base)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
               }}
             >
               Explore Our Impact
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
+                arrow_forward
+              </span>
             </Link>
             <Link
               href="/contact?topic=partnership"
+              className="wwd-photo-hero__cta-secondary"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.12)',
                 backdropFilter: 'var(--glass-blur)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#fff',
+                border: '1px solid rgba(255,255,255,0.28)',
+                color: '#ffffff',
                 padding: '1rem 2rem',
                 borderRadius: 'var(--radius-md)',
                 fontWeight: 700,
                 textDecoration: 'none',
                 transition: 'var(--transition-base)',
+                textShadow: '0 1px 10px rgba(0,0,0,0.45)',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.2)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>download</span>
-              Download Thesis
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
+                handshake
+              </span>
+              Partner With Us
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Find Your Career CTA */}
+      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
+        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
+        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          Find Your Career
+        </a>
       </section>
 
       {/* ── Legacy Section ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="wwd-legacy-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -206,9 +244,9 @@ export default function WhatWeDoPage() {
                 }}
               >
                 <img
-                  src="/images/michael-brown.jpg"
-                  alt="Michael Brown, Founder & Executive Director, Workforce Advancement Project"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
+                  src="/images/hero-people.jpg"
+                  alt="Diverse team collaborating on workforce development"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                 />
               </div>
               <div
@@ -242,8 +280,8 @@ export default function WhatWeDoPage() {
                   marginBottom: '1.5rem',
                 }}
               >
-                Investing in Digital{' '}
-                <span style={{ color: 'var(--color-accent)' }}>Sovereignty</span>
+                Investing in the Future{' '}
+                <span style={{ color: 'var(--color-accent)' }}>Workforce</span>
               </h2>
 
               <blockquote
@@ -259,7 +297,7 @@ export default function WhatWeDoPage() {
               >
                 Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
                 state and local initiatives. We know what works. Employers fund talent pipelines.
-                Grants fund access. We don&rsquo;t charge participants.
+                Grants fund access. We don&rsquo;t charge members.
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
@@ -299,10 +337,10 @@ export default function WhatWeDoPage() {
                   }}
                 >
                   <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    —
+                    2,000+
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Outcomes tracked as members complete certification tracks
+                    Lives impacted through workforce programs over 25 years
                   </div>
                 </div>
               </div>
@@ -311,7 +349,7 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── The Architecture of Impact — Bento Grid ── */}
+      {/* ── Making an impact — Bento Grid ── */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -323,8 +361,8 @@ export default function WhatWeDoPage() {
                 color: 'var(--color-on-surface)',
               }}
             >
-              The Architecture of{' '}
-              <span style={{ color: 'var(--color-accent)' }}>Impact</span>
+              Making an{' '}
+              <span style={{ color: 'var(--color-accent)' }}>impact</span>
             </h2>
           </div>
 
@@ -346,7 +384,7 @@ export default function WhatWeDoPage() {
               return (
                 <div
                   key={item.title}
-                  className="stitch-card"
+                  className="portal-card portal-card--flat"
                   style={{
                     ...spanStyles[item.span],
                     padding: '2.5rem',
@@ -368,9 +406,9 @@ export default function WhatWeDoPage() {
                     style={{
                       fontSize: '2.5rem',
                       color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
-                  >
+                   aria-hidden="true">
                     {item.icon}
                   </span>
                   <h3
@@ -525,7 +563,7 @@ export default function WhatWeDoPage() {
                 position: 'relative',
               }}
             >
-              Join individuals who are transforming their careers through employer-aligned training and certifications.
+              Join individuals who are launching new careers through employer-aligned training and certifications.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -543,7 +581,7 @@ export default function WhatWeDoPage() {
                 }}
               >
                 Apply Now
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/programs"
@@ -569,7 +607,7 @@ export default function WhatWeDoPage() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   background: 'var(--color-gold)',
-                  color: '#1c1b1b',
+                  color: 'var(--color-on-surface)',
                   padding: '1rem 2.5rem',
                   borderRadius: 'var(--radius-md)',
                   fontWeight: 700,
@@ -582,144 +620,10 @@ export default function WhatWeDoPage() {
           </div>
         </div>
       </section>
-      </div>{/* end desktop */}
-
-      <div className="md:wa-hidden marketing-mobile marketing-mobile-pb-for-bottom-nav">
-      {/* ── Mobile-only Stitch layout (≤640px) ── */}
-      <section className="px-4 pt-10 pb-4" style={{ background: '#fcf9f8' }}>
-        {/* Hero H1 with gradient span */}
-        <span className="block text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#8c0f37' }}>Our Impact</span>
-        <h1 className="text-4xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: '#1c1b1b' }}>
-          Bridging the{' '}
-          <span style={{ background: 'linear-gradient(135deg, #8c0f37 0%, #ad2c4d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Opportunity Gap
-          </span>{' '}
-          with a training-to-workforce engine.
-        </h1>
-
-        {/* Impact stats 2×2 grid */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          {[
-            { val: '2,000+', label: 'People Served', accent: '#8c0f37' },
-            { val: '$0', label: 'Cost to Members', accent: '#7b5800' },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl p-5" style={{ background: '#f0edec', borderLeft: `4px solid ${s.accent}` }}>
-              <div className="text-2xl font-black" style={{ color: s.accent }}>{s.val}</div>
-              <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: '#584144' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Mission/Values cards stacked (≤640px) ── */}
-      <section className="px-4 pb-8" style={{ background: '#fcf9f8' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-5" style={{ color: '#1c1b1b' }}>Our Core Values</h2>
-        <div className="space-y-4">
-          {[
-            { icon: 'payments', title: 'Access First', desc: "Education shouldn't have a paywall. We believe talent is universal, but opportunity is not.", accent: '#8c0f37' },
-            { icon: 'handshake', title: 'Employer Aligned', desc: 'We train for the roles companies actually need, ensuring your new skills are in high demand.', accent: '#7b5800' },
-            { icon: 'verified', title: 'Outcome Accountable', desc: 'Success is measured by your paycheck. Our model only works when you are working.', accent: '#8c0f37' },
-          ].map((v) => (
-            <div key={v.title} className="rounded-xl p-5" style={{ background: 'white', boxShadow: '0 2px 8px rgba(28,27,27,0.06)' }}>
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-lg" style={{ background: `${v.accent}10` }}>
-                  <span className="material-symbols-outlined text-xl" style={{ color: v.accent }}>{v.icon}</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg mb-1" style={{ color: '#1c1b1b' }}>{v.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#584144' }}>{v.desc}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: 4-step program flow (≤640px) ── */}
-      <section className="px-4 py-10" style={{ background: '#f0edec' }}>
-        <h2 className="text-2xl font-bold tracking-tight mb-7" style={{ color: '#1c1b1b' }}>The Journey</h2>
-        <div className="space-y-5 relative">
-          <div className="absolute left-[22px] top-2 bottom-2 w-px" style={{ background: 'rgba(140,15,55,0.2)' }} />
-          {[
-            { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
-            { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
-            { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
-            { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners and long-term career support.' },
-          ].map((s) => (
-            <div key={s.step} className="relative pl-12">
-              <div className="absolute left-[14px] top-1 w-4 h-4 rounded-full border-4" style={{ background: '#8c0f37', borderColor: '#f0edec', outline: '3px solid rgba(140,15,55,0.1)' }} />
-              <span className="block text-[10px] font-black tracking-widest uppercase mb-1" style={{ color: '#ad2c4d' }}>Step {s.step}</span>
-              <h3 className="font-bold text-lg mb-1" style={{ color: '#1c1b1b' }}>{s.title}</h3>
-              <p className="text-sm" style={{ color: '#584144' }}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Partner pills (≤640px) ── */}
-      <section className="px-4 py-10" style={{ background: '#fcf9f8' }}>
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-center mb-5" style={{ color: '#584144' }}>Supported By Industry Giants</p>
-        <div className="flex flex-wrap justify-center gap-2">
-          {['Google', 'IBM', 'AWS', 'CompTIA', 'Coursera'].map((p) => (
-            <span key={p} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: '#e5e2e1', color: '#1c1b1b' }}>{p}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Mobile-only: Bottom CTA band (≤640px) ── */}
-      <section
-        style={{
-          padding: '2.5rem 1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          background: '#1c1b1b',
-        }}
-      >
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: '#fff' }}>Ready to transform your career?</h2>
-        <Link
-          href="/apply"
-          style={{
-            display: 'block',
-            width: '100%',
-            maxWidth: '24rem',
-            fontWeight: 700,
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            marginBottom: '0.75rem',
-            background: '#8c0f37',
-            color: '#fff',
-            textDecoration: 'none',
-            textAlign: 'center',
-          }}
-        >
-          Start an Application
-        </Link>
-        <Link
-          href="/how-it-works"
-          style={{
-            display: 'block',
-            width: '100%',
-            maxWidth: '24rem',
-            fontWeight: 700,
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            border: '1px solid rgba(252,249,248,0.2)',
-            color: '#fcf9f8',
-            textDecoration: 'none',
-            textAlign: 'center',
-          }}
-        >
-          See the Process
-        </Link>
-      </section>
-      </div>{/* end mobile */}
 
       <style>{`
         @media (max-width: 1023px) {
+          .wwd-legacy-grid { gap: 2rem !important; }
           .wwd-legacy-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .wwd-legacy-text { grid-column: span 12 !important; }
           .wwd-values-grid { grid-template-columns: 1fr !important; }

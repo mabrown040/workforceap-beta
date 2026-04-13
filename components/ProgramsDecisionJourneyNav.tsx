@@ -1,23 +1,49 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 export type ProgramsJourneyStep = 'quiz' | 'programs' | 'detail' | 'compare' | 'salary';
 
+function pathToStep(pathname: string | null): ProgramsJourneyStep {
+  if (!pathname) return 'programs';
+  if (pathname === '/find-your-path') return 'quiz';
+  if (pathname === '/programs') return 'programs';
+  if (pathname.startsWith('/programs/')) return 'detail';
+  if (pathname === '/program-comparison') return 'compare';
+  if (pathname === '/salary-guide') return 'salary';
+  return 'programs';
+}
+
 /**
- * Sticky tool-switcher nav across the public programs decision stack
- * (quiz → browse → compare → salaries → apply).
- *
- * Sticky below nav (top-24), surface-container-high bg, rounded-xl,
- * 4 tabs with Material Symbols icon + label.
- * Active tab: primary-container bg with shadow.
+ * Persistent tab switcher across the decision-journey route group.
+ * Lives in the shared layout so it never unmounts during soft navigation.
+ * Auto-detects the active tab from the URL via usePathname().
  */
 export default function ProgramsDecisionJourneyNav({
   current,
   quizPhase,
 }: {
-  current: ProgramsJourneyStep;
-  /** On /find-your-path: highlight only Quiz while answering; show full path on results. */
+  current?: ProgramsJourneyStep;
   quizPhase?: 'in_progress' | 'results';
-}) {
+} = {}) {
+  const pathname = usePathname();
+  const resolved = current ?? pathToStep(pathname);
+
+  /* Hide on scroll-down, show on scroll-up */
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setHidden(y > 120 && y > lastY.current);
+      lastY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const steps: { id: ProgramsJourneyStep; label: string; icon: string; href: string }[] = [
     { id: 'quiz', label: 'Find Your Career', icon: 'explore', href: '/find-your-path' },
     { id: 'programs', label: 'Browse Programs', icon: 'school', href: '/programs' },
@@ -26,25 +52,26 @@ export default function ProgramsDecisionJourneyNav({
   ];
 
   return (
-    <nav className="pdj-nav" aria-label="Steps to choose a program">
+    <nav className={`pdj-nav${hidden ? ' pdj-nav--hidden' : ''}`} aria-label="Steps to choose a program">
       <ol className="pdj-nav__list">
         {steps.map((s) => {
-          const isQuizInProgress = current === 'quiz' && quizPhase === 'in_progress';
+          const isQuizInProgress = resolved === 'quiz' && quizPhase === 'in_progress';
           const isHere =
-            (current === 'detail' && s.id === 'programs') ||
-            (isQuizInProgress ? s.id === 'quiz' : current === s.id);
+            (resolved === 'detail' && s.id === 'programs') ||
+            (isQuizInProgress ? s.id === 'quiz' : resolved === s.id);
           return (
             <li key={s.id}>
               <Link
                 href={s.href}
+                scroll={false}
                 className={`pdj-nav__tab${isHere ? ' pdj-nav__tab--active' : ''}`}
                 aria-current={
-                  current !== 'detail' && (isQuizInProgress ? s.id === 'quiz' : current === s.id) ? 'step' : undefined
+                  resolved !== 'detail' && (isQuizInProgress ? s.id === 'quiz' : resolved === s.id) ? 'step' : undefined
                 }
               >
                 <span
                   className="material-symbols-outlined pdj-nav__icon"
-                  style={{ fontVariationSettings: isHere ? "'FILL' 1" : "'FILL' 0" }}
+                  style={{ '--ms-fill': isHere ? 1 : 0 } as React.CSSProperties}
                   aria-hidden
                 >
                   {s.icon}
@@ -55,7 +82,7 @@ export default function ProgramsDecisionJourneyNav({
           );
         })}
       </ol>
-      {current === 'detail' && (
+      {resolved === 'detail' && (
         <p className="pdj-nav__hint">You are viewing a single program — compare below when you want tradeoffs.</p>
       )}
 
@@ -64,11 +91,27 @@ export default function ProgramsDecisionJourneyNav({
           position: sticky;
           top: calc(var(--main-nav-layout-height) + 0.5rem);
           z-index: 40;
-          background: var(--surface-container-high);
+          background: color-mix(in srgb, var(--surface-container-high) 92%, transparent);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(222, 191, 194, 0.35);
           border-radius: var(--radius-xl);
           padding: 0.5rem;
           margin: 0 auto 1.5rem;
           max-width: 720px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+
+        .pdj-nav--hidden {
+          transform: translateY(-120%);
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        html.dark .pdj-nav {
+          border-color: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         }
 
         .pdj-nav__list {
@@ -134,11 +177,16 @@ export default function ProgramsDecisionJourneyNav({
 
         @media (max-width: 639px) {
           .pdj-nav {
+            position: relative;
+            top: auto;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            top: 4rem;
+            scrollbar-width: none;
             border-radius: var(--radius-lg);
+            margin: 0.75rem 0.5rem 1rem;
+            max-width: none;
           }
+          .pdj-nav::-webkit-scrollbar { display: none; }
 
           .pdj-nav__list {
             flex-wrap: nowrap;
@@ -146,13 +194,21 @@ export default function ProgramsDecisionJourneyNav({
           }
 
           .pdj-nav__label {
-            display: none;
+            font-size: 0.65rem;
+            letter-spacing: 0;
           }
 
           .pdj-nav__tab {
             flex: 0 0 auto;
-            padding: 0.5rem 0.75rem;
-            min-width: 3rem;
+            padding: 0.5rem 0.625rem;
+            min-width: auto;
+            flex-direction: column;
+            gap: 0.2rem;
+            font-size: 0.65rem;
+          }
+
+          .pdj-nav__icon {
+            font-size: 1.125rem;
           }
         }
       `}</style>

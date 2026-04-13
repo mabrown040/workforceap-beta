@@ -3,7 +3,21 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
 
-const SKIP_PREFIXES = ['/partner', '/employer', '/counselor', '/admin', '/certifications', '/profile'];
+/** Paths where we skip partner→/partner redirect (dedicated shells or legacy redirects). */
+const SKIP_PREFIXES = [
+  '/partner',
+  '/employer',
+  '/counselor',
+  '/admin',
+  '/certifications',
+  '/profile',
+  '/resources',
+  '/help',
+  '/account',
+  '/dashboard/help',
+  '/dashboard/account',
+  '/dashboard/career-library',
+];
 
 /**
  * Partner-only accounts should not use member portal surfaces. Redirect server-side
@@ -18,9 +32,15 @@ export default async function PartnerExclusiveServerGate() {
   const user = await getUser();
   if (!user) return null;
 
-  const [partnerCtx, superAdmin] = await Promise.all([getPartnerForUser(user.id), isSuperAdmin(user.id)]);
-  if (partnerCtx && !superAdmin) {
-    redirect('/partner');
+  try {
+    const superAdmin = await isSuperAdmin(user.id);
+    const partnerCtx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
+    if (partnerCtx && !superAdmin) {
+      redirect('/partner');
+    }
+  } catch (e) {
+    console.error('[PartnerExclusiveServerGate] role lookup failed', e);
+    /* Fail open: allow member UI when DB is unavailable; partner redirect is best-effort */
   }
 
   return null;

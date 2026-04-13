@@ -9,8 +9,11 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import MembersTable from '@/components/admin/MembersTable';
+import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Members',
@@ -28,32 +31,91 @@ export default async function AdminMembersPage() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const members = await prisma.user.findMany({
-    where: { deletedAt: null },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      profile: true,
-      partnerReferrals: {
-        take: 1,
-        orderBy: { referredAt: 'desc' },
-        include: { partner: { select: { id: true, name: true } } },
+  // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
+  // can time out or fail under load; degrading aggregates must not hide the member list.
+  const [membersResult, lastEventsResult, recentEventsResult] = await Promise.allSettled([
+    prisma.user.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        assessmentScorePct: true,
+        assessmentCompleted: true,
+        programInterest: true,
+        coursesCompleted: true,
+        updatedAt: true,
+        createdAt: true,
+        profile: {
+          select: {
+            profilePhone: true,
+            profileAddress: true,
+            city: true,
+            state: true,
+            zip: true,
+            address: true,
+            employmentStatus: true,
+            educationLevel: true,
+            financialAidInterest: true,
+          },
+        },
+        partnerReferrals: {
+          take: 1,
+          orderBy: { referredAt: 'desc' },
+          select: { partner: { select: { id: true, name: true } } },
+        },
       },
-    },
-  });
+    }),
+    // PERF: Bound last-event scan to 30 days. Users absent from this map
+    // are treated as inactive by calculateHealthStatus (correct behavior).
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _max: { createdAt: true },
+    }),
+    prisma.memberEvent.groupBy({
+      by: ['userId'],
+      where: { createdAt: { gte: thirtyDaysAgo } },
+      _count: { _all: true },
+    }),
+  ]);
 
-  // Batch fetch last event dates and recent event counts
-  const lastEvents = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    _max: { createdAt: true },
-  });
-  const lastEventMap = new Map(lastEvents.map((e) => [e.userId, e._max.createdAt]));
+  if (membersResult.status === 'rejected') {
+    console.error('[admin/members] user list load failed', membersResult.reason);
+    return (
+      <PortalPageFrame>
+        <AdminDataLoadError title="Members list unavailable" />
+      </PortalPageFrame>
+    );
+  }
 
-  const recentEvents = await prisma.memberEvent.groupBy({
-    by: ['userId'],
-    where: { createdAt: { gte: thirtyDaysAgo } },
-    _count: true,
-  });
-  const recentEventMap = new Map(recentEvents.map((e) => [e.userId, e._count]));
+  const members = membersResult.value;
+
+  const lastEventMap: Map<string, Date | null> = new Map();
+  if (lastEventsResult.status === 'fulfilled') {
+    for (const row of lastEventsResult.value) {
+      lastEventMap.set(row.userId, row._max.createdAt);
+    }
+  } else {
+    console.error('[admin/members] last-event aggregate failed', lastEventsResult.reason);
+  }
+
+  const recentEventMap: Map<string, number> = new Map();
+  if (recentEventsResult.status === 'fulfilled') {
+    for (const row of recentEventsResult.value) {
+      recentEventMap.set(row.userId, row._count._all);
+    }
+  } else {
+    console.error('[admin/members] recent-event aggregate failed', recentEventsResult.reason);
+  }
+
+  /** Health needs both aggregates; one failure + zeros mislabels members as inactive/at-risk. */
+  const eventAggregatesOk =
+    lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
 
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({
@@ -66,16 +128,18 @@ export default async function AdminMembersPage() {
       phone: m.phone,
     });
 
-    const healthStatus = calculateHealthStatus({
-      lastEventAt: lastEventMap.get(m.id) ?? null,
-      recentEventCount: recentEventMap.get(m.id) ?? 0,
-      enrolledAt: m.enrolledAt,
-    });
+    const healthStatus = eventAggregatesOk
+      ? calculateHealthStatus({
+          lastEventAt: lastEventMap.get(m.id) ?? null,
+          recentEventCount: recentEventMap.get(m.id) ?? 0,
+          enrolledAt: m.enrolledAt,
+        })
+      : undefined;
 
     return {
       ...m,
       programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
-      coursesCompleted: (m.coursesCompleted as string[] | null) ?? [],
+      coursesCompleted: parseCourseSlugList(m.coursesCompleted),
       totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,
@@ -88,7 +152,7 @@ export default async function AdminMembersPage() {
   membersWithProgram.sort((a, b) => b.fitScore - a.fitScore);
 
   return (
-    <div>
+    <PortalPageFrame>
       <PageHeader
         title="Members"
         subtitle="View and manage member accounts."
@@ -96,6 +160,6 @@ export default async function AdminMembersPage() {
       />
 
       <MembersTable members={membersWithProgram} />
-    </div>
+    </PortalPageFrame>
   );
 }

@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import {
+  employerMessagingSurface,
+  partnerMessagingSurface,
+} from '@/lib/portal/messagingSurfaces';
 
 type MessageDto = {
   id: string;
@@ -35,9 +40,20 @@ type PortalTeamChatClientProps = {
   initial: InitialPayload;
   subtitle: string;
   emptyHint: string;
+  /** Matches voice-agent surfaces — partner vs employer gradient. */
+  surfaceVariant: 'partner' | 'employer';
+  /** Render without the outer voice-agent shell when embedded in another inbox shell. */
+  decorated?: boolean;
 };
 
-export default function PortalTeamChatClient({ apiPath, initial, subtitle, emptyHint }: PortalTeamChatClientProps) {
+export default function PortalTeamChatClient({
+  apiPath,
+  initial,
+  subtitle,
+  emptyHint,
+  surfaceVariant,
+  decorated = true,
+}: PortalTeamChatClientProps) {
   const { portalUserId } = initial;
   const [thread, setThread] = useState(initial.thread);
   const [messages, setMessages] = useState(initial.messages);
@@ -146,10 +162,11 @@ export default function PortalTeamChatClient({ apiPath, initial, subtitle, empty
   };
 
   const hint = useMemo(() => subtitle, [subtitle]);
+  const surface =
+    surfaceVariant === 'employer' ? employerMessagingSurface : partnerMessagingSurface;
 
-  return (
+  const inner = (
     <div className="member-counselor-chat">
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.95rem' }}>{hint}</p>
       {error ? (
         <p className="member-counselor-chat__error" role="alert">
           {error}
@@ -194,5 +211,13 @@ export default function PortalTeamChatClient({ apiPath, initial, subtitle, empty
         </button>
       </form>
     </div>
+  );
+
+  if (!decorated) return inner;
+
+  return (
+    <VoiceAgentSurface {...surface} subtext={hint}>
+      {inner}
+    </VoiceAgentSurface>
   );
 }

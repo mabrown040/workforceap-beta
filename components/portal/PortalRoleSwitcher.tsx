@@ -17,8 +17,6 @@ export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRol
 
   const currentRoleConfig = userRoles.find(r => r.role === currentRole);
 
-  const currentRoleConfig = userRoles.find(r => r.role === currentRole);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isOpen && !(event.target as Element).closest('.portal-role-switcher')) {

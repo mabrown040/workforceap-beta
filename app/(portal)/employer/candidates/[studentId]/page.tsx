@@ -80,22 +80,32 @@ export default async function EmployerCandidateProfilePage({
     notFound();
   }
 
-  const student = await prisma.user.findUnique({
-    where: { id: studentId },
-    select: {
-      fullName: true,
-      email: true,
-      enrolledProgram: true,
-      assessmentCompleted: true,
-      profile: {
-        select: {
-          profileLinkedin: true,
-          profileBio: true,
-          employmentStatus: true,
+  const [student, partnerReferral, counselorAssign] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: studentId },
+      select: {
+        fullName: true,
+        email: true,
+        enrolledProgram: true,
+        assessmentCompleted: true,
+        profile: {
+          select: {
+            profileLinkedin: true,
+            profileBio: true,
+            employmentStatus: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.partnerReferral.findFirst({
+      where: { memberId: studentId },
+      include: { partner: { select: { name: true } } },
+    }),
+    prisma.counselorAssignment.findFirst({
+      where: { memberId: studentId, active: true },
+      include: { counselor: { select: { id: true, user: { select: { fullName: true } } } } },
+    }),
+  ]);
 
   if (!student) notFound();
 
@@ -163,6 +173,20 @@ export default async function EmployerCandidateProfilePage({
                       variant={employerAiMatchStatusBadgeVariant(selectedMatch.status)}
                     />
                   </div>
+                </div>
+              ) : null}
+              {(partnerReferral || counselorAssign) ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}>
+                  {partnerReferral ? (
+                    <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.35rem 0.6rem', borderRadius: '0.5rem' }}>
+                      Referred by {partnerReferral.partner.name}
+                    </span>
+                  ) : null}
+                  {counselorAssign ? (
+                    <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.35rem 0.6rem', borderRadius: '0.5rem' }}>
+                      Counselor: {counselorAssign.counselor.user.fullName}
+                    </span>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -321,6 +345,20 @@ export default async function EmployerCandidateProfilePage({
                     <p style={{ margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>Candidate snapshot</p>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h2>
                     <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', overflowWrap: 'anywhere' }}>{student.email}</p>
+                    {(partnerReferral || counselorAssign) ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem' }}>
+                        {partnerReferral ? (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.3rem 0.55rem', borderRadius: '0.5rem' }}>
+                            Referred by {partnerReferral.partner.name}
+                          </span>
+                        ) : null}
+                        {counselorAssign ? (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.3rem 0.55rem', borderRadius: '0.5rem' }}>
+                            Counselor: {counselorAssign.counselor.user.fullName}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
                   {selectedMatch ? (
                     <div style={{ minWidth: '8.5rem', padding: '0.9rem 1rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--color-accent) 10%, white)' }}>

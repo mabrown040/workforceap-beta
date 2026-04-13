@@ -399,7 +399,7 @@ export default function InterviewCoach() {
         <div style={{ background: 'var(--color-accent)', borderRadius: 12, padding: '1.5rem', color: '#fff', marginBottom: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎙️</div>
           <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.25rem' }}>
-            {wsStatus === 'connecting' ? 'Connecting to your interview coach…' : 
+            {wsStatus === 'connecting' ? 'Connecting to your interview coach…' :
              wsStatus === 'connected' ? 'Interview in progress — speak clearly' :
              'Session ended'}
           </div>

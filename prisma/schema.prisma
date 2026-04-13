@@ -1582,4 +1582,3 @@ model MemberNextBestAction {
   @@index([memberId, status, priority])
   @@map("member_next_best_actions")
 }
-

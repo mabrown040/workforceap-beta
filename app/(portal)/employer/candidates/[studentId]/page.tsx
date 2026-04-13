@@ -98,7 +98,7 @@ export default async function EmployerCandidateProfilePage({
       },
     }),
     prisma.partnerReferral.findFirst({
-      where: { userId: studentId },
+      where: { memberId: studentId },
       include: { partner: { select: { name: true } } },
     }),
     prisma.counselorAssignment.findFirst({

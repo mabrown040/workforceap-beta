@@ -8,9 +8,9 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 import { PortalInput } from '@/components/portal/ui/PortalInput';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { getCounselorTtsVoiceId } from '@/lib/portal/counselorVoice';
+import { getWioaGuideTtsOverrides } from '@/lib/portal/counselorVoice';
 
-const WIOA_FRIENDLY_VOICE_ID = getCounselorTtsVoiceId();
+const WIOA_VOICE_OVERRIDES = getWioaGuideTtsOverrides();
 
 const BARRIERS: WioaBarrier[] = [
   'none',
@@ -180,7 +180,7 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
               accentDark="#0f766e"
               speakingLabel="Guide is speaking…"
               listeningLabel="Listening…"
-              conversationOverrides={{ tts: { voiceId: WIOA_FRIENDLY_VOICE_ID } }}
+              conversationOverrides={{ tts: WIOA_VOICE_OVERRIDES }}
             />
           </VoiceAgentSurface>
         ) : (

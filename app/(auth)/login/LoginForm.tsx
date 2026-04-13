@@ -281,13 +281,14 @@ const s = {
 } as const;
 
 type LoginFormProps = {
-  initialRedirectTo?: string;
+  /** Present only when the URL included `redirectTo`; actual post-login path is still `redirectTo` (sanitized). */
+  initialRedirectTo?: string | null;
 };
 
-export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFormProps) {
+export default function LoginForm({ initialRedirectTo }: LoginFormProps) {
   /* ─── business logic (preserved exactly) ─── */
   const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
-  const redirectParam = initialRedirectTo;
+  const redirectParam = initialRedirectTo ?? null;
 
   const destinationActive = (target: string) => {
     if (target === '/dashboard') {

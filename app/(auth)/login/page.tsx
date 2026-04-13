@@ -27,5 +27,9 @@ export default async function LoginPage({
     redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
-  return <LoginForm initialRedirectTo={normalizedRedirect} />;
+  return (
+    <LoginForm
+      {...(rawRedirect !== undefined ? { initialRedirectTo: normalizedRedirect } : {})}
+    />
+  );
 }

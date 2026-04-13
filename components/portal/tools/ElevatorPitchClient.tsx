@@ -18,6 +18,7 @@ export default function ElevatorPitchClient() {
   const [pitch, setPitch] = useState('');
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Rehearsal recording
   const [recording, setRecording] = useState(false);
@@ -110,6 +111,16 @@ export default function ElevatorPitchClient() {
     streamRef.current?.getTracks().forEach(t => t.stop());
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(pitch);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
   // ── FORM STEP ──────────────────────────────────────────────
   if (step === 'form') {
     return (
@@ -158,8 +169,11 @@ export default function ElevatorPitchClient() {
             &ldquo;{pitch}&rdquo;
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => { void navigator.clipboard.writeText(pitch); }} className="btn btn-outline btn-sm">
-              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>content_copy</span> Copy
+            <button type="button" onClick={() => void handleCopy()} className="btn btn-outline btn-sm">
+              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
+                {copied ? 'check' : 'content_copy'}
+              </span>
+              {copied ? 'Copied!' : 'Copy'}
             </button>
             <button type="button" onClick={() => setStep('form')} className="btn btn-outline btn-sm">Edit answers</button>
           </div>

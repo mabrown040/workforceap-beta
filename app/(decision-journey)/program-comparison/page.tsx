@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata, SITE_URL } from '@/app/seo';
 import Link from 'next/link';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -112,9 +110,6 @@ export default function ProgramComparisonPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
-      <MobileBottomNav />
 
       <style>{`
         .program-comparison-bottom-grid {

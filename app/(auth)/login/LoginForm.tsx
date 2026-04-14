@@ -345,7 +345,8 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         return;
       }
 
-      window.location.href = redirectTo;
+      const nextLocation = typeof data?.redirectTo === 'string' ? data.redirectTo : redirectTo;
+      window.location.href = new URL(nextLocation, window.location.origin).href;
     } catch {
       setError('Something went wrong. Please try again.');
       setLoading(false);

@@ -190,7 +190,7 @@ html.dark .marketing-bottom-nav {
   border-radius: 12px;
   min-width: 56px;
   min-height: 44px;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
   text-decoration: none;
   color: var(--mbn-inactive-fg);
 }
@@ -213,6 +213,7 @@ html.dark .marketing-bottom-nav {
 .marketing-bottom-nav__link--active {
   background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
   color: var(--color-white);
+  box-shadow: 0 8px 20px rgba(173, 44, 77, 0.22);
 }
 
 .marketing-bottom-nav__link--active .marketing-bottom-nav__label {
@@ -233,7 +234,7 @@ html.dark .marketing-bottom-nav {
 .mobile-bottom-nav--employer .marketing-bottom-nav__link,
 .mobile-bottom-nav--counselor .marketing-bottom-nav__link,
 .mobile-bottom-nav--partner .marketing-bottom-nav__link {
-  padding: 8px 6px;
+  padding: 8px 6px 10px;
   min-width: 0;
   min-height: 44px;
   flex: 1 1 0;
@@ -244,12 +245,20 @@ html.dark .marketing-bottom-nav {
 .mobile-bottom-nav--counselor .marketing-bottom-nav__label,
 .mobile-bottom-nav--partner .marketing-bottom-nav__label {
   font-size: 10px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
   text-transform: none;
 }
 
 .mobile-bottom-nav--partner .marketing-bottom-nav__label {
   font-size: 9px;
+}
+
+.mobile-bottom-nav--portal .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--employer .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--counselor .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--partner .marketing-bottom-nav__link--active {
+  transform: translateY(-1px);
 }
 
 .mobile-bottom-nav--partner .marketing-bottom-nav__link {

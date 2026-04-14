@@ -6,7 +6,7 @@ import {
   MEMBER_PORTAL_NAV_ITEMS,
   NAV_TAB_META,
   NAV_TAB_ORDER,
-  type NavTab,
+  getActiveTab,
 } from '@/lib/nav/portalNav';
 
 /**
@@ -72,7 +72,7 @@ interface MobileBottomNavProps {
 }
 
 export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const tabs =
     variant === 'portal' ? getMemberBottomTabs()
     : variant === 'employer' ? EMPLOYER_TABS
@@ -80,6 +80,7 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
     : variant === 'partner' ? PARTNER_TABS
     : variant === 'admin' ? ADMIN_TABS
     : MARKETING_TABS;
+  const activeMemberTab = variant === 'portal' ? getActiveTab(pathname, MEMBER_PORTAL_NAV_ITEMS) : null;
 
   return (
     <>
@@ -119,14 +120,18 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         const { href, label, icon } = tab;
         const tourTarget = 'tourTarget' in tab ? tab.tourTarget : undefined;
         const exactMatch = ['/', '/dashboard', '/employer', '/counselor', '/partner'];
-        const isActive = exactMatch.includes(href)
-          ? pathname === href
-          : pathname.startsWith(href);
+        const isActive =
+          variant === 'portal' && 'tab' in tab
+            ? tab.tab === activeMemberTab
+            : exactMatch.includes(href)
+              ? pathname === href
+              : pathname.startsWith(href);
         return (
           <Link
             key={href}
             href={href}
             className={`marketing-bottom-nav__link${isActive ? ' marketing-bottom-nav__link--active' : ''}`}
+            aria-current={isActive ? 'page' : undefined}
             {...(tourTarget ? { 'data-tour': tourTarget } : {})}
           >
             <span

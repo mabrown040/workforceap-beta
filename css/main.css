@@ -8947,10 +8947,10 @@ html.dark .workspace-tab-bar {
 }
 .workspace-tab-bar-inner {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     max-width: min(var(--max-width), 100%);
     margin: 0 auto;
-    padding: 0.55rem max(0.75rem, env(safe-area-inset-left)) 0.6rem max(0.75rem, env(safe-area-inset-right));
+    padding: 0.5rem max(0.65rem, env(safe-area-inset-left)) 0.55rem max(0.65rem, env(safe-area-inset-right));
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -8966,7 +8966,8 @@ html.dark .workspace-tab-bar {
     flex-direction: column;
     align-items: center;
     gap: 0.15rem;
-    padding: 0.68rem 1rem;
+    padding: 0.66rem 0.96rem;
+    min-height: 44px;
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--color-on-surface-variant);
@@ -8988,7 +8989,7 @@ html.dark .workspace-tab-bar {
     border-color: color-mix(in srgb, var(--color-accent) 28%, transparent 72%);
     font-weight: 700;
     background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 13%, var(--color-white) 87%), color-mix(in srgb, var(--color-accent) 8%, var(--color-white) 92%));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 0 0 1px color-mix(in srgb, var(--color-accent) 10%, transparent 90%);
 }
 .workspace-tab-icon {
     font-size: 1.25rem;
@@ -9001,7 +9002,7 @@ html.dark .workspace-tab-bar {
         flex-direction: row;
         gap: 0.45rem;
         font-size: 0.84rem;
-        padding: 0.72rem 1.2rem;
+        padding: 0.7rem 1.12rem;
     }
     .workspace-tab-icon {
         font-size: 1.1rem;
@@ -9106,7 +9107,7 @@ html:not(.dark) .workspace-sidebar.open::before {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.2rem;
 }
 .workspace-sidebar-toolbar {
     display: flex;
@@ -9148,8 +9149,8 @@ html:not(.dark) .workspace-sidebar.open::before {
     border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent 30%);
 }
 .workspace-sidebar-group + .workspace-sidebar-group {
-    margin-top: 0.2rem;
-    padding-top: 0.35rem;
+    margin-top: 0.35rem;
+    padding-top: 0.4rem;
 }
 .workspace-sidebar-group-label {
     font-size: 0.65rem;
@@ -9167,7 +9168,8 @@ html.dark .workspace-sidebar-group-label {
     display: flex;
     align-items: center;
     gap: 0.7rem;
-    padding: 0.68rem 0.85rem;
+    padding: 0.66rem 0.82rem;
+    min-height: 44px;
     border-radius: 999px;
     font-size: 0.885rem;
     font-weight: 600;
@@ -9314,6 +9316,15 @@ html.dark .workspace-sidebar-group-label {
     margin-left: auto;
     flex-shrink: 0;
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 16%, transparent 84%);
+}
+.workspace-menu-btn:focus-visible,
+.workspace-tab:focus-visible,
+.workspace-sidebar-link:focus-visible,
+.workspace-sidebar-collapse-btn:focus-visible,
+.workspace-sidebar-home-link:focus-visible,
+.workspace-sidebar-signout:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 72%, white 28%);
+    outline-offset: 2px;
 }
 .workspace-sidebar-footer {
     margin-top: 1.5rem;

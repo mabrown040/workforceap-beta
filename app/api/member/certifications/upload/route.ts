@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
   if (supabaseUrl && serviceKey) {
     try {
       const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
       const storagePath = `cert-files/${user.id}/${cert.id}.${ext}`;
 
       const uploadRes = await fetch(
@@ -68,7 +67,7 @@ export async function POST(req: NextRequest) {
             'Content-Type': file.type || 'application/octet-stream',
             'x-upsert': 'true',
           },
-          body: buffer,
+          body: bytes,
         }
       );
 

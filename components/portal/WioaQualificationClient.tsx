@@ -8,9 +8,6 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 import { PortalInput } from '@/components/portal/ui/PortalInput';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { getWioaGuideTtsOverrides } from '@/lib/portal/counselorVoice';
-
-const WIOA_VOICE_OVERRIDES = getWioaGuideTtsOverrides();
 
 type ClientMode = 'member' | 'public';
 
@@ -298,7 +295,6 @@ export default function WioaQualificationClient({
                 accentDark="#0f766e"
                 speakingLabel="Guide is speaking…"
                 listeningLabel="Listening…"
-                conversationOverrides={{ tts: WIOA_VOICE_OVERRIDES }}
               />
             </VoiceAgentSurface>
           </>

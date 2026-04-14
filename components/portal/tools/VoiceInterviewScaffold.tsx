@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
+import { getInterviewerTtsOverrides, INTERVIEWER_VOICE_OPTIONS, type InterviewerVoiceOption } from '@/lib/portal/interviewVoice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
 
@@ -22,6 +23,7 @@ export default function VoiceInterviewScaffold() {
   const [role, setRole] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
   const [interviewType, setInterviewType] = useState<(typeof INTERVIEW_TYPES)[number]>('Behavioral');
+  const [interviewerVoice, setInterviewerVoice] = useState<InterviewerVoiceOption>('female');
   const [ready, setReady] = useState(false);
   const [lastUserText, setLastUserText] = useState('');
   const [voicePhase, setVoicePhase] = useState<VoiceSessionPhase>('pre');
@@ -54,6 +56,7 @@ export default function VoiceInterviewScaffold() {
   const wantRecording = recordVideo && recordingConsent;
   const canStart = role.trim().length > 0 && (!recordVideo || recordingConsent);
   const needsConsentForCamera = recordVideo && !recordingConsent && role.trim().length > 0;
+  const interviewerVoiceLabel = INTERVIEWER_VOICE_OPTIONS.find((option) => option.value === interviewerVoice)?.label ?? 'Female';
 
   const enterVoiceSession = useCallback(() => {
     setVideoErr('');
@@ -102,6 +105,23 @@ export default function VoiceInterviewScaffold() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="vi-voice">Interviewer voice</label>
+            <select
+              id="vi-voice"
+              value={interviewerVoice}
+              onChange={(e) => setInterviewerVoice(e.target.value as InterviewerVoiceOption)}
+            >
+              {INTERVIEWER_VOICE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p style={{ margin: '0.4rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              Choose a male or female interviewer voice for this practice session.
+            </p>
           </div>
 
           <div
@@ -258,7 +278,7 @@ export default function VoiceInterviewScaffold() {
         <div className="voice-interview-layout">
           <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12 }}>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-              Mock interview for <strong>{role}</strong> ({interviewType}). Use a quiet space and allow{' '}
+              Mock interview for <strong>{role}</strong> ({interviewType}) with a <strong>{interviewerVoiceLabel.toLowerCase()}</strong> interviewer voice. Use a quiet space and allow{' '}
               <strong>microphone</strong> access to talk with the coach.
               {wantRecording ? (
                 <>
@@ -294,6 +314,7 @@ export default function VoiceInterviewScaffold() {
                 speakingLabel="Interviewer is speaking…"
                 listeningLabel="Your turn — take your time"
                 liveTranscriptCoachLabel="Interviewer"
+                conversationOverrides={{ tts: getInterviewerTtsOverrides(interviewerVoice) }}
                 onTranscriptChunk={onTranscriptChunk}
                 onPhaseChange={setVoicePhase}
                 acquireVideoForRecording={false}
@@ -330,7 +351,7 @@ export default function VoiceInterviewScaffold() {
                 setVoicePhase('pre');
               }}
             >
-              Change role / style
+              Change role / style / voice
             </button>
           </div>
           <InterviewCoachingPanel targetRole={role} lastUserText={lastUserText} />

@@ -35,7 +35,7 @@ export const employerMessagingSurface: MessagingSurface = {
 
 export const counselorStaffMessagingSurface: MessagingSurface = {
   badge: 'Member thread',
-  subtext: 'Staff view — synced with the member inbox.',
+  subtext: 'Staff view — synced with the member\'s inbox.',
   icon: '💬',
   glowColor: '#c026d3',
   gradient: 'linear-gradient(135deg, #86198f, #c026d3, #f0abfc)',

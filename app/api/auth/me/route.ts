@@ -42,14 +42,21 @@ export async function GET() {
       );
     }
 
-    const [role, partnerCtx, counselorCtx, superAdmin, employerNav, availablePortals] = await Promise.all([
+    const [role, superAdmin, entityPrefetch] = await Promise.all([
       getProfileRole(user.id),
-      getPartnerForUser(user.id),
-      getCounselorForUser(user.id),
       isSuperAdmin(user.id),
-      getEmployerAccountForNav(user.id),
-      getPortalSwitcherRoles(user.id),
+      Promise.all([
+        getPartnerForUser(user.id),
+        getCounselorForUser(user.id),
+        getEmployerAccountForNav(user.id),
+      ]),
     ]);
+    const [partnerCtx, counselorCtx, employerNav] = entityPrefetch;
+    const availablePortals = await getPortalSwitcherRoles(user.id, {
+      partnerCtx,
+      counselorCtx,
+      employerNav,
+    });
 
     const partnerExclusive = !!partnerCtx && !superAdmin;
     const canAccessMemberDashboard = !partnerExclusive;

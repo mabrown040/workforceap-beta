@@ -86,11 +86,11 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
 
   const listPane = (opts: { mobile: boolean }) => (
     <InboxPane variant="list" style={opts.mobile ? { flex: 1 } : { width: 320, flexShrink: 0 }}>
-      <InboxHeader title="Students" subtitle={rows.length > 0 ? 'Open a thread or search by name.' : undefined} />
-      <InboxSearch value={search} onChange={setSearch} placeholder="Search students…" />
+      <InboxHeader title="Members" subtitle={rows.length > 0 ? 'Open a thread or search by name.' : undefined} />
+      <InboxSearch value={search} onChange={setSearch} placeholder="Search members…" />
       <InboxList>
         {filtered.length === 0 ? (
-          <InboxEmpty title="No matching students" description="Try a different search term." />
+          <InboxEmpty title="No matching members" description="Try a different search term." />
         ) : (
           filtered.map((r) => (
             <InboxRowButton
@@ -195,7 +195,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
     );
 
   return (
-    <VoiceAgentSurface {...counselorStaffMessagingSurface} headline="Student messages" subtext="Staff view, aligned with the member portal.">
+    <VoiceAgentSurface {...counselorStaffMessagingSurface} headline="Member messages" subtext="Staff view, aligned with the member portal.">
     <>
       <div className="wa-md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
         {mobileList ? (

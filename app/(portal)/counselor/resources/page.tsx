@@ -7,7 +7,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const WORKFLOW_LINKS = [
-  { href: '/counselor/students', icon: 'groups', label: 'My students', desc: 'Roster and detail views' },
+  { href: '/counselor/students', icon: 'groups', label: 'My members', desc: 'Roster and detail views' },
   { href: '/counselor/messages', icon: 'forum', label: 'Messages', desc: 'Portal threads with members' },
   { href: '/counselor/guide', icon: 'menu_book', label: 'Portal guide', desc: 'How the counselor workspace fits together' },
 ];

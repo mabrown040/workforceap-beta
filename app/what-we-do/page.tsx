@@ -341,11 +341,11 @@ export default function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-accent)',
                   }}
                 >
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1.3 }}>
-                    No Cost to Members
+                  <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
+                    2,000+
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Training and support services are offered at no cost to qualifying members.
+                    Trained through workforce programs.
                   </div>
                 </div>
               </div>

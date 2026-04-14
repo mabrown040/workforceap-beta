@@ -293,8 +293,8 @@ export default async function HomePage() {
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
-              <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-gold)', lineHeight: 1.3 }}>Nonprofit &amp; 501(c)(3)</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, letterSpacing: '0.01em' }}>Serving members nationwide</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained</span>
             </div>
             <div className="portal-card portal-card--flat" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',
@@ -463,7 +463,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. Industry-recognized certificates and placement support. No tuition cost to members.
+            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No tuition cost to members.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

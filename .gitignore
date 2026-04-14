@@ -9,4 +9,5 @@ next-env.d.ts
 .env.test
 playwright-report/
 test-results/
+tmp/
 .gstack/

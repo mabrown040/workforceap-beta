@@ -8913,7 +8913,7 @@ html:not(.dark) .workspace-shell-header {
     display: none;
   }
 
-  html[data-portal-role="member"] .workspace-shell-header__meta .workspace-shell-context--chip {
+  .workspace-shell-header__meta .workspace-shell-context--chip {
     display: none;
   }
 }
@@ -9089,6 +9089,14 @@ html:not(.dark) .workspace-sidebar.open::before {
     min-height: 100%;
     padding: 1rem 1rem 1.25rem;
     gap: 0.5rem;
+}
+@media (max-width: 1023px) {
+    .workspace-sidebar.open::before {
+        display: none;
+    }
+    .workspace-sidebar.open .workspace-sidebar-inner {
+        padding-top: max(1rem, calc(env(safe-area-inset-top, 0px) + 0.6rem));
+    }
 }
 .workspace-sidebar-label {
     font-size: 0.72rem;

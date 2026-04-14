@@ -5,6 +5,7 @@ import {
   getPartnerForUser,
   getUserRoles,
   isAdmin,
+  isSuperAdmin,
 } from '@/lib/auth/roles';
 
 export type PortalSwitcherRole = {
@@ -49,13 +50,21 @@ export function buildPortalSwitcherRoles(input: {
 }
 
 export async function getPortalSwitcherRoles(userId: string): Promise<PortalSwitcherRole[]> {
-  const [userRoleNames, employerNav, partnerCtx, counselorCtx, adminAccess] = await Promise.all([
+  const [superAdmin, userRoleNames, employerNav, partnerCtx, counselorCtx, adminAccess] = await Promise.all([
+    isSuperAdmin(userId),
     getUserRoles(userId),
     getEmployerAccountForNav(userId),
     getPartnerForUser(userId),
     getCounselorForUser(userId),
     isAdmin(userId),
   ]);
+
+  if (superAdmin) {
+    return ROLE_ORDER.map((role) => ({
+      role,
+      ...ROLE_META[role as keyof typeof ROLE_META],
+    }));
+  }
 
   return buildPortalSwitcherRoles({
     userRoleNames,

@@ -107,5 +107,9 @@ export async function POST(request: Request) {
         ? '/admin'
         : redirectTo;
 
+  if (request.headers.get('x-wap-login-flow') === 'client') {
+    return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect });
+  }
+
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
 }

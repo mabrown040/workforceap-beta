@@ -450,15 +450,12 @@ export default function PartnersPage() {
                   position: 'relative',
                 }}
               >
-                <div
+                <img
+                  src="/images/hero-people.jpg"
+                  alt=""
                   aria-hidden="true"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundImage: 'url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=82)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center 40%',
-                  }}
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
                 />
                 <figcaption
                   style={{

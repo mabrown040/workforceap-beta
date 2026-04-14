@@ -27,6 +27,9 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
           <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: 'var(--color-on-surface-variant, #debfc2)' }}>
             Empowering the workforce through intentional education and industry-leading partnerships.
           </p>
+          <p style={{ fontSize: '0.75rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant, #debfc2)', opacity: 0.85, marginTop: '0.75rem' }}>
+            A national nonprofit and 501(c)(3) organization.
+          </p>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
               <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }} aria-hidden="true">public</span>

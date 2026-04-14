@@ -27,23 +27,10 @@ function isProtectedPath(pathname: string) {
   return isPortalPath(pathname) || isAdminPath(pathname);
 }
 
-/** Skip sitewide JSON-LD on auth / employer portal routes (noindex) to avoid schema conflicts. */
-function shouldSuppressSitewideJsonLd(pathname: string) {
-  return (
-    pathname === '/login' ||
-    pathname === '/signup' ||
-    pathname === '/employer' ||
-    pathname.startsWith('/employer/')
-  );
-}
-
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   const pathname = request.nextUrl.pathname;
   requestHeaders.set('x-pathname', pathname);
-  if (shouldSuppressSitewideJsonLd(pathname)) {
-    requestHeaders.set('x-suppress-jsonld', '1');
-  }
 
   let response = NextResponse.next({
     request: {

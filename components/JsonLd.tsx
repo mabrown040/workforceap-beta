@@ -1,17 +1,10 @@
-import { headers } from 'next/headers';
 import { SITE_URL } from '@/app/seo';
-
 
 function safeJsonLdStringify(data: any) {
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
-export default async function JsonLd() {
-  const h = await headers();
-  if (h.get('x-suppress-jsonld') === '1') {
-    return null;
-  }
-
+export default function JsonLd() {
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',

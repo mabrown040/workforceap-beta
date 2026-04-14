@@ -326,11 +326,11 @@ export default function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-gold)',
                   }}
                 >
-                  <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>
-                    $700M+
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-gold)', lineHeight: 1.3 }}>
+                    Nonprofit &amp; 501(c)(3)
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Cumulative economic impact across programs and placements
+                    WorkforceAP is a national nonprofit and 501(c)(3) organization serving communities nationwide.
                   </div>
                 </div>
                 <div
@@ -341,11 +341,11 @@ export default function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-accent)',
                   }}
                 >
-                  <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
+                  <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
                     2,000+
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Lives impacted through workforce programs over 25 years
+                    Trained through workforce programs.
                   </div>
                 </div>
               </div>

@@ -311,14 +311,19 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-wap-login-flow': 'client',
+        },
         body: JSON.stringify({ email, password, redirectTo, rememberMe }),
         credentials: 'include',
         redirect: 'manual',
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) {
-        const location = res.headers.get('Location');
+        const location = res.headers.get('Location') ?? data?.redirectTo;
         if (location) {
           try {
             const next = new URL(location, window.location.origin);
@@ -333,8 +338,6 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         window.location.href = new URL(redirectTo, window.location.origin).href;
         return;
       }
-
-      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setError(data.error ?? 'Something went wrong. Please try again.');

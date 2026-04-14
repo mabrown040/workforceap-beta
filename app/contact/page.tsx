@@ -62,7 +62,7 @@ const contactCards = [
     accentColor: 'var(--color-accent)',
     body: (
       <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-        We reply within 24–48 business hours for most inquiries.
+        We read every message and reply as quickly as we can.
       </p>
     ),
   },
@@ -83,7 +83,7 @@ export default function ContactPage() {
             <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '46rem', lineHeight: 1.7, margin: 0 }}>
               Whether you&apos;re a current or prospective member with program questions, an employer looking to hire or build a pipeline,
               a community partner exploring a referral relationship, or a donor interested in supporting our work, reach out and a
-              member of our team will respond within 24–48 business hours.
+              member of our team will get back to you.
             </p>
           </div>
 

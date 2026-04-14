@@ -97,7 +97,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           <textarea
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
-            placeholder="Write a note about this student..."
+            placeholder="Write a note about this member..."
             rows={3}
             style={{
               width: '100%',

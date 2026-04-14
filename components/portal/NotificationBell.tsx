@@ -55,7 +55,7 @@ function buildNotifications(badges: Partial<Record<NavBadgeKey, number>>, role: 
 
   if (role === 'counselor') {
     if ((badges.counselor_messages_unread ?? 0) > 0) {
-      items.push({ key: 'cmsg', label: 'Unread student messages', href: '/counselor/messages', icon: 'forum', count: badges.counselor_messages_unread! });
+      items.push({ key: 'cmsg', label: 'Unread member messages', href: '/counselor/messages', icon: 'forum', count: badges.counselor_messages_unread! });
     }
     if ((badges.counselor_sla_breach_48h ?? 0) > 0) {
       items.push({ key: 'sla', label: `${badges.counselor_sla_breach_48h} SLA breaches >48h`, href: '/counselor/messages', icon: 'schedule', count: badges.counselor_sla_breach_48h! });

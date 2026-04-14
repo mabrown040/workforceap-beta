@@ -1,6 +1,6 @@
 export const PRODUCT_COPY = {
   publicSiteLabel: 'WorkforceAP site',
-  memberWorkspace: 'Student portal',
+  memberWorkspace: 'Member portal',
   employerWorkspace: 'Employer portal',
   partnerWorkspace: 'Partner portal',
   counselorWorkspace: 'Counselor portal',

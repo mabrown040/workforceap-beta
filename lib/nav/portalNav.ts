@@ -337,7 +337,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor', label: 'Overview', group: 'primary', Icon: Home },
-  { href: '/counselor/students', label: 'My students', group: 'workflows', Icon: Users },
+  { href: '/counselor/students', label: 'My members', group: 'workflows', Icon: Users },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
   { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },
   { href: '/counselor/guide', label: 'Portal guide', group: 'manage', Icon: HelpCircle },

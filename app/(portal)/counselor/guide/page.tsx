@@ -34,17 +34,17 @@ const QUICK_ACTIONS = [
   { icon: 'forum', label: 'Message a member', href: '/counselor/messages' },
   { icon: 'edit_note', label: 'Log a session note', href: '/counselor/students' },
   { icon: 'warning', label: 'View flagged members', href: '/counselor/students' },
-  { icon: 'group_add', label: 'View all students', href: '/counselor/students' },
+  { icon: 'group_add', label: 'View all members', href: '/counselor/students' },
 ];
 
 const FAQS = [
   {
     q: 'How do I get assigned new members?',
-    a: 'New assignments are made by the WorkforceAP admin team. When a new member is assigned to you, you\'ll see them appear in your student roster. Reach out to program staff if you need to adjust your caseload.',
+    a: 'New assignments are made by the WorkforceAP admin team. When a new member is assigned to you, you\'ll see them appear in your member roster. Reach out to program staff if you need to adjust your caseload.',
   },
   {
     q: 'Can I see what AI tools my members have used?',
-    a: 'Yes — open any member\'s profile from your student list to see their tool history, assessment scores, and readiness stage.',
+    a: 'Yes — open any member\'s profile from your member list to see their tool history, assessment scores, and readiness stage.',
   },
   {
     q: 'How do I flag a member for additional support?',
@@ -134,7 +134,7 @@ export default async function CounselorGuidePage() {
           </div>
           <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.75rem' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-              View your full student roster to see where each member is in their journey.
+              View your full member roster to see where each member is in their journey.
             </p>
             <Link href="/counselor/students" style={{
               display: 'inline-flex',
@@ -149,7 +149,7 @@ export default async function CounselorGuidePage() {
               textDecoration: 'none',
               alignSelf: 'flex-start',
             }}>
-              View your students
+              View your members
               <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
             </Link>
           </div>

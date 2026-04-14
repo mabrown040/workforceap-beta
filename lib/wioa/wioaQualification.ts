@@ -68,41 +68,46 @@ export function computeWioaSignal(answers: WioaQualificationAnswers): {
   reasons: string[];
 } {
   const reasons: string[] = [];
+  const hasBarrier = answers.primaryBarrier !== 'none';
+  const isYouth = answers.ageBracket === 'under18';
+  const coreQualifierCount =
+    (answers.lowIncomeSelfReport ? 1 : 0) +
+    (answers.dislocatedWorker ? 1 : 0) +
+    (hasBarrier ? 1 : 0);
 
   if (answers.lowIncomeSelfReport) {
-    reasons.push('You indicated household income may be within typical WIOA income guidelines (verify with staff).');
+    reasons.push('You shared that your household income may fit common WIOA income guidelines, which staff can verify.');
   }
   if (answers.dislocatedWorker) {
-    reasons.push('Dislocated worker situations are often eligible for intensive services — staff can confirm.');
+    reasons.push('You reported being unemployed or laid off, which often fits WIOA dislocated worker pathways.');
   }
-  if (answers.trainingInterest) {
-    reasons.push('Interest in occupational training aligns with many WIOA-funded pathways.');
-  }
-  if (answers.primaryBarrier !== 'none') {
+  if (hasBarrier) {
     reasons.push(
-      `Barrier noted: ${barrierLabel(answers.primaryBarrier)}. One-stop centers can connect support services alongside training.`
+      `You identified a barrier, ${barrierLabel(answers.primaryBarrier)}, which can strengthen the case for supportive services alongside training.`
     );
   }
+  if (answers.trainingInterest) {
+    reasons.push('You said you want training for an in-demand occupation, which is a strong match for many WIOA-funded plans.');
+  }
   if (answers.completedIntakeSelfReport) {
-    reasons.push('You noted you completed intake — your counselor can tie this screen to your case file.');
+    reasons.push('You said you already completed intake or orientation, which can help staff move faster on next steps.');
   }
 
   let signal: WioaEligibilitySignal = 'review';
 
-  const positiveCount =
-    (answers.lowIncomeSelfReport ? 1 : 0) +
-    (answers.dislocatedWorker ? 1 : 0) +
-    (answers.trainingInterest ? 1 : 0);
-
-  if (positiveCount >= 2 && (answers.ageBracket === '18_24' || answers.ageBracket === '25_54')) {
+  if (isYouth) {
+    signal = coreQualifierCount >= 1 || answers.trainingInterest ? 'possible' : 'unclear';
+    reasons.push('Youth eligibility is reviewed differently, so WorkforceAP staff will confirm age, school status, and program fit.');
+  } else if (answers.dislocatedWorker) {
     signal = 'likely';
-  } else if (positiveCount >= 1 || answers.dislocatedWorker) {
+  } else if (
+    (answers.lowIncomeSelfReport && hasBarrier) ||
+    coreQualifierCount >= 2 ||
+    (answers.lowIncomeSelfReport && answers.completedIntakeSelfReport)
+  ) {
+    signal = 'likely';
+  } else if (coreQualifierCount >= 1 || answers.trainingInterest || answers.completedIntakeSelfReport) {
     signal = 'possible';
-  } else if (answers.ageBracket === 'under18') {
-    signal = 'unclear';
-    if (reasons.length === 0) {
-      reasons.push('Youth programs have different eligibility rules — staff will review age and school status.');
-    }
   }
 
   if (reasons.length === 0) {

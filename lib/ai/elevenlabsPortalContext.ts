@@ -55,6 +55,23 @@ export async function fetchMemberPortalDynamicVariables(userId: string): Promise
   }
 }
 
+export function buildPublicWioaPortalDynamicVariables(input?: {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  countyOrZip?: string;
+}): Record<string, string> {
+  return withVoiceDefaults({
+    member_name: input?.fullName?.trim() ?? '',
+    member_email: input?.email?.trim() ?? '',
+    member_phone: input?.phone?.trim() ?? '',
+    wioa_county_or_zip: input?.countyOrZip?.trim() ?? '',
+    wioa_public_screening: 'true',
+    wioa_program_name: 'Workforce Innovation and Opportunity Act (WIOA)',
+    wioa_pronunciation: 'W. I. O. A.',
+  });
+}
+
 export async function fetchWioaPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
   try {
     const dbUser = await prisma.user.findUnique({
@@ -82,6 +99,8 @@ export async function fetchWioaPortalDynamicVariables(userId: string): Promise<R
       wioa_training_interest: snapshot?.answers.trainingInterest ? 'true' : 'false',
       wioa_completed_intake_self_report: snapshot?.answers.completedIntakeSelfReport ? 'true' : 'false',
       wioa_signal: snapshot?.signal ?? '',
+      wioa_program_name: 'Workforce Innovation and Opportunity Act (WIOA)',
+      wioa_pronunciation: 'W. I. O. A.',
     });
   } catch (err) {
     console.error('[elevenlabsPortalContext] wioa context error:', err);

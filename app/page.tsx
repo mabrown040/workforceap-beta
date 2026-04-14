@@ -278,10 +278,10 @@ export default async function HomePage() {
               25+ Years Breaking Barriers
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              Founded by Michael Brown, PMP — a workforce leader who has trained thousands nationwide. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we deliver the loaner laptops, resume help, and job search support that launch careers.
+              WorkforceAP is a national nonprofit and 501(c)(3) built on 25+ years of workforce development experience. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
-              We believe education should be an investment in the future, not a debt for the present. Our program is funded through employer partnerships and grants — building toward national scale.
+              We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost to members through WorkforceAP and partner-backed pathways.
             </p>
           </div>
 
@@ -293,8 +293,8 @@ export default async function HomePage() {
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained</span>
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-gold)', lineHeight: 1.3 }}>Nonprofit &amp; 501(c)(3)</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, letterSpacing: '0.01em' }}>Serving members nationwide</span>
             </div>
             <div className="portal-card portal-card--flat" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',
@@ -463,7 +463,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No tuition cost to members.
+            About 10 minutes to apply. Industry-recognized certificates and placement support. No tuition cost to members.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

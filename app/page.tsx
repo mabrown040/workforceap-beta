@@ -151,7 +151,7 @@ export default async function HomePage() {
       <section className="home-credibility-bar" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.4, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
-            Curriculum from Industry Leaders
+            Learning content and credential pathways from industry leaders
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.4 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
@@ -207,8 +207,9 @@ export default async function HomePage() {
                   Placement support assistance
                 </li>
               </ul>
-              <div style={{ marginTop: '1.5rem' }}>
+              <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
+                <Link href="/wioa-qualification" className="btn btn-secondary btn-small">Check WIOA Funding</Link>
               </div>
             </div>
 

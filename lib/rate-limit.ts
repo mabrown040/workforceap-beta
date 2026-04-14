@@ -21,6 +21,7 @@ let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
 let forgotPasswordRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
+let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
@@ -90,6 +91,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(120, '1 h'),
     prefix: 'ratelimit:careers-public-get',
+  });
+  publicVoiceSessionRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(6, '10 m'),
+    prefix: 'ratelimit:public-voice-session',
   });
   inviteAcceptRateLimiter = new Ratelimit({
     redis,
@@ -181,6 +187,13 @@ export async function checkForgotPasswordRateLimit(ip: string): Promise<{ succes
 export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicCareersGetRateLimiter) return { success: true };
   const result = await publicCareersGetRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Public voice-session minting — per IP; fail-open without Redis in dev, but throttle aggressively when configured. */
+export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicVoiceSessionRateLimiter) return { success: true };
+  const result = await publicVoiceSessionRateLimiter.limit(ip);
   return { success: result.success };
 }
 

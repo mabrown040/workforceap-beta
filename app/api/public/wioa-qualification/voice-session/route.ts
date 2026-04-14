@@ -1,0 +1,60 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import { buildPublicWioaPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { checkPublicVoiceSessionRateLimit } from '@/lib/rate-limit';
+
+const payloadSchema = z.object({
+  fullName: z.string().trim().max(120).optional(),
+  email: z.string().trim().max(200).optional(),
+  phone: z.string().trim().max(40).optional(),
+  countyOrZip: z.string().trim().max(120).optional(),
+});
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
+export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkPublicVoiceSessionRateLimit(`public-wioa-voice:${ip}`);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many voice session requests. Please wait a few minutes and try again.' },
+      { status: 429, headers: { 'Retry-After': '600' } }
+    );
+  }
+
+  let body: unknown = {};
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
+
+  const parsed = payloadSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid voice session payload' }, { status: 400 });
+  }
+
+  try {
+    const dynamicVariables = buildPublicWioaPortalDynamicVariables(parsed.data);
+    const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('wioa_prequal', {
+      dynamicVariables,
+    });
+
+    return NextResponse.json({
+      signedUrl,
+      expiresAt,
+      dynamicVariables: returned ?? dynamicVariables,
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Failed to start session';
+    console.error('[public/wioa-qualification/voice-session]', msg);
+    return NextResponse.json({ error: msg }, { status: 503 });
+  }
+}

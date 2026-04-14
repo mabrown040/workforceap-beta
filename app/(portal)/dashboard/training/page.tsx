@@ -94,9 +94,7 @@ export default async function TrainingPage() {
           {/* Actions (dense) */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', marginTop: '0.75rem', marginBottom: '1rem' }}>
             <a
-              href="https://coursera.org"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/member/coursera/launch"
               className="btn btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.65rem 1rem' }}
             >
@@ -184,9 +182,7 @@ export default async function TrainingPage() {
             }}
           >
             <a
-              href="https://coursera.org"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/member/coursera/launch"
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',

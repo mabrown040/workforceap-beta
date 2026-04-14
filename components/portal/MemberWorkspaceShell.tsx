@@ -5,13 +5,16 @@ import DashboardFooter from './DashboardFooter';
 import DashboardPageErrorBoundary from './DashboardPageErrorBoundary';
 import { MEMBER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 
 export default function MemberWorkspaceShell({
   hasResume = true,
+  portalRoles,
   children,
 }: {
   /** Member has an original or enhanced resume on file */
   hasResume?: boolean;
+  portalRoles?: PortalSwitcherRole[];
   children: React.ReactNode;
 }) {
   return (
@@ -23,6 +26,7 @@ export default function MemberWorkspaceShell({
       marketingSiteHref="https://www.workforceap.org/"
       marketingSiteLabel="WorkforceAP.org"
       showResumeUploadHint={hasResume === false}
+      portalRoles={portalRoles}
       footer={<DashboardFooter />}
     >
       <DashboardPageErrorBoundary>{children}</DashboardPageErrorBoundary>

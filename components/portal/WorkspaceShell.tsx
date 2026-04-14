@@ -22,9 +22,11 @@ import {
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
+import PortalRoleSwitcher from './PortalRoleSwitcher';
 import { SignOutButton } from './SignOutButton';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import GlobalSearch from './GlobalSearch';
+import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 
 // Map portal roles to MobileBottomNav variants
 const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor' | 'portal'>> = {
@@ -51,6 +53,7 @@ export default function WorkspaceShell({
   marketingSiteHref,
   marketingSiteLabel,
   showResumeUploadHint,
+  portalRoles,
   children,
 }: {
   portalRole: PortalRole;
@@ -75,6 +78,8 @@ export default function WorkspaceShell({
   marketingSiteLabel?: string;
   /** Member: prompt to upload resume when none on file */
   showResumeUploadHint?: boolean;
+  /** Optional set of role-switch targets for authenticated multi-role users */
+  portalRoles?: PortalSwitcherRole[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -275,6 +280,9 @@ export default function WorkspaceShell({
             <span className="workspace-shell-tier-badge" title={headerBadge}>
               {headerBadge}
             </span>
+          ) : null}
+          {portalRoles && portalRoles.length > 1 ? (
+            <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
           ) : null}
           {/* SuperAdminViewSwitcher is a direct child so the mobile CSS
               selector can keep it visible while hiding everything else */}

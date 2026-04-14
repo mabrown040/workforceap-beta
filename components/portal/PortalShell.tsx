@@ -33,16 +33,13 @@ export default function PortalShell({ children }: { children: React.ReactNode })
       try {
         const res = await fetch('/api/auth/me');
         const data = await res.json() as {
-          partner?: { partnerId: string } | null;
-          employer?: { employerId: string } | null;
-          counselor?: { counselorId: string } | null;
-          superAdmin?: boolean;
+          availablePortals?: { role: PortalRole; roleLabel: string; homeHref: string }[];
         };
         
         if (cancelled) return;
         
-        const roles: { role: PortalRole; roleLabel: string; homeHref: string }[] = [];
-        
+        const roles = data.availablePortals ?? [];
+
         // Determine current portal based on pathname
         let current: PortalRole = 'member';
         if (pathname.startsWith('/employer')) current = 'employer';
@@ -50,25 +47,6 @@ export default function PortalShell({ children }: { children: React.ReactNode })
         else if (pathname.startsWith('/counselor')) current = 'counselor';
         else if (pathname.startsWith('/admin')) current = 'admin';
         
-        // Build available roles list
-        if (data.employer) {
-          roles.push({ role: 'employer', roleLabel: 'Employer', homeHref: '/employer' });
-        }
-        if (data.partner) {
-          roles.push({ role: 'partner', roleLabel: 'Partner', homeHref: '/partner' });
-        }
-        if (data.counselor) {
-          roles.push({ role: 'counselor', roleLabel: 'Counselor', homeHref: '/counselor' });
-        }
-        if (data.superAdmin) {
-          roles.push({ role: 'admin', roleLabel: 'Admin', homeHref: '/admin' });
-        }
-        
-        // Always include member portal so multi-role users can switch back.
-        if (!roles.some((r) => r.role === 'member')) {
-          roles.unshift({ role: 'member', roleLabel: 'Member', homeHref: '/dashboard' });
-        }
-
         setUserRoles(roles);
         setCurrentRole(current);
       } catch {

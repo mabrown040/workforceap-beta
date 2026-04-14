@@ -16,7 +16,7 @@ export type PortalSwitcherRole = {
 const ROLE_ORDER: PortalRole[] = ['member', 'employer', 'partner', 'counselor', 'admin'];
 
 const ROLE_META: Record<Extract<PortalRole, 'member' | 'employer' | 'partner' | 'counselor' | 'admin'>, Omit<PortalSwitcherRole, 'role'>> = {
-  member: { roleLabel: 'Member', homeHref: '/dashboard' },
+  member: { roleLabel: 'Student', homeHref: '/dashboard' },
   employer: { roleLabel: 'Employer', homeHref: '/employer' },
   partner: { roleLabel: 'Partner', homeHref: '/partner' },
   counselor: { roleLabel: 'Counselor', homeHref: '/counselor' },

@@ -24,7 +24,7 @@ test('keeps explicitly granted member access for true multi-role users', () => {
   });
 
   assert.deepEqual(roles, [
-    { role: 'member', roleLabel: 'Member', homeHref: '/dashboard' },
+    { role: 'member', roleLabel: 'Student', homeHref: '/dashboard' },
     { role: 'employer', roleLabel: 'Employer', homeHref: '/employer' },
   ]);
 });

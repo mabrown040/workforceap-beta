@@ -4,6 +4,7 @@ import WorkspaceShell from './WorkspaceShell';
 import DashboardFooter from './DashboardFooter';
 import { EMPLOYER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 
 export default function EmployerPortalShell({
   companyName,
@@ -11,6 +12,7 @@ export default function EmployerPortalShell({
   employerTier,
   superAdmin,
   superAdminImpersonating,
+  portalRoles,
   children,
 }: {
   companyName: string;
@@ -18,6 +20,7 @@ export default function EmployerPortalShell({
   employerTier?: string;
   superAdmin?: boolean;
   superAdminImpersonating?: boolean;
+  portalRoles?: PortalSwitcherRole[];
   children: React.ReactNode;
 }) {
   const headerBadge = employerTier === 'partner' ? 'Hiring Partner' : undefined;
@@ -31,6 +34,7 @@ export default function EmployerPortalShell({
       headerBadge={headerBadge}
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
+      portalRoles={portalRoles}
       superAdminBackHref={superAdmin ? '/admin/employers' : undefined}
       superAdminBackLabel="Switch company"
       footer={<DashboardFooter />}

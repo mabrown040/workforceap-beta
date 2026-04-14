@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { PortalRole } from '@/lib/nav/portalNav';
 import styles from './PortalRoleSwitcher.module.css';
@@ -12,11 +12,12 @@ interface PortalRoleSwitcherProps {
 
 export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRoleSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const currentRoleConfig = userRoles.find((r) => r.role === currentRole);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isOpen && !(event.target as Element).closest('.portal-role-switcher')) {
+      if (isOpen && rootRef.current && !rootRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -29,7 +30,7 @@ export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRol
   }
 
   return (
-    <div className={styles['portal-role-switcher']}>
+    <div ref={rootRef} className={styles['portal-role-switcher']}>
       <button
         type="button"
         className={styles['portal-role-switcher-trigger']}

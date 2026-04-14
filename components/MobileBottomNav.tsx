@@ -47,7 +47,7 @@ const EMPLOYER_TABS = [
 
 const COUNSELOR_TABS = [
   { href: '/counselor', label: 'Overview', icon: 'dashboard' },
-  { href: '/counselor/students', label: 'Students', icon: 'groups' },
+  { href: '/counselor/students', label: 'Members', icon: 'groups' },
   { href: '/counselor/messages', label: 'Messages', icon: 'chat' },
   { href: '/counselor/resources', label: 'Resources', icon: 'menu_book' },
 ];

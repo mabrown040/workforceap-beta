@@ -169,7 +169,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               arrow_back
             </span>
-            All Students
+            All Members
           </Link>
         </div>
 
@@ -433,14 +433,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             href="/counselor/students"
             style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
           >
-            ← Back to students
+            ← Back to members
           </Link>
           <PageHeader
             title={member.fullName}
             subtitle={member.email}
             breadcrumbs={[
-              { label: 'Students', href: '/counselor/students' },
-              { label: 'Student Details' },
+              { label: 'Members', href: '/counselor/students' },
+              { label: 'Member details' },
             ]}
           />
 

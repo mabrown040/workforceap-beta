@@ -98,7 +98,7 @@ export default async function CounselorStudentsPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
+      <PageHeader title="My members" subtitle="Members assigned to you for coaching and messaging." />
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
@@ -112,7 +112,7 @@ export default async function CounselorStudentsPage() {
           }}
         >
           {[
-            { label: 'Active Students', value: activeCount, accent: 'var(--color-accent)' },
+            { label: 'Active Members', value: activeCount, accent: 'var(--color-accent)' },
             { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
             { label: 'Hot Queue', value: hotQueue.length, accent: '#b45309' },
           ].map(({ label, value, accent }) => (
@@ -221,8 +221,8 @@ export default async function CounselorStudentsPage() {
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {assignments.length === 0 ? (
             <PortalEmptyState
-              title="No students assigned yet"
-              description="Students will appear here once assigned by an administrator."
+              title="No members assigned yet"
+              description="Members will appear here once assigned by an administrator."
               icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
               primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
               secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
@@ -412,8 +412,8 @@ export default async function CounselorStudentsPage() {
 
         {assignments.length === 0 ? (
           <PortalEmptyState
-            title="No students assigned yet"
-            description="Students will appear here once assigned by an administrator."
+            title="No members assigned yet"
+            description="Members will appear here once assigned by an administrator."
             icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
             primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
             secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}

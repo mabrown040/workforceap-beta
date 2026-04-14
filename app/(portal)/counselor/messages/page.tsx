@@ -34,11 +34,11 @@ export default async function CounselorMessagesHubPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Student Messages"
+        title="Member Messages"
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">Conversations with your students</span>
-            <span className="wa-hidden wa-md:wa-block">Search, open a thread, or view the full student profile.</span>
+            <span className="wa-block wa-md:wa-hidden">Conversations with your members</span>
+            <span className="wa-hidden wa-md:wa-block">Search, open a thread, or view the full member profile.</span>
           </>
         }
       />
@@ -56,7 +56,7 @@ export default async function CounselorMessagesHubPage() {
           <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
           <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
             <Link href="/counselor/students" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Browse all students
+              Browse all members
             </Link>
           </p>
         </div>

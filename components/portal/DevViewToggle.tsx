@@ -59,7 +59,7 @@ export default function DevViewToggle() {
           cursor: 'pointer',
         }}
       >
-        Student View
+        Member View
       </button>
       <button
         type="button"

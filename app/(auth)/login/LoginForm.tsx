@@ -14,7 +14,7 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
   {
     redirectTo: '/counselor',
     title: 'Counselor portal',
-    desc: 'Student roster, messaging, and resources for counseling partners.',
+    desc: 'Member roster, messaging, and resources for counseling partners.',
   },
   {
     redirectTo: '/partner',

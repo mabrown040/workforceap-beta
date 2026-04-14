@@ -10,7 +10,7 @@ import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Counselor Portal',
-  description: 'Support your students from enrollment through employment.',
+  description: 'Support your members from enrollment through employment.',
   path: '/counselor',
 });
 

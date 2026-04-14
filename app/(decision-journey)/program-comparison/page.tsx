@@ -95,9 +95,9 @@ export default function ProgramComparisonPage() {
             <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span className="material-symbols-outlined" aria-hidden="true">school</span>
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Fellowship Grant</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>No Cost to Members</h3>
             <p style={{ opacity: 0.9, lineHeight: 1.7, fontSize: '0.95rem', margin: 0 }}>
-              All WorkforceAP programs are offered at zero cost to members. Our fellowship model is funded through employer partnerships and successful placements.
+              WorkforceAP programs are offered at no cost to members. Training is available through WorkforceAP and partner-backed pathways.
             </p>
             <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <Link href="/salary-guide" className="btn btn-small" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

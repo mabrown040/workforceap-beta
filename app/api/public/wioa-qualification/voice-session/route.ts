@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { buildPublicWioaPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { checkPublicVoiceSessionRateLimit } from '@/lib/rate-limit';
 
 const payloadSchema = z.object({
   fullName: z.string().trim().max(120).optional(),
@@ -10,7 +11,24 @@ const payloadSchema = z.object({
   countyOrZip: z.string().trim().max(120).optional(),
 });
 
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkPublicVoiceSessionRateLimit(`public-wioa-voice:${ip}`);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many voice session requests. Please wait a few minutes and try again.' },
+      { status: 429, headers: { 'Retry-After': '600' } }
+    );
+  }
+
   let body: unknown = {};
   try {
     body = await request.json();

@@ -120,6 +120,19 @@ export default function ProgramComparisonPage() {
             grid-template-columns: 1fr !important;
           }
         }
+        .program-comparison-category-row td {
+          padding: 0.5rem 0.75rem 0.25rem;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.07em;
+          text-transform: uppercase;
+          color: var(--color-accent);
+          background: rgba(173, 44, 77, 0.07);
+          border-top: 1px solid rgba(173, 44, 77, 0.2);
+        }
+        .program-comparison-category-row:first-child td {
+          border-top: none;
+        }
       `}</style>
     </div>
   );

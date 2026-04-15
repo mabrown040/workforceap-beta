@@ -65,9 +65,17 @@ export async function getOccupationSkills(occupationCode: string): Promise<OnetS
  * 
  * NOTE: This mapping uses an expanded keyword list based on actual O*NET skill names.
  * When no skills match an axis, value is 0 (no fallback) to show genuine gaps.
+ * 
+ * UPDATED: Design axis now includes fallback logic using course mappings when O*NET
+ * returns empty abilities/knowledge for technical occupations.
  */
 export function mapSkillsToRadarAxes(
-  skills: OnetSkill[]
+  skills: OnetSkill[],
+  options?: {
+    occupationCode?: string;
+    occupationTitle?: string;
+    fallbackDesignScore?: number; // From course mappings
+  }
 ): { axis: string; value: number; maxValue: number; hasData: boolean }[] {
   const axes = [
     {
@@ -152,12 +160,18 @@ export function mapSkillsToRadarAxes(
       keywords.some((kw) => s.name.toLowerCase().includes(kw.toLowerCase()))
     );
     
-    // NO FALLBACK: If no skills match this axis, show 0 (genuine gap)
-    const hasData = matching.length > 0;
-    const avgScore = hasData
+    // Check if we need fallback for Design axis
+    let hasData = matching.length > 0;
+    let avgScore = hasData
       ? Math.round(matching.reduce((sum, s) => sum + s.score, 0) / matching.length)
       : 0;
-      
+    
+    // Apply fallback for Design axis when O*NET returns empty
+    if (axis === 'Design' && !hasData && options?.fallbackDesignScore) {
+      avgScore = options.fallbackDesignScore;
+      hasData = true; // Mark as having data so it displays
+    }
+    
     return { axis, value: avgScore, maxValue: 100, hasData };
   });
 }

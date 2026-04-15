@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
 const EVENT_ONLY_AI_TOOLS = [
@@ -30,6 +30,39 @@ async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
   ]);
 
   return savedResults + eventOnlyRuns;
+}
+
+/** Get AI tool usage breakdown by tool type for the given period */
+type AiToolBreakdownItem = {
+  toolType: AIToolType | 'voice_sessions';
+  count: number;
+};
+
+async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBreakdownItem[]> {
+  const [savedBreakdown, eventOnlyCount] = await Promise.all([
+    prisma.aIToolResult.groupBy({
+      by: ['toolType'],
+      where: { createdAt: { gte: start, lte: end } },
+      _count: { id: true },
+    }),
+    // Event-only tools are lumped together since they don't have individual records
+    countEventOnlyAiRunsBetween(start, end),
+  ]);
+
+  const breakdown: AiToolBreakdownItem[] = savedBreakdown.map((r) => ({
+    toolType: r.toolType,
+    count: r._count.id,
+  }));
+
+  // Add event-only tools as a single category if any exist
+  if (eventOnlyCount > 0) {
+    breakdown.push({
+      toolType: 'voice_sessions',
+      count: eventOnlyCount,
+    });
+  }
+
+  return breakdown.sort((a, b) => b.count - a.count);
 }
 
 /** Generate daily activity for the last N days (all ranges run in parallel) */
@@ -105,12 +138,40 @@ async function getPlacementStats() {
   return { enrolled, placed, certifications, placementRate: enrolled > 0 ? Math.round((placed / enrolled) * 100) : 0 };
 }
 
+/** Get AI tool usage stats with trending */
+async function getAiToolStats(days: number) {
+  const now = new Date();
+  const periodStart = new Date(now);
+  periodStart.setDate(now.getDate() - days);
+  periodStart.setHours(0, 0, 0, 0);
+
+  const prevPeriodStart = new Date(periodStart);
+  prevPeriodStart.setDate(prevPeriodStart.getDate() - days);
+
+  const [currentPeriodRuns, prevPeriodRuns, totalRuns, breakdown] = await Promise.all([
+    countAiToolRunsBetween(periodStart, now),
+    countAiToolRunsBetween(prevPeriodStart, periodStart),
+    countAiToolRunsBetween(new Date(0), now),
+    getAiToolUsageBreakdown(periodStart, now),
+  ]);
+
+  const trend = prevPeriodRuns > 0
+    ? Math.round(((currentPeriodRuns - prevPeriodRuns) / prevPeriodRuns) * 100)
+    : 0;
+
+  return {
+    runsLastNDays: currentPeriodRuns,
+    trend,
+    totalRuns,
+    breakdown,
+  };
+}
+
 export async function getAdminMetrics() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-  const aiToolUsagePromise = countAiToolRunsBetween(new Date(0), new Date());
 
   const [
     totalMembers,
@@ -119,8 +180,8 @@ export async function getAdminMetrics() {
     goalsCount,
     applicationsCount,
     resourceCompletions,
-    aiToolUsage,
     pathwayStarts,
+    aiToolStats,
   ] = await Promise.all([
     prisma.user.count({ where: { deletedAt: null } }),
     prisma.memberEvent.findMany({
@@ -136,8 +197,8 @@ export async function getAdminMetrics() {
     prisma.goal.count({ where: { status: 'ACTIVE' } }),
     prisma.jobApplication.count({ where: { status: { not: 'SAVED' } } }),
     prisma.resourceProgress.count({ where: { completedAt: { not: null } } }),
-    aiToolUsagePromise,
     prisma.learningProgress.count(),
+    getAiToolStats(7),
   ]);
 
   const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
@@ -159,7 +220,8 @@ export async function getAdminMetrics() {
     activeGoals: goalsCount,
     applicationsSubmitted: applicationsCount,
     resourcesCompleted: resourceCompletions,
-    aiToolRuns: aiToolUsage,
+    aiToolRuns: aiToolStats.totalRuns,
+    aiToolStats, // New detailed stats
     pathwayStarts,
     inactiveUserIds: inactiveUserIds.slice(0, 50),
     // Chart data

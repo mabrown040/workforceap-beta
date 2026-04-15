@@ -5,6 +5,74 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { jobMatchScorerSchema } from '@/lib/validation/jobMatchScorer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { fetchPageText } from '@/lib/ai/atsProviders';
+import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
+
+export interface MatchAnalysisOutput {
+  matchScore: number;
+  strengths: string[];
+  gaps: string[];
+  quickWins: string[];
+  rawText: string;
+}
+
+function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
+  const lines = aiOutput.split('\n');
+  let matchScore = 70; // Default realistic score
+  const strengths: string[] = [];
+  const gaps: string[] = [];
+  const quickWins: string[] = [];
+
+  let currentSection: 'strengths' | 'gaps' | 'quickWins' | null = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Parse MATCH SCORE
+    const scoreMatch = trimmed.match(/MATCH\s*SCORE:\s*(\d+)%?/i);
+    if (scoreMatch) {
+      const parsed = parseInt(scoreMatch[1], 10);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+        matchScore = parsed;
+      }
+      continue;
+    }
+
+    // Detect section headers
+    if (/^STRENGTHS:/i.test(trimmed) || /^STRENGTHS$/i.test(trimmed)) {
+      currentSection = 'strengths';
+      continue;
+    }
+    if (/^GAPS\s*(TO\s*ADDRESS)?:/i.test(trimmed) || /^GAPS$/i.test(trimmed)) {
+      currentSection = 'gaps';
+      continue;
+    }
+    if (/^QUICK\s*WINS:/i.test(trimmed) || /^QUICK\s*WINS$/i.test(trimmed)) {
+      currentSection = 'quickWins';
+      continue;
+    }
+
+    // Parse bullet points
+    const bulletMatch = trimmed.match(/^[•\-\*]\s*(.+)/);
+    if (bulletMatch && currentSection) {
+      const content = bulletMatch[1].trim();
+      if (content.length > 5) {
+        if (currentSection === 'strengths') strengths.push(content);
+        else if (currentSection === 'gaps') gaps.push(content);
+        else if (currentSection === 'quickWins') quickWins.push(content);
+      }
+    }
+  }
+
+  return {
+    matchScore,
+    strengths: strengths.length > 0 ? strengths : ['Resume shows relevant experience'],
+    gaps: gaps.length > 0 ? gaps : ['Review job requirements for specific gaps'],
+    quickWins: quickWins.length > 0 ? quickWins : ['Tailor resume keywords to job posting'],
+    rawText: aiOutput,
+  };
+}
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +97,51 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobDescription } = parsed.data;
+  const { resume, jobDescription, jobUrl } = parsed.data;
+
+  // Validate that at least one job source is provided
+  if (!jobDescription?.trim() && !jobUrl?.trim()) {
+    return NextResponse.json(
+      { error: 'Please provide either a job description or a job URL' },
+      { status: 400 }
+    );
+  }
+
+  // Fetch job description from URL if provided
+  let finalJobDescription = jobDescription?.trim() ?? '';
+  let scrapedFromUrl = false;
+
+  if (jobUrl?.trim()) {
+    try {
+      const scrapedText = await fetchPageText(jobUrl.trim(), { waitFor: 2500 });
+      if (scrapedText && scrapedText.length >= 100) {
+        finalJobDescription = sanitizeScrapedJobText(scrapedText).slice(0, 8000);
+        scrapedFromUrl = true;
+      } else if (!finalJobDescription) {
+        return NextResponse.json(
+          { error: 'Could not extract job description from the provided URL. Please paste the job description directly.' },
+          { status: 400 }
+        );
+      }
+      // If scraping failed but we have pasted text, continue with pasted text
+    } catch (err) {
+      console.error('[job-match-scorer] URL fetch error:', err);
+      if (!finalJobDescription) {
+        return NextResponse.json(
+          { error: 'Failed to fetch job description from URL. Please paste the job description directly.' },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
+  // Final validation of job description
+  if (!finalJobDescription || finalJobDescription.length < 50) {
+    return NextResponse.json(
+      { error: 'Job description must be at least 50 characters' },
+      { status: 400 }
+    );
+  }
 
   const systemPrompt = `You are a career coach and ATS expert. Analyze how well a candidate's resume matches a job description.
 
@@ -55,7 +167,7 @@ Keep it concise. No fluff. Members want to know exactly why they're not getting 
 
   const userPrompt = `Job description:
 ---
-${jobDescription}
+${finalJobDescription}
 ---
 
 Candidate's resume:
@@ -76,7 +188,9 @@ Analyze the match and output in the format above.`;
 
     if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
 
-    const summary = jobDescription.slice(0, 80) + (jobDescription.length > 80 ? '...' : '');
+    const parsedOutput = parseMatchAnalysis(output);
+    const summary = finalJobDescription.slice(0, 80) + (finalJobDescription.length > 80 ? '...' : '');
+
     try {
       await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'job_match_scorer', summary, output);
@@ -84,7 +198,11 @@ Analyze the match and output in the format above.`;
       console.error('Job match scorer: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({
+      output,
+      parsed: parsedOutput,
+      scrapedFromUrl,
+    });
   } catch (err) {
     console.error('Job match scorer error:', err);
     return NextResponse.json(

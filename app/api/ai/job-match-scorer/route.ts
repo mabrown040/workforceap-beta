@@ -185,17 +185,29 @@ export async function POST(request: Request) {
       const extractResult = await extractJobDescriptionFromUrl(jobUrl.trim());
       
       if ('source' in extractResult && extractResult.text) {
-        // Successful extraction with usable content
-        finalJobDescription = sanitizeScrapedJobText(extractResult.text).slice(0, 8000);
-        scrapedFromUrl = true;
-        scrapeSource = extractResult.source;
-        console.log(`[job-match-scorer] Extracted job description via ${extractResult.source} (${finalJobDescription.length} chars)`);
+        // Successful extraction — only use if substantive enough
+        const sanitized = sanitizeScrapedJobText(extractResult.text).slice(0, 8000);
+        if (sanitized.length >= 50) {
+          finalJobDescription = sanitized;
+          scrapedFromUrl = true;
+          scrapeSource = extractResult.source;
+          console.log(`[job-match-scorer] Extracted job description via ${extractResult.source} (${sanitized.length} chars)`);
+        } else {
+          // Scraped content too short — preserve any manually-provided description
+          console.warn(`[job-match-scorer] Scraped content too short (${sanitized.length} chars), falling back to manual description`);
+          if (!finalJobDescription) {
+            return NextResponse.json(
+              { error: 'Could not extract a full job description from that URL. Try pasting the job description directly.' },
+              { status: 400 }
+            );
+          }
+        }
       } else if ('reason' in extractResult) {
         // Extraction failed with a specific reason
         scrapeError = extractResult.reason;
         console.error('[job-match-scorer] URL extraction failed:', scrapeError);
       }
-      
+
       // If we have no job description from either source, return error
       if (!finalJobDescription && scrapeError) {
         return NextResponse.json(
@@ -217,7 +229,9 @@ export async function POST(request: Request) {
   // Final validation of job description
   if (!finalJobDescription || finalJobDescription.length < 50) {
     return NextResponse.json(
-      { error: 'Job description must be at least 50 characters' },
+      { error: scrapedFromUrl
+          ? 'Could not extract enough content from that URL. Try pasting the job description directly.'
+          : 'Job description must be at least 50 characters' },
       { status: 400 }
     );
   }

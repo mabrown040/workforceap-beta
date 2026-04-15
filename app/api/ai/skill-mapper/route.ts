@@ -156,13 +156,6 @@ export async function GET(req: NextRequest) {
         );
       }
       const results = await searchOccupations(occupation);
-      await trackEvent({
-        userId: user.id,
-        eventName: 'ai_tool_run_started',
-        entityType: 'ai_tool',
-        metadata: { tool: 'skill_assessment', mode: 'occupation_search', query: occupation },
-        sourcePage: '/dashboard/skills-assessment',
-      });
       return NextResponse.json({ occupations: results });
     }
 

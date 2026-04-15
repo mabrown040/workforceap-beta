@@ -89,6 +89,13 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Legacy blog slug redirects (slug changes, old URLs must resolve)
+      { source: '/blog/why-we-started-workforceap', destination: '/blog/our-mission', permanent: true },
+      { source: '/blog/getting-started-guide', destination: '/blog/new-member-guide', permanent: true },
+      { source: '/blog/career-change-2024', destination: '/blog/career-change-guide', permanent: true },
+      { source: '/blog/it-certifications-explained', destination: '/blog/it-certifications-guide', permanent: true },
+      { source: '/blog/remote-work-tips', destination: '/blog/remote-work-guide', permanent: true },
+
       // Legacy .html redirects
       { source: '/index.html', destination: '/', permanent: true },
 

@@ -33,7 +33,12 @@ async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
 }
 
 /** Get AI tool usage breakdown by tool type for the given period */
-async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<{ toolType: AIToolType | 'voice_sessions'; count: number }[]> {
+type AiToolBreakdownItem = {
+  toolType: AIToolType | 'voice_sessions';
+  count: number;
+};
+
+async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBreakdownItem[]> {
   const [savedBreakdown, eventOnlyCount] = await Promise.all([
     prisma.aIToolResult.groupBy({
       by: ['toolType'],
@@ -44,7 +49,7 @@ async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<{ toolTy
     countEventOnlyAiRunsBetween(start, end),
   ]);
 
-  const breakdown = savedBreakdown.map((r) => ({
+  const breakdown: AiToolBreakdownItem[] = savedBreakdown.map((r) => ({
     toolType: r.toolType,
     count: r._count.id,
   }));

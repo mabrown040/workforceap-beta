@@ -29,7 +29,21 @@ export async function isAdmin(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
   if (profileRole === 'admin' || profileRole === 'super_admin') return true;
   const roles = await getUserRoles(userId);
+  return roles.includes('admin');
+}
+
+export async function isStaff(userId: string): Promise<boolean> {
+  const profileRole = await getProfileRole(userId);
+  if (profileRole === 'admin' || profileRole === 'super_admin') return true;
+  const roles = await getUserRoles(userId);
   return roles.includes('admin') || roles.includes('case_manager');
+}
+
+export async function isCaseManager(userId: string): Promise<boolean> {
+  const profileRole = await getProfileRole(userId);
+  if (profileRole === 'case_manager') return true;
+  const roles = await getUserRoles(userId);
+  return roles.includes('case_manager');
 }
 
 export async function requireAdmin(userId: string): Promise<void> {

@@ -25,7 +25,8 @@ export async function generateStaticParams() {
       select: { slug: true },
     });
     return posts.map((p) => ({ slug: p.slug }));
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch blog posts for static params:', error);
     return [];
   }
 }
@@ -39,7 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     post = await prisma.blogPost.findUnique({
       where: { slug },
     });
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch blog post for metadata:', error);
     post = null;
   }
   if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) return {};
@@ -71,7 +73,8 @@ export default async function BlogPostPage({ params }: Props) {
     post = await prisma.blogPost.findUnique({
       where: { slug },
     });
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch blog post:', error);
     post = null;
   }
   // Only show if published OR scheduledAt has passed
@@ -89,7 +92,8 @@ export default async function BlogPostPage({ params }: Props) {
       orderBy: { publishedAt: 'desc' },
       select: { slug: true, title: true },
     });
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch related posts:', error);
     related = [];
   }
 

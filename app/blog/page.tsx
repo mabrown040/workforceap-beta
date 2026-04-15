@@ -39,7 +39,8 @@ export default async function BlogPage() {
           category: true,
         },
       });
-    } catch {
+    } catch (error) {
+      console.error('Failed to fetch blog posts:', error);
       posts = [];
     }
   }

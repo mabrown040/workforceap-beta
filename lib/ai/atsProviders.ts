@@ -456,12 +456,21 @@ export function isFirecrawlConfigured(): boolean {
   return Boolean(process.env.FIRECRAWL_API_KEY?.trim());
 }
 
+/** Structured error returned by fetchPageText / fetchSubJobPageText so callers can distinguish retryable vs permanent failures. */
+export type FetchPageError = {
+  error: 'rate_limited' | 'quota_exceeded' | 'fetch_failed';
+  retryAfterMs?: number;
+};
+
 /** After 429 / quota errors, skip Firecrawl for a short window (bulk import, serverless warm). */
 let firecrawlCooldownUntil = 0;
 const FIRECRAWL_COOLDOWN_MS = 90_000;
+/** Tracks the classified reason the most recent cooldown was triggered. */
+let firecrawlLastErrorType: 'rate_limited' | 'quota_exceeded' | null = null;
 
-function triggerFirecrawlCooldown(reason: string) {
+function triggerFirecrawlCooldown(reason: string, errorType: 'rate_limited' | 'quota_exceeded') {
   firecrawlCooldownUntil = Date.now() + FIRECRAWL_COOLDOWN_MS;
+  firecrawlLastErrorType = errorType;
   console.warn(`[Firecrawl] Cooldown ${FIRECRAWL_COOLDOWN_MS}ms — ${reason}`);
 }
 
@@ -501,19 +510,21 @@ async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): 
     const markdown = json.data?.markdown;
     const errLower = (json.error ?? json.code ?? '').toString().toLowerCase();
 
-    if (res.status === 429 || res.status === 402) {
-      triggerFirecrawlCooldown(`HTTP ${res.status}`);
+    if (res.status === 429) {
+      triggerFirecrawlCooldown(`HTTP ${res.status}`, 'rate_limited');
+      return null;
+    }
+    if (res.status === 402) {
+      triggerFirecrawlCooldown(`HTTP ${res.status}`, 'quota_exceeded');
       return null;
     }
 
-    if (
-      errLower.includes('rate limit') ||
-      errLower.includes('quota') ||
-      errLower.includes('billing') ||
-      errLower.includes('exceeded') ||
-      errLower.includes('too many requests')
-    ) {
-      triggerFirecrawlCooldown(json.error ?? json.code ?? 'quota');
+    if (errLower.includes('quota') || errLower.includes('billing') || errLower.includes('exceeded')) {
+      triggerFirecrawlCooldown(json.error ?? json.code ?? 'quota', 'quota_exceeded');
+      return null;
+    }
+    if (errLower.includes('rate limit') || errLower.includes('too many requests')) {
+      triggerFirecrawlCooldown(json.error ?? json.code ?? 'rate limit', 'rate_limited');
       return null;
     }
 
@@ -652,10 +663,10 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
 export async function fetchPageText(
   url: string,
   options?: { waitFor?: number }
-): Promise<{ text: string; source: 'direct' | 'firecrawl' } | { text: null; reason: string }> {
+): Promise<{ text: string; source: 'direct' | 'firecrawl' } | FetchPageError> {
   // Try direct fetch first
   const page = await fetchGenericPage(url);
-  
+
   if (page && !page.isJSRendered) {
     const quality = checkContentQuality(page.text);
     if (quality.isUsable) {
@@ -664,10 +675,10 @@ export async function fetchPageText(
     // Content is junk but we have it - log and continue to Firecrawl
     console.warn('[fetchPageText] Direct fetch returned low-quality content:', quality.reason);
   }
-  
+
   // Try Firecrawl for JS-rendered pages or low-quality direct fetch
   const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
-  
+
   if (firecrawlResult) {
     const quality = checkContentQuality(firecrawlResult.text);
     if (quality.isUsable) {
@@ -675,22 +686,17 @@ export async function fetchPageText(
     }
     // Firecrawl returned content but it's not usable
     console.warn('[fetchPageText] Firecrawl returned low-quality content:', quality.reason);
-    return { text: null, reason: quality.reason ?? 'Could not extract usable job description from page' };
+    return { error: 'fetch_failed' };
   }
-  
-  // Firecrawl failed or not configured
-  if (page?.isJSRendered) {
-    const isConfigured = isFirecrawlConfigured();
-    return {
-      text: null,
-      reason: isConfigured
-        ? 'This page requires JavaScript rendering but our page reader could not extract usable content. The site may be blocking automated access. Please paste the job description directly.'
-        : 'This page requires JavaScript to display the job description. Please paste the job description directly, or ask your admin to enable automatic page reading.',
-    };
+
+  // Firecrawl returned null — check whether a rate/quota limit triggered the cooldown
+  if (Date.now() < firecrawlCooldownUntil) {
+    const errorType = firecrawlLastErrorType ?? 'rate_limited';
+    return { error: errorType, retryAfterMs: firecrawlCooldownUntil - Date.now() };
   }
-  
-  // Direct fetch failed completely
-  return { text: null, reason: 'Could not fetch the URL. Please check the link and try again, or paste the job description directly.' };
+
+  // Firecrawl failed for other reasons (not configured, network error, etc.)
+  return { error: 'fetch_failed' };
 }
 
 /**
@@ -702,7 +708,7 @@ export async function fetchPageText(
 export async function fetchSubJobPageText(
   url: string,
   options?: { waitFor?: number }
-): Promise<{ text: string; source: 'direct' | 'firecrawl' } | { text: null; reason: string }> {
+): Promise<{ text: string; source: 'direct' | 'firecrawl' } | FetchPageError> {
   // 1. Try direct fetch — many ATS job detail pages are server-rendered
   const page = await fetchGenericPage(url);
   if (page && !page.isJSRendered) {
@@ -711,28 +717,25 @@ export async function fetchSubJobPageText(
       return { text: page.text, source: 'direct' };
     }
   }
-  
+
   // 2. Direct fetch failed or insufficient (JS-rendered, blocked) — Firecrawl as last resort
   const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
-  
+
   if (firecrawlResult) {
     const quality = checkContentQuality(firecrawlResult.text);
     if (quality.isUsable) {
       return { text: firecrawlResult.text, source: 'firecrawl' };
     }
-    return { text: null, reason: quality.reason ?? 'Could not extract usable job description' };
+    return { error: 'fetch_failed' };
   }
-  
-  if (page?.isJSRendered) {
-    return {
-      text: null,
-      reason: isFirecrawlConfigured()
-        ? 'This page requires JavaScript rendering but our page reader could not extract usable content.'
-        : 'This page requires JavaScript to display the job description.',
-    };
+
+  // Firecrawl returned null — check whether a rate/quota limit triggered the cooldown
+  if (Date.now() < firecrawlCooldownUntil) {
+    const errorType = firecrawlLastErrorType ?? 'rate_limited';
+    return { error: errorType, retryAfterMs: firecrawlCooldownUntil - Date.now() };
   }
-  
-  return { text: null, reason: 'Could not fetch the job page.' };
+
+  return { error: 'fetch_failed' };
 }
 
 /**

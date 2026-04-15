@@ -105,11 +105,11 @@ export default async function DashboardReadinessPage() {
         />
 
         <div className="portal-pad-x" style={{ marginTop: '1rem' }}>
-          <details className="portal-card portal-card--flat" style={{ padding: '0.75rem 0.9rem' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none' }}>
+          <details className="portal-card portal-card--flat" style={{ padding: '0.75rem 0.9rem' }} open>
+            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none', textAlign: 'center' }}>
               Readiness coach
               <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                (tap to open)
+                (tap to collapse)
               </span>
             </summary>
             <div style={{ marginTop: '0.75rem' }}>
@@ -184,7 +184,7 @@ export default async function DashboardReadinessPage() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '1.5rem', maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto' }}>
             <VoiceAgentSurface {...readinessVoiceSurface}>
               <PortalVoiceSession
                 sessionEndpoint="/api/member/readiness/voice-session"

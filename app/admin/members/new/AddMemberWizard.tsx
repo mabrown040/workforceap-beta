@@ -479,7 +479,8 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               e.preventDefault();
               e.currentTarget.classList.remove('dragover');
               const file = e.dataTransfer.files?.[0];
-              if (file && ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'].includes(file.type)) {
+              const ext = file?.name.split('.').pop()?.toLowerCase();
+              if (file && ['pdf', 'doc', 'docx', 'txt'].includes(ext || '')) {
                 const input = document.getElementById('wizard-resume-input') as HTMLInputElement;
                 if (input) {
                   const dt = new DataTransfer();

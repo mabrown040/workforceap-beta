@@ -25,7 +25,8 @@ async function countEventOnlyAiRunsBetween(start: Date, end: Date): Promise<numb
 
 async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
   const [savedResults, eventOnlyRuns] = await Promise.all([
-    prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end } } }),
+    // Exclude event-only voice tools to avoid double-counting if they ever start saving results
+    prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end }, toolType: { notIn: EVENT_ONLY_AI_TOOLS as unknown as AIToolType[] } } }),
     countEventOnlyAiRunsBetween(start, end),
   ]);
 
@@ -34,19 +35,37 @@ async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
 
 /** Get AI tool usage breakdown by tool type for the given period */
 type AiToolBreakdownItem = {
-  toolType: AIToolType | 'voice_sessions';
+  toolType: AIToolType | typeof EVENT_ONLY_AI_TOOLS[number];
   count: number;
 };
 
+async function countSingleEventOnlyTool(tool: string, start: Date, end: Date): Promise<number> {
+  const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+    SELECT COUNT(*)::bigint AS count
+    FROM "member_events"
+    WHERE "created_at" >= ${start}
+      AND "created_at" <= ${end}
+      AND "event_name" = 'ai_tool_run_started'
+      AND "entity_type" = 'ai_tool'
+      AND COALESCE(metadata->>'tool', '') = ${tool}
+  `;
+  const count = rows[0]?.count ?? 0;
+  return typeof count === 'bigint' ? Number(count) : count;
+}
+
 async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBreakdownItem[]> {
-  const [savedBreakdown, eventOnlyCount] = await Promise.all([
+  const [savedBreakdown, voiceCounts] = await Promise.all([
     prisma.aIToolResult.groupBy({
       by: ['toolType'],
       where: { createdAt: { gte: start, lte: end } },
       _count: { id: true },
     }),
-    // Event-only tools are lumped together since they don't have individual records
-    countEventOnlyAiRunsBetween(start, end),
+    Promise.all(
+      EVENT_ONLY_AI_TOOLS.map(async (tool) => ({
+        toolType: tool as typeof EVENT_ONLY_AI_TOOLS[number],
+        count: await countSingleEventOnlyTool(tool, start, end),
+      }))
+    ),
   ]);
 
   const breakdown: AiToolBreakdownItem[] = savedBreakdown.map((r) => ({
@@ -54,12 +73,11 @@ async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBr
     count: r._count.id,
   }));
 
-  // Add event-only tools as a single category if any exist
-  if (eventOnlyCount > 0) {
-    breakdown.push({
-      toolType: 'voice_sessions',
-      count: eventOnlyCount,
-    });
+  // Add each event-only voice tool as its own entry for granular reporting
+  for (const voice of voiceCounts) {
+    if (voice.count > 0) {
+      breakdown.push(voice);
+    }
   }
 
   return breakdown.sort((a, b) => b.count - a.count);

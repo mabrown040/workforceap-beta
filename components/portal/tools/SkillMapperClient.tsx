@@ -286,21 +286,28 @@ function CoursePathForGaps({ gaps }: { gaps: Array<{ axis: string; member: numbe
                         </span>
                       )}
                     </div>
-                    {item.course.contributions.find(c => c.axis === item.addressesGap)?.specificSkills.length > 0 && (
-                      <div style={{ marginTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                        {item.course.contributions.find(c => c.axis === item.addressesGap)?.specificSkills?.slice(0, 3).map(skill => (
-                          <span key={skill} style={{
-                            fontSize: '0.65rem',
-                            color: 'var(--color-on-surface-variant)',
-                            background: 'var(--surface-container-highest)',
-                            padding: '0.125rem 0.375rem',
-                            borderRadius: '0.25rem'
-                          }}>
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    {(() => {
+                      const matchingContribution = item.course.contributions.find(c => c.axis === item.addressesGap);
+                      const specificSkills = matchingContribution?.specificSkills ?? [];
+
+                      if (specificSkills.length === 0) return null;
+
+                      return (
+                        <div style={{ marginTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                          {specificSkills.slice(0, 3).map(skill => (
+                            <span key={skill} style={{
+                              fontSize: '0.65rem',
+                              color: 'var(--color-on-surface-variant)',
+                              background: 'var(--surface-container-highest)',
+                              padding: '0.125rem 0.375rem',
+                              borderRadius: '0.25rem'
+                            }}>
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <a
                     href={`/programs/${item.course.programSlug}`}

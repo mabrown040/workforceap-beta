@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
 const EVENT_ONLY_AI_TOOLS = [
@@ -33,7 +33,7 @@ async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
 }
 
 /** Get AI tool usage breakdown by tool type for the given period */
-async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<{ toolType: string; count: number }[]> {
+async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<{ toolType: AIToolType | 'voice_sessions'; count: number }[]> {
   const [savedBreakdown, eventOnlyCount] = await Promise.all([
     prisma.aIToolResult.groupBy({
       by: ['toolType'],

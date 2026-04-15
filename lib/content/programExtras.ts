@@ -88,6 +88,8 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'it-support-professional-certificate-ibm': {
     bestFor: 'First IT credential. Help desk, hardware, customer support.',
     jobOutcomes: ['IT Support Specialist', 'Help Desk Technician', 'Technical Support'],
+    difficulty: 2,
+    rampNote: 'Good first IT credential. Builds from basics.',
   },
   'it-automation-with-python-google': {
     bestFor: 'Automation and scripting. Builds on basic IT or Python knowledge.',

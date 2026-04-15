@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { trackLeadFormEvent } from '@/lib/analytics/events';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -37,6 +38,10 @@ const INTEREST_USE_CASE = [
 
 export default function EmployerContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    trackLeadFormEvent('employer_intake', 'viewed');
+  }, []);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
@@ -89,6 +94,11 @@ export default function EmployerContactForm() {
 
     setStatus('sending');
     setErrorMsg(null);
+    trackLeadFormEvent('employer_intake', 'submitted', {
+      hiring_timeline: hiringTimeline || undefined,
+      interest_use_case: interestUseCase || undefined,
+      open_roles: openRoles || undefined,
+    });
 
     try {
       const res = await fetch('/api/contact', {
@@ -100,14 +110,21 @@ export default function EmployerContactForm() {
 
       if (!res.ok) {
         setStatus('error');
+        trackLeadFormEvent('employer_intake', 'errored', { reason: json.error ?? 'request_failed' });
         setErrorMsg(json.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
       setStatus('success');
+      trackLeadFormEvent('employer_intake', 'succeeded', {
+        hiring_timeline: hiringTimeline || undefined,
+        interest_use_case: interestUseCase || undefined,
+        open_roles: openRoles || undefined,
+      });
       form.reset();
     } catch {
       setStatus('error');
+      trackLeadFormEvent('employer_intake', 'errored', { reason: 'network_error' });
       setErrorMsg('Network error. Please try again.');
     }
   }

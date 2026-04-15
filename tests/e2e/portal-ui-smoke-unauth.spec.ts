@@ -1,4 +1,13 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import { test, expect } from '@playwright/test';
+
+const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR ?? path.join(process.cwd(), 'test-results', 'artifacts');
+
+function artifactPath(name: string): string {
+  fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
+  return path.join(ARTIFACTS_DIR, name);
+}
 
 /**
  * Portal UI smoke (unauth).
@@ -7,13 +16,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Portal UI smoke (unauth)', () => {
   test('login page shows new labels and portal destination links', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible();
+    // Client component — wait for hydration before checking visible elements
+    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible({ timeout: 10000 });
     await expect(page.getByLabel(/institutional id/i)).toBeVisible();
     await expect(page.getByLabel(/access key/i)).toBeVisible();
     await expect(page.getByRole('link', { name: /recover key/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /request credentials/i })).toBeVisible();
     await expect(page.getByRole('navigation', { name: /choose portal destination/i })).toBeVisible();
-    await page.screenshot({ path: '/opt/cursor/artifacts/login_page.png', fullPage: true });
+    await page.screenshot({ path: artifactPath('login_page.png'), fullPage: true });
   });
 
   test('protected portal pages redirect to login (baseline guardrail)', async ({ page }) => {
@@ -22,8 +32,7 @@ test.describe('Portal UI smoke (unauth)', () => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/login/);
     }
-    // Capture one representative redirect state.
-    await page.screenshot({ path: '/opt/cursor/artifacts/protected_route_redirects_to_login.png', fullPage: true });
+    await page.screenshot({ path: artifactPath('protected_route_redirects_to_login.png'), fullPage: true });
   });
 });
 

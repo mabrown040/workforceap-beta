@@ -120,7 +120,8 @@ export async function collectDraftInputsFromPageText(
   if (subUrls.length > 0) {
     for (const { url, title: listingTitle } of subUrls) {
       const listingFallback = listingFallbackByUrl.get(url);
-      const textForParse = (await fetchSubPageText(url, { waitFor: getWaitForMs(url) }))?.trim() ?? '';
+      const fetchResult = await fetchSubPageText(url, { waitFor: getWaitForMs(url) });
+      const textForParse = ('text' in fetchResult && fetchResult.text) ? fetchResult.text.trim() : '';
       const parsedJob = textForParse.length >= 50 ? await parseSingleJob(textForParse) : null;
       const extractedRaw = textForParse ? (parsedJob ?? buildFallback(listingTitle, textForParse)) : null;
 

@@ -80,11 +80,19 @@ function jobDataFromImportedDraft(organizationId: string, employerId: string, dr
 }
 
 async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; provider: string } | null> {
-  const textForParse = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
-  if (!textForParse || textForParse.length < 50) return null;
+  const result = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
+  
+  if ('reason' in result || !result.text) {
+    return null;
+  }
+  
+  const textForParse = result.text;
+  if (textForParse.length < 50) return null;
+  
   const parsed = await parseJobFromText(textForParse);
   const extractedRaw = parsed ?? buildFallbackParsedJobFromScrape(undefined, textForParse);
   if (!extractedRaw) return null;
+  
   return {
     extracted: normalizeImportedParsedJob(extractedRaw),
     provider: parsed ? 'ai+per-job' : 'scrape+fallback',

@@ -124,10 +124,13 @@ Austin, TX
     deps: {
       parseJobListingsFromPageText: async () => listings,
       extractSubJobUrlsFromPageText: () => subUrls,
-      fetchSubJobPageText: async (url) => {
+      fetchSubJobPageText: async (url: string) => {
         const listing = listings.find((job) => job.sourceUrl === url);
-        if (!listing) return null;
-        return `# ${listing.title}\n\n${listing.location ?? 'Austin, TX'}\n\nResponsibilities\n- Imported from fixture`;
+        if (!listing) return { text: null, reason: 'Not found' };
+        return { 
+          text: `# ${listing.title}\n\n${listing.location ?? 'Austin, TX'}\n\nResponsibilities\n- Imported from fixture`,
+          source: 'direct' as const
+        };
       },
       parseJobFromText: async () => null,
       isAIConfigured: () => false,
@@ -156,7 +159,7 @@ Austin, TX
     deps: {
       parseJobListingsFromPageText: async () => listings,
       extractSubJobUrlsFromPageText: () => subUrls.slice(0, 1),
-      fetchSubJobPageText: async () => 'Customer Success Manager, Mid-Market\nOwn onboarding. Drive adoption.',
+      fetchSubJobPageText: async () => ({ text: 'Customer Success Manager, Mid-Market\nOwn onboarding. Drive adoption.', source: 'direct' as const }),
       parseJobFromText: async () => null,
       isAIConfigured: () => false,
     },

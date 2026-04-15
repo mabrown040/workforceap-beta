@@ -19,10 +19,15 @@ export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
 export function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
-  if (!ALLOWED_MIME_TYPES.has(mimeType)) return false;
 
   // For txt files, skip magic bytes check as text files don't have standard magic bytes
-  if (ext === 'txt') return true;
+  if (ext === 'txt') {
+    // Basic sanity check on mime type for txt files, since they lack magic bytes
+    if (mimeType && !['text/plain', 'application/octet-stream'].includes(mimeType) && !ALLOWED_MIME_TYPES.has(mimeType)) {
+      return false;
+    }
+    return true;
+  }
 
   // Check magic bytes
   if (buffer.length < 4) return false;

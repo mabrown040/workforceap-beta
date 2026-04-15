@@ -30,7 +30,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     if (!validateFileType(buffer, file.type || '', file.name)) {
       return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
@@ -40,9 +41,9 @@ export async function POST(request: Request) {
     const path = `${user.id}/resume-original.${ext}`;
     const supabase = getSupabaseAdmin();
 
-    const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
+    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
       upsert: true,
-      contentType: file.type || 'application/pdf',
+      contentType: file.type || 'application/octet-stream',
     });
 
     if (error) {

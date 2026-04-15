@@ -13,6 +13,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getFallbackDesignScore, isDesignRelatedOccupation } from '@/lib/content/courseSkillMap';
 
 /**
  * GET /api/ai/skill-mapper?occupation=software+developer
@@ -48,7 +49,63 @@ export async function GET(req: NextRequest) {
     // If a specific occupation code is provided, return full skill data
     if (code) {
       const skills = await getOccupationSkills(code);
-      const radarData = mapSkillsToRadarAxes(skills);
+      
+      // Look up WorkforceAP programs mapped to this occupation (needed for fallback)
+      let matchedPrograms: {
+        programSlug: string;
+        programTitle: string;
+        categoryLabel: string;
+        categoryColor: string;
+        icon: string;
+        duration: string;
+        partner: string;
+        priority: number;
+        experienceBand: string;
+        recommendationType: string;
+        whyRecommended: string | null;
+      }[] = [];
+      let fallbackDesignScore: number | undefined;
+      
+      try {
+        const programMappings = await prisma.careerProgramMapping.findMany({
+          where: { onetCode: code, isActive: true },
+          orderBy: [{ priority: 'asc' }],
+          take: 6,
+        });
+        matchedPrograms = programMappings.map((m) => {
+          const p = getProgramBySlug(m.programSlug);
+          return {
+            programSlug: m.programSlug,
+            programTitle: p?.title ?? m.programSlug,
+            categoryLabel: p?.categoryLabel ?? '',
+            categoryColor: p?.categoryColor ?? '#666',
+            icon: p?.icon ?? '',
+            duration: p?.duration ?? '',
+            partner: p?.partner ?? '',
+            priority: m.priority,
+            experienceBand: m.experienceBand,
+            recommendationType: m.recommendationType,
+            whyRecommended: m.whyRecommended,
+          };
+        });
+        
+        // Calculate fallback Design score from course mappings
+        if (programMappings.length > 0) {
+          fallbackDesignScore = getFallbackDesignScore(
+            code,
+            programMappings.map(m => ({ programSlug: m.programSlug, priority: m.priority }))
+          );
+        }
+      } catch {
+        /* non-fatal — programs still render from radar-axis-based recs */
+      }
+      
+      // Map skills to radar axes with fallback for Design
+      const radarData = mapSkillsToRadarAxes(skills, {
+        occupationCode: code,
+        occupationTitle: occupationTitle ?? undefined,
+        fallbackDesignScore,
+      });
 
       try {
         await ensureUserInDb(user);
@@ -76,46 +133,6 @@ export async function GET(req: NextRequest) {
         sourcePage: '/dashboard/skills-assessment',
       });
 
-      // Look up WorkforceAP programs mapped to this occupation
-      let matchedPrograms: {
-        programSlug: string;
-        programTitle: string;
-        categoryLabel: string;
-        categoryColor: string;
-        icon: string;
-        duration: string;
-        partner: string;
-        priority: number;
-        experienceBand: string;
-        recommendationType: string;
-        whyRecommended: string | null;
-      }[] = [];
-      try {
-        const programMappings = await prisma.careerProgramMapping.findMany({
-          where: { onetCode: code, isActive: true },
-          orderBy: [{ priority: 'asc' }],
-          take: 6,
-        });
-        matchedPrograms = programMappings.map((m) => {
-          const p = getProgramBySlug(m.programSlug);
-          return {
-            programSlug: m.programSlug,
-            programTitle: p?.title ?? m.programSlug,
-            categoryLabel: p?.categoryLabel ?? '',
-            categoryColor: p?.categoryColor ?? '#666',
-            icon: p?.icon ?? '',
-            duration: p?.duration ?? '',
-            partner: p?.partner ?? '',
-            priority: m.priority,
-            experienceBand: m.experienceBand,
-            recommendationType: m.recommendationType,
-            whyRecommended: m.whyRecommended,
-          };
-        });
-      } catch {
-        /* non-fatal — programs still render from radar-axis-based recs */
-      }
-
       return NextResponse.json({
         occupationTitle: occupationTitle ?? code,
         occupationCode: code,
@@ -125,6 +142,7 @@ export async function GET(req: NextRequest) {
         matchedPrograms,
         ...(process.env.NODE_ENV === 'development' ? {
           unmatchedAxes: radarData.filter(a => !a.hasData).map(a => a.axis),
+          usedFallbackDesign: fallbackDesignScore !== undefined && radarData.find(a => a.axis === 'Design')?.value === fallbackDesignScore,
         } : {}),
       });
     }

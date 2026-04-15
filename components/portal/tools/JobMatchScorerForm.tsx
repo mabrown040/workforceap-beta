@@ -213,10 +213,16 @@ export default function JobMatchScorerForm() {
     trackAIToolRun('started', 'job-match-scorer');
 
     try {
+      const payload = {
+        resume,
+        ...(jobDescription.trim() ? { jobDescription: jobDescription.trim() } : {}),
+        ...(jobUrl.trim() ? { jobUrl: jobUrl.trim() } : {}),
+      };
+
       const res = await fetch('/api/ai/job-match-scorer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobDescription, jobUrl }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();

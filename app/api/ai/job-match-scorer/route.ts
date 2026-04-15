@@ -5,8 +5,75 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { jobMatchScorerSchema } from '@/lib/validation/jobMatchScorer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
-import { fetchPageText } from '@/lib/ai/atsProviders';
+import { 
+  fetchPageText, 
+  detectProvider, 
+  isKnownStructuredApiProvider,
+  importJobsFromUrl,
+  type ATSParseResult,
+} from '@/lib/ai/atsProviders';
 import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
+
+/**
+ * Extract job description from URL using provider-aware logic.
+ * Tier 1: Use ATS provider APIs (Greenhouse, Lever, Ashby) for known job URLs
+ * Tier 2: Fallback to generic page scraping (fetchPageText)
+ * Returns the job description text or null with a reason.
+ */
+async function extractJobDescriptionFromUrl(url: string): Promise<
+  { text: string; source: 'ats-api' | 'scraping' } | { text: null; reason: string }
+> {
+  const detected = detectProvider(url);
+  
+  // Tier 1: Use structured ATS APIs for known providers with job IDs
+  if (detected && isKnownStructuredApiProvider(detected.provider) && detected.jobId) {
+    console.log(`[job-match-scorer] Using ${detected.provider} API for job ${detected.jobId}`);
+    
+    const result: ATSParseResult = await importJobsFromUrl(url);
+    
+    if (result.jobs.length > 0) {
+      // Successfully got structured job data from API
+      const job = result.jobs[0];
+      const descriptionParts: string[] = [];
+      
+      if (job.title) descriptionParts.push(`Title: ${job.title}`);
+      if (job.company) descriptionParts.push(`Company: ${job.company}`);
+      if (job.location) descriptionParts.push(`Location: ${job.location}`);
+      if (job.description) descriptionParts.push(`\n${job.description}`);
+      if (job.requirements && job.requirements.length > 0) {
+        descriptionParts.push(`\nRequirements:\n${job.requirements.join('\n')}`);
+      }
+      
+      const fullText = descriptionParts.join('\n').trim();
+      if (fullText.length >= 100) {
+        return { text: fullText, source: 'ats-api' };
+      }
+      // Job was found but description is too short - fall through to scraping
+      console.warn(`[job-match-scorer] ${detected.provider} API returned short description (${fullText.length} chars), trying fallback`);
+    }
+    
+    // API returned no jobs or errors - try fallback scraping
+    if (result.errors.length > 0) {
+      console.warn(`[job-match-scorer] ${detected.provider} API failed:`, result.errors.join('; '));
+    }
+  }
+  
+  // Tier 2: Fallback to generic page scraping
+  // This also handles: unknown providers, API failures, JS-rendered pages
+  console.log('[job-match-scorer] Falling back to page scraping for URL');
+  const scrapeResult = await fetchPageText(url, { waitFor: 2500 });
+  
+  if ('source' in scrapeResult && scrapeResult.text) {
+    return { text: scrapeResult.text, source: 'scraping' };
+  }
+  
+  // Scraping failed - return the reason
+  if ('reason' in scrapeResult) {
+    return { text: null, reason: scrapeResult.reason };
+  }
+  
+  return { text: null, reason: 'Could not extract job description from URL' };
+}
 
 export interface MatchAnalysisOutput {
   matchScore: number;
@@ -111,19 +178,22 @@ export async function POST(request: Request) {
   let finalJobDescription = jobDescription?.trim() ?? '';
   let scrapedFromUrl = false;
   let scrapeError: string | null = null;
+  let scrapeSource: 'ats-api' | 'scraping' | null = null;
 
   if (jobUrl?.trim()) {
     try {
-      const scrapeResult = await fetchPageText(jobUrl.trim(), { waitFor: 2500 });
+      const extractResult = await extractJobDescriptionFromUrl(jobUrl.trim());
       
-      if ('source' in scrapeResult && scrapeResult.text) {
-        // Successful scrape with usable content
-        finalJobDescription = sanitizeScrapedJobText(scrapeResult.text).slice(0, 8000);
+      if ('source' in extractResult && extractResult.text) {
+        // Successful extraction with usable content
+        finalJobDescription = sanitizeScrapedJobText(extractResult.text).slice(0, 8000);
         scrapedFromUrl = true;
-      } else if ('reason' in scrapeResult) {
-        // Scrape failed with a specific reason
-        scrapeError = scrapeResult.reason;
-        console.error('[job-match-scorer] URL scrape failed:', scrapeError);
+        scrapeSource = extractResult.source;
+        console.log(`[job-match-scorer] Extracted job description via ${extractResult.source} (${finalJobDescription.length} chars)`);
+      } else if ('reason' in extractResult) {
+        // Extraction failed with a specific reason
+        scrapeError = extractResult.reason;
+        console.error('[job-match-scorer] URL extraction failed:', scrapeError);
       }
       
       // If we have no job description from either source, return error
@@ -211,6 +281,7 @@ Analyze the match and output in the format above.`;
       output,
       parsed: parsedOutput,
       scrapedFromUrl,
+      scrapeSource,
     });
   } catch (err) {
     console.error('Job match scorer error:', err);

@@ -11,10 +11,10 @@ import { useScrollAffordance } from '@/components/portal/useScrollAffordance';
 const MAX_PICK = 4;
 const MIN_PICK = 2;
 
-/** Guided entry points — fast on-ramp, broad IT hire path, strong data demand */
+/** Guided entry points — broad IT hire path, high-demand security, strong data path */
 const STARTER_SLUGS = [
-  'digital-literacy-empowerment-class',
   'it-support-professional-certificate-ibm',
+  'cybersecurity-professional-certificate-google',
   'data-analytics-professional-certificate-google',
 ] as const;
 
@@ -291,39 +291,54 @@ export default function ProgramComparisonClient({ tracks }: Props) {
             </tr>
           </thead>
           <tbody>
-            {tracks.map((t) => (
-              <tr key={t.slug}>
-                <td className="program-comparison-pick-col" data-label="Compare">
-                  <input
-                    type="checkbox"
-                    checked={selected.has(t.slug)}
-                    onChange={() => toggle(t.slug)}
-                    aria-label={`Include ${t.shortName} in comparison`}
-                    disabled={!selected.has(t.slug) && selected.size >= MAX_PICK}
-                  />
-                </td>
-                <td data-label="Track">
-                  <Link href={`/programs/${t.slug}`}>
-                    <strong>{t.shortName}</strong>
-                  </Link>
-                </td>
-                <td data-label="Duration">{t.duration}</td>
-                <td data-label="Difficulty">{t.difficulty}</td>
-                <td data-label="Avg. Starting Salary">{t.salary}</td>
-                <td data-label="Job Demand">
-                  <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
-                    {t.demand}
-                  </span>
-                </td>
-                <td data-label="Certificates">{t.certs}</td>
-                <td data-label="">
-                  <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
-                    Apply
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {(() => {
+              const rows: React.ReactNode[] = [];
+              let lastCategory = '';
+              for (const t of tracks) {
+                if (t.categoryLabel !== lastCategory) {
+                  lastCategory = t.categoryLabel;
+                  rows.push(
+                    <tr key={`cat-${t.categoryLabel}`} className="program-comparison-category-row">
+                      <td colSpan={8}>{t.categoryLabel}</td>
+                    </tr>
+                  );
+                }
+                rows.push(
+                  <tr key={t.slug}>
+                    <td className="program-comparison-pick-col" data-label="Compare">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(t.slug)}
+                        onChange={() => toggle(t.slug)}
+                        aria-label={`Include ${t.shortName} in comparison`}
+                        disabled={!selected.has(t.slug) && selected.size >= MAX_PICK}
+                      />
+                    </td>
+                    <td data-label="Track">
+                      <Link href={`/programs/${t.slug}`}>
+                        <strong>{t.shortName}</strong>
+                      </Link>
+                    </td>
+                    <td data-label="Duration">{t.duration}</td>
+                    <td data-label="Difficulty">{t.difficulty}</td>
+                    <td data-label="Avg. Starting Salary">{t.salary}</td>
+                    <td data-label="Job Demand">
+                      <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
+                        {t.demand}
+                      </span>
+                    </td>
+                    <td data-label="Certificates">{t.certs}</td>
+                    <td data-label="">
+                      <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                        Apply
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              }
+              return rows;
+            })()}
           </tbody>
         </table>
       </div>

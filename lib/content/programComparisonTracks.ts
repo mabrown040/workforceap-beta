@@ -1,6 +1,9 @@
 /**
  * Featured comparison tracks — slugs tie to lib/content/programs.ts.
  * Salary + duration come from the canonical program record so numbers match /programs.
+ *
+ * Covers the 15 career-track programs. Excludes Digital Literacy (on-ramp)
+ * and trades programs (CPT, CLT, OSHA-10) — those live on /programs.
  */
 
 import { getProgramBySlug } from './programs';
@@ -17,56 +20,144 @@ export type ComparisonTrack = {
   salary: string;
   demand: 'High' | 'Very High';
   certs: string;
+  categoryLabel: string;
+  categoryOrder: number;
 };
 
-export const PROGRAM_COMPARISON_FEATURED: { slug: string; shortName: string; demand: 'High' | 'Very High'; certs: string }[] = [
+type FeaturedEntry = {
+  slug: string;
+  shortName: string;
+  demand: 'High' | 'Very High';
+  certs: string;
+  categoryLabel: string;
+  categoryOrder: number;
+};
+
+export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
+  // IT & Cybersecurity
   {
     slug: 'it-support-professional-certificate-ibm',
     shortName: 'IT Support',
     demand: 'High',
-    certs: 'CompTIA-ready, IBM IT Support',
+    certs: 'IBM IT Support',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryOrder: 1,
+  },
+  {
+    slug: 'comptia-a-professional-certificate',
+    shortName: 'CompTIA A+',
+    demand: 'High',
+    certs: 'CompTIA A+ Core 1 & Core 2',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryOrder: 1,
+  },
+  {
+    slug: 'comptia-network-professional-certificate',
+    shortName: 'CompTIA Network+',
+    demand: 'High',
+    certs: 'CompTIA Network+',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryOrder: 1,
+  },
+  {
+    slug: 'comptia-security-professional-certificate',
+    shortName: 'CompTIA Security+',
+    demand: 'Very High',
+    certs: 'CompTIA Security+',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryOrder: 1,
   },
   {
     slug: 'cybersecurity-professional-certificate-google',
-    shortName: 'Cybersecurity',
+    shortName: 'Cybersecurity (Google)',
     demand: 'Very High',
-    certs: 'Google Cyber, Security+ path',
+    certs: 'Google Cybersecurity',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryOrder: 1,
   },
+  {
+    slug: 'it-automation-with-python-google',
+    shortName: 'IT Automation',
+    demand: 'High',
+    certs: 'Google IT Automation',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryOrder: 1,
+  },
+  // Cloud & Data
   {
     slug: 'aws-cloud-technology-amazon',
     shortName: 'Cloud (AWS)',
     demand: 'Very High',
     certs: 'AWS-focused professional cert path',
+    categoryLabel: 'Cloud & Data',
+    categoryOrder: 2,
   },
   {
     slug: 'data-analytics-professional-certificate-google',
     shortName: 'Data Analytics',
     demand: 'Very High',
     certs: 'Google Data Analytics',
+    categoryLabel: 'Cloud & Data',
+    categoryOrder: 2,
   },
+  {
+    slug: 'data-science-professional-certificate-ibm',
+    shortName: 'Data Science',
+    demand: 'Very High',
+    certs: 'IBM Data Science',
+    categoryLabel: 'Cloud & Data',
+    categoryOrder: 2,
+  },
+  // AI & Software Dev
+  {
+    slug: 'ai-professional-developer-certificate-ibm',
+    shortName: 'AI Developer',
+    demand: 'Very High',
+    certs: 'IBM AI Developer',
+    categoryLabel: 'AI & Software Dev',
+    categoryOrder: 3,
+  },
+  {
+    slug: 'software-developer-professional-certificate-ibm',
+    shortName: 'Software Developer',
+    demand: 'Very High',
+    certs: 'IBM Software Developer',
+    categoryLabel: 'AI & Software Dev',
+    categoryOrder: 3,
+  },
+  // Business
   {
     slug: 'project-management-professional-certificate-microsoft',
     shortName: 'Project Management',
     demand: 'High',
     certs: 'PM foundations, Agile / Scrum',
+    categoryLabel: 'Business',
+    categoryOrder: 4,
   },
   {
-    slug: 'digital-literacy-empowerment-class',
-    shortName: 'Digital Literacy',
+    slug: 'digital-marketing-e-commerce-google',
+    shortName: 'Digital Marketing',
     demand: 'High',
-    certs: 'Foundational digital + IBM SkillsBuild',
+    certs: 'Google Digital Marketing & E-Commerce',
+    categoryLabel: 'Business',
+    categoryOrder: 4,
   },
+  {
+    slug: 'ux-design-professional-certificate-google',
+    shortName: 'UX Design',
+    demand: 'High',
+    certs: 'Google UX Design',
+    categoryLabel: 'Business',
+    categoryOrder: 4,
+  },
+  // Healthcare
   {
     slug: 'health-information-technology-mchit',
-    shortName: 'Medical coding & HIT',
+    shortName: 'Medical Coding & HIT',
     demand: 'High',
     certs: 'ICD-10 / CPT, EHR fundamentals',
-  },
-  {
-    slug: 'construction-readiness-certificate-osha-10',
-    shortName: 'Construction readiness',
-    demand: 'High',
-    certs: 'OSHA-10, trades fundamentals',
+    categoryLabel: 'Healthcare',
+    categoryOrder: 5,
   },
 ];
 
@@ -82,7 +173,7 @@ function difficultyStars(program: Program): string {
 }
 
 export function getProgramComparisonTracks(): ComparisonTrack[] {
-  return PROGRAM_COMPARISON_FEATURED.map(({ slug, shortName, demand, certs }) => {
+  return PROGRAM_COMPARISON_FEATURED.map(({ slug, shortName, demand, certs, categoryLabel, categoryOrder }) => {
     const program = getProgramBySlug(slug);
     if (!program) {
       throw new Error(`programComparisonTracks: missing program for slug "${slug}"`);
@@ -95,6 +186,8 @@ export function getProgramComparisonTracks(): ComparisonTrack[] {
       salary: salaryRangeDisplay(program),
       demand,
       certs,
+      categoryLabel,
+      categoryOrder,
     };
   });
 }

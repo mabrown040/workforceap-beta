@@ -36,6 +36,19 @@ export function trackFunnelEvent(
   });
 }
 
+export function trackLeadFormEvent(
+  formType: 'contact' | 'employer_intake' | 'partner_signup',
+  phase: 'viewed' | 'submitted' | 'succeeded' | 'errored',
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'lead_form',
+    lead_form_type: formType,
+    lead_form_phase: phase,
+    ...extra,
+  });
+}
+
 export function trackApplyFunnel(
   step: number,
   stepName: string,

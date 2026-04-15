@@ -1,6 +1,7 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
+import { trackLeadFormEvent } from '@/lib/analytics/events';
 
 type FieldKey = 'first_name' | 'last_name' | 'email' | 'topic' | 'message';
 
@@ -37,6 +38,10 @@ function validateContactFields(data: {
 
 export default function ContactFormClient() {
   const formId = useId();
+
+  useEffect(() => {
+    trackLeadFormEvent('contact', 'viewed');
+  }, []);
   const errorId = `${formId}-error`;
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -67,6 +72,7 @@ export default function ContactFormClient() {
 
     setStatus('sending');
     setErrorMsg(null);
+    trackLeadFormEvent('contact', 'submitted', { topic: typeof data.topic === 'string' ? data.topic : undefined });
 
     try {
       const res = await fetch('/api/contact', {
@@ -84,6 +90,7 @@ export default function ContactFormClient() {
 
       if (res.status === 429) {
         setStatus('error');
+        trackLeadFormEvent('contact', 'errored', { reason: 'rate_limited' });
         setErrorMsg(
           json.error ??
             'You have reached the submission limit for now. Please wait about an hour before sending another message — your earlier requests are still on file.'
@@ -93,14 +100,17 @@ export default function ContactFormClient() {
 
       if (!res.ok) {
         setStatus('error');
+        trackLeadFormEvent('contact', 'errored', { reason: json.error ?? 'request_failed' });
         setErrorMsg(json.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
       setStatus('success');
+      trackLeadFormEvent('contact', 'succeeded', { topic: typeof data.topic === 'string' ? data.topic : undefined });
       form.reset();
     } catch {
       setStatus('error');
+      trackLeadFormEvent('contact', 'errored', { reason: 'network_error' });
       setErrorMsg('Network error. Please try again.');
     }
   }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -423,6 +424,10 @@ function QuizResultsView({
 
 export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: string }) {
   const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    trackFunnelEvent('find_your_path', 'viewed', { id_prefix: idPrefix });
+  }, [idPrefix]);
   const [answers, setAnswers] = useState<Partial<QuizAnswers>>({});
   const [storedResults, setStoredResults] = useState<Program[] | null>(null);
   const [careerMatchResult, setCareerMatchResult] = useState<CareerMatchResult | null>(null);
@@ -480,6 +485,10 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
     } else {
       const fullAnswers = newAnswers as QuizAnswers;
       const weights = scoreQuiz(fullAnswers);
+      trackFunnelEvent('find_your_path', 'quiz_completed', {
+        answer_count: Object.keys(fullAnswers).length,
+        id_prefix: idPrefix,
+      });
       setFinishingQuiz(true);
       void (async () => {
         let careerMatch: CareerMatchResult | null = null;
@@ -515,6 +524,11 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
           programs = programs.slice(0, 3);
         }
 
+        trackFunnelEvent('find_your_path', 'results_ready', {
+          recommended_program_slugs: programs.map((p) => p.slug),
+          used_career_match_api: slugsFromApi.length > 0,
+          id_prefix: idPrefix,
+        });
         setCareerMatchResult(careerMatch);
         setStoredResults(programs);
         try {

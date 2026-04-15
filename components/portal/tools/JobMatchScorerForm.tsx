@@ -300,13 +300,13 @@ export default function JobMatchScorerForm() {
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
           <LinkIcon size={12} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
-          Supports Greenhouse, Lever, Ashby, LinkedIn, and most career pages
+          Best results come from direct Greenhouse, Lever, and Ashby job links. Other career pages may vary.
         </p>
       </div>
 
       <div className="form-group">
         <label htmlFor="job-desc">
-          Job description {jobUrl.trim() ? '(optional — will use scraped content if empty)' : '(required)'}
+          Job description {jobUrl.trim() ? '(optional if the URL works, recommended as backup)' : '(required if no URL)'}
         </label>
         <textarea
           id="job-desc"

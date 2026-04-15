@@ -130,6 +130,142 @@ export function extractMeaningfulPageText(html: string): { text: string; isUsabl
   return { text: cleaned.slice(0, 28000), isUsable: true };
 }
 
+// ────────────────────────────────────────────────────────────
+// Content Quality Detection
+// ────────────────────────────────────────────────────────────
+
+/** Patterns that indicate the scraped content is junk/not usable */
+const JUNK_CONTENT_PATTERNS = [
+  // Cookie/consent walls
+  /cookie\s*(?:policy|consent|settings|banner)/i,
+  /accept\s*(?:all\s*)?cookies/i,
+  /manage\s*consent/i,
+  /privacy\s*(?:policy|notice|settings)/i,
+  /gdpr\s*(?:notice|compliance)/i,
+  // JavaScript loading states
+  /loading\.\.\./i,
+  /please\s*wait/i,
+  /javascript\s*(?:is\s*)?required/i,
+  /enable\s*javascript/i,
+  /browser\s*not\s*supported/i,
+  // Cloudflare/anti-bot
+  /checking\s*(?:your\s*)?browser/i,
+  /verify\s*(?:you\s*are\s*)?human/i,
+  /ddos\s*protection/i,
+  /ray\s*id/i,
+  // Login gates
+  /sign\s*in\s*(?:to\s*)?continue/i,
+  /log\s*in\s*(?:to\s*)?view/i,
+  /authentication\s*required/i,
+  /members\s*only/i,
+  // Generic error pages
+  /404\s*(?:not\s*)?found/i,
+  /page\s*not\s*found/i,
+  /access\s*denied/i,
+  /forbidden/i,
+  /unauthorized/i,
+  /something\s*went\s*wrong/i,
+  /error\s*occurred/i,
+];
+
+/** Minimum meaningful content thresholds */
+const MIN_CONTENT_LENGTH = 300;
+const MIN_MEANINGFUL_WORDS = 30;
+
+/** Check if content appears to be junk/cookie wall/bot block */
+function isJunkContent(text: string): boolean {
+  if (!text || text.length < MIN_CONTENT_LENGTH) return true;
+  
+  // Count actual words (not just characters)
+  const words = text.split(/\s+/).filter(w => w.length > 2);
+  if (words.length < MIN_MEANINGFUL_WORDS) return true;
+  
+  // Check for junk patterns
+  const lowerText = text.slice(0, 2000).toLowerCase();
+  for (const pattern of JUNK_CONTENT_PATTERNS) {
+    if (pattern.test(lowerText)) {
+      // If the entire content is just the junk pattern, it's junk
+      if (text.length < 1000) return true;
+      // If junk pattern appears prominently in first 500 chars, likely junk
+      const first500 = text.slice(0, 500).toLowerCase();
+      if (pattern.test(first500)) {
+        // Check if there's actually job content after the junk
+        const hasJobContent = /\b(job|position|role|responsibilities?|qualifications?|requirements?|experience|skills?)\b/i.test(text.slice(500));
+        if (!hasJobContent) return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+/** Detect if content is likely a job posting (has job-specific keywords) */
+function hasJobContentIndicators(text: string): boolean {
+  const indicators = [
+    /\b(job\s*(?:title|description)|position|role)\b/i,
+    /\b(responsibilities?|duties?|what\s*you['']?ll\s*do)\b/i,
+    /\b(qualifications?|requirements?|what\s*you\s*need)\b/i,
+    /\b(experience\s*(?:required|preferred)|years?\s*of\s*experience)\b/i,
+    /\b(skills?|competencies?)\b/i,
+    /\b(benefits?|compensation|salary|pay)\b/i,
+    /\b(apply\s*now|application)\b/i,
+  ];
+  
+  const lowerText = text.toLowerCase();
+  let matchCount = 0;
+  for (const pattern of indicators) {
+    if (pattern.test(lowerText)) matchCount++;
+  }
+  
+  // Need at least 2 indicators to be confident it's job content
+  return matchCount >= 2;
+}
+
+export interface ContentQualityResult {
+  isUsable: boolean;
+  isJunk: boolean;
+  hasJobIndicators: boolean;
+  reason?: string;
+}
+
+export function checkContentQuality(text: string): ContentQualityResult {
+  if (!text || text.length < MIN_CONTENT_LENGTH) {
+    return {
+      isUsable: false,
+      isJunk: true,
+      hasJobIndicators: false,
+      reason: `Content too short (${text?.length ?? 0} chars, need ${MIN_CONTENT_LENGTH}+)`,
+    };
+  }
+  
+  const isJunk = isJunkContent(text);
+  const hasJobIndicators = hasJobContentIndicators(text);
+  
+  if (isJunk && !hasJobIndicators) {
+    return {
+      isUsable: false,
+      isJunk: true,
+      hasJobIndicators: false,
+      reason: 'Content appears to be a cookie wall, login gate, or anti-bot page',
+    };
+  }
+  
+  if (!hasJobIndicators) {
+    return {
+      isUsable: false,
+      isJunk: false,
+      hasJobIndicators: false,
+      reason: 'Content does not appear to be a job posting (missing job-specific keywords)',
+    };
+  }
+  
+  return {
+    isUsable: true,
+    isJunk: false,
+    hasJobIndicators: true,
+  };
+}
+
 function inferLocationType(location: string | undefined): 'remote' | 'hybrid' | 'onsite' | undefined {
   if (!location) return undefined;
   const lower = location.toLowerCase();
@@ -510,19 +646,51 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
 
 /**
  * Fetch page text using best available method (generic fetch → Firecrawl fallback).
- * Returns cleaned text for AI parsing.
+ * Returns cleaned text for AI parsing, or null with a reason if content is unusable.
  * @param waitFor - ms to wait for JS rendering (Rippling, Workday, etc.)
  */
-export async function fetchPageText(url: string, options?: { waitFor?: number }): Promise<string | null> {
+export async function fetchPageText(
+  url: string,
+  options?: { waitFor?: number }
+): Promise<{ text: string; source: 'direct' | 'firecrawl' } | { text: null; reason: string }> {
+  // Try direct fetch first
   const page = await fetchGenericPage(url);
-  if (page && !page.isJSRendered && page.text.length > 200) {
-    return page.text;
+  
+  if (page && !page.isJSRendered) {
+    const quality = checkContentQuality(page.text);
+    if (quality.isUsable) {
+      return { text: page.text, source: 'direct' };
+    }
+    // Content is junk but we have it - log and continue to Firecrawl
+    console.warn('[fetchPageText] Direct fetch returned low-quality content:', quality.reason);
   }
+  
+  // Try Firecrawl for JS-rendered pages or low-quality direct fetch
   const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
-  if (firecrawlResult && firecrawlResult.text.length > 200) {
-    return firecrawlResult.text;
+  
+  if (firecrawlResult) {
+    const quality = checkContentQuality(firecrawlResult.text);
+    if (quality.isUsable) {
+      return { text: firecrawlResult.text, source: 'firecrawl' };
+    }
+    // Firecrawl returned content but it's not usable
+    console.warn('[fetchPageText] Firecrawl returned low-quality content:', quality.reason);
+    return { text: null, reason: quality.reason ?? 'Could not extract usable job description from page' };
   }
-  return page?.text ?? null;
+  
+  // Firecrawl failed or not configured
+  if (page?.isJSRendered) {
+    const isConfigured = isFirecrawlConfigured();
+    return {
+      text: null,
+      reason: isConfigured
+        ? 'This page requires JavaScript rendering but our page reader could not extract usable content. The site may be blocking automated access. Please paste the job description directly.'
+        : 'This page requires JavaScript to display the job description. Please paste the job description directly, or ask your admin to enable automatic page reading.',
+    };
+  }
+  
+  // Direct fetch failed completely
+  return { text: null, reason: 'Could not fetch the URL. Please check the link and try again, or paste the job description directly.' };
 }
 
 /**
@@ -534,18 +702,37 @@ export async function fetchPageText(url: string, options?: { waitFor?: number })
 export async function fetchSubJobPageText(
   url: string,
   options?: { waitFor?: number }
-): Promise<string | null> {
+): Promise<{ text: string; source: 'direct' | 'firecrawl' } | { text: null; reason: string }> {
   // 1. Try direct fetch — many ATS job detail pages are server-rendered
   const page = await fetchGenericPage(url);
-  if (page && !page.isJSRendered && page.text.length >= 200) {
-    return page.text;
+  if (page && !page.isJSRendered) {
+    const quality = checkContentQuality(page.text);
+    if (quality.isUsable) {
+      return { text: page.text, source: 'direct' };
+    }
   }
+  
   // 2. Direct fetch failed or insufficient (JS-rendered, blocked) — Firecrawl as last resort
   const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
-  if (firecrawlResult && firecrawlResult.text.length >= 200) {
-    return firecrawlResult.text;
+  
+  if (firecrawlResult) {
+    const quality = checkContentQuality(firecrawlResult.text);
+    if (quality.isUsable) {
+      return { text: firecrawlResult.text, source: 'firecrawl' };
+    }
+    return { text: null, reason: quality.reason ?? 'Could not extract usable job description' };
   }
-  return page?.text ?? null;
+  
+  if (page?.isJSRendered) {
+    return {
+      text: null,
+      reason: isFirecrawlConfigured()
+        ? 'This page requires JavaScript rendering but our page reader could not extract usable content.'
+        : 'This page requires JavaScript to display the job description.',
+    };
+  }
+  
+  return { text: null, reason: 'Could not fetch the job page.' };
 }
 
 /**

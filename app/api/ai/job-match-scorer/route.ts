@@ -110,20 +110,29 @@ export async function POST(request: Request) {
   // Fetch job description from URL if provided
   let finalJobDescription = jobDescription?.trim() ?? '';
   let scrapedFromUrl = false;
+  let scrapeError: string | null = null;
 
   if (jobUrl?.trim()) {
     try {
-      const scrapedText = await fetchPageText(jobUrl.trim(), { waitFor: 2500 });
-      if (scrapedText && scrapedText.length >= 100) {
-        finalJobDescription = sanitizeScrapedJobText(scrapedText).slice(0, 8000);
+      const scrapeResult = await fetchPageText(jobUrl.trim(), { waitFor: 2500 });
+      
+      if ('source' in scrapeResult && scrapeResult.text) {
+        // Successful scrape with usable content
+        finalJobDescription = sanitizeScrapedJobText(scrapeResult.text).slice(0, 8000);
         scrapedFromUrl = true;
-      } else if (!finalJobDescription) {
+      } else if ('reason' in scrapeResult) {
+        // Scrape failed with a specific reason
+        scrapeError = scrapeResult.reason;
+        console.error('[job-match-scorer] URL scrape failed:', scrapeError);
+      }
+      
+      // If we have no job description from either source, return error
+      if (!finalJobDescription && scrapeError) {
         return NextResponse.json(
-          { error: 'Could not extract job description from the provided URL. Please paste the job description directly.' },
+          { error: scrapeError },
           { status: 400 }
         );
       }
-      // If scraping failed but we have pasted text, continue with pasted text
     } catch (err) {
       console.error('[job-match-scorer] URL fetch error:', err);
       if (!finalJobDescription) {

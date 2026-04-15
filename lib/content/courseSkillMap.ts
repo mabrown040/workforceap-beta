@@ -1146,7 +1146,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-1',
     courseName: 'Foundations of Digital Marketing and E-commerce',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,
@@ -1161,7 +1161,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-2',
     courseName: 'Attract and Engage Customers with Digital Marketing',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,
@@ -1176,7 +1176,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-3',
     courseName: 'From Likes to Leads: Interact with Customers Online',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,
@@ -1191,7 +1191,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-4',
     courseName: 'Think Outside the Inbox: Email Marketing',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,
@@ -1206,7 +1206,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-5',
     courseName: 'Assess for Success: Marketing Analytics and Measurement',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,
@@ -1221,7 +1221,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-6',
     courseName: 'Make the Sale: Build, Launch, and Manage E-commerce Stores',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,
@@ -1236,7 +1236,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'marketing-course-7',
     courseName: 'Satisfaction Guaranteed: Develop Customer Loyalty Online',
-    programSlug: 'digital-marketing-e-commerce-professional-certificate-google',
+    programSlug: 'digital-marketing-e-commerce-google',
     programTitle: 'Digital Marketing & E-Commerce Professional Certificate',
     partner: 'Google',
     estimatedHours: 10,

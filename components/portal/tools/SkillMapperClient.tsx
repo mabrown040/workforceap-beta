@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Search } from 'lucide-react';
+import { Loader2, Search, BookOpen, Clock, ArrowRight } from 'lucide-react';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
+import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
 
 /** Render a self-contained radar chart SVG string with hardcoded colors (no CSS vars). */
 function renderRadarSvgString(data: { axis: string; value: number }[], size = 320): string {
@@ -161,6 +162,195 @@ function DualRadarChart({ memberData, targetData }: { memberData: { axis: string
           fontSize="11" fill="var(--color-on-surface-variant)">{axis}</text>;
       })}
     </svg>
+  );
+}
+
+/**
+ * CoursePathForGaps - Shows specific courses that close skill gaps
+ * Displays a compact, actionable course path based on the user's biggest gaps
+ */
+function CoursePathForGaps({ gaps }: { gaps: Array<{ axis: string; member: number; target: number; gap: number }> }) {
+  const [coursePath, setCoursePath] = useState<Array<{
+    course: CourseSkillMapping;
+    addressesGap: string;
+    estimatedImpact: number;
+    priority: number;
+  }> | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    // Build course path from gaps
+    const path = buildCoursePathForGaps(
+      gaps.map(g => ({ axis: g.axis, member: g.member / 100, target: g.target / 100, gap: g.gap / 100 })),
+      [],
+      { maxCourses: expanded ? 8 : 4 }
+    );
+    setCoursePath(path);
+  }, [gaps, expanded]);
+
+  if (!coursePath || coursePath.length === 0) return null;
+
+  // Group courses by the gap they address
+  const coursesByGap = coursePath.reduce((acc, item) => {
+    if (!acc[item.addressesGap]) acc[item.addressesGap] = [];
+    acc[item.addressesGap].push(item);
+    return acc;
+  }, {} as Record<string, typeof coursePath>);
+
+  const topGaps = Object.keys(coursesByGap).slice(0, 2);
+
+  return (
+    <div style={{ marginTop: '1.5rem' }}>
+      <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <BookOpen size={16} style={{ color: 'var(--color-accent)' }} />
+        Fastest Path to Close Gaps
+      </h4>
+      <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+        Specific courses that build the skills you need most
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {topGaps.map(gapAxis => (
+          <div key={gapAxis} style={{ background: 'var(--surface-container)', borderRadius: '0.75rem', overflow: 'hidden' }}>
+            <div style={{
+              padding: '0.5rem 0.75rem',
+              background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+              borderBottom: '1px solid var(--surface-container-highest)',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: 'var(--color-accent)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span>Close {gapAxis} gap</span>
+              <span style={{ color: 'var(--color-on-surface-variant)', fontWeight: 400 }}>
+                (+{Math.round(gaps.find(g => g.axis === gapAxis)?.gap || 0)}% needed)
+              </span>
+            </div>
+            <div style={{ padding: '0.5rem' }}>
+              {coursesByGap[gapAxis].slice(0, expanded ? 3 : 2).map((item, idx) => (
+                <div key={item.course.courseSlug} style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.625rem',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  background: idx === 0 ? 'color-mix(in srgb, var(--color-green) 6%, transparent)' : 'transparent',
+                  marginBottom: '0.25rem'
+                }}>
+                  <div style={{
+                    width: '1.5rem',
+                    height: '1.5rem',
+                    borderRadius: '50%',
+                    background: idx === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--surface-container-highest)',
+                    color: idx === 0 ? '#fff' : 'var(--color-on-surface-variant)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.625rem',
+                    fontWeight: 700,
+                    flexShrink: 0,
+                    marginTop: '0.125rem'
+                  }}>
+                    {item.priority}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', lineHeight: 1.4 }}>
+                      {item.course.courseName}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Clock size={10} />
+                        {item.course.estimatedHours} hrs
+                      </span>
+                      <span style={{
+                        fontSize: '0.65rem',
+                        background: 'var(--surface-container-highest)',
+                        color: 'var(--color-on-surface-variant)',
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '999px'
+                      }}>
+                        {item.course.partner}
+                      </span>
+                      {idx === 0 && (
+                        <span style={{
+                          fontSize: '0.65rem',
+                          background: 'color-mix(in srgb, var(--color-green) 15%, transparent)',
+                          color: 'var(--color-green, #4a9b4f)',
+                          padding: '0.1rem 0.4rem',
+                          borderRadius: '999px',
+                          fontWeight: 600
+                        }}>
+                          Best match
+                        </span>
+                      )}
+                    </div>
+                    {item.course.contributions.find(c => c.axis === item.addressesGap)?.specificSkills.length > 0 && (
+                      <div style={{ marginTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                        {item.course.contributions.find(c => c.axis === item.addressesGap)?.specificSkills?.slice(0, 3).map(skill => (
+                          <span key={skill} style={{
+                            fontSize: '0.65rem',
+                            color: 'var(--color-on-surface-variant)',
+                            background: 'var(--surface-container-highest)',
+                            padding: '0.125rem 0.375rem',
+                            borderRadius: '0.25rem'
+                          }}>
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <a
+                    href={`/programs/${item.course.programSlug}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.35rem 0.5rem',
+                      borderRadius: '0.375rem',
+                      background: 'var(--color-accent)',
+                      color: '#fff',
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Start <ArrowRight size={10} />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {coursePath.length > 4 && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            width: '100%',
+            marginTop: '0.75rem',
+            padding: '0.5rem',
+            border: '1px solid var(--surface-container-highest)',
+            borderRadius: '0.5rem',
+            background: 'transparent',
+            color: 'var(--color-on-surface-variant)',
+            fontSize: '0.8125rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.375rem'
+          }}
+        >
+          {expanded ? 'Show fewer courses' : `Show ${coursePath.length - 4} more courses`}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -648,6 +838,11 @@ export default function SkillMapperClient() {
                     ))}
                   </div>
                 </div>
+              )}
+
+              {/* Course-level path to close skill gaps */}
+              {gaps.length > 0 && (
+                <CoursePathForGaps gaps={gaps} />
               )}
             </>
           )}

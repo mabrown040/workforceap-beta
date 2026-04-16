@@ -14,7 +14,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 const PAGE_SIZE = 25;
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'WorkforceAP Applicants',
+  title: 'Applicants',
   description: 'View applications from WorkforceAP members to your job postings.',
   path: '/employer/applications',
 });

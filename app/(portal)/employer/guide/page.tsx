@@ -7,7 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'How WorkforceAP works for employers',
+  title: 'How It Works for Employers',
   description: 'Access vetted, job-ready talent in a few simple steps.',
   path: '/employer/guide',
 });

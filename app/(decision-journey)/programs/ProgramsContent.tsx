@@ -131,7 +131,7 @@ function ProgramCard({ program }: { program: Program }) {
             View Program
           </Link>
           <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
-            Apply →
+            Get Started →
           </Link>
         </div>
       </div>

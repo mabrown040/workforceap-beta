@@ -314,6 +314,8 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showStaffPortals, setShowStaffPortals] = useState(
     () => redirectTo !== '/dashboard',
@@ -322,6 +324,19 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Inline field validation — calm, member-friendly messages
+    let hasFieldError = false;
+    if (!email.trim()) {
+      setEmailError('Please enter your email address.');
+      hasFieldError = true;
+    }
+    if (!password) {
+      setPasswordError('Please enter your password.');
+      hasFieldError = true;
+    }
+    if (hasFieldError) return;
+
     setLoading(true);
 
     try {
@@ -458,13 +473,18 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 autoComplete="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null); }}
                 required
-                aria-invalid={!!error}
-                aria-describedby="login-error"
+                aria-invalid={!!emailError || !!error}
+                aria-describedby={emailError ? 'email-error' : error ? 'login-error' : undefined}
                 className="login-field"
-                style={s.input}
+                style={{ ...s.input, ...(emailError ? { borderColor: 'var(--color-accent)' } : {}) }}
               />
+              {emailError && (
+                <p id="email-error" role="alert" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-1)', margin: 'var(--space-1) 0 0' }}>
+                  {emailError}
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -480,12 +500,12 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   autoComplete="current-password"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); if (passwordError) setPasswordError(null); }}
                   required
-                  aria-invalid={!!error}
-                  aria-describedby="login-error"
+                  aria-invalid={!!passwordError || !!error}
+                  aria-describedby={passwordError ? 'password-error' : error ? 'login-error' : undefined}
                   className="login-field"
-                  style={s.input}
+                  style={{ ...s.input, ...(passwordError ? { borderColor: 'var(--color-accent)' } : {}) }}
                 />
                 <button
                   type="button"
@@ -499,6 +519,11 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   </span>
                 </button>
               </div>
+              {passwordError && (
+                <p id="password-error" role="alert" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-1)', margin: 'var(--space-1) 0 0' }}>
+                  {passwordError}
+                </p>
+              )}
             </div>
 
             {/* Maintain session checkbox */}

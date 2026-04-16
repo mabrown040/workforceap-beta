@@ -41,11 +41,9 @@ function ForgotPasswordForm() {
       setStatus('error');
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
-        setError(
-          'Network error. Check your connection and try again. If this persists, ensure your site URL is in Supabase Auth → URL Configuration → Redirect URLs.'
-        );
+        setError('Network error — check your connection and try again.');
       } else {
-        setError(msg);
+        setError('Something went wrong. Please try again.');
       }
     }
   };

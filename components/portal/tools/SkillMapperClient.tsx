@@ -513,7 +513,7 @@ export default function SkillMapperClient() {
         setOccupations(data.occupations);
       } else {
         const useSales = isSalesQuery(query);
-        setError(data.error || 'No occupations found. Showing demo data.');
+        setError('');
         setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
         setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
         setUsingDemo(true);
@@ -521,7 +521,7 @@ export default function SkillMapperClient() {
       }
     } catch {
       const useSales = isSalesQuery(query);
-      setError('Search failed. Showing demo data.');
+      setError('');
       setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
       setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
       setUsingDemo(true);

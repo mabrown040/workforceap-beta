@@ -100,18 +100,18 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Empowering People.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
+            Real Career Training.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>Zero Cost to You.</span>
           </h1>
 
           <p style={{
             fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.25rem)',
             color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
-            maxWidth: '640px',
+            maxWidth: '560px',
             marginBottom: '2.5rem',
-            lineHeight: 1.7,
+            lineHeight: 1.6,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
+            {WORKFORCEAP_PROGRAM_CATALOG_SIZE} industry-recognized programs — resume help, interview prep, and job placement support. Free for qualifying members.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
@@ -124,25 +124,19 @@ export default async function HomePage() {
                 {
                   id: 'control',
                   label: 'Apply Now — Free',
-                  className: 'btn btn-outline btn-large',
+                  className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
                 {
                   id: 'urgency',
                   label: 'Start Your Application',
-                  className: 'btn btn-outline btn-large',
+                  className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
               ]}
             />
-            <Link href="/partners" className="btn btn-large home-hero-partner-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
-              Partner With Us
-            </Link>
-            <Link href="/employers" className="btn btn-outline btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
-              For Employers
-            </Link>
           </div>
         </div>
       </section>

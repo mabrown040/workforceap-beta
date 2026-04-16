@@ -187,7 +187,7 @@ export default function ApplyCreateAccountForm() {
         nextFieldErrors.zip;
       setError(
         needsContact
-          ? 'Phone and address are required for membership.'
+          ? 'Please add a phone number and home address to continue.'
           : 'Please fix the highlighted fields and try again.'
       );
       return;
@@ -240,7 +240,7 @@ export default function ApplyCreateAccountForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'We could not create your account yet. Please try again.');
+        setError(data.error ?? 'Something went wrong — please try again.');
         trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: data.error ?? 'unknown_error' });
         setLoading(false);
         return;

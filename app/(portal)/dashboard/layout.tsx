@@ -1,8 +1,13 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
+
+export const metadata: Metadata = {
+  title: 'Member Dashboard',
+};
 
 export default async function DashboardLayout({
   children,

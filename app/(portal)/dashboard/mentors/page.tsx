@@ -36,7 +36,7 @@ export default async function MentorsBrowsePage() {
 
       {/* Desktop */}
       <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>Find a Mentor</h1>
+        <h2 aria-hidden="true" style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>Find a Mentor</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
           {mentors.map((mentor) => (
             <div key={mentor.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1rem', background: 'var(--surface-container-lowest)' }}>

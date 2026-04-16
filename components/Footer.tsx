@@ -28,7 +28,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             Empowering the workforce through intentional education and industry-leading partnerships.
           </p>
           <p style={{ fontSize: '0.75rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant, #debfc2)', opacity: 0.85, marginTop: '0.75rem' }}>
-            A national nonprofit and 501(c)(3) organization.
+            A national nonprofit and 501(c)(3) organization. EIN: 41-2612389. Contributions are tax-deductible.
           </p>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">

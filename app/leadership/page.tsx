@@ -46,7 +46,7 @@ export default function LeadershipPage() {
                   letterSpacing: '0.08em',
                 }}
               >
-                Institutional Governance
+                Our Leadership
               </span>
 
               <h1

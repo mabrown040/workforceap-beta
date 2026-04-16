@@ -204,7 +204,7 @@ export default async function HomePage() {
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  Placement support assistance
+                  Resume review, interview prep, and employer introductions
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -226,11 +226,11 @@ export default async function HomePage() {
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
-                  Scalable workforce solutions
+                  Refer members and track their progress
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#c8c6c5' }} aria-hidden="true">check_circle</span>
-                  Community impact analytics
+                  See the difference your referrals make
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
@@ -247,15 +247,15 @@ export default async function HomePage() {
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
-                  Vetted talent ready for work
+                  Trained candidates ready to hire
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
-                  Customized curriculum options
+                  Training aligned to your open roles
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
-                  Structured hiring introductions when it fits your process
+                  We introduce qualified graduates to your team
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
@@ -448,10 +448,13 @@ export default async function HomePage() {
           AI-Powered Career Support
         </span>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
-          Tools That Work For You
+          Resume Feedback in Minutes, Not Days
         </h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
-          Members get in-portal AI assistants for resume refinement, interview practice, job matching, application tracking, and more — designed to complement counselor support, not replace it.
+        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+          Members get AI tools that sharpen your resume, practice interviews with questions specific to your target role, score your job match before you apply, and track applications — all inside your member portal.
+        </p>
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
+          Voice coaching powered by <strong>ElevenLabs</strong>
         </p>
         <Link href="/apply" className="btn btn-primary">
           Apply to Unlock Member Tools

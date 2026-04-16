@@ -302,6 +302,9 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showStaffPortals, setShowStaffPortals] = useState(
+    () => redirectTo !== '/dashboard',
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -362,13 +365,13 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         <div style={s.brandContent}>
           <div style={s.brandBadge}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">verified_user</span>
-            Enterprise Trust
+            Trusted &amp; Secure
           </div>
           <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
-            Authority in the Digital Era
+            Your Career Starts Here
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.8, lineHeight: 'var(--line-height-normal)' }}>
-            Workforce Advancement Project — empowering careers through industry-recognized credentials.
+            Workforce Advancement Project — free career training, certificates, and job placement support.
           </p>
         </div>
       </div>
@@ -381,10 +384,12 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             Signing in to: <strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
           </p>
 
-          {/* Portal routing (collapsed) */}
+          {/* Portal routing — staff portals hidden behind toggle */}
           <nav aria-label="Choose portal destination after sign-in" style={{ marginBottom: 'var(--space-6)' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
-              {PORTAL_DESTINATIONS.map((o) => {
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', alignItems: 'center' }}>
+              {PORTAL_DESTINATIONS.filter((o) =>
+                o.redirectTo === '/dashboard' || showStaffPortals
+              ).map((o) => {
                 const href = `/login?redirectTo=${encodeURIComponent(o.redirectTo)}`;
                 const active = destinationActive(o.redirectTo);
                 return (
@@ -408,13 +413,32 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   </Link>
                 );
               })}
+              {!showStaffPortals && (
+                <button
+                  type="button"
+                  onClick={() => setShowStaffPortals(true)}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: 500,
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px dashed var(--outline-variant)',
+                    background: 'transparent',
+                    color: 'var(--color-on-surface-variant)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  Staff login
+                </button>
+              )}
             </div>
           </nav>
 
           <form onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div style={s.fieldGroup}>
-              <label htmlFor="email" style={s.label}>Institutional ID</label>
+              <label htmlFor="email" style={s.label}>Email</label>
               <input
                 id="email"
                 type="email"
@@ -432,8 +456,8 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             {/* Password */}
             <div style={s.fieldGroup}>
               <div style={s.passwordRow}>
-                <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>Access Key</label>
-                <Link href="/forgot-password" style={s.recoverLink}>Recover Key?</Link>
+                <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>Password</label>
+                <Link href="/forgot-password" style={s.recoverLink}>Forgot password?</Link>
               </div>
               <div style={s.passwordWrap}>
                 <input
@@ -489,14 +513,14 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
               disabled={loading}
               style={{ ...s.primaryBtn, opacity: loading ? 0.7 : 1 }}
             >
-              {loading ? 'Authenticating...' : 'AUTHENTICATE ACCESS'}
+              {loading ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
 
           {/* Third-party divider */}
           <div style={s.divider}>
             <span style={s.dividerLine} />
-            <span>or verify with</span>
+            <span>or sign in with</span>
             <span style={s.dividerLine} />
           </div>
 
@@ -504,11 +528,11 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
           <div style={s.socialRow}>
             <button type="button" style={s.socialBtn}>
               <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
-              Institutional
+              Google
             </button>
             <button type="button" style={s.socialBtn}>
               <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">fingerprint</span>
-              Biometric
+              Fingerprint
             </button>
           </div>
 
@@ -516,14 +540,14 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
             First time here?{' '}
             <Link href="/signup" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-              Request Credentials
+              Sign Up
             </Link>
           </p>
 
           {/* Footer status */}
           <div style={s.footer}>
             <span style={s.statusDot} />
-            Network Operational
+            System Online
           </div>
         </div>
       </div>

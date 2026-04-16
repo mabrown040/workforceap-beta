@@ -82,10 +82,10 @@ function jobDataFromImportedDraft(organizationId: string, employerId: string, dr
 async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; provider: string } | null> {
   const result = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
   
-  if ('reason' in result || !result.text) {
+  if ('error' in result || !result.text) {
     return null;
   }
-  
+
   const textForParse = result.text;
   if (textForParse.length < 50) return null;
   

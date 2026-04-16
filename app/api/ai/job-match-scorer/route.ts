@@ -66,12 +66,16 @@ async function extractJobDescriptionFromUrl(url: string): Promise<
   if ('source' in scrapeResult && scrapeResult.text) {
     return { text: scrapeResult.text, source: 'scraping' };
   }
-  
-  // Scraping failed - return the reason
-  if ('reason' in scrapeResult) {
-    return { text: null, reason: scrapeResult.reason };
+
+  // Scraping failed — surface a user-friendly reason based on error type
+  if ('error' in scrapeResult) {
+    const reason =
+      scrapeResult.error === 'rate_limited' || scrapeResult.error === 'quota_exceeded'
+        ? 'Job description reader is temporarily busy. Please try again in a few minutes, or paste the job description directly.'
+        : 'Could not extract job description from URL. Please paste the job description directly.';
+    return { text: null, reason };
   }
-  
+
   return { text: null, reason: 'Could not extract job description from URL' };
 }
 
@@ -147,7 +151,7 @@ export async function POST(request: Request) {
   if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
 
   const { success } = await checkAIToolRateLimit(user.id);
-  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
 
   let body: unknown;
   try {

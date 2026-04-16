@@ -1,5 +1,13 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+
+const VOICE_TOOL_TYPES = [
+  'readiness_voice_session',
+  'wioa_prequalification_voice_session',
+  'employer_voice_session',
+  'partner_voice_session',
+] as const;
 
 const NONE_KEY = '__none__';
 
@@ -32,8 +40,8 @@ export type WeeklyRecapCohortRow = {
 };
 
 export async function getWeeklyRecapCohortStats(): Promise<WeeklyRecapCohortRow[]> {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const now = new Date();
+  const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
 
   const users = await prisma.user.findMany({
     where: { deletedAt: null },
@@ -89,8 +97,8 @@ export type AiToolsCohortRow = {
 };
 
 export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const now = new Date();
+  const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
 
   const users = await prisma.user.findMany({
     where: { deletedAt: null },
@@ -98,9 +106,24 @@ export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
   });
   const byCohort = userIdsByCohort(users);
 
-  const runs = await prisma.aIToolResult.findMany({
-    select: { userId: true, createdAt: true },
-  });
+  const [savedRuns, voiceEvents] = await Promise.all([
+    prisma.aIToolResult.findMany({
+      select: { userId: true, createdAt: true },
+    }),
+    prisma.$queryRaw<Array<{ user_id: string; created_at: Date }>>`
+      SELECT "user_id", "created_at"
+      FROM "member_events"
+      WHERE "event_name" = 'ai_tool_run_started'
+        AND "entity_type" = 'ai_tool'
+        AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
+    `,
+  ]);
+
+  // Merge voice session events into the unified runs list
+  const runs = [
+    ...savedRuns,
+    ...voiceEvents.map((e) => ({ userId: e.user_id, createdAt: e.created_at })),
+  ];
 
   const rows: AiToolsCohortRow[] = [];
 

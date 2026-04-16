@@ -63,11 +63,19 @@ export default async function WeeklyRecapPage() {
           subtitle="Your activity summary and recommended next actions."
           breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
         />
-        <WeeklyRecapClient
-          recap={recap}
-          recapData={recapData}
-          weekStart={weekStart.toISOString()}
-        />
+        {recap === null ? (
+          <div className="mx-auto max-w-2xl px-4 py-8">
+            <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+              We could not generate your recap right now. Please check back later.
+            </div>
+          </div>
+        ) : (
+          <WeeklyRecapClient
+            recap={recap}
+            recapData={recapData}
+            weekStart={weekStart.toISOString()}
+          />
+        )}
       </div>
       <MobileBottomNav variant="portal" />
     </>

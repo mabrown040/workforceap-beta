@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) {
-    return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+    return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
   }
 
   let body: unknown;

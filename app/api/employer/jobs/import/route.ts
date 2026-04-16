@@ -30,10 +30,10 @@ const importSchema = z.object({
 async function parseDirectJobUrl(url: string) {
   const result = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
   
-  if ('reason' in result || !result.text) {
+  if ('error' in result || !result.text) {
     return null;
   }
-  
+
   const textToParse = result.text;
   if (textToParse.length < 50) return null;
   

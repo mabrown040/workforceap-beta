@@ -100,8 +100,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Real Career Training.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Zero Cost to You.</span>
+            Get Trained. Get Hired.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>Pay Nothing.</span>
           </h1>
 
           <p style={{
@@ -118,6 +118,7 @@ export default async function HomePage() {
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
               Find Your Career
             </Link>
+            {/* A/B experiment CTA — hidden on mobile to reduce CTA overload; text link below covers apply path */}
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
@@ -138,13 +139,21 @@ export default async function HomePage() {
               ]}
             />
           </div>
-          <p style={{ marginTop: '1rem', fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <span>✓ Government-funded</span>
-            <span style={{ opacity: 0.5 }}>·</span>
-            <span>✓ No credit card required</span>
-            <span style={{ opacity: 0.5 }}>·</span>
-            <span>✓ No tuition costs</span>
-          </p>
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
+              <span>✓ Government-funded</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span>✓ No credit card required</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span>✓ No tuition costs</span>
+            </p>
+            {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
+            <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
+              <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                Ready to apply? Start your free application →
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
 

@@ -505,6 +505,42 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
+        {/* ── State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ── */}
+        {dashboardState === 'A' && (
+          <section style={{ padding: '0 1.25rem 1.25rem' }}>
+            <Link
+              href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
+              style={{
+                display: 'block',
+                borderRadius: '1rem',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+                boxShadow: '0 6px 24px rgba(173,44,77,0.28)',
+                padding: '1.25rem',
+                textDecoration: 'none',
+              }}
+            >
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.78)', margin: '0 0 0.4rem' }}>
+                Your next step
+              </p>
+              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
+                {noApplicationOnFile
+                  ? 'Apply now — takes about 10 minutes'
+                  : 'Choose your training program'}
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
+                {noApplicationOnFile
+                  ? 'Free career training, funded by government grants. We\'ll match you to a counselor and program.'
+                  : 'Pick the career track that fits your goals. No tuition cost — funded through government partnerships.'}
+              </p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
+                <span>{noApplicationOnFile ? 'Start Your Application' : 'Choose Program'}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </div>
+            </Link>
+          </section>
+        )}
+
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>

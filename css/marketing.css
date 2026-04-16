@@ -99,6 +99,26 @@ html.dark .marketing-mobile {
   }
 }
 
+/* Hero mobile CTA: hide the secondary outline button on small viewports to reduce CTA overload.
+   The ExperimentedCtaLink still mounts for exposure tracking; only the rendered link is hidden.
+   A text-link apply path (.home-hero-mobile-apply) is shown instead. */
+@media (max-width: 767px) {
+  .home-hero-outline-cta {
+    display: none !important;
+  }
+}
+
+/* Mobile-only apply text link — hidden on desktop where the outline button is already visible */
+.home-hero-mobile-apply {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .home-hero-mobile-apply {
+    display: block;
+  }
+}
+
 /*
  * /what-we-do (desktop): full-bleed photo hero. Never use var(--color-white) for hero copy — in html.dark,
  * --color-white maps to a dark surface and text disappears on the scrim. Inline styles use #fff; rules

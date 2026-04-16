@@ -154,7 +154,6 @@ const s = {
     border: '1px solid var(--outline-variant)',
     borderRadius: 'var(--radius-md)',
     color: 'var(--color-on-surface)',
-    outline: 'none',
     transition: 'border-color 0.2s',
   } as React.CSSProperties,
 
@@ -171,14 +170,14 @@ const s = {
 
   passwordToggle: {
     position: 'absolute' as const,
-    right: 12,
+    right: 4,
     top: '50%',
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
     color: 'var(--color-on-surface-variant)',
     cursor: 'pointer',
-    padding: 4,
+    padding: '10px 12px',
     display: 'flex',
     alignItems: 'center',
   } as React.CSSProperties,

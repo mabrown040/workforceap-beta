@@ -103,7 +103,7 @@ export default function LearningCivicBotPanel() {
           }}
           aria-label="Send message"
           onClick={() => {
-            setNotice('Live chat is not available yet. Open Training or your pathway modules for structured learning.');
+            setNotice('Chat coming soon — head to Training or your pathway modules to keep learning now.');
             window.setTimeout(() => setNotice(null), 6000);
           }}
         >

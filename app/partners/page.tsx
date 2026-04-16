@@ -71,7 +71,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is there a cost to refer candidates?',
-    a: 'No. Referrals are free. We welcome partners who want to connect individuals in their network with our free career training programs.',
+    a: 'No. Referrals are free. We welcome partners who want to connect individuals in their network with our career training programs that are offered at no cost to members.',
   },
   {
     q: 'How do I refer someone?',

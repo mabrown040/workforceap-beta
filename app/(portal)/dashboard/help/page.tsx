@@ -16,7 +16,7 @@ const HELP_ITEMS = [
   {
     icon: 'school',
     title: 'Coursera Access',
-    body: 'Request free access to professional certificate courses through your WorkforceAP membership.',
+    body: 'Request access to professional certificate courses included through your WorkforceAP membership.',
   },
   {
     icon: 'support_agent',

@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: "What's the 10% giveback?",
-    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program free for members.",
+    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program at no cost to members.",
   },
   {
     q: 'How are candidates screened?',

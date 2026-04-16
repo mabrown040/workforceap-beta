@@ -308,7 +308,7 @@ export default function SalaryGuidePage() {
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">download</span>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Ready to take the next step?</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Apply for free — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost, no obligation.
+              Apply with no application fee — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost to members, no obligation.
             </p>
             <Link href="/apply" className="btn btn-primary">
               Apply Now

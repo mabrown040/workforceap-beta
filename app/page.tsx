@@ -100,8 +100,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Get Trained. Get Hired.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Pay Nothing.</span>
+            Empowering People.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
           </h1>
 
           <p style={{
@@ -111,7 +111,7 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            {WORKFORCEAP_PROGRAM_CATALOG_SIZE} industry-recognized programs — resume help, interview prep, and job placement support. Free for qualifying members.
+            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
@@ -124,7 +124,7 @@ export default async function HomePage() {
               variants={[
                 {
                   id: 'control',
-                  label: 'Apply Now — Free',
+                  label: 'Apply Now',
                   className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
@@ -145,12 +145,12 @@ export default async function HomePage() {
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ No credit card required</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No tuition costs</span>
+              <span>✓ No tuition costs for members</span>
             </p>
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
               <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                Ready to apply? Start your free application →
+                Ready to apply? Start your application →
               </Link>
             </p>
           </div>
@@ -202,7 +202,7 @@ export default async function HomePage() {
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  No tuition costs for training
+                  No tuition costs for members
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>

@@ -57,7 +57,7 @@ const JOURNEY_STEPS = [
 ];
 
 const BENEFITS = [
-  { icon: 'school', title: 'Coursera Access', desc: 'Earn free professional certificates from top institutions.' },
+  { icon: 'school', title: 'Coursera Access', desc: 'Access professional certificates from top institutions as part of your membership.' },
   { icon: 'auto_awesome', title: 'AI Career Tools', desc: '7 tools: resume, cover letter, interview coach, job matching, and more.' },
   { icon: 'person_pin', title: 'Your Counselor', desc: 'A human counselor is assigned to you — they want to hear from you.' },
   { icon: 'work', title: 'Job Board', desc: 'Browse openings from employers actively hiring WorkforceAP graduates.' },
@@ -70,7 +70,7 @@ const FAQS = [
   },
   {
     q: 'Is everything free for me?',
-    a: 'Yes. WorkforceAP is completely free for members. All tools, resources, and counselor access are included at no cost.',
+    a: 'Yes. WorkforceAP is available at no cost to members. All tools, resources, and counselor access are included without member tuition or fees.',
   },
   {
     q: 'When will I get matched with a job?',

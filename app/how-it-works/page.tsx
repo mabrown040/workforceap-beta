@@ -123,7 +123,7 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Apply now — free
+                  Apply now
                 </Link>
                 <Link
                   href="/programs"
@@ -316,7 +316,7 @@ export default async function HowItWorksPage() {
             Ready to take the first step?
           </h2>
           <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and it&rsquo;s completely free to apply.
+            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and there&rsquo;s no application fee.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
             <Link

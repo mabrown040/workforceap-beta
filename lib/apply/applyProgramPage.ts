@@ -37,7 +37,7 @@ export function buildApplyProgramSeo(program: Program): { title: string; descrip
   const cert = program.partner;
   const field = programFieldLabel(program);
   const title = `Apply for ${program.title} Training — WorkforceAP`;
-  const description = `Get free ${program.title} training with ${cert} from WorkforceAP. No-cost career certification in ${field}. Apply in 10 minutes.`;
+  const description = `Get ${program.title} training at no cost to members with ${cert} from WorkforceAP. Career certification in ${field}. Apply in 10 minutes.`;
   return { title, description };
 }
 

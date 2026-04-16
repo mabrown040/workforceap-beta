@@ -28,7 +28,7 @@ export default function ShareButtons() {
 
   const handleSms = () => {
     window.location.href =
-      'sms:?body=Check out WorkforceAP free career training: ' + window.location.origin;
+      'sms:?body=Check out WorkforceAP career training at no cost to members: ' + window.location.origin;
   };
 
   return (

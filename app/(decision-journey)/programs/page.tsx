@@ -9,7 +9,7 @@ import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training Programs — Nationwide Certificates',
-  description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} free career training programs with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. No-cost certifications for qualifying residents nationwide.`,
+  description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} career training programs offered at no cost to members, with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. Nationwide pathways supported by grants and partnerships.`,
   path: '/programs',
 });
 

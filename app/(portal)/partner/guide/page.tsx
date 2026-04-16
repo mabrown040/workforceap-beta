@@ -89,7 +89,7 @@ export default async function PartnerGuidePage() {
           Job seekers who are <strong style={{ color: 'var(--color-on-surface)' }}>unemployed, underemployed, or changing careers</strong>.
         </p>
         <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-          The program is <strong style={{ color: 'var(--color-on-surface)' }}>completely free</strong> for members.
+          The program is available <strong style={{ color: 'var(--color-on-surface)' }}>at no cost</strong> to members.
           Your referrals help them access job training, AI career tools, counseling, and employer connections.
         </p>
       </section>

@@ -399,7 +399,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             Your Career Starts Here
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.8, lineHeight: 'var(--line-height-normal)' }}>
-            Workforce Advancement Project — free career training, certificates, and job placement support.
+            Workforce Advancement Project — career training, certificates, and job placement support at no cost to members.
           </p>
         </div>
       </div>
@@ -568,7 +568,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
             Secure
             <span style={s.trustDot} aria-hidden="true">·</span>
-            Free to members
+            No-cost to members
             <span style={s.trustDot} aria-hidden="true">·</span>
             Government-funded program
           </p>

@@ -111,7 +111,7 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.7,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, and Workforce Readiness with AI-powered tools designed to help people move forward.
+            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
@@ -200,7 +200,7 @@ export default async function HomePage() {
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  Workforce Readiness through AI-powered tools
+                  Resume, interview, and job search support
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
@@ -367,7 +367,7 @@ export default async function HomePage() {
           </span>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>Explore Our {programCount} Programs</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>
-            Specialized career paths designed to bridge the skills gap in high-growth industries.
+            Career training that prepares you for jobs employers are hiring for right now.
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
@@ -445,7 +445,7 @@ export default async function HomePage() {
       {/* ===== AI-Powered Career Support ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-          AI-Powered Career Support
+          Career Tools
         </span>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
           Resume Feedback in Minutes, Not Days

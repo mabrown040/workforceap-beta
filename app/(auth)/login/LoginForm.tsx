@@ -532,7 +532,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </button>
             <button type="button" style={s.socialBtn}>
               <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">fingerprint</span>
-              Fingerprint
+              Passkey
             </button>
           </div>
 
@@ -544,11 +544,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </Link>
           </p>
 
-          {/* Footer status */}
-          <div style={s.footer}>
-            <span style={s.statusDot} />
-            System Online
-          </div>
+          {/* Footer — minimal; status dot removed (meaningless to members) */}
         </div>
       </div>
 

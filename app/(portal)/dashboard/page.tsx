@@ -446,8 +446,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 )}
               </div>
 
-              {/* Progress ring */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
+              {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
                 <div
                   className="portal-progress-ring"
                   style={{
@@ -492,14 +492,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
                   {mobileProgressSummary}
                 </p>
-              </div>
+              </div>}
             </div>
 
+            {dashboardState !== 'A' && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
                 Training progress is based on completed courses. Your application steps are shown below.
               </p>
             </div>
+            )}
           </div>
         </section>
 

@@ -263,7 +263,7 @@ export default function DashboardHomeClient({
               </div>
               <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '1rem' }}>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  We do not have an application on file for this account yet.
+                  Ready to get started? Your application takes about 10 minutes — and all programs are free for qualifying members.
                 </p>
               </div>
               <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>

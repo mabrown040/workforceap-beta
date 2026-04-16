@@ -636,7 +636,7 @@ export default function SkillMapperClient() {
             <>
               {usingDemo && (
                 <div style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.3)', borderRadius: '0.5rem', padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--color-on-surface)' }}>
-                  ⚠️ Showing demo data. O*NET integration is being configured.
+                  These are sample skill ranges for this occupation — for personalized results, upload your resume or complete the Interest Profiler.
                 </div>
               )}
               <h3 className="ai-tool-section-title">{selectedTitle}</h3>

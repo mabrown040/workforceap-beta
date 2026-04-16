@@ -70,7 +70,7 @@ const FAQS = [
   },
   {
     q: 'Is everything free for me?',
-    a: 'Yes. WorkforceAP is available at no cost to members. All tools, resources, and counselor access are included without member tuition or fees.',
+    a: 'Yes. WorkforceAP is available at no cost to members. All tools, resources, and counselor access are included without member fees or program charges.',
   },
   {
     q: 'When will I get matched with a job?',

@@ -7,7 +7,7 @@ import FAQContent from './FAQContent';
 export const metadata: Metadata = buildPageMetadata({
   title: 'FAQ: WIOA-Aligned Career Training & Certifications',
   description:
-    'Answers about admissions, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
+    'Answers about applying, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
   path: '/faq',
 });
 

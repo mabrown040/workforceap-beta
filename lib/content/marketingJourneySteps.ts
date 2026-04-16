@@ -38,7 +38,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     shortDesc:
       'Join at no cost. Get access to your member portal, resources, and support — no hidden fees.',
     longDesc:
-      'Join at no cost to members. All members get access to resources, support, and training without tuition or hidden fees.',
+      'Join at no cost to members. All members get access to resources, support, and training without program charges or hidden fees.',
     why: 'We remove money as a barrier so you can focus on learning.',
   },
   {

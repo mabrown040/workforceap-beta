@@ -426,7 +426,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                     href={href}
                     aria-current={active || undefined}
                     style={{
-                      padding: '6px 10px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      minHeight: 44,
+                      padding: '6px 12px',
                       fontSize: 'var(--font-size-sm)',
                       fontWeight: 600,
                       borderRadius: 'var(--radius-sm)',
@@ -446,7 +449,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   type="button"
                   onClick={() => setShowStaffPortals(true)}
                   style={{
-                    padding: '6px 10px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    minHeight: 44,
+                    padding: '6px 12px',
                     fontSize: 'var(--font-size-sm)',
                     fontWeight: 500,
                     borderRadius: 'var(--radius-sm)',

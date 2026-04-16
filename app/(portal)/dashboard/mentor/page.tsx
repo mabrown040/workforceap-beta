@@ -47,7 +47,7 @@ export default async function MentorDashboardPage() {
 
       {/* Desktop */}
       <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem', maxWidth: '64rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Mentor Dashboard</h1>
+        <h2 aria-hidden="true" style={{ fontSize: '2rem', fontWeight: 700 }}>Mentor Dashboard</h2>
         <div style={{ marginTop: '1rem', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1rem', maxWidth: '16rem' }}>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Total Hours Donated</div>
           <div style={{ fontSize: '2.2rem', fontWeight: 700 }}>{mentor.totalHoursDonated.toFixed(1)}</div>

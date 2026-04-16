@@ -14,7 +14,7 @@ import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera courses',
-  description: 'Launch Coursera, monitor enterprise sync readiness, and keep WorkforceAP training access in one place.',
+  description: 'Launch Coursera courses, track your progress, and keep all your training in one place.',
   path: '/dashboard/coursera',
 });
 
@@ -47,7 +47,7 @@ export default async function CourseraIntegrationPage() {
       <div className="portal-main-content">
         <PageHeader
           title="Coursera & course access"
-          subtitle="Launch your training partner, keep an eye on enterprise sync readiness, and centralize course access in one portal stop."
+          subtitle="Launch Coursera courses, track your progress, and access all your training from one place."
         />
 
         {program ? (
@@ -78,29 +78,29 @@ export default async function CourseraIntegrationPage() {
                     : 'Waiting on setup'}
                 </h3>
                 <p className="coursera-footnote" style={{ marginBottom: 0 }}>
-                  Launch, sync, and webhook hooks are wired for credential handoff.
+                  Launch, sync, and progress tracking are ready to connect.
                 </p>
               </div>
             </div>
 
             <div className="content-card coursera-panel">
-              <h3 className="coursera-panel__title">Enterprise course access</h3>
+              <h3 className="coursera-panel__title">Your Coursera Courses</h3>
               <p className="coursera-enrolled-lead">
-                You&apos;re enrolled in <strong>{program.title}</strong>. This workspace is now set up to become the single launch and sync point once Coursera credentials are dropped in.
+                You&apos;re enrolled in <strong>{program.title}</strong>. This page will be your one place to launch courses and track progress once setup is complete.
               </p>
 
               <div className="coursera-callout">
                 <h4 className="coursera-callout__title">
                   {readiness.canLaunch || readiness.canSync || readiness.canReceiveWebhooks
                     ? 'Connection scaffold is ready'
-                    : 'Credential handoff ready'}
+                    : 'Almost ready'}
                 </h4>
                 <p className="coursera-callout__text">
-                  Members can launch Coursera from here, WorkforceAP can query enterprise skillset progress, and completion webhooks can feed course milestones back into the portal. The only missing step is plugging in your org credentials and IDs.
+                  You&apos;ll be able to launch Coursera courses from here and your progress will sync automatically. We&apos;re finishing the final setup steps on our end.
                 </p>
                 <ul className="coursera-callout__list">
                   <li>Launch from the portal: {statusLabel(readiness.canLaunch, 'waiting on launch mapping')}</li>
-                  <li>Enterprise progress sync: {statusLabel(readiness.canSync, 'waiting on API credentials')}</li>
+                  <li>Course progress sync: {statusLabel(readiness.canSync, 'waiting on API credentials')}</li>
                   <li>Completion webhook intake: {statusLabel(readiness.canReceiveWebhooks, 'waiting on secure secret')}</li>
                 </ul>
               </div>
@@ -118,13 +118,13 @@ export default async function CourseraIntegrationPage() {
               <CourseraSyncCard enabled={readiness.canSync} />
 
               <p className="coursera-footnote">
-                Until the credential handoff is finished, the launch button falls back to the public Coursera experience and your counselor can still share direct access details.
+                Until setup is complete, the launch button opens the public Coursera site. Your counselor can also share direct access links.
               </p>
             </div>
           </>
         ) : (
           <div className="content-card coursera-panel">
-            <h3 className="coursera-panel__title">Enterprise course access</h3>
+            <h3 className="coursera-panel__title">Your Coursera Courses</h3>
             <p className="coursera-empty-lead">
               You aren&apos;t enrolled in a program yet. Once you&apos;re enrolled and courses are assigned, this page becomes your Coursera launch point and progress sync hub.
             </p>

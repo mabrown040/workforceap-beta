@@ -97,9 +97,9 @@ const PARTNERSHIP_TIERS = [
     featured: true,
   },
   {
-    title: 'Enterprise Upskill',
-    features: ['Upskill your existing workforce', 'Custom training programs', 'Group enrollment discounts', 'Dedicated account manager'],
-    cta: 'Start Upskill Intake',
+    title: 'Team Training',
+    features: ['Upskill your existing workforce', 'Custom training programs', 'Group enrollment options', 'Dedicated account manager'],
+    cta: 'Start Team Training Intake',
     href: '#employer-contact-form',
     featured: false,
   },

@@ -43,7 +43,7 @@ export default function Layout({ previewText, children }: LayoutProps) {
             
             <Hr style={hr} />
             <Text style={footer}>
-              Workforce Advancement Project &middot; Authority in the Digital Era
+              Workforce Advancement Project &middot; Free Career Training &amp; Job Support
             </Text>
             <Text style={footerLink}>
               <Link href={baseUrl} style={{ color: "#ad2c4d" }}>

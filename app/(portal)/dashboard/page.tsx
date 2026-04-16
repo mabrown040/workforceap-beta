@@ -43,7 +43,7 @@ export default async function DashboardPage() {
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&apos;t load your dashboard</h1>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&apos;t load your dashboard</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
           Something went wrong while loading this page. This is usually temporary. Try again, or open another section from
           the menu.
@@ -270,8 +270,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    startFirstCourse: completedCount > 0,
-    completeFirstCourse: completedCount >= 1, // true after completing any single course
+    startFirstCourse: !!enrolledProgram && assessmentCompleted, // training unlocked
+    completeFirstCourse: completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
 

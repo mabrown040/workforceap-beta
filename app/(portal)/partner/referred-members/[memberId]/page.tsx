@@ -266,7 +266,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
               <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                 Member snapshot
               </p>
-              <h1 style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.5rem', fontWeight: 800 }}>{member.fullName}</h1>
+              <h2 aria-hidden="true" style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.5rem', fontWeight: 800 }}>{member.fullName}</h2>
               <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>{program?.title ?? 'No program selected'}</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
                 {[

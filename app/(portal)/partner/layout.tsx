@@ -1,8 +1,13 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import PartnerPortalShell from '@/components/portal/PartnerPortalShell';
+
+export const metadata: Metadata = {
+  title: 'Partner Portal',
+};
 
 export default async function PartnerPortalLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();

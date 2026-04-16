@@ -52,7 +52,7 @@ const VALUES = [
   {
     num: '03',
     title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we leverage collective strength so members don\'t carry the load alone.',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we bring the right people together so members don\'t have to figure it out alone.',
   },
 ];
 

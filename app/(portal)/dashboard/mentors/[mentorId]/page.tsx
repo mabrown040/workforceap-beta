@@ -34,7 +34,7 @@ export default async function MentorProfilePage({ params }: { params: Promise<{ 
 
       {/* Desktop */}
       <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem', maxWidth: '52rem' }}>
-        <h1 style={{ fontSize: '1.9rem', fontWeight: 700 }}>{mentor.fullName}</h1>
+        <h2 aria-hidden="true" style={{ fontSize: '1.9rem', fontWeight: 700 }}>{mentor.fullName}</h2>
         <div style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{mentor.title}</div>
         <div style={{ color: 'var(--text-secondary)', marginBottom: '0.9rem' }}>{mentor.company} · {mentor.industry}</div>
         <p style={{ lineHeight: 1.7 }}>{mentor.bio}</p>

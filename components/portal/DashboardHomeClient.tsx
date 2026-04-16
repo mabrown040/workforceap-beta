@@ -14,7 +14,6 @@ import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
 import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
-import PortalActionCard from '@/components/portal/ui/PortalActionCard';
 import PortalMetricCard from '@/components/portal/ui/PortalMetricCard';
 
 type State = 'A' | 'B' | 'C' | 'D';
@@ -112,8 +111,8 @@ export default function DashboardHomeClient({
     { done: checklist.createAccount, label: 'Account' },
     { done: checklist.chooseProgram, label: 'Program' },
     { done: checklist.completeAssessment, label: 'Assessment' },
-    { done: checklist.startFirstCourse, label: 'Start' },
-    { done: checklist.completeFirstCourse, label: 'Complete' },
+    { done: checklist.startFirstCourse, label: 'Training' },
+    { done: checklist.completeFirstCourse, label: 'Course done' },
   ];
 
   const weekEyebrow = useMemo(() => {
@@ -124,54 +123,6 @@ export default function DashboardHomeClient({
     start.setDate(diff);
     return `Week of ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   }, []);
-
-  /* ── Derive primary action card config ── */
-  const primaryActionCard = (() => {
-    if (state === 'A') return {
-      eyebrow: 'Get Started',
-      title: 'Choose Your Program',
-      description: 'Select a no-cost career program. All certifications, training, and job support are free.',
-      ctaLabel: 'Browse Programs',
-      href: '/dashboard/program',
-      icon: 'school',
-      badge: { label: 'Next Step', variant: 'accent' as const },
-      heroGradient: 'career' as const,
-      action: 'choose_program_clicked',
-    };
-    if (state === 'B') return {
-      eyebrow: 'Enrolled',
-      title: 'Complete Your Skills Assessment',
-      description: `A short assessment tailors your ${programTitle ?? 'program'} learning path and unlocks role matching.`,
-      ctaLabel: 'Take Assessment',
-      href: '/dashboard/assessment',
-      icon: 'psychology',
-      badge: { label: 'Next Step', variant: 'accent' as const },
-      heroGradient: 'tech' as const,
-      action: 'assessment_clicked',
-    };
-    if (state === 'C') return {
-      eyebrow: programTitle ?? 'Training',
-      title: nextMilestone ? `Continue: ${nextMilestone}` : 'Continue Training',
-      description: `${completedCount} of ${totalCourses} courses complete. Finish to unlock job placement support.`,
-      ctaLabel: 'Open Training',
-      href: '/dashboard/training',
-      icon: 'play_circle',
-      badge: { label: 'In Progress', variant: 'glass' as const },
-      heroGradient: 'tools' as const,
-      action: 'continue_training_clicked',
-    };
-    return {
-      eyebrow: 'All Courses Complete',
-      title: 'Build Career Readiness',
-      description: `You've finished ${programTitle ?? 'your program'}. Now focus on resume, interviews, and job applications.`,
-      ctaLabel: 'Career Readiness',
-      href: '/dashboard/readiness',
-      icon: 'rocket_launch',
-      badge: { label: 'Complete', variant: 'gold' as const },
-      heroGradient: 'health' as const,
-      action: 'career_readiness_clicked',
-    };
-  })();
 
   /* ── Metric cards data ── */
   const metricCards = [
@@ -394,18 +345,6 @@ export default function DashboardHomeClient({
                   )}
                 </div>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
-                {state === 'C' && assessmentScorePct != null && (
-                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.75rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    Assessment: {assessmentScorePct}%
-                  </span>
-                )}
-                {enrolledAt && (
-                  <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-lowest)', fontSize: '0.75rem', borderRadius: '0.25rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    Enrolled: {formatPortalDate(enrolledAt)}
-                  </span>
-                )}
-              </div>
             </div>
           ) : null}
           </div>
@@ -616,11 +555,6 @@ export default function DashboardHomeClient({
                   </div>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p className="portal-quick-action-item__label">{item.label}</p>
-                  <p className="portal-quick-action-item__desc">{item.desc}</p>
-                </div>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.45, flexShrink: 0 }}>chevron_right</span>
               </Link>
             ))}
           </div>
@@ -653,7 +587,7 @@ export default function DashboardHomeClient({
                   { done: checklist.createAccount, label: 'Create account' },
                   { done: checklist.chooseProgram, label: 'Choose program' },
                   { done: checklist.completeAssessment, label: 'Complete assessment' },
-                  { done: checklist.startFirstCourse, label: 'Start first course' },
+                  { done: checklist.startFirstCourse, label: 'Unlock training' },
                   { done: checklist.completeFirstCourse, label: 'Complete first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>

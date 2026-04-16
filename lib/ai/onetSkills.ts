@@ -109,7 +109,7 @@ export function mapSkillsToRadarAxes(
         'fine arts', 'design', 'communications and media', 'history and archeology',
         'philosophy and theology', 'sociology and anthropology', 'foreign language',
         // ── Exact O*NET skill names related to design/creative ──
-        'active listening', 'speaking', 'writing', 'reading comprehension',
+        'writing', 'reading comprehension',
         'thinking creatively', 'updating and using relevant knowledge',
         // ── Core design terms (substring match) ──
         'ux', 'ui', 'graphic', 'visual', 'aesthetic', 'typography', 'color', 'branding',
@@ -130,7 +130,8 @@ export function mapSkillsToRadarAxes(
         'complex problem solving', 'systems analysis', 'systems evaluation', 'strategic', 'strategy', 'organizing',
         'prioritization', 'delegation', 'supervision', 'direction', 'administration', 'governance', 'oversight',
         'business acumen', 'executive', 'vision', 'roadmap', 'stakeholder', 'cross-functional', 'alignment',
-        'resource allocation', 'budget', 'forecasting', 'risk assessment', 'change management', 'negotiation'
+        'resource allocation', 'budget', 'forecasting', 'risk assessment', 'change management', 'negotiation',
+        'sales and marketing', 'selling', 'marketing', 'sales'
       ],
     },
     {
@@ -140,7 +141,8 @@ export function mapSkillsToRadarAxes(
         'social perceptiveness', 'persuasion', 'negotiation', 'instructing', 'service orientation', 'ethical',
         'responsibility', 'reliability', 'honesty', 'transparency', 'accountability', 'fairness', 'equity',
         'privacy', 'security', 'confidentiality', 'professionalism', 'empathy', 'emotional intelligence',
-        'cultural awareness', 'diversity', 'inclusion', 'collaboration', 'teamwork', 'interpersonal', 'communication'
+        'cultural awareness', 'diversity', 'inclusion', 'collaboration', 'teamwork', 'interpersonal', 'communication',
+        'active listening', 'speaking'
       ],
     },
     {

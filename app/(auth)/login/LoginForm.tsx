@@ -449,6 +449,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 required
                 aria-invalid={!!error}
                 aria-describedby="login-error"
+                className="login-field"
                 style={s.input}
               />
             </div>
@@ -470,6 +471,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   required
                   aria-invalid={!!error}
                   aria-describedby="login-error"
+                  className="login-field"
                   style={s.input}
                 />
                 <button
@@ -548,10 +550,15 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         </div>
       </div>
 
-      {/* Responsive: hide brand panel on mobile */}
+      {/* Responsive: hide brand panel on mobile; accessible focus rings */}
       <style>{`
         @media (max-width: 768px) {
           .login-brand-panel { display: none !important; }
+        }
+        .login-field:focus {
+          outline: 2px solid var(--color-accent);
+          outline-offset: 2px;
+          border-color: var(--color-accent);
         }
       `}</style>
     </div>

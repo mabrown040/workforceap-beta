@@ -86,6 +86,29 @@ const DEMO_SKILLS = [
   { name: 'Communication', score: 61, importance: 'Medium' },
 ];
 
+// Sales / non-tech demo — weighted toward Strategy + Ethics axes (reflects actual O*NET data)
+const DEMO_SALES_RADAR = [
+  { axis: 'Analytics', value: 0.44 },
+  { axis: 'Engineering', value: 0.18 },
+  { axis: 'Design', value: 0.22 },
+  { axis: 'Strategy', value: 0.78 },
+  { axis: 'Ethics', value: 0.82 },
+  { axis: 'Research', value: 0.38 },
+];
+const DEMO_SALES_SKILLS = [
+  { name: 'Active Listening', score: 88, importance: 'High' },
+  { name: 'Speaking', score: 85, importance: 'High' },
+  { name: 'Sales and Marketing', score: 82, importance: 'High' },
+  { name: 'Persuasion', score: 80, importance: 'High' },
+  { name: 'Service Orientation', score: 76, importance: 'Medium' },
+];
+
+/** Returns true when a search query or occupation title looks like a sales/non-tech role. */
+function isSalesQuery(text: string): boolean {
+  const t = text.toLowerCase();
+  return /\b(sales|account exec|account manager|ae\b|bdr\b|sdr\b|salesforce|crm|customer success|business dev|marketing manager)\b/.test(t);
+}
+
 function RadarChart({ data }: { data: { axis: string; value: number }[] }) {
   const size = 240;
   const cx = size / 2, cy = size / 2, r = 90;
@@ -489,12 +512,20 @@ export default function SkillMapperClient() {
       if (data.occupations?.length) {
         setOccupations(data.occupations);
       } else {
+        const useSales = isSalesQuery(query);
         setError(data.error || 'No occupations found. Showing demo data.');
-        setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true); setSelectedTitle('Software Developer (Demo)');
+        setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+        setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+        setUsingDemo(true);
+        setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
       }
     } catch {
+      const useSales = isSalesQuery(query);
       setError('Search failed. Showing demo data.');
-      setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true); setSelectedTitle('Software Developer (Demo)');
+      setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+      setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+      setUsingDemo(true);
+      setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
     }
     setLoading(false);
   };
@@ -508,11 +539,17 @@ export default function SkillMapperClient() {
         setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
         setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
       } else {
-        setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true);
+        const useSales = isSalesQuery(title);
+        setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+        setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+        setUsingDemo(true);
       }
       if (data.matchedPrograms?.length) setMatchedPrograms(data.matchedPrograms);
     } catch {
-      setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true);
+      const useSales = isSalesQuery(title);
+      setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+      setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+      setUsingDemo(true);
     }
     setLoadingSkills(false);
   };

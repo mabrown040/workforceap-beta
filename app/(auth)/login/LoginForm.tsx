@@ -277,6 +277,20 @@ const s = {
   fieldGroup: {
     marginBottom: 'var(--space-4)',
   } as React.CSSProperties,
+
+  trustBar: {
+    marginTop: 'var(--space-3)',
+    textAlign: 'center' as const,
+    fontSize: '0.75rem',
+    color: 'var(--color-on-surface-variant)',
+    opacity: 0.65,
+    letterSpacing: '0.01em',
+  } as React.CSSProperties,
+
+  trustDot: {
+    margin: '0 var(--space-2)',
+    opacity: 0.5,
+  } as React.CSSProperties,
 } as const;
 
 type LoginFormProps = {
@@ -517,6 +531,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
               {loading ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
+
+          {/* Trust bar — reassurance at the moment of login friction */}
+          <p style={s.trustBar} aria-label="Program credentials">
+            <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
+            Secure
+            <span style={s.trustDot} aria-hidden="true">·</span>
+            Free to members
+            <span style={s.trustDot} aria-hidden="true">·</span>
+            Government-funded program
+          </p>
 
           {/* Third-party divider */}
           <div style={s.divider}>

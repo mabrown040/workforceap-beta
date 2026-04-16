@@ -126,7 +126,7 @@ Austin, TX
       extractSubJobUrlsFromPageText: () => subUrls,
       fetchSubJobPageText: async (url: string) => {
         const listing = listings.find((job) => job.sourceUrl === url);
-        if (!listing) return { text: null, reason: 'Not found' };
+        if (!listing) return { error: 'fetch_failed' as const };
         return { 
           text: `# ${listing.title}\n\n${listing.location ?? 'Austin, TX'}\n\nResponsibilities\n- Imported from fixture`,
           source: 'direct' as const

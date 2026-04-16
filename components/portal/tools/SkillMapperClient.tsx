@@ -767,7 +767,7 @@ export default function SkillMapperClient() {
                   <div style={{ marginBottom: '0.75rem' }}>
                     <DualRadarChart memberData={memberProfile} targetData={radarData} />
                   </div>
-                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '1.5rem', fontSize: '0.8125rem' }}>
+                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--color-blue, #2b7bb9)' }} />
                       Your skills
@@ -777,6 +777,11 @@ export default function SkillMapperClient() {
                       Target occupation
                     </span>
                   </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                    Your profile reflects what we found in your resume and certifications.
+                    {' '}<a href="/dashboard/learning/interest-profiler" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Complete the Interest Profiler</a> or{' '}
+                    <a href="/dashboard/resume" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>update your resume</a> to show more of your experience.
+                  </p>
                 </>
               ) : (
                 <>

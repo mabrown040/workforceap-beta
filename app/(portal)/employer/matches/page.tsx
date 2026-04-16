@@ -117,8 +117,14 @@ export default async function EmployerMatchesPage() {
                       <div className="wa-truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
                     </div>
                     <div style={{ flexShrink: 0, textAlign: 'right', minWidth: '3.25rem', padding: '0.35rem 0.5rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)' }}>
-                      <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>
-                      <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
+                      {pct >= 60 ? (
+                        <>
+                          <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>
+                          <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
+                        </>
+                      ) : (
+                        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', lineHeight: 1.3 }}>Possible<br />fit</div>
+                      )}
                     </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.5rem' }}>

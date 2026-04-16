@@ -252,7 +252,7 @@ export default function MobileApplicationsClient({
 
                     {/* Status action buttons */}
                     {nextStatuses.length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex flex-col gap-2">
                         {nextStatuses.map((s) => {
                           const isReject = s === 'rejected';
                           return (
@@ -260,7 +260,7 @@ export default function MobileApplicationsClient({
                               key={s}
                               disabled={busyId === app.id}
                               onClick={() => patchStatus(app.id, s)}
-                              className="flex-1 py-2.5 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
+                              className="w-full py-3 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                               style={
                                 isReject
                                   ? { background: '#ffdad6', color: '#93000a' }

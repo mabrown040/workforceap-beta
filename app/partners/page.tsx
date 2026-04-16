@@ -374,7 +374,7 @@ export default function PartnersPage() {
       </section>
 
       {/* ── Digital Integration, Human Impact ── */}
-      <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
+      <section className="partners-platform-section" style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
             className="partners-platform-grid"
@@ -457,22 +457,6 @@ export default function PartnersPage() {
                   loading="lazy"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
                 />
-                <figcaption
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '0.75rem 1rem',
-                    fontSize: '0.7rem',
-                    color: 'rgba(255,255,255,0.92)',
-                    background: 'linear-gradient(180deg, transparent, rgba(18,20,22,0.82))',
-                    lineHeight: 1.45,
-                  }}
-                >
-                  Inclusive representation: we use imagery that reflects the communities we serve (66%+ diverse
-                  subjects across WorkforceAP marketing visuals).
-                </figcaption>
               </figure>
             </div>
           </div>
@@ -480,7 +464,7 @@ export default function PartnersPage() {
       </section>
 
       {/* ── Partner FAQ Accordion ── */}
-      <section style={{ padding: '6rem 0' }}>
+      <section className="partners-faq-section" style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">
@@ -603,6 +587,10 @@ export default function PartnersPage() {
           .partners-platform-text { grid-column: span 12 !important; }
           .partners-platform-img { grid-column: span 12 !important; }
           #partner-types .portal-card.portal-card--flat { grid-column: span 12 !important; }
+        }
+        @media (max-width: 767px) {
+          .partners-platform-section { padding-bottom: 3rem !important; }
+          .partners-faq-section { padding-top: 3rem !important; }
         }
       `}</style>
 

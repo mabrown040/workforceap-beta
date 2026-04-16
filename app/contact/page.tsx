@@ -20,9 +20,9 @@ const contactCards = [
     accentColor: 'var(--color-accent)',
     body: (
       <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-        Headquartered in Austin, TX
+        Built in Austin.
         <br />
-        Serving communities nationwide
+        Available nationwide.
       </p>
     ),
   },

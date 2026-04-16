@@ -25,7 +25,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             </div>
           )}
           <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: 'var(--color-on-surface-variant, #debfc2)' }}>
-            Empowering the workforce through intentional education and industry-leading partnerships.
+            Built in Austin. Available nationwide.
           </p>
           <p style={{ fontSize: '0.75rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant, #debfc2)', opacity: 0.85, marginTop: '0.75rem' }}>
             A national nonprofit and 501(c)(3) organization. EIN: 41-2612389. Contributions are tax-deductible.

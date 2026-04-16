@@ -288,7 +288,7 @@ export default async function HomePage() {
               25+ Years Breaking Barriers
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              WorkforceAP is a national nonprofit and 501(c)(3) built on 25+ years of workforce development experience. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
+              WorkforceAP is a national nonprofit and 501(c)(3) built on 25+ years of workforce development experience. Built in Austin. Available nationwide. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
               We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost to members through WorkforceAP and partner-backed pathways.

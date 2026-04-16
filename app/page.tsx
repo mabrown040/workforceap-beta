@@ -10,7 +10,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Career Training & Industry Certificates | Workforce Advancement Project',
+  title: 'Career Training & Industry Certificates',
   description:
     'Occupational and career training at no cost to members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
   path: '/',

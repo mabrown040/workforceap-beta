@@ -6,7 +6,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Hire Certified Tech Graduates | WorkforceAP',
+  title: 'Hire Certified Tech Graduates',
   description:
     'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Serving employers nationwide.',
   path: '/employers',

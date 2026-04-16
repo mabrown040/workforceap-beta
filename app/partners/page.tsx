@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Community & Employer Partners | WorkforceAP',
+  title: 'Community & Employer Partners',
   description:
     'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
   path: '/partners',

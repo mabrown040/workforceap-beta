@@ -28,7 +28,7 @@ import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Your Dashboard — WorkforceAP',
+  title: 'Your Dashboard',
   description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
   path: '/dashboard',
 });

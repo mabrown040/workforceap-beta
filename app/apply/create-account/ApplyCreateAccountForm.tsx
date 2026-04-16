@@ -194,7 +194,7 @@ export default function ApplyCreateAccountForm() {
     }
 
     if (!programRankedSlugs?.length) {
-      setError('We lost your selected program(s). Go back to step 2 and choose at least one program.');
+      setError('Your program selection wasn\'t saved — please go back to step 2 and choose at least one program.');
       return;
     }
 

@@ -66,7 +66,7 @@ export default async function WeeklyRecapPage() {
         {recap === null ? (
           <div className="mx-auto max-w-2xl px-4 py-8">
             <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
-              We could not generate your recap right now. Please check back later.
+              Your recap isn&apos;t ready yet — check back after your next activity or try refreshing.
             </div>
           </div>
         ) : (

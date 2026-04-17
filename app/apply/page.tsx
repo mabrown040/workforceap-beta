@@ -194,7 +194,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         </div>
         <h1 style={sPage.heroHeading}>Start Your Application</h1>
         <p style={sPage.heroDesc}>
-          This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&apos;re not sure yet — and a member advisor will follow up within 24–48 hours to walk you through your options.
+          This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&apos;re not sure yet — and a member advisor will follow up within 3–5 business days to walk you through your options.
           <strong> No prior experience required. For qualifying members, WorkforceAP programs are no-cost.</strong>
         </p>
         <div style={sPage.heroFallback}>
@@ -253,7 +253,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div style={sPage.infoCard}>
             <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>What happens next?</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 24-48 hours.
+              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 3–5 business days.
             </p>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
               Questions? Call <a href="tel:5127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
@@ -269,16 +269,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <ApplyRefCapture />
           </Suspense>
 
-          {/* SSR fallback: visible immediately without JS */}
-          <div style={sPage.ssrFallback}>
-            <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
-            <p style={sPage.ssrFallbackText}>
-              Loading application form… If it doesn&apos;t appear, call{' '}
-              <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
-              {' '}or email{' '}
-              <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>.
-            </p>
-          </div>
           <noscript>
             <div style={sPage.ssrFallback}>
               <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
@@ -313,7 +303,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Someone Will Follow Up</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              A member advisor reviews every application within 24–48 hours and reaches out to help you find the right program fit.
+              A member advisor reviews every application within 3–5 business days and reaches out to help you find the right program fit.
             </p>
           </div>
         </div>

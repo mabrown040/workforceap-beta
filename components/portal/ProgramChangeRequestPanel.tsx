@@ -172,7 +172,7 @@ export default function ProgramChangeRequestPanel({
             }}
           />
 
-          {error && <p style={{ color: '#a00', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{error}</p>}
+          {error && <p role="alert" style={{ color: 'var(--color-accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{error}</p>}
           {success && !pending && (
             <p style={{ color: 'var(--color-accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
               Request submitted. We&apos;ll notify you when it&apos;s reviewed.

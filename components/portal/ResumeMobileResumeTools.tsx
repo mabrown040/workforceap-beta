@@ -168,7 +168,7 @@ export default function ResumeMobileResumeTools({
             PDF, DOC, DOCX, TXT — max 5MB
           </p>
         </div>
-        {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{uploadError}</p>}
+        {uploadError && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{uploadError}</p>}
         {hasOriginal && (
           <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
             Original resume on file.
@@ -203,7 +203,7 @@ export default function ResumeMobileResumeTools({
         <button type="button" className="btn btn-primary" onClick={handleGenerate} disabled={generating} style={{ width: '100%' }}>
           {generating ? 'Generating…' : 'Generate Resume'}
         </button>
-        {generateError && <p style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{generateError}</p>}
+        {generateError && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{generateError}</p>}
         {hasEnhanced && resumeData?.enhancedUrl && (
           <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem' }}>
             <a href={resumeData.enhancedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>

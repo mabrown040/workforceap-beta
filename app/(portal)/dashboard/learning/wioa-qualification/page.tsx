@@ -10,8 +10,8 @@ import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'WIOA screening',
-  description: 'Self-screening for WIOA-funded services — prepare for staff and American Job Center visits.',
+  title: 'Free Training Eligibility Check',
+  description: 'Answer a few questions to help your counselor identify which free training services may be available to you.',
   path: '/dashboard/learning/wioa-qualification',
 });
 

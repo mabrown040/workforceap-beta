@@ -636,7 +636,7 @@ export default async function AdminPage() {
       </section>
 
       {/* ── Mobile Quick Actions ── */}
-      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '6rem' }}>
+      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
         <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>Quick Actions</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
           {[
@@ -645,11 +645,11 @@ export default async function AdminPage() {
             { icon: 'handshake', label: 'Partners', href: '/admin/partners' },
             { icon: 'work', label: 'Job Board', href: '/admin/jobs' },
           ].map((action) => (
-            <a key={action.label} href={action.href}
+            <Link key={action.label} href={action.href}
               className="active:scale-[0.97] wa-transition-transform" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', textDecoration: 'none', background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}>
               <span className="material-symbols-outlined" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }} aria-hidden="true">{action.icon}</span>
               <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">{action.label}</span>
-            </a>
+            </Link>
           ))}
         </div>
       </section>

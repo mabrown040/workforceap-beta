@@ -7,7 +7,6 @@ import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/progra
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training & Industry Certificates',
@@ -100,8 +99,7 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Career Training That Opens Doors.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>At No Cost to You.</span>
+            Training That Works. <span style={{ color: 'var(--color-accent)' }}>Completely Free.</span>
           </h1>
 
           <p style={{
@@ -111,47 +109,22 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            Government-funded career training with industry certificates, job coaching, and placement support — no cost to members.
+            Government-funded career training with industry certificates, job coaching, and placement support.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-            <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
-              Find Your Career
+            <Link href="/apply" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
+              Apply Now
             </Link>
-            {/* A/B experiment CTA — hidden on mobile to reduce CTA overload; text link below covers apply path */}
-            <ExperimentedCtaLink
-              experiment="home_apply_primary_cta"
-              variants={[
-                {
-                  id: 'control',
-                  label: 'Apply Now',
-                  className: 'btn btn-outline btn-large home-hero-outline-cta',
-                  href: '/apply',
-                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
-                },
-                {
-                  id: 'urgency',
-                  label: 'Start Your Application',
-                  className: 'btn btn-outline btn-large home-hero-outline-cta',
-                  href: '/apply',
-                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
-                },
-              ]}
-            />
+            <Link href="/find-your-path" className="btn btn-outline btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
+              Find Your Path
+            </Link>
           </div>
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
-              <span>✓ Government-funded</span>
-              <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No credit card required</span>
-              <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No cost for members</span>
-            </p>
-            {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
-            <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
-              <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                Ready to apply? Start your application →
-              </Link>
+          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <p style={{ fontSize: 'clamp(0.875rem, 0.5vw + 0.8rem, 1rem)', fontWeight: 600, color: 'var(--home-hero-fg, rgba(242,242,245,0.95))', display: 'flex', flexWrap: 'wrap', gap: '1rem', margin: 0 }}>
+              <span>✓ Fully funded by government grants</span>
+              <span>✓ No hidden costs</span>
+              <span>✓ Industry-recognized certificates</span>
             </p>
           </div>
         </div>

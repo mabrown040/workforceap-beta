@@ -151,10 +151,11 @@ const s = {
     padding: 'var(--space-3) var(--space-4)',
     fontSize: 'var(--font-size-base)',
     background: 'var(--surface-container)',
-    border: '1px solid var(--outline-variant)',
+    border: '2px solid var(--outline-variant)',
     borderRadius: 'var(--radius-md)',
     color: 'var(--color-on-surface)',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+    outline: 'none',
   } as React.CSSProperties,
 
   passwordRow: {
@@ -170,16 +171,20 @@ const s = {
 
   passwordToggle: {
     position: 'absolute' as const,
-    right: 4,
+    right: 0,
     top: '50%',
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
     color: 'var(--color-on-surface-variant)',
     cursor: 'pointer',
-    padding: '10px 12px',
+    padding: '12px 14px',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '44px',
+    minHeight: '44px',
+    transition: 'color 0.2s',
   } as React.CSSProperties,
 
   recoverLink: {

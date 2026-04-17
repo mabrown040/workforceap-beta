@@ -13307,6 +13307,13 @@ html.dark .dashboard-program-badge.pending {
         grid-column: 1 / -1;
     }
 }
+.login-field {
+    outline: none;
+}
+.login-field:focus {
+    border-color: var(--color-accent) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
 .login-password-field {
     display: flex;
     align-items: stretch;

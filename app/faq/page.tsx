@@ -22,10 +22,10 @@ export default function FAQPage() {
                 className="text-label-upper"
                 style={{
                   color: 'var(--color-accent)',
-                  background: 'rgba(173,44,77,0.1)',
+                  background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                   padding: '0.25rem 0.75rem',
                   borderRadius: 'var(--radius-full)',
-                  border: '1px solid rgba(173,44,77,0.2)',
+                  border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
                   fontSize: '0.65rem',
                 }}
               >

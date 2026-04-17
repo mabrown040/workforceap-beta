@@ -78,7 +78,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                   background: isComplete
                     ? 'rgba(74, 155, 79, 0.15)'
                     : isUpNext
-                      ? 'rgba(173, 44, 77, 0.12)'
+                      ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)'
                       : '#f0f0f0',
                   color: isComplete ? 'var(--color-accent)' : isUpNext ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                   fontWeight: isUpNext ? 600 : 400,

@@ -38,7 +38,7 @@ export default function LeadershipPage() {
                 style={{
                   display: 'inline-block',
                   padding: '0.3rem 0.85rem',
-                  background: 'rgba(173,44,77,0.08)',
+                  background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
                   color: 'var(--color-accent)',
                   borderRadius: 'var(--radius-full)',
                   marginBottom: '1.75rem',

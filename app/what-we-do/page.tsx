@@ -85,7 +85,7 @@ export default function WhatWeDoPage() {
             position: 'absolute',
             inset: 0,
             background:
-              'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.72) 45%, rgba(173,44,77,0.28) 100%)',
+              'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.72) 45%, color-mix(in srgb, var(--color-accent) 28%, transparent) 100%)',
           }}
         />
         {/* Extra bottom scrim so body copy stays readable on bright areas of the photo */}

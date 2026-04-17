@@ -16,7 +16,7 @@ const contactCards = [
   {
     icon: 'location_on',
     title: 'Our Location',
-    accentBg: 'rgba(173,44,77,0.1)',
+    accentBg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
     accentColor: 'var(--color-accent)',
     body: (
       <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
@@ -29,7 +29,7 @@ const contactCards = [
   {
     icon: 'alternate_email',
     title: 'Email',
-    accentBg: 'rgba(173,44,77,0.1)',
+    accentBg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
     accentColor: 'var(--color-accent)',
     body: (
       <p style={{ margin: 0 }}>
@@ -58,7 +58,7 @@ const contactCards = [
   {
     icon: 'schedule',
     title: 'Response Time',
-    accentBg: 'rgba(173,44,77,0.1)',
+    accentBg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
     accentColor: 'var(--color-accent)',
     body: (
       <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>

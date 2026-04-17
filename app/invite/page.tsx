@@ -290,7 +290,7 @@ function InviteContent() {
 
 export default function InvitePage() {
   return (
-    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading your invitation…</div>}>
       <InviteContent />
     </Suspense>
   );

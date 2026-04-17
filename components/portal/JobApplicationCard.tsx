@@ -21,12 +21,33 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
 };
 
 const CARD_ACCENT: Record<JobApplicationStatus, string> = {
-  SAVED: '#64748b',
-  APPLIED: '#8c0f37',
+  SAVED:        '#64748b',
+  APPLIED:      '#8c0f37',
   PHONE_SCREEN: '#2563eb',
   INTERVIEWING: '#d97706',
-  OFFER: '#16a34a',
-  REJECTED: '#dc2626',
+  OFFER:        '#16a34a',
+  REJECTED:     '#dc2626',
+};
+
+const fieldStyle = {
+  width: '100%',
+  padding: '0.5rem 0.75rem',
+  border: '1px solid var(--outline-variant)',
+  borderRadius: 'var(--radius-sm)',
+  fontSize: '0.875rem',
+  background: 'var(--surface-container-lowest)',
+  color: 'var(--color-on-surface)',
+  boxSizing: 'border-box' as const,
+};
+
+const labelStyle = {
+  display: 'block',
+  fontSize: '0.7rem',
+  fontWeight: 700,
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.05em',
+  color: 'var(--color-on-surface-variant)',
+  marginBottom: '0.35rem',
 };
 
 export default function JobApplicationCard({
@@ -38,7 +59,7 @@ export default function JobApplicationCard({
   const [selectedStatus, setSelectedStatus] = useState<JobApplicationStatus>(application.status);
   const [notes, setNotes] = useState(application.notes || '');
 
-  const handleStatusChange = async () => {
+  const handleSave = () => {
     if (selectedStatus !== application.status) {
       onStatusChange(application.id, { status: selectedStatus });
     }
@@ -50,74 +71,37 @@ export default function JobApplicationCard({
 
   const formatDate = (date: Date | null) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   if (isEditing) {
     return (
       <div className="portal-card portal-card--flat job-app-card job-app-card--editing" style={{ padding: '1rem' }}>
-        <div className="wa-mb-4">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Status
-          </label>
-          <select
-            value={selectedStatus}
-            onChange={e => setSelectedStatus(e.target.value as JobApplicationStatus)}
-            className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm"
-            style={{
-              border: '1px solid rgba(222,191,194,0.35)',
-              background: 'var(--surface-container-lowest)',
-              color: 'var(--color-on-surface)',
-            }}
-          >
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={labelStyle}>Status</label>
+          <select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value as JobApplicationStatus)} style={fieldStyle}>
             {availableStatuses.map(status => (
-              <option key={status} value={status}>
-                {STATUS_LABELS[status]}
-              </option>
+              <option key={status} value={status}>{STATUS_LABELS[status]}</option>
             ))}
           </select>
         </div>
 
-        <div className="wa-mb-4">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Notes
-          </label>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={labelStyle}>Notes</label>
           <textarea
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm"
-            style={{
-              border: '1px solid rgba(222,191,194,0.35)',
-              background: 'var(--surface-container-lowest)',
-              color: 'var(--color-on-surface)',
-            }}
+            style={{ ...fieldStyle, resize: 'vertical' }}
             rows={3}
-            placeholder="Add notes about this application..."
+            placeholder="Add notes about this application…"
           />
         </div>
 
-        <div className="wa-flex wa-gap-2">
-          <button
-            onClick={handleStatusChange}
-            type="button"
-            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-white wa-text-sm wa-font-medium wa-rounded"
-            style={{ background: 'var(--color-accent-dark, #6b0c29)' }}
-          >
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={handleSave} type="button" className="btn btn-primary" style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem' }}>
             Save
           </button>
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-rounded"
-            style={{
-              background: 'var(--surface-container-high)',
-              color: 'var(--color-on-surface)',
-            }}
-          >
+          <button type="button" onClick={() => setIsEditing(false)} className="btn btn-ghost" style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem' }}>
             Cancel
           </button>
         </div>
@@ -128,37 +112,46 @@ export default function JobApplicationCard({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className="portal-kanban-card job-app-card wa-cursor-pointer"
-      style={
-        {
-          padding: '0.75rem',
-          '--portal-kanban-accent': CARD_ACCENT[application.status],
-        } as CSSProperties
-      }
+      className="portal-kanban-card job-app-card"
+      style={{ padding: '0.75rem', cursor: 'pointer', '--portal-kanban-accent': CARD_ACCENT[application.status] } as CSSProperties}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsEditing(true); }}
+      aria-label={`Edit ${application.role} at ${application.company}`}
     >
-      <div className="wa-flex wa-items-start wa-justify-between wa-gap-2 wa-mb-1">
-        <h4 className="wa-font-bold wa-text-sm" style={{ color: 'var(--color-on-surface)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.25rem' }}>
+        <h4 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0, flex: 1 }}>
           {application.role}
         </h4>
         {application.curatedJobId && (
           <span
-            className="wa-shrink-0 wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded wa-bg-amber-100 wa-text-amber-900"
+            style={{
+              flexShrink: 0,
+              fontSize: '0.625rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              padding: '0.15rem 0.4rem',
+              borderRadius: 'var(--radius-sm)',
+              background: 'rgba(217,119,6,0.12)',
+              color: '#d97706',
+            }}
             title="From WorkforceAP Job Board"
           >
             Board
           </span>
         )}
       </div>
-      <p className="wa-text-xs wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+
+      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem', marginTop: 0 }}>
         {application.company}
       </p>
 
       {application.curatedJobId && application.url && (
-        <p className="wa-text-xs wa-mb-2">
+        <p style={{ fontSize: '0.75rem', marginBottom: '0.5rem', marginTop: 0 }}>
           <Link
             href={application.url}
-            className="wa-font-medium hover:wa-underline"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
             onClick={(e) => e.stopPropagation()}
           >
             View job posting →
@@ -167,31 +160,40 @@ export default function JobApplicationCard({
       )}
 
       {application.appliedAt && (
-        <p className="wa-text-xs wa-mb-1" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.9 }}>
+        <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', opacity: 0.9, margin: '0 0 0.25rem' }}>
           Applied {formatDate(application.appliedAt)} · {application.source}
         </p>
       )}
 
       {application.nextInterviewDate && (
-        <p className="wa-text-xs wa-font-medium wa-mb-2" style={{ color: 'var(--color-accent)' }}>
+        <p style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
           Interview: {formatDate(application.nextInterviewDate)}
         </p>
       )}
 
       {application.notes && (
-        <p
-          className="wa-text-xs wa-border-t wa-pt-2 wa-mt-2"
-          style={{ color: 'var(--color-on-surface-variant)', borderColor: 'rgba(222,191,194,0.25)' }}
-        >
+        <p style={{
+          fontSize: '0.7rem',
+          color: 'var(--color-on-surface-variant)',
+          borderTop: '1px solid rgba(222,191,194,0.25)',
+          paddingTop: '0.5rem',
+          marginTop: '0.5rem',
+          marginBottom: 0,
+        }}>
           {application.notes}
         </p>
       )}
 
-      <p
-        className="wa-text-xs wa-mt-2 wa-pt-2 wa-border-t"
-        style={{ color: 'var(--color-on-surface-variant)', opacity: 0.7, borderColor: 'rgba(222,191,194,0.25)' }}
-      >
-        Click to edit
+      <p style={{
+        fontSize: '0.65rem',
+        color: 'var(--color-on-surface-variant)',
+        opacity: 0.6,
+        marginTop: '0.5rem',
+        paddingTop: '0.5rem',
+        borderTop: '1px solid rgba(222,191,194,0.25)',
+        marginBottom: 0,
+      }}>
+        Tap to update
       </p>
     </div>
   );

@@ -142,18 +142,18 @@ export default function WioaQualificationClient({
         <nav className="portal-breadcrumb" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
           <Link href="/dashboard/learning">Learning Hub</Link>
           <span style={{ margin: '0 0.35rem' }}>/</span>
-          <span>WIOA screening</span>
+          <span>Funding Check</span>
         </nav>
       ) : null}
 
       <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>
-        WIOA eligibility screening
+        Do You Qualify for Free Training?
       </h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.55 }}>
         {isPublic
-          ? 'Use this quick pre-screen to see whether Workforce Innovation and Opportunity Act (WIOA) funding may be worth exploring. It is fast, public, and built to help WorkforceAP staff follow up with the right next step.'
-          : 'This short questionnaire helps you prepare for a conversation about Workforce Innovation and Opportunity Act (WIOA) services.'}{' '}
-        <strong>It is not a final eligibility determination.</strong> WorkforceAP staff and American Job Centers confirm eligibility with documentation.
+          ? 'Answer a few questions to find out if you may qualify for Workforce Innovation and Opportunity Act (WIOA) funding — free job training at no cost to you.'
+          : 'This short questionnaire helps your counselor identify which free training services may be available to you through WIOA (Workforce Innovation and Opportunity Act).'}{' '}
+        <strong>This is a quick pre-screen, not a final eligibility decision.</strong> A WorkforceAP counselor will confirm eligibility with you directly.
       </p>
 
       {snapshot ? (

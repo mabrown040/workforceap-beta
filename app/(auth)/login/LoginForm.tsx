@@ -198,6 +198,7 @@ const s = {
 
   primaryBtn: {
     width: '100%',
+    minHeight: '44px',
     padding: 'var(--space-4)',
     fontSize: 'var(--font-size-base)',
     fontWeight: 700,
@@ -572,25 +573,6 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             <span style={s.trustDot} aria-hidden="true">·</span>
             Government-funded program
           </p>
-
-          {/* Third-party divider */}
-          <div style={s.divider}>
-            <span style={s.dividerLine} />
-            <span>or sign in with</span>
-            <span style={s.dividerLine} />
-          </div>
-
-          {/* Social buttons */}
-          <div style={s.socialRow}>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
-              Google
-            </button>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">fingerprint</span>
-              Passkey
-            </button>
-          </div>
 
           {/* Bottom links */}
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>

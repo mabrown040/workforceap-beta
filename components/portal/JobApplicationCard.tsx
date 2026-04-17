@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { CSSProperties } from 'react';
-import Link from 'next/link';
-import { JobApplication, JobApplicationStatus } from '@prisma/client';
+import { useState } from "react";
+import type { CSSProperties } from "react";
+import Link from "next/link";
+import { JobApplication, JobApplicationStatus } from "@prisma/client";
 
 interface JobApplicationCardProps {
   application: JobApplication;
@@ -12,21 +12,21 @@ interface JobApplicationCardProps {
 }
 
 const STATUS_LABELS: Record<JobApplicationStatus, string> = {
-  APPLIED: 'Applied',
-  PHONE_SCREEN: 'Phone Screen',
-  INTERVIEWING: 'Interviewing',
-  OFFER: 'Offer',
-  SAVED: 'Saved',
-  REJECTED: 'Rejected',
+  APPLIED: "Applied",
+  PHONE_SCREEN: "Phone Screen",
+  INTERVIEWING: "Interviewing",
+  OFFER: "Offer",
+  SAVED: "Saved",
+  REJECTED: "Rejected",
 };
 
 const CARD_ACCENT: Record<JobApplicationStatus, string> = {
-  SAVED: '#64748b',
-  APPLIED: '#8c0f37',
-  PHONE_SCREEN: '#2563eb',
-  INTERVIEWING: '#d97706',
-  OFFER: '#16a34a',
-  REJECTED: '#dc2626',
+  SAVED: "#64748b",
+  APPLIED: "#8c0f37",
+  PHONE_SCREEN: "#2563eb",
+  INTERVIEWING: "#d97706",
+  OFFER: "#16a34a",
+  REJECTED: "#dc2626",
 };
 
 export default function JobApplicationCard({
@@ -35,8 +35,10 @@ export default function JobApplicationCard({
   availableStatuses,
 }: JobApplicationCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<JobApplicationStatus>(application.status);
-  const [notes, setNotes] = useState(application.notes || '');
+  const [selectedStatus, setSelectedStatus] = useState<JobApplicationStatus>(
+    application.status,
+  );
+  const [notes, setNotes] = useState(application.notes || "");
 
   const handleStatusChange = async () => {
     if (selectedStatus !== application.status) {
@@ -49,32 +51,42 @@ export default function JobApplicationCard({
   };
 
   const formatDate = (date: Date | null) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   if (isEditing) {
     return (
-      <div className="portal-card portal-card--flat job-app-card job-app-card--editing" style={{ padding: '1rem' }}>
+      <div
+        className="portal-card portal-card--flat job-app-card job-app-card--editing"
+        style={{ padding: "1rem" }}
+      >
         <div className="wa-mb-4">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <label
+            htmlFor={`status-${application.id}`}
+            className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2"
+            style={{ color: "var(--color-on-surface-variant)" }}
+          >
             Status
           </label>
           <select
+            id={`status-${application.id}`}
             value={selectedStatus}
-            onChange={e => setSelectedStatus(e.target.value as JobApplicationStatus)}
+            onChange={(e) =>
+              setSelectedStatus(e.target.value as JobApplicationStatus)
+            }
             className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm"
             style={{
-              border: '1px solid rgba(222,191,194,0.35)',
-              background: 'var(--surface-container-lowest)',
-              color: 'var(--color-on-surface)',
+              border: "1px solid rgba(222,191,194,0.35)",
+              background: "var(--surface-container-lowest)",
+              color: "var(--color-on-surface)",
             }}
           >
-            {availableStatuses.map(status => (
+            {availableStatuses.map((status) => (
               <option key={status} value={status}>
                 {STATUS_LABELS[status]}
               </option>
@@ -83,17 +95,22 @@ export default function JobApplicationCard({
         </div>
 
         <div className="wa-mb-4">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <label
+            htmlFor={`notes-${application.id}`}
+            className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-mb-2"
+            style={{ color: "var(--color-on-surface-variant)" }}
+          >
             Notes
           </label>
           <textarea
+            id={`notes-${application.id}`}
             value={notes}
-            onChange={e => setNotes(e.target.value)}
+            onChange={(e) => setNotes(e.target.value)}
             className="wa-w-full wa-px-3 wa-py-2 wa-rounded wa-text-sm"
             style={{
-              border: '1px solid rgba(222,191,194,0.35)',
-              background: 'var(--surface-container-lowest)',
-              color: 'var(--color-on-surface)',
+              border: "1px solid rgba(222,191,194,0.35)",
+              background: "var(--surface-container-lowest)",
+              color: "var(--color-on-surface)",
             }}
             rows={3}
             placeholder="Add notes about this application..."
@@ -105,7 +122,7 @@ export default function JobApplicationCard({
             onClick={handleStatusChange}
             type="button"
             className="wa-flex-1 wa-px-3 wa-py-2 wa-text-white wa-text-sm wa-font-medium wa-rounded"
-            style={{ background: 'var(--color-accent-dark, #6b0c29)' }}
+            style={{ background: "var(--color-accent-dark, #6b0c29)" }}
           >
             Save
           </button>
@@ -114,8 +131,8 @@ export default function JobApplicationCard({
             onClick={() => setIsEditing(false)}
             className="wa-flex-1 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-rounded"
             style={{
-              background: 'var(--surface-container-high)',
-              color: 'var(--color-on-surface)',
+              background: "var(--surface-container-high)",
+              color: "var(--color-on-surface)",
             }}
           >
             Cancel
@@ -128,16 +145,28 @@ export default function JobApplicationCard({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className="portal-kanban-card job-app-card wa-cursor-pointer"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setIsEditing(true);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Edit job application for ${application.role} at ${application.company}`}
+      className="portal-kanban-card job-app-card wa-cursor-pointer focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1"
       style={
         {
-          padding: '0.75rem',
-          '--portal-kanban-accent': CARD_ACCENT[application.status],
+          padding: "0.75rem",
+          "--portal-kanban-accent": CARD_ACCENT[application.status],
         } as CSSProperties
       }
     >
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-2 wa-mb-1">
-        <h4 className="wa-font-bold wa-text-sm" style={{ color: 'var(--color-on-surface)' }}>
+        <h4
+          className="wa-font-bold wa-text-sm"
+          style={{ color: "var(--color-on-surface)" }}
+        >
           {application.role}
         </h4>
         {application.curatedJobId && (
@@ -149,7 +178,10 @@ export default function JobApplicationCard({
           </span>
         )}
       </div>
-      <p className="wa-text-xs wa-mb-2" style={{ color: 'var(--color-on-surface-variant)' }}>
+      <p
+        className="wa-text-xs wa-mb-2"
+        style={{ color: "var(--color-on-surface-variant)" }}
+      >
         {application.company}
       </p>
 
@@ -158,7 +190,7 @@ export default function JobApplicationCard({
           <Link
             href={application.url}
             className="wa-font-medium hover:wa-underline"
-            style={{ color: 'var(--color-accent)' }}
+            style={{ color: "var(--color-accent)" }}
             onClick={(e) => e.stopPropagation()}
           >
             View job posting →
@@ -167,13 +199,19 @@ export default function JobApplicationCard({
       )}
 
       {application.appliedAt && (
-        <p className="wa-text-xs wa-mb-1" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.9 }}>
+        <p
+          className="wa-text-xs wa-mb-1"
+          style={{ color: "var(--color-on-surface-variant)", opacity: 0.9 }}
+        >
           Applied {formatDate(application.appliedAt)} · {application.source}
         </p>
       )}
 
       {application.nextInterviewDate && (
-        <p className="wa-text-xs wa-font-medium wa-mb-2" style={{ color: 'var(--color-accent)' }}>
+        <p
+          className="wa-text-xs wa-font-medium wa-mb-2"
+          style={{ color: "var(--color-accent)" }}
+        >
           Interview: {formatDate(application.nextInterviewDate)}
         </p>
       )}
@@ -181,7 +219,10 @@ export default function JobApplicationCard({
       {application.notes && (
         <p
           className="wa-text-xs wa-border-t wa-pt-2 wa-mt-2"
-          style={{ color: 'var(--color-on-surface-variant)', borderColor: 'rgba(222,191,194,0.25)' }}
+          style={{
+            color: "var(--color-on-surface-variant)",
+            borderColor: "rgba(222,191,194,0.25)",
+          }}
         >
           {application.notes}
         </p>
@@ -189,7 +230,11 @@ export default function JobApplicationCard({
 
       <p
         className="wa-text-xs wa-mt-2 wa-pt-2 wa-border-t"
-        style={{ color: 'var(--color-on-surface-variant)', opacity: 0.7, borderColor: 'rgba(222,191,194,0.25)' }}
+        style={{
+          color: "var(--color-on-surface-variant)",
+          opacity: 0.7,
+          borderColor: "rgba(222,191,194,0.25)",
+        }}
       >
         Click to edit
       </p>

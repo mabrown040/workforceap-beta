@@ -15,3 +15,7 @@
 ## 2026-04-12 - Prevent screen readers from reading Material Symbols ligature text
 **Learning:** Found that many decorative `material-symbols-outlined` icons were missing `aria-hidden="true"`. Screen readers will read the raw text of the ligature (e.g. 'add_circle' or 'check_circle') instead of treating them as icons, leading to poor accessibility. In icon-only buttons, the button needs an `aria-label` and the icon inside needs `aria-hidden="true"`.
 **Action:** Always add `aria-hidden="true"` to ligature-based icons (like Material Symbols). If the icon acts as a button on its own, ensure the wrapper `<button>` has an `aria-label`.
+
+## 2026-04-16 - Interactive Custom UI Elements (Cards) Keyboard Accessibility
+**Learning:** In Kanban-style components, clickable 'cards' are often built using `<div>` elements with `onClick` handlers, ignoring keyboard-only users who cannot activate them. Additionally, nested forms on these cards frequently omit `htmlFor` mappings between `<label>` elements and their inputs.
+**Action:** When building interactive card UIs that serve as buttons, always apply `role="button"`, `tabIndex={0}`, `onKeyDown` listeners for 'Enter' and 'Space' keys, and `aria-label` attributes. Ensure all input fields have valid `id` attributes properly bound to their `<label>`'s `htmlFor` attribute.

@@ -79,6 +79,9 @@ function normalizeQuery(q: string) {
   return q.trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+/** Minimum normalized keyword length for reverse substring matching. */
+const MIN_REVERSE_SUBSTRING_MATCH_LEN = 3;
+
 export function isDemoOccupationCode(code: string) {
   return SKILL_MAPPER_DEMO_OCCUPATIONS.some((o) => o.code === code);
 }
@@ -88,6 +91,10 @@ export function searchDemoOccupations(q: string) {
   if (qn.length < 2) return [];
   return SKILL_MAPPER_DEMO_OCCUPATIONS.filter((o) => {
     const haystack = [o.title, o.code, ...(o.keywords ?? [])].map(normalizeQuery);
-    return haystack.some((value) => value.includes(qn) || qn.includes(value));
+    return haystack.some((value) => {
+      if (value.includes(qn)) return true;
+      if (value.length >= MIN_REVERSE_SUBSTRING_MATCH_LEN && qn.includes(value)) return true;
+      return false;
+    });
   });
 }

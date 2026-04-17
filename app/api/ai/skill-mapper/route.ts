@@ -108,7 +108,17 @@ export async function GET(req: NextRequest) {
           fallbackDesignScore,
         });
 
-      if (!isOnetConfigured() && isDemoOccupationCode(code)) {
+      if (!isOnetConfigured()) {
+        if (!isDemoOccupationCode(code)) {
+          return NextResponse.json(
+            {
+              error:
+                'O*NET is not configured. Set ONET_API_KEY to look up this occupation code, or use a demo occupation from search.',
+            },
+            { status: 503 }
+          );
+        }
+
         const demo = getDemoRadarForCode(code);
         skills = demo.skills;
         radarData = demo.radarAxes;

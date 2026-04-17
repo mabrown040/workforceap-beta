@@ -59,10 +59,10 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
       if (res.ok) {
         setTracked(true);
       } else {
-        setError(data.error ?? 'Could not add to tracker');
+        setError(data.error ?? 'We couldn\'t add this job to your tracker. Try again in a moment.');
       }
     } catch {
-      setError('Network error');
+      setError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setTracking(false);
     }

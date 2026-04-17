@@ -288,7 +288,7 @@ export default function MockInterviewVideoRecorder({
           style={{
             margin: '0.5rem 0 0',
             fontSize: '0.82rem',
-            color: uploadStatus === 'error' ? '#b91c1c' : 'var(--color-on-surface-variant)',
+            color: uploadStatus === 'error' ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
           }}
         >
           {uploadHint}

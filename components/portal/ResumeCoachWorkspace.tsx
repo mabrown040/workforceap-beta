@@ -359,7 +359,7 @@ export default function ResumeCoachWorkspace() {
                   fontWeight: 600,
                   color:
                     saveStatus === 'error'
-                      ? '#b91c1c'
+                      ? 'var(--color-accent)'
                       : saveStatus === 'saving'
                         ? 'var(--color-on-surface-variant)'
                         : 'var(--color-on-surface-variant)',

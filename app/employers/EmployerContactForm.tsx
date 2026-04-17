@@ -111,7 +111,7 @@ export default function EmployerContactForm() {
       if (!res.ok) {
         setStatus('error');
         trackLeadFormEvent('employer_intake', 'errored', { reason: json.error ?? 'request_failed' });
-        setErrorMsg(json.error ?? 'Something went wrong. Please try again.');
+        setErrorMsg(json.error ?? 'We couldn\'t send your message. Try again in a moment, or email info@workforceap.org.');
         return;
       }
 

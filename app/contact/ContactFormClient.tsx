@@ -101,7 +101,7 @@ export default function ContactFormClient() {
       if (!res.ok) {
         setStatus('error');
         trackLeadFormEvent('contact', 'errored', { reason: json.error ?? 'request_failed' });
-        setErrorMsg(json.error ?? 'Something went wrong. Please try again.');
+        setErrorMsg(json.error ?? 'We couldn\'t send your message. Try again in a moment, or email info@workforceap.org.');
         return;
       }
 
@@ -111,7 +111,7 @@ export default function ContactFormClient() {
     } catch {
       setStatus('error');
       trackLeadFormEvent('contact', 'errored', { reason: 'network_error' });
-      setErrorMsg('Network error. Please try again.');
+      setErrorMsg('We couldn\'t connect. Check your connection and try again, or email info@workforceap.org.');
     }
   }
 

@@ -60,7 +60,7 @@ export default function PartnerSignupForm() {
       if (!res.ok) {
         setStatus('error');
         trackLeadFormEvent('partner_signup', 'errored', { reason: typeof data.error === 'string' ? data.error : 'request_failed' });
-        setErrorMsg(typeof data.error === 'string' ? data.error : 'Something went wrong.');
+        setErrorMsg(typeof data.error === 'string' ? data.error : 'We couldn\'t submit your application. Try again in a moment.');
         return;
       }
       setStatus('success');

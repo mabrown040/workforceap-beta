@@ -117,7 +117,7 @@ export async function POST(request: Request) {
   const systemPrompt = `You are an expert resume writer and career coach. Your job is to enhance and rewrite a member's existing resume to be more compelling for their target career.
 
 Key rules:
-- ONLY use information that exists in the provided resume and profile. Do NOT invent experiences, companies, degrees, or skills that aren't mentioned.
+- ONLY use information that exists in the provided resume and profile. Do NOT invent experiences, companies, degrees, or skills that are not mentioned.
 - Keep all real job titles, company names, and dates exactly as provided
 - Strengthen the language: use stronger action verbs, quantify achievements where possible
 - Add an ATS-friendly professional summary based on their actual experience

@@ -41,7 +41,7 @@ export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' |
 
 export type NavGroup = 'primary' | 'workflows' | 'people' | 'pipeline' | 'content' | 'insights' | 'manage';
 
-export type NavTab = 'journey' | 'tools' | 'connect' | 'me';
+export type NavTab = 'journey' | 'program' | 'jobs' | 'tools' | 'me';
 
 export type NavBadgeKey =
   | 'jobs_draft'
@@ -76,13 +76,14 @@ export type PortalNavItem = {
 };
 
 export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
-  journey: { label: 'My Journey', icon: 'route' },
-  tools: { label: 'Career Tools', icon: 'build' },
-  connect: { label: 'Connect', icon: 'group' },
-  me: { label: 'Me', icon: 'person' },
+  journey: { label: 'Home', icon: 'home' },
+  program: { label: 'Program', icon: 'school' },
+  jobs: { label: 'Jobs', icon: 'work' },
+  tools: { label: 'Tools', icon: 'construction' },
+  me: { label: 'Profile', icon: 'person' },
 };
 
-export const NAV_TAB_ORDER: NavTab[] = ['journey', 'tools', 'connect', 'me'];
+export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'tools', 'me'];
 
 export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   primary: null,
@@ -99,27 +100,46 @@ export const GROUP_ORDER: NavGroup[] = ['primary', 'people', 'pipeline', 'conten
 const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
 
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // ── My Journey tab ──
+  // ── Home tab ──
   { href: '/dashboard', label: 'Overview', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
-  { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'journey', Icon: BookOpen, tourTarget: 'tour-programs' },
-  { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'journey', Icon: GraduationCap },
-  { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'journey', Icon: CheckCircle },
-  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
-  { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'journey', Icon: ClipboardList },
+  // ── Program tab ──
+  { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'program', Icon: GraduationCap },
+  { href: '/dashboard/certifications', label: 'Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE
     ? [
         {
           href: '/dashboard/learning/wioa-qualification',
           label: 'Funding eligibility',
           group: 'insights',
-          tab: 'journey',
+          tab: 'program',
           Icon: Shield,
         } as PortalNavItem,
       ]
     : []),
-  // ── Career Tools tab ──
+  // ── Jobs tab ──
+  {
+    href: '/dashboard/jobs',
+    label: 'Job Board',
+    group: 'workflows',
+    tab: 'jobs',
+    Icon: Briefcase,
+    tourTarget: 'tour-jobs',
+  },
+  {
+    href: '/dashboard/job-applications',
+    label: 'Job Applications',
+    group: 'workflows',
+    tab: 'jobs',
+    Icon: FileText,
+    aliases: ['/dashboard/ai-tools/application-tracker', '/applications'],
+    badgeKey: 'applications_new',
+  },
+  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
+  { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'jobs', Icon: CheckCircle },
+  // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'tools', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
-  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'tools', Icon: FileText },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
@@ -145,45 +165,27 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     Icon: ClipboardCheck,
     aliases: ['/dashboard/assessments', '/dashboard/assessment'],
   },
-  { href: '/dashboard/certifications', label: 'Certificates', group: 'manage', tab: 'tools', Icon: Award, aliases: ['/certifications'] },
-  // ── Connect tab ──
-  {
-    href: '/dashboard/jobs',
-    label: 'Job Board',
-    group: 'workflows',
-    tab: 'connect',
-    Icon: Briefcase,
-    tourTarget: 'tour-jobs',
-  },
-  {
-    href: '/dashboard/job-applications',
-    label: 'Job Applications',
-    group: 'workflows',
-    tab: 'connect',
-    Icon: FileText,
-    aliases: ['/dashboard/ai-tools/application-tracker', '/applications'],
-    badgeKey: 'applications_new',
-  },
+  // ── Profile tab ──
+  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'me', Icon: BarChart3 },
   {
     href: '/dashboard/messages',
     label: 'Messages',
     group: 'workflows',
-    tab: 'connect',
+    tab: 'me',
     Icon: MessageSquare,
     badgeKey: 'counselor_messages_unread',
     tourTarget: 'tour-messages',
   },
-  { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', tab: 'connect', Icon: Layers, tourTarget: 'tour-resources' },
+  { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', tab: 'me', Icon: Layers, tourTarget: 'tour-resources' },
   {
     href: '/dashboard/help',
     label: 'Help & Support',
     group: 'manage',
-    tab: 'connect',
+    tab: 'me',
     Icon: HelpCircle,
     aliases: ['/help'],
   },
-  { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'connect', Icon: BookOpen },
-  // ── Me tab ──
+  { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'me', Icon: BookOpen },
   {
     href: '/dashboard/profile',
     label: 'Profile',

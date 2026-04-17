@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 
-// Create bucket "member-resumes" in Supabase Dashboard → Storage if it doesn't exist
+// Create bucket "member-resumes" in Supabase Dashboard → Storage if it does not exist
 const BUCKET = 'member-resumes';
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 

@@ -183,7 +183,7 @@ export async function buildCareerMatchResult(
     if (!occ) continue;
 
     // Self-healing: if the stored title is just the O*NET code, fetch the real
-    // title from O*NET so users don't see raw codes like "15-1252.00".
+    // title from O*NET so users do not see raw codes like "15-1252.00".
     let occupationTitle = occ.title;
     if (!occupationTitle || /^\d{2}-\d{4}\.\d{2}$/.test(occupationTitle)) {
       const fresh = await getOccupation(code);

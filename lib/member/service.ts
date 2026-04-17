@@ -70,7 +70,7 @@ export async function createMember(
       },
     });
 
-    // Best-effort: notify admins of new application (don't block signup)
+    // Best-effort: notify admins of new application (do not block signup)
     sendNewApplicationAdminEmail({
       applicantName: data.fullName,
       applicantEmail: data.email,

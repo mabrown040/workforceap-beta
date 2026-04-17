@@ -15,8 +15,8 @@ export const metadata: Metadata = buildPageMetadata({
 
 const FAQS = [
   {
-    q: "What if someone doesn't qualify?",
-    a: "If a candidate doesn't meet program requirements, let them know what the gaps are and encourage them to reapply when they're ready. Some candidates may qualify for a different program track — our team can help assess.",
+    q: "What if someone does not qualify?",
+    a: "If a candidate does not meet program requirements, let them know what the gaps are and encourage them to reapply when they're ready. Some candidates may qualify for a different program track — our team can help assess.",
   },
   {
     q: 'How do I know if my referral was accepted?',

@@ -148,9 +148,9 @@ export default function ElevatorPitchClient() {
 
         <button type="submit" className="btn btn-primary" disabled={generating || !name.trim() || !targetRole.trim()}>
           {generating ? (
-            <><span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }}>progress_activity</span> Writing your pitch…</>
+            <><span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span> Writing your pitch…</>
           ) : (
-            <><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>auto_awesome</span> Write My Elevator Pitch</>
+            <><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">auto_awesome</span> Write My Elevator Pitch</>
           )}
         </button>
       </form>
@@ -185,7 +185,7 @@ export default function ElevatorPitchClient() {
             We&apos;ll turn on your camera and mic. Read the pitch out loud — you&apos;ll see yourself and can play it back immediately.
           </p>
           <button type="button" onClick={() => void startRehearsal()} className="btn btn-primary">
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>videocam</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">videocam</span>
             Start Rehearsal Recording
           </button>
           {recordingError && <p style={{ color: 'var(--color-accent)', fontSize: '0.875rem', margin: 0 }}>{recordingError}</p>}
@@ -226,7 +226,7 @@ export default function ElevatorPitchClient() {
       {/* Controls */}
       {recording && !playbackUrl && (
         <button type="button" onClick={stopRecording} className="btn btn-primary" style={{ background: 'var(--color-accent)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>stop_circle</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">stop_circle</span>
           Stop Recording
         </button>
       )}
@@ -235,13 +235,13 @@ export default function ElevatorPitchClient() {
       {playbackUrl && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
           <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green, #4a9b4f)', verticalAlign: 'middle', fontVariationSettings: "'FILL' 1" }}>check_circle</span>{' '}
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green, #4a9b4f)', verticalAlign: 'middle', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>{' '}
             Playback — watch yourself!
           </p>
           <video ref={playbackRef} src={playbackUrl} controls playsInline style={{ width: '100%', borderRadius: '0.875rem', background: '#000', maxHeight: '320px', objectFit: 'cover' }} />
           <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
             <button type="button" onClick={resetRehearsal} className="btn btn-outline btn-sm">
-              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>replay</span> Record again
+              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">replay</span> Record again
             </button>
             <button type="button" onClick={() => setStep('pitch')} className="btn btn-outline btn-sm">
               Edit pitch
@@ -255,7 +255,7 @@ export default function ElevatorPitchClient() {
 
       {!recording && !playbackUrl && countdown === 0 && (
         <button type="button" onClick={() => void startRehearsal()} className="btn btn-outline btn-sm">
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>replay</span> Try again
+          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">replay</span> Try again
         </button>
       )}
     </div>

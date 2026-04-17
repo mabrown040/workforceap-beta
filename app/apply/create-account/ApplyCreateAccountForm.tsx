@@ -168,7 +168,7 @@ export default function ApplyCreateAccountForm() {
     if (!zip.trim()) {
       nextFieldErrors.zip = 'Enter your ZIP code.';
     } else if (!/^\d{5}(-\d{4})?$/.test(zip.trim())) {
-      nextFieldErrors.zip = 'Please enter a valid 5-digit ZIP code';
+      nextFieldErrors.zip = 'Use a valid 5-digit ZIP code (e.g. 78701).';
     }
     if (password.length < 8) {
       nextFieldErrors.password = 'Use at least 8 characters.';

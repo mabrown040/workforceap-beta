@@ -374,24 +374,6 @@ export default function SignupForm() {
         <div style={s.formContainer}>
           <h2 style={s.heading}>Create an account</h2>
 
-          {/* Social login */}
-          <div style={s.socialRow}>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
-              Google
-            </button>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">code</span>
-              GitHub
-            </button>
-          </div>
-
-          <div style={s.divider}>
-            <span style={s.dividerLine} />
-            <span>Or continue with</span>
-            <span style={s.dividerLine} />
-          </div>
-
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Full Name */}
             <div style={s.fieldGroup}>
@@ -572,12 +554,12 @@ export default function SignupForm() {
               disabled={submitStatus === 'loading'}
               style={{ ...s.primaryBtn, opacity: submitStatus === 'loading' ? 0.7 : 1 }}
             >
-              {submitStatus === 'loading' ? 'Creating account...' : 'Initialize Access'}
+              {submitStatus === 'loading' ? 'Creating your account…' : 'Create your account'}
             </button>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-            Already part of the archive?{' '}
+            Already have an account?{' '}
             <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>

@@ -718,7 +718,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <div className="portal-quick-grid-2x2">
             {([
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard/messages' },
+              { icon: 'support_agent', label: 'AI Coach', href: '/dashboard/readiness' },
               { icon: 'forum', label: 'Interview Prep', href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
             ] as const).map((action) => (

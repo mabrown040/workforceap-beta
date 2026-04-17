@@ -6,12 +6,12 @@ import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurfa
 /** Member home (`/dashboard`) — show all three voice options in a tighter horizontal row on desktop. */
 export default function MemberDashboardVoiceSection() {
   return (
-    <section aria-label="Voice assistants">
+    <section aria-label="AI coaches">
       <h2
         className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em]"
         style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}
       >
-        Voice assistants
+        AI coaches
       </h2>
       <div
         style={{
@@ -23,10 +23,10 @@ export default function MemberDashboardVoiceSection() {
       >
         <VoiceCoachLauncherCard
           {...readinessVoiceSurface}
-          title="Career Readiness"
-          description="Open your full readiness flow to talk through your next milestone, interview prep, and certifications."
+          title="AI Readiness Coach"
+          description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
           href="/dashboard/readiness"
-          ctaLabel="Open readiness coach"
+          ctaLabel="Talk to AI coach"
         />
         <VoiceCoachLauncherCard
           {...resumeCoachVoiceSurface}

@@ -18,7 +18,8 @@ export async function POST() {
       sourcePage: '/dashboard/readiness',
     }).catch(() => {});
 
-    const dynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
+    const memberDynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
+    const { member_name: _memberName, ...dynamicVariables } = memberDynamicVariables;
     const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('readiness', {
       dynamicVariables,
     });

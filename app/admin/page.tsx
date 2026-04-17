@@ -420,7 +420,7 @@ export default async function AdminPage() {
                 <table className="dashboard-table">
                   <thead>
                     <tr>
-                      {['Student', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
+                      {['Member', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
                         <th key={h}>{h}</th>
                       ))}
                     </tr>

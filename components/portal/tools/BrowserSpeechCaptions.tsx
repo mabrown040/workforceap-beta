@@ -122,7 +122,7 @@ export default function BrowserSpeechCaptions({ active }: Props) {
         Browser live captions (Web Speech API)
       </div>
       {err && (
-        <p style={{ fontSize: '0.82rem', color: '#b91c1c', margin: '0 0 0.5rem' }} role="alert">
+        <p style={{ fontSize: '0.82rem', color: 'var(--color-accent)', margin: '0 0 0.5rem' }} role="alert">
           {err}
         </p>
       )}

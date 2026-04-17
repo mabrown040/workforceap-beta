@@ -300,7 +300,7 @@ export default function VoiceInterviewScaffold() {
               />
             ) : null}
             {videoErr ? (
-              <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
+              <p style={{ color: 'var(--color-accent)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
             ) : null}
             <VoiceAgentSurface {...mockInterviewVoiceSurface}>
               <PortalVoiceSession

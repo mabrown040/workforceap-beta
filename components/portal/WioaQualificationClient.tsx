@@ -205,7 +205,7 @@ export default function WioaQualificationClient({
       >
         <div
           role="tablist"
-          aria-label="WIOA screening mode"
+          aria-label="Pre-check mode"
           style={{
             display: 'inline-flex',
             padding: '0.25rem',
@@ -423,7 +423,7 @@ export default function WioaQualificationClient({
             </div>
 
             {error ? (
-              <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
+              <p role="alert" style={{ color: 'var(--color-accent)', fontSize: '0.9rem' }}>
                 {error}
               </p>
             ) : null}

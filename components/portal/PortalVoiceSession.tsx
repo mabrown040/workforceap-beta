@@ -651,14 +651,15 @@ export default function PortalVoiceSession({
         </p>
         {voiceError ? (
           <div
+            role="alert"
             style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.25)',
+              background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
               borderRadius: 8,
               padding: '0.75rem 1rem',
               marginBottom: '1rem',
               fontSize: '0.85rem',
-              color: '#b91c1c',
+              color: 'var(--color-accent)',
             }}
           >
             {voiceError}

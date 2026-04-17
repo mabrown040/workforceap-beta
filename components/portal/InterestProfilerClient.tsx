@@ -131,7 +131,7 @@ export default function InterestProfilerClient() {
         <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>
           O*NET Interest Profiler
         </h1>
-        <p style={{ color: '#b91c1c' }}>{loadError}</p>
+        <p style={{ color: 'var(--color-accent)' }}>{loadError}</p>
         <p style={{ marginTop: '1rem', fontSize: '0.95rem', lineHeight: 1.6 }}>
           The Interest Profiler is provided by the U.S. Department of Labor through O*NET Web Services. Your site needs a
           valid <code>ONET_API_KEY</code> to load questions.
@@ -384,7 +384,7 @@ export default function InterestProfilerClient() {
       </fieldset>
 
       {scoreError && (
-        <p style={{ color: '#b91c1c', marginBottom: '1rem' }} role="alert">
+        <p style={{ color: 'var(--color-accent)', marginBottom: '1rem' }} role="alert">
           {scoreError}
         </p>
       )}

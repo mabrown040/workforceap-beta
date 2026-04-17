@@ -118,8 +118,8 @@ export default function ResumeAnalysisPanel({
                 borderRadius: '999px',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
-                background: 'rgba(211,47,47,0.1)',
-                color: '#d32f2f',
+                background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                color: 'var(--color-accent)',
               }}
             >
               {skill} ✗

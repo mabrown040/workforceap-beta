@@ -100,8 +100,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Empowering People.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
+            Career Training That Opens Doors.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>At No Cost to You.</span>
           </h1>
 
           <p style={{
@@ -111,7 +111,7 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
+            Government-funded career training with industry certificates, job coaching, and placement support — no cost to members.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
@@ -461,7 +461,7 @@ export default async function HomePage() {
           Resume Feedback in Minutes, Not Days
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-          Members get AI tools that sharpen your resume, practice interviews with questions specific to your target role, score your job match before you apply, and track applications — all inside your member portal.
+          Members get AI tools that sharpen your resume, practice interviews with questions specific to your target role, score your job match before you apply, and track applications — all in your WorkforceAP account.
         </p>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
           Voice coaching powered by <strong>ElevenLabs</strong>
@@ -484,9 +484,6 @@ export default async function HomePage() {
             </Link>
             <Link href="/apply" className="btn btn-large" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.5)', fontWeight: 700 }}>
               Start Your Application
-            </Link>
-            <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.35)', fontWeight: 600 }}>
-              View Program Details
             </Link>
           </div>
         </div>

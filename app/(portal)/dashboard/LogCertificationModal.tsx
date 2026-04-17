@@ -6,17 +6,19 @@ import { logExternalCertification } from './logCertAction';
 export default function LogCertificationModal() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const formData = new FormData(e.currentTarget);
       await logExternalCertification(formData);
       setOpen(false);
     } catch (err) {
       console.error(err);
-      alert('Failed to log certification');
+      setError('We couldn\'t log your certification. Try again in a moment.');
     }
     setLoading(false);
   };
@@ -45,6 +47,9 @@ export default function LogCertificationModal() {
           required
           style={{ padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid var(--outline-variant)' }}
         />
+        {error ? (
+          <p role="alert" style={{ fontSize: '0.85rem', color: 'var(--color-accent)', margin: 0 }}>{error}</p>
+        ) : null}
         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
           <button type="button" className="btn btn-ghost" onClick={() => setOpen(false)}>Cancel</button>
           <button type="submit" className="btn btn-primary" disabled={loading}>

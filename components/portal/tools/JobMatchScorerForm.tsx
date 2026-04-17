@@ -229,7 +229,7 @@ export default function JobMatchScorerForm() {
 
       if (!res.ok) {
         trackAIToolRun('errored', 'job-match-scorer', { reason: data.error ?? 'request_failed' });
-        setError(data.error ?? 'Something went wrong');
+        setError(data.error ?? 'We couldn't complete that. Try again in a moment.');
         return;
       }
 

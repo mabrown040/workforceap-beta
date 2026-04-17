@@ -30,7 +30,7 @@ export default function LinkedInHeadlineForm() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong');
+        setError(data.error ?? 'We couldn't complete that. Try again in a moment.');
         return;
       }
       setHeadlines(data.headlines ?? []);

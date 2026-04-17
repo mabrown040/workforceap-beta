@@ -111,7 +111,7 @@ export default function ResumeStrengthForm() {
 
       if (!res.ok) {
         trackAIToolRun('errored', 'resume-analysis', { reason: data.error ?? 'request_failed' });
-        setError(data.error ?? 'Something went wrong');
+        setError(data.error ?? 'We couldn't complete that. Try again in a moment.');
         return;
       }
 

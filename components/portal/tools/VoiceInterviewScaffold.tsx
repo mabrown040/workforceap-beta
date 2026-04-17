@@ -263,7 +263,7 @@ export default function VoiceInterviewScaffold() {
                 } catch (e) {
                   console.error('[VoiceInterviewScaffold] start failed', e);
                   setVideoErr(
-                    'Something went wrong starting the session. Try “Continue with voice only” below, or refresh the page.'
+                    'We couldn\'t start the session. Try “Continue with voice only” below, or refresh the page.'
                   );
                 } finally {
                   setCameraPriming(false);

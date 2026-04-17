@@ -240,7 +240,7 @@ export default function ApplyCreateAccountForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong — please try again.');
+        setError(data.error ?? 'We couldn\'t create your account. Try again, or call (512) 777-1808 for help.');
         trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: data.error ?? 'unknown_error' });
         setLoading(false);
         return;

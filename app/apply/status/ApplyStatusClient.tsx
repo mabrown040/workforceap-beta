@@ -21,7 +21,7 @@ export default function ApplyStatusClient() {
       });
       const data = (await r.json()) as { error?: string; found?: boolean; message?: string };
       if (!r.ok) {
-        setError(data.error ?? 'Something went wrong. Please try again.');
+        setError(data.error ?? 'We couldn\'t find your application status. Try again, or call (512) 777-1808 for help.');
         return;
       }
       if (typeof data.found === 'boolean' && data.message) {

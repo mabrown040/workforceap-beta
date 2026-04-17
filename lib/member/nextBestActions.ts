@@ -34,7 +34,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'submit_application',
       title: 'Submit a program application',
-      body: 'We don’t have an application on file yet. Apply so we can match you to funding and a counselor.',
+      body: "Takes about 10 minutes — we'll match you to a funded program and connect you with a counselor.",
       href: '/apply',
       cta: 'Start application',
       variant: 'urgent',

@@ -24,7 +24,7 @@ The 6 axes and what they measure:
 - Analytics: Data analysis, statistics, SQL, spreadsheets, business intelligence, machine learning, metrics, KPIs, quantitative reasoning
 - Engineering: Programming, software development, systems, networking, cloud, hardware, DevOps, automation, IT, cybersecurity, databases
 - Design: UX/UI design, graphic design, visual design, prototyping, wireframing, user research, content creation, branding, multimedia
-- Strategy: Project management, leadership, planning, agile/scrum, stakeholder management, business development, operations, budgeting, negotiation
+- Strategy: Project management, leadership, planning, agile/scrum, stakeholder management, business development, operations, budgeting, negotiation, sales, account management, pipeline management, quota attainment, CRM, territory management, closing deals, prospecting, B2B, SaaS sales, revenue growth, account executive, sales representative
 - Ethics: Compliance, HIPAA, privacy, customer service, communication, teamwork, mentoring, diversity, empathy, professionalism, safety regulations
 - Research: Academic research, technical writing, documentation, continuous learning, certifications, data collection, analysis methodology
 

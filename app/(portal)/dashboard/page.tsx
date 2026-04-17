@@ -28,8 +28,8 @@ import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Member overview',
-  description: 'Your WorkforceAP member portal overview.',
+  title: 'Your Dashboard',
+  description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
   path: '/dashboard',
 });
 
@@ -446,8 +446,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 )}
               </div>
 
-              {/* Progress ring */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
+              {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
                 <div
                   className="portal-progress-ring"
                   style={{
@@ -492,16 +492,54 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
                   {mobileProgressSummary}
                 </p>
-              </div>
+              </div>}
             </div>
 
+            {dashboardState !== 'A' && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
                 Training progress is based on completed courses. Your application steps are shown below.
               </p>
             </div>
+            )}
           </div>
         </section>
+
+        {/* ── State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ── */}
+        {dashboardState === 'A' && (
+          <section style={{ padding: '0 1.25rem 1.25rem' }}>
+            <Link
+              href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
+              style={{
+                display: 'block',
+                borderRadius: '1rem',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+                boxShadow: '0 6px 24px rgba(173,44,77,0.28)',
+                padding: '1.25rem',
+                textDecoration: 'none',
+              }}
+            >
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.78)', margin: '0 0 0.4rem' }}>
+                Your next step
+              </p>
+              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
+                {noApplicationOnFile
+                  ? 'Apply now — takes about 10 minutes'
+                  : 'Choose your training program'}
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
+                {noApplicationOnFile
+                  ? 'Career training at no cost to members, funded by grants and partnerships. We\'ll match you to a counselor and program.'
+                  : 'Pick the career track that fits your goals. No cost for members, funded through government partnerships.'}
+              </p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
+                <span>{noApplicationOnFile ? 'Start Your Application' : 'Choose Program'}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </div>
+            </Link>
+          </section>
+        )}
 
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />

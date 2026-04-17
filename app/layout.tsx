@@ -24,7 +24,7 @@ export const viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.workforceap.org'),
   title: {
-    default: '⭐ Virtual and Hybrid Occupation and Career Programs • Workforce Advancement Project',
+    default: 'Career Training at No Cost to Members | Workforce Advancement Project',
     template: '%s - Workforce Advancement Project',
   },
   description:

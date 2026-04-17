@@ -50,7 +50,7 @@ export function hasProdE2ECredentials(): boolean {
 }
 
 /**
- * UI login (matches `LoginForm`: Institutional ID + Access Key + AUTHENTICATE ACCESS).
+ * UI login (matches `LoginForm`: Email + Password + Sign In button).
  * Requires `E2E_MEMBER_EMAIL` and `E2E_MEMBER_PASSWORD`.
  */
 export async function loginMemberPortal(page: Page): Promise<void> {
@@ -63,8 +63,8 @@ export async function loginMemberPortal(page: Page): Promise<void> {
   // Important: once the cookie is bootstrapped, do NOT keep using `_vercel_share` on app routes.
   // In headless runs this can trigger a redirect to `vercel.com/login` instead of the app.
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
-  await page.getByLabel(/institutional id/i).fill(email);
-  await page.getByLabel(/access key/i).fill(password);
-  await page.getByRole('button', { name: /authenticate access/i }).click();
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
+  await page.getByRole('button', { name: /sign in/i }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 45_000 });
 }

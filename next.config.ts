@@ -133,6 +133,10 @@ const nextConfig: NextConfig = {
       { source: '/portal', destination: '/login', permanent: false },
       { source: '/portal/', destination: '/login', permanent: false },
 
+      // Supabase default sign-in path → actual login page (avoids 404 on magic-link redirects)
+      { source: '/auth/sign-in', destination: '/login', permanent: false },
+      { source: '/auth/sign-in/:path*', destination: '/login', permanent: false },
+
       // Subgroup "my group" portal removed — send to member dashboard
       { source: '/my-group', destination: '/dashboard', permanent: false },
       { source: '/my-group/:path*', destination: '/dashboard', permanent: false },

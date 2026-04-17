@@ -167,7 +167,7 @@ export default function DashboardHomeClient({
           Welcome back, {firstName}.
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
-          {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path — all programs are free.")}
+          {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path — programs are available at no cost to members.")}
           {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to unlock training.`}
           {state === 'C' && `Your mastery of ${programTitle ?? 'training'} is ${progressPct}% complete. Keep going.`}
           {state === 'D' && `All courses complete. Focus on job outcomes and career readiness.`}
@@ -263,7 +263,7 @@ export default function DashboardHomeClient({
               </div>
               <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '1rem' }}>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  We do not have an application on file for this account yet.
+                  Ready to get started? Your application takes about 10 minutes — and programs are available at no cost to members.
                 </p>
               </div>
               <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>

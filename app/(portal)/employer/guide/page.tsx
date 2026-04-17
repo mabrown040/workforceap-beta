@@ -7,7 +7,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'How WorkforceAP works for employers',
+  title: 'How It Works for Employers',
   description: 'Access vetted, job-ready talent in a few simple steps.',
   path: '/employer/guide',
 });
@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: "What's the 10% giveback?",
-    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program free for members.",
+    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program at no cost to members.",
   },
   {
     q: 'How are candidates screened?',

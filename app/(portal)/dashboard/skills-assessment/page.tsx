@@ -179,14 +179,13 @@ export default async function SkillsAssessmentPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, marginTop: '0.125rem' }} aria-hidden="true">help_outline</span>
                 <div>
                   <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
-                    Assessment not yet completed
+                    Take your skills snapshot
                   </h2>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: '0 0 1rem' }}>
-                    Complete a quick 10-minute skills snapshot so we can tailor your learning path and identify support resources.
-                    This step is required before accessing your training courses.
+                    A quick 10-minute assessment — finishing this unlocks your training courses and personalizes your learning plan.
                   </p>
                   <Link href="/dashboard/assessment" className="btn btn-primary" style={{ fontSize: '0.875rem' }}>
-                    Take Assessment
+                    Start assessment
                   </Link>
                 </div>
               </div>

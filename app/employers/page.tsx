@@ -4,9 +4,10 @@ import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
+import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Hire Certified Tech Graduates | WorkforceAP',
+  title: 'Hire Certified Tech Graduates',
   description:
     'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Serving employers nationwide.',
   path: '/employers',
@@ -108,7 +109,7 @@ const PARTNERSHIP_TIERS = [
 const PARTNER_LOGOS = ['Google', 'IBM', 'AWS', 'CompTIA', 'Microsoft'];
 
 const EMPLOYER_VALUE_CARDS = [
-  { stat: '19', label: 'Career tracks aligned to employer demand' },
+  { stat: String(WORKFORCEAP_PROGRAM_CATALOG_SIZE), label: 'Career tracks aligned to employer demand' },
   { stat: '1:1', label: 'WorkforceAP matching and support' },
   { stat: 'Ready', label: 'Support from intake through hiring' },
 ];

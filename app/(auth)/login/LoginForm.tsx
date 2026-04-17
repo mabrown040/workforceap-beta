@@ -154,7 +154,6 @@ const s = {
     border: '1px solid var(--outline-variant)',
     borderRadius: 'var(--radius-md)',
     color: 'var(--color-on-surface)',
-    outline: 'none',
     transition: 'border-color 0.2s',
   } as React.CSSProperties,
 
@@ -171,14 +170,14 @@ const s = {
 
   passwordToggle: {
     position: 'absolute' as const,
-    right: 12,
+    right: 4,
     top: '50%',
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
     color: 'var(--color-on-surface-variant)',
     cursor: 'pointer',
-    padding: 4,
+    padding: '10px 12px',
     display: 'flex',
     alignItems: 'center',
   } as React.CSSProperties,
@@ -278,6 +277,20 @@ const s = {
   fieldGroup: {
     marginBottom: 'var(--space-4)',
   } as React.CSSProperties,
+
+  trustBar: {
+    marginTop: 'var(--space-3)',
+    textAlign: 'center' as const,
+    fontSize: '0.75rem',
+    color: 'var(--color-on-surface-variant)',
+    opacity: 0.65,
+    letterSpacing: '0.01em',
+  } as React.CSSProperties,
+
+  trustDot: {
+    margin: '0 var(--space-2)',
+    opacity: 0.5,
+  } as React.CSSProperties,
 } as const;
 
 type LoginFormProps = {
@@ -301,6 +314,8 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showStaffPortals, setShowStaffPortals] = useState(
     () => redirectTo !== '/dashboard',
@@ -309,6 +324,19 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Inline field validation — calm, member-friendly messages
+    let hasFieldError = false;
+    if (!email.trim()) {
+      setEmailError('Please enter your email address.');
+      hasFieldError = true;
+    }
+    if (!password) {
+      setPasswordError('Please enter your password.');
+      hasFieldError = true;
+    }
+    if (hasFieldError) return;
+
     setLoading(true);
 
     try {
@@ -371,7 +399,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             Your Career Starts Here
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.8, lineHeight: 'var(--line-height-normal)' }}>
-            Workforce Advancement Project — free career training, certificates, and job placement support.
+            Workforce Advancement Project — career training, certificates, and job placement support at no cost to members.
           </p>
         </div>
       </div>
@@ -398,7 +426,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                     href={href}
                     aria-current={active || undefined}
                     style={{
-                      padding: '6px 10px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      minHeight: 44,
+                      padding: '6px 12px',
                       fontSize: 'var(--font-size-sm)',
                       fontWeight: 600,
                       borderRadius: 'var(--radius-sm)',
@@ -418,7 +449,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   type="button"
                   onClick={() => setShowStaffPortals(true)}
                   style={{
-                    padding: '6px 10px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    minHeight: 44,
+                    padding: '6px 12px',
                     fontSize: 'var(--font-size-sm)',
                     fontWeight: 500,
                     borderRadius: 'var(--radius-sm)',
@@ -445,12 +479,18 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 autoComplete="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null); }}
                 required
-                aria-invalid={!!error}
-                aria-describedby="login-error"
-                style={s.input}
+                aria-invalid={!!emailError || !!error}
+                aria-describedby={emailError ? 'email-error' : error ? 'login-error' : undefined}
+                className="login-field"
+                style={{ ...s.input, ...(emailError ? { borderColor: 'var(--color-accent)' } : {}) }}
               />
+              {emailError && (
+                <p id="email-error" role="alert" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-1)', margin: 'var(--space-1) 0 0' }}>
+                  {emailError}
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -466,11 +506,12 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   autoComplete="current-password"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); if (passwordError) setPasswordError(null); }}
                   required
-                  aria-invalid={!!error}
-                  aria-describedby="login-error"
-                  style={s.input}
+                  aria-invalid={!!passwordError || !!error}
+                  aria-describedby={passwordError ? 'password-error' : error ? 'login-error' : undefined}
+                  className="login-field"
+                  style={{ ...s.input, ...(passwordError ? { borderColor: 'var(--color-accent)' } : {}) }}
                 />
                 <button
                   type="button"
@@ -484,6 +525,11 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   </span>
                 </button>
               </div>
+              {passwordError && (
+                <p id="password-error" role="alert" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-1)', margin: 'var(--space-1) 0 0' }}>
+                  {passwordError}
+                </p>
+              )}
             </div>
 
             {/* Maintain session checkbox */}
@@ -517,6 +563,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </button>
           </form>
 
+          {/* Trust bar — reassurance at the moment of login friction */}
+          <p style={s.trustBar} aria-label="Program credentials">
+            <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
+            Secure
+            <span style={s.trustDot} aria-hidden="true">·</span>
+            No-cost to members
+            <span style={s.trustDot} aria-hidden="true">·</span>
+            Government-funded program
+          </p>
+
           {/* Third-party divider */}
           <div style={s.divider}>
             <span style={s.dividerLine} />
@@ -532,7 +588,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </button>
             <button type="button" style={s.socialBtn}>
               <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">fingerprint</span>
-              Fingerprint
+              Passkey
             </button>
           </div>
 
@@ -544,18 +600,19 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </Link>
           </p>
 
-          {/* Footer status */}
-          <div style={s.footer}>
-            <span style={s.statusDot} />
-            System Online
-          </div>
+          {/* Footer — minimal; status dot removed (meaningless to members) */}
         </div>
       </div>
 
-      {/* Responsive: hide brand panel on mobile */}
+      {/* Responsive: hide brand panel on mobile; accessible focus rings */}
       <style>{`
         @media (max-width: 768px) {
           .login-brand-panel { display: none !important; }
+        }
+        .login-field:focus {
+          outline: 2px solid var(--color-accent);
+          outline-offset: 2px;
+          border-color: var(--color-accent);
         }
       `}</style>
     </div>

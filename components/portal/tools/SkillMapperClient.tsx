@@ -86,6 +86,29 @@ const DEMO_SKILLS = [
   { name: 'Communication', score: 61, importance: 'Medium' },
 ];
 
+// Sales / non-tech demo — weighted toward Strategy + Ethics axes (reflects actual O*NET data)
+const DEMO_SALES_RADAR = [
+  { axis: 'Analytics', value: 0.44 },
+  { axis: 'Engineering', value: 0.18 },
+  { axis: 'Design', value: 0.22 },
+  { axis: 'Strategy', value: 0.78 },
+  { axis: 'Ethics', value: 0.82 },
+  { axis: 'Research', value: 0.38 },
+];
+const DEMO_SALES_SKILLS = [
+  { name: 'Active Listening', score: 88, importance: 'High' },
+  { name: 'Speaking', score: 85, importance: 'High' },
+  { name: 'Sales and Marketing', score: 82, importance: 'High' },
+  { name: 'Persuasion', score: 80, importance: 'High' },
+  { name: 'Service Orientation', score: 76, importance: 'Medium' },
+];
+
+/** Returns true when a search query or occupation title looks like a sales/non-tech role. */
+function isSalesQuery(text: string): boolean {
+  const t = text.toLowerCase();
+  return /\b(sales|account exec|account manager|ae\b|bdr\b|sdr\b|salesforce|crm|customer success|business dev|marketing manager)\b/.test(t);
+}
+
 function RadarChart({ data }: { data: { axis: string; value: number }[] }) {
   const size = 240;
   const cx = size / 2, cy = size / 2, r = 90;
@@ -489,12 +512,20 @@ export default function SkillMapperClient() {
       if (data.occupations?.length) {
         setOccupations(data.occupations);
       } else {
-        setError(data.error || 'No occupations found. Showing demo data.');
-        setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true); setSelectedTitle('Software Developer (Demo)');
+        const useSales = isSalesQuery(query);
+        setError('');
+        setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+        setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+        setUsingDemo(true);
+        setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
       }
     } catch {
-      setError('Search failed. Showing demo data.');
-      setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true); setSelectedTitle('Software Developer (Demo)');
+      const useSales = isSalesQuery(query);
+      setError('');
+      setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+      setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+      setUsingDemo(true);
+      setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
     }
     setLoading(false);
   };
@@ -508,11 +539,17 @@ export default function SkillMapperClient() {
         setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
         setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
       } else {
-        setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true);
+        const useSales = isSalesQuery(title);
+        setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+        setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+        setUsingDemo(true);
       }
       if (data.matchedPrograms?.length) setMatchedPrograms(data.matchedPrograms);
     } catch {
-      setRadarData(DEMO_RADAR); setSkills(DEMO_SKILLS); setUsingDemo(true);
+      const useSales = isSalesQuery(title);
+      setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
+      setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
+      setUsingDemo(true);
     }
     setLoadingSkills(false);
   };
@@ -599,7 +636,7 @@ export default function SkillMapperClient() {
             <>
               {usingDemo && (
                 <div style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.3)', borderRadius: '0.5rem', padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--color-on-surface)' }}>
-                  ⚠️ Showing demo data. O*NET integration is being configured.
+                  These are sample skill ranges for this occupation — for personalized results, upload your resume or complete the Interest Profiler.
                 </div>
               )}
               <h3 className="ai-tool-section-title">{selectedTitle}</h3>
@@ -730,7 +767,7 @@ export default function SkillMapperClient() {
                   <div style={{ marginBottom: '0.75rem' }}>
                     <DualRadarChart memberData={memberProfile} targetData={radarData} />
                   </div>
-                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '1.5rem', fontSize: '0.8125rem' }}>
+                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--color-blue, #2b7bb9)' }} />
                       Your skills
@@ -740,6 +777,11 @@ export default function SkillMapperClient() {
                       Target occupation
                     </span>
                   </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                    Your profile reflects what we found in your resume and certifications.
+                    {' '}<a href="/dashboard/learning/interest-profiler" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Complete the Interest Profiler</a> or{' '}
+                    <a href="/dashboard/resume" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>update your resume</a> to show more of your experience.
+                  </p>
                 </>
               ) : (
                 <>

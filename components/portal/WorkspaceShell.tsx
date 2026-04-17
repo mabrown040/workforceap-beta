@@ -283,10 +283,9 @@ export default function WorkspaceShell({
           ) : null}
           {portalRoles && portalRoles.length > 1 ? (
             <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
-          ) : null}
-          {/* SuperAdminViewSwitcher is a direct child so the mobile CSS
-              selector can keep it visible while hiding everything else */}
-          <SuperAdminViewSwitcher />
+          ) : (
+            <SuperAdminViewSwitcher />
+          )}
           {/* Global search — admin only, hidden on mobile */}
           {portalRole === 'admin' && (
             <div className="wa-hidden wa-md:wa-block">

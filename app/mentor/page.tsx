@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Become a Mentor | WorkforceAP',
+  title: 'Become a Mentor',
   description: 'Volunteer your expertise to help job-seekers advance their careers. Log hours, earn a tax deduction letter, and give back to your community.',
   path: '/mentor',
 });

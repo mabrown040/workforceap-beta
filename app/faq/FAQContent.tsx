@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const categories = [
   { key: 'General Questions', icon: 'help_outline' },
-  { key: 'Admissions', icon: 'how_to_reg' },
+  { key: 'Applying & Eligibility', icon: 'how_to_reg' },
   { key: 'Cost & Funding', icon: 'payments' },
   { key: 'Programs & Training', icon: 'school' },
   { key: 'Job Placement', icon: 'work' },
@@ -25,7 +25,7 @@ const faqData: Record<string, { q: string; a: string; link?: { text: string; hre
     { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Our Digital Literacy track is shorter at 6–7 weeks. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
     { q: 'Can I talk to someone before I apply?', a: 'Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.', link: { text: 'Contact Us', href: '/contact' } },
   ],
-  Admissions: [
+  'Applying & Eligibility': [
     { q: 'What if I\'m not technical?', a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history, no prior tech experience required. We've helped career-changers, people re-entering the workforce, and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to showing up and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
     { q: "What if I'm starting over?", a: "Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, are leaving a difficult situation, or are just ready for a different path — we work with you from where you are now. Your counselor will help you pick the right program, set a realistic pace, and stay on track through the whole process.", link: { text: 'Find Your Path', href: '/find-your-path' } },
     { q: 'What are the eligibility requirements?', a: 'Requirements vary by pathway and funding source. WorkforceAP reviews your goals, location, readiness, and any funding options that may apply, then helps you understand the right next step.', link: { text: 'View All Programs', href: '/programs' } },
@@ -49,14 +49,14 @@ const faqData: Record<string, { q: string; a: string; link?: { text: string; hre
   'Job Placement': [
     { q: 'Do you help members find jobs?', a: 'Yes. WorkforceAP provides support like resume help, interview prep, career guidance, and employer-facing support as members move toward job readiness.', link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
     { q: 'What kind of jobs will I qualify for?', a: 'Entry-level to mid-level roles in IT, cybersecurity, data analytics, project management, healthcare, and skilled trades. Starting salaries range from $38K to $145K depending on the program.', link: { text: 'See Salary Guide', href: '/salary-guide' } },
-    { q: 'How soon after graduating can I get hired?', a: 'Hiring timelines vary by market, role, location, and the path you choose. Many members begin preparing and applying during training so they are ready for the next step as they finish.', link: { text: 'Read Career Tips', href: '/blog' } },
+    { q: 'How soon after completing the program can I get hired?', a: 'Hiring timelines vary by market, role, location, and the path you choose. Many members begin preparing and applying during training so they are ready for the next step as they finish.', link: { text: 'Read Career Tips', href: '/blog' } },
   ],
   'For Members': [
     { q: 'What support do I get during training?', a: 'You receive a dedicated counselor, access to our member portal with career readiness tools (resume help, interview practice), and job placement assistance from intake through your first job.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
     { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned a counselor who supports you from intake through job placement. Your counselor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
     { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. The 10-hour weekly commitment is manageable alongside most work schedules.', link: { text: 'Check Program Flexibility', href: '/programs' } },
     { q: 'What if I fall behind?', a: "Your counselor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.", link: { text: 'Meet the Team', href: '/leadership' } },
-    { q: 'Is this too good to be true?', a: "We get it — free training with job placement sounds skeptical. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not your tuition.", link: { text: 'Meet the Team', href: '/leadership' } },
+    { q: 'Is this too good to be true?', a: "We get it — training at no cost to members can sound skeptical. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.", link: { text: 'Meet the Team', href: '/leadership' } },
   ],
   'For Employers': [
     { q: 'How do employer partnerships work?', a: 'We train and certify job-ready candidates in high-demand fields. Employers gain access to a pipeline of pre-vetted, certified talent at no recruitment cost. We handle training, you handle hiring.', link: { text: 'Partner With Us', href: '/partners' } },
@@ -67,7 +67,7 @@ const faqData: Record<string, { q: string; a: string; link?: { text: string; hre
 };
 
 const sidebarGroups = [
-  { label: 'General Questions', keys: ['General Questions', 'Admissions', 'Cost & Funding'] },
+  { label: 'General Questions', keys: ['General Questions', 'Applying & Eligibility', 'Cost & Funding'] },
   { label: 'For Members', keys: ['Programs & Training', 'Job Placement', 'For Members'] },
   { label: 'For Employers', keys: ['For Employers'] },
 ];

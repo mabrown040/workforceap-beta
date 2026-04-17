@@ -151,6 +151,22 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       title: 'Computer Systems Engineers/Architects',
       description: 'Design and develop solutions to complex applications problems, system administration issues, or network concerns.',
     },
+    // Sales & Marketing
+    {
+      code: '41-4012.00',
+      title: 'Sales Representatives, Wholesale and Manufacturing',
+      description: 'Sell goods for wholesalers or manufacturers to businesses or groups. May require technical knowledge of the products.',
+    },
+    {
+      code: '11-2021.00',
+      title: 'Marketing Managers',
+      description: 'Plan, direct, or coordinate marketing policies and programs, such as determining demand for products and services.',
+    },
+    {
+      code: '11-2022.00',
+      title: 'Sales Managers',
+      description: 'Plan, direct, or coordinate the distribution of products or services to customers. Establish sales territories and goals.',
+    },
   ];
 
   for (const o of occupations) {
@@ -470,6 +486,34 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       whyRecommended: 'Warehouse operations, inventory management, and shipping for entry-level logistics.',
     },
 
+    // ── Digital Marketing → Sales & Marketing roles ──
+    {
+      onetCode: '11-2021.00',
+      programSlug: 'digital-marketing-e-commerce-google',
+      priority: 1,
+      experienceBand: 'beginner',
+      recommendationType: 'primary',
+      whyRecommended: 'SEO, SEM, email marketing, and analytics directly aligned with marketing manager responsibilities.',
+    },
+    {
+      onetCode: '41-4012.00',
+      programSlug: 'digital-marketing-e-commerce-google',
+      priority: 2,
+      experienceBand: 'some_experience',
+      recommendationType: 'bridge',
+      whyRecommended: 'Digital marketing and e-commerce skills are core tools for modern sales representatives.',
+    },
+
+    // ── Project Management → Sales Management ──
+    {
+      onetCode: '11-2022.00',
+      programSlug: 'project-management-professional-certificate-microsoft',
+      priority: 2,
+      experienceBand: 'experienced',
+      recommendationType: 'bridge',
+      whyRecommended: 'Agile, stakeholder management, and resource planning skills apply directly to sales team leadership.',
+    },
+
     // ── Construction Readiness (OSHA-10) ──
     {
       onetCode: '47-2061.00',
@@ -578,6 +622,20 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
       boostOnetCode: '13-1082.00',
       weight: 2,
       reasonText: 'Extra weight for business/management interest.',
+    },
+    {
+      ruleKey: 'boost_sales_q1',
+      inputSignal: { q1: 'sales' },
+      boostOnetCode: '41-4012.00',
+      weight: 2,
+      reasonText: 'Extra weight for sales/account management interest.',
+    },
+    {
+      ruleKey: 'boost_marketing_managers_q1',
+      inputSignal: { q1: 'marketing' },
+      boostOnetCode: '11-2021.00',
+      weight: 2,
+      reasonText: 'Extra weight when user selects marketing interest (manager track).',
     },
   ];
 

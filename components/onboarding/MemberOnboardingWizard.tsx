@@ -66,7 +66,7 @@ export default function MemberOnboardingWizard({
     const addressOk =
       addressLine1.trim().length > 0 && city.trim().length > 0 && stateVal.trim().length > 0 && zip.trim().length > 0;
     if (!phoneOk || !addressOk) {
-      return 'Phone and address are required for membership.';
+      return 'Please add a phone number and home address to continue.';
     }
     return null;
   };

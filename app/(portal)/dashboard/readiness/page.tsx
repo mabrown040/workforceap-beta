@@ -199,7 +199,7 @@ export default async function DashboardReadinessPage() {
           </div>
           <ReadinessMemberClient
             initialSections={checklistSections ?? []}
-            loadError={checklistSections === null ? 'We could not load your counselor checklist. Refresh the page or try again shortly.' : null}
+            loadError={checklistSections === null ? 'Couldn\'t load your checklist — try refreshing the page.' : null}
           />
         </div>
       </div>

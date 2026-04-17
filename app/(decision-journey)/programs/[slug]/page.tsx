@@ -29,9 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const certClause = externalPartners.includes(program.partner)
     ? ` Earn your ${program.partner}-recognized certification.`
     : '';
-  const description = `Free ${program.title} training. ${program.duration}.${certClause} Starting salary ${salaryRange}. No cost for qualifying individuals. Apply today.`;
+  const description = `Training in ${program.title} offered at no cost to members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
   return buildPageMetadata({
-    title: `Free ${program.title} Training & Certification`,
+    title: `${program.title} Training & Certification`,
     description,
     path: `/programs/${slug}`,
   });

@@ -26,6 +26,8 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['python', 'Analytics', 70], ['machine learning', 'Analytics', 85],
   ['business intelligence', 'Analytics', 75], ['reporting', 'Analytics', 65],
   ['metrics', 'Analytics', 60], ['kpi', 'Analytics', 65],
+  ['forecasting', 'Analytics', 68], ['revenue', 'Analytics', 62],
+  ['pipeline analysis', 'Analytics', 68],
   // Engineering / Technical
   ['programming', 'Engineering', 80], ['software', 'Engineering', 75],
   ['javascript', 'Engineering', 80], ['typescript', 'Engineering', 80],
@@ -43,7 +45,7 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['graphic', 'Design', 70], ['prototyping', 'Design', 75],
   ['user research', 'Design', 75], ['wireframe', 'Design', 70],
   ['branding', 'Design', 65], ['content creation', 'Design', 60],
-  // Strategy
+  // Strategy — general
   ['project management', 'Strategy', 80], ['pmp', 'Strategy', 85],
   ['strategy', 'Strategy', 75], ['leadership', 'Strategy', 75],
   ['management', 'Strategy', 70], ['planning', 'Strategy', 70],
@@ -51,8 +53,19 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['stakeholder', 'Strategy', 70], ['cross-functional', 'Strategy', 70],
   ['agile', 'Strategy', 75], ['scrum', 'Strategy', 75],
   ['product management', 'Strategy', 80], ['business development', 'Strategy', 70],
+  ['negotiation', 'Strategy', 65], ['negotiating', 'Strategy', 65],
+  // Strategy — sales/AE-specific (account executives and sales roles produce these terms)
   ['sales', 'Strategy', 65], ['account management', 'Strategy', 68],
-  ['negotiation', 'Strategy', 65], ['quota', 'Strategy', 60],
+  ['quota', 'Strategy', 60], ['quota attainment', 'Strategy', 72],
+  ['account executive', 'Strategy', 75], ['sales representative', 'Strategy', 70],
+  ['sales manager', 'Strategy', 75], ['business development representative', 'Strategy', 70],
+  ['pipeline', 'Strategy', 70], ['prospecting', 'Strategy', 70],
+  ['territory', 'Strategy', 68], ['territory management', 'Strategy', 72],
+  ['closing', 'Strategy', 68], ['crm', 'Strategy', 68],
+  ['hubspot', 'Strategy', 68], ['salesforce', 'Strategy', 65],
+  ['contract', 'Strategy', 65], ['revenue growth', 'Strategy', 72],
+  ['b2b', 'Strategy', 68], ['saas', 'Strategy', 65],
+  ['forecasting', 'Strategy', 70],
   // Ethics
   ['compliance', 'Ethics', 70], ['hipaa', 'Ethics', 75],
   ['gdpr', 'Ethics', 75], ['privacy', 'Ethics', 70],
@@ -61,6 +74,11 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['mentoring', 'Ethics', 65], ['coaching', 'Ethics', 65],
   ['collaboration', 'Ethics', 60], ['teamwork', 'Ethics', 60],
   ['interpersonal', 'Ethics', 65], ['empathy', 'Ethics', 65],
+  // Ethics — sales/client-facing (AE roles have strong relationship/communication signals)
+  ['client relationship', 'Ethics', 72], ['client management', 'Ethics', 68],
+  ['relationship building', 'Ethics', 70], ['outreach', 'Ethics', 68],
+  ['cold call', 'Ethics', 65], ['discovery call', 'Ethics', 65],
+  ['presentations', 'Ethics', 68],
   // Research
   ['research', 'Research', 75], ['writing', 'Research', 70],
   ['technical writing', 'Research', 80], ['documentation', 'Research', 70],

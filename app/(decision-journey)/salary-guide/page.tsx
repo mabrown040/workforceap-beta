@@ -25,7 +25,7 @@ const insights = [
   {
     icon: 'trending_up',
     title: 'Career growth',
-    desc: 'Most graduates see meaningful increases inside 2-3 years once they are in-role. Pick a track you can complete; we help match ramp to your life.',
+    desc: 'Most members see meaningful increases inside 2-3 years once they are in-role. Pick a track you can complete; we help match ramp to your life.',
   },
   {
     icon: 'location_on',
@@ -272,7 +272,7 @@ export default function SalaryGuidePage() {
           <div style={{ marginTop: '4rem', marginBottom: '3rem' }}>
             <h2 className="text-display-sm" style={{ marginBottom: '0.5rem' }}>Growth Trajectory</h2>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', maxWidth: '600px' }}>
-              Most graduates see meaningful increases inside 2-3 years. Here is the typical career arc.
+              Most members see meaningful increases inside 2-3 years. Here is the typical career arc.
             </p>
             <div style={{
               display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem',
@@ -308,7 +308,7 @@ export default function SalaryGuidePage() {
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">download</span>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Ready to take the next step?</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Apply for free — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost, no obligation.
+              Apply with no application fee — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost to members, no obligation.
             </p>
             <Link href="/apply" className="btn btn-primary">
               Apply Now

@@ -45,7 +45,7 @@ export default async function ProgramPage() {
         <div className="portal-pad-x" style={{ paddingBottom: '6rem' }}>
           <PageHeader
             title="Choose your program"
-            subtitle="Select one program. This is a one-time choice — funding is tied to a single program enrollment."
+            subtitle="Pick your track. Funding covers one program at a time — your counselor can help you switch later if your goals change."
             breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'My Program' }]}
           />
           <ProgramPicker programs={pickerPrograms.length ? pickerPrograms : []} />

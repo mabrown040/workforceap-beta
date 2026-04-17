@@ -12,7 +12,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Blog | Career Tips & Training News',
   description:
-    'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Free tech and career training advice for career-ready individuals nationwide.',
+    'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Career training advice, job-readiness guidance, and workforce insights for individuals nationwide.',
   path: '/blog',
 });
 

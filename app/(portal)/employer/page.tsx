@@ -10,7 +10,6 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voice';
@@ -334,7 +333,6 @@ export default async function EmployerDashboardPage() {
             )}
           </div>
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">

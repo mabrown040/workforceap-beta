@@ -10,7 +10,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Career Training & Industry Certificates | Workforce Advancement Project',
+  title: 'Career Training & Industry Certificates',
   description:
     'Occupational and career training at no cost to members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
   path: '/',
@@ -107,42 +107,52 @@ export default async function HomePage() {
           <p style={{
             fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.25rem)',
             color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
-            maxWidth: '640px',
+            maxWidth: '560px',
             marginBottom: '2.5rem',
-            lineHeight: 1.7,
+            lineHeight: 1.6,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, and Workforce Readiness with AI-powered tools designed to help people move forward.
+            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
               Find Your Career
             </Link>
+            {/* A/B experiment CTA — hidden on mobile to reduce CTA overload; text link below covers apply path */}
             <ExperimentedCtaLink
               experiment="home_apply_primary_cta"
               variants={[
                 {
                   id: 'control',
-                  label: 'Apply Now — Free',
-                  className: 'btn btn-outline btn-large',
+                  label: 'Apply Now',
+                  className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
                 {
                   id: 'urgency',
                   label: 'Start Your Application',
-                  className: 'btn btn-outline btn-large',
+                  className: 'btn btn-outline btn-large home-hero-outline-cta',
                   href: '/apply',
                   style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
                 },
               ]}
             />
-            <Link href="/partners" className="btn btn-large home-hero-partner-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.2rem)' }}>
-              Partner With Us
-            </Link>
-            <Link href="/employers" className="btn btn-outline btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
-              For Employers
-            </Link>
+          </div>
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
+              <span>✓ Government-funded</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span>✓ No credit card required</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span>✓ No cost for members</span>
+            </p>
+            {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
+            <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
+              <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+                Ready to apply? Start your application →
+              </Link>
+            </p>
           </div>
         </div>
       </section>
@@ -150,10 +160,10 @@ export default async function HomePage() {
       {/* ===== Social Proof / Credibility Bar ===== */}
       <section className="home-credibility-bar" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
-          <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.4, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
-            Learning content and credential pathways from industry leaders
+          <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
+            Certifications recognized by employers — powered by
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.4 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.65 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
             <span style={{ fontSize: "1.25rem", fontWeight: 700 }}>AT&T</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
@@ -192,7 +202,7 @@ export default async function HomePage() {
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  No tuition costs for training
+                  No cost for members
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
@@ -200,11 +210,11 @@ export default async function HomePage() {
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  Workforce Readiness through AI-powered tools
+                  Resume, interview, and job search support
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  Resume review, interview prep, and employer introductions
+                  Direct employer connections and job placement support
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -278,7 +288,7 @@ export default async function HomePage() {
               25+ Years Breaking Barriers
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              WorkforceAP is a national nonprofit and 501(c)(3) built on 25+ years of workforce development experience. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
+              WorkforceAP is a national nonprofit and 501(c)(3) built on 25+ years of workforce development experience. Built in Austin. Available nationwide. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
               We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost to members through WorkforceAP and partner-backed pathways.
@@ -367,7 +377,7 @@ export default async function HomePage() {
           </span>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>Explore Our {programCount} Programs</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>
-            Specialized career paths designed to bridge the skills gap in high-growth industries.
+            Career training that prepares you for jobs employers are hiring for right now.
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
@@ -445,7 +455,7 @@ export default async function HomePage() {
       {/* ===== AI-Powered Career Support ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-          AI-Powered Career Support
+          Career Tools
         </span>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
           Resume Feedback in Minutes, Not Days
@@ -466,7 +476,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No tuition cost to members.
+            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No cost for members.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

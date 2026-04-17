@@ -5,7 +5,7 @@ import JobApplicationsTracker from '@/components/portal/JobApplicationsTracker';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = {
-  title: 'Application Tracker | WorkforceAP',
+  title: 'Application Tracker',
   description: 'Track your job applications and interview progress',
 };
 

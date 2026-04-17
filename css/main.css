@@ -8789,6 +8789,8 @@ html.dark .portal-nav {
     justify-content: space-between;
     gap: 0.75rem 1.25rem;
     padding: 0.72rem 1.25rem;
+    /* PWA on notched iPhones (black-translucent status bar + viewport-fit=cover): push content below the notch */
+    padding-top: max(0.72rem, env(safe-area-inset-top, 0.72rem));
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur-xl);
     -webkit-backdrop-filter: var(--glass-blur-xl);
@@ -9401,6 +9403,15 @@ html.dark .workspace-sidebar-signout:hover {
     min-width: 0;
     padding: 1.25rem 1rem;
     width: 100%;
+}
+/* Clear fixed bottom nav on mobile for portal roles that show it */
+@media (max-width: 767px) {
+    html[data-portal-role="member"] .workspace-shell-main,
+    html[data-portal-role="employer"] .workspace-shell-main,
+    html[data-portal-role="partner"] .workspace-shell-main,
+    html[data-portal-role="counselor"] .workspace-shell-main {
+        padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
 }
 .workspace-super-admin-banner {
     max-width: var(--max-width);

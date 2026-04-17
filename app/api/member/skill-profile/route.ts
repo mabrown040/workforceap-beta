@@ -62,7 +62,7 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['pipeline', 'Strategy', 70], ['prospecting', 'Strategy', 70],
   ['territory', 'Strategy', 68], ['territory management', 'Strategy', 72],
   ['closing', 'Strategy', 68], ['crm', 'Strategy', 68],
-  ['hubspot', 'Strategy', 68], ['salesforce', 'Strategy', 65],
+  ['hubspot', 'Strategy', 68],
   ['contract', 'Strategy', 65], ['revenue growth', 'Strategy', 72],
   ['b2b', 'Strategy', 68], ['saas', 'Strategy', 65],
   ['forecasting', 'Strategy', 70],

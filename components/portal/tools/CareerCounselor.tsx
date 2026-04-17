@@ -196,7 +196,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </p>
 
         {voiceError && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.85rem', color: '#fca5a5' }}>
+          <div role="alert" style={{ background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.85rem', color: 'var(--color-accent)' }}>
             {voiceError}
           </div>
         )}

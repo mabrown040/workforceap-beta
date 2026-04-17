@@ -174,7 +174,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
     <section
       style={{
         marginTop: '1.5rem',
-        border: '1px solid #ebe7e7',
+        border: '1px solid var(--outline-variant)',
         borderRadius: '1rem',
         background: '#fff',
         padding: isMobile ? '1rem' : '1.25rem',
@@ -348,7 +348,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
           <div
             style={{
               borderRadius: '0.9rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
               background: '#fff',
               padding: '1rem',
             }}
@@ -404,7 +404,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
               {radarAxes.map((axis) => (
                 <div key={axis.axis} style={{ display: 'grid', gridTemplateColumns: isMobile ? '84px 1fr 36px' : '110px 1fr 42px', gap: isMobile ? '0.5rem' : '0.75rem', alignItems: 'center', minWidth: 0 }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{axis.axis}</span>
-                  <div style={{ height: axis.hasData === false ? '1rem' : '0.5rem', background: '#f0edec', borderRadius: '999px', overflow: 'hidden', transition: 'height 0.2s' }}>
+                  <div style={{ height: axis.hasData === false ? '1rem' : '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '999px', overflow: 'hidden', transition: 'height 0.2s' }}>
                     {axis.hasData === false ? (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span style={{ fontSize: '0.6rem', color: '#999', fontStyle: 'italic', lineHeight: 1 }}>no data</span>
@@ -431,7 +431,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
           <div
             style={{
               borderRadius: '0.9rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
               background: '#fff',
               padding: '1rem',
             }}
@@ -441,7 +441,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
             </h3>
             <div style={{ display: 'grid', gap: '0.65rem' }}>
               {topSkills.map((skill) => (
-                <div key={skill.id} style={{ borderTop: '1px solid #f0edec', paddingTop: '0.65rem' }}>
+                <div key={skill.id} style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '0.65rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem' }}>
                     <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{skill.name}</span>
                     <span style={{ color: 'var(--color-accent)', fontWeight: 700 }}>{skill.score}%</span>

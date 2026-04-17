@@ -78,7 +78,7 @@ function ProgramCard({ program }: { program: Program }) {
         </small>
       </div>
       {nonEmptySkills.length > 0 ? (
-        <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
+        <div className="program-card-skills" style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
           {skills.map((s) => (
             <span
               key={s}
@@ -111,7 +111,7 @@ function ProgramCard({ program }: { program: Program }) {
           )}
         </div>
       ) : null}
-      <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
+      <details className="program-card-courses" style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
         <summary className="program-card-courses-summary">
           {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}
         </summary>
@@ -271,6 +271,17 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                 details.programs-subgroup-detail:not([open]) > :not(summary) { display: block !important; }
                 .programs-subgroup-chevron { display: none; }
                 .programs-subgroup-summary { cursor: default; pointer-events: none; padding: 0 0 0.35rem; }
+              }
+              /* Mobile (< 768px): strip secondary card info, enforce touch targets */
+              @media (max-width: 767px) {
+                .program-card-skills { display: none !important; }
+                .program-card-courses { display: none !important; }
+                .program-card-outcomes { display: none !important; }
+                .program-card-meta-row span:not(:first-child) { display: none !important; }
+                .program-card .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+                .program-card-footer { flex-direction: column; align-items: stretch; }
+                .program-card-footer > div { flex-direction: column; }
+                .program-card-footer .btn { width: 100%; text-align: center; }
               }
             `}</style>
           </div>

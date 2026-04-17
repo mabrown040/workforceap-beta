@@ -530,8 +530,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
                 {noApplicationOnFile
-                  ? 'Career training at no cost to members, funded by grants and partnerships. We\'ll match you to a counselor and program.'
-                  : 'Pick the career track that fits your goals. No cost for members, funded through government partnerships.'}
+                  ? 'Free career training funded by government partnerships. We\'ll pair you with a counselor and a program that fits your goals.'
+                  : 'Pick the career track that fits your goals. Free for members, funded through government partnerships.'}
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
                 <span>{noApplicationOnFile ? 'Start Your Application' : 'Choose Program'}</span>

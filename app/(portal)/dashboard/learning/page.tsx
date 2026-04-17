@@ -291,7 +291,7 @@ export default async function LearningPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)',
-                background: 'rgba(173,44,77,0.12)',
+                background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
                 color: 'var(--color-accent)',
                 padding: 'var(--space-1) var(--space-3)',
                 borderRadius: 'var(--radius-full)',

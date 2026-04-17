@@ -266,11 +266,11 @@ export default async function CareerBriefPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {highPriority.map((action) => (
-                <Link key={action.href} href={action.href} className="portal-quick-action-item" style={{ textDecoration: 'none', border: '1px solid rgba(173,44,77,0.2)', background: 'rgba(173,44,77,0.04)' }}
+                <Link key={action.href} href={action.href} className="portal-quick-action-item" style={{ textDecoration: 'none', border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)', background: 'color-mix(in srgb, var(--color-accent) 4%, transparent)' }}
                   target={action.href.startsWith('http') ? '_blank' : undefined}
                   rel={action.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 >
-                  <div className="portal-quick-action-item__icon" style={{ background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)' }}>
+                  <div className="portal-quick-action-item__icon" style={{ background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
                   </div>
                   <span className="portal-quick-action-item__label" style={{ color: 'var(--color-on-surface)' }}>{action.label}</span>
@@ -293,7 +293,7 @@ export default async function CareerBriefPage() {
             {signals.map((sig) => (
               <div key={sig.headline} className="portal-card portal-card--flat" style={{ padding: '1.125rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
-                  <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', background: 'rgba(173,44,77,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{sig.icon}</span>
                   </div>
                   <div>
@@ -321,7 +321,7 @@ export default async function CareerBriefPage() {
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                 {tips.topRoles.map((role) => (
-                  <span key={role} style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.625rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.08)', color: 'var(--color-accent)' }}>
+                  <span key={role} style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.625rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', color: 'var(--color-accent)' }}>
                     {role}
                   </span>
                 ))}
@@ -330,7 +330,7 @@ export default async function CareerBriefPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
               {tips.tips.map((tip, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-accent)', padding: '0.1rem 0.375rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.08)', flexShrink: 0, marginTop: '0.125rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-accent)', padding: '0.1rem 0.375rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', flexShrink: 0, marginTop: '0.125rem' }}>
                     {i + 1}
                   </span>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.55 }}>{tip}</p>

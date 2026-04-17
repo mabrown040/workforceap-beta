@@ -31,7 +31,7 @@ export default function ProgramComparisonPage() {
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
             padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
+            background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)',
             color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>
@@ -74,7 +74,7 @@ export default function ProgramComparisonPage() {
             padding: '2rem', border: '1px solid var(--surface-container-highest)',
             display: 'flex', flexDirection: 'column', gap: '1rem',
           }}>
-            <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(173,44,77,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
+            <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'color-mix(in srgb, var(--color-accent) 20%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
               <span className="material-symbols-outlined" aria-hidden="true">route</span>
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Need a personalized path?</h3>
@@ -127,8 +127,8 @@ export default function ProgramComparisonPage() {
           letter-spacing: 0.07em;
           text-transform: uppercase;
           color: var(--color-accent);
-          background: rgba(173, 44, 77, 0.07);
-          border-top: 1px solid rgba(173, 44, 77, 0.2);
+          background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+          border-top: 1px solid color-mix(in srgb, var(--color-accent) 20%, transparent);
         }
         .program-comparison-category-row:first-child td {
           border-top: none;

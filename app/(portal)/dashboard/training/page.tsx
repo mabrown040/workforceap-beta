@@ -148,7 +148,7 @@ export default async function TrainingPage() {
               label="Current Program"
               value={program.title}
               iconColor="var(--color-accent)"
-              iconBg="rgba(173,44,77,0.12)"
+              iconBg="color-mix(in srgb, var(--color-accent) 12%, transparent)"
             />
 
             <PortalStatCard

@@ -127,7 +127,7 @@ export default async function ResumeRewriterPage() {
                 borderRadius: 999,
                 background: 'linear-gradient(135deg, var(--color-accent), #d4607a)',
                 color: '#fff',
-                boxShadow: '0 2px 8px rgba(173,44,77,0.25)',
+                boxShadow: '0 2px 8px color-mix(in srgb, var(--color-accent) 25%, transparent)',
                 whiteSpace: 'nowrap',
               }}
             >
@@ -260,7 +260,7 @@ export default async function ResumeRewriterPage() {
                     fontWeight: 600,
                     padding: '0.2rem 0.55rem',
                     borderRadius: 4,
-                    background: 'rgba(173,44,77,0.10)',
+                    background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                     color: 'var(--color-accent)',
                   }}
                 >

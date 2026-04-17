@@ -26,7 +26,7 @@ export default function FindYourPathPage() {
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
             padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
+            background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)',
             color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
             letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>

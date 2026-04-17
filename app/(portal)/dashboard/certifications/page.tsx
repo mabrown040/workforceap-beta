@@ -88,7 +88,7 @@ export default async function DashboardCertificationsPage() {
               icon: 'workspace_premium',
               label: `${certs.length} earned`,
               color: 'var(--color-accent)',
-              bg: 'rgba(173,44,77,0.12)',
+              bg: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
             },
             {
               icon: 'trending_up',
@@ -207,7 +207,7 @@ export default async function DashboardCertificationsPage() {
         <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
           <div
             style={{
-              background: 'linear-gradient(135deg, var(--color-accent) 0%, rgba(173,44,77,0.8) 100%)',
+              background: 'linear-gradient(135deg, var(--color-accent) 0%, color-mix(in srgb, var(--color-accent) 80%, transparent) 100%)',
               borderRadius: '1rem',
               padding: '1.25rem',
               display: 'flex',
@@ -281,7 +281,7 @@ export default async function DashboardCertificationsPage() {
                 style={{
                   fontSize: '2rem',
                   color: 'var(--color-accent)',
-                  background: 'rgba(173,44,77,0.12)',
+                  background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-3)',
                   '--ms-fill': 1,
@@ -415,7 +415,7 @@ export default async function DashboardCertificationsPage() {
                       padding: 'var(--space-4)',
                       borderRadius: 'var(--radius-lg)',
                       background: milestone.status === 'current'
-                        ? 'rgba(173,44,77,0.08)'
+                        ? 'color-mix(in srgb, var(--color-accent) 8%, transparent)'
                         : milestone.status === 'complete'
                           ? 'rgba(74,155,79,0.06)'
                           : 'var(--surface-container)',

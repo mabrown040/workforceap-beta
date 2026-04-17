@@ -673,7 +673,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.75rem',
                     padding: '0.875rem 1rem',
-                    background: isSelected ? 'rgba(173,44,77,0.15)' : 'var(--surface-container-low)',
+                    background: isSelected ? 'color-mix(in srgb, var(--color-accent) 15%, transparent)' : 'var(--surface-container-low)',
                     border: isSelected ? '1px solid var(--color-accent)' : '1px solid var(--surface-container-highest)',
                     borderRadius: 'var(--radius-lg)',
                     cursor: 'pointer', transition: 'all 0.15s ease',

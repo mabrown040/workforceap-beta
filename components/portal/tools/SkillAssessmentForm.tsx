@@ -315,8 +315,8 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
           <div
             style={{
               borderRadius: '0.9rem',
-              border: '1px solid #ebe7e7',
-              background: 'linear-gradient(180deg, #fcf9f8 0%, #fff 100%)',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container-low)',
               padding: '1rem',
             }}
           >
@@ -379,23 +379,23 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                         y={label.y}
                         textAnchor="middle"
                         dominantBaseline="middle"
-                        style={{ fontSize: '12px', fill: '#584144', fontWeight: 600 }}
+                        style={{ fontSize: '12px', fill: 'var(--color-on-surface-variant)', fontWeight: 600 }}
                       >
                         {axis.axis}
                       </text>
                     </g>
                   );
                 })}
-                <polygon points={radarPolygon} fill="rgba(140, 15, 55, 0.18)" stroke="#8c0f37" strokeWidth="2.5" />
+                <polygon points={radarPolygon} fill="var(--color-accent)" fillOpacity={0.18} stroke="var(--color-accent)" strokeWidth="2.5" />
                 {radarAxes.map((axis, index) => {
                   const angle = -Math.PI / 2 + (Math.PI * 2 * index) / radarAxes.length;
                   const effectiveValue = axis.hasData === false ? 0 : axis.value;
                   const point = polarToCartesian(angle, (CHART_RADIUS * effectiveValue) / axis.maxValue);
                   // Show hollow circle for axes with no data, filled for axes with data
                   return axis.hasData === false ? (
-                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="none" stroke="#8c0f37" strokeWidth="2" />
+                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="none" stroke="var(--color-accent)" strokeWidth="2" />
                   ) : (
-                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="#8c0f37" />
+                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="var(--color-accent)" />
                   );
                 })}
               </svg>
@@ -415,7 +415,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                           width: `${axis.value}%`,
                           height: '100%',
                           borderRadius: '999px',
-                          background: 'linear-gradient(90deg, #8c0f37 0%, #c7496a 100%)',
+                          background: 'var(--color-accent)',
                         }}
                       />
                     )}

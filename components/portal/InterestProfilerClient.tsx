@@ -179,7 +179,7 @@ export default function InterestProfilerClient() {
                     style={{
                       width: `${(r.score / maxRiasec) * 100}%`,
                       height: '100%',
-                      background: 'linear-gradient(90deg, #8c0f37, #ad2c4d)',
+                      background: 'var(--color-accent)',
                     }}
                   />
                 </div>
@@ -293,7 +293,7 @@ export default function InterestProfilerClient() {
           style={{
             width: `${progress}%`,
             height: '100%',
-            background: '#8c0f37',
+            background: 'var(--color-accent)',
             transition: 'width 0.2s ease',
           }}
         />
@@ -310,7 +310,7 @@ export default function InterestProfilerClient() {
           }}
         >
           {q.area && (
-            <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', color: '#8c0f37', margin: '0 0 0.5rem' }}>
+            <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
               {q.area}
             </p>
           )}
@@ -340,8 +340,8 @@ export default function InterestProfilerClient() {
                   gap: '0.75rem',
                   padding: '0.875rem 1rem',
                   borderRadius: '0.75rem',
-                  border: selected ? '2px solid #8c0f37' : '1px solid var(--outline-variant)',
-                  background: selected ? 'rgba(140, 15, 55, 0.06)' : 'var(--surface)',
+                  border: selected ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+                  background: selected ? 'color-mix(in srgb, var(--color-accent) 6%, transparent)' : 'var(--surface)',
                   cursor: 'pointer',
                   fontSize: '0.875rem',
                   transition: 'border-color 0.15s, background 0.15s',
@@ -366,7 +366,7 @@ export default function InterestProfilerClient() {
                     width: '28px', height: '28px', borderRadius: '9999px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
-                    background: selected ? '#8c0f37' : 'var(--surface-container-highest, #e5e2e1)',
+                    background: selected ? 'var(--color-accent)' : 'var(--surface-container-highest, #e5e2e1)',
                     color: selected ? '#fff' : 'var(--color-on-surface-variant)',
                     fontSize: '0.75rem', fontWeight: 700,
                     transition: 'background 0.15s, color 0.15s',
@@ -374,7 +374,7 @@ export default function InterestProfilerClient() {
                 >
                   {v}
                 </span>
-                <span style={{ fontWeight: selected ? 600 : 400, color: selected ? '#8c0f37' : 'var(--color-on-surface)' }}>
+                <span style={{ fontWeight: selected ? 600 : 400, color: selected ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>
                   {label}
                 </span>
               </label>

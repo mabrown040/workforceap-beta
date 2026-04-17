@@ -43,12 +43,12 @@ export default function ApplyConfirmationPage() {
                   width: '5.5rem',
                   height: '5.5rem',
                   borderRadius: '9999px',
-                  background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                  background: 'var(--color-accent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto 1.25rem',
-                  boxShadow: '0 20px 40px -12px rgba(140,15,55,0.35)',
+                  boxShadow: '0 20px 40px -12px color-mix(in srgb, var(--color-accent) 35%, transparent)',
                 }}
               >
                 <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '2.75rem', '--ms-wght': 600 } as CSSProperties}>
@@ -108,7 +108,7 @@ export default function ApplyConfirmationPage() {
             </div>
 
             <section style={{ marginBottom: '2rem', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584144', margin: '0 0 1rem' }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
                 Spread the word
               </p>
               <ShareButtons />

@@ -58,7 +58,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$85k – $105k',
     mid: '$115k – $145k',
     certs: ['IBM', 'Python', 'PyTorch'],
-    borderColor: '#8c0f37',
+    borderColor: 'var(--color-accent)',
   },
   {
     category: 'IT and Cyber',

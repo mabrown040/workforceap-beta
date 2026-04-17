@@ -6,7 +6,7 @@ const GENERIC_OPENERS = /^(coordinates?|performs?|analyzes?|develops?|designs?|i
 
 export function translateOccupationDescription(raw: string | null | undefined, title: string): string {
   if (!raw?.trim()) {
-    return `Work in this field focuses on skills and tasks similar to ${title.toLowerCase()} roles in today’s job market.`;
+    return `Work in this field focuses on skills and tasks similar to ${title.toLowerCase()} roles in today's job market.`;
   }
   let s = raw.replace(/\s+/g, ' ').trim();
   if (s.length > 380) {

@@ -171,7 +171,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
                   rows={4}
                   value={personalMessage}
                   onChange={(event) => setPersonalMessage(event.target.value)}
-                  placeholder="Optional note to explain why you’re inviting them."
+                  placeholder="Optional note to explain why you're inviting them."
                   disabled={submitting}
                   maxLength={2000}
                 />

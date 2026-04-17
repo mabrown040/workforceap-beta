@@ -78,7 +78,7 @@ export default function LearningHubDestinationCards() {
                 <span className="learning-hub-card-body">
                   <span className="learning-hub-card-title">Funding eligibility check</span>
                   <span className="learning-hub-card-desc">
-                    Coming soon. We’re connecting funding eligibility checks to your state’s workflow and review queue.
+                    Coming soon. We're connecting funding eligibility checks to your state's workflow and review queue.
                   </span>
                 </span>
                 <ChevronRight className="learning-hub-card-chevron" aria-hidden size={22} />

@@ -5,7 +5,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { counselorStaffVoiceSurface } from '@/lib/portal/voice';
 
 /**
- * Staff counselor portal — voice uses the ConvAI agent’s configured TTS (no client `voice_id` override;
+ * Staff counselor portal — voice uses the ConvAI agent's configured TTS (no client `voice_id` override;
  * ElevenLabs rejects overrides when the agent disallows them — see workspace agent settings).
  */
 export default function CounselorPortalVoiceBlock() {

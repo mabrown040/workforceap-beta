@@ -123,7 +123,7 @@ export default async function AdminPipelinePage() {
     <div style={{ paddingTop: '1.5rem' }}>
       <PageHeader
         title="Student Pipeline"
-        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a student’s stage is derived from enrollment, courses, certifications, and placement."
+        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a student's stage is derived from enrollment, courses, certifications, and placement."
         action={
           <Link href="/admin/placements/new" className="btn btn-primary">
             Record Placement

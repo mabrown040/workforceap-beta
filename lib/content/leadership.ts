@@ -278,7 +278,7 @@ export const LEADERS: Leader[] = [
       },
       {
         icon: 'school',
-        title: 'Stanford Directors’ College',
+        title: 'Stanford Directors' College',
         desc: 'Corporate board governance program graduate.',
       },
     ],
@@ -480,7 +480,7 @@ export const LEADERS: Leader[] = [
     ],
     heroBadge: 'Lead Consultant',
     heroQuote:
-      'Strategy only matters when it shows up in a member’s next opportunity.',
+      'Strategy only matters when it shows up in a member's next opportunity.',
   },
 ];
 

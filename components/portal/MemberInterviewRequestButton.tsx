@@ -40,7 +40,7 @@ export default function MemberInterviewRequestButton() {
         {loading ? 'Sending…' : 'Request interview'}
       </button>
       <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
-        Opens scheduling by email on our side — you’ll hear from a counselor.
+        Opens scheduling by email on our side — you'll hear from a counselor.
       </p>
     </div>
   );

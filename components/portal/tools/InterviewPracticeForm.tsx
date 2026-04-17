@@ -280,7 +280,7 @@ export default function InterviewPracticeForm() {
             />
           </div>
           <p className="interview-practice-star-intro" style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
-            Use the STAR worksheet under each question to draft your answer (Situation → Task → Action → Result). It’s included in copy, PDF, and .txt export.
+            Use the STAR worksheet under each question to draft your answer (Situation → Task → Action → Result). It's included in copy, PDF, and .txt export.
           </p>
           <ol className="interview-practice-list">
             {questions.map((q, i) => {

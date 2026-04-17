@@ -40,7 +40,7 @@ export default async function WioaQualificationPage() {
         <>
           <PortalRouteFallback
             title="WIOA screening is not enabled yet"
-            description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we’ll help you with the next steps."
+            description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we'll help you with the next steps."
           />
           <MobileBottomNav variant="portal" />
         </>

@@ -13,7 +13,7 @@ export default function MemberCareerPathSection({
 
   const readiness =
     coursesCompletedCount > 0
-      ? `You’ve completed ${coursesCompletedCount} course step(s) toward this path — keep going.`
+      ? `You've completed ${coursesCompletedCount} course step(s) toward this path — keep going.`
       : 'Start your first learning module to build momentum toward this role.';
 
   return (

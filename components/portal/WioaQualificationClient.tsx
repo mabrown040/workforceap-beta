@@ -24,14 +24,14 @@ const BARRIERS: WioaBarrier[] = [
 
 const SIGNAL_COPY: Record<WioaEligibilitySignal, { title: string; body: string }> = {
   likely: {
-    title: 'Strong next step, talk with staff',
+    title: 'Strong next step — talk with staff',
     body:
-      'Several of your answers line up with common WIOA pathways. This is still a pre-check, not a final eligibility decision.',
+      'Several of your answers suggest you may qualify for free, federally funded training. This is still a pre-check, not a final eligibility decision.',
   },
   possible: {
     title: 'You may be a fit',
     body:
-      'Your answers suggest WIOA-funded support could make sense. WorkforceAP staff can confirm eligibility, documentation, and timing.',
+      'Your answers suggest free, funded training support could make sense for you. WorkforceAP staff can confirm eligibility, documentation, and timing.',
   },
   review: {
     title: 'Worth a staff review',

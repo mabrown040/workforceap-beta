@@ -76,21 +76,21 @@ export function computeWioaSignal(answers: WioaQualificationAnswers): {
     (hasBarrier ? 1 : 0);
 
   if (answers.lowIncomeSelfReport) {
-    reasons.push('You shared that your household income may fit common WIOA income guidelines, which staff can verify.');
+    reasons.push('Your income level may qualify you for free, federally funded training — a staff member can verify the details.');
   }
   if (answers.dislocatedWorker) {
-    reasons.push('You reported being unemployed or laid off, which often fits WIOA dislocated worker pathways.');
+    reasons.push('Being unemployed or recently laid off may qualify you for funded training support through a federal workforce program.');
   }
   if (hasBarrier) {
     reasons.push(
-      `You identified a barrier, ${barrierLabel(answers.primaryBarrier)}, which can strengthen the case for supportive services alongside training.`
+      `You identified a barrier, ${barrierLabel(answers.primaryBarrier)}, which can strengthen your case for additional support services alongside training.`
     );
   }
   if (answers.trainingInterest) {
-    reasons.push('You said you want training for an in-demand occupation, which is a strong match for many WIOA-funded plans.');
+    reasons.push('Your interest in training for an in-demand career is a strong match for free, funded training programs.');
   }
   if (answers.completedIntakeSelfReport) {
-    reasons.push('You said you already completed intake or orientation, which can help staff move faster on next steps.');
+    reasons.push('You said you already completed intake or orientation, which can help staff move faster on your next steps.');
   }
 
   let signal: WioaEligibilitySignal = 'review';
@@ -112,7 +112,7 @@ export function computeWioaSignal(answers: WioaQualificationAnswers): {
 
   if (reasons.length === 0) {
     reasons.push(
-      'Complete a conversation with WorkforceAP staff or your local American Job Center to confirm WIOA eligibility and next steps.'
+      'Talk with a WorkforceAP counselor or visit your local American Job Center to learn which free training programs you may qualify for.'
     );
   }
 

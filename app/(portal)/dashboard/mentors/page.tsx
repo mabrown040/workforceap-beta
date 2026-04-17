@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Find a Mentor',
+  description: 'Browse WorkforceAP mentors and request a session with someone in your field.',
+  path: '/dashboard/mentors',
+});
 
 export default async function MentorsBrowsePage() {
   const user = await getUser();

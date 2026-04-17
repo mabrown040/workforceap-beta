@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
   weekStart.setHours(0, 0, 0, 0);
 
-  // Get active members who haven't had a recap opened this week
+  // Get active members who have not had a recap opened this week
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,

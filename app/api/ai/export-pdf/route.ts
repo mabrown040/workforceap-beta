@@ -10,7 +10,7 @@ import { getUser } from '@/lib/auth/server';
  * Returns: PDF with WorkforceAP logo header on each page.
  *
  * Embeds the actual /public/images/logo-tight.png in the header bar.
- * Falls back to vector text if the image can't be loaded.
+ * Falls back to vector text if the image cannot be loaded.
  * When chartImage (base64 data-URL PNG) is provided, it is embedded below the title.
  */
 

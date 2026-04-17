@@ -567,7 +567,7 @@ export default function DashboardHomeClient({
 
         {/* ── Tools & Extras — collapsed behind More ── */}
         <section style={{ gridColumn: 'span 12' }}>
-          <details>
+          <details className="portal-details">
             <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', padding: '0.75rem 0', userSelect: 'none' }}>
               More Tools &amp; Resources
             </summary>
@@ -599,7 +599,7 @@ export default function DashboardHomeClient({
         {/* ── Recent Activity (collapsed) ── */}
         {recentActivity.length > 0 && (state === 'C' || state === 'D') && (
           <section className="portal-card portal-card--flat portal-card--padded" style={{ gridColumn: 'span 12' }}>
-            <details>
+            <details className="portal-details">
               <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Recent Activity</summary>
               <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
                 {recentActivity.map((a, i) => (
@@ -616,7 +616,7 @@ export default function DashboardHomeClient({
         {/* ── Onboarding Checklist (collapsed) ── */}
         {!checklistAllDone && (
           <section className="portal-card portal-card--flat portal-card--padded" style={{ gridColumn: 'span 12' }}>
-            <details>
+            <details className="portal-details">
               <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Onboarding Checklist</summary>
               <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
                 {([

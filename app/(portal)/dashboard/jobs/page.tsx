@@ -44,7 +44,7 @@ export default async function JobsPage() {
         select: { curatedJobId: true },
       });
       appliedJobIds = apps.map((a) => a.curatedJobId).filter((id): id is string => id !== null);
-    } catch { /* non-critical — badge just won't show */ }
+    } catch { /* non-critical — badge just will not show */ }
   }
 
   // SSR: Prefetch first 20 jobs for SEO and faster initial load

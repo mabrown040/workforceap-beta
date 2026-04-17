@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       if (uploadRes.ok) {
         const publicUrl = `${supabaseUrl}/storage/v1/object/public/member-files/${storagePath}`;
         // Store the file URL on the certification record if schema supports it
-        // (graceful — skip if column doesn't exist yet)
+        // (graceful — skip if column does not exist yet)
         try {
           await (prisma.userCertification as unknown as { update: (args: unknown) => Promise<unknown> }).update({
             where: { id: cert.id },
@@ -91,6 +91,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Return soft success — cert is in DB, file just couldn't be stored
+  // Return soft success — cert is in DB, file just could not be stored
   return NextResponse.json({ success: true, note: 'Certificate recorded. File storage not available — contact support to attach the PDF.' });
 }

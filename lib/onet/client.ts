@@ -90,7 +90,7 @@ export async function searchOccupations(query: string): Promise<OnetSearchOccupa
 
   // Re-rank so title-matching results appear before description-only matches.
   // Scoring: exact title > query-prefix > all words whole-word-prefix > any word whole-word-prefix > API order.
-  // wordPrefixIn prevents suffix matches: "care" won't score "Daycare" but will score "Career".
+  // wordPrefixIn prevents suffix matches: "care" will not score "Daycare" but will score "Career".
   const ql = q.toLowerCase();
   const words = ql.split(/\s+/).filter(Boolean);
   const wordPrefixIn = (needle: string, haystack: string): boolean => {

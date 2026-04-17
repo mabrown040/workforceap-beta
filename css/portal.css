@@ -2639,3 +2639,25 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
   align-items: center;
   flex-shrink: 0;
 }
+
+/* ── Dashboard collapsible sections — cross-browser chevron ── */
+.portal-details > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.portal-details > summary::-webkit-details-marker {
+  display: none;
+}
+.portal-details > summary::after {
+  content: '▾';
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+.portal-details[open] > summary::after {
+  transform: rotate(180deg);
+}

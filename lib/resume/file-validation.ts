@@ -20,7 +20,7 @@ export function validateFileType(buffer: Buffer, mimeType: string, fileName: str
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
 
-  // For txt files, skip magic bytes check as text files don't have standard magic bytes
+  // For txt files, skip magic bytes check as text files do not have standard magic bytes
   if (ext === 'txt') {
     // Basic sanity check on mime type for txt files, since they lack magic bytes
     if (mimeType && !['text/plain', 'application/octet-stream'].includes(mimeType) && !ALLOWED_MIME_TYPES.has(mimeType)) {

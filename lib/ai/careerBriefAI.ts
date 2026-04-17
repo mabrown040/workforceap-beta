@@ -20,7 +20,7 @@ Member context:
 - AI tools used: ${toolsUsed.length > 0 ? toolsUsed.join(', ') : 'None yet'}
 - Recommended actions: ${recommendedActions.map((a) => a.label).join('; ')}
 
-Write 2-3 concise paragraphs that feel personally relevant. If they have few applications, encourage tracking. If they haven't used key tools, suggest one. If they have location/career data, acknowledge it. Keep total length under 200 words.`;
+Write 2-3 concise paragraphs that feel personally relevant. If they have few applications, encourage tracking. If they have not used key tools, suggest one. If they have location/career data, acknowledge it. Keep total length under 200 words.`;
 
   try {
     const output = await chatCompletion(

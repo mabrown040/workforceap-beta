@@ -16,7 +16,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Program',
-  description: 'View or select your enrolled program.',
+  description: 'See your enrolled training program, track progress, or pick a new career track.',
   path: '/dashboard/program',
 });
 

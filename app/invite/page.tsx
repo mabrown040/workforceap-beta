@@ -47,14 +47,14 @@ function InviteContent() {
             error:
               status >= 500
                 ? 'The server could not load this invitation. Please try again shortly.'
-                : 'We couldn't load this invitation. Try refreshing the page.',
+                : 'We could not load this invitation. Try refreshing the page.',
           });
           return;
         }
         setData(data);
         if (data.valid && data.email) setFullName('');
       })
-      .catch(() => setData({ valid: false, error: 'We couldn't load this invitation. Try refreshing the page.' }))
+      .catch(() => setData({ valid: false, error: 'We could not load this invitation. Try refreshing the page.' }))
       .finally(() => setLoading(false));
   }, [token]);
 

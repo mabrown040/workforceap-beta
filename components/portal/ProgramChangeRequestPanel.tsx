@@ -69,7 +69,7 @@ export default function ProgramChangeRequestPanel({
       setSuccess(true);
       await reload();
     } catch {
-      setError('We couldn't connect. Check your connection and try again.');
+      setError('We could not connect. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }

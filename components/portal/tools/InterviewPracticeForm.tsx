@@ -71,13 +71,13 @@ export default function InterviewPracticeForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'We couldn't complete that. Try again in a moment.');
+        setError(data.error ?? 'We could not complete that. Try again in a moment.');
         return;
       }
 
       setQuestions(data.questions ?? []);
     } catch {
-      setError('We couldn't connect. Check your connection and try again.');
+      setError('We could not connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

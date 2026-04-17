@@ -248,7 +248,7 @@ function extractJobsFromMarkdown(rawText: string): ParsedJobListing[] | null {
   return jobs.length > 0 ? jobs.slice(0, 25) : null;
 }
 
-/** Keep prompts within model context: for noisy ATS pages, include start + end so the real JD isn't only in the tail. */
+/** Keep prompts within model context: for noisy ATS pages, include start + end so the real JD is not only in the tail. */
 export function clipJobSourceTextForLLM(rawText: string, maxChars = 26000): string {
   const t = sanitizeScrapedJobText(rawText).trim();
   if (t.length <= maxChars) return t;

@@ -229,7 +229,7 @@ export default function JobMatchScorerForm() {
 
       if (!res.ok) {
         trackAIToolRun('errored', 'job-match-scorer', { reason: data.error ?? 'request_failed' });
-        setError(data.error ?? 'We couldn't complete that. Try again in a moment.');
+        setError(data.error ?? 'We could not complete that. Try again in a moment.');
         return;
       }
 
@@ -238,7 +238,7 @@ export default function JobMatchScorerForm() {
       setParsedOutput(data.parsed ?? null);
     } catch {
       trackAIToolRun('errored', 'job-match-scorer', { reason: 'network_error' });
-      setError('We couldn't connect. Check your connection and try again.');
+      setError('We could not connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

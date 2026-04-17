@@ -153,7 +153,7 @@ export default function MemberCounselorChatClient({
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'We couldn't send your message. Try again in a moment.');
+        setError(typeof data.error === 'string' ? data.error : 'We could not send your message. Try again in a moment.');
         return;
       }
       const msg = data.message as MessageDto | undefined;
@@ -163,7 +163,7 @@ export default function MemberCounselorChatClient({
       setDraft('');
       dispatchBadgeRefresh();
     } catch {
-      setError('We couldn't connect. Check your connection and try again.');
+      setError('We could not connect. Check your connection and try again.');
     } finally {
       setSending(false);
     }

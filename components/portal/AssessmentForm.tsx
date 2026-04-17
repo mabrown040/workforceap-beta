@@ -130,7 +130,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? 'We couldn't submit your assessment. Try again in a moment.');
+        setError(data.error ?? 'We could not submit your assessment. Try again in a moment.');
         setLoading(false);
         return;
       }
@@ -157,7 +157,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
         }
       }, 3000);
     } catch {
-      setError('We couldn't submit your assessment. Try again in a moment.');
+      setError('We could not submit your assessment. Try again in a moment.');
     } finally {
       setLoading(false);
     }

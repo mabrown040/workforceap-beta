@@ -111,7 +111,7 @@ export default function ResumeStrengthForm() {
 
       if (!res.ok) {
         trackAIToolRun('errored', 'resume-analysis', { reason: data.error ?? 'request_failed' });
-        setError(data.error ?? 'We couldn't complete that. Try again in a moment.');
+        setError(data.error ?? 'We could not complete that. Try again in a moment.');
         return;
       }
 
@@ -119,7 +119,7 @@ export default function ResumeStrengthForm() {
       setOutput(data.output ?? '');
     } catch {
       trackAIToolRun('errored', 'resume-analysis', { reason: 'network_error' });
-      setError('We couldn't connect. Check your connection and try again.');
+      setError('We could not connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

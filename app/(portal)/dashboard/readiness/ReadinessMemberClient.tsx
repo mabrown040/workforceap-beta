@@ -52,7 +52,7 @@ export default function ReadinessMemberClient({
       .then(async (r) => {
         const data = (await r.json()) as { sections?: Section[]; error?: string };
         if (!r.ok) {
-          throw new Error(typeof data.error === 'string' ? data.error : 'We couldn't load your checklist. Try refreshing the page.');
+          throw new Error(typeof data.error === 'string' ? data.error : 'We could not load your checklist. Try refreshing the page.');
         }
         return data;
       })
@@ -63,7 +63,7 @@ export default function ReadinessMemberClient({
         setExpandedMap(buildExpanded(next));
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'We couldn't load your checklist. Try refreshing the page.');
+        if (!cancelled) setError(e instanceof Error ? e.message : 'We could not load your checklist. Try refreshing the page.');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

@@ -640,6 +640,9 @@ export default function SkillMapperClient() {
                 </div>
               )}
               <h3 className="ai-tool-section-title">{selectedTitle}</h3>
+              <p style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem', marginTop: '-0.25rem' }}>
+                Skill data is sourced from <strong>O*NET</strong> — the U.S. Department of Labor&apos;s occupational database. Each bar and radar axis shows how important that skill is for workers in this role, based on real workforce surveys.
+              </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginBottom: '2rem' }}>
                 <div style={{ flex: '1 1 240px', minWidth: 240 }}>
                   <RadarChart data={radarData} />

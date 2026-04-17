@@ -62,7 +62,7 @@ export default async function SkillMapperPage() {
                 Skill Mapper
               </h1>
               <p style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>
-                Search any occupation to see its top skills and competency radar chart.
+                Search any occupation to see its top skills and how you compare — powered by O*NET, the U.S. government&apos;s occupational database.
               </p>
             </div>
           </div>

@@ -86,7 +86,7 @@ export default async function SkillsAssessmentPage() {
         <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
           <PortalBreadcrumb
             items={[
-              { href: '/dashboard', label: 'Member Portal' },
+              { href: '/dashboard', label: 'Dashboard' },
               { label: 'Skills Assessment' },
             ]}
           />
@@ -144,6 +144,9 @@ export default async function SkillsAssessmentPage() {
                       {dbUser.assessmentScore != null && (
                         <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0' }}>{dbUser.assessmentScore}/90 points</p>
                       )}
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.4rem 0 0', lineHeight: 1.5, maxWidth: '18rem' }}>
+                        Your score reflects career readiness across job skills, applied knowledge, and workplace soft skills. Higher scores unlock faster program matching and priority counselor access.
+                      </p>
                     </div>
                   )}
                   {dbUser.assessmentCompletedAt && (

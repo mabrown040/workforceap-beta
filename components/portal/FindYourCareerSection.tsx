@@ -3,37 +3,38 @@ import { ChevronRight } from 'lucide-react';
 
 type Props = { compact?: boolean };
 
-/**
- * Replaces a single "Interest Profiler" card with two clear O*NET entry points + skill mapping.
- */
 export default function FindYourCareerSection({ compact }: Props) {
   if (compact) {
+    const linkStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.75rem',
+      padding: '1rem',
+      borderRadius: 'var(--radius-lg)',
+      background: 'var(--surface-container-lowest)',
+      border: '1px solid var(--outline-variant)',
+      boxShadow: 'var(--shadow-sm)',
+      textDecoration: 'none',
+      color: 'inherit',
+    };
     return (
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
-        <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[#584144]" style={{ marginBottom: '0.75rem' }}>
+        <h5 style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
           Find your career
         </h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <Link
-            href="/dashboard/learning/find-your-career"
-            className="wa-bg-white wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border wa-border-[#e8e0dd]"
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">explore</span>
+          <Link href="/dashboard/learning/find-your-career" style={linkStyle}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">explore</span>
             <div>
-              <div className="wa-font-semibold wa-text-[#1c1b1b]">O*NET Interest Profiler</div>
-              <div className="wa-text-xs wa-text-[#584144]">RIASEC interests · 30 questions</div>
+              <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>O*NET Interest Profiler</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>RIASEC interests · 30 questions</div>
             </div>
           </Link>
-          <Link
-            href="/dashboard/ai-tools/skill-mapper"
-            className="wa-bg-white wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border wa-border-[#e8e0dd]"
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">radar</span>
+          <Link href="/dashboard/ai-tools/skill-mapper" style={linkStyle}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">radar</span>
             <div>
-              <div className="wa-font-semibold wa-text-[#1c1b1b]">O*NET skill mapping</div>
-              <div className="wa-text-xs wa-text-[#584144]">Explore occupation skills &amp; gaps</div>
+              <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>O*NET skill mapping</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Explore occupation skills &amp; gaps</div>
             </div>
           </Link>
         </div>

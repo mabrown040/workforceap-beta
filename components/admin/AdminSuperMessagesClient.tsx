@@ -194,6 +194,7 @@ export default function AdminSuperMessagesClient() {
   const [staffSending, setStaffSending] = useState(false);
   const [staffErr, setStaffErr] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'thread'>('list');
+  const [isWide, setIsWide] = useState(false);
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [showCompose, setShowCompose] = useState(false);
   const [composeQuery, setComposeQuery] = useState('');
@@ -204,6 +205,13 @@ export default function AdminSuperMessagesClient() {
   const composeInputRef = useRef<HTMLInputElement>(null);
 
   const isMobileThreadView = mobileView === 'thread' && Boolean(selectedId);
+
+  useEffect(() => {
+    const check = () => setIsWide(window.innerWidth >= 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -418,21 +426,22 @@ export default function AdminSuperMessagesClient() {
   return (
     <div className="admin-main-content admin-super-messages">
       <InboxShell
-        className="wa-flex-col wa-lg:wa-flex-row"
         style={{
           maxWidth: '100%',
           height: 'auto',
           minHeight: '70vh',
+          flexDirection: isWide ? 'row' : 'column',
         }}
       >
         <InboxPane
           variant="list"
-          className={isMobileThreadView ? 'wa-hidden wa-lg:wa-flex' : 'wa-flex'}
           style={{
+            display: isWide || !isMobileThreadView ? 'flex' : 'none',
             width: '100%',
-            maxWidth: 360,
+            maxWidth: isWide ? 360 : '100%',
             flexShrink: 0,
-            borderRight: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+            borderRight: isWide ? '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)' : 'none',
+            borderBottom: !isWide ? '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)' : 'none',
             overflowY: 'auto',
           }}
         >
@@ -552,10 +561,15 @@ export default function AdminSuperMessagesClient() {
 
         <InboxPane
           variant="thread"
-          className={isMobileThreadView ? 'wa-flex' : 'wa-hidden wa-lg:wa-flex'}
-          style={{ flex: 1, overflow: 'auto', padding: '1rem', minWidth: 0 }}
+          style={{
+            display: isWide || isMobileThreadView ? 'flex' : 'none',
+            flex: 1,
+            overflow: 'auto',
+            padding: '1rem',
+            minWidth: 0,
+          }}
         >
-          <div className="wa-flex wa-lg:wa-hidden" style={{ marginBottom: '0.75rem' }}>
+          <div style={{ display: isWide ? 'none' : 'flex', marginBottom: '0.75rem' }}>
             <button
               type="button"
               className="btn btn-outline btn-sm"

@@ -41,7 +41,7 @@ export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' |
 
 export type NavGroup = 'primary' | 'workflows' | 'people' | 'pipeline' | 'content' | 'insights' | 'manage';
 
-export type NavTab = 'journey' | 'tools' | 'connect' | 'me';
+export type NavTab = 'journey' | 'program' | 'jobs' | 'tools' | 'me';
 
 export type NavBadgeKey =
   | 'jobs_draft'
@@ -77,12 +77,13 @@ export type PortalNavItem = {
 
 export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   journey: { label: 'Home', icon: 'home' },
-  tools: { label: 'Program', icon: 'school' },
-  connect: { label: 'Jobs', icon: 'work' },
-  me: { label: 'More', icon: 'more_horiz' },
+  program: { label: 'Program', icon: 'school' },
+  jobs: { label: 'Jobs', icon: 'work' },
+  tools: { label: 'Tools', icon: 'construction' },
+  me: { label: 'Profile', icon: 'person' },
 };
 
-export const NAV_TAB_ORDER: NavTab[] = ['journey', 'tools', 'connect', 'me'];
+export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'tools', 'me'];
 
 export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   primary: null,
@@ -102,25 +103,17 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Home tab ──
   { href: '/dashboard', label: 'Overview', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
-  { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'tools', Icon: BookOpen, tourTarget: 'tour-programs' },
-  { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'tools', Icon: GraduationCap },
-  {
-    href: '/dashboard/skills-assessment',
-    label: 'Skills Assessment',
-    group: 'insights',
-    tab: 'tools',
-    Icon: ClipboardCheck,
-    aliases: ['/dashboard/assessments', '/dashboard/assessment'],
-  },
-  { href: '/dashboard/certifications', label: 'Certificates', group: 'manage', tab: 'tools', Icon: Award, aliases: ['/certifications'] },
-  { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'tools', Icon: ClipboardList },
+  { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'program', Icon: GraduationCap },
+  { href: '/dashboard/certifications', label: 'Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE
     ? [
         {
           href: '/dashboard/learning/wioa-qualification',
           label: 'Funding eligibility',
           group: 'insights',
-          tab: 'tools',
+          tab: 'program',
           Icon: Shield,
         } as PortalNavItem,
       ]
@@ -130,7 +123,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/jobs',
     label: 'Job Board',
     group: 'workflows',
-    tab: 'connect',
+    tab: 'jobs',
     Icon: Briefcase,
     tourTarget: 'tour-jobs',
   },
@@ -138,20 +131,20 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/job-applications',
     label: 'Job Applications',
     group: 'workflows',
-    tab: 'connect',
+    tab: 'jobs',
     Icon: FileText,
     aliases: ['/dashboard/ai-tools/application-tracker', '/applications'],
     badgeKey: 'applications_new',
   },
-  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'connect', Icon: FileText },
-  { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'connect', Icon: CheckCircle },
-  // ── More tab ──
-  { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
+  { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'jobs', Icon: CheckCircle },
+  // ── Tools tab ──
+  { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'tools', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
     group: 'workflows',
-    tab: 'me',
+    tab: 'tools',
     Icon: Library,
     aliases: ['/resources', '/dashboard/career-library'],
     tourTarget: 'tour-learning',
@@ -160,10 +153,19 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/learning/find-your-career',
     label: 'Find your career',
     group: 'workflows',
-    tab: 'me',
+    tab: 'tools',
     Icon: Compass,
     aliases: ['/dashboard/learning/interest-profiler'],
   },
+  {
+    href: '/dashboard/skills-assessment',
+    label: 'Skills Assessment',
+    group: 'insights',
+    tab: 'tools',
+    Icon: ClipboardCheck,
+    aliases: ['/dashboard/assessments', '/dashboard/assessment'],
+  },
+  // ── Profile tab ──
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'me', Icon: BarChart3 },
   {
     href: '/dashboard/messages',

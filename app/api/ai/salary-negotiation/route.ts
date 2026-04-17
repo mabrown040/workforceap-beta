@@ -9,7 +9,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+  if (!isAIConfigured()) return NextResponse.json({ error: 'This tool isn't available right now — try again soon.' }, { status: 503 });
 
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
@@ -57,7 +57,7 @@ Write a ${isPhone ? 'phone call' : 'email'} script they can use word-for-word.`;
       { maxTokens: 1000, temperature: 0.6 }
     );
 
-    if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+    if (!output) return NextResponse.json({ error: 'We didn't get a response. Try again in a moment.' }, { status: 500 });
 
     const summary = `${companyName} — ${jobTitle} — $${currentOffer} → $${targetSalary}`;
     try {

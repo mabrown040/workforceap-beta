@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   }
 
   if (!isAIConfigured()) {
-    return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+    return NextResponse.json({ error: 'This tool isn't available right now — try again soon.' }, { status: 503 });
   }
 
   const { success } = await checkAIToolRateLimit(user.id);
@@ -73,7 +73,7 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
       { maxTokens: 2500, temperature: 0.8 }
     );
     if (!raw) {
-      return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+      return NextResponse.json({ error: 'We didn't get a response. Try again in a moment.' }, { status: 500 });
     }
 
     // Extract JSON from response (handle markdown code blocks)

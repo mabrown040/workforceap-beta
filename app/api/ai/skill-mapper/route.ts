@@ -118,7 +118,6 @@ export async function GET(req: NextRequest) {
             { status: 503 }
           );
         }
-
         const demo = getDemoRadarForCode(code);
         skills = demo.skills;
         radarData = demo.radarAxes;

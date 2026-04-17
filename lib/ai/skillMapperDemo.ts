@@ -79,7 +79,7 @@ function normalizeQuery(q: string) {
   return q.trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-/** Minimum normalized keyword length for reverse substring matching. */
+/** Minimum normalized keyword length for `query.includes(keyword)` matching (avoids 2-char false positives like "ae" in "aerospace"). */
 const MIN_REVERSE_SUBSTRING_MATCH_LEN = 3;
 
 export function isDemoOccupationCode(code: string) {
@@ -93,7 +93,7 @@ export function searchDemoOccupations(q: string) {
     const haystack = [o.title, o.code, ...(o.keywords ?? [])].map(normalizeQuery);
     return haystack.some((value) => {
       if (value.includes(qn)) return true;
-      if (value.length >= MIN_REVERSE_SUBSTRING_MATCH_LEN && qn.includes(value)) return true;
+      if (qn.includes(value) && value.length >= MIN_REVERSE_SUBSTRING_MATCH_LEN) return true;
       return false;
     });
   });

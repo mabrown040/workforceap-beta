@@ -13,7 +13,12 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { getFallbackDesignScore, isDesignRelatedOccupation } from '@/lib/content/courseSkillMap';
+import { getFallbackDesignScore } from '@/lib/content/courseSkillMap';
+import {
+  getDemoRadarForCode,
+  isDemoOccupationCode,
+  searchDemoOccupations,
+} from '@/lib/ai/skillMapperDemo';
 
 /**
  * GET /api/ai/skill-mapper?occupation=software+developer
@@ -38,18 +43,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
   }
 
-  if (!isOnetConfigured()) {
-    return NextResponse.json(
-      { error: 'O*NET is not configured. Set ONET_API_KEY for occupation search and skills.' },
-      { status: 503 }
-    );
-  }
-
   try {
     // If a specific occupation code is provided, return full skill data
     if (code) {
-      const skills = await getOccupationSkills(code);
-      
+      let skills;
+      let radarData;
+      let totalSkills;
+      let usingDemo = false;
+
       // Look up WorkforceAP programs mapped to this occupation (needed for fallback)
       let matchedPrograms: {
         programSlug: string;
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
         whyRecommended: string | null;
       }[] = [];
       let fallbackDesignScore: number | undefined;
-      
+
       try {
         const programMappings = await prisma.careerProgramMapping.findMany({
           where: { onetCode: code, isActive: true },
@@ -88,7 +89,7 @@ export async function GET(req: NextRequest) {
             whyRecommended: m.whyRecommended,
           };
         });
-        
+
         // Calculate fallback Design score from course mappings
         if (programMappings.length > 0) {
           fallbackDesignScore = getFallbackDesignScore(
@@ -97,15 +98,27 @@ export async function GET(req: NextRequest) {
           );
         }
       } catch {
-        /* non-fatal — programs still render from radar-axis-based recs */
+        /* non-fatal, programs still render from radar-axis-based recs */
       }
-      
-      // Map skills to radar axes with fallback for Design
-      const radarData = mapSkillsToRadarAxes(skills, {
-        occupationCode: code,
-        occupationTitle: occupationTitle ?? undefined,
-        fallbackDesignScore,
-      });
+
+      const buildRadarData = (sourceSkills: Awaited<ReturnType<typeof getOccupationSkills>>) =>
+        mapSkillsToRadarAxes(sourceSkills, {
+          occupationCode: code,
+          occupationTitle: occupationTitle ?? undefined,
+          fallbackDesignScore,
+        });
+
+      if (!isOnetConfigured() && isDemoOccupationCode(code)) {
+        const demo = getDemoRadarForCode(code);
+        skills = demo.skills;
+        radarData = demo.radarAxes;
+        totalSkills = demo.totalSkills;
+        usingDemo = true;
+      } else {
+        skills = await getOccupationSkills(code);
+        radarData = buildRadarData(skills);
+        totalSkills = skills.length;
+      }
 
       try {
         await ensureUserInDb(user);
@@ -119,6 +132,7 @@ export async function GET(req: NextRequest) {
             radarAxes: radarData,
             skills: skills.slice(0, 20),
             gaps: [], // populated by client from profile comparison
+            demo: usingDemo,
           })
         );
       } catch (saveErr) {
@@ -138,8 +152,9 @@ export async function GET(req: NextRequest) {
         occupationCode: code,
         skills: skills.slice(0, 20), // Top 20 skills
         radarAxes: radarData,
-        totalSkills: skills.length,
+        totalSkills,
         matchedPrograms,
+        demo: usingDemo,
         ...(process.env.NODE_ENV === 'development' ? {
           unmatchedAxes: radarData.filter(a => !a.hasData).map(a => a.axis),
           usedFallbackDesign: fallbackDesignScore !== undefined && radarData.find(a => a.axis === 'Design')?.value === fallbackDesignScore,
@@ -155,8 +170,22 @@ export async function GET(req: NextRequest) {
           { status: 400 }
         );
       }
-      const results = await searchOccupations(occupation);
-      return NextResponse.json({ occupations: results });
+
+      if (isOnetConfigured()) {
+        const results = await searchOccupations(occupation);
+        if (results.length > 0) return NextResponse.json({ occupations: results });
+      }
+
+      const demoResults = searchDemoOccupations(occupation);
+      if (demoResults.length > 0) {
+        return NextResponse.json({ occupations: demoResults, demo: true });
+      }
+
+      if (!isOnetConfigured()) {
+        return NextResponse.json({ occupations: [], demo: true });
+      }
+
+      return NextResponse.json({ occupations: [] });
     }
 
     return NextResponse.json(

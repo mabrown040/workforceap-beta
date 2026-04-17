@@ -538,6 +538,7 @@ export default function SkillMapperClient() {
       if (data.radarAxes) {
         setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
         setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
+        setUsingDemo(Boolean(data.demo));
       } else {
         const useSales = isSalesQuery(title);
         setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
@@ -604,7 +605,7 @@ export default function SkillMapperClient() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search an occupation (e.g. Software Developer)"
+              placeholder="Search an occupation (e.g. Software Developer, Account Executive, Project Manager)"
               className="ai-tool-input"
               style={{ flex: 1, minHeight: '44px' }}
             />

@@ -5,9 +5,9 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'FAQ: WIOA-Aligned Career Training & Certifications',
+  title: 'Questions & Answers — WorkforceAP',
   description:
-    'Answers about applying, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
+    'Answers about applying, eligibility, cost, certifications, and job placement — for applicants, parents, and anyone exploring WorkforceAP.',
   path: '/faq',
 });
 

@@ -19,7 +19,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Profile',
-  description: 'View and edit your profile.',
+  description: 'Update your contact info, resume, and career preferences.',
   path: '/dashboard/profile',
 });
 

@@ -100,13 +100,13 @@ export default async function JobsPage() {
         <div className="container">
           {!user ? (
             <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
-              <strong>Applying is for members.</strong>{' '}
-              <a href="/login?redirectTo=/dashboard/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                Log in
+              Applying is free for members.{' '}
+              <a href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                Start your application
               </a>{' '}
               or{' '}
-              <a href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                start an application
+              <a href="/login?redirectTo=/dashboard/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                log in
               </a>{' '}
               to submit your profile to roles you choose.
             </p>

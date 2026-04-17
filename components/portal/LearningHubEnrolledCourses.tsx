@@ -52,11 +52,7 @@ export default function LearningHubEnrolledCourses({
             When you enroll in a program, your Coursera course list appears here with progress. Choose a track on{' '}
             <strong>My Program</strong> to get started.
           </p>
-          <Link
-            href="/dashboard/program"
-            className={isMobile ? 'wa-inline-flex wa-items-center wa-gap-2 wa-bg-[#8c0f37] wa-text-white wa-font-semibold wa-px-4 wa-py-3 wa-rounded-lg' : 'btn btn-primary'}
-            style={isMobile ? { textDecoration: 'none' } : undefined}
-          >
+          <Link href="/dashboard/program" className="btn btn-primary">
             Go to My Program
           </Link>
         </div>

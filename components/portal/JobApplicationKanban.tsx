@@ -39,7 +39,7 @@ const STATUS_BADGE_STYLES: Record<JobApplicationStatus, CSSProperties> = {
 
 const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
   SAVED:        '#64748b',
-  APPLIED:      '#8c0f37',
+  APPLIED:      'var(--color-accent)',
   PHONE_SCREEN: '#2563eb',
   INTERVIEWING: '#d97706',
   OFFER:        '#16a34a',

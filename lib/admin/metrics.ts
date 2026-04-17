@@ -1,6 +1,12 @@
 import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
+function logMetricsReason(label: string, reason: unknown) {
+  const msg = reason instanceof Error ? reason.message : String(reason);
+  const code = reason instanceof Prisma.PrismaClientKnownRequestError ? reason.code : undefined;
+  console.error(`[admin/metrics] ${label} failed`, code ?? '(no code)', msg);
+}
+
 const EVENT_ONLY_AI_TOOLS = [
   'readiness_voice_session',
   'wioa_prequalification_voice_session',
@@ -192,15 +198,15 @@ export async function getAdminMetrics() {
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
   const [
-    totalMembers,
-    activeUserIds7d,
-    activeUserIds14d,
-    goalsCount,
-    applicationsCount,
-    resourceCompletions,
-    pathwayStarts,
-    aiToolStats,
-  ] = await Promise.all([
+    totalMembersResult,
+    activeUserIds7dResult,
+    activeUserIds14dResult,
+    goalsCountResult,
+    applicationsCountResult,
+    resourceCompletionsResult,
+    pathwayStartsResult,
+    aiToolStatsResult,
+  ] = await Promise.allSettled([
     prisma.user.count({ where: { deletedAt: null } }),
     prisma.memberEvent.findMany({
       where: { createdAt: { gte: sevenDaysAgo } },
@@ -219,17 +225,68 @@ export async function getAdminMetrics() {
     getAiToolStats(7),
   ]);
 
+  if (totalMembersResult.status === 'rejected') logMetricsReason('totalMembers', totalMembersResult.reason);
+  if (activeUserIds7dResult.status === 'rejected') logMetricsReason('activeUserIds7d', activeUserIds7dResult.reason);
+  if (activeUserIds14dResult.status === 'rejected') logMetricsReason('activeUserIds14d', activeUserIds14dResult.reason);
+  if (goalsCountResult.status === 'rejected') logMetricsReason('goalsCount', goalsCountResult.reason);
+  if (applicationsCountResult.status === 'rejected') logMetricsReason('applicationsCount', applicationsCountResult.reason);
+  if (resourceCompletionsResult.status === 'rejected') logMetricsReason('resourceCompletions', resourceCompletionsResult.reason);
+  if (pathwayStartsResult.status === 'rejected') logMetricsReason('pathwayStarts', pathwayStartsResult.reason);
+  if (aiToolStatsResult.status === 'rejected') logMetricsReason('aiToolStats', aiToolStatsResult.reason);
+
+  const totalMembers = totalMembersResult.status === 'fulfilled' ? totalMembersResult.value : 0;
+  const activeUserIds7d = activeUserIds7dResult.status === 'fulfilled' ? activeUserIds7dResult.value : [];
+  const activeUserIds14d = activeUserIds14dResult.status === 'fulfilled' ? activeUserIds14dResult.value : [];
+  const goalsCount = goalsCountResult.status === 'fulfilled' ? goalsCountResult.value : 0;
+  const applicationsCount = applicationsCountResult.status === 'fulfilled' ? applicationsCountResult.value : 0;
+  const resourceCompletions = resourceCompletionsResult.status === 'fulfilled' ? resourceCompletionsResult.value : 0;
+  const pathwayStarts = pathwayStartsResult.status === 'fulfilled' ? pathwayStartsResult.value : 0;
+  const aiToolStats = aiToolStatsResult.status === 'fulfilled'
+    ? aiToolStatsResult.value
+    : { runsLastNDays: 0, trend: 0, totalRuns: 0, breakdown: [] };
+
   const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
-  const allUsers = await prisma.user.findMany({ select: { id: true } });
-  const inactiveUserIds = allUsers.filter((u) => !active14dSet.has(u.id)).map((u) => u.id);
+
+  const allUsersResult = await prisma.user.findMany({ select: { id: true } })
+    .then((value) => ({ status: 'fulfilled' as const, value }))
+    .catch((reason) => ({ status: 'rejected' as const, reason }));
+
+  if (allUsersResult.status === 'rejected') {
+    logMetricsReason('allUsers', allUsersResult.reason);
+  }
+
+  const inactiveUserIds = allUsersResult.status === 'fulfilled'
+    ? allUsersResult.value.filter((u) => !active14dSet.has(u.id)).map((u) => u.id)
+    : [];
 
   // Parallel fetch for charts + Career OS funnel
-  const [dailyActivity, enrollmentByProgram, placementStats, careerOsMetrics] = await Promise.all([
+  const [dailyActivityResult, enrollmentByProgramResult, placementStatsResult, careerOsMetricsResult] = await Promise.allSettled([
     getDailyActivity(14),
     getEnrollmentByProgram(),
     getPlacementStats(),
     getCareerOsMetrics(),
   ]);
+
+  if (dailyActivityResult.status === 'rejected') logMetricsReason('dailyActivity', dailyActivityResult.reason);
+  if (enrollmentByProgramResult.status === 'rejected') logMetricsReason('enrollmentByProgram', enrollmentByProgramResult.reason);
+  if (placementStatsResult.status === 'rejected') logMetricsReason('placementStats', placementStatsResult.reason);
+  if (careerOsMetricsResult.status === 'rejected') logMetricsReason('careerOsMetrics', careerOsMetricsResult.reason);
+
+  const dailyActivity = dailyActivityResult.status === 'fulfilled' ? dailyActivityResult.value : [];
+  const enrollmentByProgram = enrollmentByProgramResult.status === 'fulfilled' ? enrollmentByProgramResult.value : [];
+  const placementStats = placementStatsResult.status === 'fulfilled'
+    ? placementStatsResult.value
+    : { enrolled: 0, placed: 0, certifications: 0, placementRate: 0 };
+  const careerOsMetrics = careerOsMetricsResult.status === 'fulfilled'
+    ? careerOsMetricsResult.value
+    : {
+        completionsTriggered: 0,
+        actionsGenerated: 0,
+        actionsCompleted: 0,
+        actionsDismissed: 0,
+        actionsPending: 0,
+        followThroughRate: 0,
+      };
 
   return {
     totalMembers,
@@ -239,14 +296,12 @@ export async function getAdminMetrics() {
     applicationsSubmitted: applicationsCount,
     resourcesCompleted: resourceCompletions,
     aiToolRuns: aiToolStats.totalRuns,
-    aiToolStats, // New detailed stats
+    aiToolStats,
     pathwayStarts,
     inactiveUserIds: inactiveUserIds.slice(0, 50),
-    // Chart data
     dailyActivity,
     enrollmentByProgram,
     placementStats,
-    // Career OS funnel
     careerOsMetrics,
   };
 }

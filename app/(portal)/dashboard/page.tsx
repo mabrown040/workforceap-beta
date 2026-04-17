@@ -525,16 +525,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </p>
               <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
                 {noApplicationOnFile
-                  ? 'Apply now — takes about 10 minutes'
-                  : 'Choose your training program'}
+                  ? 'Apply now — 10 minutes'
+                  : 'Choose your program'}
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
                 {noApplicationOnFile
-                  ? 'Free career training funded by government partnerships. We\'ll pair you with a counselor and a program that fits your goals.'
-                  : 'Pick the career track that fits your goals. Free for members, funded through government partnerships.'}
+                  ? 'Free, government-funded training. A counselor will help you pick the right program and next steps.'
+                  : 'Pick the career track that fits your goals — all free for members.'}
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
-                <span>{noApplicationOnFile ? 'Start Your Application' : 'Choose Program'}</span>
+                <span>{noApplicationOnFile ? 'Start Application' : 'Choose Program'}</span>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
               </div>
             </Link>

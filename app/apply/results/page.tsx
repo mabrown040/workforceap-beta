@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyResultsClient from './ApplyResultsClient';
+import ApplyPageSkeleton from '../ApplyPageSkeleton';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Choose Your Program',
@@ -22,7 +23,7 @@ export default function ApplyResultsPage() {
 
       <section className="content-section">
         <div className="container">
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyResultsClient />
           </Suspense>
         </div>

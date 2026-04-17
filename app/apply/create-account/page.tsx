@@ -26,7 +26,7 @@ export default function ApplyCreateAccountPage() {
       <section className="content-section">
         <div className="container">
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-            <Suspense fallback={<p>Loading…</p>}>
+            <Suspense fallback={<p style={{ color: 'var(--color-on-surface-variant)' }}>Loading your account form…</p>}>
               <ApplyCreateAccountForm />
             </Suspense>
             <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>

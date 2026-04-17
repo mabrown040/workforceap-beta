@@ -265,7 +265,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.mainCard}>
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
-          <Suspense fallback={<div style={{ padding: 'var(--space-4)', color: 'var(--color-on-surface-variant)' }}>Loading...</div>}>
+          <Suspense fallback={<div style={{ padding: 'var(--space-4)', color: 'var(--color-on-surface-variant)' }}>Loading your application…</div>}>
             <ApplyRefCapture />
           </Suspense>
 

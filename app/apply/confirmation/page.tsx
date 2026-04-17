@@ -63,7 +63,7 @@ export default function ApplyConfirmationPage() {
               </p>
             </div>
 
-            <Suspense fallback={<div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading next steps...</div>}>
+            <Suspense fallback={<div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading your next steps…</div>}>
               <ApplyConfirmationCta />
             </Suspense>
 

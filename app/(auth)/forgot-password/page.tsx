@@ -116,7 +116,7 @@ function ForgotPasswordForm() {
 
 export default function ForgotPasswordPage() {
   return (
-    <Suspense fallback={<div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center' }}>Loading…</div>}>
+    <Suspense fallback={<div className="inner-page" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading password reset…</div>}>
       <ForgotPasswordForm />
     </Suspense>
   );

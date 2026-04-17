@@ -276,7 +276,7 @@ export default function WioaQualificationClient({
             ) : null}
             <VoiceAgentSurface
               badge="Voice pre-check"
-              headline="WIOA pre-qualification guide"
+              headline="Free Training Pre-Check Guide"
               subtext={
                 isPublic
                   ? 'Talk through a quick walkthrough, then use the form to send the structured screening to our team.'
@@ -289,7 +289,7 @@ export default function WioaQualificationClient({
               <PortalVoiceSession
                 sessionEndpoint={voiceSessionEndpoint}
                 sessionPayload={voicePayload}
-                title="WIOA pre-check"
+                title="Free Training Pre-Check"
                 description="Talk through your work goals, barriers, and likely eligibility before the formal review."
                 accent="#0d9488"
                 accentDark="#0f766e"

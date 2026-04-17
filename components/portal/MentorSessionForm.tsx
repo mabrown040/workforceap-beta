@@ -44,7 +44,7 @@ export default function MentorSessionForm({ mentorId }: { mentorId: string }) {
         style={{ border: '1px solid var(--surface-container-high)', borderRadius: '0.5rem', padding: '0.55rem', background: 'var(--color-surface)', color: 'var(--color-on-surface)', resize: 'vertical' as const }}
       />
       {status === 'error' && (
-        <p style={{ color: 'var(--color-accent)', fontSize: '0.85rem' }}>Something went wrong. Please try again.</p>
+        <p style={{ color: 'var(--color-accent)', fontSize: '0.85rem' }}>We couldn't send your request. Try again in a moment.</p>
       )}
       <button
         type="submit" disabled={status === 'loading'}

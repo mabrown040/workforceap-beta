@@ -335,7 +335,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       }
 
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong. Please try again.');
+        setError(data.error ?? 'We couldn\'t sign you in right now. Try again in a moment.');
         setLoading(false);
         return;
       }
@@ -343,7 +343,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       const nextLocation = typeof data?.redirectTo === 'string' ? data.redirectTo : redirectTo;
       window.location.href = new URL(nextLocation, window.location.origin).href;
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError('We couldn\'t connect. Check your connection and try again.');
       setLoading(false);
     }
   };

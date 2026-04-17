@@ -99,7 +99,7 @@ function InviteContent() {
         window.location.href = result.redirectTo;
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : 'We couldn\'t accept this invitation. Try again in a moment.');
       setSubmitting(false);
     }
   };

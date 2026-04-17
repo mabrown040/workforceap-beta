@@ -257,7 +257,7 @@ export default function SignupForm() {
       if (!res.ok) {
         trackFunnelEvent('member_signup', 'signup_failed', { program_interest: data.programInterest });
         setSubmitStatus('error');
-        setErrorMessage(json.error ?? 'Something went wrong. Please try again.');
+        setErrorMessage(json.error ?? 'We couldn\'t create your account. Try again in a moment.');
         return;
       }
 

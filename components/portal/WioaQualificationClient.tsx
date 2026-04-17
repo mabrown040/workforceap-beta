@@ -124,7 +124,7 @@ export default function WioaQualificationClient({
       });
       const data = (await res.json()) as { snapshot?: WioaQualificationSnapshot; error?: string };
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong');
+        setError(data.error ?? 'We couldn\'t save your answers. Try again in a moment.');
         return;
       }
       if (data.snapshot) setSnapshot(data.snapshot);

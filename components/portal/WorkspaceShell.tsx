@@ -445,7 +445,7 @@ export default function WorkspaceShell({
       </div>
       {/* Mobile bottom nav — shown on all portal roles on small screens */}
       {ROLE_TO_NAV_VARIANT[portalRole] ? (
-        <MobileBottomNav variant={ROLE_TO_NAV_VARIANT[portalRole]} />
+        <MobileBottomNav variant={ROLE_TO_NAV_VARIANT[portalRole]} badgeCounts={badges} />
       ) : null}
     </div>
   );

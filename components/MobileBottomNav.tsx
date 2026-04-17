@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  type NavBadgeKey,
   MEMBER_PORTAL_NAV_ITEMS,
   NAV_TAB_META,
   NAV_TAB_ORDER,
@@ -69,9 +70,10 @@ const ADMIN_TABS = [
 
 interface MobileBottomNavProps {
   variant?: 'marketing' | 'portal' | 'employer' | 'counselor' | 'partner' | 'admin';
+  badgeCounts?: Partial<Record<NavBadgeKey, number>>;
 }
 
-export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
+export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: MobileBottomNavProps) {
   const pathname = usePathname() ?? '';
   const tabs =
     variant === 'portal' ? getMemberBottomTabs()
@@ -126,6 +128,11 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
             : exactMatch.includes(href)
               ? pathname === href
               : pathname.startsWith(href);
+        const showDot =
+          variant === 'portal' &&
+          'tab' in tab &&
+          tab.tab === 'me' &&
+          (badgeCounts?.counselor_messages_unread ?? 0) > 0;
         return (
           <Link
             key={href}
@@ -134,14 +141,31 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
             aria-current={isActive ? 'page' : undefined}
             {...(tourTarget ? { 'data-tour': tourTarget } : {})}
           >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: '22px',
-                lineHeight: 1,
-              }}
-             aria-hidden="true">
-              {icon}
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: '22px',
+                  lineHeight: 1,
+                }}
+               aria-hidden="true">
+                {icon}
+              </span>
+              {showDot ? (
+                <span
+                  aria-label="Unread messages"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: -4,
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: 'var(--color-accent, #ad2c4d)',
+                    border: '1.5px solid var(--color-white, #fff)',
+                  }}
+                />
+              ) : null}
             </span>
             <span className="marketing-bottom-nav__label">{label}</span>
           </Link>

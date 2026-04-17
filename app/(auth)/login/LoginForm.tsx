@@ -229,7 +229,7 @@ const s = {
   } as React.CSSProperties,
 
   errorBanner: {
-    background: 'rgba(173,44,77,0.1)',
+    background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
     borderLeft: '4px solid var(--color-accent)',
     padding: 'var(--space-3) var(--space-4)',
     marginBottom: 'var(--space-4)',
@@ -398,7 +398,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                       fontWeight: 600,
                       borderRadius: 'var(--radius-sm)',
                       border: active ? '1px solid var(--color-accent)' : '1px solid var(--outline-variant)',
-                      background: active ? 'rgba(173,44,77,0.12)' : 'transparent',
+                      background: active ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
                       color: active ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                       textDecoration: 'none',
                       transition: 'all 0.2s',

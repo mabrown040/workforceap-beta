@@ -36,7 +36,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
     setError(null);
     fetch(apiBase)
       .then((r) => {
-        if (!r.ok) throw new Error(r.status === 403 ? 'No access to this member's resume.' : 'Could not load resume.');
+        if (!r.ok) throw new Error(r.status === 403 ? "No access to this member's resume." : 'Could not load resume.');
         return r.json();
       })
       .then((d: ResumeMeta) => {

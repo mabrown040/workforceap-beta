@@ -145,6 +145,13 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
 
   const counts = useMemo(() => subgroupCounts(), []);
   const subgroupOrder = useMemo(() => orderedSubgroupIdsWithPrograms(PROGRAMS), []);
+  const [openSubgroups, setOpenSubgroups] = useState<Record<string, boolean>>(() => {
+    const initialOrder = orderedSubgroupIdsWithPrograms(PROGRAMS);
+    return initialOrder.reduce<Record<string, boolean>>((acc, id, idx) => {
+      acc[id] = idx === 0;
+      return acc;
+    }, {});
+  });
 
   const filterChips = useMemo((): { key: ProgramSubgroupId | 'all'; label: string }[] => {
     const chips: { key: ProgramSubgroupId | 'all'; label: string }[] = [
@@ -209,7 +216,11 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                   key={sgId}
                   id={`subgroup-${sgId}`}
                   className="programs-subgroup-detail"
-                  open={idx === 0}
+                  open={openSubgroups[sgId] ?? idx === 0}
+                  onToggle={(event) => {
+                    const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
+                    setOpenSubgroups((prev) => ({ ...prev, [sgId]: nextOpen }));
+                  }}
                   style={{
                     scrollMarginTop: '6rem',
                     marginBottom: '2.5rem',

@@ -565,7 +565,29 @@ export default function DashboardHomeClient({
           </div>
         </section>
 
-        {/* ── Tools & Extras — collapsed behind More ── */}
+        <section style={{ gridColumn: 'span 12' }}>
+          <div className="portal-card portal-card--flat" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '1rem 1.25rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', minWidth: 0, flex: 1 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>support_agent</span>
+              <div style={{ minWidth: 0 }}>
+                <h5 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>AI coach</h5>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.35rem 0 0', lineHeight: 1.5 }}>
+                  Talk through interviews, certifications, and your next best step.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
+              <Link href="/dashboard/readiness" className="btn btn-primary" onClick={() => handleDashboardAction('career_readiness_clicked')}>
+                Talk to AI coach
+              </Link>
+              <Link href="/dashboard/ai-tools" className="btn btn-outline" onClick={() => handleDashboardAction('ai_tools_clicked')}>
+                Open AI tools
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Tools & Extras ── */}
         <section style={{ gridColumn: 'span 12' }}>
           <details className="portal-details">
             <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', padding: '0.75rem 0', userSelect: 'none' }}>

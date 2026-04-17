@@ -139,8 +139,8 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               role="alert"
               style={{
                 padding: '0.75rem 1rem',
-                background: 'rgba(173,44,77,0.08)',
-                border: '1px solid rgba(173,44,77,0.25)',
+                background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
                 borderRadius: 'var(--radius-md)',
                 color: 'var(--color-accent)',
                 fontSize: '0.875rem',

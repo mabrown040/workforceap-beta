@@ -207,7 +207,7 @@ export default function InterviewPracticeForm() {
                 padding: '0.75rem 0.5rem',
                 borderRadius: '0.75rem',
                 border: focusAreas.includes(opt.id) ? '2px solid var(--color-accent)' : '1px solid var(--outline-variant, rgba(0,0,0,0.08))',
-                background: focusAreas.includes(opt.id) ? 'rgba(173,44,77,0.06)' : 'var(--surface-container)',
+                background: focusAreas.includes(opt.id) ? 'color-mix(in srgb, var(--color-accent) 6%, transparent)' : 'var(--surface-container)',
                 cursor: 'pointer',
                 fontSize: '0.8125rem',
                 fontWeight: 600,

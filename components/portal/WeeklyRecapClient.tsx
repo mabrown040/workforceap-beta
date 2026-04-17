@@ -87,7 +87,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
           <p style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>{weekLabel}</p>
         </div>
         {score !== null && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.875rem 1.25rem', borderRadius: '0.875rem', background: 'rgba(173,44,77,0.08)', border: '1px solid rgba(173,44,77,0.15)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.875rem 1.25rem', borderRadius: '0.875rem', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 15%, transparent)' }}>
             <div>
               <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Readiness Score</p>
               <p style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.04em', color: 'var(--color-accent)', margin: 0, lineHeight: 1 }}>
@@ -129,7 +129,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
                     {g.title}
                   </span>
                   {!done && g.status && (
-                    <span style={{ fontSize: '0.625rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em', marginLeft: 'auto' }}>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em', marginLeft: 'auto' }}>
                       {g.status}
                     </span>
                   )}

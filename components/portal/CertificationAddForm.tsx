@@ -109,7 +109,7 @@ export default function CertificationAddForm() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '0.625rem', border: '2px dashed rgba(173,44,77,0.3)', background: 'rgba(173,44,77,0.04)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', width: '100%', justifyContent: 'center' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.5rem 1rem', borderRadius: '0.625rem', border: '2px dashed color-mix(in srgb, var(--color-accent) 30%, transparent)', background: 'color-mix(in srgb, var(--color-accent) 4%, transparent)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', width: '100%', justifyContent: 'center' }}
       >
         <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">add_circle</span>
         Add a Certificate
@@ -129,7 +129,7 @@ export default function CertificationAddForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: '1.125rem', background: 'var(--surface-container-low)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+    <form onSubmit={handleSubmit} style={{ padding: '1.125rem', background: 'var(--surface-container-low)', border: '1px solid color-mix(in srgb, var(--color-accent) 15%, transparent)', borderRadius: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
         <h3 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>Add Certificate</h3>
         <button type="button" aria-label="Close" onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
@@ -138,7 +138,7 @@ export default function CertificationAddForm() {
       </div>
 
       {error && (
-        <p style={{ fontSize: '0.875rem', color: 'var(--color-accent)', margin: 0, padding: '0.5rem 0.75rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.5rem' }}>{error}</p>
+        <p style={{ fontSize: '0.875rem', color: 'var(--color-accent)', margin: 0, padding: '0.5rem 0.75rem', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', borderRadius: '0.5rem' }}>{error}</p>
       )}
 
       {/* Certificate name */}

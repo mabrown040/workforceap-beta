@@ -34,7 +34,7 @@ const STATUS_BADGE_STYLES: Record<JobApplicationStatus, CSSProperties> = {
   INTERVIEWING: { background: 'rgba(217,119,6,0.1)', color: '#d97706' },
   OFFER:        { background: 'rgba(22,163,74,0.12)', color: '#16a34a' },
   SAVED:        { background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' },
-  REJECTED:     { background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)' },
+  REJECTED:     { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' },
 };
 
 const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {

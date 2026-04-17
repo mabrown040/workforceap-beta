@@ -216,7 +216,7 @@ export default function ElevatorPitchClient() {
           </div>
         )}
         {recording && (
-          <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.625rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.9)', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>
+          <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.25rem 0.625rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.75rem', fontWeight: 700 }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fff', animation: 'portal-pulse 1s ease-in-out infinite', display: 'block' }} />
             REC
           </div>

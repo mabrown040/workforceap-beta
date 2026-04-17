@@ -5,7 +5,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
   return (
     <div style={{
       padding: '1.5rem',
-      background: 'linear-gradient(135deg, rgba(240, 205, 131, 0.15) 0%, rgba(173, 44, 77, 0.08) 100%)',
+      background: 'linear-gradient(135deg, rgba(240, 205, 131, 0.15) 0%, color-mix(in srgb, var(--color-accent) 8%, transparent) 100%)',
       border: '2px solid rgba(240, 205, 131, 0.4)',
       borderRadius: 'var(--radius-md)',
       marginBottom: '2rem'
@@ -33,7 +33,7 @@ export default function YouthDashboardNotice({ age }: { age: number }) {
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
           <div style={{ 
             padding: '0.5rem', 
-            background: 'rgba(173, 44, 77, 0.1)', 
+            background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', 
             borderRadius: '8px',
             flexShrink: 0
           }}>

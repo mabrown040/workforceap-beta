@@ -46,7 +46,7 @@ export default function AssessmentRetakeButton() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem', background: 'rgba(173,44,77,0.06)', borderRadius: '0.625rem', border: '1px solid rgba(173,44,77,0.15)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem', background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)', borderRadius: '0.625rem', border: '1px solid color-mix(in srgb, var(--color-accent) 15%, transparent)' }}>
       <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0, fontWeight: 600 }}>
         Are you sure you want to retake?
       </p>

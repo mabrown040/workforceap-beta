@@ -461,7 +461,7 @@ export default function DashboardHomeClient({
 
             {state === 'D' && (
               <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'linear-gradient(135deg, rgba(173,44,77,0.2), var(--surface-container-highest))' }}>
+                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 20%, transparent), var(--surface-container-highest))' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
                   <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
                     <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>COMPLETE</span>

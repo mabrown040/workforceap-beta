@@ -221,7 +221,7 @@ export default function WhatWeDoPage() {
             Find Your Career
           </a>
           <Link href="/wioa-qualification" className="btn btn-secondary btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-            Check WIOA Funding
+            Check Free Training Eligibility
           </Link>
         </div>
       </section>

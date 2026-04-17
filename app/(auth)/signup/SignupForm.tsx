@@ -96,44 +96,6 @@ const s = {
     marginBottom: 'var(--space-6)',
   } as React.CSSProperties,
 
-  socialRow: {
-    display: 'flex',
-    gap: 'var(--space-3)',
-    marginBottom: 'var(--space-4)',
-  } as React.CSSProperties,
-
-  socialBtn: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 'var(--space-2)',
-    padding: 'var(--space-3) var(--space-4)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 600,
-    background: 'var(--surface-container)',
-    border: '1px solid var(--outline-variant)',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--color-on-surface)',
-    cursor: 'pointer',
-    transition: 'background 0.2s',
-  } as React.CSSProperties,
-
-  divider: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    margin: 'var(--space-4) 0',
-    color: 'var(--color-on-surface-variant)',
-    fontSize: 'var(--font-size-sm)',
-  } as React.CSSProperties,
-
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    background: 'var(--outline-variant)',
-  } as React.CSSProperties,
-
   label: {
     display: 'block',
     fontSize: 'var(--font-size-sm)',

@@ -130,7 +130,7 @@ export default function WioaQualificationClient({
       if (data.snapshot) setSnapshot(data.snapshot);
       setEntryMode('form');
     } catch {
-      setError('Network error, try again.');
+      setError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }

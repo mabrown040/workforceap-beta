@@ -119,7 +119,7 @@ export default function ResumeStrengthForm() {
       setOutput(data.output ?? '');
     } catch {
       trackAIToolRun('errored', 'resume-analysis', { reason: 'network_error' });
-      setError('Network error. Please try again.');
+      setError('We couldn't connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

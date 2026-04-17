@@ -27,10 +27,10 @@ export default function ApplyStatusClient() {
       if (typeof data.found === 'boolean' && data.message) {
         setResult({ found: data.found, message: data.message });
       } else {
-        setError('Unexpected response. Please try again.');
+        setError('We couldn\'t find your application status. Try again, or call (512) 777-1808 for help.');
       }
     } catch {
-      setError('Network error. Please try again.');
+      setError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

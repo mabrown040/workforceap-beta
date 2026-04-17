@@ -21,10 +21,10 @@ export default function DeleteAccountButton() {
         router.refresh();
       } else {
         const data = await res.json().catch(() => ({}));
-        setDeleteError(typeof data.error === 'string' ? data.error : 'Failed to delete account.');
+        setDeleteError(typeof data.error === 'string' ? data.error : 'We couldn\'t delete your account. Try again in a moment.');
       }
     } catch {
-      setDeleteError('Failed to delete account. Check your connection and try again.');
+      setDeleteError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

@@ -98,7 +98,7 @@ export default function CertificationAddForm() {
         if (fileRef.current) fileRef.current.value = '';
       }, 1500);
     } catch {
-      setError('Network error — try again.');
+      setError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setSaving(false);
     }

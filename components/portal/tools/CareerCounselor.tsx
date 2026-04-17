@@ -77,7 +77,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       }
       signedUrl = data.signedUrl;
     } catch (err) {
-      setVoiceError(err instanceof Error ? err.message : 'Could not connect. Please try again.');
+      setVoiceError(err instanceof Error ? err.message : 'We couldn\'t connect. Check your connection and try again.');
       setPhase('pre');
       return;
     }

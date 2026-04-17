@@ -180,7 +180,7 @@ export default function MemberPreScreeningForm() {
       }
       router.refresh();
     } catch {
-      setError('Submit failed. Please try again.');
+      setError('We couldn\'t submit your form. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

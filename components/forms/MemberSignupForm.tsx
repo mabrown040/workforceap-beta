@@ -79,7 +79,7 @@ export default function MemberSignupForm() {
     } catch {
       trackFunnelEvent('member_signup', 'signup_network_error', { program_interest: data.programInterest });
       setSubmitStatus('error');
-      setErrorMessage('Network error. Please try again.');
+      setErrorMessage('We couldn\'t connect. Check your connection and try again.');
     }
   };
 

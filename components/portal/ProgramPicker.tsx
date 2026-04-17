@@ -37,7 +37,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
             `${data.error ?? 'Complete your profile first.'} Update phone, address, and financial aid interest on your profile, then try again.`
           );
         } else {
-          setError(data.error ?? 'Failed to enroll');
+          setError(data.error ?? 'We couldn\'t enroll you right now. Try again in a moment.');
         }
         setLoading(null);
         return;
@@ -45,7 +45,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Failed to enroll. Please try again.');
+      setError('We couldn\'t connect. Check your connection and try again.');
       setLoading(null);
     }
   };

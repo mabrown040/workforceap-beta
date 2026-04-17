@@ -145,7 +145,7 @@ export default function PortalTeamChatClient({
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Send failed');
+        setError(typeof data.error === 'string' ? data.error : 'We couldn't send your message. Try again in a moment.');
         return;
       }
       const msg = data.message as MessageDto | undefined;
@@ -155,7 +155,7 @@ export default function PortalTeamChatClient({
       setDraft('');
       dispatchBadgeRefresh();
     } catch {
-      setError('Network error');
+      setError('We couldn't connect. Check your connection and try again.');
     } finally {
       setSending(false);
     }

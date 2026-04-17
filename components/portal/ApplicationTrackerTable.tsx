@@ -126,10 +126,10 @@ export default function ApplicationTrackerTable() {
         fetchApplications();
       } else {
         const data = await res.json().catch(() => ({}));
-        setAddError(data.error ?? 'Failed to add application. Please try again.');
+        setAddError(data.error ?? 'We couldn\'t add that application. Try again in a moment.');
       }
     } catch {
-      setAddError('Network error. Please check your connection and try again.');
+      setAddError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -151,7 +151,7 @@ export default function ApplicationTrackerTable() {
       }
       await fetchApplications();
     } catch {
-      setActionError('Network error while updating status.');
+      setActionError('We couldn\'t connect. Check your connection and try again.');
       await fetchApplications();
     }
   };
@@ -170,7 +170,7 @@ export default function ApplicationTrackerTable() {
       }
       await fetchApplications();
     } catch {
-      setActionError('Network error while deleting.');
+      setActionError('We couldn\'t connect. Check your connection and try again.');
     }
   };
 
@@ -207,7 +207,7 @@ export default function ApplicationTrackerTable() {
       setEditingId(null);
       await fetchApplications();
     } catch {
-      setActionError('Network error while saving.');
+      setActionError('We couldn\'t connect. Check your connection and try again.');
     }
   };
 

@@ -43,7 +43,7 @@ export default function InterestProfilerClient() {
       try {
         const res = await fetch('/api/member/interest-profiler/questions');
         const data = (await res.json()) as { questions?: QuestionRow[]; error?: string };
-        if (!res.ok) throw new Error(data.error ?? 'Failed to load');
+        if (!res.ok) throw new Error(data.error ?? 'We couldn\'t load your questions. Try refreshing the page.');
         if (!data.questions?.length) throw new Error('No questions available');
         if (!cancelled) {
           setQuestions(data.questions);
@@ -54,7 +54,7 @@ export default function InterestProfilerClient() {
           });
         }
       } catch (e) {
-        if (!cancelled) setLoadError(e instanceof Error ? e.message : 'Failed to load');
+        if (!cancelled) setLoadError(e instanceof Error ? e.message : 'We couldn\'t load your questions. Try refreshing the page.');
       } finally {
         if (!cancelled) setLoading(false);
       }

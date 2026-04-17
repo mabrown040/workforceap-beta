@@ -57,7 +57,7 @@ export default function ElevatorPitchClient() {
       setPitch(data.pitch);
       setStep('pitch');
     } catch {
-      setGenError('Network error — try again.');
+      setGenError('We couldn\'t connect. Check your connection and try again.');
     } finally {
       setGenerating(false);
     }

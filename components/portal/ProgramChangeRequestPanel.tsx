@@ -62,14 +62,14 @@ export default function ProgramChangeRequestPanel({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? 'Could not submit');
+        setError(data.error ?? 'We couldn\'t submit your request. Try again in a moment.');
         return;
       }
       setReason('');
       setSuccess(true);
       await reload();
     } catch {
-      setError('Network error');
+      setError('We couldn't connect. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }

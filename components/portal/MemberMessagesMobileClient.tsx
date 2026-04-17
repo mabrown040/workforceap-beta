@@ -155,7 +155,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Send failed');
+        setError(typeof data.error === 'string' ? data.error : 'We couldn't send your message. Try again in a moment.');
         return;
       }
       const msg = data.message as MessageDto | undefined;
@@ -165,7 +165,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
       setDraft('');
       try { window.dispatchEvent(new CustomEvent('wa-nav-badges-refresh')); } catch { /* ignore */ }
     } catch {
-      setError('Network error');
+      setError('We couldn't connect. Check your connection and try again.');
     } finally {
       setSending(false);
     }

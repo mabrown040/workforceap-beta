@@ -35,7 +35,7 @@ export default function LinkedInHeadlineForm() {
       }
       setHeadlines(data.headlines ?? []);
     } catch {
-      setError('Network error. Please try again.');
+      setError('We couldn't connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

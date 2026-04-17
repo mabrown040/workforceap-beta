@@ -63,7 +63,7 @@ export default function DashboardProfileForm({
       }
       router.refresh();
     } catch {
-      setError('Update failed. Please try again.');
+      setError('We couldn\'t save your changes. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

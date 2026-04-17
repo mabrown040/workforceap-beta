@@ -47,14 +47,14 @@ function InviteContent() {
             error:
               status >= 500
                 ? 'The server could not load this invitation. Please try again shortly.'
-                : 'Failed to load invitation',
+                : 'We couldn't load this invitation. Try refreshing the page.',
           });
           return;
         }
         setData(data);
         if (data.valid && data.email) setFullName('');
       })
-      .catch(() => setData({ valid: false, error: 'Failed to load invitation' }))
+      .catch(() => setData({ valid: false, error: 'We couldn't load this invitation. Try refreshing the page.' }))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -87,7 +87,7 @@ function InviteContent() {
       const result = parsed.data;
 
       if (!res.ok) {
-        throw new Error(result.error ?? 'Failed to accept invitation');
+        throw new Error(result.error ?? 'We couldn\'t accept this invitation. Try again in a moment.');
       }
       const next =
         typeof result.redirectTo === 'string' && result.redirectTo.startsWith('/')

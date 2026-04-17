@@ -190,7 +190,7 @@ export default function InterviewCoach() {
       setFeedback(data.feedback ?? data.error ?? 'Unable to generate feedback.');
       refreshSessions();
     } catch {
-      setFeedback('Failed to generate feedback. Please try again.');
+      setFeedback('We couldn\'t generate your feedback. Try again in a moment.');
     } finally {
       setLoading(false);
     }

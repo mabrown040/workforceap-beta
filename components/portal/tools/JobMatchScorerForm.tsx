@@ -238,7 +238,7 @@ export default function JobMatchScorerForm() {
       setParsedOutput(data.parsed ?? null);
     } catch {
       trackAIToolRun('errored', 'job-match-scorer', { reason: 'network_error' });
-      setError('Network error. Please try again.');
+      setError('We couldn't connect. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

@@ -174,13 +174,152 @@ export default function DashboardHomeClient({
         </p>
       </header>
 
-      {nextBestActions.length > 0 && (
+      {/* ── 1. STATUS CARD — where am I, what's next ── */}
+      {(noApplicationOnFile || applicationStatus) && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
-          <MemberNextStepsStrip actions={nextBestActions} fillRow />
+          <section
+            className="portal-card portal-card--flat"
+            style={{ borderLeft: '4px solid var(--color-accent)' }}
+          >
+            <div className="portal-card__body">
+              {noApplicationOnFile ? (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>description</span>
+                    <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Program Application</h3>
+                  </div>
+                  <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      Ready to get started? Your application takes about 10 minutes — and programs are available at no cost to members.
+                    </p>
+                  </div>
+                  <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                    Start your application
+                  </Link>
+                </div>
+              ) : applicationStatus ? (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>task_alt</span>
+                    <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Application Status</h3>
+                  </div>
+                  {applicationStatus.progressIndex !== null && (
+                    <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }} aria-label="Application progress">
+                      {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
+                        const stepNum = i + 1;
+                        const idx = applicationStatus.progressIndex!;
+                        const done = stepNum < idx;
+                        const current = stepNum === idx;
+                        const locked = stepNum > idx;
+                        return (
+                          <div key={stepLabel} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
+                            <div
+                              style={{
+                                width: '100%',
+                                height: current ? '4px' : '3px',
+                                borderRadius: '9999px',
+                                background: done
+                                  ? 'var(--color-accent)'
+                                  : current
+                                    ? 'var(--color-accent)'
+                                    : 'var(--outline-variant)',
+                                opacity: locked ? 0.35 : 1,
+                              }}
+                            />
+                            <span
+                              style={{
+                                fontSize: '0.6875rem',
+                                fontWeight: current ? 700 : 600,
+                                color: locked ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface)',
+                                opacity: locked ? 0.45 : 0.85,
+                                textAlign: 'center',
+                              }}
+                            >
+                              {stepLabel}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '0.75rem' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Current status</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{applicationStatus.label}</p>
+                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{applicationStatus.nextStep}</p>
+                  {applicationStatus.showResponseEstimate && (
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
+                      We typically respond within 24-48 hours on business days.
+                    </p>
+                  )}
+                  <div className="portal-card portal-card--flat portal-card--padded-sm">
+                    <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost."}
+                      {state === 'B' && `Complete your skills assessment to unlock your ${programTitle} training.`}
+                      {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
+                      {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {assessmentScorePct != null && (
+                        <span style={{ padding: '0.25rem 0.625rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
+                          Assessment: {assessmentScorePct}%
+                        </span>
+                      )}
+                      {enrolledAt && (
+                        <span style={{ padding: '0.25rem 0.625rem', background: 'var(--surface-container-lowest)', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
+                          Enrolled: {formatPortalDate(enrolledAt)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </section>
         </div>
       )}
 
-      {/* ── Metric Strip ── */}
+      {/* ── 2. PRIMARY NEXT ACTION — first nextBestAction ── */}
+      {nextBestActions.length > 0 && (
+        <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
+          <MemberNextStepsStrip actions={nextBestActions.slice(0, 1)} fillRow />
+        </div>
+      )}
+
+      {/* ── 3. HELP STRIP — counselor contact + support CTA ── */}
+      <div
+        className="portal-card portal-card--flat"
+        style={{
+          margin: '0 2rem 1.5rem',
+          padding: '1rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem',
+          flexWrap: 'wrap',
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.25rem', flexShrink: 0 }}>support_agent</span>
+        <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', flex: 1, minWidth: '12rem' }}>
+          Have questions? Your counselor is here to help.
+        </span>
+        <Link
+          href="/dashboard/messages"
+          className="btn btn-secondary"
+          style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          onClick={() => handleDashboardAction('help_counselor_clicked')}
+        >
+          Message Counselor
+        </Link>
+        <Link
+          href="/dashboard/resources"
+          style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
+          onClick={() => handleDashboardAction('help_resources_clicked')}
+        >
+          Get Support
+        </Link>
+      </div>
+
+      {/* ── 4. METRIC CARDS ── */}
       {(state === 'C' || state === 'D') && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
           <div className="portal-metric-strip">
@@ -191,12 +330,12 @@ export default function DashboardHomeClient({
         </div>
       )}
 
-      {/* ── Bento Grid ── */}
+      {/* ── 5. Main content grid ── */}
       <div className="portal-bento-grid">
 
-        {/* ── Main Progress Card ── */}
+        {/* ── Main Progress Card (full-width) ── */}
         {(state === 'B' || state === 'C' || state === 'D') && programTitle && (
-          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 8' }}>
+          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', gap: '1rem' }}>
                 <div style={{ minWidth: 0 }}>
@@ -245,111 +384,6 @@ export default function DashboardHomeClient({
           </section>
         )}
 
-        {/* ── Side Card: Application Status or Today ── */}
-        <aside
-          className="portal-card portal-card--flat"
-          style={{
-            gridColumn: (state === 'B' || state === 'C' || state === 'D') && programTitle ? 'span 4' : 'span 12',
-            borderLeft: '4px solid var(--color-accent)',
-          }}
-        >
-          <div className="portal-card__body">
-          {/* Application Status */}
-          {noApplicationOnFile ? (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>description</span>
-                <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Program Application</h3>
-              </div>
-              <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '1rem' }}>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  Ready to get started? Your application takes about 10 minutes — and programs are available at no cost to members.
-                </p>
-              </div>
-              <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                Start your application
-              </Link>
-            </div>
-          ) : applicationStatus ? (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>task_alt</span>
-                <h3 style={{ fontWeight: 700, fontSize: '0.875rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Application Status</h3>
-              </div>
-              {applicationStatus.progressIndex !== null && (
-                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }} aria-label="Application progress">
-                  {MEMBER_APPLICATION_PROGRESS_STEPS.map((stepLabel, i) => {
-                    const stepNum = i + 1;
-                    const idx = applicationStatus.progressIndex!;
-                    const done = stepNum < idx;
-                    const current = stepNum === idx;
-                    const locked = stepNum > idx;
-                    return (
-                      <div key={stepLabel} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.35rem' }}>
-                        <div
-                          style={{
-                            width: '100%',
-                            height: current ? '4px' : '3px',
-                            borderRadius: '9999px',
-                            background: done
-                              ? 'var(--color-accent)'
-                              : current
-                                ? 'var(--color-accent)'
-                                : 'var(--outline-variant)',
-                            opacity: locked ? 0.35 : 1,
-                          }}
-                        />
-                        <span
-                          style={{
-                            fontSize: '0.6875rem',
-                            fontWeight: current ? 700 : 600,
-                            color: locked ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface)',
-                            opacity: locked ? 0.45 : 0.85,
-                            textAlign: 'center',
-                          }}
-                        >
-                          {stepLabel}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ marginBottom: '0.75rem' }}>
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Current status</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{applicationStatus.label}</p>
-              </div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{applicationStatus.nextStep}</p>
-              {applicationStatus.showResponseEstimate && (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
-                  We typically respond within 24-48 hours on business days.
-                </p>
-              )}
-              <div className="portal-card portal-card--flat portal-card--padded-sm">
-                <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost."}
-                  {state === 'B' && `Complete your skills assessment to unlock your ${programTitle} training.`}
-                  {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
-                  {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {assessmentScorePct != null && (
-                    <span style={{ padding: '0.25rem 0.625rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
-                      Assessment: {assessmentScorePct}%
-                    </span>
-                  )}
-                  {enrolledAt && (
-                    <span style={{ padding: '0.25rem 0.625rem', background: 'var(--surface-container-lowest)', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
-                      Enrolled: {formatPortalDate(enrolledAt)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : null}
-          </div>
-        </aside>
-
         {/* ── Pre-Screening ── */}
         {assessmentDone && !preScreeningDone && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
@@ -383,7 +417,7 @@ export default function DashboardHomeClient({
           </section>
         )}
 
-        {/* ── Active Curriculum / Career Next Steps — premium action cards ── */}
+        {/* ── Active Curriculum / Career Next Steps ── */}
         <section style={{ gridColumn: 'span 12' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>
@@ -531,33 +565,35 @@ export default function DashboardHomeClient({
           </div>
         </section>
 
-        {/* ── Quick Actions ── */}
+        {/* ── Tools & Extras — collapsed behind More ── */}
         <section style={{ gridColumn: 'span 12' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Quick Actions</h3>
-          </div>
-          <div className="portal-quick-actions-grid">
-            {[
-              { href: '/dashboard/weekly-recap', label: 'Weekly Recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
-              { href: '/dashboard/ai-tools', label: 'Career Tools', desc: 'Resume, interview, job match', icon: 'auto_awesome', action: 'ai_tools_clicked' },
-              { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
-              { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-              { href: '/dashboard/skills-assessment', label: 'Assessments', desc: 'Skills evaluation', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
-              { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
-            ].map((item) => (
-              <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
-                onClick={() => handleDashboardAction(item.action)}>
-                <div className="portal-card portal-card--flat" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <h5 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{item.label}</h5>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
+          <details>
+            <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', padding: '0.75rem 0', userSelect: 'none' }}>
+              More Tools &amp; Resources
+            </summary>
+            <div className="portal-quick-actions-grid" style={{ marginTop: '1rem' }}>
+              {[
+                { href: '/dashboard/weekly-recap', label: 'Weekly Recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
+                { href: '/dashboard/ai-tools', label: 'Career Tools', desc: 'Resume, interview, job match', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+                { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
+                { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
+                { href: '/dashboard/skills-assessment', label: 'Assessments', desc: 'Skills evaluation', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
+              ].map((item) => (
+                <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
+                  onClick={() => handleDashboardAction(item.action)}>
+                  <div className="portal-card portal-card--flat" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h5 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{item.label}</h5>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
+                    </div>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
                   </div>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          </details>
         </section>
 
         {/* ── Recent Activity (collapsed) ── */}

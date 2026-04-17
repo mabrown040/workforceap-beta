@@ -225,34 +225,32 @@ export default function MobileApplicationsClient({
                       <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)' }}>{app.student.email}</p>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                    {/* Action buttons */}
+                    <div className="flex flex-col gap-2" style={{ marginBottom: '0.5rem' }}>
                       <button
                         type="button"
                         disabled={isChatLoading}
                         onClick={() => void toggleChat(app.id)}
+                        className="w-full font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                         style={{
-                          display: 'inline-flex',
+                          display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'center',
                           gap: '0.375rem',
-                          padding: '0.625rem 1rem',
+                          padding: '0.75rem',
                           borderRadius: '0.75rem',
-                          fontWeight: 700,
-                          fontSize: '0.875rem',
                           border: 'none',
                           cursor: isChatLoading ? 'default' : 'pointer',
                           background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
                           color: 'var(--color-accent)',
-                          opacity: isChatLoading ? 0.6 : 1,
                         }}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
                         {isChatLoading ? 'Loading…' : isChatOpen ? 'Close messages' : 'Message applicant'}
                       </button>
-                    </div>
 
-                    {/* Status action buttons */}
                     {nextStatuses.length > 0 && (
-                      <div className="flex flex-col gap-2">
+                      <>
                         {nextStatuses.map((s) => {
                           const isReject = s === 'rejected';
                           return (
@@ -271,8 +269,9 @@ export default function MobileApplicationsClient({
                             </button>
                           );
                         })}
-                      </div>
+                      </>
                     )}
+                  </div>
                     {nextStatuses.length === 0 && !isChatOpen && (
                       <p className="text-xs text-center" style={{ color: 'var(--color-on-surface-variant)' }}>No further actions available.</p>
                     )}

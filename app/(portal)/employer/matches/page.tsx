@@ -73,6 +73,13 @@ export default async function EmployerMatchesPage() {
     return 'var(--color-on-surface-variant)';
   };
 
+  const matchScoreBadgeBg = (pct: number): { bg: string; border: string } => {
+    if (pct >= 85) return { bg: '#dcfce7', border: '#86efac' };
+    if (pct >= 70) return { bg: '#fef9c3', border: '#fde047' };
+    if (pct >= 60) return { bg: '#fef2f2', border: 'rgba(173,44,77,0.2)' };
+    return { bg: 'var(--surface-container)', border: 'var(--outline-variant)' };
+  };
+
   return (
     <PortalPageFrame>
       <PageHeader
@@ -106,6 +113,7 @@ export default async function EmployerMatchesPage() {
           ) : (
             initialRows.map((row) => {
               const pct = matchScoreAsPercent(row.matchScore);
+              const badgeBg = matchScoreBadgeBg(pct);
               return (
                 <div key={row.id} className="portal-card portal-card--flat employer-match-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.625rem' }}>
@@ -116,7 +124,7 @@ export default async function EmployerMatchesPage() {
                       <div className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>{row.student.fullName}</div>
                       <div className="wa-truncate" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.job.title}</div>
                     </div>
-                    <div style={{ flexShrink: 0, textAlign: 'right', minWidth: '3.25rem', padding: '0.35rem 0.5rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 22%, transparent)' }}>
+                    <div style={{ flexShrink: 0, textAlign: 'right', minWidth: '3.25rem', padding: '0.35rem 0.5rem', borderRadius: '0.5rem', background: badgeBg.bg, border: `1px solid ${badgeBg.border}` }}>
                       {pct >= 60 ? (
                         <>
                           <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>

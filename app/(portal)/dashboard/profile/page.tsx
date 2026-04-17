@@ -189,29 +189,29 @@ export default async function DashboardProfilePage() {
         </div>
 
         {/* Personal info card */}
-        <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
+        <div className="wa-mx-6 wa-mb-4 wa-bg-[var(--surface-container-low)] wa-p-5 wa-rounded-xl wa-border border-[var(--outline-variant)]">
           <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
-            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Personal Info</h3>
-            <Link href="/dashboard/settings" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit personal info">
+            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Personal Info</h3>
+            <Link href="/dashboard/settings" className="wa-text-[var(--color-accent)] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit personal info">
               <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
             </Link>
           </div>
           <div className="wa-space-y-3">
             <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Full Name</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{dbUser.fullName ?? '—'}</p>
+              <p className="wa-text-[10px] wa-text-[var(--color-on-surface-variant)] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Full Name</p>
+              <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)]">{dbUser.fullName ?? '—'}</p>
             </div>
             <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Email</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{dbUser.email}</p>
+              <p className="wa-text-[10px] wa-text-[var(--color-on-surface-variant)] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Email</p>
+              <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)]">{dbUser.email}</p>
             </div>
             <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Phone</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{dbUser.profile?.profilePhone ?? dbUser.phone ?? '—'}</p>
+              <p className="wa-text-[10px] wa-text-[var(--color-on-surface-variant)] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Phone</p>
+              <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)]">{dbUser.profile?.profilePhone ?? dbUser.phone ?? '—'}</p>
             </div>
             <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Location</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
+              <p className="wa-text-[10px] wa-text-[var(--color-on-surface-variant)] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Location</p>
+              <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)]">
                 {dbUser.profile?.profileAddress ?? '—'}
               </p>
             </div>
@@ -220,21 +220,21 @@ export default async function DashboardProfilePage() {
 
         {/* Program info card */}
         {program && (
-          <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-3">Program</h3>
-            <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{program.title}</p>
+          <div className="wa-mx-6 wa-mb-4 wa-bg-[var(--surface-container-low)] wa-p-5 wa-rounded-xl wa-border border-[var(--outline-variant)]">
+            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)] wa-mb-3">Program</h3>
+            <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)]">{program.title}</p>
             {dbUser.enrolledAt && (
-              <p className="wa-text-xs wa-text-[#584144] wa-mt-1">Enrolled {dbUser.enrolledAt.toLocaleDateString()}</p>
+              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)] wa-mt-1">Enrolled {dbUser.enrolledAt.toLocaleDateString()}</p>
             )}
           </div>
         )}
 
         {/* Skills card */}
         {program && program.skills && program.skills.length > 0 && (
-          <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
+          <div className="wa-mx-6 wa-mb-4 wa-bg-[var(--surface-container-low)] wa-p-5 wa-rounded-xl wa-border border-[var(--outline-variant)]">
             <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
-              <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Skills</h3>
-              <Link href="/dashboard/skills-assessment" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit skills">
+              <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Skills</h3>
+              <Link href="/dashboard/skills-assessment" className="wa-text-[var(--color-accent)] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit skills">
                 <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
               </Link>
             </div>
@@ -281,11 +281,11 @@ export default async function DashboardProfilePage() {
         </div>
 
         {/* Account + settings card */}
-        <div id="settings" className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Account & Settings</h3>
+        <div id="settings" className="wa-mx-6 wa-mb-4 wa-bg-[var(--surface-container-low)] wa-p-5 wa-rounded-xl wa-border border-[var(--outline-variant)]">
+          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)] wa-mb-4">Account & Settings</h3>
           <div className="wa-space-y-4">
             <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Notifications</p>
+              <p className="wa-text-[10px] wa-text-[var(--color-on-surface-variant)] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Notifications</p>
               <SettingsForm
                 defaultUpdates={dbUser.notificationsUpdates ?? true}
                 defaultReminders={dbUser.notificationsReminders ?? true}
@@ -298,7 +298,7 @@ export default async function DashboardProfilePage() {
               <StartTourButton />
             </div>
             <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Danger Zone</p>
+              <p className="wa-text-[10px] wa-text-[var(--color-on-surface-variant)] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Danger Zone</p>
               <DeleteAccountButton />
             </div>
           </div>
@@ -306,13 +306,13 @@ export default async function DashboardProfilePage() {
 
         {/* Assessment card */}
         {dbUser.assessmentCompleted && (
-          <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-3">Assessment</h3>
-            <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
+          <div className="wa-mx-6 wa-mb-4 wa-bg-[var(--surface-container-low)] wa-p-5 wa-rounded-xl wa-border border-[var(--outline-variant)]">
+            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)] wa-mb-3">Assessment</h3>
+            <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface)]">
               Score: {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%)
             </p>
             {dbUser.assessmentCompletedAt && (
-              <p className="wa-text-xs wa-text-[#584144] wa-mt-1">
+              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)] wa-mt-1">
                 Completed {dbUser.assessmentCompletedAt.toLocaleDateString()}
               </p>
             )}

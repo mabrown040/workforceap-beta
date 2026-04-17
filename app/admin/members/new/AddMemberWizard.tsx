@@ -131,9 +131,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFile = async (file: File) => {
     setResumeFile(file);
     setError('');
     setLoading('parse');
@@ -162,7 +160,6 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       setError('Upload failed');
     } finally {
       setLoading(null);
-      e.target.value = '';
     }
   };
 
@@ -186,6 +183,16 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       setError('Enhancement failed');
     } finally {
       setLoading(null);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await handleFile(file);
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -481,13 +488,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               const file = e.dataTransfer.files?.[0];
               const ext = file?.name.split('.').pop()?.toLowerCase();
               if (file && ['pdf', 'doc', 'docx', 'txt'].includes(ext || '')) {
-                const input = document.getElementById('wizard-resume-input') as HTMLInputElement;
-                if (input) {
-                  const dt = new DataTransfer();
-                  dt.items.add(file);
-                  input.files = dt.files;
-                  input.dispatchEvent(new Event('change'));
-                }
+                void handleFile(file);
               }
             }}
           >

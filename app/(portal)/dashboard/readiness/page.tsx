@@ -7,9 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { readinessVoiceSurface } from '@/lib/portal/voice';
+import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
@@ -105,27 +103,7 @@ export default async function DashboardReadinessPage() {
         />
 
         <div className="portal-pad-x" style={{ marginTop: '1rem' }}>
-          <details className="portal-card portal-card--flat" style={{ padding: '0.75rem 0.9rem' }} open>
-            <summary style={{ cursor: 'pointer', fontWeight: 800, color: 'var(--color-on-surface)', listStyle: 'none', textAlign: 'center' }}>
-              Readiness coach
-              <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                (tap to collapse)
-              </span>
-            </summary>
-            <div style={{ marginTop: '0.75rem' }}>
-              <VoiceAgentSurface {...readinessVoiceSurface}>
-                <PortalVoiceSession
-                  sessionEndpoint="/api/member/readiness/voice-session"
-                  title="Talk through your readiness plan"
-                  description="Ask about interviews, certifications, LinkedIn, or your next milestone."
-                  accent="#0d9488"
-                  accentDark="#0f766e"
-                  speakingLabel="Coach is speaking…"
-                  listeningLabel="Listening — share where you are"
-                />
-              </VoiceAgentSurface>
-            </div>
-          </details>
+          <CompactReadinessCoach />
         </div>
 
         <MobileBottomNav variant="portal" />
@@ -185,17 +163,7 @@ export default async function DashboardReadinessPage() {
           </div>
 
           <div style={{ marginBottom: '1.5rem', maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto' }}>
-            <VoiceAgentSurface {...readinessVoiceSurface}>
-              <PortalVoiceSession
-                sessionEndpoint="/api/member/readiness/voice-session"
-                title="Talk through your readiness plan"
-                description="Ask about interviews, certifications, LinkedIn, or your next milestone."
-                accent="#0d9488"
-                accentDark="#0f766e"
-                speakingLabel="Coach is speaking…"
-                listeningLabel="Listening — share where you are"
-              />
-            </VoiceAgentSurface>
+            <CompactReadinessCoach />
           </div>
           <ReadinessMemberClient
             initialSections={checklistSections ?? []}

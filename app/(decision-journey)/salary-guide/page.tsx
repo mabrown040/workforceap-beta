@@ -74,7 +74,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$78k – $95k',
     mid: '$110k – $140k',
     certs: ['AWS Certified', 'Terraform'],
-    borderColor: '#ad2c4d',
+    borderColor: 'var(--color-accent)',
   },
   {
     category: 'Business',

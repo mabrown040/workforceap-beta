@@ -101,8 +101,8 @@ export default function ProgramChangeRequestPanel({
             padding: '0.75rem 1rem',
             marginBottom: '1rem',
             borderRadius: 'var(--radius-sm)',
-            background: 'rgba(140, 15, 55, 0.08)',
-            border: '1px solid rgba(140, 15, 55, 0.25)',
+            background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
             fontSize: '0.9rem',
           }}
         >

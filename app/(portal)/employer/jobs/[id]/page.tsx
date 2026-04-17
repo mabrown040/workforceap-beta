@@ -79,7 +79,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
       ? { bg: 'rgba(74, 155, 79, 0.12)', color: '#2d7a32' }
       : editReadiness.level === 'usable'
         ? { bg: 'rgba(180, 129, 51, 0.14)', color: '#9a6400' }
-        : { bg: 'rgba(140, 15, 55, 0.1)', color: 'var(--color-accent)' };
+        : { bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' };
 
   return (
     <>

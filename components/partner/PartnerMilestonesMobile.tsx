@@ -76,7 +76,7 @@ export default function PartnerMilestonesMobile() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {pending.map((m) => (
-              <div key={m.id} style={{ background: '#fff', borderRadius: '0.875rem', padding: '1rem', border: '1px solid #ebe7e7', borderLeft: '3px solid #8c0f37' }}>
+              <div key={m.id} style={{ background: 'var(--color-surface)', borderRadius: '0.875rem', padding: '1rem', border: '1px solid var(--outline-variant)', borderLeft: '3px solid var(--color-accent)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <div style={{ flex: 1 }}>
                     <Link href={`/partner/referred-members/${m.memberId}`} style={{ textDecoration: 'none' }}>

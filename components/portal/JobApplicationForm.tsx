@@ -47,53 +47,112 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
       setIsSubmitting(true);
       setError(null);
 
-      const submitData = {
+      await onSubmit({
         ...formData,
         appliedAt: formData.appliedAt ? new Date(formData.appliedAt) : null,
         nextInterviewDate: formData.nextInterviewDate ? new Date(formData.nextInterviewDate) : null,
         status: 'APPLIED',
-      };
-
-      await onSubmit(submitData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      });
+    } catch {
+      setError('We couldn\'t save this application. Check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '0.625rem 0.75rem',
+    border: '1px solid var(--outline-variant)',
+    borderRadius: 'var(--radius-sm)',
+    fontSize: '0.9rem',
+    background: 'var(--surface-container-low)',
+    color: 'var(--color-on-surface)',
+    boxSizing: 'border-box' as const,
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.8rem',
+    fontWeight: 700,
+    color: 'var(--color-on-surface)',
+    marginBottom: '0.35rem',
+  };
+
   return (
-    <div className="wa-fixed wa-inset-0 wa-bg-black wa-bg-opacity-50 wa-flex wa-items-center wa-justify-center wa-z-50 wa-p-4" role="presentation">
+    <div
+      role="presentation"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+        padding: '1rem',
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget && !isSubmitting) onClose(); }}
+    >
       <div
-        className="wa-bg-white wa-rounded-lg wa-shadow-xl wa-max-w-md wa-w-full wa-max-h-[90vh] wa-overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        style={{
+          background: 'var(--surface-container-lowest)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-xl)',
+          maxWidth: '28rem',
+          width: '100%',
+          maxHeight: '90dvh',
+          overflowY: 'auto',
+        }}
       >
         {/* Header */}
-        <div className="wa-sticky wa-top-0 wa-bg-white wa-border-b wa-p-6 wa-flex wa-justify-between wa-items-center">
-          <h2 id={titleId} className="wa-text-xl wa-font-bold wa-text-gray-900">Add Application</h2>
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          background: 'var(--surface-container-lowest)',
+          borderBottom: '1px solid var(--outline-variant)',
+          padding: '1.25rem 1.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <h2 id={titleId} style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
+            Add Application
+          </h2>
           <button
             onClick={onClose}
-            className="wa-text-gray-400 hover:wa-text-gray-600 wa-text-2xl wa-leading-none"
             aria-label="Close add application dialog"
+            style={{ background: 'none', border: 'none', fontSize: '1.5rem', lineHeight: 1, color: 'var(--color-on-surface-variant)', cursor: 'pointer', padding: '0.25rem' }}
           >
             ×
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="wa-p-6 wa-space-y-4">
+        <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {error && (
-            <div id={errorId} role="alert" className="wa-p-3 wa-bg-red-50 wa-border wa-border-red-200 wa-rounded wa-text-red-700 wa-text-sm">
+            <div
+              id={errorId}
+              role="alert"
+              style={{
+                padding: '0.75rem 1rem',
+                background: 'rgba(173,44,77,0.08)',
+                border: '1px solid rgba(173,44,77,0.25)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--color-accent)',
+                fontSize: '0.875rem',
+                lineHeight: 1.5,
+              }}
+            >
               {error}
             </div>
           )}
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
-              Job Title *
-            </label>
+            <label style={labelStyle}>Job Title *</label>
             <input
               ref={firstFieldRef}
               type="text"
@@ -102,97 +161,83 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               onChange={handleChange}
               required
               aria-describedby={error ? errorId : undefined}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              style={inputStyle}
               placeholder="e.g., Software Engineer"
             />
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
-              Company *
-            </label>
+            <label style={labelStyle}>Company *</label>
             <input
               type="text"
               name="company"
               value={formData.company}
               onChange={handleChange}
               required
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              style={inputStyle}
               placeholder="e.g., Techvera"
             />
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
-              Date Applied *
-            </label>
+            <label style={labelStyle}>Date Applied *</label>
             <input
               type="date"
               name="appliedAt"
               value={formData.appliedAt}
               onChange={handleChange}
               required
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
-              Source *
-            </label>
-            <select
-              name="source"
-              value={formData.source}
-              onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
-            >
+            <label style={labelStyle}>Where did you find it? *</label>
+            <select name="source" value={formData.source} onChange={handleChange} style={inputStyle}>
               <option value="INDEED">Indeed</option>
               <option value="LINKEDIN">LinkedIn</option>
-              <option value="DIRECT">Direct</option>
+              <option value="DIRECT">Company website</option>
               <option value="OTHER">Other</option>
             </select>
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
-              Interview Date
-            </label>
+            <label style={labelStyle}>Interview Date <span style={{ fontWeight: 400, color: 'var(--color-on-surface-variant)' }}>(optional)</span></label>
             <input
               type="date"
               name="nextInterviewDate"
               value={formData.nextInterviewDate}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
-              Notes
-            </label>
+            <label style={labelStyle}>Notes <span style={{ fontWeight: 400, color: 'var(--color-on-surface-variant)' }}>(optional)</span></label>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              style={{ ...inputStyle, resize: 'vertical' }}
               rows={3}
-              placeholder="Any notes about this application..."
+              placeholder="Any notes about this application…"
             />
           </div>
 
-          {/* Buttons */}
-          <div className="wa-flex wa-gap-3 wa-pt-4">
+          <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '0.5rem' }}>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-font-medium wa-rounded-lg hover:wa-bg-[#6b0a2a] disabled:wa-opacity-50 disabled:wa-cursor-not-allowed wa-transition-colors"
+              className="btn btn-primary"
+              style={{ flex: 1 }}
             >
-              {isSubmitting ? 'Adding...' : 'Add Application'}
+              {isSubmitting ? 'Adding…' : 'Add Application'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-font-medium wa-rounded-lg hover:wa-bg-gray-300 wa-transition-colors"
+              className="btn btn-ghost"
+              style={{ flex: 1 }}
             >
               Cancel
             </button>

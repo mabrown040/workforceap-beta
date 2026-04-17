@@ -10,7 +10,6 @@ interface JobApplicationKanbanProps {
   onStatusChange: (id: string, updates: Partial<JobApplication>) => void;
 }
 
-/** Full pipeline including saved leads and rejections (curated board "track only" lands in Saved). */
 const STATUSES: JobApplicationStatus[] = [
   'SAVED',
   'APPLIED',
@@ -29,23 +28,22 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   REJECTED: 'Rejected',
 };
 
-const STATUS_BADGE_CLASSES: Record<JobApplicationStatus, string> = {
-  APPLIED: 'wa-bg-gray-100 wa-text-gray-700',
-  PHONE_SCREEN: 'wa-bg-blue-100 wa-text-blue-700',
-  INTERVIEWING: 'wa-bg-amber-100 wa-text-amber-700',
-  OFFER: 'wa-bg-green-100 wa-text-green-700',
-  SAVED: 'wa-bg-slate-200 wa-text-slate-800',
-  REJECTED: 'wa-bg-red-100 wa-text-red-700',
+const STATUS_BADGE_STYLES: Record<JobApplicationStatus, CSSProperties> = {
+  APPLIED:      { background: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)' },
+  PHONE_SCREEN: { background: 'rgba(37,99,235,0.1)', color: '#2563eb' },
+  INTERVIEWING: { background: 'rgba(217,119,6,0.1)', color: '#d97706' },
+  OFFER:        { background: 'rgba(22,163,74,0.12)', color: '#16a34a' },
+  SAVED:        { background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' },
+  REJECTED:     { background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)' },
 };
 
-/** Left accent on kanban cards / columns — WorkforceAP burgundy on Applied */
 const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
-  SAVED: '#64748b',
-  APPLIED: '#8c0f37',
+  SAVED:        '#64748b',
+  APPLIED:      '#8c0f37',
   PHONE_SCREEN: '#2563eb',
   INTERVIEWING: '#d97706',
-  OFFER: '#16a34a',
-  REJECTED: '#dc2626',
+  OFFER:        '#16a34a',
+  REJECTED:     '#dc2626',
 };
 
 function MobileApplicationCard({
@@ -73,62 +71,55 @@ function MobileApplicationCard({
   return (
     <div
       className="portal-kanban-card"
-      style={
-        {
-          padding: '1rem',
-          marginBottom: '0.75rem',
-          '--portal-kanban-accent': STATUS_ACCENTS[application.status],
-        } as CSSProperties
-      }
+      style={{ padding: '1rem', marginBottom: '0.75rem', '--portal-kanban-accent': STATUS_ACCENTS[application.status] } as CSSProperties}
     >
-      <div className="wa-flex wa-items-start wa-justify-between wa-gap-2">
-        <div className="wa-flex-1 wa-min-w-0">
-          <p className="wa-font-bold wa-text-sm wa-truncate" style={{ color: 'var(--color-on-surface)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
             {application.role}
           </p>
-          <p className="wa-text-xs wa-mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ fontSize: '0.75rem', marginTop: '0.125rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
             {application.company}
           </p>
           {application.appliedAt && (
-            <p className="wa-text-xs wa-mt-1" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
+            <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', color: 'var(--color-on-surface-variant)', opacity: 0.85, margin: '0.25rem 0 0' }}>
               Applied {formatDate(application.appliedAt)}
             </p>
           )}
         </div>
         <span
-          className={`wa-shrink-0 wa-text-xs wa-font-semibold wa-px-2 wa-py-1 wa-rounded-full ${STATUS_BADGE_CLASSES[application.status]}`}
+          style={{
+            flexShrink: 0,
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            padding: '0.2rem 0.5rem',
+            borderRadius: '999px',
+            ...STATUS_BADGE_STYLES[application.status],
+          }}
         >
           {STATUS_LABELS[application.status]}
         </span>
       </div>
 
       {open ? (
-        <div className="wa-mt-3 wa-border-t wa-pt-3">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-1">Update Status</label>
+        <div style={{ marginTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '0.75rem' }}>
+          <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem' }}>
+            Update Status
+          </label>
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value as JobApplicationStatus)}
-            className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm wa-mb-3"
+            style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-sm)', fontSize: '0.875rem', marginBottom: '0.75rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)' }}
           >
             {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {STATUS_LABELS[s]}
-              </option>
+              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
             ))}
           </select>
-          <div className="wa-flex wa-gap-2">
-            <button
-              type="button"
-              onClick={handleSave}
-              className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-bg-[#6b0a2a]"
-            >
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button type="button" onClick={handleSave} className="btn btn-primary" style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem' }}>
               Save
             </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-gray-200 wa-text-gray-700 wa-text-sm wa-font-medium wa-rounded"
-            >
+            <button type="button" onClick={() => setOpen(false)} className="btn btn-ghost" style={{ flex: 1, fontSize: '0.875rem', padding: '0.5rem' }}>
               Cancel
             </button>
           </div>
@@ -137,7 +128,7 @@ function MobileApplicationCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="wa-mt-3 wa-text-xs wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
+          style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 600, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
         >
           Update Status
         </button>
@@ -160,7 +151,7 @@ export default function JobApplicationKanban({
 
   return (
     <>
-      {/* Mobile card list — hidden on md+ */}
+      {/* Mobile card list */}
       <div className="wa-block wa-md:wa-hidden">
         {applications.length === 0 ? (
           <div className="portal-kanban-mobile-empty">
@@ -172,14 +163,22 @@ export default function JobApplicationKanban({
               const group = grouped[status];
               if (group.length === 0) return null;
               return (
-                <div key={status} className="wa-mb-4">
-                  <div className="wa-flex wa-items-center wa-gap-2 wa-mb-2">
+                <div key={status} style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <span
-                      className={`wa-text-xs wa-font-bold wa-uppercase wa-tracking-wide wa-px-2 wa-py-0.5 wa-rounded-full ${STATUS_BADGE_CLASSES[status]}`}
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '999px',
+                        ...STATUS_BADGE_STYLES[status],
+                      }}
                     >
                       {STATUS_LABELS[status]}
                     </span>
-                    <span className="wa-text-xs wa-text-gray-500">{group.length}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{group.length}</span>
                   </div>
                   {group.map((app) => (
                     <MobileApplicationCard key={app.id} application={app} onStatusChange={onStatusChange} />
@@ -191,9 +190,9 @@ export default function JobApplicationKanban({
         )}
       </div>
 
-      {/* Desktop kanban — hidden on mobile */}
+      {/* Desktop kanban */}
       <div className="wa-hidden wa-md:wa-block">
-        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
           {STATUSES.map((status) => (
             <div
               key={status}
@@ -205,7 +204,7 @@ export default function JobApplicationKanban({
                 <span className="portal-kanban-column__count">{grouped[status].length}</span>
               </div>
 
-              <div className="wa-space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {grouped[status].length === 0 ? (
                   <div className="portal-kanban-empty">No applications</div>
                 ) : (

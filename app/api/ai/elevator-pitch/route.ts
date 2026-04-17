@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   if (!isAIConfigured()) {
-    return NextResponse.json({ error: 'This tool isn't available right now — try again soon.' }, { status: 503 });
+    return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
   }
 
   const { success } = await checkAIToolRateLimit(user.id);

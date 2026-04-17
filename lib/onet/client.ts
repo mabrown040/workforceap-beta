@@ -89,15 +89,20 @@ export async function searchOccupations(query: string): Promise<OnetSearchOccupa
   const results = (data.occupation ?? []).map((o) => ({ code: o.code, title: o.title }));
 
   // Re-rank so title-matching results appear before description-only matches.
-  // Scoring: exact title > prefix > all query words in title > any word prefix in title > API order.
+  // Scoring: exact title > query-prefix > all words whole-word-prefix > any word whole-word-prefix > API order.
+  // wordPrefixIn prevents suffix matches: "care" won't score "Daycare" but will score "Career".
   const ql = q.toLowerCase();
   const words = ql.split(/\s+/).filter(Boolean);
+  const wordPrefixIn = (needle: string, haystack: string): boolean => {
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?:^|[\\s\\-,/])${escaped}`, 'i').test(haystack);
+  };
   const score = (title: string): number => {
     const t = title.toLowerCase();
     if (t === ql) return 4;
     if (t.startsWith(ql)) return 3;
-    if (words.length > 1 && words.every((w) => t.includes(w))) return 2;
-    if (words.some((w) => t.startsWith(w) || t.includes(` ${w}`))) return 1;
+    if (words.length > 1 && words.every((w) => wordPrefixIn(w, t))) return 2;
+    if (words.some((w) => wordPrefixIn(w, t))) return 1;
     return 0;
   };
   // Stable sort: preserve API order within the same score tier.

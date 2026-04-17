@@ -278,7 +278,7 @@ export const LEADERS: Leader[] = [
       },
       {
         icon: 'school',
-        title: 'Stanford Directors' College',
+        title: 'Stanford Directors College',
         desc: 'Corporate board governance program graduate.',
       },
     ],

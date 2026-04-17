@@ -41,7 +41,6 @@ export default async function AIToolsPage() {
           }}
         >
           <p
-            className="wa-block wa-md:wa-hidden"
             style={{
               fontSize: '0.625rem',
               fontWeight: 700,
@@ -53,22 +52,6 @@ export default async function AIToolsPage() {
           >
             Included for members
           </p>
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: '0.65rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              padding: '0.3rem 0.75rem',
-              borderRadius: '999px',
-              background: 'rgba(173,44,77,0.12)',
-              color: 'var(--color-accent)',
-              marginBottom: '1rem',
-            }}
-          >
-            Beta Access
-          </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
             AI Career Toolkit
           </h1>

@@ -25,7 +25,7 @@ export const PROGRAM_SUBGROUPS: ProgramSubgroup[] = [
     id: 'digital-literacy',
     label: 'Digital Literacy',
     shortLabel: 'Digital Literacy',
-    description: 'Foundational digital skills and confidence for today's workplace.',
+    description: "Foundational digital skills and confidence for today's workplace.",
   },
   {
     id: 'it-support',

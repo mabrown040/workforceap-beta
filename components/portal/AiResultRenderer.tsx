@@ -178,7 +178,7 @@ function ResumeRenderer({ raw }: { raw: string }) {
         const body = lines.slice(1).join('\n').trim();
         return (
           <div key={i}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem', borderBottom: '1px solid rgba(173,44,77,0.15)', paddingBottom: '0.25rem' }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem', borderBottom: '1px solid color-mix(in srgb, var(--color-accent) 15%, transparent)', paddingBottom: '0.25rem' }}>
               {heading}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -227,7 +227,7 @@ function LinkedInHeadlineRenderer({ raw }: { raw: string }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
       {headlines.map((h, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-accent)', padding: '0.15rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', flexShrink: 0, marginTop: '0.1rem' }}>#{i + 1}</span>
+          <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-accent)', padding: '0.15rem 0.4rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', flexShrink: 0, marginTop: '0.1rem' }}>#{i + 1}</span>
           <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.45 }}>{h}</p>
         </div>
       ))}
@@ -265,7 +265,7 @@ function InterviewQARenderer({ raw }: { raw: string }) {
               </div>
             </div>
             {tip && (
-              <div style={{ padding: '0.5rem 0.75rem', background: 'rgba(173,44,77,0.07)', borderRadius: '0.5rem', borderLeft: '2px solid var(--color-accent)', marginLeft: '2.25rem' }}>
+              <div style={{ padding: '0.5rem 0.75rem', background: 'color-mix(in srgb, var(--color-accent) 7%, transparent)', borderRadius: '0.5rem', borderLeft: '2px solid var(--color-accent)', marginLeft: '2.25rem' }}>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
                   <strong style={{ color: 'var(--color-accent)' }}>Tip:</strong> {tip}
                 </p>
@@ -295,7 +295,7 @@ function JobMatchRenderer({ raw }: { raw: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {score !== undefined && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.875rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'color-mix(in srgb, var(--color-accent) 8%, transparent)', borderRadius: '0.875rem' }}>
           <div style={{ fontSize: '2.5rem', fontWeight: 800, letterSpacing: '-0.04em', color: score >= 70 ? 'var(--color-green, #4a9b4f)' : score >= 50 ? 'var(--color-gold)' : 'var(--color-accent)' }}>
             {score}<span style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)' }}>%</span>
           </div>

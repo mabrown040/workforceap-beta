@@ -147,14 +147,14 @@ export default function ProgramsDecisionJourneyNav({
         }
 
         .pdj-nav__tab--active {
-          background: rgba(173, 44, 77, 0.15);
+          background: color-mix(in srgb, var(--color-accent) 15%, transparent);
           color: var(--color-accent);
           font-weight: 700;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
         }
 
         .pdj-nav__tab--active:hover {
-          background: rgba(173, 44, 77, 0.2);
+          background: color-mix(in srgb, var(--color-accent) 20%, transparent);
           color: var(--color-accent);
         }
 

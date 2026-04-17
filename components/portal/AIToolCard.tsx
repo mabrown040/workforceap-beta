@@ -130,7 +130,7 @@ export default function AIToolCard({
                 letterSpacing: '0.08em',
                 padding: '0.2rem 0.5rem',
                 borderRadius: '4px',
-                background: 'rgba(173,44,77,0.15)',
+                background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)',
                 color: 'var(--color-accent)',
               }}
             >

@@ -7,7 +7,7 @@ export default function PortalStatCard({
   label,
   value,
   iconColor = 'var(--color-accent)',
-  iconBg = 'rgba(173,44,77,0.12)',
+  iconBg = 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
   children,
 }: {
   icon: string;

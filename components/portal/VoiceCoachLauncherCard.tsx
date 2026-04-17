@@ -46,7 +46,7 @@ export default function VoiceCoachLauncherCard({
             fontWeight: 700,
             color: '#fff',
             background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-            boxShadow: '0 8px 24px rgba(173,44,77,0.2)',
+            boxShadow: '0 8px 24px color-mix(in srgb, var(--color-accent) 20%, transparent)',
           }}
         >
           {ctaLabel}

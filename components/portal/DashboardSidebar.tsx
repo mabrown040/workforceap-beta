@@ -95,7 +95,7 @@ export default function DashboardSidebar({ open = false, onClose }: DashboardSid
                             padding: '0.5rem 0.75rem 0.5rem 1rem',
                             borderRadius: 'var(--radius-lg, 12px)',
                             color: isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-                            background: isActive ? 'rgba(173,44,77,0.1)' : 'transparent',
+                            background: isActive ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent',
                             textDecoration: 'none',
                             transition: 'all 150ms ease',
                             fontWeight: isActive ? 700 : 500,

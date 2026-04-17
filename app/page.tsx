@@ -193,9 +193,9 @@ export default async function HomePage() {
               background: 'var(--surface-container-lowest)', padding: '2rem',
               border: '2px solid var(--color-accent)',
               transform: 'translateY(-1rem)',
-              boxShadow: '0 8px 32px rgba(173,44,77,0.15)',
+              boxShadow: '0 8px 32px color-mix(in srgb, var(--color-accent) 15%, transparent)',
             }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
+              <div style={{ width: '3rem', height: '3rem', background: 'color-mix(in srgb, var(--color-accent) 20%, transparent)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">person</span>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
@@ -434,7 +434,7 @@ export default async function HomePage() {
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
                     padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full, 50px)',
-                    background: 'rgba(173,44,77,0.15)', color: 'var(--color-accent)',
+                    background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)', color: 'var(--color-accent)',
                     fontSize: '0.75rem', fontWeight: 600,
                   }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">verified</span>

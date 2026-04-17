@@ -508,7 +508,7 @@ export default function DashboardHomeClient({
                 </p>
                 <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
                   onClick={() => handleDashboardAction('how_it_works_clicked')}>
-                  Learn more
+                  How WorkforceAP works
                 </Link>
               </div>
             )}

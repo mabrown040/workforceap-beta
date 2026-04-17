@@ -457,7 +457,7 @@ export default function WioaQualificationClient({
             to find a one-stop near you.
           </li>
           <li>
-            <strong>What to say:</strong> “I&apos;m interested in WIOA-funded training and I&apos;d like to confirm eligibility and next steps.”
+            <strong>What to say:</strong> “I&apos;m interested in free, government-funded job training. I&apos;d like to find out if I qualify and learn about next steps.”
           </li>
         </ol>
       </section>

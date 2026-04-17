@@ -63,7 +63,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop());
     } catch {
-      setVoiceError('Microphone access is required. Please allow it in your browser and try again.');
+      setVoiceError('Microphone access is needed. Allow it in your browser settings and try again.');
       setPhase('pre');
       return;
     }

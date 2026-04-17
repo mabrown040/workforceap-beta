@@ -325,7 +325,7 @@ export default function PortalVoiceSession({
       stream.getTracks().forEach((t) => t.stop());
     } catch {
       logVoice('mic_denied');
-      setVoiceError('Microphone: access is required. Allow it in your browser and try again.');
+      setVoiceError('Microphone access is needed. Allow it in your browser settings and try again.');
       setPhase('pre');
       return;
     }
@@ -350,7 +350,7 @@ export default function PortalVoiceSession({
         logVoice('camera_denied', { optional: optionalCameraForRecording });
         if (!optionalCameraForRecording) {
           setVoiceError(
-            'Camera: access is required for recording. Allow it in your browser and try again.'
+            'Camera access is needed to record your session. Allow it in your browser settings and try again.'
           );
           setPhase('pre');
           return;

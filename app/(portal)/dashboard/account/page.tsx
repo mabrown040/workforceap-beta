@@ -49,7 +49,7 @@ export default async function DashboardAccountPage() {
               <h2>Email</h2>
               <p>{email}</p>
               <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-                To change your email, please contact support.
+                To change your email, email us at <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)' }}>info@workforceap.org</a> or call (512) 777-1808.
               </p>
 
               <h2 style={{ marginTop: '1.5rem' }}>Password</h2>

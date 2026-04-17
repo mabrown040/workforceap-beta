@@ -160,7 +160,6 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       setError('Upload failed');
     } finally {
       setLoading(null);
-      e.target.value = '';
     }
   };
 
@@ -190,7 +189,11 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    await handleFile(file);
+    try {
+      await handleFile(file);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const handleSubmit = async () => {

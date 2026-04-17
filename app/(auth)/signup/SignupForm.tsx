@@ -364,7 +364,7 @@ export default function SignupForm() {
             &ldquo;WorkforceAP gave me the skills and support to transition into a tech career. The program changed my life.&rdquo;
           </p>
           <p style={{ marginTop: 'var(--space-3)', fontSize: 'var(--font-size-sm)', opacity: 0.6, margin: 'var(--space-3) 0 0' }}>
-            -- Program Graduate, 2025
+            — Member, 2025
           </p>
         </div>
       </div>

@@ -16,7 +16,7 @@ const IMPACT_STATS = [
   { value: '25+', label: 'Years removing barriers to workforce opportunity' },
   { value: '2,000+', label: 'Learners trained through WorkforceAP-led programs' },
   { value: `${WORKFORCEAP_PROGRAM_CATALOG_SIZE}`, label: 'Career tracks aligned to real employer demand' },
-  { value: '$0', label: 'Tuition cost to members through grants and partnerships' },
+  { value: '$0', label: 'No cost for members — funded by grants and partnerships' },
 ];
 
 export default function ImpactPage() {

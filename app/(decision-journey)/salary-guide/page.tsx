@@ -25,7 +25,7 @@ const insights = [
   {
     icon: 'trending_up',
     title: 'Career growth',
-    desc: 'Most graduates see meaningful increases inside 2-3 years once they are in-role. Pick a track you can complete; we help match ramp to your life.',
+    desc: 'Most members see meaningful increases inside 2-3 years once they are in-role. Pick a track you can complete; we help match ramp to your life.',
   },
   {
     icon: 'location_on',
@@ -272,7 +272,7 @@ export default function SalaryGuidePage() {
           <div style={{ marginTop: '4rem', marginBottom: '3rem' }}>
             <h2 className="text-display-sm" style={{ marginBottom: '0.5rem' }}>Growth Trajectory</h2>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', maxWidth: '600px' }}>
-              Most graduates see meaningful increases inside 2-3 years. Here is the typical career arc.
+              Most members see meaningful increases inside 2-3 years. Here is the typical career arc.
             </p>
             <div style={{
               display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem',

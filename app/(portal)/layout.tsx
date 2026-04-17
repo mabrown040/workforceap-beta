@@ -4,7 +4,7 @@ import PortalShell from '@/components/portal/PortalShell';
 import TourProviderWrapper from '@/components/onboarding/TourProviderWrapper';
 
 export const metadata: Metadata = {
-  title: 'Portal',
+  title: 'WorkforceAP',
   robots: {
     index: false,
     follow: false,

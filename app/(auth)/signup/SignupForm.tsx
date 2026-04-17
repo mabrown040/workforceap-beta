@@ -96,44 +96,6 @@ const s = {
     marginBottom: 'var(--space-6)',
   } as React.CSSProperties,
 
-  socialRow: {
-    display: 'flex',
-    gap: 'var(--space-3)',
-    marginBottom: 'var(--space-4)',
-  } as React.CSSProperties,
-
-  socialBtn: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 'var(--space-2)',
-    padding: 'var(--space-3) var(--space-4)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 600,
-    background: 'var(--surface-container)',
-    border: '1px solid var(--outline-variant)',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--color-on-surface)',
-    cursor: 'pointer',
-    transition: 'background 0.2s',
-  } as React.CSSProperties,
-
-  divider: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    margin: 'var(--space-4) 0',
-    color: 'var(--color-on-surface-variant)',
-    fontSize: 'var(--font-size-sm)',
-  } as React.CSSProperties,
-
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    background: 'var(--outline-variant)',
-  } as React.CSSProperties,
-
   label: {
     display: 'block',
     fontSize: 'var(--font-size-sm)',
@@ -374,24 +336,6 @@ export default function SignupForm() {
         <div style={s.formContainer}>
           <h2 style={s.heading}>Create an account</h2>
 
-          {/* Social login */}
-          <div style={s.socialRow}>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">domain</span>
-              Google
-            </button>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">code</span>
-              GitHub
-            </button>
-          </div>
-
-          <div style={s.divider}>
-            <span style={s.dividerLine} />
-            <span>Or continue with</span>
-            <span style={s.dividerLine} />
-          </div>
-
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Full Name */}
             <div style={s.fieldGroup}>
@@ -572,12 +516,12 @@ export default function SignupForm() {
               disabled={submitStatus === 'loading'}
               style={{ ...s.primaryBtn, opacity: submitStatus === 'loading' ? 0.7 : 1 }}
             >
-              {submitStatus === 'loading' ? 'Creating account...' : 'Initialize Access'}
+              {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
             </button>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-            Already part of the archive?{' '}
+            Already have an account?{' '}
             <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>

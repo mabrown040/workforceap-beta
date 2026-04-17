@@ -84,9 +84,27 @@ export async function searchOccupations(query: string): Promise<OnetSearchOccupa
     occupation?: { code: string; title: string }[];
     error?: string;
   };
-  const data = await onetGet<SearchResp>('online/search', { keyword: q, end: 25 });
+  const data = await onetGet<SearchResp>('online/search', { keyword: q, end: 30 });
   if (data.error) throw new Error(data.error);
-  return (data.occupation ?? []).map((o) => ({ code: o.code, title: o.title }));
+  const results = (data.occupation ?? []).map((o) => ({ code: o.code, title: o.title }));
+
+  // Re-rank so title-matching results appear before description-only matches.
+  // Scoring: exact title > prefix > all query words in title > any word prefix in title > API order.
+  const ql = q.toLowerCase();
+  const words = ql.split(/\s+/).filter(Boolean);
+  const score = (title: string): number => {
+    const t = title.toLowerCase();
+    if (t === ql) return 4;
+    if (t.startsWith(ql)) return 3;
+    if (words.length > 1 && words.every((w) => t.includes(w))) return 2;
+    if (words.some((w) => t.startsWith(w) || t.includes(` ${w}`))) return 1;
+    return 0;
+  };
+  // Stable sort: preserve API order within the same score tier.
+  return results
+    .map((o, i) => ({ o, i, s: score(o.title) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map(({ o }) => o);
 }
 
 export type OnetOccupationOverview = {

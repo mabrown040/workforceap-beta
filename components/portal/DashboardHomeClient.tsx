@@ -111,7 +111,7 @@ export default function DashboardHomeClient({
     { done: checklist.createAccount, label: 'Account' },
     { done: checklist.chooseProgram, label: 'Program' },
     { done: checklist.completeAssessment, label: 'Assessment' },
-    { done: checklist.startFirstCourse, label: 'Training' },
+    { done: checklist.startFirstCourse, label: 'Unlock training' },
     { done: checklist.completeFirstCourse, label: 'Course done' },
   ];
 

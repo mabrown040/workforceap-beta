@@ -262,7 +262,15 @@ export default function CareerMappingsClient() {
                 )}
                 <button
                   type="button"
-                  onClick={() => { setSearchQ(p.title.split(' ').slice(0, 2).join(' ')); searchRef.current?.focus(); }}
+                  onClick={() => {
+                    const STOP = new Set(['a','an','the','for','and','of','in','to','with','from','at','by','on','&']);
+                    const words = p.title
+                      .replace(/\(.*?\)/g, '')
+                      .split(/\s+/)
+                      .filter((w) => w.length > 1 && !STOP.has(w.toLowerCase()));
+                    setSearchQ(words.slice(0, 3).join(' '));
+                    searchRef.current?.focus();
+                  }}
                   style={{ marginTop: '0.875rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                 >
                   Find O*NET matches

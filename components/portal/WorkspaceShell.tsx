@@ -283,9 +283,8 @@ export default function WorkspaceShell({
           ) : null}
           {portalRoles && portalRoles.length > 1 ? (
             <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
-          ) : (
-            <SuperAdminViewSwitcher />
-          )}
+          ) : null}
+          <SuperAdminViewSwitcher />
           {/* Global search — admin only, hidden on mobile */}
           {portalRole === 'admin' && (
             <div className="wa-hidden wa-md:wa-block">

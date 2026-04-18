@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
@@ -78,7 +78,7 @@ function ProgramCard({ program }: { program: Program }) {
         </small>
       </div>
       {nonEmptySkills.length > 0 ? (
-        <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
+        <div className="program-card-skills" style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
           {skills.map((s) => (
             <span
               key={s}
@@ -111,7 +111,7 @@ function ProgramCard({ program }: { program: Program }) {
           )}
         </div>
       ) : null}
-      <details style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
+      <details className="program-card-courses" style={{ marginBottom: '1rem' }} open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
         <summary className="program-card-courses-summary">
           {open ? 'Hide' : 'View'} {count} {count === 1 ? 'course' : 'courses'}
         </summary>
@@ -145,26 +145,6 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
 
   const counts = useMemo(() => subgroupCounts(), []);
   const subgroupOrder = useMemo(() => orderedSubgroupIdsWithPrograms(PROGRAMS), []);
-  const [openSubgroups, setOpenSubgroups] = useState<Record<string, boolean>>(() => {
-    const initialOrder = orderedSubgroupIdsWithPrograms(PROGRAMS);
-    return initialOrder.reduce<Record<string, boolean>>((acc, id, idx) => {
-      acc[id] = idx === 0;
-      return acc;
-    }, {});
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia('(min-width: 768px)').matches) {
-      return;
-    }
-
-    setOpenSubgroups(
-      subgroupOrder.reduce<Record<string, boolean>>((acc, id) => {
-        acc[id] = true;
-        return acc;
-      }, {})
-    );
-  }, [subgroupOrder]);
 
   const filterChips = useMemo((): { key: ProgramSubgroupId | 'all'; label: string }[] => {
     const chips: { key: ProgramSubgroupId | 'all'; label: string }[] = [
@@ -229,11 +209,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                   key={sgId}
                   id={`subgroup-${sgId}`}
                   className="programs-subgroup-detail"
-                  open={openSubgroups[sgId] ?? idx === 0}
-                  onToggle={(event) => {
-                    const nextOpen = (event.currentTarget as HTMLDetailsElement).open;
-                    setOpenSubgroups((prev) => ({ ...prev, [sgId]: nextOpen }));
-                  }}
+                  open={idx === 0}
                   style={{
                     scrollMarginTop: '6rem',
                     marginBottom: '2.5rem',
@@ -292,8 +268,20 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
               }
               /* Desktop (≥768px): always show all sections; hide toggle affordance */
               @media (min-width: 768px) {
+                details.programs-subgroup-detail:not([open]) > :not(summary) { display: block !important; }
                 .programs-subgroup-chevron { display: none; }
                 .programs-subgroup-summary { cursor: default; pointer-events: none; padding: 0 0 0.35rem; }
+              }
+              /* Mobile (< 768px): strip secondary card info, enforce touch targets */
+              @media (max-width: 767px) {
+                .program-card-skills { display: none !important; }
+                .program-card-courses { display: none !important; }
+                .program-card-outcomes { display: none !important; }
+                .program-card-meta-row span:not(:first-child) { display: none !important; }
+                .program-card .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+                .program-card-footer { flex-direction: column; align-items: stretch; }
+                .program-card-footer > div { flex-direction: column; }
+                .program-card-footer .btn { width: 100%; text-align: center; }
               }
             `}</style>
           </div>

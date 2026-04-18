@@ -168,18 +168,20 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
                   >
                     {manualLink.url}
                   </code>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()} aria-label="Copy link">
-                    {copied ? (
-                      <>
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">content_copy</span>
-                        Copy link
-                      </>
-                    )}
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()} aria-label={copied ? "Copied" : "Copy link"}>
+                    <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      {copied ? (
+                        <>
+                          <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">content_copy</span>
+                          Copy link
+                        </>
+                      )}
+                    </span>
                   </button>
                 </div>
                 <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem' }}>

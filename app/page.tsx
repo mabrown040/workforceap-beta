@@ -100,8 +100,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Empowering People.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
+            Career Training.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>No Cost.</span>
           </h1>
 
           <p style={{
@@ -111,7 +111,7 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
+            Enroll in {WORKFORCEAP_PROGRAM_CATALOG_SIZE} government-funded programs. Government funding covers everything — apply today.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>

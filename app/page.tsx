@@ -104,18 +104,18 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Empowering People.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
+            Real Career Training.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>No Cost to You.</span>
           </h1>
 
           <p style={{
             fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.25rem)',
             color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
-            maxWidth: '560px',
+            maxWidth: '520px',
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
+            {WORKFORCEAP_PROGRAM_CATALOG_SIZE} career programs — certificates, job placement, and resume support. Funded by grants and partnerships so it costs nothing to members.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
@@ -145,11 +145,11 @@ export default async function HomePage() {
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
-              <span>✓ Government-funded</span>
+              <span>✓ No cost to members</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No credit card required</span>
+              <span>✓ Funded by grants and partnerships</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No cost for members</span>
+              <span>✓ No credit card needed</span>
             </p>
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>

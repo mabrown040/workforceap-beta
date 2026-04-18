@@ -531,9 +531,9 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
             Secure
             <span style={s.trustDot} aria-hidden="true">·</span>
-            No-cost to members
+            No cost to members
             <span style={s.trustDot} aria-hidden="true">·</span>
-            Government-funded program
+            Funded by grants and partnerships
           </p>
 
           {/* Bottom links */}

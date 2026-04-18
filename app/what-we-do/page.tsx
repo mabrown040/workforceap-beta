@@ -7,7 +7,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
   description:
-    'WorkforceAP: 25+ years of workforce development. Employer-aligned training, no cost to members, job placement support — a proven model that scales.',
+    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, no cost to members, job placement support, and grant- and partner-funded access.',
   path: '/what-we-do',
 });
 
@@ -126,7 +126,7 @@ export default function WhatWeDoPage() {
             >
               history_edu
             </span>
-            Creating Opportunity for All Since 1999
+            Built on Decades of Workforce Experience
           </span>
 
           <h1
@@ -268,7 +268,7 @@ export default function WhatWeDoPage() {
               >
                 <div style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1 }}>25+</div>
                 <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.9 }}>
-                  Years
+                  Years Experience
                 </div>
               </div>
             </div>
@@ -300,9 +300,9 @@ export default function WhatWeDoPage() {
                   lineHeight: 1.7,
                 }}
               >
-                Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
-                state and local initiatives. We know what works. Employers fund talent pipelines.
-                Grants fund access. We don&rsquo;t charge members.
+                Built on 25+ years of workforce development leadership across Goodwill, Austin Area Urban League,
+                and state and local initiatives. We know what works. Employers help shape talent pipelines.
+                Grants and partnerships fund access. We don&rsquo;t charge members.
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>

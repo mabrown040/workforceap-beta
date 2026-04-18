@@ -145,7 +145,7 @@ export default async function HomePage() {
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
-              <span>✓ Government-funded</span>
+              <span>✓ Grant-funded & partner-supported</span>
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ No credit card required</span>
               <span style={{ opacity: 0.5 }}>·</span>
@@ -280,7 +280,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== 25+ Years Breaking Barriers — Bento: 2/3 text + 1/3 stats grid ===== */}
+      {/* ===== Built on Workforce Experience — Bento: 2/3 text + 1/3 stats grid ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div id="impact" className="home-impact-bento">
           {/* Text block (2/3) */}
@@ -289,10 +289,10 @@ export default async function HomePage() {
               Our Impact
             </span>
             <h2 className="text-display-sm" style={{ marginBottom: '1.5rem' }}>
-              25+ Years Breaking Barriers
+              Built on 25+ Years of Workforce Experience
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              WorkforceAP is a national nonprofit and 501(c)(3) built on 25+ years of workforce development experience. Built in Austin. Available nationwide. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
+              WorkforceAP is a national nonprofit and 501(c)(3) built by a leadership team with 25+ years of workforce development experience. Built in Austin. Available nationwide. Through partnerships with the ReWork America Alliance, State of Texas, Texas Workforce Commission, Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, Universal Tech Movement, and African American Youth Harvest Foundation, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
               We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost to members through WorkforceAP and partner-backed pathways.

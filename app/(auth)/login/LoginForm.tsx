@@ -539,7 +539,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             <span style={s.trustDot} aria-hidden="true">·</span>
             No-cost to members
             <span style={s.trustDot} aria-hidden="true">·</span>
-            Government-funded program
+            Funded by grants and partnerships
           </p>
 
           {/* Bottom links */}

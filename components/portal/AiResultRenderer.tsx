@@ -395,7 +395,7 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
       <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
         {copied ? 'check' : 'content_copy'}
       </span>
-      {copied ? 'Copied!' : label}
+      <span aria-live="polite">{copied ? 'Copied!' : label}</span>
     </button>
   );
 }

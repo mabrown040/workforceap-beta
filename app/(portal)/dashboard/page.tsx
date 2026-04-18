@@ -456,7 +456,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                     flexShrink: 0,
                     borderRadius: '999px',
                     background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
-                    boxShadow: '0 14px 32px rgba(173,44,77,0.14)',
+                    boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
                     border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
                   }}
                 >
@@ -515,7 +515,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 borderRadius: '1rem',
                 overflow: 'hidden',
                 background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                boxShadow: '0 6px 24px rgba(173,44,77,0.28)',
+                boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 28%, transparent)',
                 padding: '1.25rem',
                 textDecoration: 'none',
               }}
@@ -525,16 +525,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </p>
               <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
                 {noApplicationOnFile
-                  ? 'Apply now — takes about 10 minutes'
-                  : 'Choose your training program'}
+                  ? 'Apply now — 10 minutes'
+                  : 'Choose your program'}
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
                 {noApplicationOnFile
-                  ? 'Career training at no cost to members, funded by grants and partnerships. We\'ll match you to a counselor and program.'
-                  : 'Pick the career track that fits your goals. No cost for members, funded through government partnerships.'}
+                  ? "Free, government-funded training. A counselor will help you pick the right program and next steps."
+                  : 'Pick the career track that fits your goals — all free for members.'}
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
-                <span>{noApplicationOnFile ? 'Start Your Application' : 'Choose Program'}</span>
+                <span>{noApplicationOnFile ? 'Start Application' : 'Choose Program'}</span>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
               </div>
             </Link>
@@ -555,7 +555,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         <PlacementConfirmationStrip offers={jobOffers} />
         {applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px rgba(173,44,77,0.3)' }}>
+            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>

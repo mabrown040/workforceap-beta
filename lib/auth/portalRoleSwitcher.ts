@@ -35,7 +35,10 @@ export function buildPortalSwitcherRoles(input: {
 
   const available = new Set<PortalRole>();
 
-  if (explicitRoles.has('member')) available.add('member');
+  // All authenticated users get member access by default (unless they explicitly opt out)
+  // This ensures multi-role users can always return to the member portal
+  const isExplicitlyNonMember = explicitRoles.has('staff') || explicitRoles.has('system');
+  if (!isExplicitlyNonMember) available.add('member');
   if (input.hasEmployer || explicitRoles.has('employer')) available.add('employer');
   if (input.hasPartner || explicitRoles.has('partner')) available.add('partner');
   if (input.hasCounselor) available.add('counselor');

@@ -73,7 +73,8 @@ export default function SuperAdminViewSwitcher() {
   }[currentView] ?? currentLabel;
 
   return (
-    <div className="super-admin-view-switcher" onClick={(e) => e.stopPropagation()}>
+    <div className="super-admin-view-switcher super-admin-view-switcher--with-badge" onClick={(e) => e.stopPropagation()}>
+      <span className="super-admin-view-switcher__badge" title="Super Admin access enabled">Admin</span>
       <button
         type="button"
         className="super-admin-view-switcher__trigger"
@@ -86,23 +87,28 @@ export default function SuperAdminViewSwitcher() {
         <ChevronDown size={14} aria-hidden />
       </button>
       {open && (
-        <ul
-          className="super-admin-view-switcher__dropdown"
-          role="listbox"
-          aria-label="Portal view options"
-        >
-          {VIEWS.map((view) => (
-            <li key={view.id} role="option" aria-selected={currentView === view.id}>
-              <button
-                type="button"
-                className={`super-admin-view-switcher__option${currentView === view.id ? ' active' : ''}`}
-                onClick={() => handleSelect(view)}
-              >
-                {view.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="super-admin-view-switcher__header">
+            Switch portal view
+          </div>
+          <ul
+            className="super-admin-view-switcher__dropdown"
+            role="listbox"
+            aria-label="Portal view options"
+          >
+            {VIEWS.map((view) => (
+              <li key={view.id} role="option" aria-selected={currentView === view.id}>
+                <button
+                  type="button"
+                  className={`super-admin-view-switcher__option${currentView === view.id ? ' active' : ''}`}
+                  onClick={() => handleSelect(view)}
+                >
+                  {view.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

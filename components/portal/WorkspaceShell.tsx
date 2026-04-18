@@ -282,10 +282,19 @@ export default function WorkspaceShell({
               {headerBadge}
             </span>
           ) : null}
+          {/* Role switcher: show PortalRoleSwitcher for multi-role non-super-admins, OR for super-admins when impersonating (so they can switch within context) */}
           {!isSuperAdmin && portalRoles && portalRoles.length > 1 ? (
             <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
           ) : null}
+          {/* SuperAdminViewSwitcher: primary navigation for super admins; shown in all portal contexts */}
           <SuperAdminViewSwitcher />
+          {/* When super admin is impersonating, show an inline impersonation chip for clarity */}
+          {superAdmin && superAdminImpersonating ? (
+            <span className="workspace-shell-impersonating-chip" title="You are viewing this workspace as an administrator">
+              <span className="workspace-shell-impersonating-indicator" />
+              Viewing as
+            </span>
+          ) : null}
           {/* Global search — admin only, hidden on mobile */}
           {portalRole === 'admin' && (
             <div className="wa-hidden wa-md:wa-block">

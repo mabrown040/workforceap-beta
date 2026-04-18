@@ -9426,6 +9426,71 @@ html.dark .workspace-sidebar-signout:hover {
     color: var(--color-accent);
     text-decoration: underline;
 }
+
+/* Impersonation chip — shown in header when super admin is viewing as another context */
+.workspace-shell-impersonating-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 9999px;
+    white-space: nowrap;
+}
+.workspace-shell-impersonating-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3b82f6;
+    animation: impersonating-pulse 2s ease-in-out infinite;
+}
+@keyframes impersonating-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Super admin view switcher enhancements */
+.super-admin-view-switcher--with-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 0.5rem;
+}
+.super-admin-view-switcher__badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8b5cf6;
+    padding: 0.2rem 0.4rem;
+    background: rgba(139, 92, 246, 0.12);
+    border-radius: 0.25rem;
+    cursor: help;
+}
+.super-admin-view-switcher__header {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-on-surface-variant);
+    background: var(--surface-container-high);
+    border: 1px solid var(--outline-variant);
+    border-bottom: none;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    z-index: 101;
+}
 @media (min-width: 1024px) {
     .workspace-menu-btn {
         display: none;

@@ -25,19 +25,7 @@ async function extractJobDescriptionFromUrl(url: string): Promise<
   | { text: null; reason: string; guidance: 'unsupported-url' | 'scrape-failed' | 'paste-manually' | 'service-busy' }
 > {
   const detected = detectProvider(url);
-  
-  // Check for completely unsupported providers first
-  if (detected && !isKnownStructuredApiProvider(detected.provider)) {
-    const isJsRendered = ['rippling', 'workday', 'icims'].includes(detected.provider);
-    if (isJsRendered) {
-      return {
-        text: null,
-        reason: `${detected.provider.charAt(0).toUpperCase() + detected.provider.slice(1)} career pages require JavaScript and cannot be read automatically.`,
-        guidance: 'paste-manually',
-      };
-    }
-  }
-  
+
   // Tier 1: Use structured ATS APIs for known providers with job IDs
   if (detected && isKnownStructuredApiProvider(detected.provider) && detected.jobId) {
     console.log(`[job-match-scorer] Using ${detected.provider} API for job ${detected.jobId}`);
@@ -89,16 +77,17 @@ async function extractJobDescriptionFromUrl(url: string): Promise<
         guidance: 'service-busy',
       };
     }
-    
-    // Check if this was a known JS-rendered provider that fell through
+
+    // Known JS-rendered ATS pages may still scrape successfully, but if scraping fails,
+    // give the member a more specific fallback suggestion.
     if (detected && ['rippling', 'workday', 'icims'].includes(detected.provider)) {
       return {
         text: null,
-        reason: `${detected.provider.charAt(0).toUpperCase() + detected.provider.slice(1)} career pages require JavaScript and cannot be read automatically.`,
+        reason: `${detected.provider.charAt(0).toUpperCase() + detected.provider.slice(1)} career pages could not be read automatically this time. Please paste the job description directly if retrying does not work.`,
         guidance: 'paste-manually',
       };
     }
-    
+
     // Check if this URL is from a known unsupported domain
     const urlLower = url.toLowerCase();
     const unsupportedDomains = [

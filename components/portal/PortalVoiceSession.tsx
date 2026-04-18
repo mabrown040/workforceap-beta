@@ -205,6 +205,7 @@ export default function PortalVoiceSession({
   const transcriptRef = useRef<Array<{ speaker: string; text: string }>>([]);
   const phaseRef = useRef<Phase>('pre');
   const voiceErrorRef = useRef('');
+  const disconnectIssueRef = useRef(false);
   const lastLiveDraftSentRef = useRef<string | null>(null);
   const sessionPayloadRef = useRef(sessionPayload);
   sessionPayloadRef.current = sessionPayload;
@@ -316,6 +317,7 @@ export default function PortalVoiceSession({
   }, [phase, pushLiveResumeDraftContext, sessionPayload]);
 
   async function startSession() {
+    disconnectIssueRef.current = false;
     setVoiceError('');
     setLiveLines([]);
     liveTranscriptStickBottomRef.current = true;
@@ -472,6 +474,7 @@ export default function PortalVoiceSession({
           stopVideoRecordingStream();
           setPhase('pre');
         } else {
+          disconnectIssueRef.current = !intentionalRef.current && typed.reason === 'error';
           setPhase('done');
         }
         intentionalRef.current = false;
@@ -576,6 +579,7 @@ export default function PortalVoiceSession({
 
   async function endSession() {
     intentionalRef.current = true;
+    disconnectIssueRef.current = false;
     convRef.current?.endSession();
     setPhase('done');
     setAgentSpeaking(false);
@@ -611,6 +615,7 @@ export default function PortalVoiceSession({
 
   function reset() {
     intentionalRef.current = true;
+    disconnectIssueRef.current = false;
     convRef.current?.endSession();
     convRef.current = null;
     intentionalRef.current = false;
@@ -628,7 +633,7 @@ export default function PortalVoiceSession({
 
   // UX: Detect empty/disconnected transcript and warn the user
   const transcriptWasEmpty = phase === 'done' && transcriptRef.current.length === 0;
-  const hadConnectionIssue = phase === 'done' && voiceErrorRef.current !== '';
+  const hadConnectionIssue = phase === 'done' && disconnectIssueRef.current;
 
   if (phase === 'pre') {
     return (

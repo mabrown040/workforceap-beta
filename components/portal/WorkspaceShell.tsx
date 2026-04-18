@@ -20,7 +20,7 @@ import {
   getActiveTab,
 } from '@/lib/nav/portalNav';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
-import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
+import SuperAdminViewSwitcher, { useIsSuperAdmin } from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
 import PortalRoleSwitcher from './PortalRoleSwitcher';
 import { SignOutButton } from './SignOutButton';
@@ -92,6 +92,7 @@ export default function WorkspaceShell({
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
+  const isSuperAdmin = useIsSuperAdmin();
   const mainRef = useRef<HTMLElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);
@@ -281,7 +282,7 @@ export default function WorkspaceShell({
               {headerBadge}
             </span>
           ) : null}
-          {portalRoles && portalRoles.length > 1 ? (
+          {!isSuperAdmin && portalRoles && portalRoles.length > 1 ? (
             <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
           ) : null}
           <SuperAdminViewSwitcher />

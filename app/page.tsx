@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
+import { LEADERS } from '@/lib/content/leadership';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -49,6 +50,9 @@ export default async function HomePage() {
           static: p,
         }));
   const programCount = activePrograms.length > 0 ? activePrograms.length : WORKFORCEAP_PROGRAM_CATALOG_SIZE;
+  const leadershipSpotlight = LEADERS.find((leader) => leader.slug === 'michael-brown-ii');
+  const leadershipSpotlightSummary = leadershipSpotlight?.bioBlocks.find((block) => block.type === 'paragraph');
+  const leadershipSpotlightImage = leadershipSpotlight?.image || null;
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
@@ -325,6 +329,93 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {leadershipSpotlight ? (
+        <section style={{ padding: '0 clamp(1rem, 4vw, 2rem) clamp(3rem, 6vw, 5rem)', maxWidth: '1400px', margin: '0 auto' }}>
+          <div
+            className="portal-card portal-card--flat"
+            style={{
+              background: 'var(--surface-container-low)',
+              padding: 'clamp(1.25rem, 3vw, 2rem)',
+              borderRadius: 'var(--radius-2xl, 1.5rem)',
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'inline-block' }}>
+                Leadership Spotlight
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                {leadershipSpotlightImage ? (
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '84px',
+                      height: '84px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      background: 'var(--surface-container-high)',
+                      flex: '0 0 84px',
+                    }}
+                  >
+                    <Image
+                      src={leadershipSpotlightImage}
+                      alt={leadershipSpotlight.name}
+                      fill
+                      sizes="84px"
+                      style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                    />
+                  </div>
+                ) : null}
+                <div>
+                  <h2 className="text-display-sm" style={{ marginBottom: '0.5rem' }}>{leadershipSpotlight.name}</h2>
+                  <p style={{ color: 'var(--color-on-surface-variant)', fontWeight: 600, margin: 0 }}>{leadershipSpotlight.title}</p>
+                </div>
+              </div>
+              {leadershipSpotlight.missionRelevance ? (
+                <p style={{ color: 'var(--color-on-surface)', lineHeight: 1.7, margin: 0, fontWeight: 500 }}>
+                  {leadershipSpotlight.missionRelevance}
+                </p>
+              ) : null}
+              {leadershipSpotlightSummary && leadershipSpotlightSummary.type === 'paragraph' ? (
+                <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, margin: 0 }}>
+                  {leadershipSpotlightSummary.text}
+                </p>
+              ) : (
+                <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, margin: 0 }}>
+                  {leadershipSpotlight.cardBio}
+                </p>
+              )}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                {leadershipSpotlight.stats.slice(0, 3).map((stat) => (
+                  <div
+                    key={stat.label}
+                    style={{
+                      padding: '0.75rem 0.9rem',
+                      borderRadius: 'var(--radius-lg)',
+                      background: 'var(--surface-container-high)',
+                      minWidth: '150px',
+                    }}
+                  >
+                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
+                      {stat.label}
+                    </div>
+                    <div style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <Link href={`/leadership/${leadershipSpotlight.slug}`} className="btn btn-primary">
+                  Read Michael Brown II's Story
+                </Link>
+                <Link href="/leadership" className="btn btn-outline">
+                  Meet the Leadership Team
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
       <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>

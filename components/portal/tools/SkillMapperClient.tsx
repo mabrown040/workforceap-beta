@@ -103,6 +103,86 @@ const DEMO_SALES_SKILLS = [
   { name: 'Service Orientation', score: 76, importance: 'Medium' },
 ];
 
+const AXIS_DESCRIPTIONS: Record<string, { plain: string; examples: string }> = {
+  Analytics: {
+    plain: 'Working with data, numbers, and logic',
+    examples: 'Math, statistics, critical thinking, data analysis, problem-solving',
+  },
+  Engineering: {
+    plain: 'Building and working with technology or systems',
+    examples: 'Programming, software, hardware, networks, troubleshooting, operations',
+  },
+  Design: {
+    plain: 'Creative and visual communication',
+    examples: 'Writing, graphics, UX/UI, multimedia, branding, content creation',
+  },
+  Strategy: {
+    plain: 'Planning, leadership, and decision-making',
+    examples: 'Management, sales & marketing, budgeting, negotiation, coordination',
+  },
+  Ethics: {
+    plain: 'People skills and professional conduct',
+    examples: 'Communication, active listening, empathy, teamwork, service orientation',
+  },
+  Research: {
+    plain: 'Learning, investigating, and documenting',
+    examples: 'Study, scientific methods, technical writing, data collection, continuous learning',
+  },
+};
+
+function AxisLegend({ axes }: { axes: string[] }) {
+  const [open, setOpen] = useState(false);
+  const shown = axes.filter(a => AXIS_DESCRIPTIONS[a]);
+  if (shown.length === 0) return null;
+  return (
+    <div style={{ marginTop: '0.5rem', marginBottom: '1rem', border: '1px solid var(--surface-container-highest)', borderRadius: '0.75rem', overflow: 'hidden' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0.625rem 0.875rem', background: 'var(--surface-container-low)',
+          border: 'none', cursor: 'pointer', fontSize: '0.8125rem',
+          color: 'var(--color-on-surface-variant)', fontWeight: 500,
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }}>help_outline</span>
+          What do these scores measure?
+        </span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
+          expand_more
+        </span>
+      </button>
+      {open && (
+        <div style={{ padding: '0.75rem 0.875rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--surface-container)' }}>
+          {shown.map(axis => {
+            const info = AXIS_DESCRIPTIONS[axis];
+            return (
+              <div key={axis} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start' }}>
+                <span style={{
+                  fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem',
+                  borderRadius: '999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                  color: 'var(--color-accent)', flexShrink: 0, lineHeight: '1.6',
+                }}>
+                  {axis}
+                </span>
+                <div>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{info.plain}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}> — {info.examples}</span>
+                </div>
+              </div>
+            );
+          })}
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
+            Scores come from O*NET occupational data. Higher means that skill area matters more for this job.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Returns true when a search query or occupation title looks like a sales/non-tech role. */
 function isSalesQuery(text: string): boolean {
   const t = text.toLowerCase();
@@ -665,6 +745,8 @@ export default function SkillMapperClient() {
                   ))}
                 </div>
               </div>
+              <AxisLegend axes={radarData.map(d => d.axis)} />
+
               {/* Export + profile compare prompt */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                 <button

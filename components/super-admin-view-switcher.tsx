@@ -20,12 +20,8 @@ function getCurrentView(pathname: string): (typeof VIEWS)[number]['id'] {
   return 'student';
 }
 
-export default function SuperAdminViewSwitcher() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
+export function useIsSuperAdmin() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const currentView = getCurrentView(pathname ?? '');
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -33,6 +29,16 @@ export default function SuperAdminViewSwitcher() {
       .then((d) => setIsSuperAdmin(d.superAdmin === true))
       .catch(() => {});
   }, []);
+
+  return isSuperAdmin;
+}
+
+export default function SuperAdminViewSwitcher() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const isSuperAdmin = useIsSuperAdmin();
+  const currentView = getCurrentView(pathname ?? '');
 
   const closeMenu = useCallback(() => setOpen(false), []);
 
@@ -61,7 +67,7 @@ export default function SuperAdminViewSwitcher() {
   const shortLabel = {
     admin: 'Admin',
     partner: 'Partner',
-    student: 'Student',
+    student: 'Member',
     employer: 'Employer',
     counselor: 'Counselor',
   }[currentView] ?? currentLabel;

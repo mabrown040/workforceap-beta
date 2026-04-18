@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
@@ -153,6 +153,19 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
     }, {});
   });
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia('(min-width: 768px)').matches) {
+      return;
+    }
+
+    setOpenSubgroups(
+      subgroupOrder.reduce<Record<string, boolean>>((acc, id) => {
+        acc[id] = true;
+        return acc;
+      }, {})
+    );
+  }, [subgroupOrder]);
+
   const filterChips = useMemo((): { key: ProgramSubgroupId | 'all'; label: string }[] => {
     const chips: { key: ProgramSubgroupId | 'all'; label: string }[] = [
       { key: 'all', label: `All programs (${WORKFORCEAP_PROGRAM_CATALOG_SIZE})` },
@@ -279,7 +292,6 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
               }
               /* Desktop (≥768px): always show all sections; hide toggle affordance */
               @media (min-width: 768px) {
-                details.programs-subgroup-detail:not([open]) > :not(summary) { display: block !important; }
                 .programs-subgroup-chevron { display: none; }
                 .programs-subgroup-summary { cursor: default; pointer-events: none; padding: 0 0 0.35rem; }
               }

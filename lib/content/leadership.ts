@@ -453,8 +453,7 @@ export const LEADERS: Leader[] = [
     name: 'Michael Brown II',
     role: 'Lead Consultant',
     title: 'Lead Consultant',
-    /** Empty until a real headshot is available — listing and bio pages omit the placeholder */
-    image: '',
+    image: '/images/michael-brown-ii.png',
     founder: false,
     linkedin: '',
     section: 'consultant',

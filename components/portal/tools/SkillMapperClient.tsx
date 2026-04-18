@@ -397,6 +397,7 @@ export default function SkillMapperClient() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [error, setError] = useState('');
   const [usingDemo, setUsingDemo] = useState(false);
+  const [demoFallbackReason, setDemoFallbackReason] = useState<string>('');
 
   // Matched programs from occupation → program mapping (from DB seed)
   const [matchedPrograms, setMatchedPrograms] = useState<{
@@ -505,7 +506,7 @@ export default function SkillMapperClient() {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-    setLoading(true); setError(''); setOccupations([]); setRadarData([]); setSkills([]);
+    setLoading(true); setError(''); setOccupations([]); setRadarData([]); setSkills([]); setDemoFallbackReason('');
     try {
       const res = await fetch(`/api/ai/skill-mapper?occupation=${encodeURIComponent(query)}`);
       const data = await res.json();
@@ -517,21 +518,26 @@ export default function SkillMapperClient() {
         setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
         setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
         setUsingDemo(true);
+        setDemoFallbackReason(data.demo === true
+          ? 'O*NET occupational search is unavailable. Showing sample data for demonstration.'
+          : 'No occupations found for this search. Showing sample data for demonstration.'
+        );
         setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
       }
-    } catch {
+    } catch (err) {
       const useSales = isSalesQuery(query);
       setError('');
       setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
       setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
       setUsingDemo(true);
+      setDemoFallbackReason('Unable to connect to occupation database. Showing sample data for demonstration.');
       setSelectedTitle(useSales ? 'Sales Representative (Demo)' : 'Software Developer (Demo)');
     }
     setLoading(false);
   };
 
   const handleSelect = async (code: string, title: string) => {
-    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false); setMatchedPrograms([]);
+    setSelectedTitle(title); setSelectedCode(code); setLoadingSkills(true); setError(''); setUsingDemo(false); setMatchedPrograms([]); setDemoFallbackReason('');
     try {
       const res = await fetch(`/api/ai/skill-mapper?code=${encodeURIComponent(code)}&title=${encodeURIComponent(title)}`);
       const data = await res.json();
@@ -539,18 +545,26 @@ export default function SkillMapperClient() {
         setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
         setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
         setUsingDemo(Boolean(data.demo));
+        if (data.demo) {
+          setDemoFallbackReason(data.demo === true
+            ? 'O*NET occupation details are currently unavailable. Showing sample skill data for demonstration.'
+            : ''
+          );
+        }
       } else {
         const useSales = isSalesQuery(title);
         setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
         setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
         setUsingDemo(true);
+        setDemoFallbackReason('Unable to load occupation details. Showing sample data for demonstration.');
       }
       if (data.matchedPrograms?.length) setMatchedPrograms(data.matchedPrograms);
-    } catch {
+    } catch (err) {
       const useSales = isSalesQuery(title);
       setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
       setSkills(useSales ? DEMO_SALES_SKILLS : DEMO_SKILLS);
       setUsingDemo(true);
+      setDemoFallbackReason('Unable to load occupation details. Showing sample data for demonstration.');
     }
     setLoadingSkills(false);
   };
@@ -636,8 +650,25 @@ export default function SkillMapperClient() {
           {radarData.length > 0 && (
             <>
               {usingDemo && (
-                <div style={{ background: 'rgba(255,193,7,0.1)', border: '1px solid rgba(255,193,7,0.3)', borderRadius: '0.5rem', padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--color-on-surface)' }}>
-                  These are sample skill ranges for this occupation — for personalized results, upload your resume or complete the Interest Profiler.
+                <div style={{ 
+                  background: 'rgba(239,68,68,0.08)', 
+                  border: '1px solid rgba(239,68,68,0.25)', 
+                  borderRadius: '0.5rem', 
+                  padding: '1rem', 
+                  marginBottom: '1rem', 
+                  fontSize: '0.85rem', 
+                  color: 'var(--color-on-surface)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontWeight: 700, color: '#b91c1c' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>warning</span>
+                    DEMO MODE — Sample Data Only
+                  </div>
+                  <p style={{ margin: 0, lineHeight: 1.5 }}>
+                    {demoFallbackReason || 'Showing sample skill ranges for demonstration purposes. This is not real occupational data from O*NET.'}
+                  </p>
+                  <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                    For accurate skill mapping, try again later or upload your resume for personalized results.
+                  </p>
                 </div>
               )}
               <h3 className="ai-tool-section-title">{selectedTitle}</h3>

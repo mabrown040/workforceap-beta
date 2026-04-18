@@ -18,12 +18,25 @@ import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
  * Extract job description from URL using provider-aware logic.
  * Tier 1: Use ATS provider APIs (Greenhouse, Lever, Ashby) for known job URLs
  * Tier 2: Fallback to generic page scraping (fetchPageText)
- * Returns the job description text or null with a reason.
+ * Returns the job description text or null with a user-friendly, actionable reason.
  */
 async function extractJobDescriptionFromUrl(url: string): Promise<
-  { text: string; source: 'ats-api' | 'scraping' } | { text: null; reason: string }
+  | { text: string; source: 'ats-api' | 'scraping' }
+  | { text: null; reason: string; guidance: 'unsupported-url' | 'scrape-failed' | 'paste-manually' | 'service-busy' }
 > {
   const detected = detectProvider(url);
+  
+  // Check for completely unsupported providers first
+  if (detected && !isKnownStructuredApiProvider(detected.provider)) {
+    const isJsRendered = ['rippling', 'workday', 'icims'].includes(detected.provider);
+    if (isJsRendered) {
+      return {
+        text: null,
+        reason: `${detected.provider.charAt(0).toUpperCase() + detected.provider.slice(1)} career pages require JavaScript and cannot be read automatically.`,
+        guidance: 'paste-manually',
+      };
+    }
+  }
   
   // Tier 1: Use structured ATS APIs for known providers with job IDs
   if (detected && isKnownStructuredApiProvider(detected.provider) && detected.jobId) {
@@ -69,14 +82,55 @@ async function extractJobDescriptionFromUrl(url: string): Promise<
 
   // Scraping failed — surface a user-friendly reason based on error type
   if ('error' in scrapeResult) {
-    const reason =
-      scrapeResult.error === 'rate_limited' || scrapeResult.error === 'quota_exceeded'
-        ? 'Job description reader is temporarily busy. Please try again in a few minutes, or paste the job description directly.'
-        : 'Could not extract job description from URL. Please paste the job description directly.';
-    return { text: null, reason };
+    if (scrapeResult.error === 'rate_limited' || scrapeResult.error === 'quota_exceeded') {
+      return {
+        text: null,
+        reason: 'Job description reader is temporarily busy. Please try again in a few minutes, or paste the job description directly.',
+        guidance: 'service-busy',
+      };
+    }
+    
+    // Check if this was a known JS-rendered provider that fell through
+    if (detected && ['rippling', 'workday', 'icims'].includes(detected.provider)) {
+      return {
+        text: null,
+        reason: `${detected.provider.charAt(0).toUpperCase() + detected.provider.slice(1)} career pages require JavaScript and cannot be read automatically.`,
+        guidance: 'paste-manually',
+      };
+    }
+    
+    // Check if this URL is from a known unsupported domain
+    const urlLower = url.toLowerCase();
+    const unsupportedDomains = [
+      'linkedin.com',
+      'indeed.com',
+      'glassdoor.com',
+      'monster.com',
+      'ziprecruiter.com',
+      'careerbuilder.com',
+    ];
+    const isUnsupportedDomain = unsupportedDomains.some(domain => urlLower.includes(domain));
+    
+    if (isUnsupportedDomain) {
+      return {
+        text: null,
+        reason: `This job board (${new URL(url).hostname}) is not supported for automatic reading.`,
+        guidance: 'unsupported-url',
+      };
+    }
+    
+    return {
+      text: null,
+      reason: 'Could not extract job description from URL. The page may require login, use JavaScript rendering, or block automated reading.',
+      guidance: 'scrape-failed',
+    };
   }
 
-  return { text: null, reason: 'Could not extract job description from URL' };
+  return {
+    text: null,
+    reason: 'Could not extract job description from URL.',
+    guidance: 'scrape-failed',
+  };
 }
 
 export interface MatchAnalysisOutput {
@@ -183,6 +237,7 @@ export async function POST(request: Request) {
   let scrapedFromUrl = false;
   let scrapeError: string | null = null;
   let scrapeSource: 'ats-api' | 'scraping' | null = null;
+  let scrapeGuidance: 'unsupported-url' | 'scrape-failed' | 'paste-manually' | 'service-busy' | null = null;
 
   if (jobUrl?.trim()) {
     try {
@@ -201,21 +256,36 @@ export async function POST(request: Request) {
           console.warn(`[job-match-scorer] Scraped content too short (${sanitized.length} chars), falling back to manual description`);
           if (!finalJobDescription) {
             return NextResponse.json(
-              { error: 'Could not extract a full job description from that URL. Try pasting the job description directly.' },
+              { 
+                error: 'Could not extract a full job description from that URL. Try pasting the job description directly.',
+                guidance: 'paste-manually',
+              },
               { status: 400 }
             );
           }
         }
       } else if ('reason' in extractResult) {
-        // Extraction failed with a specific reason
+        // Extraction failed with a specific reason and guidance
         scrapeError = extractResult.reason;
-        console.error('[job-match-scorer] URL extraction failed:', scrapeError);
+        scrapeGuidance = extractResult.guidance;
+        console.error('[job-match-scorer] URL extraction failed:', scrapeError, 'guidance:', scrapeGuidance);
       }
 
-      // If we have no job description from either source, return error
+      // If we have no job description from either source, return error with guidance
       if (!finalJobDescription && scrapeError) {
+        const errorMessage = scrapeGuidance === 'paste-manually'
+          ? `${scrapeError} Please paste the job description text directly.`
+          : scrapeGuidance === 'unsupported-url'
+          ? `${scrapeError} Copy and paste the job description text instead.`
+          : scrapeGuidance === 'service-busy'
+          ? scrapeError
+          : `${scrapeError} You can paste the job description text directly instead.`;
+        
         return NextResponse.json(
-          { error: scrapeError },
+          { 
+            error: errorMessage,
+            guidance: scrapeGuidance,
+          },
           { status: 400 }
         );
       }
@@ -223,7 +293,10 @@ export async function POST(request: Request) {
       console.error('[job-match-scorer] URL fetch error:', err);
       if (!finalJobDescription) {
         return NextResponse.json(
-          { error: 'Failed to fetch job description from URL. Please paste the job description directly.' },
+          { 
+            error: 'Failed to fetch job description from URL. Please paste the job description directly.',
+            guidance: 'paste-manually',
+          },
           { status: 400 }
         );
       }
@@ -233,9 +306,12 @@ export async function POST(request: Request) {
   // Final validation of job description
   if (!finalJobDescription || finalJobDescription.length < 50) {
     return NextResponse.json(
-      { error: scrapedFromUrl
+      { 
+        error: scrapedFromUrl
           ? 'Could not extract enough content from that URL. Try pasting the job description directly.'
-          : 'Job description must be at least 50 characters' },
+          : 'Job description must be at least 50 characters',
+        guidance: scrapedFromUrl ? 'paste-manually' : undefined,
+      },
       { status: 400 }
     );
   }

@@ -151,10 +151,11 @@ const s = {
     padding: 'var(--space-3) var(--space-4)',
     fontSize: 'var(--font-size-base)',
     background: 'var(--surface-container)',
-    border: '1px solid var(--outline-variant)',
+    border: '2px solid var(--outline-variant)',
     borderRadius: 'var(--radius-md)',
     color: 'var(--color-on-surface)',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+    outline: 'none',
   } as React.CSSProperties,
 
   passwordRow: {
@@ -170,16 +171,20 @@ const s = {
 
   passwordToggle: {
     position: 'absolute' as const,
-    right: 4,
+    right: 0,
     top: '50%',
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
     color: 'var(--color-on-surface-variant)',
     cursor: 'pointer',
-    padding: '10px 12px',
+    padding: '12px 14px',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '44px',
+    minHeight: '44px',
+    transition: 'color 0.2s',
   } as React.CSSProperties,
 
   recoverLink: {
@@ -198,6 +203,7 @@ const s = {
 
   primaryBtn: {
     width: '100%',
+    minHeight: '44px',
     padding: 'var(--space-4)',
     fontSize: 'var(--font-size-base)',
     fontWeight: 700,
@@ -228,7 +234,7 @@ const s = {
   } as React.CSSProperties,
 
   errorBanner: {
-    background: 'rgba(173,44,77,0.1)',
+    background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
     borderLeft: '4px solid var(--color-accent)',
     padding: 'var(--space-3) var(--space-4)',
     marginBottom: 'var(--space-4)',
@@ -334,7 +340,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       }
 
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong. Please try again.');
+        setError(data.error ?? "We couldn't sign you in right now. Try again in a moment.");
         setLoading(false);
         return;
       }
@@ -342,7 +348,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       const nextLocation = typeof data?.redirectTo === 'string' ? data.redirectTo : redirectTo;
       window.location.href = new URL(nextLocation, window.location.origin).href;
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError("We couldn't connect. Check your connection and try again.");
       setLoading(false);
     }
   };
@@ -397,7 +403,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                       fontWeight: 600,
                       borderRadius: 'var(--radius-sm)',
                       border: active ? '1px solid var(--color-accent)' : '1px solid var(--outline-variant)',
-                      background: active ? 'rgba(173,44,77,0.12)' : 'transparent',
+                      background: active ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
                       color: active ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                       textDecoration: 'none',
                       transition: 'all 0.2s',

@@ -100,8 +100,8 @@ export default async function HomePage() {
               fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
             }}
           >
-            Empowering People.{' '}
-            <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
+            Real Career Training.{' '}
+            <span style={{ color: 'var(--color-accent)' }}>No Cost to Members.</span>
           </h1>
 
           <p style={{

@@ -538,6 +538,7 @@ export default function SkillMapperClient() {
       if (data.radarAxes) {
         setRadarData(data.radarAxes.map((a: { axis: string; value: number }) => ({ axis: a.axis, value: (a.value ?? 0) / 100 })));
         setSkills((data.skills || []).map((s: { name: string; score: number; category: string }) => ({ name: s.name, score: s.score, importance: s.score >= 70 ? 'High' : s.score >= 40 ? 'Medium' : 'Low' })));
+        setUsingDemo(Boolean(data.demo));
       } else {
         const useSales = isSalesQuery(title);
         setRadarData(useSales ? DEMO_SALES_RADAR : DEMO_RADAR);
@@ -604,7 +605,7 @@ export default function SkillMapperClient() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search an occupation (e.g. Software Developer)"
+              placeholder="Search an occupation (e.g. Software Developer, Account Executive, Project Manager)"
               className="ai-tool-input"
               style={{ flex: 1, minHeight: '44px' }}
             />
@@ -640,6 +641,11 @@ export default function SkillMapperClient() {
                 </div>
               )}
               <h3 className="ai-tool-section-title">{selectedTitle}</h3>
+              {isSalesQuery(selectedTitle) && (
+                <div style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface)' }}>
+                  Sales and account roles usually score strongest in <strong>Strategy</strong> and <strong>Ethics</strong> here because this map weighs planning, negotiation, communication, and relationship-building, not just technical tools.
+                </div>
+              )}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginBottom: '2rem' }}>
                 <div style={{ flex: '1 1 240px', minWidth: 240 }}>
                   <RadarChart data={radarData} />

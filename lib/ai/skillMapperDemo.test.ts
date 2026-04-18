@@ -138,6 +138,30 @@ test('searchDemoOccupations: matches "Sales Representatives" occupation', () => 
   assert.ok(titles.includes('Sales Representatives'), 'should find "Sales Representatives"');
 });
 
+test('searchDemoOccupations: account executive query matches a sales demo occupation', () => {
+  const results = searchDemoOccupations('account executive');
+  assert.ok(results.length > 0, 'should find a sales demo result for account executive');
+  assert.ok(results.some((o) => /sales/i.test(o.title)), 'should map account executive to a sales occupation');
+});
+
+test('searchDemoOccupations: unrelated queries do not match sales via short keyword substrings', () => {
+  const aerospace = searchDemoOccupations('aerospace engineer');
+  assert.ok(!aerospace.some((o) => o.title === 'Sales Representatives'));
+
+  const michael = searchDemoOccupations('Michael');
+  assert.ok(!michael.some((o) => o.title === 'Sales Representatives'));
+});
+
+test('searchDemoOccupations: project manager query matches project management specialists', () => {
+  const results = searchDemoOccupations('project manager');
+  assert.ok(results.some((o) => o.title === 'Project Management Specialists'));
+});
+
+test('searchDemoOccupations: marketing manager query matches marketing managers', () => {
+  const results = searchDemoOccupations('marketing manager');
+  assert.ok(results.some((o) => o.title === 'Marketing Managers'));
+});
+
 test('searchDemoOccupations: code-based search works', () => {
   const results = searchDemoOccupations('15-1252');
   assert.ok(results.length > 0, 'should match by occupation code');

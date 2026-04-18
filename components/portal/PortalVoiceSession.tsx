@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
   useState,
@@ -98,7 +98,7 @@ export type PortalVoiceSessionProps = {
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
   /**
    * When `delegatePostSessionSuggestions` is true, parsed post-session suggestions are passed here
-   * instead of rendering the default “done” suggestion cards inside this component.
+   * instead of rendering the default "done" suggestion cards inside this component.
    */
   onPostSessionSuggestions?: (suggestions: ResumeSuggestion[]) => void;
   /** Do not show post-session Approve/Deny cards here — parent handles them (e.g. draft panel). */
@@ -205,6 +205,7 @@ export default function PortalVoiceSession({
   const transcriptRef = useRef<Array<{ speaker: string; text: string }>>([]);
   const phaseRef = useRef<Phase>('pre');
   const voiceErrorRef = useRef('');
+  const disconnectIssueRef = useRef(false);
   const lastLiveDraftSentRef = useRef<string | null>(null);
   const sessionPayloadRef = useRef(sessionPayload);
   sessionPayloadRef.current = sessionPayload;
@@ -316,6 +317,7 @@ export default function PortalVoiceSession({
   }, [phase, pushLiveResumeDraftContext, sessionPayload]);
 
   async function startSession() {
+    disconnectIssueRef.current = false;
     setVoiceError('');
     setLiveLines([]);
     liveTranscriptStickBottomRef.current = true;
@@ -472,6 +474,7 @@ export default function PortalVoiceSession({
           stopVideoRecordingStream();
           setPhase('pre');
         } else {
+          disconnectIssueRef.current = !intentionalRef.current && typed.reason === 'error';
           setPhase('done');
         }
         intentionalRef.current = false;
@@ -485,7 +488,7 @@ export default function PortalVoiceSession({
             ? ev.message
             : typeof ev.text === 'string'
               ? ev.text
-              : '';
+            : '';
         const text = rawText.trim();
         if (!text) return;
 
@@ -576,6 +579,7 @@ export default function PortalVoiceSession({
 
   async function endSession() {
     intentionalRef.current = true;
+    disconnectIssueRef.current = false;
     convRef.current?.endSession();
     setPhase('done');
     setAgentSpeaking(false);
@@ -611,6 +615,7 @@ export default function PortalVoiceSession({
 
   function reset() {
     intentionalRef.current = true;
+    disconnectIssueRef.current = false;
     convRef.current?.endSession();
     convRef.current = null;
     intentionalRef.current = false;
@@ -625,6 +630,10 @@ export default function PortalVoiceSession({
   }
 
   const bgSoft = `${accent}14`;
+
+  // UX: Detect empty/disconnected transcript and warn the user
+  const transcriptWasEmpty = phase === 'done' && transcriptRef.current.length === 0;
+  const hadConnectionIssue = phase === 'done' && disconnectIssueRef.current;
 
   if (phase === 'pre') {
     return (
@@ -876,7 +885,32 @@ export default function PortalVoiceSession({
   return (
     <div style={{ maxWidth: 560 }}>
       <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>Session ended.</p>
+        {/* UX CLARITY: Warn when no transcript was captured due to disconnect or error */}
+        {transcriptWasEmpty || hadConnectionIssue ? (
+          <div
+            style={{
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: 8,
+              padding: '0.75rem 1rem',
+              marginBottom: '1rem',
+              fontSize: '0.85rem',
+              color: '#b91c1c',
+              textAlign: 'left',
+            }}
+          >
+            <strong>Session ended with no conversation recorded.</strong>
+            <p style={{ margin: '0.25rem 0 0', lineHeight: 1.4 }}>
+              {hadConnectionIssue
+                ? 'The connection was interrupted. Your microphone may not have transmitted audio, or the voice service may have disconnected unexpectedly.'
+                : 'No audio was captured during this session. Check that your microphone is working and try again.'}
+            </p>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Session ended.
+          </p>
+        )}
         <button
           type="button"
           onClick={reset}

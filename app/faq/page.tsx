@@ -45,6 +45,8 @@ export default function FAQPage() {
       <FAQContent />
       <Footer />
       <MobileBottomNav />
+      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );
 }

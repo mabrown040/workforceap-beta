@@ -794,6 +794,8 @@ export default function EmployersPage() {
 
       <MobileBottomNav />
       <Footer />
+      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );
 }

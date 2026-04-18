@@ -1,54 +1,24 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
-import { prisma } from '@/lib/db/prisma';
-import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
+import BlogListingClient from './BlogListingClient';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import BlogListingClient from './BlogListingClient';
-
-export const revalidate = 3600;
+import { getBlogPosts, getBlogCategories } from '@/lib/content/blog';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Workforce Development Blog | Career Tips & Training News',
+  title: 'Career Tips, Program Spotlights & Success Stories',
   description:
-    'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Career training advice, job-readiness guidance, and workforce insights for individuals nationwide.',
+    'WorkforceAP blog: career guidance, training program updates, member success stories, and workforce development insights.',
   path: '/blog',
 });
 
 export default async function BlogPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let posts: any[] = [];
-  if (!shouldSkipOptionalDbQueriesAtBuild()) {
-    try {
-      posts = await prisma.blogPost.findMany({
-        where: {
-          OR: [{ published: true }, { scheduledAt: { lte: new Date() } }],
-        },
-        orderBy: { publishedAt: 'desc' },
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          excerpt: true,
-          coverImage: true,
-          heroImage: true,
-          authorName: true,
-          publishedAt: true,
-          scheduledAt: true,
-          category: true,
-        },
-      });
-    } catch (error) {
-      console.error('Failed to fetch blog posts:', error);
-      posts = [];
-    }
-  }
-
-  const categories = [...new Set(posts.map((p) => p.category).filter(Boolean))] as string[];
+  const posts = await getBlogPosts();
+  const categories = await getBlogCategories();
 
   return (
-    <div className="inner-page blog-page">
+    <div className="blog-page">
       <PageHero
         className="blog-page-hero"
         title="Blog"
@@ -57,6 +27,8 @@ export default async function BlogPage() {
       <BlogListingClient posts={posts} categories={categories} />
       <Footer />
       <MobileBottomNav />
+      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );
 }

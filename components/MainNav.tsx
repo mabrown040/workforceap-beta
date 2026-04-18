@@ -18,7 +18,7 @@ const navItems = [
     ],
   },
   { href: '/programs', label: 'Programs' },
-  { href: '/wioa-qualification', label: 'WIOA Screening' },
+  { href: '/wioa-qualification', label: 'Check Eligibility' },
   { href: '/find-your-path', label: 'Find Your Path' },
   { href: '/partners', label: 'Partners' },
   { href: '/employers', label: 'Employers' },

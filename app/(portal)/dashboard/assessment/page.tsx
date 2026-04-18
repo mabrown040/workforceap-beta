@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Skills Snapshot',
+  description: 'A quick 10-minute skills snapshot before your Coursera courses are activated.',
+  path: '/dashboard/assessment',
+});
 
 export default async function AssessmentPage({
   searchParams,

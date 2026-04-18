@@ -255,8 +255,6 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
       <Footer />
       <MobileBottomNav />
-      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
-      <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );
 }

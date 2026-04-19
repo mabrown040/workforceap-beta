@@ -109,6 +109,86 @@ function isSalesQuery(text: string): boolean {
   return /\b(sales|account exec|account manager|ae\b|bdr\b|sdr\b|salesforce|crm|customer success|business dev|marketing manager)\b/.test(t);
 }
 
+const AXIS_DESCRIPTIONS: Record<string, { plain: string; examples: string }> = {
+  Analytics: {
+    plain: 'Working with data, numbers, and logic',
+    examples: 'Math, statistics, critical thinking, data analysis, problem-solving',
+  },
+  Engineering: {
+    plain: 'Building and working with technology or systems',
+    examples: 'Programming, software, hardware, networks, troubleshooting, operations',
+  },
+  Design: {
+    plain: 'Creative and visual communication',
+    examples: 'Writing, graphics, UX/UI, multimedia, branding, content creation',
+  },
+  Strategy: {
+    plain: 'Planning, leadership, and decision-making',
+    examples: 'Management, sales & marketing, budgeting, negotiation, coordination',
+  },
+  Ethics: {
+    plain: 'People skills and professional conduct',
+    examples: 'Communication, active listening, empathy, teamwork, service orientation',
+  },
+  Research: {
+    plain: 'Learning, investigating, and documenting',
+    examples: 'Study, scientific methods, technical writing, data collection, continuous learning',
+  },
+};
+
+function AxisLegend({ axes }: { axes: string[] }) {
+  const [open, setOpen] = useState(true);
+  const shown = axes.filter(a => AXIS_DESCRIPTIONS[a]);
+  if (shown.length === 0) return null;
+  return (
+    <div style={{ marginTop: '0.5rem', marginBottom: '1rem', border: '1px solid var(--surface-container-highest)', borderRadius: '0.75rem', overflow: 'hidden' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0.625rem 0.875rem', background: 'var(--surface-container-low)',
+          border: 'none', cursor: 'pointer', fontSize: '0.8125rem',
+          color: 'var(--color-on-surface-variant)', fontWeight: 500,
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }}>help_outline</span>
+          What do these scores mean?
+        </span>
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}>
+          expand_more
+        </span>
+      </button>
+      {open && (
+        <div style={{ padding: '0.75rem 0.875rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--surface-container)' }}>
+          {shown.map(axis => {
+            const info = AXIS_DESCRIPTIONS[axis];
+            return (
+              <div key={axis} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start' }}>
+                <span style={{
+                  fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.5rem',
+                  borderRadius: '999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                  color: 'var(--color-accent)', flexShrink: 0, lineHeight: '1.6',
+                }}>
+                  {axis}
+                </span>
+                <div>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{info.plain}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}> — {info.examples}</span>
+                </div>
+              </div>
+            );
+          })}
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
+            Scores come from U.S. Department of Labor survey data. Higher score = that skill matters more for people in this job.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RadarChart({ data }: { data: { axis: string; value: number }[] }) {
   const size = 240;
   const cx = size / 2, cy = size / 2, r = 90;
@@ -624,7 +704,7 @@ export default function SkillMapperClient() {
                 <button key={occ.code} onClick={() => handleSelect(occ.code, occ.title)}
                   className="btn btn-outline" style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>
                   <strong>{occ.title}</strong>
-                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{occ.code} — {occ.description?.slice(0, 120)}</span>
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{occ.description?.slice(0, 120)}</span>
                 </button>
               ))}
             </div>
@@ -643,12 +723,18 @@ export default function SkillMapperClient() {
               <p style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem', marginTop: '-0.25rem' }}>
                 Skill data is sourced from <strong>O*NET</strong> — the U.S. Department of Labor&apos;s occupational database. Each bar and radar axis shows how important that skill is for workers in this role, based on real workforce surveys.
               </p>
+              {isSalesQuery(selectedTitle) && (
+                <div style={{ marginBottom: '1rem', padding: '0.875rem 1rem', background: 'rgba(43,123,185,0.06)', border: '1px solid rgba(43,123,185,0.15)', borderRadius: '0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
+                  <strong>Why does this look different from tech jobs?</strong> Sales and account roles rank highest in <strong>Strategy</strong> and <strong>Ethics</strong> because this chart measures planning, negotiation, communication, and relationship-building — not technical tools. That matches what real employers say they need most.
+                </div>
+              )}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginBottom: '2rem' }}>
                 <div style={{ flex: '1 1 240px', minWidth: 240 }}>
                   <RadarChart data={radarData} />
                 </div>
                 <div style={{ flex: '1 1 280px', minWidth: 280 }}>
-                  <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Top Skills</h4>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.2rem' }}>Top Skills</h4>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>How important each skill is for this job</p>
                   {skills.map((s) => (
                     <div key={s.name} style={{ marginBottom: '0.75rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', marginBottom: '0.25rem' }}>
@@ -662,6 +748,7 @@ export default function SkillMapperClient() {
                   ))}
                 </div>
               </div>
+              <AxisLegend axes={radarData.map(d => d.axis)} />
               {/* Export + profile compare prompt */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                 <button

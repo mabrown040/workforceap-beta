@@ -8,6 +8,8 @@ import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
+// Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
+// keep the supporting copy immediately concrete, member-safe, and operational.
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training & Industry Certificates',
   description:

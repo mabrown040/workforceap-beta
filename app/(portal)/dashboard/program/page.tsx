@@ -38,6 +38,8 @@ export default async function ProgramPage() {
   const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
   const coursesCompleted = parseCourseSlugList(dbUser?.coursesCompleted);
 
+  // Product stake: members can choose an initial program, but self-serve switching should not
+  // become a public free-for-all. Keep later reassignment counselor/admin-driven.
   if (!enrolledSlug || !program) {
     return (
       <>

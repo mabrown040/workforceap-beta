@@ -280,6 +280,17 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const signupHref = `/signup?redirectTo=${encodeURIComponent('/dashboard')}`;
+  const partnerSignupHref = '/partner-signup';
+  const isPartnerLogin = redirectTo === '/partner' || redirectTo.startsWith('/partner/');
+  const isStaffLikeLogin =
+    redirectTo === '/admin' ||
+    redirectTo.startsWith('/admin/') ||
+    redirectTo === '/counselor' ||
+    redirectTo.startsWith('/counselor/') ||
+    redirectTo === '/employer' ||
+    redirectTo.startsWith('/employer/');
+
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -543,11 +554,29 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
           </p>
 
           {/* Bottom links */}
-          <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-            First time here?{' '}
-            <Link href="/signup" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-              Sign Up
-            </Link>
+          <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)' }}>
+            {!isPartnerLogin && !isStaffLikeLogin ? (
+              <>
+                First time here?{' '}
+                <Link href={signupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  Create a member account
+                </Link>
+              </>
+            ) : isPartnerLogin ? (
+              <>
+                Need partner access?{' '}
+                <Link href={partnerSignupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  Register your organization
+                </Link>
+              </>
+            ) : (
+              <>
+                Need member access instead?{' '}
+                <Link href={signupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  Create a member account
+                </Link>
+              </>
+            )}
           </p>
 
           {/* Footer — minimal; status dot removed (meaningless to members) */}

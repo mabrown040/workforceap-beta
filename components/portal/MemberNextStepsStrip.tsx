@@ -28,6 +28,8 @@ export default function MemberNextStepsStrip({
   const visible = actions.filter((a) => !dismissed.has(a.id));
   if (visible.length === 0) return null;
 
+  // Product stake: when there is one clear next step, emphasize it so the dashboard feels
+  // guided and calm instead of making members hunt through a menu.
   const isFeatured = fillRow && visible.length === 1 && !compact;
 
   return (

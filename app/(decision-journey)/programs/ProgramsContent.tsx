@@ -15,6 +15,8 @@ import {
   type ProgramSubgroupId,
 } from '@/lib/content/programSubgroup';
 
+// Product stake: keep the full catalog visually open when browsing all programs.
+// Do not reintroduce dropdown/accordion browsing for the main public catalog without approval.
 const programs = PROGRAMS;
 
 function subgroupCounts(): Record<ProgramSubgroupId, number> {

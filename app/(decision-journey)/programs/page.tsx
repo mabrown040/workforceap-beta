@@ -155,16 +155,16 @@ export default function ProgramsPage() {
                 {
                   eyebrow: 'Move quickly',
                   title: 'Fastest path to a job',
-                  desc: 'If you need the shortest starting point, begin with the quickest on-ramp and talk with a counselor about what comes next.',
-                  href: '/programs/digital-literacy-empowerment-class',
-                  cta: 'See quickest starting point',
+                  desc: 'If you need a faster route into tech, start with IT Support. It is one of the clearest paths into real entry-level roles and can open the door to what comes next.',
+                  href: '/programs/it-support-professional-certificate-ibm',
+                  cta: 'See IT Support path',
                 },
                 {
                   eyebrow: 'Salary upside',
                   title: 'Strongest earning potential',
-                  desc: 'If long-term pay matters most, look at higher-upside technical tracks that can lead to stronger salary ceilings.',
-                  href: '/programs/aws-cloud-technology-amazon',
-                  cta: 'See higher-upside path',
+                  desc: 'If long-term pay matters most, start with practical technical tracks like IT Support, then explore Cybersecurity and Cloud paths that can lead to stronger salary ceilings.',
+                  href: '#subgroup-it-support',
+                  cta: 'See IT and Cyber paths',
                 },
                 {
                   eyebrow: 'People-facing',

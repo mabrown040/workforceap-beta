@@ -27,6 +27,10 @@ type StoredQuizPayloadV1 = {
   careerMatch: CareerMatchResult | null;
 };
 
+function isRawOnetCodeTitle(title?: string | null): boolean {
+  return !!title && /^\d{2}-\d{4}\.\d{2}$/.test(title.trim());
+}
+
 const INTEREST_ICONS: Record<string, string> = {
   computers: 'computer',
   health: 'health_and_safety',
@@ -466,6 +470,62 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
       // ignore
     }
   }, []);
+
+  useEffect(() => {
+    const topOcc = careerMatchResult?.topOccupations?.[0];
+    if (!topOcc?.onetCode || !isRawOnetCodeTitle(topOcc.title)) return;
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const res = await fetch(`/api/careers/occupation/${encodeURIComponent(topOcc.onetCode)}`);
+        if (!res.ok) return;
+        const fresh = (await res.json()) as { title?: string; description?: string };
+        if (!fresh?.title || isRawOnetCodeTitle(fresh.title) || cancelled) return;
+
+        setCareerMatchResult((prev) => {
+          if (!prev?.topOccupations?.length) return prev;
+          const next: CareerMatchResult = {
+            ...prev,
+            topOccupations: prev.topOccupations.map((occ, idx) =>
+              idx === 0 && occ.onetCode === topOcc.onetCode
+                ? {
+                    ...occ,
+                    title: fresh.title ?? occ.title,
+                    description: fresh.description ?? occ.description,
+                  }
+                : occ
+            ),
+          };
+          try {
+            const current = localStorage.getItem(QUIZ_STORAGE_KEY);
+            if (current) {
+              const parsed = JSON.parse(current) as StoredQuizPayloadV1;
+              if (parsed?.version === QUIZ_STORAGE_VERSION) {
+                localStorage.setItem(
+                  QUIZ_STORAGE_KEY,
+                  JSON.stringify({
+                    ...parsed,
+                    careerMatch: next,
+                  })
+                );
+              }
+            }
+          } catch {
+            // ignore storage update issues
+          }
+          return next;
+        });
+      } catch {
+        // ignore friendly-title refresh failures
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [careerMatchResult]);
 
   const currentQ = QUESTIONS[step];
   const currentAnswer = currentQ ? answers[currentQ.id] : undefined;

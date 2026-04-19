@@ -47,14 +47,14 @@ function InviteContent() {
             error:
               status >= 500
                 ? 'The server could not load this invitation. Please try again shortly.'
-                : 'Failed to load invitation',
+                : "We couldn't load this invitation. Try again in a moment.",
           });
           return;
         }
         setData(data);
         if (data.valid && data.email) setFullName('');
       })
-      .catch(() => setData({ valid: false, error: 'Failed to load invitation' }))
+      .catch(() => setData({ valid: false, error: "We couldn't load this invitation. Try again in a moment." }))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -87,7 +87,7 @@ function InviteContent() {
       const result = parsed.data;
 
       if (!res.ok) {
-        throw new Error(result.error ?? 'Failed to accept invitation');
+        throw new Error(result.error ?? "We couldn't accept this invitation. Try again in a moment.");
       }
       const next =
         typeof result.redirectTo === 'string' && result.redirectTo.startsWith('/')
@@ -99,7 +99,7 @@ function InviteContent() {
         window.location.href = result.redirectTo;
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : 'Something went wrong. Try again in a moment.');
       setSubmitting(false);
     }
   };
@@ -290,7 +290,7 @@ function InviteContent() {
 
 export default function InvitePage() {
   return (
-    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center' }}>Loading invitation...</div>}>
       <InviteContent />
     </Suspense>
   );

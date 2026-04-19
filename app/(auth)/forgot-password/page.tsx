@@ -27,7 +27,7 @@ function ForgotPasswordForm() {
 
       if (!res.ok) {
         setStatus('error');
-        setError(data.error ?? 'Something went wrong. Please try again.');
+        setError(data.error ?? "We couldn't send the reset link. Try again in a moment.");
         return;
       }
 
@@ -39,11 +39,11 @@ function ForgotPasswordForm() {
       setStatus('success');
     } catch (err) {
       setStatus('error');
-      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      const msg = err instanceof Error ? err.message : "We couldn't send the reset link. Try again in a moment.";
       if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
-        setError('Network error — check your connection and try again.');
+        setError("We couldn't connect. Check your connection and try again.");
       } else {
-        setError('Something went wrong. Please try again.');
+        setError("We couldn't send the reset link. Try again in a moment.");
       }
     }
   };

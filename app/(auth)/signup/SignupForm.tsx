@@ -11,6 +11,7 @@ import {
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 /* ─── constants (preserved from MemberSignupForm) ─── */
 const EMPLOYMENT_OPTIONS = [
@@ -22,6 +23,10 @@ const EMPLOYMENT_OPTIONS = [
   'Other',
 ];
 const VETERAN_OPTIONS = ['Yes', 'No', 'Prefer not to say'];
+
+type SignupFormProps = {
+  initialRedirectTo?: string;
+};
 
 /* ─── styles ─── */
 const s = {
@@ -212,8 +217,12 @@ function strengthColor(score: number, index: number): string {
   return 'var(--color-green)';
 }
 
-export default function SignupForm() {
+export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupFormProps) {
   /* ─── all business logic preserved from MemberSignupForm ─── */
+  const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+  const isMemberSignup = redirectTo === '/dashboard';
+
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordVal, setPasswordVal] = useState('');
@@ -286,7 +295,7 @@ export default function SignupForm() {
             We&apos;ve sent you a verification link. Click it to activate your account, then you can log in.
           </p>
           <Link
-            href="/login"
+            href={loginHref}
             style={{ ...s.primaryBtn, display: 'inline-block', textDecoration: 'none', textAlign: 'center', maxWidth: 280 }}
           >
             Go to login
@@ -335,6 +344,11 @@ export default function SignupForm() {
       <div style={s.formPanel}>
         <div style={s.formContainer}>
           <h2 style={s.heading}>Create an account</h2>
+          <p style={{ color: 'var(--color-on-surface-variant)', margin: '0 0 var(--space-6)', lineHeight: 'var(--line-height-normal)', fontSize: 'var(--font-size-sm)' }}>
+            {isMemberSignup
+              ? 'This creates your member portal account so you can apply, track progress, and use career tools.'
+              : 'This page creates a member portal account. Staff, counselor, employer, and admin access are issued by WorkforceAP.'}
+          </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Full Name */}
@@ -522,7 +536,7 @@ export default function SignupForm() {
 
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
             Already have an account?{' '}
-            <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
+            <Link href={loginHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>
       </div>

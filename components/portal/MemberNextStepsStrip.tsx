@@ -28,6 +28,8 @@ export default function MemberNextStepsStrip({
   const visible = actions.filter((a) => !dismissed.has(a.id));
   if (visible.length === 0) return null;
 
+  const isFeatured = fillRow && visible.length === 1 && !compact;
+
   return (
     <section
       style={{
@@ -55,10 +57,10 @@ export default function MemberNextStepsStrip({
             margin: 0,
           }}
         >
-          Your next steps
+          {isFeatured ? 'Recommended next step' : 'Your next steps'}
         </h3>
         <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          Picked for you based on your progress
+          {isFeatured ? 'Start here based on your progress' : 'Picked for you based on your progress'}
         </span>
       </div>
 
@@ -79,56 +81,78 @@ export default function MemberNextStepsStrip({
             key={a.id}
             className="portal-card portal-card--flat"
             style={{
-              padding: compact ? '0.85rem' : '1rem',
+              padding: compact ? '0.85rem' : isFeatured ? '1.25rem' : '1rem',
               borderLeft:
-                a.variant === 'urgent' ? '4px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+                a.variant === 'urgent' || isFeatured ? '4px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+              background: isFeatured ? 'color-mix(in srgb, var(--color-accent) 7%, var(--surface-container-low))' : undefined,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.5rem',
+              gap: isFeatured ? '0.65rem' : '0.5rem',
               minHeight: compact ? 'auto' : undefined,
               position: 'relative',
+              boxShadow: isFeatured ? '0 10px 30px -18px rgba(140,15,55,0.35)' : undefined,
             }}
           >
-            <button
-              type="button"
-              aria-label={`Dismiss "${a.title}"`}
-              onClick={() => dismiss(a.id)}
-              style={{
-                position: 'absolute',
-                top: compact ? '0.5rem' : '0.65rem',
-                right: compact ? '0.5rem' : '0.65rem',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--color-on-surface-variant)',
-                fontSize: '1rem',
-                lineHeight: 1,
-                padding: '0.15rem',
-                borderRadius: '4px',
-                opacity: 0.6,
-              }}
-            >
-              ✕
-            </button>
+            {!isFeatured && (
+              <button
+                type="button"
+                aria-label={`Dismiss "${a.title}"`}
+                onClick={() => dismiss(a.id)}
+                style={{
+                  position: 'absolute',
+                  top: compact ? '0.5rem' : '0.65rem',
+                  right: compact ? '0.5rem' : '0.65rem',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '1rem',
+                  lineHeight: 1,
+                  padding: '0.15rem',
+                  borderRadius: '4px',
+                  opacity: 0.6,
+                }}
+              >
+                ✕
+              </button>
+            )}
+            {isFeatured && (
+              <span
+                style={{
+                  alignSelf: 'flex-start',
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '9999px',
+                  background: 'var(--color-accent)',
+                  color: '#fff',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Start here
+              </span>
+            )}
             <h4
               style={{
                 fontWeight: 700,
-                fontSize: compact ? '0.9rem' : '0.95rem',
+                fontSize: compact ? '0.9rem' : isFeatured ? '1.1rem' : '0.95rem',
                 margin: 0,
                 color: 'var(--color-on-surface)',
                 lineHeight: 1.3,
-                paddingRight: '1.5rem',
+                paddingRight: isFeatured ? '0' : '1.5rem',
               }}
             >
               {a.title}
             </h4>
             <p
               style={{
-                fontSize: compact ? '0.8125rem' : '0.875rem',
+                fontSize: compact ? '0.8125rem' : isFeatured ? '0.95rem' : '0.875rem',
                 color: 'var(--color-on-surface-variant)',
                 lineHeight: 1.5,
                 margin: 0,
                 flex: 1,
+                maxWidth: isFeatured ? '42rem' : undefined,
               }}
             >
               {a.body}
@@ -138,8 +162,8 @@ export default function MemberNextStepsStrip({
               className="btn btn-primary"
               style={{
                 alignSelf: 'flex-start',
-                fontSize: compact ? '0.8rem' : '0.85rem',
-                padding: compact ? '0.5rem 0.85rem' : '0.55rem 1rem',
+                fontSize: compact ? '0.8rem' : isFeatured ? '0.9rem' : '0.85rem',
+                padding: compact ? '0.5rem 0.85rem' : isFeatured ? '0.65rem 1.1rem' : '0.55rem 1rem',
                 textDecoration: 'none',
                 marginTop: '0.25rem',
               }}

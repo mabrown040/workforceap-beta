@@ -15,6 +15,8 @@ import { ArrowRight } from 'lucide-react';
 import { getDefaultImage } from '@/lib/blog/defaultImages';
 import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
 
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {

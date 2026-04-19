@@ -191,7 +191,7 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+  if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
 
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
@@ -348,7 +348,7 @@ Analyze the match and output in the format above.`;
       { maxTokens: 1200, temperature: 0.5 }
     );
 
-    if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+    if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
 
     const parsedOutput = parseMatchAnalysis(output);
     const summary = finalJobDescription.slice(0, 80) + (finalJobDescription.length > 80 ? '...' : '');

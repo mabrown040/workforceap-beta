@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   }
 
   if (!isAIConfigured()) {
-    return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+    return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
   }
 
   const { success } = await checkAIToolRateLimit(user.id);
@@ -93,7 +93,7 @@ Reposition this resume toward the career goal above. Remember: only work with wh
     );
 
     if (!output) {
-      return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+      return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
     }
 
     try {

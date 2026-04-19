@@ -59,19 +59,19 @@ export const PROGRAM_SUBGROUPS: ProgramSubgroup[] = [
   },
   {
     id: 'medical',
-    label: 'Medical & health IT',
+    label: 'Medical & Health IT',
     shortLabel: 'Medical',
     description: 'Healthcare information and coding pathways.',
   },
   {
     id: 'manufacturing-logistics',
-    label: 'Manufacturing & logistics',
-    shortLabel: 'Mfg & logistics',
+    label: 'Manufacturing & Logistics',
+    shortLabel: 'Mfg & Logistics',
     description: 'Production, supply chain, and technician credentials.',
   },
   {
     id: 'construction',
-    label: 'Construction & trades',
+    label: 'Construction & Trades',
     shortLabel: 'Construction',
     description: 'Safety, trades readiness, and construction fundamentals.',
   },

@@ -200,16 +200,16 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
 
         {activeSubgroup === 'all' && searchQuery.trim() === '' ? (
           <div style={{ marginBottom: '2.5rem' }}>
-            {subgroupOrder.map((sgId, idx) => {
+            {/* Product stake: keep program groups fully expanded so members can browse visually without understanding dropdowns. */}
+            {subgroupOrder.map((sgId) => {
               const meta = PROGRAM_SUBGROUPS.find((s) => s.id === sgId);
               const inGroup = programs.filter((p) => subgroupForProgram(p) === sgId);
               if (!meta || inGroup.length === 0) return null;
               return (
-                <details
+                <section
                   key={sgId}
                   id={`subgroup-${sgId}`}
-                  className="programs-subgroup-detail"
-                  open={idx === 0}
+                  className="programs-subgroup-section"
                   style={{
                     scrollMarginTop: '6rem',
                     marginBottom: '2.5rem',
@@ -217,23 +217,21 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                     borderBottom: '1px solid var(--outline-variant)',
                   }}
                 >
-                  <summary className="programs-subgroup-summary">
+                  <div className="programs-subgroup-heading">
                     <h3
                       style={{
                         fontSize: '1.35rem',
                         fontWeight: 800,
                         color: 'var(--color-on-surface)',
                         marginBottom: 0,
-                        display: 'inline',
                       }}
                     >
                       {meta.label}
                     </h3>
-                    <span className="programs-subgroup-count" style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
+                    <span className="programs-subgroup-count" style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
                       {inGroup.length} program{inGroup.length !== 1 ? 's' : ''}
                     </span>
-                    <span className="programs-subgroup-chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
-                  </summary>
+                  </div>
                   <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', marginBottom: '1.25rem', marginTop: '0.5rem' }}>
                     {meta.description}
                   </p>
@@ -242,35 +240,16 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                       <ProgramCard key={p.slug} program={p} />
                     ))}
                   </div>
-                </details>
+                </section>
               );
             })}
             <style>{`
-              /* Mobile: styled summary row */
-              .programs-subgroup-summary {
+              .programs-subgroup-heading {
                 display: flex;
-                align-items: center;
-                gap: 0.25rem;
-                padding: 0.75rem 0;
-                cursor: pointer;
-                list-style: none;
-                margin-bottom: 0;
-              }
-              .programs-subgroup-summary::-webkit-details-marker { display: none; }
-              .programs-subgroup-chevron {
-                margin-left: auto;
-                font-size: 1.25rem;
-                color: var(--color-on-surface-variant);
-                transition: transform 0.2s;
-              }
-              details.programs-subgroup-detail[open] .programs-subgroup-chevron {
-                transform: rotate(180deg);
-              }
-              /* Desktop (≥768px): always show all sections; hide toggle affordance */
-              @media (min-width: 768px) {
-                details.programs-subgroup-detail:not([open]) > :not(summary) { display: block !important; }
-                .programs-subgroup-chevron { display: none; }
-                .programs-subgroup-summary { cursor: default; pointer-events: none; padding: 0 0 0.35rem; }
+                align-items: baseline;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                padding: 0 0 0.35rem;
               }
               /* Mobile (< 768px): strip secondary card info, enforce touch targets */
               @media (max-width: 767px) {

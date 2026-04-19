@@ -98,6 +98,7 @@ export default async function LeaderBioPage({ params }: Props) {
   const hasSideColumn = spotlightCards.length > 0;
 
   const hasPortrait = Boolean(leader.image && leader.image.trim().length > 0);
+  const portraitObjectPosition = leader.slug === 'michael-brown-ii' ? 'center 72%' : undefined;
 
   return (
     <div className="inner-page ld-page">
@@ -155,6 +156,7 @@ export default async function LeaderBioPage({ params }: Props) {
                   priority
                   className="ld-hero-portrait-img"
                   sizes="(max-width: 767px) 100vw, 58%"
+                  style={portraitObjectPosition ? { objectPosition: portraitObjectPosition } : undefined}
                 />
               </div>
               {heroQuote ? (

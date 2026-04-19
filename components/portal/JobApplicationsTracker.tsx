@@ -22,12 +22,12 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
       try {
         setIsLoading(true);
         const res = await fetch('/api/member/job-applications');
-        if (!res.ok) throw new Error('Failed to fetch applications');
+        if (!res.ok) throw new Error("We couldn't load your applications. Try again in a moment.");
         const data = await res.json();
         setApplications(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "We couldn't load your applications. Try again in a moment.");
       } finally {
         setIsLoading(false);
       }
@@ -44,14 +44,14 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error('Failed to create application');
+      if (!res.ok) throw new Error("We couldn't add this application. Try again in a moment.");
       
       const newApp = await res.json();
       setApplications([newApp, ...applications]);
       setIsModalOpen(false);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "We couldn't add this application. Try again in a moment.");
     }
   };
 
@@ -63,14 +63,14 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         body: JSON.stringify(updates),
       });
 
-      if (!res.ok) throw new Error('Failed to update application');
+      if (!res.ok) throw new Error("We couldn't update this application. Try again in a moment.");
       
       const updated = await res.json();
       const nextApplication = updated.application ?? updated;
       setApplications(applications.map(app => app.id === id ? nextApplication : app));
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "We couldn't update this application. Try again in a moment.");
     }
   };
 

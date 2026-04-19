@@ -9,12 +9,42 @@ import BlogListingClient from './BlogListingClient';
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Workforce Development Blog | Career Tips & Training News',
-  description:
-    'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Career training advice, job-readiness guidance, and workforce insights for individuals nationwide.',
-  path: '/blog',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let posts: any[] = [];
+  if (!shouldSkipOptionalDbQueriesAtBuild()) {
+    try {
+      posts = await prisma.blogPost.findMany({
+        where: {
+          OR: [{ published: true }, { scheduledAt: { lte: new Date() } }],
+        },
+        select: { id: true },
+        take: 1,
+      });
+    } catch (error) {
+      console.error('Failed to fetch blog posts for metadata:', error);
+      posts = [];
+    }
+  }
+
+  const hasPosts = posts.length > 0;
+
+  if (hasPosts) {
+    return buildPageMetadata({
+      title: 'Workforce Development Blog | Career Tips & Training News',
+      description:
+        'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Career training advice, job-readiness guidance, and workforce insights for individuals nationwide.',
+      path: '/blog',
+    });
+  }
+
+  return buildPageMetadata({
+    title: 'Career Resources | Workforce Advancement Project',
+    description:
+      'Use programs, FAQ, and application help while new articles are being published.',
+    path: '/blog',
+  });
+}
 
 export default async function BlogPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

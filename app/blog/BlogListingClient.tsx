@@ -28,6 +28,7 @@ export default function BlogListingClient({
 }) {
   const [filter, setFilter] = useState<string | null>(null);
   const filtered = filter ? posts.filter((p) => p.category === filter) : posts;
+  const hasPosts = posts.length > 0;
 
   return (
     <section className="blog-page-section">
@@ -62,7 +63,7 @@ export default function BlogListingClient({
           >
             <GraduationCap size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600 }}>Explore Programs</div>
+              <div style={{ fontWeight: 600 }}>{hasPosts ? 'Explore Programs' : 'Start with Programs'}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                 {WORKFORCEAP_PROGRAM_CATALOG_SIZE} career training options
               </div>
@@ -84,7 +85,7 @@ export default function BlogListingClient({
           >
             <HelpCircle size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600 }}>Read FAQ</div>
+              <div style={{ fontWeight: 600 }}>{hasPosts ? 'Read FAQ' : 'Get Answers Fast'}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                 Common questions answered
               </div>
@@ -167,7 +168,7 @@ export default function BlogListingClient({
           <div className="blog-empty-state">
             <p>
               {posts.length === 0
-                ? 'No articles published yet. Explore programs and how to apply — new posts will appear here.'
+                ? 'Articles are coming soon. For now, use the FAQ, browse programs, or start your application without waiting on the blog.'
                 : 'No posts match this filter.'}
             </p>
             {posts.length > 0 && filter !== null && (
@@ -183,7 +184,7 @@ export default function BlogListingClient({
                 Apply
               </Link>
               <Link href="/faq" className="btn btn-outline">
-                FAQ
+                Read FAQ
               </Link>
             </div>
           </div>

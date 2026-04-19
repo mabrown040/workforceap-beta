@@ -47,12 +47,18 @@ export default async function BlogPage() {
 
   const categories = [...new Set(posts.map((p) => p.category).filter(Boolean))] as string[];
 
+  const hasPosts = posts.length > 0;
+
   return (
     <div className="inner-page blog-page">
       <PageHero
         className="blog-page-hero"
-        title="Blog"
-        subtitle="Career tips, program spotlights, success stories, and local insights."
+        title={hasPosts ? 'Blog' : 'Career Resources'}
+        subtitle={
+          hasPosts
+            ? 'Career tips, program spotlights, success stories, and local insights.'
+            : 'Use programs, FAQ, and application help while new articles are being published.'
+        }
       />
       <BlogListingClient posts={posts} categories={categories} />
       <Footer />

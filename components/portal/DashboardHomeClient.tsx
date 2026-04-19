@@ -108,12 +108,50 @@ export default function DashboardHomeClient({
   const progressPct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
 
   const checklistItems = [
-    { done: checklist.createAccount, label: 'Account' },
-    { done: checklist.chooseProgram, label: 'Program' },
-    { done: checklist.completeAssessment, label: 'Assessment' },
-    { done: checklist.startFirstCourse, label: 'Unlock training' },
-    { done: checklist.completeFirstCourse, label: 'Course done' },
+    {
+      done: checklist.createAccount,
+      doneLabel: 'Account ready',
+      pendingLabel: 'Create account',
+    },
+    {
+      done: checklist.chooseProgram,
+      doneLabel: 'Program selected',
+      pendingLabel: 'Choose program',
+    },
+    {
+      done: checklist.completeAssessment,
+      doneLabel: 'Assessment complete',
+      pendingLabel: 'Complete assessment',
+    },
+    {
+      done: checklist.startFirstCourse,
+      doneLabel: 'Training unlocked',
+      pendingLabel: 'Unlock training',
+    },
+    {
+      done: checklist.completeFirstCourse,
+      doneLabel: 'First course complete',
+      pendingLabel: 'Complete first course',
+    },
   ];
+
+  const progressCardTitle =
+    state === 'D'
+      ? 'Training Complete'
+      : state === 'B'
+        ? 'Assessment required'
+        : completedCount === 0
+          ? 'Training is unlocked'
+          : `Current training step: ${nextMilestone ?? programTitle}`;
+
+  const progressCardSummary =
+    state === 'D'
+      ? `${completedCount} of ${totalCourses} courses marked complete.`
+      : state === 'B'
+        ? 'Complete your skills assessment to unlock your first training step.'
+        : completedCount === 0
+          ? 'No courses are marked complete yet. Start with your first training step.'
+          : `${completedCount} of ${totalCourses} courses marked complete.`;
 
   const weekEyebrow = useMemo(() => {
     const d = new Date();
@@ -167,10 +205,10 @@ export default function DashboardHomeClient({
           Welcome back, {firstName}.
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
-          {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path — programs are available at no cost to members.")}
-          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to unlock training.`}
-          {state === 'C' && `Your mastery of ${programTitle ?? 'training'} is ${progressPct}% complete. Keep going.`}
-          {state === 'D' && `All courses complete. Focus on job outcomes and career readiness.`}
+          {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path. Programs are available at no cost to members.")}
+          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to unlock your training plan.`}
+          {state === 'C' && `You're ${progressPct}% through ${programTitle ?? 'your training plan'}. Keep going one step at a time.`}
+          {state === 'D' && `Your training plan is complete. Focus on job outcomes and career readiness.`}
         </p>
       </header>
 
@@ -340,10 +378,10 @@ export default function DashboardHomeClient({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', gap: '1rem' }}>
                 <div style={{ minWidth: 0 }}>
                   <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.35rem', color: 'var(--color-on-surface)' }}>
-                    {state === 'D' ? 'Program Complete' : `Current Milestone: ${nextMilestone ?? programTitle}`}
+                    {progressCardTitle}
                   </h2>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    {completedCount} of {totalCourses} courses {state === 'D' ? 'completed' : 'done'}
+                    {progressCardSummary}
                   </p>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -363,8 +401,9 @@ export default function DashboardHomeClient({
               <div className="portal-milestone-track">
                 {checklistItems.map((item, i) => {
                   const isCurrent = !item.done && (i === 0 || checklistItems[i - 1].done);
+                  const label = item.done ? item.doneLabel : item.pendingLabel;
                   return (
-                    <div key={item.label} className="portal-milestone-step" style={{
+                    <div key={label} className="portal-milestone-step" style={{
                       opacity: item.done ? 0.5 : isCurrent ? 1 : 0.35,
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>
@@ -375,7 +414,7 @@ export default function DashboardHomeClient({
                       ) : (
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--surface-container-highest)' }} />
                       )}
-                      <p className="portal-milestone-step__label">{item.label}</p>
+                      <p className="portal-milestone-step__label">{label}</p>
                     </div>
                   );
                 })}
@@ -484,7 +523,7 @@ export default function DashboardHomeClient({
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{nextMilestone}</h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  {completedCount} of {totalCourses} courses done. Finish training to move toward job-ready.
+                  {completedCount} of {totalCourses} courses marked complete. Finish training to move toward job readiness.
                 </p>
                 <Link href="/dashboard/training" className="btn btn-primary"
                   onClick={() => handleDashboardAction('continue_training_clicked')}>

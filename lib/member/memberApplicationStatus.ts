@@ -11,9 +11,9 @@ export type MemberApplicationStage =
 export const MEMBER_APPLICATION_PROGRESS_STEPS = [
   'Applied',
   'Under review',
-  'Accepted',
-  'Enrolled',
-  'Active',
+  'Approved',
+  'Program selected',
+  'Assessment complete',
 ] as const;
 
 export type MemberApplicationStatusView = {
@@ -58,9 +58,9 @@ export function buildMemberApplicationStatusView(
   const labels: Record<MemberApplicationStage, string> = {
     applied: 'Applied',
     under_review: 'Under review',
-    accepted: 'Accepted member',
-    enrolled: 'Enrolled',
-    active: 'Active',
+    accepted: 'Approved',
+    enrolled: 'Program selected',
+    active: 'Assessment complete',
     rejected: 'Not accepted',
   };
 
@@ -72,9 +72,9 @@ export function buildMemberApplicationStatusView(
     accepted:
       'Choose your program and complete your profile so we can finalize enrollment.',
     enrolled:
-      'Complete your skills assessment and start training when your counselor clears you to begin.',
+      'Complete your skills assessment so your dashboard can unlock the right training steps.',
     active:
-      'Keep progressing in training and job search support. Your dashboard shows the next milestones.',
+      'Your assessment is complete. Follow the next step on your dashboard to keep moving toward training and job support.',
     rejected:
       'If you have questions about this decision, contact us at info@workforceap.org.',
   };

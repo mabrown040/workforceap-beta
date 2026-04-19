@@ -14,6 +14,7 @@ function CopyDraftButton({ text }: { text: string }) {
   return (
     <button
       type="button"
+      aria-label={copied ? "Copied draft" : "Copy draft"}
       onClick={() => {
         navigator.clipboard.writeText(text).then(() => {
           setCopied(true);
@@ -30,7 +31,9 @@ function CopyDraftButton({ text }: { text: string }) {
         padding: 0,
       }}
     >
-      {copied ? '✓ Copied' : 'Copy'}
+      <span aria-live="polite">
+        {copied ? '✓ Copied' : 'Copy'}
+      </span>
     </button>
   );
 }

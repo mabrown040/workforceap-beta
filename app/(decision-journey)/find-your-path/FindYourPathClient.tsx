@@ -484,6 +484,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
         const fresh = (await res.json()) as { title?: string; description?: string };
         if (!fresh?.title || isRawOnetCodeTitle(fresh.title) || cancelled) return;
 
+        let nextForStorage: CareerMatchResult | undefined;
         setCareerMatchResult((prev) => {
           if (!prev?.topOccupations?.length) return prev;
           const next: CareerMatchResult = {
@@ -498,6 +499,10 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                 : occ
             ),
           };
+          nextForStorage = next;
+          return next;
+        });
+        if (nextForStorage) {
           try {
             const current = localStorage.getItem(QUIZ_STORAGE_KEY);
             if (current) {
@@ -507,7 +512,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
                   QUIZ_STORAGE_KEY,
                   JSON.stringify({
                     ...parsed,
-                    careerMatch: next,
+                    careerMatch: nextForStorage,
                   })
                 );
               }
@@ -515,8 +520,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
           } catch {
             // ignore storage update issues
           }
-          return next;
-        });
+        }
       } catch {
         // ignore friendly-title refresh failures
       }

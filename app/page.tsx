@@ -7,7 +7,6 @@ import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/progra
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training & Industry Certificates',
@@ -111,33 +110,16 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            Occupational and career training at no cost to members — {WORKFORCEAP_PROGRAM_CATALOG_SIZE} specialized programs, professional guidance, resume help, interview practice, and job-search tools to help you move forward.
+            No-cost career training for members who want a stronger path to work. Start with a quick career pathfinder, explore {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs, and get counselor guidance, resume help, and job-search support.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
-              Find Your Career
+              Find Your Career Path
             </Link>
-            {/* A/B experiment CTA — hidden on mobile to reduce CTA overload; text link below covers apply path */}
-            <ExperimentedCtaLink
-              experiment="home_apply_primary_cta"
-              variants={[
-                {
-                  id: 'control',
-                  label: 'Apply Now',
-                  className: 'btn btn-outline btn-large home-hero-outline-cta',
-                  href: '/apply',
-                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
-                },
-                {
-                  id: 'urgency',
-                  label: 'Start Your Application',
-                  className: 'btn btn-outline btn-large home-hero-outline-cta',
-                  href: '/apply',
-                  style: { fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' },
-                },
-              ]}
-            />
+            <Link href="/programs" className="btn btn-outline btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
+              Browse Programs
+            </Link>
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>

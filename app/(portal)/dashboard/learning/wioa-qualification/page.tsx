@@ -10,8 +10,8 @@ import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'WIOA screening',
-  description: 'Self-screening for WIOA-funded services — prepare for staff and American Job Center visits.',
+  title: 'Free Training Eligibility Check',
+  description: 'Answer a few questions to help your counselor identify which free training services may be available to you.',
   path: '/dashboard/learning/wioa-qualification',
 });
 
@@ -40,7 +40,7 @@ export default async function WioaQualificationPage() {
         <>
           <PortalRouteFallback
             title="WIOA screening is not enabled yet"
-            description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we’ll help you with the next steps."
+            description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we'll help you with the next steps."
           />
           <MobileBottomNav variant="portal" />
         </>

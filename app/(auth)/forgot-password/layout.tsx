@@ -3,7 +3,7 @@ import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Reset password',
-  description: 'Reset your WorkforceAP member account password.',
+  description: 'Forgot your password? Enter your email and we\'ll send a secure reset link to your inbox.',
   path: '/forgot-password',
 });
 

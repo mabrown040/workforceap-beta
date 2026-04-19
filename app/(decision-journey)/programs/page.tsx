@@ -113,6 +113,104 @@ export default function ProgramsPage() {
         </div>
       </section>
 
+      <section style={{ padding: '2rem 0 0' }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div
+            style={{
+              background: 'var(--surface-container-low)',
+              borderRadius: 'var(--radius-xl)',
+              padding: '1.5rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div>
+                <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
+                  Quick start
+                </p>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
+                  Start with the lane that fits you best.
+                </h2>
+              </div>
+              <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
+                Not sure? Take the 2-minute pathfinder
+              </Link>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              {[
+                {
+                  eyebrow: 'Beginner-safe',
+                  title: 'New to tech',
+                  desc: 'Start with a smoother on-ramp if you want to build confidence with computers before jumping into faster technical tracks.',
+                  href: '/programs/digital-literacy-empowerment-class',
+                  cta: 'See beginner-friendly path',
+                },
+                {
+                  eyebrow: 'Move quickly',
+                  title: 'Fastest path to a job',
+                  desc: 'If you need the shortest starting point, begin with the quickest on-ramp and talk with a counselor about what comes next.',
+                  href: '/programs/digital-literacy-empowerment-class',
+                  cta: 'See quickest starting point',
+                },
+                {
+                  eyebrow: 'Salary upside',
+                  title: 'Strongest earning potential',
+                  desc: 'If long-term pay matters most, look at higher-upside technical tracks that can lead to stronger salary ceilings.',
+                  href: '/programs/aws-cloud-technology-amazon',
+                  cta: 'See higher-upside path',
+                },
+                {
+                  eyebrow: 'People-facing',
+                  title: 'Business and customer-facing work',
+                  desc: 'If you like organizing, communicating, or helping teams and customers, start with business-oriented options.',
+                  href: '#subgroup-leadership',
+                  cta: 'Browse business paths',
+                },
+                {
+                  eyebrow: 'Technical and hands-on',
+                  title: 'IT, cybersecurity, and practical technical work',
+                  desc: 'If you want direct technical problem-solving, start with hands-on IT and operations-focused programs.',
+                  href: '#subgroup-it-support',
+                  cta: 'Browse technical paths',
+                },
+              ].map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    padding: '1rem',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'var(--surface-container-high)',
+                    border: '1px solid var(--outline-variant)',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    minHeight: '100%',
+                  }}
+                >
+                  <div>
+                    <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>{item.eyebrow}</p>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>{item.title}</h3>
+                    <p style={{ fontSize: '0.9rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>{item.desc}</p>
+                  </div>
+                  <span style={{ marginTop: 'auto', color: 'var(--color-accent)', fontWeight: 700 }}>
+                    {item.cta} →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ══════════════════════════════════════════════
           HOW TO CHOOSE + TOOL ROUTING — desktop only

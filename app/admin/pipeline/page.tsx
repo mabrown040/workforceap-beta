@@ -10,6 +10,7 @@ import AdminPipelineKanban, {
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getStaleApplications } from '@/lib/data/applications';
 import StaleApplicationsBanner from './StaleApplicationsBanner';
 
@@ -58,7 +59,7 @@ export default async function AdminPipelinePage() {
   let students;
   try {
     students = await prisma.user.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

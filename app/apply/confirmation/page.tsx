@@ -31,6 +31,24 @@ const NEXT_STEPS = [
   },
 ];
 
+const TRUST_SIGNALS = [
+  {
+    icon: 'badge',
+    title: 'Reviewed by a real team',
+    desc: 'Your application is reviewed by WorkforceAP staff, not dropped into an invisible queue.',
+  },
+  {
+    icon: 'volunteer_activism',
+    title: 'Nonprofit, member-first access',
+    desc: 'WorkforceAP is a 501(c)(3) nonprofit in Austin. Programs are funded by grants and partnerships so members are not charged for access.',
+  },
+  {
+    icon: 'support_agent',
+    title: 'Clear follow-up if you need help',
+    desc: 'If you do not hear from us after 5 business days, call or email and our team will check your application with you.',
+  },
+] as const;
+
 export default function ApplyConfirmationPage() {
   return (
     <div className="inner-page">
@@ -86,6 +104,25 @@ export default function ApplyConfirmationPage() {
               </div>
             </section>
 
+            <section style={{ background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1rem' }}>
+                What you can count on
+              </h2>
+              <div className="apply-confirmation-trust-grid" style={{ display: 'grid', gap: '1rem' }}>
+                {TRUST_SIGNALS.map((item) => (
+                  <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: '0.875rem', padding: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>
+                        {item.icon}
+                      </span>
+                      <p style={{ margin: 0, color: 'var(--color-on-surface)', fontWeight: 700 }}>{item.title}</p>
+                    </div>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, fontSize: '0.9375rem' }}>{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.875rem', padding: '1.25rem' }}>
                 <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.7 }}>
@@ -132,10 +169,14 @@ export default function ApplyConfirmationPage() {
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
 
       <style>{`
+        .apply-confirmation-trust-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
         .apply-confirmation-info-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
         @media (max-width: 767px) {
+          .apply-confirmation-trust-grid,
           .apply-confirmation-info-grid {
             grid-template-columns: 1fr !important;
           }

@@ -136,7 +136,7 @@ const AXIS_DESCRIPTIONS: Record<string, { plain: string; examples: string }> = {
   },
 };
 
-function AxisLegend({ axes }: { axes: string[] }) {
+function AxisLegend({ axes, usingDemo }: { axes: string[]; usingDemo?: boolean }) {
   const [open, setOpen] = useState(true);
   const shown = axes.filter(a => AXIS_DESCRIPTIONS[a]);
   if (shown.length === 0) return null;
@@ -181,7 +181,9 @@ function AxisLegend({ axes }: { axes: string[] }) {
             );
           })}
           <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', lineHeight: 1.5 }}>
-            Scores come from U.S. Department of Labor survey data. Higher score = that skill matters more for people in this job.
+            {usingDemo
+              ? 'These are example scores for illustration only. Real scores come from U.S. Department of Labor survey data and may differ.'
+              : 'Scores come from U.S. Department of Labor survey data. Higher score = that skill matters more for people in this job.'}
           </p>
         </div>
       )}
@@ -748,7 +750,7 @@ export default function SkillMapperClient() {
                   ))}
                 </div>
               </div>
-              <AxisLegend axes={radarData.map(d => d.axis)} />
+              <AxisLegend axes={radarData.map(d => d.axis)} usingDemo={usingDemo} />
               {/* Export + profile compare prompt */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                 <button

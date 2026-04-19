@@ -559,7 +559,8 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         @media (max-width: 768px) {
           .login-brand-panel { display: none !important; }
         }
-        .login-field:focus {
+        .login-field:focus,
+        form button[type="submit"]:focus-visible {
           outline: 2px solid var(--color-accent);
           outline-offset: 2px;
           border-color: var(--color-accent);

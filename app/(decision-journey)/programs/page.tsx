@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
-import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training Programs — Nationwide Certificates',
@@ -14,14 +13,6 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ProgramsPage() {
-  const mobileBrowseChips = [
-    { href: '#program-catalog', label: 'All' },
-    ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
-      href: `#subgroup-${id}`,
-      label: PROGRAM_SUBGROUPS.find((s) => s.id === id)?.shortLabel ?? id,
-    })),
-  ];
-
   return (
     <div className="inner-page programs-page marketing-stack marketing-stack--enter">
       {/* ══════════════════════════════════════════════
@@ -122,7 +113,7 @@ export default function ProgramsPage() {
       {/* ── Tool Routing ── */}
       <section style={{ padding: '3rem 0 0' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+          <div className="programs-tool-routing" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
             <Link
               href="/find-your-path"
               style={{
@@ -410,6 +401,9 @@ export default function ProgramsPage() {
         }
         @media (max-width: 767px) {
           .programs-journey-grid { grid-template-columns: 1fr !important; }
+          .programs-hero-right { display: none !important; }
+          .programs-tool-routing { flex-direction: column !important; }
+          .programs-tool-routing a { width: 100% !important; justify-content: center !important; }
         }
       `}</style>
 

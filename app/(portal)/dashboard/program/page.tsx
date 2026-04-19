@@ -10,7 +10,6 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import ProgramChangeRequestPanel from '@/components/portal/ProgramChangeRequestPanel';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
@@ -158,10 +157,6 @@ export default async function ProgramPage() {
           </div>
         </PortalCard>
 
-        <ProgramChangeRequestPanel
-          currentSlug={enrolledSlug}
-          alternatives={pickerPrograms.length ? pickerPrograms : PROGRAMS}
-        />
       </div>
       <MobileBottomNav variant="portal" />
     </>

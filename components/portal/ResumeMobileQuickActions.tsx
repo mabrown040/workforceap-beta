@@ -64,7 +64,7 @@ export default function ResumeMobileQuickActions() {
         type="button"
         onClick={shareResume}
         disabled={!downloadUrl}
-        aria-label="Share resume"
+        aria-label={copied ? "Copied" : "Share resume"}
         style={{
           flex: 1,
           display: 'flex',
@@ -82,7 +82,7 @@ export default function ResumeMobileQuickActions() {
         <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-blue)' }} aria-hidden="true">
           {copied ? 'check' : 'share'}
         </span>
-        <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{copied ? 'Copied!' : 'Share'}</span>
+        <span aria-live="polite" style={{ fontSize: '0.75rem', fontWeight: 600 }}>{copied ? 'Copied!' : 'Share'}</span>
       </button>
       {downloadUrl ? (
         <a

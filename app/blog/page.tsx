@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BlogListingClient from './BlogListingClient';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildPageMetadata({

@@ -1,0 +1,61 @@
+name: Locked Product Stakes
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, edited, synchronize, labeled, unlabeled, reopened]
+
+jobs:
+  locked-stakes-check:
+    name: Locked product stakes approval
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check locked files against approval label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed('This workflow only runs on pull_request events.');
+              return;
+            }
+
+            const lockedPatterns = [
+              'app/page.tsx',
+              'app/(decision-journey)/programs/page.tsx',
+              'app/(decision-journey)/programs/ProgramsContent.tsx',
+              'lib/content/programSubgroup.ts',
+              'app/(portal)/dashboard/program/page.tsx',
+              'components/admin/MemberDetailActions.tsx',
+              'app/api/admin/members/[id]/program/route.ts',
+            ];
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+
+            const changed = files.map((file) => file.filename);
+            const touchedLocked = changed.filter((file) => lockedPatterns.includes(file));
+
+            if (touchedLocked.length === 0) {
+              core.info('No locked product-stake files changed.');
+              return;
+            }
+
+            const labels = (pr.labels || []).map((label) => label.name);
+            const approved = labels.includes('stake-approved');
+
+            core.summary
+              .addHeading('Locked Product Stakes Check')
+              .addRaw(`Locked files touched:\n${touchedLocked.map((f) => `- ${f}`).join('\n')}\n\n`)
+              .addRaw(`Approval label present: ${approved ? 'yes' : 'no'}\n`)
+              .write();
+
+            if (!approved) {
+              core.setFailed(
+                'This PR changes locked WorkforceAP product-stake files. Add the `stake-approved` label after Mike explicitly approves the change.'
+              );
+            }

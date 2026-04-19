@@ -14,6 +14,7 @@ import MembersTable from '@/components/admin/MembersTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Members',
@@ -35,7 +36,7 @@ export default async function AdminMembersPage() {
   // can time out or fail under load; degrading aggregates must not hide the member list.
   const [membersResult, lastEventsResult, recentEventsResult] = await Promise.allSettled([
     prisma.user.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

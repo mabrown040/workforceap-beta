@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/lib/pipeline/stage';
 import { buildCsv, csvDate } from '@/lib/csv';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 /**
  * GET /api/admin/export/members
@@ -31,8 +32,8 @@ export async function GET(req: NextRequest) {
   const filterDateTo = params.get('dateTo') || undefined;
   const filterCoursera = params.get('courseraStatus') || undefined;
 
-  // Build Prisma where clause
-  const where: Record<string, unknown> = { deletedAt: null };
+  // Build Prisma where clause — scoped to actual members only
+  const where: Record<string, unknown> = { deletedAt: null, ...MEMBER_ONLY_WHERE };
 
   if (filterProgram) where.enrolledProgram = filterProgram;
   if (filterWioa) where.wioaReviewStatus = filterWioa;

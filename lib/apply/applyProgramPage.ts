@@ -49,7 +49,7 @@ export function buildApplyPageMetadata(programParam: string | undefined): Metada
     return buildPageMetadata({
       title: 'Apply for Career Training',
       description:
-        'Apply for no-cost career certification training. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We respond within 24–48 hours.',
+        'Apply for career certification training at no cost to members. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We follow up with next steps in 3 to 5 business days.',
       path: '/apply',
     });
   }

@@ -23,6 +23,7 @@ export default function MemberWorkspaceShell({
       navItems={MEMBER_PORTAL_NAV_ITEMS}
       workspaceLabel={PRODUCT_COPY.memberWorkspace}
       contextLabel="My account"
+      minimalMobileHeader
       marketingSiteHref="https://www.workforceap.org/"
       marketingSiteLabel="WorkforceAP.org"
       showResumeUploadHint={hasResume === false}

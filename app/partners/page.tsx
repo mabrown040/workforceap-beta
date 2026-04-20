@@ -175,8 +175,8 @@ export default function PartnersPage() {
               marginBottom: '2.5rem',
             }}
           >
-            Different partners, different roles. Find yours and take the next step
-            in building a skilled workforce together.
+            Refer candidates, hire graduates, or align your workforce programs.
+            Each partnership has a clear path and real outcomes.
           </p>
 
           <Link
@@ -193,7 +193,7 @@ export default function PartnersPage() {
               textDecoration: 'none',
             }}
           >
-            Find Your Role
+            Explore Partnership Types
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
           </Link>
         </div>
@@ -524,7 +524,7 @@ export default function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Lead the Change
+              Start a Partnership
             </h2>
             <p
               style={{
@@ -535,8 +535,7 @@ export default function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Join a growing network of partners building equitable pathways to career success
-              across the nation.
+              Clear next steps, real outcomes, and a team that follows up within 24–48 hours.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link

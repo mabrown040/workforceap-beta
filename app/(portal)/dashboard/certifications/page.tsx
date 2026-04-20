@@ -402,7 +402,7 @@ export default async function DashboardCertificationsPage() {
                 <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Active Pathway</h2>
               </div>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', fontSize: 'var(--font-size-sm)' }}>
-                Your current certification journey. Complete each milestone to unlock the next.
+                Your current certification journey. Complete each milestone to move to the next.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                 {pathwayMilestones.map((milestone) => (

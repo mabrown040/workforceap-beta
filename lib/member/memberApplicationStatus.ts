@@ -72,7 +72,7 @@ export function buildMemberApplicationStatusView(
     accepted:
       'Choose your program and complete your profile so we can finalize enrollment.',
     enrolled:
-      'Complete your skills assessment so your dashboard can unlock the right training steps.',
+      'Complete your skills assessment so your dashboard can show the right training steps.',
     active:
       'Your assessment is complete. Follow the next step on your dashboard to keep moving toward training and job support.',
     rejected:

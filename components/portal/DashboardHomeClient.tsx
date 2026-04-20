@@ -125,8 +125,8 @@ export default function DashboardHomeClient({
     },
     {
       done: checklist.startFirstCourse,
-      doneLabel: 'Training unlocked',
-      pendingLabel: 'Unlock training',
+      doneLabel: 'First course started',
+      pendingLabel: 'Start first course',
     },
     {
       done: checklist.completeFirstCourse,
@@ -141,14 +141,14 @@ export default function DashboardHomeClient({
       : state === 'B'
         ? 'Assessment required'
         : completedCount === 0
-          ? 'Training is unlocked'
+          ? 'Your training is ready'
           : `Current training step: ${nextMilestone ?? programTitle}`;
 
   const progressCardSummary =
     state === 'D'
       ? `${completedCount} of ${totalCourses} courses marked complete.`
       : state === 'B'
-        ? 'Complete your skills assessment to unlock your first training step.'
+        ? 'Complete your skills assessment to start your first training step.'
         : completedCount === 0
           ? 'No courses are marked complete yet. Start with your first training step.'
           : `${completedCount} of ${totalCourses} courses marked complete.`;
@@ -206,7 +206,7 @@ export default function DashboardHomeClient({
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
           {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path. Programs are available at no cost to members.")}
-          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to unlock your training plan.`}
+          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to start your training plan.`}
           {state === 'C' && `You're ${progressPct}% through ${programTitle ?? 'your training plan'}. Keep going one step at a time.`}
           {state === 'D' && `Your training plan is complete. Focus on job outcomes and career readiness.`}
         </p>
@@ -293,7 +293,7 @@ export default function DashboardHomeClient({
                   <div className="portal-card portal-card--flat portal-card--padded-sm">
                     <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                       {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost to members."}
-                      {state === 'B' && `Complete your skills assessment to unlock your ${programTitle} training.`}
+                      {state === 'B' && `Complete your skills assessment to start your ${programTitle} training.`}
                       {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
                       {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
                     </p>
@@ -504,7 +504,7 @@ export default function DashboardHomeClient({
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Complete Your Skills Assessment</h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  A quick assessment tailors your {programTitle} learning path and unlocks role matching.
+                  A quick assessment tailors your {programTitle} learning path and starts role matching.
                 </p>
                 <Link href="/dashboard/assessment" className="btn btn-primary"
                   onClick={() => handleDashboardAction('assessment_clicked')}>
@@ -684,7 +684,7 @@ export default function DashboardHomeClient({
                   { done: checklist.createAccount, label: 'Create account' },
                   { done: checklist.chooseProgram, label: 'Choose program' },
                   { done: checklist.completeAssessment, label: 'Complete assessment' },
-                  { done: checklist.startFirstCourse, label: 'Unlock training' },
+                  { done: checklist.startFirstCourse, label: 'Start training' },
                   { done: checklist.completeFirstCourse, label: 'Complete first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>

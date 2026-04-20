@@ -166,7 +166,7 @@ export default function EmployersPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
               rocket_launch
             </span>
-            Building Tomorrow&apos;s Workforce
+            Hire Certified Talent
           </span>
 
           <h1

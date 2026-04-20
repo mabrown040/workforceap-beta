@@ -58,16 +58,16 @@ const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRamp
     tips: [
       'CPT/CLT certifications qualify you for apprenticeships with union pay scales',
       'Many Austin-area manufacturers offer direct-hire after 60-day temp placement',
-      'Forklift certification takes 1 day and opens hundreds of roles immediately',
+      'Forklift certification takes 1 day and opens hundreds of roles',
     ],
     topRoles: ['Logistics Coordinator', 'Production Technician', 'Supply Chain Associate'],
     avgRampMonths: 2,
   },
   business: {
     tips: [
-      'Google Project Management cert holders land PM roles 2–3× faster than uncertified applicants',
+      'Google Project Management cert holders often stand out for PM roles',
       'Salesforce admin roles are in high demand — even basic admin skills command $60K+',
-      'Your MBA + tech cert combination is rare — lead with both on applications',
+      'If you have an MBA, your MBA + tech cert combination is rare — lead with both on applications',
     ],
     topRoles: ['Project Manager', 'Operations Analyst', 'Business Development Rep'],
     avgRampMonths: 4,
@@ -75,7 +75,7 @@ const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRamp
   'digital-literacy': {
     tips: [
       'Digital literacy opens admin and coordinator roles across every industry',
-      'Microsoft Office certification (free via LinkedIn Learning) adds instant credibility',
+      'Microsoft Office certification (free via LinkedIn Learning) adds credibility to your application',
       'Entry-level roles often offer the fastest path to internal promotions',
     ],
     topRoles: ['Administrative Coordinator', 'Office Assistant', 'Data Entry Specialist'],
@@ -109,7 +109,7 @@ const MARKET_SIGNALS: Record<string, { headline: string; detail: string; icon: s
   ],
   manufacturing: [
     { headline: 'Austin logistics/trades up 18% YoY', detail: 'Tesla Gigafactory + semiconductor expansion driving trades demand. CPT holders fast-tracked.', icon: 'precision_manufacturing' },
-    { headline: 'Union apprenticeships paying $28–34/hr', detail: 'CLT and trades certifications unlock apprenticeship pipelines paying well above minimum.', icon: 'handshake' },
+    { headline: 'Union apprenticeships paying $28–34/hr', detail: 'CLT and trades certifications open apprenticeship pipelines paying well above minimum.', icon: 'handshake' },
   ],
   business: [
     { headline: 'PM roles: $72K average entry in Texas', detail: 'Google PM cert holders 2× more likely to receive callbacks. Remote options widely available.', icon: 'task_alt' },
@@ -117,7 +117,7 @@ const MARKET_SIGNALS: Record<string, { headline: string; detail: string; icon: s
   ],
   'digital-literacy': [
     { headline: 'Admin coordinator demand stable at 85K+ openings', detail: 'Every industry needs digital-literate staff. Microsoft cert holders preferred.', icon: 'computer' },
-    { headline: 'Fastest path to employment: 4–6 weeks post-cert', detail: 'Digital literacy grads consistently see the shortest job search timelines in the program.', icon: 'speed' },
+    { headline: 'Fastest path to employment: 4–6 weeks post-cert', detail: 'Digital literacy grads often see shorter job search timelines than other tracks.', icon: 'speed' },
   ],
 };
 

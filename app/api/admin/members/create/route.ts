@@ -7,6 +7,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { trackEvent } from '@/lib/events/track';
 
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -230,6 +231,15 @@ export async function POST(request: Request) {
   sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
     Program: program.title,
   }).catch((err) => console.error('Partner milestone email failed:', err));
+
+  // Track enrollment for funnel analytics
+  await trackEvent({
+    userId: authUser.id,
+    eventName: 'program_enrolled',
+    entityType: 'course_enrollment',
+    metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
+    sourcePage: '/admin/members/create',
+  });
 
   return NextResponse.json({
     ok: true,

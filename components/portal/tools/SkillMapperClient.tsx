@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, Search, BookOpen, Clock, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
 
@@ -855,13 +857,37 @@ export default function SkillMapperClient() {
                             </div>
                           )}
                         </div>
-                        <a href={`/programs/${mp.programSlug}`} style={{
+                        <Link href={`/programs/${mp.programSlug}`} style={{
                           background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem',
                           padding: '0.35rem 0.625rem', fontSize: '0.75rem', fontWeight: 600,
                           textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
-                        }}>View →</a>
+                        }} onClick={() => trackFunnelEvent('skill_mapper', 'program_recommendation_viewed', { program_slug: mp.programSlug, recommendation_type: mp.recommendationType })}>View →</Link>
                       </div>
                     ))}
+                  </div>
+                  {/* Enrollment CTAs */}
+                  <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(173,44,77,0.06)', border: '1px solid rgba(173,44,77,0.15)', borderRadius: '0.75rem' }}>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
+                      Ready to start your training?
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <Link href={`/programs/${matchedPrograms[0].programSlug}`} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                        padding: '0.5rem 1rem', borderRadius: '0.5rem',
+                        background: 'var(--color-accent)', color: '#fff',
+                        fontWeight: 700, fontSize: '0.8125rem', textDecoration: 'none',
+                      }} onClick={() => trackFunnelEvent('skill_mapper', 'enroll_cta_clicked', { program_slug: matchedPrograms[0].programSlug })}>
+                        Enroll in {matchedPrograms[0].programTitle}
+                      </Link>
+                      <Link href="/dashboard/counselor" style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                        padding: '0.5rem 1rem', borderRadius: '0.5rem',
+                        background: 'var(--surface-container-highest)', color: 'var(--color-on-surface)',
+                        fontWeight: 600, fontSize: '0.8125rem', textDecoration: 'none',
+                      }} onClick={() => trackFunnelEvent('skill_mapper', 'counselor_cta_clicked', {})}>
+                        Talk to a counselor first
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}

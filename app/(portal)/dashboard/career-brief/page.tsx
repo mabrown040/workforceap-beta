@@ -109,7 +109,7 @@ const MARKET_SIGNALS: Record<string, { headline: string; detail: string; icon: s
   ],
   manufacturing: [
     { headline: 'Austin logistics/trades up 18% YoY', detail: 'Tesla Gigafactory + semiconductor expansion driving trades demand. CPT holders fast-tracked.', icon: 'precision_manufacturing' },
-    { headline: 'Union apprenticeships paying $28–34/hr', detail: 'CLT and trades certifications unlock apprenticeship pipelines paying well above minimum.', icon: 'handshake' },
+    { headline: 'Union apprenticeships paying $28–34/hr', detail: 'CLT and trades certifications open apprenticeship pipelines paying well above minimum.', icon: 'handshake' },
   ],
   business: [
     { headline: 'PM roles: $72K average entry in Texas', detail: 'Google PM cert holders 2× more likely to receive callbacks. Remote options widely available.', icon: 'task_alt' },

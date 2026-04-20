@@ -39,7 +39,7 @@ const REASON_BY_ANSWER: Record<string, Partial<Record<string, string>>> = {
   q5: {
     comfortable: "You're comfortable with tech - you can focus on the credential.",
     basic_apps: 'You use phones and basics - we have programs that start where you are.',
-    tech_savvy: "You're tech-savvy - this credential will unlock next-level roles.",
+    tech_savvy: "You're tech-savvy — this credential will open next-level roles.",
     basics: 'You need to start from the basics - this program is designed for that.',
   },
 };

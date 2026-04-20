@@ -129,7 +129,10 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            No-cost career training for members who want a stronger path to work. Start with our quick Find Your Path quiz, explore {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs, and get counselor guidance, resume help, and job-search support.
+            No-cost career training with real counselor guidance.{' '}
+            <span style={{ color: 'var(--home-hero-fg, #f2f2f5)' }}>
+              Not sure where to start? Take the 2-minute quiz.
+            </span>
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>

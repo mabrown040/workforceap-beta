@@ -211,7 +211,7 @@ export default function BlogListingClient({
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
-              Find Your Career Path
+              Find Your Path
             </Link>
             <Link href="/programs" className="btn blog-listing-bottom-cta__ghost">
               Explore Programs

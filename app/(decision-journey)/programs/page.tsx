@@ -61,7 +61,7 @@ export default function ProgramsPage() {
                 <ExperimentedCtaLink
                   experiment="programs_primary_cta"
                   variants={[
-                    { id: 'control', label: 'Find Your Career Path \u2192', className: 'btn btn-primary', href: '/find-your-path' },
+                    { id: 'control', label: 'Find Your Path \u2192', className: 'btn btn-primary', href: '/find-your-path' },
                     { id: 'quiz_first', label: 'Take the Quiz \u2192', className: 'btn btn-primary', href: '/find-your-path' },
                   ]}
                 />
@@ -238,7 +238,7 @@ export default function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">psychology</span>
-              Find Your Career Path — Take the Quiz
+              Find Your Path — Take the Quiz
             </Link>
             <Link
               href="/program-comparison"

@@ -58,7 +58,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'skills_assessment',
       title: 'Complete your skills assessment',
-      body: 'Unlock your training path and job matching with a short assessment.',
+      body: 'Start your training path and job matching with a short assessment.',
       href: '/dashboard/assessment',
       cta: 'Take assessment',
       variant: 'urgent',

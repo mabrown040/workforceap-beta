@@ -182,7 +182,7 @@ export default async function SkillsAssessmentPage() {
                     Take your skills snapshot
                   </h2>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: '0 0 1rem' }}>
-                    A quick 10-minute assessment — finishing this unlocks your training courses and personalizes your learning plan.
+                    A quick 10-minute assessment — finishing this starts your training courses and personalizes your learning plan.
                   </p>
                   <Link href="/dashboard/assessment" className="btn btn-primary" style={{ fontSize: '0.875rem' }}>
                     Start assessment

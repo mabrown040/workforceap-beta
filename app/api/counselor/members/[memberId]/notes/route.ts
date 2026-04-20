@@ -8,6 +8,20 @@ const noteSchema = z.object({
   content: z.string().min(1).max(5000),
 });
 
+async function assertCounselorCanAccessMember(userId: string, memberId: string): Promise<boolean> {
+  const counselor = await prisma.counselor.findFirst({
+    where: { userId, active: true },
+    select: { id: true },
+  });
+  if (!counselor) return false;
+
+  const assignment = await prisma.counselorAssignment.findFirst({
+    where: { counselorId: counselor.id, memberId, active: true },
+    select: { id: true },
+  });
+  return Boolean(assignment);
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> }
@@ -17,6 +31,10 @@ export async function GET(
   if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
+  if (!(await assertCounselorCanAccessMember(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const notes = await prisma.counselorNote.findMany({
     where: { memberId },
     orderBy: { createdAt: 'desc' },
@@ -35,6 +53,10 @@ export async function POST(
   if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
+  if (!(await assertCounselorCanAccessMember(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = noteSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Note content required' }, { status: 400 });
@@ -58,6 +80,10 @@ export async function DELETE(
   if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
+  if (!(await assertCounselorCanAccessMember(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const { noteId } = await request.json().catch(() => ({}));
   if (!noteId) return NextResponse.json({ error: 'noteId required' }, { status: 400 });
 

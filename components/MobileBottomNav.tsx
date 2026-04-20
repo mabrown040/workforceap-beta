@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   type NavBadgeKey,
+  type NavTab,
+  type PortalNavItem,
   MEMBER_PORTAL_NAV_ITEMS,
   NAV_TAB_META,
   NAV_TAB_ORDER,
@@ -37,6 +39,16 @@ function getMemberBottomTabs() {
       tab,
     };
   });
+}
+
+/** Determine which tab contains a given badge key so the bottom nav dot shows on the right tab. */
+function tabForBadgeKey(items: PortalNavItem[], key: NavBadgeKey): NavTab | null {
+  for (const item of items) {
+    if ((item.badgeKey === key || item.badgeKeys?.includes(key)) && item.tab) {
+      return item.tab;
+    }
+  }
+  return null;
 }
 
 const EMPLOYER_TABS = [
@@ -83,6 +95,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
     : variant === 'admin' ? ADMIN_TABS
     : MARKETING_TABS;
   const activeMemberTab = variant === 'portal' ? getActiveTab(pathname, MEMBER_PORTAL_NAV_ITEMS) : null;
+  const messageTab = variant === 'portal' ? tabForBadgeKey(MEMBER_PORTAL_NAV_ITEMS, 'counselor_messages_unread') : null;
 
   return (
     <>
@@ -128,11 +141,11 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
             : exactMatch.includes(href)
               ? pathname === href
               : pathname.startsWith(href);
-        const showDot =
-          variant === 'portal' &&
-          'tab' in tab &&
-          tab.tab === 'me' &&
-          (badgeCounts?.counselor_messages_unread ?? 0) > 0;
+        const b =
+          variant === 'portal' && 'tab' in tab && messageTab != null && tab.tab === messageTab
+            ? (badgeCounts?.counselor_messages_unread ?? 0)
+            : 0;
+        const showBadge = b > 0;
         return (
           <Link
             key={href}
@@ -151,20 +164,30 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
                aria-hidden="true">
                 {icon}
               </span>
-              {showDot ? (
+              {b > 0 ? (
                 <span
-                  aria-label="Unread messages"
+                  aria-label={`${b} unread`}
                   style={{
                     position: 'absolute',
-                    top: 0,
-                    right: -4,
-                    width: 8,
-                    height: 8,
+                    top: -2,
+                    right: -6,
+                    minWidth: 16,
+                    height: 16,
                     borderRadius: '50%',
                     background: 'var(--color-accent, #ad2c4d)',
                     border: '1.5px solid var(--color-white, #fff)',
+                    color: '#fff',
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 3px',
+                    lineHeight: 1,
                   }}
-                />
+                >
+                  {b > 99 ? '99+' : b}
+                </span>
               ) : null}
             </span>
             <span className="marketing-bottom-nav__label">{label}</span>

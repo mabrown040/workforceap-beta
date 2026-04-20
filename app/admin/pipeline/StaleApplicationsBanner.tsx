@@ -30,7 +30,7 @@ export default function StaleApplicationsBanner({ staleApps }: { staleApps: any[
             <div>
               <span style={{ fontWeight: 500 }}>{app.user?.fullName}</span> ({app.user?.email}) - Applied {new Date(app.createdAt).toLocaleDateString()}
             </div>
-            <button
+            <button type="button"
               className="btn btn-primary"
               style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
               onClick={() => handleRemind(app.id, app.userId)}

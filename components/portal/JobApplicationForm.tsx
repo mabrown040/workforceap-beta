@@ -73,7 +73,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
         {/* Header */}
         <div className="wa-sticky wa-top-0 wa-bg-white wa-border-b wa-p-6 wa-flex wa-justify-between wa-items-center">
           <h2 id={titleId} className="wa-text-xl wa-font-bold wa-text-gray-900">Add Application</h2>
-          <button
+          <button type="button"
             onClick={onClose}
             className="wa-text-gray-400 hover:wa-text-gray-600 wa-text-2xl wa-leading-none"
             aria-label="Close add application dialog"

@@ -33,7 +33,7 @@ export default function AdminMemberAiMatches({ memberId, matches }: { memberId: 
                 {match.job?.employer?.companyName ?? 'Employer'} • Score: {match.matchScore}%
               </div>
             </div>
-            <button
+            <button type="button"
               className="btn btn-primary"
               onClick={() => handleIntroduce(match.id, match.jobId)}
               disabled={loading[match.id] || introduced[match.id]}

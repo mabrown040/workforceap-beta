@@ -135,7 +135,7 @@ export default function MobileApplicationsClient({
         {STATUS_CHIP_FILTERS.map((f) => {
           const active = filter === f.value;
           return (
-            <button
+            <button type="button"
               key={f.value}
               onClick={() => setFilter(f.value)}
               className="text-xs font-semibold transition-colors"
@@ -176,7 +176,7 @@ export default function MobileApplicationsClient({
                 style={{ borderRadius: '0.75rem', overflow: 'hidden', background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
               >
                 {/* Card header — tap to expand */}
-                <button
+                <button type="button"
                   style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'flex-start', background: 'none', border: 'none', cursor: 'pointer' }}
                   aria-expanded={isExpanded} aria-label={isExpanded ? `Collapse details for ${studentName}` : `Expand details for ${studentName}`} onClick={() => {
                     const nextExpanded = isExpanded ? null : app.id;
@@ -254,7 +254,7 @@ export default function MobileApplicationsClient({
                         {nextStatuses.map((s) => {
                           const isReject = s === 'rejected';
                           return (
-                            <button
+                            <button type="button"
                               key={s}
                               disabled={busyId === app.id}
                               onClick={() => patchStatus(app.id, s)}

@@ -102,7 +102,7 @@ export default function PartnerMilestonesMobile() {
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
+                  <button type="button"
                     className="active:scale-[0.98] transition-all"
                     style={{
                       flex: 1,
@@ -118,7 +118,7 @@ export default function PartnerMilestonesMobile() {
                   >
                     Approve
                   </button>
-                  <button
+                  <button type="button"
                     className="active:scale-[0.98] transition-all"
                     style={{
                       flex: 1,
@@ -144,7 +144,7 @@ export default function PartnerMilestonesMobile() {
       {/* Completed Section */}
       {completed.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
-          <button
+          <button type="button"
             onClick={() => setCompletedOpen((o) => !o)}
             className="active:scale-[0.98] transition-all"
             style={{

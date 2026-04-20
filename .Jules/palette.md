@@ -32,3 +32,7 @@
 ## 2026-04-22 - Custom Dialog Accessibility Pattern
 **Learning:** Custom built modals in this application's components (like confirmation dialogs for destructive actions) frequently lack the foundational ARIA roles (`role="dialog"`, `aria-modal="true"`) and label bindings.
 **Action:** Always verify custom modal container divs in this project have `role="dialog"`, `aria-modal="true"`, and an `aria-labelledby` linking to their heading. Additionally, verify internal inputs have explicitly linked instructions via `aria-describedby` when a `<label>` isn't sufficient.
+
+## 2026-04-20 - Site-wide UI Audit, Button Types, and Roles
+**Learning:** Found numerous `<button>` elements missing explicit `type="button"` attributes, which can lead to accidental form submissions. Similarly, many custom interactive elements using `<div>`, `<span>`, or `<li>` with `onClick` handlers lacked `role="button"` and `tabIndex={0}`, making them inaccessible to keyboard and screen reader users.
+**Action:** When creating `<button>` elements, always explicitly define their `type` (e.g. `type="button"` or `type="submit"`). When applying `onClick` to non-button semantic elements, you must also provide `role="button"`, `tabIndex={0}`, and an `onKeyDown` handler that responds to 'Enter' and 'Space' for proper accessibility. Ensure you do not add conflicting roles if the element already has a role (e.g., `role="dialog"`).

@@ -322,14 +322,14 @@ export default function MemberOnboardingWizard({
     },
     {
       title: "You're all set",
-      subtitle: 'Your counselor will reach out within 24–48 hours.',
+      subtitle: 'Your counselor will follow up with your next step in 3 to 5 business days.',
       content: (
         <div className="wa-space-y-3 wa-text-sm">
           <p>What happens next:</p>
           <ul className="wa-list-disc wa-space-y-1 wa-pl-5 wa-text-slate-600">
-            <li>We review your application within 24–48 hours</li>
+            <li>We review your application and follow up in 3 to 5 business days</li>
             <li>Overview call with a counselor, then a brief skills assessment</li>
-            <li>Interview to confirm mutual fit, then start your program at no cost to you</li>
+            <li>Interview to confirm mutual fit, then start your program at no cost to members</li>
           </ul>
         </div>
       ),

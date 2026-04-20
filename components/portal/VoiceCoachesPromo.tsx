@@ -62,6 +62,20 @@ export default function VoiceCoachesPromo() {
           ctaLabel="Start mock interview"
         />
       </div>
+
+      {/* 5th priority tool — Career and Business Coach */}
+      <div style={{ marginTop: '0.75rem' }}>
+        <VoiceCoachLauncherCard
+          badge="Business & career"
+          icon="💼"
+          glowColor="#2563eb"
+          gradient="linear-gradient(135deg, #1e40af, #2563eb, #60a5fa)"
+          title="Career and Business Coach"
+          description="Project management, sales, marketing, and broader career questions without strict gates."
+          href="/dashboard/ai-tools/career-business-coach"
+          ctaLabel="Open business coach"
+        />
+      </div>
     </section>
   );
 }

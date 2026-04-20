@@ -13,6 +13,15 @@ export type AiToolsHubCategory = {
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
   {
+    id: 'career-business',
+    title: 'Career & Business Coach',
+    icon: 'business_center',
+    description: 'General career and business coaching for project management, sales, marketing, and professional growth.',
+    links: [
+      { label: 'Career and Business Coach', href: '/dashboard/ai-tools/career-business-coach' },
+    ],
+  },
+  {
     id: 'elevator-pitch',
     title: 'Elevator Pitch',
     icon: 'record_voice_over',

@@ -116,7 +116,7 @@ export default function AdminInvitesPage() {
     <div style={{ paddingTop: '1.5rem' }}>
       <PageHeader
         title="Invitations"
-        subtitle="Invite admins, partners, students, or counselors to the platform."
+        subtitle="Invite admins, partners, members, or counselors to the platform."
         action={
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button

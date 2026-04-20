@@ -18,7 +18,7 @@ const EMPLOYMENT_OPTIONS = [
   'Employed full-time',
   'Employed part-time',
   'Unemployed',
-  'Student',
+  'Member',
   'Self-employed',
   'Other',
 ];

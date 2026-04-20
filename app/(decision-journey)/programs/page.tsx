@@ -147,10 +147,10 @@ export default function ProgramsPage() {
               {[
                 {
                   eyebrow: 'Beginner-safe',
-                  title: 'New to tech',
+                  title: 'New to Tech',
                   desc: 'Start with a smoother on-ramp if you want to build confidence with computers before jumping into faster technical tracks.',
                   href: '/programs/digital-literacy-empowerment-class',
-                  cta: 'See beginner-friendly path',
+                  cta: 'See Digital Literacy path',
                 },
                 {
                   eyebrow: 'Move quickly',
@@ -174,8 +174,8 @@ export default function ProgramsPage() {
                   cta: 'Browse business paths',
                 },
                 {
-                  eyebrow: 'Technical and hands-on',
-                  title: 'IT, cybersecurity, and practical technical work',
+                  eyebrow: 'Technical and Hands-On',
+                  title: 'IT, Cybersecurity, and Practical Technical Work',
                   desc: 'If you want direct technical problem-solving, start with hands-on IT and operations-focused programs.',
                   href: '#subgroup-it-support',
                   cta: 'Browse technical paths',

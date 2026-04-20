@@ -337,7 +337,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
       </section>
 
       <section id="matches" style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>AI Student Matches</h2>
+        <h2 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>AI Member Matches</h2>
         <div
           style={{
             marginBottom: '1rem',
@@ -350,7 +350,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
         >
           {job.status === 'pending' && !job.aiMatchesComputedAt && (
             <p style={{ margin: '0 0 0.65rem', color: 'var(--color-on-surface)', fontSize: '0.88rem' }}>
-              Student matches are calculated automatically when you approve this job (they may show as &quot;None&quot; until then).
+              Member matches are calculated automatically when you approve this job (they may show as &quot;None&quot; until then).
             </p>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem 1rem', marginBottom: '0.35rem' }}>
@@ -393,7 +393,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
         ) : (
           <>
             {matches.length === 0 ? (
-              <p style={{ color: 'var(--color-on-surface-variant)' }}>No matching students found.</p>
+              <p style={{ color: 'var(--color-on-surface-variant)' }}>No matching members found.</p>
             ) : (
               <>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginBottom: '1rem' }}>

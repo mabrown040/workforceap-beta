@@ -13,6 +13,34 @@ export type AiToolsHubCategory = {
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
   {
+    id: 'career-business',
+    title: 'Career & Business Coach',
+    icon: 'business_center',
+    description: 'General career and business coaching for project management, sales, marketing, and professional growth.',
+    links: [
+      { label: 'Career and Business Coach', href: '/dashboard/ai-tools/career-business-coach' },
+    ],
+  },
+  {
+    id: 'elevator-pitch',
+    title: 'Elevator Pitch',
+    icon: 'record_voice_over',
+    description: 'AI writes your 10-20 second elevator statement — then rehearse it on camera.',
+    links: [
+      { label: 'Build elevator pitch', href: '/dashboard/ai-tools/elevator-pitch' },
+    ],
+  },
+  {
+    id: 'readiness',
+    title: 'Career Readiness',
+    icon: 'psychology',
+    description: 'Talk through interviews, certifications, and next steps with an AI coach.',
+    links: [
+      { label: 'Career readiness coach', href: '/dashboard/ai-tools/readiness-coach' },
+      { label: 'Job readiness checklist', href: '/dashboard/readiness' },
+    ],
+  },
+  {
     id: 'resume',
     title: 'Resume',
     icon: 'description',
@@ -26,21 +54,12 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     ],
   },
   {
-    id: 'elevator-pitch',
-    title: 'Elevator Pitch',
-    icon: 'record_voice_over',
-    description: 'AI writes your 10-20 second elevator statement — then rehearse it on camera.',
-    links: [
-      { label: 'Build elevator pitch', href: '/dashboard/ai-tools/elevator-pitch' },
-    ],
-  },
-  {
     id: 'interview',
     title: 'Interview',
     icon: 'forum',
     description: 'Practice questions and live voice mock interviews.',
     links: [
-      { label: 'Voice interviewer', href: '/dashboard/ai-tools/voice-interview' },
+      { label: 'Voice job interviewer', href: '/dashboard/ai-tools/voice-interview' },
       { label: 'AI interview coach', href: '/dashboard/ai-tools/interview-coach' },
       { label: 'Interview practice worksheet', href: '/dashboard/ai-tools/interview-practice' },
     ],

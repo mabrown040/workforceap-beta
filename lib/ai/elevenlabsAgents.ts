@@ -13,7 +13,8 @@ export type ElevenLabsPortalAgentKey =
   | 'readiness'
   | 'resume_coach'
   | 'partner'
-  | 'wioa_prequal';
+  | 'wioa_prequal'
+  | 'career_business';
 
 const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
   interview: 'ELEVENLABS_INTERVIEW_AGENT_ID',
@@ -23,6 +24,7 @@ const ENV_KEYS: Record<ElevenLabsPortalAgentKey, string> = {
   resume_coach: 'ELEVENLABS_RESUME_COACH_AGENT_ID',
   partner: 'ELEVENLABS_PARTNER_AGENT_ID',
   wioa_prequal: 'ELEVENLABS_WIOA_PREQUAL_AGENT_ID',
+  career_business: 'ELEVENLABS_CAREER_BUSINESS_AGENT_ID',
 };
 
 /**
@@ -33,12 +35,12 @@ const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   interview: 'agent_9001kmy4g522e5ttvj88k5z1ygem',
   counselor: 'agent_2801kmznvsemfmms06r0e02es1b9',
   employer: 'agent_0901kmznx45vf19s9psjrctqr6x5',
-  /** Dedicated partner concierge in ElevenLabs ConvAI. */
   partner: 'agent_7601kntxhqx3e0mvznpwk9bqj5yw',
   readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
   resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
-  /** Dedicated WIOA pre-qualification / signup guide. */
   wioa_prequal: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
+  /** TODO: Create dedicated Career & Business coach agent in ElevenLabs ConvAI */
+  career_business: 'agent_2801kmznvsemfmms06r0e02es1b9',
 };
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {

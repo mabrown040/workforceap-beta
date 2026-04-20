@@ -94,7 +94,20 @@ export default function DashboardHomeClient({
       sourcePage: '/dashboard',
       metadata: { state, checklistAllDone },
     });
-  }, [state, checklistAllDone]);
+    // Track activation milestone: user has enrolled + completed at least one course
+    if (state !== 'A' && completedCount >= 1) {
+      trackFunnelEvent('member_dashboard', 'dashboard_activated', {
+        state,
+        completed_count: completedCount,
+        program: programTitle,
+      });
+      void postMemberEvent({
+        eventName: 'member_dashboard_activated',
+        sourcePage: '/dashboard',
+        metadata: { state, completedCount, programTitle },
+      });
+    }
+  }, [state, checklistAllDone, completedCount, programTitle]);
 
   const handleDashboardAction = (action: string) => {
     trackFunnelEvent('member_dashboard', action, { state });

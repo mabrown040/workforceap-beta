@@ -158,7 +158,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
               <span
                 className="material-symbols-outlined"
                 style={{
-                  fontSize: '22px',
+                  fontSize: '28px',
                   lineHeight: 1,
                 }}
                aria-hidden="true">

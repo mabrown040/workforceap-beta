@@ -77,13 +77,13 @@ export type PortalNavItem = {
 
 export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   journey: { label: 'Home', icon: 'home' },
-  program: { label: 'Program', icon: 'school' },
+  program: { label: 'My Program', icon: 'school' },
   jobs: { label: 'Jobs', icon: 'work' },
   tools: { label: 'Tools', icon: 'construction' },
-  me: { label: 'Profile', icon: 'person' },
+  me: { label: 'Me', icon: 'person' },
 };
 
-export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'tools', 'me'];
+export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'me'];
 
 export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   primary: null,
@@ -101,17 +101,17 @@ const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
 
 export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Home tab ──
-  { href: '/dashboard', label: 'Overview', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
+  { href: '/dashboard', label: 'Home', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
   { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
-  { href: '/dashboard/training', label: 'Training', group: 'primary', tab: 'program', Icon: GraduationCap },
-  { href: '/dashboard/certifications', label: 'Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
-  { href: '/dashboard/career-brief', label: 'Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
+  { href: '/dashboard/training', label: 'My Classes', group: 'primary', tab: 'program', Icon: GraduationCap },
+  { href: '/dashboard/certifications', label: 'My Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
+  { href: '/dashboard/career-brief', label: 'My Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE
     ? [
         {
           href: '/dashboard/learning/wioa-qualification',
-          label: 'Funding eligibility',
+          label: 'Funding Eligibility',
           group: 'insights',
           tab: 'program',
           Icon: Shield,
@@ -137,14 +137,14 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     badgeKey: 'applications_new',
   },
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
-  { href: '/dashboard/readiness', label: 'Job Readiness', group: 'insights', tab: 'jobs', Icon: CheckCircle },
+  { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'AI Tools', group: 'workflows', tab: 'tools', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/ai-tools', label: 'Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
     group: 'workflows',
-    tab: 'tools',
+    tab: 'me',
     Icon: Library,
     aliases: ['/resources', '/dashboard/career-library'],
     tourTarget: 'tour-learning',
@@ -153,7 +153,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/learning/find-your-career',
     label: 'Find your career',
     group: 'workflows',
-    tab: 'tools',
+    tab: 'me',
     Icon: Compass,
     aliases: ['/dashboard/learning/interest-profiler'],
   },
@@ -161,22 +161,22 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     href: '/dashboard/skills-assessment',
     label: 'Skills Assessment',
     group: 'insights',
-    tab: 'tools',
+    tab: 'me',
     Icon: ClipboardCheck,
     aliases: ['/dashboard/assessments', '/dashboard/assessment'],
   },
   // ── Profile tab ──
-  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'me', Icon: BarChart3 },
+  { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {
     href: '/dashboard/messages',
-    label: 'Messages',
-    group: 'workflows',
-    tab: 'me',
+    label: 'My Counselor',
+    group: 'primary',
+    tab: 'journey',
     Icon: MessageSquare,
     badgeKey: 'counselor_messages_unread',
     tourTarget: 'tour-messages',
   },
-  { href: '/dashboard/resources', label: 'Program Resources', group: 'workflows', tab: 'me', Icon: Layers, tourTarget: 'tour-resources' },
+  { href: '/dashboard/resources', label: 'Resources', group: 'workflows', tab: 'me', Icon: Layers, tourTarget: 'tour-resources' },
   {
     href: '/dashboard/help',
     label: 'Help & Support',
@@ -195,7 +195,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     aliases: ['/profile', '/account'],
     tourTarget: 'tour-profile',
   },
-  { href: '/dashboard/settings', label: 'Settings', group: 'manage', tab: 'me', Icon: Settings },
+  { href: '/dashboard/settings', label: 'My Account', group: 'manage', tab: 'me', Icon: Settings },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [

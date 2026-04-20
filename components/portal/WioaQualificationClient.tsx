@@ -36,7 +36,7 @@ const SIGNAL_COPY: Record<WioaEligibilitySignal, { title: string; body: string }
   review: {
     title: 'Worth a staff review',
     body:
-      'We need a little more detail before anyone can say yes or no. A WorkforceAP team member or local American Job Center can walk through it with you.',
+      'We need a little more detail before anyone can say yes or no. A WorkforceAP team member can walk through it with you.',
   },
   unclear: {
     title: 'Youth or special-case review',
@@ -393,14 +393,14 @@ export default function WioaQualificationClient({
             <div className="portal-field">
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
-                <span>I am currently unemployed or I was laid off from my last job</span>
+                <span><strong>I am currently unemployed or was laid off</strong> — this is a standalone WIOA qualifier</span>
               </label>
             </div>
 
             <div className="portal-field">
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
-                <span>My household income is limited or near self-sufficiency (self-reported)</span>
+                <span>My household income is limited or near self-sufficiency (additional documentation for WIA)</span>
               </label>
             </div>
 
@@ -450,11 +450,7 @@ export default function WioaQualificationClient({
             <strong>Bring to your appointment:</strong> photo ID, proof of income if asked, and any layoff or unemployment notices.
           </li>
           <li>
-            <strong>American Job Center:</strong> use{' '}
-            <a href="https://www.careeronestop.org/LocalHelp/service-locator.aspx" target="_blank" rel="noopener noreferrer">
-              CareerOneStop Service Locator
-            </a>{' '}
-            to find a one-stop near you.
+            <strong>WorkforceAP counselor:</strong> go see your Workforce advancement counselor to confirm eligibility and next steps.
           </li>
           <li>
             <strong>What to say:</strong> “I&apos;m interested in WIOA-funded training and I&apos;d like to confirm eligibility and next steps.”

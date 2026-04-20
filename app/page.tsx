@@ -282,7 +282,7 @@ export default async function HomePage() {
               </ul>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
-                <Link href="/wioa-qualification" className="btn btn-secondary btn-small">Check WIOA Funding</Link>
+                <Link href="/wioa-qualification" className="btn btn-secondary btn-small">Interview / Pre-qualification</Link>
               </div>
             </div>
 

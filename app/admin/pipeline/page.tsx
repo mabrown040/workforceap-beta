@@ -123,8 +123,8 @@ export default async function AdminPipelinePage() {
   return (
     <div style={{ paddingTop: '1.5rem' }}>
       <PageHeader
-        title="Student Pipeline"
-        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a student’s stage is derived from enrollment, courses, certifications, and placement."
+        title="Member Pipeline"
+        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a member's stage is derived from enrollment, courses, certifications, and placement."
         action={
           <Link href="/admin/placements/new" className="btn btn-primary">
             Record Placement
@@ -137,10 +137,10 @@ export default async function AdminPipelinePage() {
         <PortalKpiCard label="Placed" value={totalPlaced} accent="green" />
         <PortalKpiCard
           label="Placement Rate"
-          value={totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—'}
+          value={totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '-'}
           accent="blue"
         />
-        <PortalKpiCard label="Avg Salary" value={avgSalary ? `$${avgSalary.toLocaleString()}` : '—'} accent="gold" />
+        <PortalKpiCard label="Avg Salary" value={avgSalary ? `$${avgSalary.toLocaleString()}` : '-'} accent="gold" />
       </div>
 
       <StaleApplicationsBanner staleApps={staleApps} />

@@ -3,7 +3,7 @@ import { buildPageMetadata } from '@/app/seo';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Invitations',
-  description: 'Invite admins, partners, students, or counselors to the platform.',
+  description: 'Invite admins, partners, members, or counselors to the platform.',
   path: '/admin/invites',
 });
 

@@ -68,7 +68,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
           <select name="role" defaultValue="member">
             <option value="admin">Admin</option>
             <option value="partner">Partner</option>
-            <option value="member">Student</option>
+            <option value="member">Member</option>
             <option value="counselor">Counselor</option>
           </select>
           <small style={{ color: 'var(--color-on-surface-variant)' }}>
@@ -101,7 +101,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Assign to program (for students)</span>
+          <span>Assign to program (for members)</span>
           <select name="programSlug" defaultValue="">
             <option value="">None</option>
             {PROGRAMS.map((program) => (

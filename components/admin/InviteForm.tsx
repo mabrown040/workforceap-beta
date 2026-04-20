@@ -223,7 +223,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
               >
                 <option value="admin">Admin</option>
                 <option value="partner">Partner</option>
-                <option value="member">Student</option>
+                <option value="member">Member</option>
                 <option value="counselor">Counselor</option>
               </select>
             </div>

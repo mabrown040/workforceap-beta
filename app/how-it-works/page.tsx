@@ -92,7 +92,7 @@ export default async function HowItWorksPage() {
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-                No gatekeeping. No cost. Just a clear, guided process — from your first conversation with us to your first day on the job (and beyond).
+                No gatekeeping. No cost to members. Just a clear, guided process — from your first conversation with us to your first day on the job (and beyond).
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link

@@ -287,12 +287,12 @@ export default function DashboardHomeClient({
                   <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{applicationStatus.nextStep}</p>
                   {applicationStatus.showResponseEstimate && (
                     <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
-                      We typically respond within 24-48 hours on business days.
+                      We typically respond with your next step in 3 to 5 business days.
                     </p>
                   )}
                   <div className="portal-card portal-card--flat portal-card--padded-sm">
                     <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                      {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost."}
+                      {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost to members."}
                       {state === 'B' && `Complete your skills assessment to unlock your ${programTitle} training.`}
                       {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
                       {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}

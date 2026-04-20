@@ -20,7 +20,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     shortDesc:
       'Submit your application online in about 10 minutes. We use it to understand your background and match you with the right opportunity.',
     longDesc:
-      'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We reach out within 48 hours.',
+      'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We follow up with your next step in 3 to 5 business days.',
     why: 'So we can personalize your path instead of sending you into a generic funnel.',
   },
   {
@@ -36,9 +36,9 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     num: 3,
     title: 'Membership Enrollment',
     shortDesc:
-      'Join at no cost. Get access to your member portal, resources, and support — no hidden fees.',
+      'Join at no cost to members. Get access to your member portal, resources, and support — no hidden fees.',
     longDesc:
-      'Join at no cost to members. All members get access to resources, support, and training. No cost for members and no hidden fees.',
+      'Join at no cost to members. All members get access to resources, support, and training. No hidden fees.',
     why: 'We remove money as a barrier so you can focus on learning.',
   },
   {

@@ -11,3 +11,4 @@ playwright-report/
 test-results/
 tmp/
 .gstack/
+.env*.local

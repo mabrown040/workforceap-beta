@@ -39,7 +39,7 @@ const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
   resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
   wioa_prequal: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
-  /** TODO: Create dedicated Career & Business coach agent in ElevenLabs ConvAI */
+  /** Dedicated Career & Business coach agent (patched via ElevenLabs API with specialized prompt). */
   career_business: 'agent_2801kmznvsemfmms06r0e02es1b9',
 };
 

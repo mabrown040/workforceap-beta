@@ -110,7 +110,7 @@ export default function AIHistoryList({ results, initialFilter = '' }: { results
               {/* Card header */}
               <button
                 type="button"
-                onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse details for " + r.toolLabel : "Expand details for " + r.toolLabel} onClick={() => setExpandedId(isExpanded ? null : r.id)}
                 style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.875rem', background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 {/* Tool icon */}

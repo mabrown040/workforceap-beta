@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import FindYourPathClient from './FindYourPathClient';
-import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Find Your Career Path — Program Quiz',
+  title: 'Find Your Path — Program Quiz',
   description:
     'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for qualifying members.',
   path: '/find-your-path',
@@ -44,18 +44,19 @@ export default function FindYourPathPage() {
           }}>
             You don&apos;t need to have it all figured out — that&apos;s what this is for. Just answer honestly and we&apos;ll point you toward the right first step.
           </p>
-          <ExperimentedCtaLink
-            experiment="find_path_apply_cta"
-            variants={[
-              { id: 'control', label: 'Ready now? Start your application', className: 'btn btn-primary', href: '/apply' },
-              { id: 'urgency', label: 'Apply now (10 minutes)', className: 'btn btn-primary', href: '/apply' },
-            ]}
-          />
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+            <a href="#find-your-path-quiz" className="btn btn-primary">
+              Take the 2-minute quiz
+            </a>
+            <Link href="/apply" className="btn btn-outline">
+              Already know your path? Apply now
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Decision Path Tabs + Quiz */}
-      <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 4rem' }}>
+      <section id="find-your-path-quiz" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 4rem' }}>
         <div className="find-path-layout" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 300px',

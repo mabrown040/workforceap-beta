@@ -129,12 +129,12 @@ export default async function HomePage() {
             marginBottom: '2.5rem',
             lineHeight: 1.6,
           }}>
-            No-cost career training for members who want a stronger path to work. Start with a quick career pathfinder, explore {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs, and get counselor guidance, resume help, and job-search support.
+            No-cost career training for members who want a stronger path to work. Start with our quick Find Your Path quiz, explore {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs, and get counselor guidance, resume help, and job-search support.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
-              Find Your Career Path
+              Find Your Path
             </Link>
             <Link href="/programs" className="btn btn-outline btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
               Browse Programs
@@ -512,7 +512,7 @@ export default async function HomePage() {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
-              Find Your Career
+              Find Your Path
             </Link>
             <Link href="/apply" className="btn btn-large" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.5)', fontWeight: 700 }}>
               Start Your Application

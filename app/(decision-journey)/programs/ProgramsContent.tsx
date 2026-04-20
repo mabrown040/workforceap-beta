@@ -305,7 +305,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
-          <Link href="/find-your-path" className="btn btn-primary">Find Your Career Path — Take the Quiz</Link>
+          <Link href="/find-your-path" className="btn btn-primary">Find Your Path — Take the Quiz</Link>
           <Link href="/program-comparison" className="btn btn-outline">Compare Programs</Link>
           <Link href="/salary-guide" className="btn btn-ghost">View Salary Guide</Link>
         </div>

@@ -45,7 +45,7 @@ export default function ProgramsDecisionJourneyNav({
   }, []);
 
   const steps: { id: ProgramsJourneyStep; label: string; icon: string; href: string }[] = [
-    { id: 'quiz', label: 'Find Your Career', icon: 'explore', href: '/find-your-path' },
+    { id: 'quiz', label: 'Find Your Path', icon: 'explore', href: '/find-your-path' },
     { id: 'programs', label: 'Browse Programs', icon: 'school', href: '/programs' },
     { id: 'compare', label: 'Compare Tracks', icon: 'compare_arrows', href: '/program-comparison' },
     { id: 'salary', label: 'Salary Context', icon: 'payments', href: '/salary-guide' },

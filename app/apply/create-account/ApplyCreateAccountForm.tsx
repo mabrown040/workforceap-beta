@@ -336,11 +336,11 @@ export default function ApplyCreateAccountForm() {
 
       <div className="apply-transition-card" role="note" aria-label="Why account creation matters">
         <strong>Why we ask for this now:</strong>
-        <span> your account saves the program you selected, lets you log back in, and gives our team the information needed to follow up. It is not a final enrollment decision by itself.</span>
+        <span> your account saves the program you selected, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
       </div>
 
       <p className="apply-step-desc" style={{ marginTop: '1rem' }}>
-        You&apos;ll get next steps after account creation. In many cases, that means you can go straight to your dashboard. Some applicants may be asked to verify their email first.
+        After you create your account, you can view your dashboard and next steps. Some applicants are asked to verify their email first — check your inbox if so.
       </p>
 
       <div className="form-group">
@@ -553,7 +553,7 @@ export default function ApplyCreateAccountForm() {
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>
-        {loading ? 'Creating your account…' : 'Create account and see next steps'}
+        {loading ? 'Creating your account…' : 'Create account and enter your path'}
       </button>
     </form>
   );

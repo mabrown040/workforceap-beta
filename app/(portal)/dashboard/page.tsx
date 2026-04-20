@@ -343,7 +343,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       done: assessmentCompleted,
       active: !!enrolledProgram && !assessmentCompleted,
       locked: !enrolledProgram,
-      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to unlock training' : 'Locked until enrolled',
+      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to start training' : 'Waiting for enrollment',
     },
     {
       label: 'Interview',

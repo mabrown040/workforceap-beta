@@ -499,7 +499,7 @@ export default async function HomePage() {
           Voice coaching powered by <strong>ElevenLabs</strong>
         </p>
         <Link href="/apply" className="btn btn-primary">
-          Apply to Unlock Member Tools
+          Apply for Member Tools
         </Link>
       </section>
 

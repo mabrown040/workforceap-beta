@@ -22,7 +22,7 @@ export default function VoiceCoachesPromo() {
         <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
           Recommended First
         </h2>
-        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginLeft: '0.25rem' }}>Start with these 4 tools</span>
+        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginLeft: '0.25rem' }}>Start with these 5 tools</span>
       </div>
 
       {/* 4-column compact grid on desktop, 1-column on mobile */}

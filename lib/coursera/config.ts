@@ -69,8 +69,12 @@ export function getCourseraConfig() {
     programIdMap: parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP),
     programHomeUrl: process.env.COURSERA_PROGRAM_HOME_URL?.trim() || '',
     programUrlTemplate: process.env.COURSERA_PROGRAM_URL_TEMPLATE?.trim() || '',
+    /** Template for deep-linking to individual courses: {courseId}, {programId}, {userId}, {email} */
+    courseUrlTemplate: process.env.COURSERA_COURSE_URL_TEMPLATE?.trim() || '',
     defaultSkillsetIds: parseCsv(process.env.COURSERA_DEFAULT_SKILLSET_IDS),
     skillsetIdMap: parseStringArrayMap(process.env.COURSERA_SKILLSET_ID_MAP),
+    /** Map of programSlug → courseIndex → Coursera course ID */
+    courseIdMap: parseStringArrayMap(process.env.COURSERA_COURSE_ID_MAP),
     webhookSecret:
       process.env.COURSERA_WEBHOOK_SECRET?.trim() || process.env.WEBHOOK_SECRET?.trim() || '',
     platformUrl: DEFAULT_PLATFORM_URL,
@@ -93,9 +97,29 @@ export function buildCourseraLaunchUrl(args: {
   programSlug?: string | null;
   userId: string;
   email: string;
+  /** 0-based index of the current course the member should start */
+  currentCourseIndex?: number;
 }): string | null {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(args.programSlug);
+
+  // If we have a course ID map and a current course index, deep-link to that specific course
+  const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;
+  const currentCourseId =
+    courseIds && args.currentCourseIndex != null
+      ? courseIds[args.currentCourseIndex]
+      : undefined;
+
+  if (currentCourseId && config.courseUrlTemplate) {
+    const courseUrl = interpolateTemplate(config.courseUrlTemplate, {
+      courseId: currentCourseId,
+      programId,
+      programSlug: args.programSlug ?? '',
+      userId: args.userId,
+      email: args.email,
+    });
+    if (courseUrl) return courseUrl;
+  }
 
   if (config.programUrlTemplate) {
     return interpolateTemplate(config.programUrlTemplate, {
@@ -114,18 +138,23 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(programSlug);
   const skillsetIds = resolveCourseraSkillsetIds(programSlug);
+  const courseIds = programSlug ? config.courseIdMap[programSlug] : undefined;
   const launchUrl = buildCourseraLaunchUrl({
     programSlug,
     userId: 'template-user',
     email: 'template@example.com',
+    currentCourseIndex: 0,
   });
 
   const launchMissing: string[] = [];
-  if (!config.programHomeUrl && !config.programUrlTemplate) {
-    launchMissing.push('program launch URL');
+  if (!config.programHomeUrl && !config.programUrlTemplate && !config.courseUrlTemplate) {
+    launchMissing.push('program or course launch URL template');
   }
   if (config.programUrlTemplate.includes('{programId}') && !programId) {
     launchMissing.push('Coursera program ID mapping');
+  }
+  if (config.courseUrlTemplate && (!courseIds || courseIds.length === 0)) {
+    launchMissing.push('course ID mapping for deep-linking');
   }
 
   const syncMissing: string[] = [];
@@ -138,6 +167,7 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
 
   return {
     canLaunch: Boolean(launchUrl),
+    canDeepLink: Boolean(config.courseUrlTemplate && courseIds && courseIds.length > 0),
     canSync: syncMissing.length === 0,
     canReceiveWebhooks: webhookMissing.length === 0,
     launchMissing,
@@ -145,6 +175,7 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
     webhookMissing,
     programId,
     skillsetIds,
+    courseIds,
     platformUrl: config.platformUrl,
   };
 }

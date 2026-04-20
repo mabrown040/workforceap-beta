@@ -66,19 +66,21 @@ export default async function CourseraIntegrationPage() {
                 <p className="coursera-footnote" style={{ marginBottom: 0 }}>{program.partner}</p>
               </div>
               <div className="content-card">
-                <p className="coursera-footnote" style={{ marginTop: 0, marginBottom: '0.35rem' }}>Local progress</p>
+                <p className="coursera-footnote" style={{ marginTop: 0, marginBottom: '0.35rem' }}>Progress</p>
                 <h3 className="coursera-panel__title" style={{ marginBottom: '0.2rem' }}>{completedCount}/{program.courses.length} courses</h3>
-                <p className="coursera-footnote" style={{ marginBottom: 0 }}>{progressPct}% tracked in WorkforceAP</p>
+                <p className="coursera-footnote" style={{ marginBottom: 0 }}>{progressPct}% complete</p>
               </div>
               <div className="content-card">
-                <p className="coursera-footnote" style={{ marginTop: 0, marginBottom: '0.35rem' }}>Connection status</p>
+                <p className="coursera-footnote" style={{ marginTop: 0, marginBottom: '0.35rem' }}>Current course</p>
                 <h3 className="coursera-panel__title" style={{ marginBottom: '0.2rem' }}>
-                  {readiness.canLaunch || readiness.canSync || readiness.canReceiveWebhooks
-                    ? 'Scaffolded'
-                    : 'Waiting on setup'}
+                  {completedCount < program.courses.length
+                    ? program.courses[completedCount]?.name ?? 'Next course'
+                    : 'All courses complete'}
                 </h3>
                 <p className="coursera-footnote" style={{ marginBottom: 0 }}>
-                  Launch, sync, and progress tracking are ready to connect.
+                  {completedCount < program.courses.length
+                    ? `Course ${completedCount + 1} of ${program.courses.length}`
+                    : 'Full library unlocked'}
                 </p>
               </div>
             </div>
@@ -86,28 +88,85 @@ export default async function CourseraIntegrationPage() {
             <div className="content-card coursera-panel">
               <h3 className="coursera-panel__title">Your Coursera Courses</h3>
               <p className="coursera-enrolled-lead">
-                You&apos;re enrolled in <strong>{program.title}</strong>. This page will be your one place to launch courses and track progress once setup is complete.
+                You&apos;re enrolled in <strong>{program.title}</strong>. Launch directly into your assigned course below.
               </p>
+
+              {/* Course pathway list */}
+              <div style={{ marginBottom: '1rem' }}>
+                {program.courses.map((course, i) => {
+                  const done = i < completedCount;
+                  const current = i === completedCount;
+                  const locked = i > completedCount;
+                  return (
+                    <div
+                      key={course.slug}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        padding: '0.625rem 0.875rem',
+                        borderRadius: '0.5rem',
+                        marginBottom: '0.375rem',
+                        background: current
+                          ? 'rgba(173,44,77,0.08)'
+                          : done
+                            ? 'rgba(74,155,79,0.06)'
+                            : 'var(--surface-container-lowest)',
+                        border: current ? '1px solid rgba(173,44,77,0.2)' : '1px solid var(--outline-variant)',
+                        opacity: locked ? 0.5 : 1,
+                      }}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: '1.125rem',
+                          color: done ? 'var(--color-green)' : current ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+                          fontVariationSettings: done ? "'FILL' 1" : undefined,
+                        }}
+                      >
+                        {done ? 'check_circle' : current ? 'play_circle' : 'lock'}
+                      </span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontWeight: current ? 700 : 600, fontSize: '0.875rem', margin: 0, color: 'var(--color-on-surface)' }}>
+                          {course.name}
+                        </p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                          {done ? 'Completed' : current ? 'Current course — click Launch to start' : locked ? 'Locked — complete previous courses first' : ''}
+                        </p>
+                      </div>
+                      {current && (
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-accent)', background: 'rgba(173,44,77,0.12)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                          NOW
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
 
               <div className="coursera-callout">
                 <h4 className="coursera-callout__title">
-                  {readiness.canLaunch || readiness.canSync || readiness.canReceiveWebhooks
-                    ? 'Connection scaffold is ready'
-                    : 'Almost ready'}
+                  {readiness.canDeepLink
+                    ? 'Direct course access is configured'
+                    : readiness.canLaunch
+                      ? 'Launch configured — course deep-linking pending'
+                      : 'Launch setup pending'}
                 </h4>
                 <p className="coursera-callout__text">
-                  You&apos;ll be able to launch Coursera courses from here and your progress will sync automatically. We&apos;re finishing the final setup steps on our end.
+                  {readiness.canDeepLink
+                    ? 'You will be taken directly to your current course. Complete it to unlock the next one. The full library becomes available after you finish all assigned courses.'
+                    : 'You will be taken to your program page on Coursera. Course-by-course deep-linking will be enabled once course IDs are mapped.'}
                 </p>
                 <ul className="coursera-callout__list">
-                  <li>Launch from the portal: {statusLabel(readiness.canLaunch, 'waiting on launch mapping')}</li>
+                  <li>Launch from portal: {statusLabel(readiness.canLaunch, 'waiting on launch mapping')}</li>
+                  <li>Course deep-linking: {statusLabel(readiness.canDeepLink, 'waiting on course ID mapping')}</li>
                   <li>Course progress sync: {statusLabel(readiness.canSync, 'waiting on API credentials')}</li>
-                  <li>Completion webhook intake: {statusLabel(readiness.canReceiveWebhooks, 'waiting on secure secret')}</li>
                 </ul>
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
                 <a href="/api/member/coursera/launch" className="btn btn-primary coursera-btn-external">
-                  Launch Coursera
+                  {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
                   <ExternalLink size={16} aria-hidden />
                 </a>
                 <Link href="/dashboard/training" className="btn btn-outline">
@@ -118,7 +177,9 @@ export default async function CourseraIntegrationPage() {
               <CourseraSyncCard enabled={readiness.canSync} />
 
               <p className="coursera-footnote">
-                Until setup is complete, the launch button opens the public Coursera site. Your counselor can also share direct access links.
+                {readiness.canDeepLink
+                  ? 'Clicking Launch takes you directly to your current course. Complete it before moving on.'
+                  : 'Until deep-linking is configured, the launch button opens your program page. Your counselor can share direct links if needed.'}
               </p>
             </div>
           </>

@@ -8,7 +8,7 @@ import PartnerSignupForm from './PartnerSignupForm';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Partner organization registration',
   description:
-    'Register your organization as a WorkforceAP community partner. Refer members to no-cost training and track outcomes in the partner portal.',
+    'Register your organization as a WorkforceAP community partner. Refer members to training offered at no cost to members and track outcomes in the partner portal.',
   path: '/partner-signup',
 });
 
@@ -17,7 +17,7 @@ export default function PartnerSignupPage() {
     <div className="inner-page">
       <PageHero
         title="Register your organization as a WorkforceAP partner"
-        subtitle="Partner organizations refer community members to WorkforceAP programs. Registration is free. We'll set up your partner portal account within 1–2 business days."
+        subtitle="Partner organizations refer community members to WorkforceAP programs. There is no cost to register. We'll set up your partner portal account within 1–2 business days."
       />
       <section className="content-section">
         <div className="container" style={{ maxWidth: 560 }}>

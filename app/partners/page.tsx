@@ -16,7 +16,7 @@ const PARTNER_TYPES = [
     Icon: UsersRound,
     type: 'Referral Partners',
     who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
-    why: 'Refer clients who need career training. We follow up within 24-48 hours. No cost to refer. You get updates when referred individuals complete programs.',
+    why: 'Refer clients who need career training. We follow up within 24-48 hours. There is no cost to refer. You get updates when referred individuals complete programs.',
     nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
     colSpan: 8,
   },
@@ -71,7 +71,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is there a cost to refer candidates?',
-    a: 'No. Referrals are free. We welcome partners who want to connect individuals in their network with our career training programs that are offered at no cost to members.',
+    a: 'No. There is no cost to refer someone. We welcome partners who want to connect individuals in their network with our career training programs that are offered at no cost to members.',
   },
   {
     q: 'How do I refer someone?',
@@ -267,7 +267,7 @@ export default function PartnersPage() {
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                Referral partners send us candidates who may benefit from complimentary career training.
+                Referral partners send us candidates who may benefit from career training offered at no cost to members.
                 We reach out within 24&ndash;48 hours and walk them through the process.
                 We welcome referrals of individuals motivated to improve the quality of their life and interested in training in technology, healthcare, manufacturing, or skilled trades.
               </p>

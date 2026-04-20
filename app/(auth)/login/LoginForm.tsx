@@ -387,10 +387,50 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       {/* ── Right form panel ── */}
       <div style={s.formPanel}>
         <div style={s.formContainer}>
-          <h2 style={s.heading}>Welcome Back</h2>
+          <h2 style={s.heading}>Sign in to your account</h2>
           <p style={s.subheading}>
-            Signing in to: <strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
+            You are signing in to: <strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
           </p>
+
+          {/* First-time CTA — prominent for members who land here by accident */}
+          {!isPartnerLogin && !isStaffLikeLogin && (
+            <div style={{
+              background: 'var(--surface-container-high)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '1rem 1.25rem',
+              marginBottom: 'var(--space-6)',
+              border: '1px solid var(--outline-variant)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+            }}>
+              <div>
+                <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+                  New here?
+                </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.4 }}>
+                  Create a free account to explore programs and start training.
+                </p>
+              </div>
+              <Link href={signupHref} style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '0.6rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                border: '2px solid var(--color-accent)',
+                color: 'var(--color-accent)',
+                fontWeight: 700,
+                fontSize: '0.875rem',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                minHeight: 44,
+              }}>
+                Get started →
+              </Link>
+            </div>
+          )}
 
           {/* Portal routing — staff portals hidden behind toggle */}
           <nav aria-label="Choose portal destination after sign-in" style={{ marginBottom: 'var(--space-6)' }}>
@@ -544,9 +584,9 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
           </form>
 
           {/* Trust bar — reassurance at the moment of login friction */}
-          <p style={s.trustBar} aria-label="Program credentials">
-            <span className="material-symbols-outlined" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
-            Secure
+          <p style={{ ...s.trustBar, fontSize: '0.8125rem', opacity: 0.85 }} aria-label="Program credentials">
+            <span className="material-symbols-outlined" style={{ fontSize: 15, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
+            Secure login
             <span style={s.trustDot} aria-hidden="true">·</span>
             No-cost to members
             <span style={s.trustDot} aria-hidden="true">·</span>
@@ -555,28 +595,21 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
           {/* Bottom links */}
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)' }}>
-            {!isPartnerLogin && !isStaffLikeLogin ? (
-              <>
-                First time here?{' '}
-                <Link href={signupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                  Create a member account
-                </Link>
-              </>
-            ) : isPartnerLogin ? (
+            {isPartnerLogin ? (
               <>
                 Need partner access?{' '}
                 <Link href={partnerSignupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
                   Register your organization
                 </Link>
               </>
-            ) : (
+            ) : isStaffLikeLogin ? (
               <>
-                Need member access instead?{' '}
-                <Link href={signupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                  Create a member account
+                Staff account not working?{' '}
+                <Link href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  Contact support
                 </Link>
               </>
-            )}
+            ) : null}
           </p>
 
           {/* Footer — minimal; status dot removed (meaningless to members) */}

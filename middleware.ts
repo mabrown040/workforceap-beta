@@ -83,6 +83,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // MFA enforcement for admin paths
+  if (isAdminPath(request.nextUrl.pathname) && user) {
+    const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    
+    // If at aal1 and next level is aal2, MFA verification is required
+    if (aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2') {
+      // Don't redirect if already on verify-mfa or setup-mfa
+      if (!pathname.startsWith('/verify-mfa') && !pathname.startsWith('/setup-mfa')) {
+        const verifyUrl = new URL('/verify-mfa', request.url);
+        return NextResponse.redirect(verifyUrl);
+      }
+    }
+  }
+
   return response;
 }
 

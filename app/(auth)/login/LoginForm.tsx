@@ -333,6 +333,18 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
       const data = await res.json().catch(() => ({}));
 
+      // MFA required — redirect to verification page
+      if (data.mfaRequired && data.redirectTo) {
+        window.location.href = new URL(data.redirectTo, window.location.origin).href;
+        return;
+      }
+
+      // MFA setup required for staff — redirect to setup page
+      if (data.mfaSetupRequired && data.redirectTo) {
+        window.location.href = new URL(data.redirectTo, window.location.origin).href;
+        return;
+      }
+
       if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) {
         const location = res.headers.get('Location') ?? data?.redirectTo;
         if (location) {

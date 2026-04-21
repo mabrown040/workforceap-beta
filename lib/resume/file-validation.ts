@@ -26,9 +26,16 @@ export function validateFileType(buffer: Buffer, mimeType: string, fileName: str
     return true;
   }
 
-  // Check magic bytes
   if (buffer.length < 4) return false;
-  return MAGIC_BYTES.some(
-    (m) => m.ext === ext && m.bytes.every((b, i) => buffer[i] === b)
-  );
+
+  // Some files might contain a UTF-8 BOM or some padding before the actual magic bytes.
+  // We search for the magic bytes within the first 1024 bytes of the file.
+  const searchLimit = Math.min(buffer.length, 1024);
+  const searchArea = buffer.subarray(0, searchLimit);
+
+  return MAGIC_BYTES.some((m) => {
+    if (m.ext !== ext) return false;
+    const searchBytes = Buffer.from(m.bytes);
+    return searchArea.indexOf(searchBytes) !== -1;
+  });
 }

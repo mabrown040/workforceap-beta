@@ -100,6 +100,24 @@ export async function POST(request: Request) {
     select: { role: true },
   });
 
+  // Check if MFA is required for this user
+  const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  const needsMfa = aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2';
+  const isStaff = profile?.role === 'super_admin' || profile?.role === 'admin' || profile?.role === 'counselor';
+
+  // If staff and no MFA enrolled yet, redirect to setup
+  if (isStaff && !needsMfa) {
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    if (!factors?.totp?.length) {
+      return NextResponse.json({ ok: true, mfaSetupRequired: true, redirectTo: '/setup-mfa' });
+    }
+  }
+
+  // If MFA required (staff with factor enrolled), tell client to verify
+  if (needsMfa && isStaff) {
+    return NextResponse.json({ ok: true, mfaRequired: true, redirectTo: '/verify-mfa' });
+  }
+
   const roleAwareRedirect =
     profile?.role === 'super_admin'
       ? '/admin'

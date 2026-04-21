@@ -46,6 +46,8 @@ interface MetricsData {
   };
 }
 
+import MfaStatusBanner from '@/components/admin/MfaStatusBanner';
+
 export default function ExecutiveDashboardPage() {
   const [data, setData] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,6 +106,9 @@ export default function ExecutiveDashboardPage() {
           Real-time metrics across all 6 CEO funnels and placement KPIs
         </p>
       </div>
+
+      {/* MFA Status Banner for staff */}
+      <MfaStatusBanner />
 
       {/* Summary Cards */}
       <div

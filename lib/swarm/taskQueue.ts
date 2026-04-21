@@ -2,7 +2,7 @@
  * Durable task queue for autonomous agent swarms.
  * Used by night-shift cron, self-healing retries, and morning digest.
  */
-import { prisma } from './prisma';
+import { prisma } from '../db/prisma';
 
 export type TaskStatus = 'pending' | 'running' | 'done' | 'failed' | 'blocked';
 
@@ -125,10 +125,10 @@ export async function getTaskSummary(since: Date): Promise<{
     since.toISOString()
   );
   return {
-    done: rows.filter((r) => r.status === 'done').length,
-    failed: rows.filter((r) => r.status === 'failed').length,
-    blocked: rows.filter((r) => r.status === 'blocked').length,
-    pending: rows.filter((r) => r.status === 'pending').length,
+    done: rows.filter((r: { status: TaskStatus }) => r.status === 'done').length,
+    failed: rows.filter((r: { status: TaskStatus }) => r.status === 'failed').length,
+    blocked: rows.filter((r: { status: TaskStatus }) => r.status === 'blocked').length,
+    pending: rows.filter((r: { status: TaskStatus }) => r.status === 'pending').length,
     items: rows,
   };
 }

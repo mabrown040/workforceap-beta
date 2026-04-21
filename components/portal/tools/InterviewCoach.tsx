@@ -296,6 +296,8 @@ export default function InterviewCoach() {
               <div key={s.id} style={{ border: '1px solid var(--surface-container-high)', borderRadius: 8, marginBottom: '0.625rem', overflow: 'hidden' }}>
                 <button
                   onClick={() => setExpandedSession(isExpanded ? null : s.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`interview-coach-session-${s.id}`}
                   style={{ width: '100%', textAlign: 'left', padding: '0.875rem 1rem', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -312,7 +314,7 @@ export default function InterviewCoach() {
                   )}
                 </button>
                 {isExpanded && (
-                  <div style={{ padding: '1rem', background: 'var(--color-surface)', borderTop: '1px solid var(--surface-container-high)' }}>
+                  <div id={`interview-coach-session-${s.id}`} style={{ padding: '1rem', background: 'var(--color-surface)', borderTop: '1px solid var(--surface-container-high)' }}>
                     {s.feedback && (
                       <div style={{ marginBottom: '1rem' }}>
                         <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Overall Assessment</div>

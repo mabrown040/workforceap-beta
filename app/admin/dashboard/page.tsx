@@ -37,6 +37,10 @@ interface MetricsData {
     activationRate: number;
     aiToolRuns: number;
     jobApplicationsTracked: number;
+    totalPlacements: number;
+    recentPlacements: number;
+    avgPlacementSalary: number;
+    placementRate: number;
   };
   funnels: Funnel[];
   trends: {
@@ -103,7 +107,7 @@ export default function ExecutiveDashboardPage() {
         </nav>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Executive Dashboard</h1>
         <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', fontSize: '0.9rem' }}>
-          Real-time metrics across all 6 CEO funnels and placement KPIs
+          Real-time metrics across all 7 CEO funnels and placement KPIs
         </p>
       </div>
 
@@ -125,6 +129,9 @@ export default function ExecutiveDashboardPage() {
         <SummaryCard label="Dashboard Active" value={summary.activeDashboardUsers} />
         <SummaryCard label="Activation Rate" value={`${summary.activationRate}%`} color="var(--color-accent)" />
         <SummaryCard label="AI Tool Runs" value={summary.aiToolRuns} color="var(--color-gold)" />
+        <SummaryCard label="Placements" value={summary.totalPlacements} color="var(--color-green)" />
+        <SummaryCard label="Placement Rate" value={`${summary.placementRate}%`} color="var(--color-accent)" />
+        <SummaryCard label="Avg Salary" value={`$${summary.avgPlacementSalary.toLocaleString()}`} color="var(--color-blue)" />
       </div>
 
       {/* Funnel Cards */}

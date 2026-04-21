@@ -49,6 +49,19 @@ export async function GET() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+    // Placement metrics
+    const totalPlacements = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(*)::int as count FROM placement_records
+    `;
+
+    const recentPlacements = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(*)::int as count FROM placement_records WHERE placed_at >= ${thirtyDaysAgo}
+    `;
+
+    const avgSalary = await prisma.$queryRaw<{ avg: number | null }[]>`
+      SELECT AVG(salary_offered)::float as avg FROM placement_records WHERE salary_offered IS NOT NULL
+    `;
+
     const weeklySignups = await prisma.$queryRaw<{ week: string; count: number }[]>`
       SELECT DATE_TRUNC('week', created_at)::text as week, COUNT(*)::int as count
       FROM users
@@ -91,6 +104,10 @@ export async function GET() {
         activationRate: dashboardViewers > 0 ? Math.round((activated / dashboardViewers) * 100) : 0,
         aiToolRuns: aiRuns,
         jobApplicationsTracked: jobApps,
+        totalPlacements: Number(totalPlacements[0].count),
+        recentPlacements: Number(recentPlacements[0].count),
+        avgPlacementSalary: Math.round(avgSalary[0].avg ?? 0),
+        placementRate: enrolled > 0 ? Math.round((Number(totalPlacements[0].count) / enrolled) * 100) : 0,
       },
       funnels: [
         {

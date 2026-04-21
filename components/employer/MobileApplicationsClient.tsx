@@ -178,7 +178,7 @@ export default function MobileApplicationsClient({
                 {/* Card header — tap to expand */}
                 <button
                   style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'flex-start', background: 'none', border: 'none', cursor: 'pointer' }}
-                  onClick={() => {
+                  aria-expanded={isExpanded} aria-label={isExpanded ? `Collapse details for ${studentName}` : `Expand details for ${studentName}`} onClick={() => {
                     const nextExpanded = isExpanded ? null : app.id;
                     setExpandedId(nextExpanded);
                     if (nextExpanded !== app.id && openChatId === app.id) {

@@ -160,7 +160,7 @@ export default function AssessmentsTable({
               <button
                 type="button"
                 style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
-                onClick={() => setExpandedId(isExpanded ? null : u.id)}
+                aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse details for " + u.fullName : "Expand details for " + u.fullName} onClick={() => setExpandedId(isExpanded ? null : u.id)}
               >
                 <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
                   {initials}

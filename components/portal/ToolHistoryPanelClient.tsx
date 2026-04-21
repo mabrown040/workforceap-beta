@@ -17,7 +17,7 @@ export default function ToolHistoryPanelClient({ rows }: { rows: Row[] }) {
           <div key={row.id} style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', background: 'var(--surface-container-low)', overflow: 'hidden' }}>
             <button
               type="button"
-              onClick={() => setExpandedId(isExpanded ? null : row.id)}
+              aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse details" : "Expand details"} onClick={() => setExpandedId(isExpanded ? null : row.id)}
               style={{ width: '100%', textAlign: 'left', padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>

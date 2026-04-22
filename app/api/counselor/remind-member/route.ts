@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
 /**
  * POST /api/counselor/remind-member
  * Logs a reminder action for an inactive member.
  * Body: { userId, daysInactive }
- * 
+ *
  * Future: Can integrate with email/SMS service to actually send reminders.
  */
 export async function POST(request: Request) {
@@ -15,22 +16,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: { role: true },
-  });
-
-  const isStaff = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'counselor';
-  if (!isStaff) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
   const body = await request.json().catch(() => ({}));
   const memberId = typeof body.userId === 'string' ? body.userId : '';
   const daysInactive = typeof body.daysInactive === 'number' ? body.daysInactive : 0;
 
   if (!memberId) {
     return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
+  }
+
+  const allowed = await assertStaffCanAccessMemberRecord(user.id, memberId);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   // Log the reminder action as a member event

@@ -75,6 +75,10 @@ function fmtDate(value: Date | string | null | undefined) {
   return date.toLocaleString();
 }
 
+function formatMemberOptionLabel(member: MemberOption) {
+  return `${member.fullName} · ${member.email}`;
+}
+
 export default function CourseraMappingsAdmin({
   members,
   mappings,
@@ -142,56 +146,56 @@ export default function CourseraMappingsAdmin({
   return (
     <div style={{ display: 'grid', gap: '1.25rem' }}>
       <section style={cardStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <div className="coursera-header-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Manual identity mapping</h2>
             <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', maxWidth: '48rem' }}>
               Bind a Coursera learner email or actor ID to a WAP member when direct email matching is not enough.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="coursera-chip-row" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <div className="content-chip">{mappings.length} mapping{mappings.length === 1 ? '' : 's'}</div>
             <div className="content-chip">{unmatchedEvents.length} unmatched event{unmatchedEvents.length === 1 ? '' : 's'}</div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-            <div>
+          <div className="coursera-form-grid" style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ minWidth: 0 }}>
               <label style={labelStyle}>Member</label>
-              <select value={userId} onChange={(e) => setUserId(e.target.value)} style={inputStyle} required>
+              <select value={userId} onChange={(e) => setUserId(e.target.value)} style={inputStyle} className="coursera-input" required>
                 <option value="">Select a member</option>
                 {members.map((member) => (
                   <option key={member.id} value={member.id}>
-                    {member.fullName} · {member.email}{member.programTitle ? ` · ${member.programTitle}` : ''}
+                    {formatMemberOptionLabel(member)}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div>
+            <div style={{ minWidth: 0 }}>
               <label style={labelStyle}>Coursera email</label>
-              <input value={courseraEmail} onChange={(e) => setCourseraEmail(e.target.value)} style={inputStyle} placeholder="learner@example.com" />
+              <input value={courseraEmail} onChange={(e) => setCourseraEmail(e.target.value)} style={inputStyle} className="coursera-input" placeholder="learner@example.com" />
             </div>
 
-            <div>
+            <div style={{ minWidth: 0 }}>
               <label style={labelStyle}>Actor identifier</label>
-              <input value={actorIdentifier} onChange={(e) => setActorIdentifier(e.target.value)} style={inputStyle} placeholder="optional stable Coursera actor id" />
+              <input value={actorIdentifier} onChange={(e) => setActorIdentifier(e.target.value)} style={inputStyle} className="coursera-input" placeholder="optional stable Coursera actor id" />
             </div>
 
-            <div>
+            <div style={{ minWidth: 0 }}>
               <label style={labelStyle}>Actor home page</label>
-              <input value={actorHomePage} onChange={(e) => setActorHomePage(e.target.value)} style={inputStyle} placeholder="optional actor home page" />
+              <input value={actorHomePage} onChange={(e) => setActorHomePage(e.target.value)} style={inputStyle} className="coursera-input" placeholder="optional actor home page" />
             </div>
           </div>
 
           <div>
             <label style={labelStyle}>Notes</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...inputStyle, minHeight: '5rem', resize: 'vertical' }} placeholder="Why this mapping exists, test notes, etc." />
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...inputStyle, minHeight: '5rem', resize: 'vertical' }} className="coursera-input" placeholder="Why this mapping exists, test notes, etc." />
           </div>
 
           {selectedMember && (
-            <div style={{ padding: '0.85rem 1rem', borderRadius: '0.75rem', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' }}>
+            <div className="coursera-selected-member" style={{ padding: '0.85rem 1rem', borderRadius: '0.75rem', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' }}>
               Mapping to <strong style={{ color: 'var(--color-on-surface)' }}>{selectedMember.fullName}</strong> ({selectedMember.email})
               {selectedMember.programTitle ? ` in ${selectedMember.programTitle}` : ''}.
             </div>
@@ -209,13 +213,13 @@ export default function CourseraMappingsAdmin({
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button type="submit" className="btn btn-primary" disabled={isPending || !userId || (!courseraEmail && !actorIdentifier)}>
+          <div className="coursera-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button type="submit" className="btn btn-primary coursera-action-button" disabled={isPending || !userId || (!courseraEmail && !actorIdentifier)}>
               {isPending ? 'Saving…' : 'Save mapping'}
             </button>
             <button
               type="button"
-              className="btn btn-outline"
+              className="btn btn-outline coursera-action-button"
               onClick={() => {
                 setUserId('');
                 setCourseraEmail('');
@@ -229,6 +233,57 @@ export default function CourseraMappingsAdmin({
             </button>
           </div>
         </form>
+
+        <style jsx>{`
+          .coursera-form-grid {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          .coursera-input {
+            box-sizing: border-box;
+            min-width: 0;
+          }
+
+          .coursera-selected-member {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+          }
+
+          .coursera-actions {
+            align-items: stretch;
+          }
+
+          .coursera-action-button {
+            min-height: 44px;
+          }
+
+          @media (max-width: 640px) {
+            .coursera-header-row {
+              gap: 0.75rem;
+            }
+
+            .coursera-chip-row {
+              width: 100%;
+              gap: 0.5rem;
+            }
+
+            .coursera-actions {
+              display: grid;
+              grid-template-columns: minmax(0, 1fr);
+            }
+
+            .coursera-action-button {
+              width: 100%;
+              justify-content: center;
+            }
+          }
+
+          @media (min-width: 860px) {
+            .coursera-form-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+          }
+        `}</style>
       </section>
 
       <section style={cardStyle}>

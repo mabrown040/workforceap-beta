@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { getCourseraConfig } from '@/lib/coursera/config';
+import { getCourseraAccessToken } from '@/lib/coursera/oauth';
 
 export type CourseraLearnerSkillsetProgress = {
   learnerName: string | null;
@@ -25,9 +26,7 @@ export async function fetchCourseraLearnerSkillsetProgress(args: {
   skillsetIds: string[];
 }) {
   const config = getCourseraConfig();
-  if (!config.apiToken) {
-    throw new Error('Coursera API token is not configured');
-  }
+  const accessToken = await getCourseraAccessToken();
 
   const params = new URLSearchParams();
   if (args.externalUserId) params.append('externalUserId', args.externalUserId);
@@ -40,7 +39,7 @@ export async function fetchCourseraLearnerSkillsetProgress(args: {
     `${config.apiBaseUrl}/enterprise/programs/${encodeURIComponent(args.programId)}/skillsets/learner-progress?${params.toString()}`,
     {
       headers: {
-        Authorization: `Bearer ${config.apiToken}`,
+        Authorization: `Bearer ${accessToken}`,
         Accept: 'application/json',
       },
       cache: 'no-store',

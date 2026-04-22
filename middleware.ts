@@ -14,6 +14,7 @@ const PORTAL_PATHS = [
   // '/jobs' is intentionally public — page handles auth state inline
 ];
 const ADMIN_PATHS = ['/admin'];
+const ADMIN_API_PATHS = ['/api/admin'];
 
 function isPortalPath(pathname: string) {
   return PORTAL_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -21,6 +22,10 @@ function isPortalPath(pathname: string) {
 
 function isAdminPath(pathname: string) {
   return ADMIN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function isAdminApiPath(pathname: string) {
+  return ADMIN_API_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 function isProtectedPath(pathname: string) {
@@ -83,12 +88,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // MFA enforcement for admin paths
-  if (isAdminPath(request.nextUrl.pathname) && user) {
+  // MFA enforcement for admin UI and admin API paths
+  if ((isAdminPath(request.nextUrl.pathname) || isAdminApiPath(request.nextUrl.pathname)) && user) {
     const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     
     // If at aal1 and next level is aal2, MFA verification is required
     if (aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2') {
+      if (isAdminApiPath(pathname)) {
+        return NextResponse.json({ error: 'MFA required' }, { status: 403 });
+      }
+
       // Don't redirect if already on verify-mfa or setup-mfa
       if (!pathname.startsWith('/verify-mfa') && !pathname.startsWith('/setup-mfa')) {
         const verifyUrl = new URL('/verify-mfa', request.url);

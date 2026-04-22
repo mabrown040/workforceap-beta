@@ -29,11 +29,14 @@ function extractCourseSlugFromObjectId(objectId: string | null) {
 }
 
 export type ParsedCompletionStatement = {
-  email: string;
+  email?: string;
+  actorIdentifier?: string;
+  actorHomePage?: string;
   courseName?: string;
   courseSlug?: string;
   statementId?: string;
   verbId?: string;
+  rawStatement: Record<string, unknown>;
 };
 
 export function parseCompletionStatements(payload: unknown): ParsedCompletionStatement[] {
@@ -48,7 +51,12 @@ export function parseCompletionStatements(payload: unknown): ParsedCompletionSta
       : null;
     const mbox = typeof actor?.mbox === 'string' ? actor.mbox.trim() : '';
     const email = mbox.toLowerCase().startsWith('mailto:') ? mbox.slice(7).trim().toLowerCase() : mbox.toLowerCase();
-    if (!email) return [];
+    const account = actor?.account && typeof actor.account === 'object'
+      ? (actor.account as Record<string, unknown>)
+      : null;
+    const actorIdentifier = typeof account?.name === 'string' ? account.name.trim() : '';
+    const actorHomePage = typeof account?.homePage === 'string' ? account.homePage.trim() : '';
+    if (!email && !actorIdentifier) return [];
 
     const verb = statement.verb && typeof statement.verb === 'object'
       ? (statement.verb as Record<string, unknown>)
@@ -81,11 +89,14 @@ export function parseCompletionStatements(payload: unknown): ParsedCompletionSta
     const statementId = typeof statement.id === 'string' ? statement.id : undefined;
 
     return [{
-      email,
+      email: email || undefined,
+      actorIdentifier: actorIdentifier || undefined,
+      actorHomePage: actorHomePage || undefined,
       courseName,
       courseSlug,
       statementId,
       verbId: verbId || undefined,
+      rawStatement: statement,
     }];
   });
 }

@@ -19,6 +19,8 @@ Use these values in Coursera:
 - `GET /api/xapi/about` — minimal xAPI about endpoint
 - `POST /api/xapi/statements` — statement intake endpoint
 - `GET /api/xapi/config` — readiness/debug endpoint, no secrets returned
+- `GET /api/admin/coursera/mappings` — admin-only list of manual mappings plus recent unmatched xAPI events
+- `POST /api/admin/coursera/mappings` — admin-only manual Coursera identity mapping endpoint
 
 ## Supported statement assumptions
 
@@ -35,6 +37,13 @@ Current parser supports the pragmatic subset needed for course completion sync:
   - slug derived from `object.id`
 
 Matched completions are sent through `lib/member/courseCompletion.ts`, which marks the course complete in WAP and unlocks next-step workflow.
+
+Identity resolution order is now:
+1. manual actor mapping (`actor.account.name` + `actor.account.homePage` when present)
+2. manual Coursera email mapping
+3. direct email match from `actor.mbox`
+
+Unmatched and error events are logged for admin review.
 
 ## Environment variables
 
@@ -54,4 +63,15 @@ If these are omitted, WAP falls back to:
 
 - This is intentionally focused on Coursera → WAP completion flow, not a full xAPI LRS implementation.
 - If Coursera requires additional xAPI routes later, extend under `app/api/xapi/`.
-- If learner emails in Coursera do not match WAP member emails, `Mbox` mode will not resolve users. In that case switch to account/external-id mapping later.
+- If learner emails in Coursera do not match WAP member emails, use `POST /api/admin/coursera/mappings` to bind a Coursera email or actor identity to a WAP user.
+- Manual mapping payload shape:
+
+```json
+{
+  "userId": "<wap-user-id>",
+  "courseraEmail": "learner@example.com",
+  "actorIdentifier": "optional-coursera-actor-id",
+  "actorHomePage": "optional-actor-home-page",
+  "notes": "optional admin note"
+}
+```

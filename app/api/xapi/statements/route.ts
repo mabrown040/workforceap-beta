@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db/prisma';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
+import {
+  recordXapiEvent,
+  resolveXapiUser,
+} from '@/lib/xapi/mappings';
 import { parseCompletionStatements } from '@/lib/xapi/statements';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 
@@ -32,14 +35,29 @@ export async function POST(request: Request) {
   const completions: Array<Record<string, unknown>> = [];
 
   for (const statement of statements) {
-    const member = await prisma.user.findUnique({
-      where: { email: statement.email },
-      select: { id: true, email: true },
-    });
+    const identity = {
+      email: statement.email,
+      actorIdentifier: statement.actorIdentifier,
+      actorHomePage: statement.actorHomePage,
+    };
 
-    if (!member) {
+    const resolvedUser = await resolveXapiUser(identity);
+
+    if (!resolvedUser) {
+      await recordXapiEvent({
+        statementId: statement.statementId,
+        identity,
+        courseSlug: statement.courseSlug,
+        courseName: statement.courseName,
+        verbId: statement.verbId,
+        completionStatus: 'unmatched',
+        error: 'No matching member identity found',
+        rawPayload: statement.rawStatement,
+      });
+
       completions.push({
         email: statement.email,
+        actorIdentifier: statement.actorIdentifier,
         statementId: statement.statementId,
         ok: false,
         error: 'Member not found',
@@ -49,23 +67,56 @@ export async function POST(request: Request) {
 
     try {
       const result = await completeMemberCourse({
-        userId: member.id,
+        userId: resolvedUser.userId,
         courseSlug: statement.courseSlug,
         courseName: statement.courseName,
         source: 'coursera-webhook',
       });
 
+      await recordXapiEvent({
+        statementId: statement.statementId,
+        identity,
+        courseSlug: statement.courseSlug,
+        courseName: statement.courseName,
+        verbId: statement.verbId,
+        matchedUserId: resolvedUser.userId,
+        mappingMethod: resolvedUser.mappingMethod,
+        completionStatus: 'completed',
+        rawPayload: statement.rawStatement,
+      });
+
       completions.push({
         email: statement.email,
+        actorIdentifier: statement.actorIdentifier,
         statementId: statement.statementId,
+        matchedUserId: resolvedUser.userId,
+        mappingMethod: resolvedUser.mappingMethod,
         ...result,
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to process statement';
+
+      await recordXapiEvent({
+        statementId: statement.statementId,
+        identity,
+        courseSlug: statement.courseSlug,
+        courseName: statement.courseName,
+        verbId: statement.verbId,
+        matchedUserId: resolvedUser.userId,
+        mappingMethod: resolvedUser.mappingMethod,
+        completionStatus: 'error',
+        error: message,
+        rawPayload: statement.rawStatement,
+      });
+
       completions.push({
         email: statement.email,
+        actorIdentifier: statement.actorIdentifier,
         statementId: statement.statementId,
+        matchedUserId: resolvedUser.userId,
+        mappingMethod: resolvedUser.mappingMethod,
         ok: false,
-        error: error instanceof Error ? error.message : 'Unable to process statement',
+        error: message,
       });
     }
   }

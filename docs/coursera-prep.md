@@ -9,6 +9,7 @@ This branch scaffolds the WorkforceAP side of Coursera before credentials are ad
 - Member enterprise sync probe: `/api/member/coursera/sync`
 - Secure webhook intake for completions: `/api/webhooks/coursera`
 - xAPI auth + intake endpoints: `/api/xapi/oauth/token`, `/api/xapi/statements`, `/api/xapi/about`
+- Admin mapping/debug endpoint for Coursera identities: `/api/admin/coursera/mappings`
 - Member-facing portal page: `/dashboard/coursera`
 - Shared course completion helper so webhook completions and member self-reporting stay aligned
 

@@ -29,6 +29,16 @@ export default function MemberDashboardVoiceSection() {
           ctaLabel="Talk to AI coach"
         />
         <VoiceCoachLauncherCard
+          badge="Quick intro"
+          icon="🎤"
+          glowColor="#7c3aed"
+          gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
+          title="AI Elevator Speech"
+          description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
+          href="/dashboard/ai-tools/elevator-pitch"
+          ctaLabel="Build elevator speech"
+        />
+        <VoiceCoachLauncherCard
           {...resumeCoachVoiceSurface}
           title="Resume & Experience"
           description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."

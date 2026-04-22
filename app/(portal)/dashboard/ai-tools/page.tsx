@@ -10,8 +10,8 @@ import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Career Toolkit',
-  description: 'AI-powered tools to strengthen your resume, practice interviews, and more.',
+  title: 'AI Toolkit',
+  description: 'Five core AI tools to strengthen your resume, practice interviews, and sharpen your story.',
   path: '/dashboard/ai-tools',
 });
 
@@ -19,7 +19,7 @@ export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
 
-  // Flatten all tools into a single list for the quick-access grid
+  // Flatten the 5 core tools into a single list for the quick-access grid.
   const allTools = AI_TOOLS_HUB.flatMap((cat) =>
     cat.links.map((link) => ({ ...link, icon: cat.icon, category: cat.title }))
   );
@@ -30,7 +30,7 @@ export default async function AIToolsPage() {
         <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
             { label: 'Member Portal', href: '/dashboard' },
-            { label: 'AI Career Toolkit' },
+            { label: 'AI Toolkit' },
           ]} />
         </div>
         <section
@@ -70,7 +70,7 @@ export default async function AIToolsPage() {
             Beta Access
           </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
-            AI Career Toolkit
+            AI Toolkit
           </h1>
           <p
             style={{
@@ -81,7 +81,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            AI-powered tools to strengthen your resume, practice interviews, and stand out to employers.
+            Five core AI tools to help members get clear, get prepared, and stand out to employers.
           </p>
 
           <div className="wa-block wa-md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
@@ -120,7 +120,7 @@ export default async function AIToolsPage() {
                   className="wa-text-base wa-font-bold"
                   style={{ color: 'var(--color-white)', margin: 0, position: 'relative', zIndex: 1 }}
                 >
-                  Smart Recommendations
+                  Your 5 core tools
                 </h2>
                 <p
                   style={{
@@ -131,7 +131,7 @@ export default async function AIToolsPage() {
                     zIndex: 1,
                   }}
                 >
-                  AI-driven paths tailored for your goals.
+                  Built for resume help, interview prep, and a stronger intro.
                 </p>
               </div>
             </PortalCard>
@@ -154,12 +154,12 @@ export default async function AIToolsPage() {
         <VoiceCoachesPromo />
       </div>
 
-      {/* All tools in one dense grid — no scrolling required */}
+      {/* Core tools in one dense grid */}
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>grid_view</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            All Tools
+            All 5 Tools
           </h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.625rem' }}>

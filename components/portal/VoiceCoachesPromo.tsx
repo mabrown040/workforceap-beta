@@ -32,10 +32,10 @@ export default function VoiceCoachesPromo() {
           icon="🎤"
           glowColor="#7c3aed"
           gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
-          title="Build Elevator Speech"
-          description="AI writes your 10-20 second elevator statement — then rehearse it on camera."
+          title="AI Elevator Speech"
+          description="AI writes your 10 to 20 second elevator statement, saves it, and emails it to you before rehearsal."
           href="/dashboard/ai-tools/elevator-pitch"
-          ctaLabel="Build elevator speech"
+          ctaLabel="Open AI elevator speech"
         />
 
         <VoiceCoachLauncherCard

@@ -52,6 +52,16 @@ type JobMatchOutput = {
   gaps?: string[];
 };
 
+type ElevatorPitchOutput = {
+  type?: string;
+  name?: string;
+  targetRole?: string;
+  strengths?: string;
+  certifications?: string;
+  industry?: string;
+  pitch?: string;
+};
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function tryParseJson(raw: string): unknown {
@@ -335,6 +345,41 @@ function JobMatchRenderer({ raw }: { raw: string }) {
 }
 
 function ProseSectionRenderer({ raw, toolLabel }: { raw: string; toolLabel?: string }) {
+  const parsed = tryParseJson(raw) as ElevatorPitchOutput | null;
+  if (parsed && parsed.type === 'elevator_pitch' && parsed.pitch) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div>
+          <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
+            AI Elevator Speech
+          </p>
+          <p style={{ fontSize: '1rem', lineHeight: 1.7, color: 'var(--color-on-surface)', margin: 0 }}>
+            {parsed.pitch}
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+          {parsed.targetRole ? (
+            <div>
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                Target role
+              </p>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{parsed.targetRole}</p>
+            </div>
+          ) : null}
+          {parsed.industry ? (
+            <div>
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                Industry
+              </p>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{parsed.industry}</p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   const sections = raw.split(/\n(?=#{1,3}\s)/g).filter((s) => s.trim());
 
   if (sections.length <= 1) {

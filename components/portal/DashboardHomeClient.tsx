@@ -633,7 +633,7 @@ export default function DashboardHomeClient({
                 Talk to AI coach
               </Link>
               <Link href="/dashboard/ai-tools" className="btn btn-outline" onClick={() => handleDashboardAction('ai_tools_clicked')}>
-                Open AI tools
+                Open AI Toolkit
               </Link>
             </div>
           </div>
@@ -648,7 +648,7 @@ export default function DashboardHomeClient({
             <div className="portal-quick-actions-grid" style={{ marginTop: '1rem' }}>
               {[
                 { href: '/dashboard/weekly-recap', label: 'Weekly Recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
-                { href: '/dashboard/ai-tools', label: 'Career Tools', desc: 'Resume, interview, job match', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+                { href: '/dashboard/ai-tools', label: 'AI Toolkit', desc: 'Resume, interview, elevator speech', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
                 { href: '/dashboard/skills-assessment', label: 'Assessments', desc: 'Skills evaluation', icon: 'history_edu', action: 'quicklink_assessments_clicked' },

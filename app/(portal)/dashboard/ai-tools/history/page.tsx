@@ -29,6 +29,18 @@ const TOOL_LABELS: Record<string, string> = {
   skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
+function getHistoryToolLabel(toolType: string, output: string): string {
+  if (toolType === 'career_counselor') {
+    try {
+      const parsed = JSON.parse(output) as { type?: string };
+      if (parsed?.type === 'elevator_pitch') return 'AI Elevator Speech';
+    } catch {
+      // ignore
+    }
+  }
+  return TOOL_LABELS[toolType] ?? toolType;
+}
+
 type Props = { searchParams: Promise<{ tool?: string }> };
 
 export default async function AIHistoryPage({ searchParams }: Props) {
@@ -45,7 +57,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
 
   const withLabels = results.map((r) => ({
     ...r,
-    toolLabel: TOOL_LABELS[r.toolType] ?? r.toolType,
+    toolLabel: getHistoryToolLabel(r.toolType, r.output),
   }));
 
   return (

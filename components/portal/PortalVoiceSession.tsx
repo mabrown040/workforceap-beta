@@ -589,25 +589,42 @@ export default function PortalVoiceSession({
     if (!completionEndpoint || completionPostedRef.current) return;
     if (transcriptRef.current.length === 0) return;
 
-    completionPostedRef.current = true;
+    const payload = JSON.stringify({
+      ...(completionPayload ?? {}),
+      transcript: transcriptRef.current.map((turn) => ({
+        role: turn.speaker === 'agent' ? 'agent' : 'user',
+        text: turn.text,
+      })),
+    });
 
-    try {
-      const res = await fetch(completionEndpoint, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...(completionPayload ?? {}),
-          transcript: transcriptRef.current,
-        }),
-      });
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        const res = await fetch(completionEndpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+        });
 
-      if (!res.ok) {
+        if (res.ok) {
+          completionPostedRef.current = true;
+          return;
+        }
+
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
-        console.error('[voice] completion persistence failed:', data?.error ?? res.statusText);
+        console.error(
+          `[voice] completion persistence failed (attempt ${attempt}):`,
+          data?.error ?? res.statusText
+        );
+      } catch (err) {
+        console.error(`[voice] completion persistence error (attempt ${attempt}):`, err);
       }
-    } catch (err) {
-      console.error('[voice] completion persistence error:', err);
+
+      completionPostedRef.current = false;
+
+      if (attempt < 2) {
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+      }
     }
   }
 

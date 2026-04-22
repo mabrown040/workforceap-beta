@@ -12,10 +12,20 @@ interface FeedbackBody {
 
 type TranscriptTurn = { role: 'agent' | 'user'; text: string };
 
+const FALLBACK_STEPS = [
+  'Update your resume with your most recent experience and skills',
+  'Research 3 job listings that match your background and save them',
+  'Reach out to one person in your network this week to let them know you are looking',
+];
+
 function normalizeTranscript(transcript: { role: 'agent' | 'user'; text: string }[]): TranscriptTurn[] {
   return transcript
     .map((turn): TranscriptTurn => ({
-      role: turn.role === 'agent' ? 'agent' : 'user',
+      role:
+        (turn as { role?: string; speaker?: string }).role === 'agent' ||
+        (turn as { role?: string; speaker?: string }).speaker === 'agent'
+          ? 'agent'
+          : 'user',
       text: typeof turn.text === 'string' ? turn.text.trim() : '',
     }))
     .filter((turn) => turn.text.length > 0);
@@ -119,16 +129,21 @@ export async function POST(req: NextRequest) {
 
   if (transcript.length === 0) {
     return NextResponse.json({
-      steps: [
-        'Update your resume with your most recent experience and skills',
-        'Research 3 job listings that match your background and save them',
-        'Reach out to one person in your network this week to let them know you are looking',
-      ],
+      steps: FALLBACK_STEPS,
     });
   }
 
   try {
-    const steps = await generateActionPlan(transcript);
+    let steps = FALLBACK_STEPS;
+    try {
+      const generatedSteps = await generateActionPlan(transcript);
+      if (generatedSteps.length > 0) {
+        steps = generatedSteps;
+      }
+    } catch (planErr) {
+      console.error('Career counselor action-plan generation failed, using fallback steps:', planErr);
+    }
+
     const output = buildHistoryOutput(transcript, steps);
 
     await ensureUserInDb(user);
@@ -162,7 +177,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ steps });
   } catch (err) {
-    console.error('Career counselor feedback error:', err);
-    return NextResponse.json({ error: 'Failed to generate action plan' }, { status: 500 });
+    console.error('Career counselor feedback persistence error:', err);
+    return NextResponse.json({ error: 'Failed to save transcript' }, { status: 500 });
   }
 }

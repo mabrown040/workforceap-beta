@@ -85,6 +85,7 @@ export default async function CareerBusinessCoachPage() {
         >
           <PortalVoiceSession
             sessionEndpoint="/api/member/career-business-coach/voice-session"
+            completionEndpoint="/api/member/career-business-coach/completion"
             title="Career and Business Coach"
             description="Share your challenge — project management, sales, marketing, or career growth."
             accent="#2563eb"

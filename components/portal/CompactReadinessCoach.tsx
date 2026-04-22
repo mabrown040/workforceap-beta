@@ -67,6 +67,7 @@ export default function CompactReadinessCoach() {
         >
           <PortalVoiceSession
             sessionEndpoint="/api/member/readiness/voice-session"
+            completionEndpoint="/api/counselor/feedback"
             title="Talk through your readiness plan"
             description="Ask about interviews, certifications, LinkedIn, or your next milestone."
             accent={ACCENT}

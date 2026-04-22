@@ -94,6 +94,10 @@ export type PortalVoiceSessionProps = {
   listeningLabel?: string;
   /** If set, transcript will be parsed for suggestions after session ends */
   suggestionsEndpoint?: string;
+  /** If set, transcript will be posted here after the session completes. */
+  completionEndpoint?: string;
+  /** Extra JSON fields to send alongside the transcript to `completionEndpoint`. */
+  completionPayload?: Record<string, unknown>;
   /** Called when user accepts a suggestion */
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
   /**
@@ -177,6 +181,8 @@ export default function PortalVoiceSession({
   speakingLabel = 'Assistant is speaking…',
   listeningLabel = 'Listening — speak when ready',
   suggestionsEndpoint,
+  completionEndpoint,
+  completionPayload,
   onAcceptSuggestion,
   onPostSessionSuggestions,
   delegatePostSessionSuggestions = false,
@@ -207,6 +213,7 @@ export default function PortalVoiceSession({
   const voiceErrorRef = useRef('');
   const disconnectIssueRef = useRef(false);
   const lastLiveDraftSentRef = useRef<string | null>(null);
+  const completionPostedRef = useRef(false);
   const sessionPayloadRef = useRef(sessionPayload);
   sessionPayloadRef.current = sessionPayload;
   /** Scroll container for live transcript — never use scrollIntoView (it scrolls the whole page). */
@@ -318,6 +325,7 @@ export default function PortalVoiceSession({
 
   async function startSession() {
     disconnectIssueRef.current = false;
+    completionPostedRef.current = false;
     setVoiceError('');
     setLiveLines([]);
     liveTranscriptStickBottomRef.current = true;
@@ -577,12 +585,57 @@ export default function PortalVoiceSession({
     }
   }
 
+  async function persistCompletionTranscript() {
+    if (!completionEndpoint || completionPostedRef.current) return;
+    if (transcriptRef.current.length === 0) return;
+
+    const payload = JSON.stringify({
+      ...(completionPayload ?? {}),
+      transcript: transcriptRef.current.map((turn) => ({
+        role: turn.speaker === 'agent' ? 'agent' : 'user',
+        text: turn.text,
+      })),
+    });
+
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        const res = await fetch(completionEndpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+        });
+
+        if (res.ok) {
+          completionPostedRef.current = true;
+          return;
+        }
+
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        console.error(
+          `[voice] completion persistence failed (attempt ${attempt}):`,
+          data?.error ?? res.statusText
+        );
+      } catch (err) {
+        console.error(`[voice] completion persistence error (attempt ${attempt}):`, err);
+      }
+
+      completionPostedRef.current = false;
+
+      if (attempt < 2) {
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+      }
+    }
+  }
+
   async function endSession() {
     intentionalRef.current = true;
     disconnectIssueRef.current = false;
     convRef.current?.endSession();
     setPhase('done');
     setAgentSpeaking(false);
+
+    await persistCompletionTranscript();
 
     // Parse suggestions from transcript
     if (suggestionsEndpoint && transcriptRef.current.length > 0) {
@@ -625,6 +678,7 @@ export default function PortalVoiceSession({
     setAgentSpeaking(false);
     setSuggestions([]);
     setDismissed(new Set());
+    completionPostedRef.current = false;
     transcriptRef.current = [];
     setLiveLines([]);
   }

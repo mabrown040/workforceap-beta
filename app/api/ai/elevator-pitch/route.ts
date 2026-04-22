@@ -4,6 +4,8 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { prisma } from '@/lib/db/prisma';
+import { getVoiceCoachTranscriptRecipients, sendVoiceCoachArtifactEmail } from '@/lib/email';
 
 /**
  * POST /api/ai/elevator-pitch
@@ -62,12 +64,52 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     try {
       await ensureUserInDb(user);
+      const trimmedPitch = pitch.trim();
+      const savedOutput = [
+        'Elevator pitch',
+        '--------------',
+        `Name: ${name.trim()}`,
+        `Target role: ${targetRole.trim()}`,
+        industry?.trim() ? `Industry: ${industry.trim()}` : '',
+        strengths?.trim() ? `Strengths: ${strengths.trim()}` : '',
+        certifications?.trim() ? `Certifications: ${certifications.trim()}` : '',
+        '',
+        'Generated pitch',
+        '---------------',
+        trimmedPitch,
+      ].filter(Boolean).join('\n');
+
       await saveAIToolResult(
         user.id,
         'career_counselor',
         `Elevator pitch for ${targetRole.trim()}`,
-        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch })
+        savedOutput
       );
+
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { fullName: true, email: true },
+        });
+
+        const recipients = getVoiceCoachTranscriptRecipients();
+        if (recipients.length > 0) {
+          await sendVoiceCoachArtifactEmail({
+            to: recipients,
+            memberName: dbUser?.fullName?.trim() || user.email || name.trim() || 'WorkforceAP member',
+            memberEmail: dbUser?.email?.trim() || user.email || null,
+            coachLabel: 'Elevator Pitch Builder',
+            artifactTitle: 'Generated pitch',
+            artifactBody: trimmedPitch,
+            highlights: [
+              `Target role: ${targetRole.trim()}`,
+              industry?.trim() ? `Industry: ${industry.trim()}` : '',
+            ].filter(Boolean),
+          });
+        }
+      } catch (emailError) {
+        console.error('[elevator-pitch] failed to email artifact', emailError);
+      }
     } catch (persistError) {
       console.error('[elevator-pitch] failed to persist result', persistError);
     }

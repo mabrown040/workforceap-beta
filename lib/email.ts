@@ -33,6 +33,10 @@ import {
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 const ADMIN_EMAIL = 'info@workforceap.org';
+const DEFAULT_VOICE_COACH_TRANSCRIPT_RECIPIENTS = [
+  'michael.brown@workforceap.org',
+  'michael.brown2@workforceap.org',
+];
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -42,6 +46,164 @@ function getResend(): Resend | null {
 
 function getFrom(): string {
   return process.env.EMAIL_FROM || 'noreply@workforceap.org';
+}
+
+export function getVoiceCoachTranscriptRecipients(extra: string[] = []): string[] {
+  const configured = [
+    process.env.VOICE_COACH_TRANSCRIPT_EMAILS ?? '',
+    process.env.VOICE_INTERVIEW_TRANSCRIPT_EMAILS ?? '',
+  ]
+    .flatMap((value) => value.split(','))
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+  return Array.from(
+    new Set(
+      [...DEFAULT_VOICE_COACH_TRANSCRIPT_RECIPIENTS, ...configured, ...extra]
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+}
+
+export async function sendVoiceCoachTranscriptEmail(params: {
+  to: string[];
+  memberName: string;
+  memberEmail?: string | null;
+  coachLabel: string;
+  transcriptTurns: { role: 'agent' | 'user'; text: string }[];
+  highlights?: string[];
+  sessionId?: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendVoiceCoachTranscriptEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const recipients = Array.from(
+    new Set(
+      params.to
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+  if (recipients.length === 0) {
+    return { ok: false, error: 'No recipients configured' };
+  }
+
+  const transcriptHtml = params.transcriptTurns.length
+    ? params.transcriptTurns
+        .map((turn) => {
+          const speaker = turn.role === 'agent' ? 'Coach' : 'Member';
+          return `<p style="margin:0 0 0.75rem;"><strong>${speaker}:</strong> ${escapeHtml(turn.text)}</p>`;
+        })
+        .join('')
+    : '<p style="margin:0;">No transcript turns were captured.</p>';
+
+  const highlightsHtml = params.highlights?.length
+    ? `<p><strong>Highlights</strong></p><ul>${params.highlights
+        .map((item) => `<li>${escapeHtml(item)}</li>`)
+        .join('')}</ul>`
+    : '';
+
+  const bodyHtml = `
+    <p>A voice coach transcript was saved and emailed automatically.</p>
+    <ul>
+      <li><strong>Coach:</strong> ${escapeHtml(params.coachLabel)}</li>
+      <li><strong>Member:</strong> ${escapeHtml(params.memberName)}</li>
+      ${params.memberEmail ? `<li><strong>Member email:</strong> ${escapeHtml(params.memberEmail)}</li>` : ''}
+      ${params.sessionId ? `<li><strong>Session ID:</strong> ${escapeHtml(params.sessionId)}</li>` : ''}
+    </ul>
+    ${highlightsHtml}
+    <p><strong>Transcript</strong></p>
+    <div style="padding:16px;border-radius:12px;background:#f8f5f3;border:1px solid #eadfdb;">${transcriptHtml}</div>
+  `;
+
+  const html = brandedEmailLayout({
+    title: `${params.coachLabel} transcript`,
+    bodyHtml,
+    ctaText: 'Open admin',
+    ctaUrl: `${SITE_URL}/admin`,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: recipients,
+      subject: sanitizeEmailSubjectLine(`${params.coachLabel} transcript — ${params.memberName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendVoiceCoachTranscriptEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+export async function sendVoiceCoachArtifactEmail(params: {
+  to: string[];
+  memberName: string;
+  memberEmail?: string | null;
+  coachLabel: string;
+  artifactTitle: string;
+  artifactBody: string;
+  highlights?: string[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendVoiceCoachArtifactEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const recipients = Array.from(
+    new Set(
+      params.to
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+  if (recipients.length === 0) {
+    return { ok: false, error: 'No recipients configured' };
+  }
+
+  const highlightsHtml = params.highlights?.length
+    ? `<p><strong>Highlights</strong></p><ul>${params.highlights
+        .map((item) => `<li>${escapeHtml(item)}</li>`)
+        .join('')}</ul>`
+    : '';
+
+  const bodyHtml = `
+    <p>A voice coach artifact was saved and emailed automatically.</p>
+    <ul>
+      <li><strong>Coach:</strong> ${escapeHtml(params.coachLabel)}</li>
+      <li><strong>Member:</strong> ${escapeHtml(params.memberName)}</li>
+      ${params.memberEmail ? `<li><strong>Member email:</strong> ${escapeHtml(params.memberEmail)}</li>` : ''}
+    </ul>
+    ${highlightsHtml}
+    <p><strong>${escapeHtml(params.artifactTitle)}</strong></p>
+    <div style="padding:16px;border-radius:12px;background:#f8f5f3;border:1px solid #eadfdb;white-space:pre-wrap;">${escapeHtml(params.artifactBody)}</div>
+  `;
+
+  const html = brandedEmailLayout({
+    title: `${params.coachLabel} artifact`,
+    bodyHtml,
+    ctaText: 'Open admin',
+    ctaUrl: `${SITE_URL}/admin`,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: recipients,
+      subject: sanitizeEmailSubjectLine(`${params.coachLabel} artifact — ${params.memberName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendVoiceCoachArtifactEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
 }
 
 export async function sendVoiceInterviewTranscriptEmail(params: {

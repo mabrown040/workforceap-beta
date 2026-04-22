@@ -511,6 +511,7 @@ export default async function AdminPage() {
                 { icon: 'handshake', label: 'Partners', desc: 'Community organizations', href: '/admin/partners' },
                 { icon: 'task_alt', label: 'Assessments', desc: 'Skills assessments and scores', href: '/admin/assessments' },
                 { icon: 'school', label: 'Programs', desc: 'Training tracks and courses', href: '/admin/programs' },
+                { icon: 'sync', label: 'Coursera', desc: 'Identity mapping and xAPI review', href: '/admin/coursera' },
               ].map((item) => (
                 <Link key={item.label} href={item.href} className="portal-action-row" style={{ gap: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -643,7 +644,7 @@ export default async function AdminPage() {
             { icon: 'people', label: 'All Members', href: '/admin/members' },
             { icon: 'business', label: 'Employers', href: '/admin/employers' },
             { icon: 'handshake', label: 'Partners', href: '/admin/partners' },
-            { icon: 'work', label: 'Job Board', href: '/admin/jobs' },
+            { icon: 'sync', label: 'Coursera', href: '/admin/coursera' },
           ].map((action) => (
             <Link key={action.label} href={action.href}
               className="active:scale-[0.97] wa-transition-transform" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', borderRadius: '0.75rem', textDecoration: 'none', background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)' }}>

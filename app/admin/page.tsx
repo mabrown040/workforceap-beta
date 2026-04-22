@@ -255,37 +255,22 @@ export default async function AdminPage() {
 
   return (
     <PortalPageFrame>
-      {/* ── Mobile Header (≤md) ── */}
-      <div className="wa-md:wa-hidden" style={{ padding: '1.5rem 1.5rem 1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <p className="wa-text-[var(--color-on-surface-variant)] wa-text-xs wa-font-medium wa-tracking-widest wa-uppercase" style={{ marginBottom: '0.25rem' }}>Admin</p>
-            <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-text-[var(--color-on-surface)]">
-              Admin Overview
-            </h1>
+      <PageHeader
+        title="Admin overview"
+        subtitle="See who's signing up, how training is going, and where members are getting placed."
+        action={
+          <div className="employer-dash-header-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <Link href="/admin/pipeline" className="btn btn-outline">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">account_tree</span>
+              Pipeline
+            </Link>
+            <Link href="/admin/members" className="btn btn-primary">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">groups</span>
+              All Members
+            </Link>
           </div>
-        </div>
-      </div>
-
-      {/* ── Desktop Header ── */}
-      <div className="wa-hidden wa-md:wa-block" style={{ marginBottom: '2.5rem' }}>
-        <PageHeader
-          title="Admin Dashboard"
-          subtitle="See who's signing up, how training is going, and where members are getting placed."
-          action={
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link href="/admin/pipeline" className="btn btn-outline">
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">account_tree</span>
-                Pipeline
-              </Link>
-              <Link href="/admin/members" className="btn btn-primary">
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">groups</span>
-                All Members
-              </Link>
-            </div>
-          }
-        />
-      </div>
+        }
+      />
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (

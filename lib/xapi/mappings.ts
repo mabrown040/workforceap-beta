@@ -49,13 +49,13 @@ export async function ensureCourseraMappingTables() {
       await prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS coursera_identity_mappings (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           coursera_email TEXT,
           actor_identifier TEXT,
           actor_home_page TEXT,
           source TEXT NOT NULL DEFAULT 'manual',
           notes TEXT,
-          created_by_user_id UUID,
+          created_by_user_id TEXT,
           last_seen_at TIMESTAMPTZ,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -92,7 +92,7 @@ export async function ensureCourseraMappingTables() {
           course_slug TEXT,
           course_name TEXT,
           verb_id TEXT,
-          matched_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+          matched_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
           mapping_method TEXT,
           completion_status TEXT NOT NULL DEFAULT 'received',
           error TEXT,
@@ -281,7 +281,7 @@ export async function recordXapiEvent(args: {
         ${courseSlug},
         ${courseName},
         ${verbId},
-        ${matchedUserId ? matchedUserId : null}::uuid,
+        ${matchedUserId ? matchedUserId : null},
         ${mappingMethod},
         ${args.completionStatus},
         ${error},
@@ -326,7 +326,7 @@ export async function recordXapiEvent(args: {
       ${courseSlug},
       ${courseName},
       ${verbId},
-      ${matchedUserId ? matchedUserId : null}::uuid,
+      ${matchedUserId ? matchedUserId : null},
       ${mappingMethod},
       ${args.completionStatus},
       ${error},
@@ -451,13 +451,13 @@ export async function upsertCourseraIdentityMapping(args: {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
       SET
-        user_id = ${args.userId}::uuid,
+        user_id = ${args.userId},
         coursera_email = ${courseraEmail},
         actor_identifier = ${actorIdentifier},
         actor_home_page = ${actorHomePage},
         notes = ${notes},
         source = ${source},
-        created_by_user_id = COALESCE(created_by_user_id, ${createdByUserId ? createdByUserId : null}::uuid),
+        created_by_user_id = COALESCE(created_by_user_id, ${createdByUserId ? createdByUserId : null}),
         updated_at = now(),
         last_seen_at = COALESCE(last_seen_at, now())
       WHERE id = ${existingId}::uuid
@@ -474,13 +474,13 @@ export async function upsertCourseraIdentityMapping(args: {
         created_by_user_id,
         last_seen_at
       ) VALUES (
-        ${args.userId}::uuid,
+        ${args.userId},
         ${courseraEmail},
         ${actorIdentifier},
         ${actorHomePage},
         ${notes},
         ${source},
-        ${createdByUserId ? createdByUserId : null}::uuid,
+        ${createdByUserId ? createdByUserId : null},
         now()
       )
     `;
@@ -502,7 +502,7 @@ export async function upsertCourseraIdentityMapping(args: {
       u.full_name AS "userFullName"
     FROM coursera_identity_mappings cim
     JOIN users u ON u.id = cim.user_id
-    WHERE cim.user_id = ${args.userId}::uuid
+    WHERE cim.user_id = ${args.userId}
       AND (
         (${courseraEmail} IS NOT NULL AND LOWER(cim.coursera_email) = ${courseraEmail})
         OR (${actorIdentifier} IS NOT NULL AND cim.actor_identifier = ${actorIdentifier} AND COALESCE(cim.actor_home_page, '') = ${actorHomePage || ''})

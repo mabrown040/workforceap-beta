@@ -3,9 +3,42 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { chatCompletion } from '@/lib/ai/groq';
+import { prisma } from '@/lib/db/prisma';
+import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
 interface FeedbackBody {
   transcript: { role: 'agent' | 'user'; text: string }[];
+}
+
+type TranscriptTurn = { role: 'agent' | 'user'; text: string };
+
+function normalizeTranscript(transcript: { role: 'agent' | 'user'; text: string }[]): TranscriptTurn[] {
+  return transcript
+    .map((turn): TranscriptTurn => ({
+      role: turn.role === 'agent' ? 'agent' : 'user',
+      text: typeof turn.text === 'string' ? turn.text.trim() : '',
+    }))
+    .filter((turn) => turn.text.length > 0);
+}
+
+function buildHistoryOutput(transcript: TranscriptTurn[], steps: string[]) {
+  const lines: string[] = [];
+  lines.push('Career readiness voice coach transcript');
+  lines.push('');
+  if (steps.length > 0) {
+    lines.push('Action plan');
+    lines.push('-----------');
+    steps.forEach((step, index) => {
+      lines.push(`${index + 1}. ${step}`);
+    });
+    lines.push('');
+  }
+  lines.push('Transcript');
+  lines.push('----------');
+  transcript.forEach((turn) => {
+    lines.push(`${turn.role === 'agent' ? 'Coach' : 'Member'}: ${turn.text}`);
+  });
+  return lines.join('\n').slice(0, 16000);
 }
 
 async function generateActionPlan(transcript: { role: 'agent' | 'user'; text: string }[]): Promise<string[]> {
@@ -82,7 +115,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const transcript = Array.isArray(body.transcript) ? body.transcript : [];
+  const transcript = normalizeTranscript(Array.isArray(body.transcript) ? body.transcript : []);
 
   if (transcript.length === 0) {
     return NextResponse.json({
@@ -96,14 +129,36 @@ export async function POST(req: NextRequest) {
 
   try {
     const steps = await generateActionPlan(transcript);
+    const output = buildHistoryOutput(transcript, steps);
 
     await ensureUserInDb(user);
     await saveAIToolResult(
       user.id,
       'career_counselor',
-      'Voice career counseling session',
-      JSON.stringify({ transcript: transcript.length, steps })
+      'Career readiness voice coach session',
+      output
     );
+
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true, email: true },
+      });
+
+      const recipients = getVoiceCoachTranscriptRecipients();
+      if (recipients.length > 0) {
+        await sendVoiceCoachTranscriptEmail({
+          to: recipients,
+          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+          memberEmail: dbUser?.email?.trim() || user.email || null,
+          coachLabel: 'Career Readiness Coach',
+          transcriptTurns: transcript,
+          highlights: steps,
+        });
+      }
+    } catch (emailErr) {
+      console.error('Career counselor transcript email error:', emailErr);
+    }
 
     return NextResponse.json({ steps });
   } catch (err) {

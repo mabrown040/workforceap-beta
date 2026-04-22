@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
+import {
+  getAdminMfaTrustCookieName,
+  getAdminMfaTrustCookieOptions,
+  issueAdminMfaTrustToken,
+} from '@/lib/auth/mfaTrust';
 
 /**
  * POST /api/auth/verify-mfa
@@ -10,8 +15,9 @@ import { cookies } from 'next/headers';
  * Requires active session with aal1 (from password login).
  */
 export async function POST(request: Request) {
-  const body: { code?: string } = await request.json().catch(() => ({}));
+  const body: { code?: string; trustDevice?: boolean } = await request.json().catch(() => ({}));
   const code = typeof body.code === 'string' ? body.code.trim() : '';
+  const trustDevice = body.trustDevice !== false;
 
   if (!code || code.length < 6) {
     return NextResponse.json({ error: 'Please enter your 6-digit verification code.' }, { status: 400 });
@@ -70,6 +76,20 @@ export async function POST(request: Request) {
 
   if (verifyError) {
     return NextResponse.json({ error: 'Invalid verification code. Please try again.' }, { status: 401 });
+  }
+
+  if (trustDevice) {
+    const token = await issueAdminMfaTrustToken({
+      userId: verifyData.user.id,
+      userAgent: request.headers.get('user-agent'),
+    });
+
+    cookieStore.set(getAdminMfaTrustCookieName(), token, getAdminMfaTrustCookieOptions());
+  } else {
+    cookieStore.set(getAdminMfaTrustCookieName(), '', {
+      ...getAdminMfaTrustCookieOptions(),
+      maxAge: 0,
+    });
   }
 
   // Success — session now has aal2

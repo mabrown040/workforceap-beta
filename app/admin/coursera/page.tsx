@@ -24,21 +24,31 @@ export default async function AdminCourseraPage() {
   if (!user) redirect('/login?redirectTo=/admin/coursera');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const [members, mappings, unmatchedEvents] = await Promise.all([
-    prisma.user.findMany({
-      where: { deletedAt: null, enrolledProgram: { not: null }, ...MEMBER_ONLY_WHERE },
-      orderBy: [{ fullName: 'asc' }],
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        enrolledProgram: true,
-      },
-      take: 500,
-    }),
-    listCourseraIdentityMappings(),
-    listRecentUnmatchedXapiEvents(100),
-  ]);
+  const members = await prisma.user.findMany({
+    where: { deletedAt: null, enrolledProgram: { not: null }, ...MEMBER_ONLY_WHERE },
+    orderBy: [{ fullName: 'asc' }],
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      enrolledProgram: true,
+    },
+    take: 500,
+  });
+
+  let mappings = await Promise.resolve([] as Awaited<ReturnType<typeof listCourseraIdentityMappings>>);
+  let unmatchedEvents = await Promise.resolve([] as Awaited<ReturnType<typeof listRecentUnmatchedXapiEvents>>);
+  let loadError: string | null = null;
+
+  try {
+    [mappings, unmatchedEvents] = await Promise.all([
+      listCourseraIdentityMappings(),
+      listRecentUnmatchedXapiEvents(100),
+    ]);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : 'Unable to load Coursera mapping data right now.';
+    console.error('[admin/coursera] failed to load mapping data:', error);
+  }
 
   const memberOptions = members.map((member) => ({
     id: member.id,
@@ -64,6 +74,20 @@ export default async function AdminCourseraPage() {
             </span>
           </div>
         </div>
+
+        {loadError ? (
+          <div className="content-card" style={{ padding: '1rem 1.1rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ display: 'grid', gap: '0.35rem' }}>
+              <strong>Coursera mapping data is temporarily unavailable</strong>
+              <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                The admin page loaded, but the mapping tables or recent xAPI events could not be read yet.
+              </span>
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                Error: {loadError}
+              </span>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <CourseraMappingsAdmin

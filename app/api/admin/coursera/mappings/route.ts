@@ -27,15 +27,20 @@ export async function GET(request: Request) {
     ? Math.min(Math.max(limitParam, 1), 200)
     : 50;
 
-  const [mappings, unmatchedEvents] = await Promise.all([
-    listCourseraIdentityMappings(),
-    listRecentUnmatchedXapiEvents(unmatchedLimit),
-  ]);
+  try {
+    const [mappings, unmatchedEvents] = await Promise.all([
+      listCourseraIdentityMappings(),
+      listRecentUnmatchedXapiEvents(unmatchedLimit),
+    ]);
 
-  return NextResponse.json({
-    mappings,
-    unmatchedEvents,
-  });
+    return NextResponse.json({
+      mappings,
+      unmatchedEvents,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unable to load Coursera mapping data';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

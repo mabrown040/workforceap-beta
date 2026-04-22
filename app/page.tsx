@@ -518,13 +518,13 @@ export default async function HomePage() {
       {/* ===== AI-Powered Career Support ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-          Career Tools
+          AI Toolkit
         </span>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
           Resume Feedback in Minutes, Not Days
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-          Members get AI tools that sharpen your resume, practice interviews with questions specific to your target role, score your job match before you apply, and track applications — all inside your member portal.
+          Members get AI tools that sharpen your resume, build your elevator speech, practice interviews with questions specific to your target role, and track progress inside the member portal.
         </p>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
           Voice coaching powered by <strong>ElevenLabs</strong>
@@ -539,7 +539,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. We respond within 3–5 business days. Industry-recognized certificates and placement support. No cost for members.
+            About 10 minutes to apply. We respond within 1–2 business days. Industry-recognized certificates and placement support. No cost for members.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

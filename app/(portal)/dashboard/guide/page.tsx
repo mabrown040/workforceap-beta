@@ -58,7 +58,7 @@ const JOURNEY_STEPS = [
 
 const BENEFITS = [
   { icon: 'school', title: 'Coursera Access', desc: 'Access professional certificates from top institutions as part of your membership.' },
-  { icon: 'auto_awesome', title: 'AI Career Tools', desc: '7 tools: resume, cover letter, interview coach, job matching, and more.' },
+  { icon: 'auto_awesome', title: 'AI Toolkit', desc: '5 core tools: resume help, elevator speech, readiness, voice interview, and career coaching.' },
   { icon: 'person_pin', title: 'Your Counselor', desc: 'A human counselor is assigned to you — they want to hear from you.' },
   { icon: 'work', title: 'Job Board', desc: 'Browse openings from employers actively hiring WorkforceAP graduates.' },
 ];

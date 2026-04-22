@@ -12,6 +12,12 @@ const boardMembers = LEADERS.filter(
 );
 const leadConsultants = LEADERS.filter((l) => l.section === 'consultant');
 
+function portraitStyleFor(slug: string) {
+  return slug === 'michael-brown'
+    ? { objectFit: 'cover' as const, objectPosition: 'center 24%' }
+    : { objectFit: 'cover' as const };
+}
+
 export default function LeadershipContent() {
   return (
     <>
@@ -85,9 +91,7 @@ export default function LeadershipContent() {
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       priority={index === 0}
-                      style={{
-                        objectFit: 'cover',
-                      }}
+                      style={portraitStyleFor(leader.slug)}
                     />
                     {leader.founder && (
                       <span
@@ -229,8 +233,8 @@ export default function LeadershipContent() {
                   <div
                     className="leadership-board-photo"
                     style={{
-                      width: 152,
-                      height: 152,
+                      width: 176,
+                      height: 176,
                       borderRadius: '50%',
                       overflow: 'hidden',
                       flexShrink: 0,
@@ -241,10 +245,8 @@ export default function LeadershipContent() {
                       src={leader.image}
                       alt={leader.name}
                       fill
-                      sizes="152px"
-                      style={{
-                        objectFit: 'cover',
-                      }}
+                      sizes="176px"
+                      style={portraitStyleFor(leader.slug)}
                     />
                   </div>
 

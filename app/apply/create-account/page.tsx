@@ -19,7 +19,7 @@ export default function ApplyCreateAccountPage() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>Step 3 of 3 — set up your member path</h1>
-          <p>Create your account to save your program choice, track your progress, and connect with counselor support. Our team will follow up within 3–5 business days with your next step.</p>
+          <p>Create your account to save your program choice, track your progress, and connect with counselor support. Our team will follow up within 1–2 business days with your next step.</p>
         </div>
       </section>
 

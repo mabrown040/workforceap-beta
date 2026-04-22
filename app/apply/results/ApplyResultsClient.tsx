@@ -221,7 +221,7 @@ export default function ApplyResultsClient() {
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>Looks like a strong funding fit.</strong> Rank the programs you want most, then create your account so a counselor can confirm next steps within 3–5 business days.
+                <strong>Looks like a strong funding fit.</strong> Rank the programs you want most, then create your account so a counselor can confirm next steps within 1–2 business days.
               </p>
             </div>
             <div className="apply-undecided-reassurance" style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>

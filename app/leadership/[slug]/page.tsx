@@ -98,7 +98,12 @@ export default async function LeaderBioPage({ params }: Props) {
   const hasSideColumn = spotlightCards.length > 0;
 
   const hasPortrait = Boolean(leader.image && leader.image.trim().length > 0);
-  const portraitObjectPosition = leader.slug === 'michael-brown-ii' ? 'center 72%' : undefined;
+  const portraitObjectPosition =
+    leader.slug === 'michael-brown-ii'
+      ? 'center 72%'
+      : leader.slug === 'michael-brown'
+        ? 'center 24%'
+        : undefined;
 
   return (
     <div className="inner-page ld-page">

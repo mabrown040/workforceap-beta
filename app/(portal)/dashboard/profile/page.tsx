@@ -464,7 +464,7 @@ export default async function DashboardProfilePage() {
         {/* Resume tools card */}
         <div id="resume" className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
           <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Resume &amp; Career Tools</h2>
+            <h2 className="portal-profile-section-card__title">Resume &amp; AI Toolkit</h2>
           </div>
           <div className="portal-profile-section-card__body">
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>

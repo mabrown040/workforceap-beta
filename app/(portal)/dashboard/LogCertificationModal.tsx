@@ -23,7 +23,7 @@ export default function LogCertificationModal() {
 
   if (!open) {
     return (
-      <button className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }} onClick={() => setOpen(true)}>
+      <button type="button" className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }} onClick={() => setOpen(true)}>
         Log External Certification
       </button>
     );

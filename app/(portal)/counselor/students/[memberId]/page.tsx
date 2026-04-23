@@ -226,7 +226,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">chat</span>
                 Message
               </Link>
-              <button
+              <button type="button"
                 disabled
                 className="btn btn-primary"
                 style={{ flex: 1, fontSize: '0.8rem', opacity: 0.5, cursor: 'not-allowed' }}

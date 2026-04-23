@@ -441,7 +441,7 @@ function CoursePathForGaps({ gaps }: { gaps: Array<{ axis: string; member: numbe
       </div>
 
       {coursePath.length > 4 && (
-        <button
+        <button type="button"
           onClick={() => setExpanded(!expanded)}
           style={{
             width: '100%',
@@ -684,10 +684,10 @@ export default function SkillMapperClient() {
     <div>
       {/* Tab switcher */}
       <div style={{ display: 'flex', borderBottom: '1px solid var(--surface-container-highest)', marginBottom: '1.5rem' }}>
-        <button style={tabStyle(activeTab === 'search')} onClick={() => setActiveTab('search')}>
+        <button type="button" style={tabStyle(activeTab === 'search')} onClick={() => setActiveTab('search')}>
           Occupation Search
         </button>
-        <button style={tabStyle(activeTab === 'profile')} onClick={() => setActiveTab('profile')}>
+        <button type="button" style={tabStyle(activeTab === 'profile')} onClick={() => setActiveTab('profile')}>
           My Skills Profile
         </button>
       </div>
@@ -705,7 +705,7 @@ export default function SkillMapperClient() {
               className="ai-tool-input"
               style={{ flex: 1, minHeight: '44px' }}
             />
-            <button className="btn btn-primary" onClick={handleSearch} disabled={loading || !query.trim()}
+            <button type="button" className="btn btn-primary" onClick={handleSearch} disabled={loading || !query.trim()}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', minHeight: '44px' }}>
               {loading ? <Loader2 size={16} className="ai-tool-submit-spinner" /> : <Search size={16} />}
               Search
@@ -718,7 +718,7 @@ export default function SkillMapperClient() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <h3 className="ai-tool-section-title">Select an occupation</h3>
               {occupations.map((occ) => (
-                <button key={occ.code} onClick={() => handleSelect(occ.code, occ.title)}
+                <button type="button" key={occ.code} onClick={() => handleSelect(occ.code, occ.title)}
                   className="btn btn-outline" style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>
                   <strong>{occ.title}</strong>
                   <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{occ.code} — {occ.description?.slice(0, 120)}</span>

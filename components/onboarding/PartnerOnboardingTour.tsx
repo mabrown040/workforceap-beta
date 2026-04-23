@@ -199,7 +199,7 @@ export default function PartnerOnboardingTour({ onComplete }: PartnerOnboardingT
         </div>
 
         {/* Skip */}
-        <button
+        <button type="button"
           onClick={close}
           style={{
             position: 'absolute',
@@ -274,7 +274,7 @@ export default function PartnerOnboardingTour({ onComplete }: PartnerOnboardingT
           {/* Dots */}
           <div style={{ display: 'flex', gap: 8 }}>
             {SLIDES.map((_, i) => (
-              <button
+              <button type="button"
                 key={i}
                 aria-label={`Go to slide ${i + 1}`}
                 onClick={() => goTo(i)}
@@ -294,7 +294,7 @@ export default function PartnerOnboardingTour({ onComplete }: PartnerOnboardingT
 
           {/* CTA */}
           {isLast ? (
-            <button
+            <button type="button"
               onClick={close}
               style={{
                 background: slide.accent,
@@ -311,7 +311,7 @@ export default function PartnerOnboardingTour({ onComplete }: PartnerOnboardingT
               Get started
             </button>
           ) : (
-            <button
+            <button type="button"
               onClick={() => goTo(current + 1)}
               style={{
                 background: 'transparent',

@@ -201,7 +201,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           </div>
         )}
 
-        <button
+        <button type="button"
           onClick={startSession}
           style={{
             display: 'block', width: '100%', background: ACCENT, color: '#fff',
@@ -292,7 +292,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-          <button
+          <button type="button"
             onClick={endSession}
             style={{
               background: ACCENT, color: '#fff', border: 0, borderRadius: 10,
@@ -302,7 +302,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           >
             End Session &amp; Get My Action Plan
           </button>
-          <button
+          <button type="button"
             onClick={reset}
             style={{
               background: 'transparent', color: 'var(--color-on-surface-variant)',
@@ -361,7 +361,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.75rem' }}>
         {steps.map((step, i) => (
-          <button
+          <button type="button"
             key={i}
             onClick={() => toggleStep(i)}
             style={{
@@ -440,7 +440,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </div>
       </div>
 
-      <button
+      <button type="button"
         onClick={reset}
         style={{
           background: 'transparent', color: 'var(--color-on-surface-variant)',

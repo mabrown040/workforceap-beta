@@ -74,7 +74,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           Counselor Notes
         </h3>
         {!adding && (
-          <button
+          <button type="button"
             onClick={() => setAdding(true)}
             style={{
               padding: '0.25rem 0.625rem',
@@ -114,7 +114,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           />
           {error && <p style={{ color: 'var(--color-error, #c00)', fontSize: '0.75rem', margin: '0.25rem 0' }}>{error}</p>}
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <button
+            <button type="button"
               onClick={handleAdd}
               disabled={submitting || !newNote.trim()}
               style={{
@@ -131,7 +131,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
             >
               {submitting ? 'Saving…' : 'Save'}
             </button>
-            <button
+            <button type="button"
               onClick={() => { setAdding(false); setNewNote(''); setError(''); }}
               style={{
                 padding: '0.375rem 0.875rem',
@@ -164,7 +164,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                 {new Date(note.createdAt).toLocaleDateString()} · {note.author.fullName ?? note.author.email}
               </p>
-              <button
+              <button type="button"
                 onClick={() => handleDelete(note.id)}
                 style={{
                   background: 'none',

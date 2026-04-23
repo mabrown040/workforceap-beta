@@ -66,7 +66,7 @@ export default function MobileProfileSkillsResume({
               </p>
               <p className="wa-text-[10px]" style={{ color: '#584144' }}>Uploaded</p>
             </div>
-            <button
+            <button type="button"
               className="wa-text-xs wa-font-bold"
               style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#fff1f2', color: '#8c0f37' }}
               onClick={() => fileRef.current?.click()}

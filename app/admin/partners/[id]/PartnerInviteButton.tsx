@@ -23,7 +23,7 @@ export default function PartnerInviteButton({ partnerEmail, partnerName }: { par
   };
 
   return (
-    <button
+    <button type="button"
       onClick={handleInvite}
       disabled={sending || sent}
       style={{

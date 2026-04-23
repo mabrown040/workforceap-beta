@@ -43,7 +43,7 @@ export default function PlacementConfirmationStrip({ offers }: { offers: any[] }
             <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
               Confirm your placement so we can officially celebrate and update your counselor!
             </p>
-            <button
+            <button type="button"
               onClick={() => handleConfirm(offer.id)}
               disabled={loading[offer.id]}
               style={{ display: 'block', width: '100%', background: '#fff', color: '#059669', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', border: 'none', cursor: 'pointer' }}

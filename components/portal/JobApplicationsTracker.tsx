@@ -98,7 +98,7 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
             {applications.length} Application{applications.length !== 1 ? 's' : ''}
           </h2>
         </div>
-        <button
+        <button type="button"
           onClick={() => setIsModalOpen(true)}
           className="wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-rounded-lg hover:wa-bg-[#6b0a2a] wa-transition-colors wa-font-medium"
         >

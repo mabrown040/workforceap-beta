@@ -292,9 +292,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Encrypted Transmission</h4>
+            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Secure Data Handling</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              Your data is protected with end-to-end encryption. We never share your personal information with third parties.
+              Your information is sent over encrypted connections and protected with access controls. We do not sell your personal information, and any limited sharing follows our Privacy Policy.
             </p>
           </div>
         </div>

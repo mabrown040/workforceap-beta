@@ -5,6 +5,28 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
 
+function getPrefilledTopic(topicParam?: string | string[]): string {
+  const raw = Array.isArray(topicParam) ? topicParam[0] : topicParam;
+  const topic = raw?.trim().toLowerCase();
+  if (!topic) return '';
+
+  const topicMap: Record<string, string> = {
+    partnership: 'Partnership or sponsorship',
+    partnerships: 'Partnership or sponsorship',
+    sponsorship: 'Partnership or sponsorship',
+    sponsor: 'Partnership or sponsorship',
+    program: 'Program information',
+    eligibility: 'Eligibility questions',
+    application: 'Application help',
+    tour: 'Schedule a tour',
+    media: 'Media or press inquiry',
+    press: 'Media or press inquiry',
+    other: 'Other',
+  };
+
+  return topicMap[topic] ?? '';
+}
+
 export const metadata: Metadata = buildPageMetadata({
   title: 'Contact Us',
   description:
@@ -68,7 +90,14 @@ const contactCards = [
   },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ topic?: string | string[] }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const initialTopic = getPrefilledTopic(resolvedSearchParams?.topic);
+
   return (
     <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
@@ -93,7 +122,7 @@ export default function ContactPage() {
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>
                   Send Us a Message
                 </h2>
-                <ContactFormClient />
+                <ContactFormClient initialTopic={initialTopic} />
               </div>
             </div>
 

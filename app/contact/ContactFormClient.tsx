@@ -5,6 +5,27 @@ import { trackLeadFormEvent } from '@/lib/analytics/events';
 
 type FieldKey = 'first_name' | 'last_name' | 'email' | 'topic' | 'message';
 
+function getPrefilledTopic(topicParam: string | null): string {
+  const topic = topicParam?.trim().toLowerCase();
+  if (!topic) return '';
+
+  const topicMap: Record<string, string> = {
+    partnership: 'Partnership or sponsorship',
+    partnerships: 'Partnership or sponsorship',
+    sponsorship: 'Partnership or sponsorship',
+    sponsor: 'Partnership or sponsorship',
+    program: 'Program information',
+    eligibility: 'Eligibility questions',
+    application: 'Application help',
+    tour: 'Schedule a tour',
+    media: 'Media or press inquiry',
+    press: 'Media or press inquiry',
+    other: 'Other',
+  };
+
+  return topicMap[topic] ?? '';
+}
+
 function validateContactFields(data: {
   first_name: unknown;
   last_name: unknown;
@@ -36,12 +57,14 @@ function validateContactFields(data: {
   return errors;
 }
 
-export default function ContactFormClient() {
+export default function ContactFormClient({ initialTopic = '' }: { initialTopic?: string }) {
   const formId = useId();
+  const [selectedTopic, setSelectedTopic] = useState(initialTopic);
 
   useEffect(() => {
     trackLeadFormEvent('contact', 'viewed');
   }, []);
+
   const errorId = `${formId}-error`;
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -108,6 +131,7 @@ export default function ContactFormClient() {
       setStatus('success');
       trackLeadFormEvent('contact', 'succeeded', { topic: typeof data.topic === 'string' ? data.topic : undefined });
       form.reset();
+      setSelectedTopic(initialTopic);
     } catch {
       setStatus('error');
       trackLeadFormEvent('contact', 'errored', { reason: 'network_error' });
@@ -271,6 +295,7 @@ export default function ContactFormClient() {
         <select
           id={`${formId}-topic`}
           name="topic"
+          value={selectedTopic}
           required
           disabled={status === 'sending'}
           aria-required="true"
@@ -280,7 +305,10 @@ export default function ContactFormClient() {
               .filter(Boolean)
               .join(' ') || undefined
           }
-          onChange={() => setFieldErrors((p) => ({ ...p, topic: undefined }))}
+          onChange={(e) => {
+            setSelectedTopic(e.target.value);
+            setFieldErrors((p) => ({ ...p, topic: undefined }));
+          }}
         >
           <option value="">Select a topic&hellip;</option>
           <option>Program information</option>

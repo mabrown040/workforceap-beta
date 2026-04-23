@@ -138,6 +138,10 @@ export default function ResumeCoachWorkspace() {
   const agentSpeechBufRef = useRef('');
   const suggestionKeySeenRef = useRef<Set<string>>(new Set());
   const heuristicDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const liveSuggestionDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transcriptTurnsRef = useRef<Array<{ speaker: 'agent' | 'user'; text: string }>>([]);
+  const liveSuggestionSeqRef = useRef(0);
+  const lastLiveSuggestionSignatureRef = useRef('');
   const lastSavedTextRef = useRef<string | null>(null);
   const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -235,25 +239,64 @@ export default function ResumeCoachWorkspace() {
     [liveCoachSuggestions, activeInlineSuggestion]
   );
 
+  const mergeSuggestions = useCallback(
+    (items: ResumeSuggestion[], source: 'live' | 'post') => {
+      if (items.length === 0) return;
+      setLiveCoachSuggestions((prev) => {
+        const out = [...prev];
+        for (const s of items) {
+          const key = suggestionDedupeKey(s);
+          if (suggestionKeySeenRef.current.has(key)) continue;
+          suggestionKeySeenRef.current.add(key);
+          out.push({ ...s, id: newSuggestionId(), source });
+        }
+        return out;
+      });
+    },
+    []
+  );
+
   const flushAgentHeuristic = useCallback(() => {
     const text = agentSpeechBufRef.current;
     if (!text.trim()) return;
     const found = extractResumeCoachSuggestionsFromText(text);
-    if (found.length === 0) return;
-    setLiveCoachSuggestions((prev) => {
-      const out = [...prev];
-      for (const s of found) {
-        const key = `${s.original ?? ''}→${s.suggested}`;
-        if (suggestionKeySeenRef.current.has(key)) continue;
-        suggestionKeySeenRef.current.add(key);
-        out.push({ ...s, id: newSuggestionId(), source: 'live' });
-      }
-      return out;
-    });
-  }, []);
+    mergeSuggestions(found, 'live');
+  }, [mergeSuggestions]);
+
+  const requestLiveSuggestions = useCallback(() => {
+    if (liveSuggestionDebounceRef.current) clearTimeout(liveSuggestionDebounceRef.current);
+    liveSuggestionDebounceRef.current = setTimeout(() => {
+      liveSuggestionDebounceRef.current = null;
+      const transcript = transcriptTurnsRef.current.slice(-18);
+      if (transcript.length === 0) return;
+      const signature = transcript
+        .map((turn) => `${turn.speaker}:${turn.text}`)
+        .join('\n')
+        .slice(-5000);
+      if (!signature || signature === lastLiveSuggestionSignatureRef.current) return;
+      lastLiveSuggestionSignatureRef.current = signature;
+      const seq = ++liveSuggestionSeqRef.current;
+
+      fetch('/api/member/resume-coach/live-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('live suggestions failed');
+          return res.json() as Promise<{ suggestions?: ResumeSuggestion[] }>;
+        })
+        .then((data) => {
+          if (seq !== liveSuggestionSeqRef.current) return;
+          mergeSuggestions(data.suggestions ?? [], 'live');
+        })
+        .catch(() => {});
+    }, 900);
+  }, [mergeSuggestions]);
 
   const onTranscriptChunk = useCallback(
     (chunk: { speaker: 'agent' | 'user'; text: string }) => {
+      transcriptTurnsRef.current = [...transcriptTurnsRef.current, chunk].slice(-30);
       if (chunk.speaker !== 'agent') return;
       agentSpeechBufRef.current = `${agentSpeechBufRef.current} ${chunk.text}`.trim().slice(-6000);
       if (heuristicDebounceRef.current) clearTimeout(heuristicDebounceRef.current);
@@ -261,36 +304,33 @@ export default function ResumeCoachWorkspace() {
         heuristicDebounceRef.current = null;
         flushAgentHeuristic();
       }, 500);
+      requestLiveSuggestions();
     },
-    [flushAgentHeuristic]
+    [flushAgentHeuristic, requestLiveSuggestions]
   );
 
   const onVoicePhaseChange = useCallback((p: VoiceSessionPhase) => {
     if (p === 'pre' || p === 'connecting') {
       agentSpeechBufRef.current = '';
+      transcriptTurnsRef.current = [];
       suggestionKeySeenRef.current.clear();
+      lastLiveSuggestionSignatureRef.current = '';
+      liveSuggestionSeqRef.current = 0;
       setLiveCoachSuggestions((prev) => prev.filter((x) => x.source === 'post'));
       if (heuristicDebounceRef.current) {
         clearTimeout(heuristicDebounceRef.current);
         heuristicDebounceRef.current = null;
       }
+      if (liveSuggestionDebounceRef.current) {
+        clearTimeout(liveSuggestionDebounceRef.current);
+        liveSuggestionDebounceRef.current = null;
+      }
     }
   }, []);
 
   const onPostSessionSuggestions = useCallback((list: ResumeSuggestion[]) => {
-    setLiveCoachSuggestions((prev) => {
-      const keys = new Set(prev.map(suggestionDedupeKey));
-      const out = [...prev];
-      for (const s of list) {
-        const key = suggestionDedupeKey(s);
-        if (keys.has(key)) continue;
-        keys.add(key);
-        suggestionKeySeenRef.current.add(key);
-        out.push({ ...s, id: newSuggestionId(), source: 'post' });
-      }
-      return out;
-    });
-  }, []);
+    mergeSuggestions(list, 'post');
+  }, [mergeSuggestions]);
 
   const dismissSuggestion = useCallback((id: string) => {
     setLiveCoachSuggestions((prev) => prev.filter((x) => x.id !== id));
@@ -310,7 +350,7 @@ export default function ResumeCoachWorkspace() {
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
         <VoiceAgentSurface
           {...resumeCoachVoiceSurface}
-          subtext="Voice feedback on bullets and framing. Your live draft syncs during the call, and suggested rewrites can appear for review during or after the session."
+          subtext="Voice feedback on bullets and framing. Your live draft syncs during the call, and suggested rewrites can pop onto the draft for a quick ✓ or ✕ review."
         >
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
@@ -377,7 +417,7 @@ export default function ResumeCoachWorkspace() {
           </div>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {hydrated
-              ? 'Edits here sync to the coach during the call. Suggested rewrites can appear below for you to apply or dismiss, and you can keep editing the draft directly at any time.'
+              ? 'Edits here sync to the coach during the call. Suggested rewrites can pop up above your draft with ✓ and ✕ controls, and you can keep editing directly at any time.'
               : 'Loading your resume…'}
           </p>
           {postSessionParsing ? (
@@ -424,19 +464,21 @@ export default function ResumeCoachWorkspace() {
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
+                  aria-label="Apply suggested change"
                   onClick={() => {
                     handleAccept(activeInlineSuggestion);
                     dismissSuggestion(activeInlineSuggestion.id);
                   }}
                 >
-                  Approve change
+                  ✓ Apply
                 </button>
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
+                  aria-label="Dismiss suggested change"
                   onClick={() => dismissSuggestion(activeInlineSuggestion.id)}
                 >
-                  Disapprove
+                  ✕ Dismiss
                 </button>
               </div>
             </div>
@@ -515,15 +557,21 @@ export default function ResumeCoachWorkspace() {
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
+                      aria-label="Apply suggestion to draft"
                       onClick={() => {
                         handleAccept(s);
                         dismissSuggestion(s.id);
                       }}
                     >
-                      Apply to draft
+                      ✓ Apply
                     </button>
-                    <button type="button" className="btn btn-outline btn-sm" onClick={() => dismissSuggestion(s.id)}>
-                      Dismiss
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      aria-label="Dismiss suggestion"
+                      onClick={() => dismissSuggestion(s.id)}
+                    >
+                      ✕ Dismiss
                     </button>
                   </div>
                 </div>

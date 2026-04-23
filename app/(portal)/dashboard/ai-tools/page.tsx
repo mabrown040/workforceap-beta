@@ -176,11 +176,13 @@ export default async function AIToolsPage() {
                 <p
                   className="portal-quick-action-item__label"
                   style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    minHeight: '2.1rem',
+                    display: 'block',
+                    overflow: 'visible',
+                    whiteSpace: 'normal',
+                    textWrap: 'balance',
+                    lineHeight: 1.35,
+                    minHeight: '2.7rem',
+                    wordBreak: 'break-word',
                   }}
                 >
                   {tool.label}
@@ -223,11 +225,13 @@ export default async function AIToolsPage() {
                       <p
                         className="portal-quick-action-item__label"
                         style={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          minHeight: '2.1rem',
+                          display: 'block',
+                          overflow: 'visible',
+                          whiteSpace: 'normal',
+                          textWrap: 'balance',
+                          lineHeight: 1.35,
+                          minHeight: '2.7rem',
+                          wordBreak: 'break-word',
                         }}
                       >
                         {tool.label}

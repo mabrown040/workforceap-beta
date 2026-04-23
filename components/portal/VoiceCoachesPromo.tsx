@@ -42,7 +42,7 @@ export default function VoiceCoachesPromo() {
           {...readinessVoiceSurface}
           title="Career Readiness Coach"
           description="Talk through interviews, certifications, and next steps with a dedicated AI coach."
-          href="/dashboard/ai-tools/readiness-coach"
+          href="/dashboard/readiness"
           ctaLabel="Open readiness coach"
         />
 

@@ -5,7 +5,7 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
-import { checkSignupRateLimit } from '@/lib/rate-limit';
+import { checkApplySignupRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -42,10 +42,10 @@ const applySignupSchema = z.object({
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  const { success: rateOk } = await checkSignupRateLimit(ip);
+  const { success: rateOk } = await checkApplySignupRateLimit(ip);
   if (!rateOk) {
     return NextResponse.json(
-      { error: 'We received too many signup attempts from this connection. Please wait a few minutes and try again.' },
+      { error: 'We received a lot of signup attempts from this connection in a short window. Please wait a moment and try again.' },
       { status: 429 }
     );
   }

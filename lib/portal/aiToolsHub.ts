@@ -15,7 +15,7 @@ export type AiToolsHubCategory = {
 
 const TOOL_CARDS = {
   elevatorPitch: { label: 'AI Elevator Speech', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
-  readinessCoach: { label: 'Career Readiness Coach', href: '/dashboard/ai-tools/readiness-coach', icon: 'psychology' },
+  readinessCoach: { label: 'Career Readiness Coach', href: '/dashboard/readiness', icon: 'psychology' },
   resumeCoach: { label: 'Resume Coach', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
   voiceInterview: { label: 'Voice Interview', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
   careerBusiness: { label: 'Career & Business Coach', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },

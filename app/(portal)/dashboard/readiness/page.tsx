@@ -8,6 +8,7 @@ import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
+import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturnButton';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
@@ -102,16 +103,25 @@ export default async function DashboardReadinessPage() {
           priorityAction={priorityAction}
         />
 
-        <div className="portal-pad-x" style={{ marginTop: '1rem' }}>
+        <div id="readiness-coach-panel" className="portal-pad-x" style={{ marginTop: '1rem', scrollMarginTop: '6rem' }}>
           <CompactReadinessCoach />
         </div>
 
+        <ReadinessCoachReturnButton />
         <MobileBottomNav variant="portal" />
       </div>
 
       {/* ── DESKTOP ── */}
       <div className="wa-hidden wa-md:wa-block">
-        <div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) 340px',
+            gap: '1.5rem',
+            alignItems: 'start',
+          }}
+        >
+          <div>
           {/* Score summary — desktop metric strip */}
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -161,14 +171,22 @@ export default async function DashboardReadinessPage() {
               </div>
             </div>
           </div>
-
-          <div style={{ marginBottom: '1.5rem', maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto' }}>
-            <CompactReadinessCoach />
-          </div>
           <ReadinessMemberClient
             initialSections={checklistSections ?? []}
             loadError={checklistSections === null ? 'Couldn\'t load your checklist — try refreshing the page.' : null}
           />
+          </div>
+
+          <aside
+            id="readiness-coach-panel"
+            style={{
+              position: 'sticky',
+              top: 'calc(var(--main-nav-layout-height, 4rem) + 1rem)',
+              scrollMarginTop: '6rem',
+            }}
+          >
+            <CompactReadinessCoach />
+          </aside>
         </div>
       </div>
     </>

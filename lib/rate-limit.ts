@@ -28,12 +28,12 @@ if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
   signupRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    limiter: Ratelimit.slidingWindow(12, '30 m'),
     prefix: 'ratelimit:signup',
   });
   applySignupRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    limiter: Ratelimit.slidingWindow(20, '30 m'),
     prefix: 'ratelimit:apply-signup',
   });
   authRateLimiter = new Ratelimit({

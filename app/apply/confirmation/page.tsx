@@ -21,7 +21,7 @@ const NEXT_STEPS = [
   },
   {
     num: '2',
-    title: 'We send your next step within 3 to 5 business days',
+    title: 'We send your next step within 1 to 2 business days',
     desc: 'Look for an email from WorkforceAP. We will tell you what comes next instead of leaving you to guess.',
   },
   {
@@ -83,12 +83,12 @@ export default function ApplyConfirmationPage() {
                 Application Received
               </h1>
               <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.7, maxWidth: '34rem', margin: '0 auto 1rem' }}>
-                Your application is in our review queue now. A WorkforceAP team member will review it and email you within 3 to 5 business days with the next step for your path.
+                Your application is in our review queue now. A WorkforceAP team member will review it and email you within 1 to 2 business days with the next step for your path.
               </p>
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.9rem', fontWeight: 600 }}>
                 <span>Reviewed by staff</span>
                 <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
-                <span>Email follow-up in 3 to 5 business days</span>
+                <span>Email follow-up in 1 to 2 business days</span>
               </div>
             </div>
 

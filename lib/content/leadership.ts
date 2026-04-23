@@ -61,14 +61,14 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "PMP, nonprofit executive, and founder focused on practical workforce pathways. Former owner of Consulting Solutions.Net; key leader at ReWork America Alliance, State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League. Active with Workforce Solutions, Texas Workforce Commission, and the City of Austin. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+      'PMP, nonprofit executive, and founder focused on practical workforce pathways. Built WorkforceAP on 25+ years of workforce development leadership across the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation.',
     missionRelevance:
-      "25+ years delivering workforce training through partnerships with the ReWork America Alliance, Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
+      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — the barrier-breaking experience that built WorkforceAP.',
     bioBlocks: [
       {
         type: 'paragraph',
         text:
-          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings deep expertise in business development, project management, education, and workforce operations, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, ReWork America Alliance, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
+          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
       },
       {
         type: 'paragraph',
@@ -78,7 +78,7 @@ export const LEADERS: Leader[] = [
       {
         type: 'paragraph',
         text:
-          'Beyond his professional endeavors, Michael is deeply committed to community engagement and personal values. A devoted husband of 33 years and proud father of two adult children, his dedication to service is reflected in his active membership with the esteemed 100 Black Men of Austin, his lifelong brotherhood with Alpha Phi Alpha Fraternity, and his role as an Elder at Celebration Church.',
+          'Beyond his professional endeavors, Michael is deeply committed to community engagement and personal values. A devoted husband of 35 years and proud father of two adult children, his dedication to service is reflected in his active membership with 100 Black Men of Austin, his lifelong brotherhood with Alpha Phi Alpha Fraternity, service with Concordia High School and Job Seekers Network boards, and his role as an Elder at Celebration Church.',
       },
       {
         type: 'paragraph',

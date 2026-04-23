@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   const supabase = await createSupabaseServerClient();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-  const redirectTo = `${baseUrl}/login?reset=success`;
+  const redirectTo = `${baseUrl}/reset-password`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,

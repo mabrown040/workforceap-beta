@@ -16,7 +16,7 @@ export const PROGRAM_INTEREST_OPTIONS = [
   'Digital Marketing & E-Commerce (Google)',
   'Project Management Professional Certificate (Microsoft)',
   'UX Design Professional Certificate (Google)',
-  'Medical Coding & Health Information Technology (MCHIT)',
+  'Medical Billing, Coding, and Health Information Technology',
   'Certified Production Technician (CPT)',
   'Certified Logistics Technician (CLT)',
   'Core Construction',

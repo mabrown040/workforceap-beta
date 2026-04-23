@@ -48,7 +48,7 @@ const COHORTS = [
   },
   {
     icon: 'security',
-    title: 'Cyber Defense',
+    title: 'Cybersecurity',
     cert: 'Google / CompTIA pathway',
     level: 'Entry to mid',
     salary: '$75K-$112K',
@@ -57,7 +57,7 @@ const COHORTS = [
   },
   {
     icon: 'cloud_queue',
-    title: 'Cloud AWS',
+    title: 'AWS Cloud',
     cert: 'AWS Cloud Technology',
     level: 'Entry to mid',
     salary: '$95K-$145K',
@@ -66,7 +66,7 @@ const COHORTS = [
   },
   {
     icon: 'analytics',
-    title: 'Data Intelligence',
+    title: 'Data Analytics',
     cert: 'Google Data Analytics',
     level: 'Entry-level',
     salary: '$72K-$102K',

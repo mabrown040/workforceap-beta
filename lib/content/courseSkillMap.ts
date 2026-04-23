@@ -1797,16 +1797,16 @@ const IT_AUTOMATION_COURSES: CourseSkillMapping[] = [
 ];
 
 // ============================================================================
-// MEDICAL CODING & HIT (MCHIT)
+// MEDICAL BILLING, CODING, AND HEALTH INFORMATION TECHNOLOGY
 // ============================================================================
 
-const MCHIT_COURSES: CourseSkillMapping[] = [
+const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'mchit-course-1',
     courseName: 'Introduction to Health Information Technology',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Ethics', score: 30, specificSkills: ['HIPAA', 'Privacy', 'HIT fundamentals'] },
@@ -1821,7 +1821,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Medical Terminology and Anatomy',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Research', score: 40, specificSkills: ['Medical terminology', 'Anatomy', 'Physiology'] },
@@ -1836,7 +1836,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Health Information Management',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['HIM principles', 'Data governance', 'Workflow'] },
@@ -1851,7 +1851,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Electronic Health Records (EHR)',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 35, specificSkills: ['EHR systems', 'Workflow design', 'Implementation'] },
@@ -1866,7 +1866,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Healthcare Law, Ethics & HIPAA',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Ethics', score: 50, specificSkills: ['Healthcare law', 'HIPAA', 'Compliance', 'Ethics'] },
@@ -1881,7 +1881,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Medical Coding: ICD-10 and CPT',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Analytics', score: 45, specificSkills: ['ICD-10', 'CPT', 'Medical coding', 'Classification'] },
@@ -1896,7 +1896,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Revenue Cycle Management',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 35, specificSkills: ['Revenue cycle', 'Billing', 'Claims', 'Reimbursement'] },
@@ -1911,7 +1911,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Capstone: HIT Practice Simulation',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Ethics', score: 30, specificSkills: ['Professional practice', 'Integration'] },
@@ -2326,7 +2326,7 @@ export const ALL_COURSE_MAPPINGS: CourseSkillMapping[] = [
   ...COMPTIA_NETWORK_COURSES,
   ...COMPTIA_SECURITY_COURSES,
   ...IT_AUTOMATION_COURSES,
-  ...MCHIT_COURSES,
+  ...HEALTH_INFORMATION_TECH_COURSES,
   ...CPT_COURSES,
   ...CLT_COURSES,
   ...CONSTRUCTION_COURSES,

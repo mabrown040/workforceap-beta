@@ -16,7 +16,7 @@ const PARTNER_TYPES = [
     Icon: UsersRound,
     type: 'Referral Partners',
     who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
-    why: 'Refer clients who need career training. We follow up within 24-48 hours. There is no cost to refer. You get updates when referred individuals complete programs.',
+    why: 'Refer clients who need career training. We follow up within 1-2 business days. There is no cost to refer. You get updates when referred individuals complete programs.',
     nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
     colSpan: 8,
   },
@@ -104,8 +104,7 @@ export default function PartnersPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&q=80)',
+            backgroundImage: 'url(/images/hero-people.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -197,14 +196,6 @@ export default function PartnersPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
           </Link>
         </div>
-      </section>
-
-      {/* Partner entry — scrolls to pathways (not member career finder) */}
-      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="#partner-types" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Explore partnership types
-        </a>
       </section>
 
       {/* ── Narrative Section ── */}
@@ -535,7 +526,7 @@ export default function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Clear next steps, real outcomes, and a team that follows up within 24–48 hours.
+              Clear next steps, real outcomes, and a team that follows up within 1–2 business days.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link

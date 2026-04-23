@@ -125,7 +125,7 @@ const CERT_AXIS_MAP: Record<string, Partial<Record<string, number>>> = {
   'CompTIA Security+': { Engineering: 80, Ethics: 70 },
   'CompTIA Network+': { Engineering: 75 },
   'Google IT Support': { Engineering: 70 },
-  'IBM AI Professional Developer': { Analytics: 80, Engineering: 75 },
+  'IBM AI Professional Practitioner': { Analytics: 80, Engineering: 75 },
   'Google Data Analytics': { Analytics: 85 },
   'Google Project Management': { Strategy: 80 },
   'Salesforce Administrator': { Engineering: 65, Strategy: 65 },

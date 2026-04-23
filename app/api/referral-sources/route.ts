@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { FALLBACK_REFERRAL_SOURCES } from '@/lib/referralSources';
+import { isExcludedPublicPartnerName } from '@/lib/public/publicDataFilters';
 
 const STATIC_SOURCES = [
   'Google / Web Search',
@@ -18,7 +19,9 @@ export async function GET() {
       orderBy: { name: 'asc' },
       select: { name: true },
     });
-    const partnerNames = partners.map((p) => p.name);
+    const partnerNames = partners
+      .map((p) => p.name)
+      .filter((name) => !isExcludedPublicPartnerName(name));
     // Partners first, then static sources
     return NextResponse.json([...partnerNames, ...STATIC_SOURCES], {
       headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },

@@ -10,7 +10,7 @@ const CERT_SUGGESTIONS = [
   'Google IT Support',
   'Google Data Analytics',
   'Google Project Management',
-  'IBM AI Professional Developer',
+  'IBM AI Professional Practitioner',
   'AWS Cloud Practitioner',
   'Microsoft Azure Fundamentals',
   'Salesforce Administrator',

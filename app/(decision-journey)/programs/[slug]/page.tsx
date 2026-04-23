@@ -25,10 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const salaryRange = salaryRangeDisplay(program);
     // Only name the certifying body if it's an external partner (not WorkforceAP/CPT/CLT internal certs)
-  const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA', 'MCHIT'];
+  const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA'];
   const certClause = externalPartners.includes(program.partner)
     ? ` Earn your ${program.partner}-recognized certification.`
     : '';
+  const partnerBadge = externalPartners.includes(program.partner)
+    ? `${program.partner} certified`
+    : program.partner;
   const description = `Training in ${program.title} offered at no cost to members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
   return buildPageMetadata({
     title: `${program.title} Training & Certification`,
@@ -42,6 +45,10 @@ export default async function ProgramPage({ params }: Props) {
   const program = getProgramBySlug(slug);
   if (!program) notFound();
 
+  const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA'];
+  const partnerBadge = externalPartners.includes(program.partner)
+    ? `${program.partner} certified`
+    : program.partner;
   const extra = getProgramExtra(slug);
   const compareBaselineSlug =
     program.slug === 'digital-literacy-empowerment-class'
@@ -73,7 +80,7 @@ export default async function ProgramPage({ params }: Props) {
             {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, national framing)
           </p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-            {program.partner} certified
+            {partnerBadge}
           </p>
           {extra && (
             <div className="program-detail-fit">
@@ -214,7 +221,7 @@ export default async function ProgramPage({ params }: Props) {
                 <span>⏱ {program.duration}</span>
                 <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
               </div>
-              <span className="program-sidebar-partner">{program.partner} certified</span>
+              <span className="program-sidebar-partner">{partnerBadge}</span>
               <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
                 Apply for This Program
               </Link>

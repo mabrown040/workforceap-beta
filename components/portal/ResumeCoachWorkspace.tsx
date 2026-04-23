@@ -310,7 +310,7 @@ export default function ResumeCoachWorkspace() {
   );
 
   const onVoicePhaseChange = useCallback((p: VoiceSessionPhase) => {
-    if (p === 'pre' || p === 'connecting') {
+    if (p === 'connecting') {
       agentSpeechBufRef.current = '';
       transcriptTurnsRef.current = [];
       suggestionKeySeenRef.current.clear();

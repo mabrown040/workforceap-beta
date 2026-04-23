@@ -8,6 +8,18 @@ export function isExcludedPublicEmployerName(companyName: string | null | undefi
     n === 'test' ||
     n === 'test students' ||
     n === 'capital area employer network' ||
-    n.startsWith('test ')
+    n === 'qa employer co' ||
+    n.startsWith('test ') ||
+    n.startsWith('qa ')
   );
+}
+
+/**
+ * Hide jobs whose title is tagged as a QA / test fixture regardless of employer.
+ * Catches stragglers like `[QA] Software Engineer` under an otherwise real employer.
+ */
+export function isExcludedPublicJobTitle(title: string | null | undefined): boolean {
+  const t = title?.trim().toLowerCase() ?? '';
+  if (!t) return false;
+  return t.startsWith('[qa]') || t.startsWith('[test]');
 }

@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
+import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalFooter from '@/components/portal/PortalFooter';
@@ -79,7 +79,9 @@ export default async function JobsPage() {
         employer: { select: { companyName: true, logoUrl: true } },
       },
     });
-    const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
+    const visible = jobs.filter(
+      (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+    );
     initialJobs = visible;
     initialTotal = visible.length;
   } catch {

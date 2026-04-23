@@ -28,7 +28,7 @@ export default async function ResumeCoachPage() {
         >
           <PageHeader
             title="Resume Coach"
-            subtitle="Work through your background out loud, approve better phrasing inline, and keep your live draft synced as you go."
+            subtitle="Work through your background out loud, keep your live draft synced as you go, and review suggested rewrites during or after the session."
             breadcrumbs={[
               { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Resume Coach' },
@@ -49,7 +49,7 @@ export default async function ResumeCoachPage() {
             <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
               {[
                 'Talk through accomplishments naturally',
-                'Approve coach suggestions before they change your draft',
+                'Review coach suggestions before applying them to your draft',
                 'Keep your saved resume aligned with the live voice session',
               ].map((item) => (
                 <div key={item} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-on-surface-variant)', fontSize: '0.82rem', fontWeight: 600 }}>

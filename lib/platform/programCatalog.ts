@@ -65,14 +65,14 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
       const staticP = getProgramBySlug(r.programSlug);
       return {
         slug: r.programSlug,
-        name: r.name,
+        name: staticP?.title ?? r.name,
         description: r.description,
         category: r.category,
         deliveryType: r.deliveryType,
         deliveryUrl: r.deliveryUrl,
         deliveryDetails: r.deliveryDetails,
         certifications: r.certifications,
-        duration: r.duration,
+        duration: staticP?.duration ?? r.duration,
         status: r.status,
         displayOrder: r.displayOrder,
         featured: r.featured,

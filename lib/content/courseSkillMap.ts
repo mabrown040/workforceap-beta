@@ -620,7 +620,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-1',
     courseName: 'Introduction to Software Engineering',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -635,7 +635,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-2',
     courseName: 'Introduction to Artificial Intelligence (AI)',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -650,7 +650,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-3',
     courseName: 'Generative AI: Introduction and Applications',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -665,7 +665,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-4',
     courseName: 'Generative AI: Prompt Engineering Basics',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -680,7 +680,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-5',
     courseName: 'Python for Data Science, AI & Development',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -695,7 +695,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-6',
     courseName: 'Developing AI Applications with Python and Flask',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -710,7 +710,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-7',
     courseName: 'Building Generative AI-Powered Applications with Python',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -725,7 +725,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-8',
     courseName: 'Generative AI: Elevate your Software Development Career',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -2187,7 +2187,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-1',
     courseName: 'Introduction to Construction Industry',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2202,7 +2202,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-2',
     courseName: 'Blueprint Reading and Construction Math',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2217,7 +2217,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-3',
     courseName: 'Construction Safety and OSHA-10',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2232,7 +2232,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-4',
     courseName: 'Hand and Power Tools',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2247,7 +2247,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-5',
     courseName: 'Concrete and Masonry Fundamentals',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2262,7 +2262,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-6',
     courseName: 'Carpentry and Framing Basics',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2277,7 +2277,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-7',
     courseName: 'Electrical and Plumbing Basics',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2292,7 +2292,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-8',
     courseName: 'Construction Readiness Capstone',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [

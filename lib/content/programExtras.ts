@@ -117,7 +117,7 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     bestFor: 'Full-stack development. HTML, JavaScript, Python, React, Docker.',
     jobOutcomes: ['Software Developer', 'Full-Stack Developer', 'Web Developer'],
     difficulty: 3,
-    rampNote: 'Longer program (4-6 months). Best if you have patience for structured learning.',
+    rampNote: 'Structured 6-week pathway with weekly focus blocks. Best if you have patience for step-by-step learning.',
   },
 };
 

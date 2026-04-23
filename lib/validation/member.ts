@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const PROGRAM_INTEREST_OPTIONS = [
-  'Digital Literacy Empowerment Class (6-7 Weeks)',
-  'AI Professional Developer Certificate (IBM)',
+  'Digital Literacy Empowerment Class (6 weeks, 30 hours total)',
+  'AI Professional Practitioner Certificate (IBM)',
   'Software & Applications Developer (IBM)',
   'CompTIA A+ Professional Certificate',
   'CompTIA Network+ Professional Certificate',
@@ -19,7 +19,7 @@ export const PROGRAM_INTEREST_OPTIONS = [
   'Medical Coding & Health Information Technology (MCHIT)',
   'Certified Production Technician (CPT)',
   'Certified Logistics Technician (CLT)',
-  'Core Construction Skilled Trades Readiness',
+  'Core Construction',
   'Not sure — help me choose',
 ] as const;
 

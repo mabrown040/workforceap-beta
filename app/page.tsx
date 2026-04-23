@@ -543,7 +543,7 @@ export default async function HomePage() {
                     background: 'var(--surface-container-lowest)', fontSize: '0.75rem', fontWeight: 600,
                   }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">schedule</span>
-                    {p.static?.duration ?? '3-5 months'}
+                    {p.static?.duration ?? '6 weeks, 5 hrs/week (30 hours total)'}
                   </span>
                   {/* Cert badge */}
                   <span style={{

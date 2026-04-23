@@ -99,7 +99,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   const email = parsed.data.email.toLowerCase().trim();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const displayName = partner.contactName?.trim() || 'Partner User';
 
   let authUserId: string | null = null;

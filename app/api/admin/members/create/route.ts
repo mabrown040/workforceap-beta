@@ -93,7 +93,7 @@ export async function POST(request: Request) {
   }
 
   const fullName = `${firstName} ${lastName}`.trim() || firstName;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
   const supabase = getSupabaseAdmin();
 

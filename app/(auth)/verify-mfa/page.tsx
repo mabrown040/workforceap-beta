@@ -62,7 +62,7 @@ export default function VerifyMfaPage() {
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Verified</h1>
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>Redirecting to your dashboard…</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>Redirecting to the admin dashboard…</p>
         </div>
       </div>
     );
@@ -81,14 +81,17 @@ export default function VerifyMfaPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <label htmlFor="mfa-code" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Verification Code
             </label>
             <input
+              id="mfa-code"
+              name="code"
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
+              autoComplete="one-time-code"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
               placeholder="000000"

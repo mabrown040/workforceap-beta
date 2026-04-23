@@ -27,7 +27,7 @@ export async function POST(
   const secret = process.env.CRON_SECRET;
   if (!secret) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
 
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org';
   const url = `${origin}${cron.apiPath}`;
 
   let result: Record<string, unknown> = {};

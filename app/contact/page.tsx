@@ -113,21 +113,19 @@ export default function ContactPage() {
               </div>
 
               <div
+                className="portal-card portal-card--flat"
                 style={{
-                  background: 'var(--surface-container-low)',
-                  borderRadius: 'var(--radius-lg)',
-                  overflow: 'hidden',
-                  aspectRatio: '16/9',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  padding: '1.25rem',
                   border: '1px solid var(--outline-variant)',
+                  background: 'var(--surface-container-low)',
                 }}
               >
-                <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem', opacity: 0.4 }} aria-hidden="true">map</span>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Austin, TX</p>
-                </div>
+                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Austin-based team</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>Built in Austin, supporting members nationwide</h3>
+                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                  We work from Austin, Texas and support members, partners, and employers across the country. Use the form,
+                  email, or phone to reach the right team and we&apos;ll follow up within 1–2 business days.
+                </p>
               </div>
             </div>
           </div>

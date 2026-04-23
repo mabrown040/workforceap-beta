@@ -95,7 +95,7 @@ export default async function JobsPage() {
     <div className="inner-page">
       <PageHeader
         title="Job Board"
-        subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create a free account or log in to apply."
+        subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create your account or log in to apply."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>

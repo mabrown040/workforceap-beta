@@ -423,7 +423,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   New here?
                 </p>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.4 }}>
-                  Create a free account to explore programs and start training.
+                  Create your account to explore programs and start training.
                 </p>
               </div>
               <Link href={signupHref} style={{

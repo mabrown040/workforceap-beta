@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { sanitizePublicPartnerLabel, sanitizePublicSubgroupLabel } from '@/lib/public/publicDataFilters';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -58,11 +59,11 @@ export async function GET(request: NextRequest) {
       roleLabel,
       inviterName: invitation.invitedBy.fullName?.trim() || 'A WorkforceAP team member',
       subgroup: invitation.subgroup
-        ? { id: invitation.subgroup.id, name: invitation.subgroup.name }
+        ? { id: invitation.subgroup.id, name: sanitizePublicSubgroupLabel(invitation.subgroup.name) ?? invitation.subgroup.name }
         : null,
       program: program ? { slug: program.slug, title: program.title } : null,
       partner: invitation.partner
-        ? { id: invitation.partner.id, name: invitation.partner.name }
+        ? { id: invitation.partner.id, name: sanitizePublicPartnerLabel(invitation.partner.name) ?? invitation.partner.name }
         : null,
     });
   } catch (e) {

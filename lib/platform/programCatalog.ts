@@ -72,7 +72,7 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
         deliveryUrl: r.deliveryUrl,
         deliveryDetails: r.deliveryDetails,
         certifications: r.certifications,
-        duration: staticP?.duration ?? r.duration,
+        duration: r.duration,
         status: r.status,
         displayOrder: r.displayOrder,
         featured: r.featured,

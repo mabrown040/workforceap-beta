@@ -38,10 +38,9 @@ export default function InactiveMembersPage() {
     }
   };
 
-  const sendReminder = async (member: InactiveMember) => {
+  const logOutreach = async (member: InactiveMember) => {
     setSendingReminder(member.id);
     try {
-      // For now, just log the reminder action (email sending can be added later)
       await fetch('/api/counselor/remind-member', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,7 +70,7 @@ export default function InactiveMembersPage() {
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Inactive Members</h1>
         <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.9rem' }}>
-          Members who haven't been active on the platform. Reach out to re-engage them.
+          Members who haven't been active on the platform. Reach out directly by email or phone, then log the outreach here so other staff can see the member was contacted.
         </p>
       </div>
 
@@ -170,8 +169,10 @@ export default function InactiveMembersPage() {
                       </td>
                       <td style={{ padding: '0.875rem 1rem', textAlign: 'right' }}>
                         <button
-                          onClick={() => sendReminder(m)}
+                          type="button"
+                          onClick={() => logOutreach(m)}
                           disabled={sendingReminder === m.id || reminderSent.has(m.id)}
+                          title="Mark that you contacted this member by email or phone. Does not send a message automatically."
                           style={{
                             padding: '0.5rem 0.875rem',
                             borderRadius: 'var(--radius-md)',
@@ -184,7 +185,7 @@ export default function InactiveMembersPage() {
                             opacity: sendingReminder === m.id ? 0.7 : 1,
                           }}
                         >
-                          {sendingReminder === m.id ? 'Sending…' : reminderSent.has(m.id) ? 'Sent ✓' : 'Send Reminder'}
+                          {sendingReminder === m.id ? 'Saving…' : reminderSent.has(m.id) ? 'Logged ✓' : 'Log Outreach'}
                         </button>
                       </td>
                     </tr>

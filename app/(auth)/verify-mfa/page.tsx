@@ -8,6 +8,7 @@ export default function VerifyMfaPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [trustDevice, setTrustDevice] = useState(true);
 
   // Redirect to login if no active session (no aal1 session)
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function VerifyMfaPage() {
       const res = await fetch('/api/auth/verify-mfa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, trustDevice }),
       });
 
       const data = await res.json();
@@ -111,6 +112,25 @@ export default function VerifyMfaPage() {
           {error && (
             <p style={{ color: 'var(--color-error)', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{error}</p>
           )}
+
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.65rem',
+              marginBottom: '1rem',
+              fontSize: '0.85rem',
+              color: 'var(--color-on-surface-variant)',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={trustDevice}
+              onChange={(e) => setTrustDevice(e.target.checked)}
+              style={{ marginTop: '0.15rem' }}
+            />
+            <span>Remember this device for 7 days so admin MFA is not required on every sign-in.</span>
+          </label>
 
           <button
             type="submit"

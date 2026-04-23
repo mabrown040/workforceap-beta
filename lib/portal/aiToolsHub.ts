@@ -1,5 +1,5 @@
 /**
- * Simplified AI Career Toolkit hub: eight top-level categories, each linking to existing tools.
+ * Simplified AI Career Toolkit hub: the 5 member-facing tools we want surfaced clearly for go-live.
  */
 export type AiToolsHubLink = { label: string; href: string };
 
@@ -13,103 +13,48 @@ export type AiToolsHubCategory = {
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
   {
-    id: 'career-business',
-    title: 'Career & Business Coach',
-    icon: 'business_center',
-    description: 'General career and business coaching for project management, sales, marketing, and professional growth.',
-    links: [
-      { label: 'Career and Business Coach', href: '/dashboard/ai-tools/career-business-coach' },
-    ],
-  },
-  {
     id: 'elevator-pitch',
-    title: 'Elevator Pitch',
+    title: 'AI Elevator Speech',
     icon: 'record_voice_over',
-    description: 'AI writes your 10-20 second elevator statement — then rehearse it on camera.',
+    description: 'Generate a sharp 10 to 20 second intro, save it, email it to yourself, then rehearse it on camera.',
     links: [
-      { label: 'Build elevator pitch', href: '/dashboard/ai-tools/elevator-pitch' },
+      { label: 'Open AI elevator speech', href: '/dashboard/ai-tools/elevator-pitch' },
     ],
   },
   {
     id: 'readiness',
-    title: 'Career Readiness',
+    title: 'Career Readiness Coach',
     icon: 'psychology',
     description: 'Talk through interviews, certifications, and next steps with an AI coach.',
     links: [
-      { label: 'Career readiness coach', href: '/dashboard/ai-tools/readiness-coach' },
-      { label: 'Job readiness checklist', href: '/dashboard/readiness' },
+      { label: 'Open readiness coach', href: '/dashboard/ai-tools/readiness-coach' },
     ],
   },
   {
-    id: 'resume',
-    title: 'Resume',
+    id: 'resume-coach',
+    title: 'Resume Coach',
     icon: 'description',
-    description: 'Upload, analyze, rewrite, and tailor your resume.',
+    description: 'Practice your story out loud and tighten your resume inside the dedicated coaching flow.',
     links: [
-      { label: 'Upload resume', href: '/dashboard/resume' },
-      { label: 'Resume coach', href: '/dashboard/ai-tools/resume-coach' },
-      { label: 'Resume AI analysis', href: '/dashboard/ai-tools/resume-analysis' },
-      { label: 'AI resume rewriter', href: '/dashboard/ai-tools/resume-rewriter' },
-      { label: 'AI cover letter', href: '/dashboard/ai-tools/cover-letter' },
+      { label: 'Open resume coach', href: '/dashboard/ai-tools/resume-coach' },
     ],
   },
   {
-    id: 'interview',
-    title: 'Interview',
+    id: 'voice-interview',
+    title: 'Voice Interview',
     icon: 'forum',
-    description: 'Practice questions and live voice mock interviews.',
+    description: 'Practice live mock interviews with voice coaching, setup guidance, and saved results.',
     links: [
-      { label: 'Voice job interviewer', href: '/dashboard/ai-tools/voice-interview' },
-      { label: 'AI interview coach', href: '/dashboard/ai-tools/interview-coach' },
-      { label: 'Interview practice worksheet', href: '/dashboard/ai-tools/interview-practice' },
+      { label: 'Start voice interview', href: '/dashboard/ai-tools/voice-interview' },
     ],
   },
   {
-    id: 'skill-mapping',
-    title: 'Skill mapping',
-    icon: 'radar',
-    description: 'Map skills to occupations with O*NET data.',
+    id: 'career-business',
+    title: 'Career & Business Coach',
+    icon: 'business_center',
+    description: 'Get broader career, project management, sales, marketing, and business guidance in one place.',
     links: [
-      { label: 'Skill mapper', href: '/dashboard/ai-tools/skill-mapper' },
-      { label: 'Learning Hub: Find your career', href: '/dashboard/learning/find-your-career' },
+      { label: 'Open career and business coach', href: '/dashboard/ai-tools/career-business-coach' },
     ],
-  },
-  {
-    id: 'linkedin',
-    title: 'LinkedIn',
-    icon: 'work',
-    description: 'Headline and About from your experience.',
-    links: [
-      { label: 'LinkedIn headline', href: '/dashboard/ai-tools/linkedin-headline' },
-      { label: 'LinkedIn About (from resume)', href: '/dashboard/ai-tools/linkedin-about' },
-    ],
-  },
-  {
-    id: 'career-gap',
-    title: 'Career gap',
-    icon: 'history',
-    description: 'Frame employment gaps with suggested language.',
-    links: [{ label: 'Gap analyzer', href: '/dashboard/ai-tools/gap-analyzer' }],
-  },
-  {
-    id: 'job-match',
-    title: 'Job match',
-    icon: 'target',
-    description: 'Score your fit against a job posting.',
-    links: [{ label: 'Job match scorer', href: '/dashboard/ai-tools/job-match-scorer' }],
-  },
-  {
-    id: 'applications',
-    title: 'Application tracker',
-    icon: 'view_list',
-    description: 'Track applications and status in one place.',
-    links: [{ label: 'Application tracker', href: '/dashboard/job-applications' }],
-  },
-  {
-    id: 'salary',
-    title: 'Salary negotiator',
-    icon: 'payments',
-    description: 'Scripts and framing for offer conversations.',
-    links: [{ label: 'Salary negotiator', href: '/dashboard/ai-tools/salary-negotiation' }],
   },
 ];

@@ -25,3 +25,10 @@
 ## 2025-02-12 - Added ARIA attributes to expandable `<button>` toggles
 **Learning:** Found several clickable rows operating as "accordion" toggle buttons that were lacking crucial screen reader hints regarding their expanded state or their function.
 **Action:** Applied `aria-expanded={isExpanded}` and dynamically adjusted their `aria-label` based on the expanded status to offer screen readers more context.
+## 2024-05-18 - Accessible Expandable Buttons
+**Learning:** Adding `aria-label` to an element that already contains visible text completely replaces the text for screen readers. In `InterviewCoach.tsx`, adding `aria-label="Expand coaching session"` to a button that had the date and interview type caused screen readers to ignore the visible details, making all the buttons sound identical. Screen readers inherently announce "expanded" or "collapsed" based on the `aria-expanded` attribute, making an explicitly dynamic "Expand/Collapse" text label redundant in most cases.
+**Action:** When adding accessibility to expandable buttons (accordions) with dynamic visible text, do not add an `aria-label` unless it specifically supplements and accurately describes the entire contents of the button. Stick to using `aria-expanded` and `aria-controls` to establish the semantic relationship.
+
+## 2026-04-22 - Custom Dialog Accessibility Pattern
+**Learning:** Custom built modals in this application's components (like confirmation dialogs for destructive actions) frequently lack the foundational ARIA roles (`role="dialog"`, `aria-modal="true"`) and label bindings.
+**Action:** Always verify custom modal container divs in this project have `role="dialog"`, `aria-modal="true"`, and an `aria-labelledby` linking to their heading. Additionally, verify internal inputs have explicitly linked instructions via `aria-describedby` when a `<label>` isn't sufficient.

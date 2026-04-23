@@ -9482,9 +9482,6 @@ html.dark .workspace-sidebar-signout:hover {
     cursor: help;
 }
 .super-admin-view-switcher__header {
-    position: absolute;
-    top: calc(100% + 0.25rem);
-    right: 0;
     padding: 0.5rem 0.75rem;
     font-size: 0.7rem;
     font-weight: 600;
@@ -9492,10 +9489,18 @@ html.dark .workspace-sidebar-signout:hover {
     letter-spacing: 0.04em;
     color: var(--color-on-surface-variant);
     background: var(--surface-container-high);
+    border-bottom: 1px solid var(--outline-variant);
+}
+.super-admin-view-switcher__panel {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    right: 0;
+    min-width: 200px;
+    background: var(--color-white);
     border: 1px solid var(--outline-variant);
-    border-bottom: none;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
     z-index: 101;
 }
 @media (min-width: 1024px) {
@@ -11142,16 +11147,15 @@ body:has(.dashboard-drawer-overlay.open) {
     white-space: nowrap;
 }
 .super-admin-view-switcher__dropdown {
-    position: absolute;
-    top: calc(100% + 4px);
-    right: 0;
-    min-width: 180px;
+    position: static;
+    min-width: 0;
     padding: 0.25rem;
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    z-index: 100;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    list-style: none;
 }
 .super-admin-view-switcher__option {
     display: block;

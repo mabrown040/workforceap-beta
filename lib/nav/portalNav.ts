@@ -80,7 +80,7 @@ export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   program: { label: 'My Program', icon: 'school' },
   jobs: { label: 'Jobs', icon: 'work' },
   tools: { label: 'Tools', icon: 'construction' },
-  me: { label: 'Me', icon: 'person' },
+  me: { label: 'AI Toolkit', icon: 'person' },
 };
 
 export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'me'];
@@ -139,7 +139,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'Career Tools', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/ai-tools', label: 'AI Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
@@ -326,6 +326,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── Insights — metrics and reporting ──
   { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
+  { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },
   { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },

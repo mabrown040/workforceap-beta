@@ -8,6 +8,8 @@ This branch scaffolds the WorkforceAP side of Coursera before credentials are ad
 - Member status endpoint: `/api/member/coursera`
 - Member enterprise sync probe: `/api/member/coursera/sync`
 - Secure webhook intake for completions: `/api/webhooks/coursera`
+- xAPI auth + intake endpoints: `/api/xapi/oauth/token`, `/api/xapi/statements`, `/api/xapi/about`
+- Admin mapping/debug endpoint for Coursera identities: `/api/admin/coursera/mappings`
 - Member-facing portal page: `/dashboard/coursera`
 - Shared course completion helper so webhook completions and member self-reporting stay aligned
 
@@ -15,7 +17,11 @@ This branch scaffolds the WorkforceAP side of Coursera before credentials are ad
 
 Add these in Vercel or local env when credentials are ready:
 
-- `COURSERA_API_TOKEN`
+- `COURSERA_API_TOKEN` or OAuth app credentials below
+- `COURSERA_APP_ID` (optional, useful for your records)
+- `COURSERA_APP_KEY`
+- `COURSERA_APP_SECRET`
+- `COURSERA_OAUTH_TOKEN_URL` (optional, defaults to `https://api.coursera.com/oauth2/client_credentials/token`)
 - `COURSERA_PROGRAM_ID`
 - `COURSERA_PROGRAM_ID_MAP` (JSON, optional per-program override)
 - `COURSERA_PROGRAM_HOME_URL` or `COURSERA_PROGRAM_URL_TEMPLATE`
@@ -41,5 +47,6 @@ COURSERA_PROGRAM_ID_MAP={"it-support-professional-certificate-ibm":"abc123"}
 ## Notes
 
 - Skillset sync currently reads Coursera Enterprise learner progress and returns normalized JSON to the portal.
+- WAP now supports either a pre-minted bearer token or Coursera OAuth app key/secret exchange.
 - Webhook completion handling supports either `courseSlug` or exact `courseName` matching against the member's enrolled program.
 - The launch route falls back to public Coursera until launch credentials are configured.

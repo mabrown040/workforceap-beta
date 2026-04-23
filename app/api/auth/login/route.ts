@@ -5,6 +5,7 @@ import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE, SESSION_ONLY_MAX_AGE } f
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
+import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 
 export async function POST(request: Request) {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
@@ -115,6 +116,27 @@ export async function POST(request: Request) {
 
   // If MFA required (staff with factor enrolled), tell client to verify
   if (needsMfa && isStaff) {
+    const trustedDevice = await verifyAdminMfaTrustToken({
+      token: cookieStore.get(getAdminMfaTrustCookieName())?.value,
+      userId: data.user.id,
+      userAgent: request.headers.get('user-agent'),
+    });
+
+    if (trustedDevice) {
+      const trustedRedirect =
+        profile?.role === 'super_admin'
+          ? '/admin'
+          : redirectTo === '/dashboard' && profile?.role === 'admin'
+            ? '/admin'
+            : redirectTo;
+
+      if (request.headers.get('x-wap-login-flow') === 'client') {
+        return NextResponse.json({ ok: true, redirectTo: trustedRedirect, mfaTrusted: true });
+      }
+
+      return NextResponse.redirect(new URL(trustedRedirect, request.url), 302);
+    }
+
     return NextResponse.json({ ok: true, mfaRequired: true, redirectTo: '/verify-mfa' });
   }
 

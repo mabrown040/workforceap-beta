@@ -108,7 +108,7 @@ export default async function ProgramPage({ params }: Props) {
               </h3>
               <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
                 Applications take about 10 minutes. No cost for qualifying members.
-                We respond within 3–5 business days.
+                We respond within 1–2 business days.
               </p>
               <Link
                 href={`/apply?program=${program.slug}`}

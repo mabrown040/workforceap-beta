@@ -6,6 +6,20 @@ type StringArrayMap = Record<string, string[]>;
 const DEFAULT_API_BASE_URL = 'https://api.coursera.com/ent/api/rest/v1';
 const DEFAULT_PLATFORM_URL = 'https://www.coursera.org';
 
+function deriveProgramIdFromUrl(raw: string | undefined): string {
+  const value = raw?.trim() || '';
+  if (!value) return '';
+
+  try {
+    const url = new URL(value);
+    const match = url.pathname.match(/\/programs\/([^/]+)/i);
+    return match?.[1]?.trim() || '';
+  } catch {
+    const match = value.match(/\/programs\/([^/]+)/i);
+    return match?.[1]?.trim() || '';
+  }
+}
+
 function parseCsv(raw: string | undefined): string[] {
   return (raw ?? '')
     .split(',')
@@ -62,12 +76,21 @@ function interpolateTemplate(template: string, values: Record<string, string | u
 }
 
 export function getCourseraConfig() {
+  const programHomeUrl = process.env.COURSERA_PROGRAM_HOME_URL?.trim() || '';
+  const explicitProgramId = process.env.COURSERA_PROGRAM_ID?.trim() || '';
+
   return {
     apiBaseUrl: process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL,
     apiToken: process.env.COURSERA_API_TOKEN?.trim() || '',
-    programId: process.env.COURSERA_PROGRAM_ID?.trim() || '',
+    appId: process.env.COURSERA_APP_ID?.trim() || '',
+    appKey: process.env.COURSERA_APP_KEY?.trim() || '',
+    appSecret: process.env.COURSERA_APP_SECRET?.trim() || '',
+    oauthTokenUrl:
+      process.env.COURSERA_OAUTH_TOKEN_URL?.trim() ||
+      'https://api.coursera.com/oauth2/client_credentials/token',
+    programId: explicitProgramId || deriveProgramIdFromUrl(programHomeUrl),
     programIdMap: parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP),
-    programHomeUrl: process.env.COURSERA_PROGRAM_HOME_URL?.trim() || '',
+    programHomeUrl,
     programUrlTemplate: process.env.COURSERA_PROGRAM_URL_TEMPLATE?.trim() || '',
     /** Template for deep-linking to individual courses: {courseId}, {programId}, {userId}, {email} */
     courseUrlTemplate: process.env.COURSERA_COURSE_URL_TEMPLATE?.trim() || '',
@@ -158,7 +181,9 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
   }
 
   const syncMissing: string[] = [];
-  if (!config.apiToken) syncMissing.push('API token');
+  if (!config.apiToken && !(config.appKey && config.appSecret)) {
+    syncMissing.push('API token or OAuth app key/secret');
+  }
   if (!programId) syncMissing.push('Coursera program ID');
   if (skillsetIds.length === 0) syncMissing.push('skillset IDs');
 

@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
+import { prisma } from '@/lib/db/prisma';
+import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
 const MAX_HISTORY_TURNS = 120;
 const MAX_HISTORY_CHARS = 16000;
@@ -126,6 +128,34 @@ export async function POST(req: NextRequest) {
     const inputSummary = `Resume Helper voice session (${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'})`;
     const output = buildHistoryOutput(transcript, suggestions);
     await saveAIToolResult(user.id, 'resume_rewriter', inputSummary, output);
+
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true, email: true },
+      });
+
+      const recipients = getVoiceCoachTranscriptRecipients();
+      if (recipients.length > 0) {
+        await sendVoiceCoachTranscriptEmail({
+          to: recipients,
+          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+          memberEmail: dbUser?.email?.trim() || user.email || null,
+          coachLabel: 'Resume Coach',
+          transcriptTurns: transcript.map((turn) => ({
+            role: turn.speaker === 'agent' ? 'agent' : 'user',
+            text: turn.text,
+          })),
+          highlights: suggestions.map((suggestion) => {
+            const original = suggestion.original?.trim();
+            if (original) return `Replace "${original}" with "${suggestion.suggested}". Why: ${suggestion.context}`;
+            return `Add "${suggestion.suggested}". Why: ${suggestion.context}`;
+          }),
+        });
+      }
+    } catch (emailErr) {
+      console.error('[parse-suggestions] failed to email session transcript', emailErr);
+    }
   } catch (saveErr) {
     console.error('[parse-suggestions] failed to persist session transcript', saveErr);
   }

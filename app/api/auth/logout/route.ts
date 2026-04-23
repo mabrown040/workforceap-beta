@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/auth/server';
 import { SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
+import { getAdminMfaTrustCookieName } from '@/lib/auth/mfaTrust';
 
 export async function POST() {
   try {
@@ -11,6 +12,14 @@ export async function POST() {
     // Clear the session-only preference flag on logout
     const cookieStore = await cookies();
     cookieStore.set(SESSION_ONLY_COOKIE, '', {
+      path: '/',
+      maxAge: 0,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+    });
+
+    cookieStore.set(getAdminMfaTrustCookieName(), '', {
       path: '/',
       maxAge: 0,
       sameSite: 'lax',

@@ -4,11 +4,17 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { prisma } from '@/lib/db/prisma';
+import {
+  getVoiceCoachTranscriptRecipients,
+  sendElevatorSpeechEmail,
+  sendVoiceCoachArtifactEmail,
+} from '@/lib/email';
 
 /**
  * POST /api/ai/elevator-pitch
  * Body: { name, targetRole, strengths, certifications, industry }
- * Returns: { pitch: string } — a 10-20 second elevator statement
+ * Returns: { pitch: string, emailSent?: boolean } — a 10-20 second elevator statement
  */
 export async function POST(request: Request) {
   const user = await getUser();
@@ -62,17 +68,74 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     try {
       await ensureUserInDb(user);
+      const trimmedPitch = pitch.trim();
+
       await saveAIToolResult(
         user.id,
         'career_counselor',
-        `Elevator pitch for ${targetRole.trim()}`,
-        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch })
+        `AI elevator speech for ${targetRole.trim()}`,
+        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch: trimmedPitch })
       );
+
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { fullName: true, email: true },
+        });
+
+        const recipients = getVoiceCoachTranscriptRecipients();
+        if (recipients.length > 0) {
+          await sendVoiceCoachArtifactEmail({
+            to: recipients,
+            memberName: dbUser?.fullName?.trim() || user.email || name.trim() || 'WorkforceAP member',
+            memberEmail: dbUser?.email?.trim() || user.email || null,
+            coachLabel: 'Elevator Pitch Builder',
+            artifactTitle: 'Generated pitch',
+            artifactBody: trimmedPitch,
+            highlights: [
+              `Target role: ${targetRole.trim()}`,
+              industry?.trim() ? `Industry: ${industry.trim()}` : '',
+            ].filter(Boolean),
+          });
+        }
+      } catch (emailError) {
+        console.error('[elevator-pitch] failed to email artifact', emailError);
+      }
     } catch (persistError) {
       console.error('[elevator-pitch] failed to persist result', persistError);
     }
 
-    return NextResponse.json({ pitch: pitch.trim() });
+    let emailSent = false;
+    let emailError: string | undefined;
+
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true, email: true },
+      });
+
+      const recipient = dbUser?.email?.trim() || user.email || '';
+      if (recipient) {
+        const emailResult = await sendElevatorSpeechEmail({
+          to: recipient,
+          memberName: dbUser?.fullName?.trim() || name.trim() || recipient,
+          targetRole: targetRole.trim(),
+          strengths: strengths?.trim() || null,
+          certifications: certifications?.trim() || null,
+          industry: industry?.trim() || null,
+          pitch: pitch.trim(),
+        });
+        emailSent = emailResult.ok;
+        emailError = emailResult.error;
+      } else {
+        emailError = 'No email address found for this member';
+      }
+    } catch (emailErr) {
+      console.error('[elevator-pitch] failed to email result', emailErr);
+      emailError = emailErr instanceof Error ? emailErr.message : 'Failed to send email';
+    }
+
+    return NextResponse.json({ pitch: pitch.trim(), emailSent, emailError });
   } catch (e) {
     console.error('[elevator-pitch] generation failed', e);
     return NextResponse.json({ error: 'Failed to generate pitch' }, { status: 500 });

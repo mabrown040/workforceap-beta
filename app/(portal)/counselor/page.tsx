@@ -379,6 +379,8 @@ export default async function CounselorPortalPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
                 { href: '/counselor/students', icon: 'groups', title: 'My Members', desc: 'View roster and member details', accent: 'accent' },
+                { href: '/counselor/placements', icon: 'work', title: 'Placements', desc: 'Track job placements', accent: 'green' },
+                { href: '/counselor/inactive-members', icon: 'notifications_paused', title: 'Inactive Members', desc: 'Members who need re-engagement', accent: 'error' },
                 { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to member threads', accent: 'blue' },
                 { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links', accent: 'gold' },
               ].map((link) => (

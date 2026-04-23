@@ -87,7 +87,7 @@ export default function SuperAdminViewSwitcher() {
         <ChevronDown size={14} aria-hidden />
       </button>
       {open && (
-        <>
+        <div className="super-admin-view-switcher__panel">
           <div className="super-admin-view-switcher__header">
             Switch portal view
           </div>
@@ -108,7 +108,7 @@ export default function SuperAdminViewSwitcher() {
               </li>
             ))}
           </ul>
-        </>
+        </div>
       )}
     </div>
   );

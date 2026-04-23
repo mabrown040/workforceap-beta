@@ -45,6 +45,9 @@ export default function DeleteAccountButton() {
       </button>
       {showModal && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-account-title"
           style={{
             position: 'fixed',
             inset: 0,
@@ -66,14 +69,17 @@ export default function DeleteAccountButton() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ marginBottom: '0.75rem' }}>Delete account permanently?</h3>
-            <p style={{ marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+            <h3 id="delete-account-title" style={{ marginBottom: '0.75rem' }}>Delete account permanently?</h3>
+            <p id="delete-account-desc" style={{ marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
               This deactivates your WorkforceAP member account. You may lose access to training progress, messages, and
               applications tied to this login. This cannot be undone from the app. Type{' '}
               <strong style={{ color: 'var(--color-primary)' }}>DELETE</strong> in the box below to confirm.
             </p>
+            <label htmlFor="delete-confirm-input" className="wa-sr-only">Type DELETE to confirm</label>
             <input
+              id="delete-confirm-input"
               type="text"
+              aria-describedby="delete-account-desc"
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="Type DELETE to confirm"

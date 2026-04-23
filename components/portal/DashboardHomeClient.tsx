@@ -300,7 +300,7 @@ export default function DashboardHomeClient({
                   <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>{applicationStatus.nextStep}</p>
                   {applicationStatus.showResponseEstimate && (
                     <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', opacity: 0.8, marginTop: '0.5rem' }}>
-                      We typically respond with your next step in 3 to 5 business days.
+                      We typically respond with your next step in 1 to 2 business days.
                     </p>
                   )}
                   <div className="portal-card portal-card--flat portal-card--padded-sm">

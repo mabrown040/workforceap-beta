@@ -20,7 +20,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     shortDesc:
       'Submit your application online in about 10 minutes. We use it to understand your background and match you with the right opportunity.',
     longDesc:
-      'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We follow up with your next step in 3 to 5 business days.',
+      'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We follow up with your next step in 1 to 2 business days.',
     why: 'So we can personalize your path instead of sending you into a generic funnel.',
   },
   {

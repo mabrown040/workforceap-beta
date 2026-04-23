@@ -23,7 +23,7 @@ const HERO_TRUST_SIGNALS = [
   {
     icon: 'support_agent',
     title: 'Reviewed by a real team',
-    desc: 'Applications are reviewed by WorkforceAP staff, with next-step follow-up in 3 to 5 business days.',
+    desc: 'Applications are reviewed by WorkforceAP staff, with next-step follow-up in 1 to 2 business days.',
   },
   {
     icon: 'volunteer_activism',

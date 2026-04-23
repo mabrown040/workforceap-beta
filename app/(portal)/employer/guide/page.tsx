@@ -42,7 +42,7 @@ const FAQS = [
   },
   {
     q: 'How long until I see candidates?',
-    a: 'You can start seeing AI-matched candidates within 24–48 hours of posting a role, depending on your location and requirements.',
+    a: 'You can start seeing AI-matched candidates within 1–2 business days of posting a role, depending on your location and requirements.',
   },
   {
     q: 'What industries do you serve?',

@@ -4,5 +4,10 @@
 export function isExcludedPublicEmployerName(companyName: string | null | undefined): boolean {
   const n = companyName?.trim().toLowerCase() ?? '';
   if (!n) return false;
-  return n === 'test' || n === 'test students' || n.startsWith('test ');
+  return (
+    n === 'test' ||
+    n === 'test students' ||
+    n === 'capital area employer network' ||
+    n.startsWith('test ')
+  );
 }

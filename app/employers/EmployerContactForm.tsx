@@ -151,7 +151,7 @@ export default function EmployerContactForm() {
             Thank you — we received your inquiry
           </p>
           <p style={{ color: 'var(--color-on-surface-variant)' }}>
-            We&rsquo;ll reach out within 24–48 hours.
+            We&rsquo;ll reach out within 1–2 business days.
           </p>
         </div>
       </div>
@@ -180,7 +180,7 @@ export default function EmployerContactForm() {
           Employer intake for hiring managers, talent leaders, and program owners.
         </p>
         <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', lineHeight: 1.5 }}>
-          Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 24–48 hours and route you to the right partnership path.
+          Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 1–2 business days and route you to the right partnership path.
         </p>
       </div>
       {status === 'error' && errorMsg && (
@@ -279,7 +279,7 @@ export default function EmployerContactForm() {
         {status === 'sending' ? 'Sending…' : 'Submit employer intake'}
       </button>
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.85rem' }}>
-        We respond within 24–48 hours.
+        We respond within 1–2 business days.
       </p>
     </form>
     </div>

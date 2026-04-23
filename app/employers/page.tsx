@@ -491,7 +491,7 @@ export default function EmployersPage() {
               How Hiring{' '}
               <span style={{ color: 'var(--color-accent)' }}>Experience</span>
             </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 24–48 hours.</p>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 1–2 business days.</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', position: 'relative' }} className="emp-process-grid">
@@ -713,7 +713,7 @@ export default function EmployersPage() {
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>schedule</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                    Response time: 24–48 hours after submission.
+                    Response time: 1–2 business days after submission.
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>

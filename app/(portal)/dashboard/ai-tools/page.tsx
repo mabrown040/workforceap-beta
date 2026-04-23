@@ -5,39 +5,9 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
-import { AI_TOOLS_HUB } from '@/lib/portal/aiToolsHub';
+import { AI_TOOLKIT_EXTRA_SECTIONS, AI_TOOLS_HUB } from '@/lib/portal/aiToolsHub';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
-
-const FULL_AI_TOOL_SECTIONS = [
-  {
-    title: 'More resume and application tools',
-    tools: [
-      { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter', icon: 'description', category: 'Resume' },
-      { label: 'Resume Analysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check', category: 'Resume' },
-      { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft', category: 'Applications' },
-      { label: 'Application Tracker', href: '/dashboard/ai-tools/application-tracker', icon: 'task_alt', category: 'Tracking' },
-    ],
-  },
-  {
-    title: 'More interview and search tools',
-    tools: [
-      { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice', icon: 'record_voice_over', category: 'Interview' },
-      { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent', category: 'Interview' },
-      { label: 'Job Match Scorer', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats', category: 'Job search' },
-      { label: 'Skill Mapper', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree', category: 'Skills' },
-    ],
-  },
-  {
-    title: 'More profile and strategy tools',
-    tools: [
-      { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline', icon: 'badge', category: 'LinkedIn' },
-      { label: 'LinkedIn About', href: '/dashboard/ai-tools/linkedin-about', icon: 'person', category: 'LinkedIn' },
-      { label: 'Gap Analyzer', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot', category: 'Strategy' },
-      { label: 'Salary Negotiation', href: '/dashboard/ai-tools/salary-negotiation', icon: 'payments', category: 'Strategy' },
-    ],
-  },
-] as const;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Toolkit',
@@ -50,7 +20,7 @@ export default async function AIToolsPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
 
   const featuredTools = AI_TOOLS_HUB.flatMap((cat) =>
-    cat.links.map((link) => ({ ...link, icon: cat.icon, category: cat.title }))
+    cat.links.map((link) => ({ ...link, icon: cat.icon }))
   );
 
   return (
@@ -184,20 +154,20 @@ export default async function AIToolsPage() {
       </div>
 
       {/* Core tools in one dense grid */}
-      <div style={{ marginBottom: '1.5rem' }}>
+      <section style={{ maxWidth: '1100px', margin: '0 auto 1.5rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>grid_view</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Featured 5 Tools
           </h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.625rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.625rem' }}>
           {featuredTools.map((tool) => (
             <Link
               key={tool.href + tool.label}
               href={tool.href}
               className="portal-quick-action-item"
-              style={{ textDecoration: 'none', height: '96px' }}
+              style={{ textDecoration: 'none', minHeight: '84px', padding: '0.75rem 0.875rem' }}
             >
               <div className="portal-quick-action-item__icon">
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
@@ -215,13 +185,12 @@ export default async function AIToolsPage() {
                 >
                   {tool.label}
                 </p>
-                <p className="portal-quick-action-item__desc" style={{ margin: 0 }}>{tool.category}</p>
               </div>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
             </Link>
           ))}
         </div>
-      </div>
+      </section>
 
       <section style={{ maxWidth: '1100px', margin: '0 auto 2rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
@@ -231,21 +200,21 @@ export default async function AIToolsPage() {
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          {FULL_AI_TOOL_SECTIONS.map((section) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', alignItems: 'start' }}>
+          {AI_TOOLKIT_EXTRA_SECTIONS.map((section) => (
             <PortalCard key={section.title} className="portal-card--flat">
               <div style={{ marginBottom: '0.875rem' }}>
                 <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
                   {section.title}
                 </h3>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.625rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.625rem' }}>
                 {section.tools.map((tool) => (
                   <Link
                     key={tool.href}
                     href={tool.href}
                     className="portal-quick-action-item"
-                    style={{ textDecoration: 'none', height: '96px' }}
+                    style={{ textDecoration: 'none', minHeight: '82px', padding: '0.75rem 0.875rem' }}
                   >
                     <div className="portal-quick-action-item__icon">
                       <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
@@ -263,7 +232,6 @@ export default async function AIToolsPage() {
                       >
                         {tool.label}
                       </p>
-                      <p className="portal-quick-action-item__desc" style={{ margin: 0 }}>{tool.category}</p>
                     </div>
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
                   </Link>

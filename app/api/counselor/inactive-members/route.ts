@@ -1,6 +1,8 @@
+import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
 
 /**
  * GET /api/counselor/inactive-members?days=7|14|30
@@ -13,15 +15,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Check if user is staff
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: { role: true },
-  });
+  const admin = await isAdmin(user.id);
+  let counselorId: string | null = null;
 
-  const isStaff = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'counselor';
-  if (!isStaff) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (!admin) {
+    const counselor = await prisma.counselor.findFirst({
+      where: { userId: user.id, active: true },
+      select: { id: true },
+    });
+
+    if (!counselor) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    counselorId = counselor.id;
   }
 
   const { searchParams } = new URL(request.url);
@@ -29,9 +36,21 @@ export async function GET(request: Request) {
   const days = [7, 14, 30].includes(daysParam) ? daysParam : 7;
   const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-  // Get all members and their last activity
+  const assignmentScope = counselorId
+    ? Prisma.sql`
+      AND EXISTS (
+        SELECT 1
+        FROM counselor_assignments ca
+        WHERE ca.member_id = u.id
+          AND ca.active = true
+          AND ca.counselor_id = ${counselorId}
+      )
+    `
+    : Prisma.empty;
+
+  // Get scoped members and their last activity
   const inactiveMembers = await prisma.$queryRaw`
-    SELECT 
+    SELECT
       u.id,
       u.email,
       u.created_at as joined_at,
@@ -42,6 +61,7 @@ export async function GET(request: Request) {
     JOIN profiles p ON p.user_id = u.id
     LEFT JOIN member_events me ON me.user_id = u.id
     WHERE p.role = 'member'
+    ${assignmentScope}
     GROUP BY u.id, u.email, u.created_at, p.role, p.profile_phone
     HAVING MAX(me.created_at) IS NULL OR MAX(me.created_at) < ${cutoffDate}
     ORDER BY MAX(me.created_at) ASC NULLS FIRST

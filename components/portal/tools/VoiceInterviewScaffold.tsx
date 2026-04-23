@@ -32,6 +32,7 @@ export default function VoiceInterviewScaffold() {
   const [cameraPriming, setCameraPriming] = useState(false);
   /** Fresh mount for each run so voice UI state resets reliably after “Change role / style”. */
   const [voiceSessionKey, setVoiceSessionKey] = useState(0);
+  const [sessionId, setSessionId] = useState('');
   const videoStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export default function VoiceInterviewScaffold() {
     setVideoErr('');
     setCameraPriming(false);
     setVoiceSessionKey((k) => k + 1);
+    setSessionId(`voice-interview-${Date.now()}`);
     setReady(true);
   }, []);
 
@@ -285,6 +287,8 @@ export default function VoiceInterviewScaffold() {
                 key={voiceSessionKey}
                 sessionEndpoint="/api/member/voice-interview/session"
                 sessionPayload={{ role: role.trim(), interviewType, experienceLevel }}
+                completionEndpoint="/api/member/voice-interview/transcript"
+                completionPayload={{ sessionId, role: role.trim(), interviewType }}
                 title="Voice mock interview"
                 description="Answer out loud. The coach will listen and respond like a real interviewer."
                 accent="#7c3aed"

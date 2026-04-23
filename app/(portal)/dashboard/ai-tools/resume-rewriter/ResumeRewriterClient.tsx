@@ -28,7 +28,7 @@ function ResumeCoachRedirectCard() {
           </p>
           <h2 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-on-surface)' }}>Want voice coaching instead?</h2>
           <p style={{ margin: '0.45rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.88rem', lineHeight: 1.5, maxWidth: 560 }}>
-            Resume Coach now runs in its own full-screen flow so you can talk through your experience, approve better phrasing inline, and keep your live draft synced without the text tool crowding it.
+            Resume Coach now runs in its own full-screen flow so you can talk through your experience, review suggested phrasing, and keep your live draft synced without the text tool crowding it.
           </p>
         </div>
         <Link

@@ -310,7 +310,7 @@ export default function ResumeCoachWorkspace() {
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
         <VoiceAgentSurface
           {...resumeCoachVoiceSurface}
-          subtext="Voice feedback on bullets and framing. Your live draft syncs during the call — approve edits inline."
+          subtext="Voice feedback on bullets and framing. Your live draft syncs during the call, and suggested rewrites can appear for review during or after the session."
         >
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
@@ -377,7 +377,7 @@ export default function ResumeCoachWorkspace() {
           </div>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {hydrated
-              ? 'Edits here sync to the coach during the call. When the coach proposes a swap, it appears highlighted below — approve or decline before it is written into the draft.'
+              ? 'Edits here sync to the coach during the call. Suggested rewrites can appear below for you to apply or dismiss, and you can keep editing the draft directly at any time.'
               : 'Loading your resume…'}
           </p>
           {postSessionParsing ? (

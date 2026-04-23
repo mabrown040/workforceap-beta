@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
+import ApplyPageSkeleton from '../ApplyPageSkeleton';
 import ApplyResultsClient from './ApplyResultsClient';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -22,7 +23,7 @@ export default function ApplyResultsPage() {
 
       <section className="content-section">
         <div className="container">
-          <Suspense fallback={<p>Loading...</p>}>
+          <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyResultsClient />
           </Suspense>
         </div>

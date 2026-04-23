@@ -195,7 +195,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <h1 style={sPage.heroHeading}>Start Your Application</h1>
         <p style={sPage.heroDesc}>
           This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&apos;re not sure yet — and a member advisor will follow up within 1–2 business days to walk you through your options.
-          <strong> No prior experience required. For qualifying members, WorkforceAP programs are no-cost.</strong>
+          <strong> No prior experience required. No-cost for qualifying members, funded by grants and partnerships.</strong>
         </p>
         <div style={sPage.heroFallback}>
           <p style={sPage.heroFallbackTitle}>Need help getting started?</p>
@@ -265,7 +265,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.mainCard}>
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
-          <Suspense fallback={<div style={{ padding: 'var(--space-4)', color: 'var(--color-on-surface-variant)' }}>Loading...</div>}>
+          <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyRefCapture />
           </Suspense>
 

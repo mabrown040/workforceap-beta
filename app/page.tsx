@@ -18,7 +18,31 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 const HERO_IMAGE_SRC = '/images/hero-people.jpg';
-const HERO_IMAGE_THUMB = '/images/hero-people.jpg';
+const HOMEPAGE_PROGRAM_CARD_IMAGES = {
+  community: '/images/austin-skyline.jpg',
+  technology: '/images/hero-people.jpg',
+  handsOn: '/images/AdobeStock_78118914.jpeg',
+} as const;
+
+function getHomepageProgramCardImage(
+  program: { slug: string; category?: string | null; name?: string | null; static?: { categoryLabel?: string | null; title?: string | null } | null },
+  index: number,
+) {
+  const haystack = `${program.slug} ${program.category ?? ''} ${program.name ?? ''} ${program.static?.categoryLabel ?? ''} ${program.static?.title ?? ''}`.toLowerCase();
+
+  if (/(health|medical|patient|construction|manufact|logistics|trade|production)/.test(haystack)) {
+    return HOMEPAGE_PROGRAM_CARD_IMAGES.handsOn;
+  }
+  if (/(digital literacy|project|business|marketing|leadership|ux)/.test(haystack)) {
+    return HOMEPAGE_PROGRAM_CARD_IMAGES.community;
+  }
+  if (/(data|cloud|cyber|security|\bit\b|aws|google|ibm|software|developer|ai)/.test(haystack)) {
+    return HOMEPAGE_PROGRAM_CARD_IMAGES.technology;
+  }
+
+  return Object.values(HOMEPAGE_PROGRAM_CARD_IMAGES)[index % Object.values(HOMEPAGE_PROGRAM_CARD_IMAGES).length];
+}
+
 const HERO_TRUST_SIGNALS = [
   {
     icon: 'support_agent',
@@ -177,7 +201,7 @@ export default async function HomePage() {
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ No credit card required</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No cost for members</span>
+              <span>✓ No-cost for qualifying members</span>
             </p>
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
@@ -265,7 +289,7 @@ export default async function HomePage() {
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  No cost for members
+                  No-cost for qualifying members
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
@@ -444,7 +468,7 @@ export default async function HomePage() {
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
-          {homeProgramShowcase.map((p) => (
+          {homeProgramShowcase.map((p, index) => (
             <Link
               key={p.slug}
               href={`/programs/${p.slug}`}
@@ -466,7 +490,7 @@ export default async function HomePage() {
                 overflow: 'hidden',
               }}>
                 <Image
-                  src={HERO_IMAGE_THUMB}
+                  src={getHomepageProgramCardImage(p, index)}
                   alt={p.static?.title ?? p.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
@@ -539,7 +563,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. We respond within 1–2 business days. Industry-recognized certificates and placement support. No cost for members.
+            About 10 minutes to apply. We respond within 1–2 business days. Industry-recognized certificates and placement support. No-cost for qualifying members.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

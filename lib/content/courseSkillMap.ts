@@ -620,7 +620,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-1',
     courseName: 'Introduction to Software Engineering',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -635,7 +635,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-2',
     courseName: 'Introduction to Artificial Intelligence (AI)',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -650,7 +650,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-3',
     courseName: 'Generative AI: Introduction and Applications',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -665,7 +665,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-4',
     courseName: 'Generative AI: Prompt Engineering Basics',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -680,7 +680,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-5',
     courseName: 'Python for Data Science, AI & Development',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -695,7 +695,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-6',
     courseName: 'Developing AI Applications with Python and Flask',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -710,7 +710,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-7',
     courseName: 'Building Generative AI-Powered Applications with Python',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -725,7 +725,7 @@ const AI_DEVELOPER_COURSES: CourseSkillMapping[] = [
     courseSlug: 'ai-dev-course-8',
     courseName: 'Generative AI: Elevate your Software Development Career',
     programSlug: 'ai-professional-developer-certificate-ibm',
-    programTitle: 'AI Professional Developer Certificate',
+    programTitle: 'AI Professional Practitioner Certificate',
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
@@ -1797,16 +1797,16 @@ const IT_AUTOMATION_COURSES: CourseSkillMapping[] = [
 ];
 
 // ============================================================================
-// MEDICAL CODING & HIT (MCHIT)
+// MEDICAL BILLING, CODING, AND HEALTH INFORMATION TECHNOLOGY
 // ============================================================================
 
-const MCHIT_COURSES: CourseSkillMapping[] = [
+const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'mchit-course-1',
     courseName: 'Introduction to Health Information Technology',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Ethics', score: 30, specificSkills: ['HIPAA', 'Privacy', 'HIT fundamentals'] },
@@ -1821,7 +1821,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Medical Terminology and Anatomy',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Research', score: 40, specificSkills: ['Medical terminology', 'Anatomy', 'Physiology'] },
@@ -1836,7 +1836,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Health Information Management',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['HIM principles', 'Data governance', 'Workflow'] },
@@ -1851,7 +1851,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Electronic Health Records (EHR)',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 35, specificSkills: ['EHR systems', 'Workflow design', 'Implementation'] },
@@ -1866,7 +1866,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Healthcare Law, Ethics & HIPAA',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Ethics', score: 50, specificSkills: ['Healthcare law', 'HIPAA', 'Compliance', 'Ethics'] },
@@ -1881,7 +1881,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Medical Coding: ICD-10 and CPT',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Analytics', score: 45, specificSkills: ['ICD-10', 'CPT', 'Medical coding', 'Classification'] },
@@ -1896,7 +1896,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Revenue Cycle Management',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 35, specificSkills: ['Revenue cycle', 'Billing', 'Claims', 'Reimbursement'] },
@@ -1911,7 +1911,7 @@ const MCHIT_COURSES: CourseSkillMapping[] = [
     courseName: 'Capstone: HIT Practice Simulation',
     programSlug: 'health-information-technology-mchit',
     programTitle: 'Medical Coding & Health Information Technology',
-    partner: 'MCHIT',
+    partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
       { axis: 'Ethics', score: 30, specificSkills: ['Professional practice', 'Integration'] },
@@ -2187,7 +2187,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-1',
     courseName: 'Introduction to Construction Industry',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2202,7 +2202,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-2',
     courseName: 'Blueprint Reading and Construction Math',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2217,7 +2217,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-3',
     courseName: 'Construction Safety and OSHA-10',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2232,7 +2232,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-4',
     courseName: 'Hand and Power Tools',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2247,7 +2247,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-5',
     courseName: 'Concrete and Masonry Fundamentals',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2262,7 +2262,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-6',
     courseName: 'Carpentry and Framing Basics',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2277,7 +2277,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-7',
     courseName: 'Electrical and Plumbing Basics',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2292,7 +2292,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     courseSlug: 'construction-course-8',
     courseName: 'Construction Readiness Capstone',
     programSlug: 'construction-readiness-certificate-osha-10',
-    programTitle: 'Core Construction Training Certificate',
+    programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
@@ -2326,7 +2326,7 @@ export const ALL_COURSE_MAPPINGS: CourseSkillMapping[] = [
   ...COMPTIA_NETWORK_COURSES,
   ...COMPTIA_SECURITY_COURSES,
   ...IT_AUTOMATION_COURSES,
-  ...MCHIT_COURSES,
+  ...HEALTH_INFORMATION_TECH_COURSES,
   ...CPT_COURSES,
   ...CLT_COURSES,
   ...CONSTRUCTION_COURSES,

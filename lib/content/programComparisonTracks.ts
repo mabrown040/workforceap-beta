@@ -111,9 +111,9 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
   // AI & Software Dev
   {
     slug: 'ai-professional-developer-certificate-ibm',
-    shortName: 'AI Developer',
+    shortName: 'AI Practitioner',
     demand: 'Very High',
-    certs: 'IBM AI Developer',
+    certs: 'IBM AI Professional Practitioner',
     categoryLabel: 'AI & Software Dev',
     categoryOrder: 3,
   },
@@ -153,7 +153,7 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
   // Healthcare
   {
     slug: 'health-information-technology-mchit',
-    shortName: 'Medical Coding & HIT',
+    shortName: 'Medical Billing & Health IT',
     demand: 'High',
     certs: 'ICD-10 / CPT, EHR fundamentals',
     categoryLabel: 'Healthcare',

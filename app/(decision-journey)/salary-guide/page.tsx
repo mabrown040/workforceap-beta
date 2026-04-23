@@ -54,7 +54,7 @@ const GROWTH_PHASES = [
 const MOBILE_SALARY_CARDS = [
   {
     category: 'AI & Software',
-    program: 'AI Professional Developer',
+    program: 'AI Professional Practitioner',
     entry: '$85k – $105k',
     mid: '$115k – $145k',
     certs: ['IBM', 'Python', 'PyTorch'],

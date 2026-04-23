@@ -20,10 +20,10 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     rampNote: 'No tech background required. Six weeks, beginner pace. Start here if technology feels unfamiliar.',
   },
   'ai-professional-developer-certificate-ibm': {
-    bestFor: 'Career changers with some coding interest. Best if you can invest 4–6 months.',
+    bestFor: 'Career changers with some coding interest. Best if you can invest 3–5 months consistently.',
     jobOutcomes: ['AI / ML Engineer', 'Software Developer', 'Applications Engineer'],
     difficulty: 3,
-    rampNote: 'Longer program. Best if you enjoy problem-solving and tech.',
+    rampNote: 'Intermediate track. Best if you enjoy problem-solving, structured learning, and tech.',
   },
   'aws-cloud-technology-amazon': {
     bestFor: 'Tech-curious learners ready for cloud. Strong demand, higher salary ceiling.',
@@ -101,23 +101,29 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
     difficulty: 2,
     rampNote: 'Starts from healthcare fundamentals. No prior clinical experience required.',
   },
-  'production-technology-certificate-cpt': {
+  'certified-production-technician-cpt': {
     bestFor: 'Hands-on learners. CNC, manufacturing, quality control.',
     jobOutcomes: ['Manufacturing Technician', 'CNC Operator', 'Quality Inspector'],
+    difficulty: 2,
+    rampNote: 'Hands-on pathway focused on production, safety, and shop-floor fundamentals.',
   },
-  'logistics-and-supply-chain-certificate-clt': {
+  'certified-logistics-technician-clt': {
     bestFor: 'Supply chain, inventory, logistics. SAP and operations.',
     jobOutcomes: ['Logistics Coordinator', 'Supply Chain Analyst', 'Inventory Manager'],
+    difficulty: 2,
+    rampNote: 'Good fit if you like process, movement, inventory systems, and operations work.',
   },
-  'construction-readiness-certificate-osha-10': {
+  'core-construction-training-certificate': {
     bestFor: 'Construction industry entry. OSHA-10, blueprint reading, safety.',
     jobOutcomes: ['Construction Laborer', 'Apprentice', 'Site Coordinator'],
+    difficulty: 1,
+    rampNote: 'Shorter construction-readiness track focused on safety, tools, and jobsite basics.',
   },
   'software-developer-professional-certificate-ibm': {
     bestFor: 'Full-stack development. HTML, JavaScript, Python, React, Docker.',
     jobOutcomes: ['Software Developer', 'Full-Stack Developer', 'Web Developer'],
     difficulty: 3,
-    rampNote: 'Longer program (4-6 months). Best if you have patience for structured learning.',
+    rampNote: 'Longer build-focused path. Best if you have patience for step-by-step coding work over 4–6 months.',
   },
 };
 

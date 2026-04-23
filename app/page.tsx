@@ -24,6 +24,13 @@ const HOMEPAGE_PROGRAM_CARD_IMAGES = {
   handsOn: '/images/AdobeStock_78118914.jpeg',
 } as const;
 
+const HOMEPAGE_PROGRAM_ORDER = [
+  'digital-literacy-empowerment-class',
+  'it-support-professional-certificate-ibm',
+  'ai-professional-developer-certificate-ibm',
+  'project-management-professional-certificate-microsoft',
+] as const;
+
 function getHomepageProgramCardImage(
   program: { slug: string; category?: string | null; name?: string | null; static?: { categoryLabel?: string | null; title?: string | null } | null },
   index: number,
@@ -51,8 +58,8 @@ const HERO_TRUST_SIGNALS = [
   },
   {
     icon: 'volunteer_activism',
-    title: 'Austin nonprofit with workforce roots',
-    desc: 'WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience.',
+    title: 'Built on 25+ years of workforce experience',
+    desc: 'WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience across public, nonprofit, and employer-serving organizations.',
   },
   {
     icon: 'workspace_premium',
@@ -77,25 +84,46 @@ export default async function HomePage() {
     console.error('[homepage] getActivePrograms failed', e);
     activePrograms = [];
   }
+  const preferredOrderIndex = (slug: string | null | undefined) => {
+    if (!slug) return Number.MAX_SAFE_INTEGER;
+    const index = HOMEPAGE_PROGRAM_ORDER.indexOf(slug as (typeof HOMEPAGE_PROGRAM_ORDER)[number]);
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+  };
+
+  const sortHomepagePrograms = <T extends { slug: string; displayOrder?: number | null }>(programs: T[]) =>
+    [...programs].sort((a, b) => {
+      const preferredDiff = preferredOrderIndex(a.slug) - preferredOrderIndex(b.slug);
+      if (preferredDiff !== 0) return preferredDiff;
+
+      const aDisplay = a.displayOrder ?? Number.MAX_SAFE_INTEGER;
+      const bDisplay = b.displayOrder ?? Number.MAX_SAFE_INTEGER;
+      if (aDisplay !== bDisplay) return aDisplay - bDisplay;
+
+      return a.slug.localeCompare(b.slug);
+    });
+
   const featured = activePrograms.filter((p) => p.featured);
   const homeProgramShowcase =
     activePrograms.length > 0
-      ? (featured.length ? featured : activePrograms).slice(0, 3)
-      : PROGRAMS.slice(0, 3).map((p, i) => ({
-          slug: p.slug,
-          name: p.title,
-          description: null,
-          category: p.categoryLabel,
-          deliveryType: 'internal',
-          deliveryUrl: null,
-          deliveryDetails: null,
-          certifications: [],
-          duration: p.duration,
-          status: 'active',
-          displayOrder: i,
-          featured: false,
-          static: p,
-        }));
+      ? sortHomepagePrograms(featured.length ? featured : activePrograms).slice(0, 4)
+      : sortHomepagePrograms(
+          PROGRAMS.map((p, i) => ({
+            slug: p.slug,
+            name: p.title,
+            description: null,
+            category: p.categoryLabel,
+            deliveryType: 'internal',
+            deliveryUrl: null,
+            deliveryDetails: null,
+            certifications: [],
+            duration: p.duration,
+            status: 'active',
+            displayOrder: i,
+            featured: false,
+            static: p,
+          }))
+        )
+        .slice(0, 4);
   const programCount = activePrograms.length > 0 ? activePrograms.length : WORKFORCEAP_PROGRAM_CATALOG_SIZE;
 
   return (
@@ -375,7 +403,7 @@ export default async function HomePage() {
               Built on 25+ Years of Workforce Experience
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. Our leadership brings experience from organizations including Consulting Solutions.Net, Goodwill Career &amp; Technical Academy, Austin Area Urban League, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we help members access laptops, resume support, and job search guidance.
+              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
               We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost to members through WorkforceAP and partner-backed pathways.
@@ -456,7 +484,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== Available Programs — 3 Cards with images, category labels, duration + cert badges ===== */}
+      {/* ===== Available Programs — prioritized homepage cards with images, category labels, duration + cert badges ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '3rem' }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
@@ -515,7 +543,7 @@ export default async function HomePage() {
                     background: 'var(--surface-container-lowest)', fontSize: '0.75rem', fontWeight: 600,
                   }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">schedule</span>
-                    {p.static?.duration ?? '3-5 months'}
+                    {p.duration ?? p.static?.duration ?? '3-5 months'}
                   </span>
                   {/* Cert badge */}
                   <span style={{

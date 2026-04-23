@@ -314,7 +314,7 @@ export default function ProgramsPage() {
               {[
                 { icon: 'interests', label: 'Your interests', desc: 'What genuinely interests you — tech, healthcare, business, or something else.' },
                 { icon: 'devices', label: 'Comfort with technology', desc: 'Some programs assume no prior tech experience; others move faster from day one.' },
-                { icon: 'schedule', label: 'Your timeline', desc: 'How quickly you need to be working. Programs range from 4 weeks to several months.' },
+                { icon: 'schedule', label: 'Your timeline', desc: 'How quickly you need to be working. Some tracks move in 5-hour sections, while others span several months.' },
                 { icon: 'work', label: 'Job direction', desc: 'The specific roles you\'re aiming for — knowing the title helps narrow the track.' },
                 { icon: 'trending_up', label: 'Learning curve preference', desc: 'Whether you want a beginner-friendly ramp or a steeper, faster path into a field.' },
               ].map((item) => (

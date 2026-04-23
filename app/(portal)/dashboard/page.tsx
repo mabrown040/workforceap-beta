@@ -664,7 +664,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   icon: 'school',
                 },
                 {
-                  eyebrow: 'Career Tools',
+                  eyebrow: 'AI Toolkit',
                   title: 'Practice interview answers',
                   desc: 'Build confidence for recruiter screens and counselor interviews.',
                   href: '/dashboard/ai-tools/interview-practice',

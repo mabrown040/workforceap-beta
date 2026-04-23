@@ -8,8 +8,8 @@ import ElevatorPitchClient from '@/components/portal/tools/ElevatorPitchClient';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Elevator Pitch Builder',
-  description: 'AI-crafted 10-20 second elevator statement with voice rehearsal recording.',
+  title: 'AI Elevator Speech',
+  description: 'AI-crafted 10-20 second elevator speech with saved history, email delivery, and voice rehearsal recording.',
   path: '/dashboard/ai-tools/elevator-pitch',
 });
 
@@ -23,11 +23,11 @@ export default async function ElevatorPitchPage() {
         <nav style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
           <Link href="/dashboard/ai-tools" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>AI Tools</Link>
           <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden>chevron_right</span>
-          <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Elevator Pitch</span>
+          <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>AI Elevator Speech</span>
         </nav>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Elevator Pitch Builder</h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>AI Elevator Speech</h1>
         <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: 640 }}>
-          Answer a few quick questions. AI writes your 10–20 second pitch — then rehearse it with your voice and play it back.
+          Answer a few quick questions. AI writes your 10–20 second intro, saves it, emails it to you, then lets you rehearse it with your voice.
         </p>
       </div>
       <div style={{ paddingBottom: '6rem' }}>
@@ -36,8 +36,8 @@ export default async function ElevatorPitchPage() {
           <ToolHistoryPanel
             userId={user.id}
             toolTypes={['career_counselor']}
-            title="Previous elevator pitches"
-            emptyMessage="No saved pitches yet. Generate your first one above."
+            title="Previous AI elevator speeches"
+            emptyMessage="No saved elevator speeches yet. Generate your first one above."
           />
         </div>
         <MobileBottomNav variant="portal" />

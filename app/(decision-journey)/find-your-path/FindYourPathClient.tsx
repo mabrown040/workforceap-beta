@@ -346,7 +346,7 @@ function QuizResultsView({
             Your strongest match is <strong>{topProgram.title}</strong>. The published starting band is {salaryRangeDisplay(topProgram)} and the fastest next step is to start your application now.
           </p>
           <p className="quiz-results-cta-sub">
-            Choose the track that fits you best, then we’ll follow up within 3–5 business days.
+            Choose the track that fits you best, then we’ll follow up within 1–2 business days.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
             <Link href={topApplyHref} className="btn btn-primary btn-large">

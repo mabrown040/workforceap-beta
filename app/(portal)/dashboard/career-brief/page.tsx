@@ -381,7 +381,7 @@ export default async function CareerBriefPage() {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {[
-              { label: 'AI Career Tools', href: '/dashboard/ai-tools', icon: 'auto_awesome' },
+              { label: 'AI Toolkit', href: '/dashboard/ai-tools', icon: 'auto_awesome' },
               { label: 'Skill Mapper', href: '/dashboard/ai-tools/skill-mapper', icon: 'radar' },
               { label: 'Salary Guide', href: '/salary-guide', icon: 'payments' },
               { label: 'Interest Profiler', href: '/dashboard/learning/interest-profiler', icon: 'quiz' },

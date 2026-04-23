@@ -277,6 +277,61 @@ export async function sendVoiceInterviewTranscriptEmail(params: {
   }
 }
 
+export async function sendElevatorSpeechEmail(params: {
+  to: string;
+  memberName: string;
+  targetRole: string;
+  strengths?: string | null;
+  certifications?: string | null;
+  industry?: string | null;
+  pitch: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendElevatorSpeechEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const to = params.to.trim().toLowerCase();
+  if (!to) return { ok: false, error: 'No recipient configured' };
+
+  const bodyHtml = `
+    <p>Your AI elevator speech is ready.</p>
+    <ul>
+      <li><strong>Member:</strong> ${escapeHtml(params.memberName)}</li>
+      <li><strong>Target role:</strong> ${escapeHtml(params.targetRole)}</li>
+      ${params.industry?.trim() ? `<li><strong>Industry:</strong> ${escapeHtml(params.industry.trim())}</li>` : ''}
+      ${params.certifications?.trim() ? `<li><strong>Certifications:</strong> ${escapeHtml(params.certifications.trim())}</li>` : ''}
+      ${params.strengths?.trim() ? `<li><strong>Strengths:</strong> ${escapeHtml(params.strengths.trim())}</li>` : ''}
+    </ul>
+    <p><strong>Your elevator speech</strong></p>
+    <div style="padding:16px;border-radius:12px;background:#f8f5f3;border:1px solid #eadfdb;">
+      <p style="margin:0;font-size:1rem;line-height:1.7;color:#231f20;">${escapeHtml(params.pitch)}</p>
+    </div>
+    <p style="margin-top:1rem;">Open the AI Toolkit to rehearse it, copy it, or record yourself delivering it.</p>
+  `;
+
+  const html = brandedEmailLayout({
+    title: 'Your AI elevator speech is ready',
+    bodyHtml,
+    ctaText: 'Open AI Toolkit',
+    ctaUrl: `${SITE_URL}/dashboard/ai-tools/elevator-pitch`,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to,
+      subject: sanitizeEmailSubjectLine(`Your AI elevator speech — ${params.targetRole}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendElevatorSpeechEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /** Notify member when a counselor is assigned (member portal Messages) */
 export async function sendCounselorAssignedEmail(params: {
   to: string;

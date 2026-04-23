@@ -18,6 +18,7 @@ export default function ElevatorPitchClient() {
   const [pitch, setPitch] = useState('');
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  const [emailStatus, setEmailStatus] = useState<{ sent: boolean; error?: string | null } | null>(null);
   const [copied, setCopied] = useState(false);
 
   // Rehearsal recording
@@ -45,6 +46,7 @@ export default function ElevatorPitchClient() {
     if (!name.trim() || !targetRole.trim()) return;
     setGenerating(true);
     setGenError(null);
+    setEmailStatus(null);
     try {
       const res = await fetch('/api/ai/elevator-pitch', {
         method: 'POST',
@@ -52,9 +54,10 @@ export default function ElevatorPitchClient() {
         credentials: 'include',
         body: JSON.stringify({ name, targetRole, strengths, certifications, industry }),
       });
-      const data = await res.json() as { pitch?: string; error?: string };
+      const data = await res.json() as { pitch?: string; error?: string; emailSent?: boolean; emailError?: string };
       if (!res.ok || !data.pitch) { setGenError(data.error ?? 'Could not generate. Try again.'); return; }
       setPitch(data.pitch);
+      setEmailStatus({ sent: data.emailSent === true, error: data.emailError ?? null });
       setStep('pitch');
     } catch {
       setGenError('Network error — try again.');
@@ -179,12 +182,23 @@ export default function ElevatorPitchClient() {
             </button>
             <button type="button" onClick={() => setStep('form')} className="btn btn-outline btn-sm">Edit answers</button>
           </div>
+          <div style={{ marginTop: '1rem' }}>
+            {emailStatus?.sent ? (
+              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-green, #4a9b4f)', fontWeight: 600 }}>
+                We emailed this AI elevator speech to you so you can review it later.
+              </p>
+            ) : (
+              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                We generated your speech, but email did not send{emailStatus?.error ? `: ${emailStatus.error}` : '.'} Copy it now and try again if needed.
+              </p>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
           <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Ready to rehearse?</p>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
-            We&apos;ll turn on your camera and mic. Read the pitch out loud — you&apos;ll see yourself and can play it back immediately.
+            We&apos;ll turn on your camera and mic. Read the speech out loud, watch yourself, and refine the delivery immediately.
           </p>
           <button type="button" onClick={() => void startRehearsal()} className="btn btn-primary">
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">videocam</span>

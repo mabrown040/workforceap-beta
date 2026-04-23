@@ -61,19 +61,19 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "PMP, nonprofit executive. Former owner of Consulting Solutions.Net; key leader at ReWork America Alliance, State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League. Active with Workforce Solutions, Texas Workforce Commission, City of Austin. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+      "PMP, nonprofit executive, and founder focused on practical workforce pathways. Former owner of Consulting Solutions.Net; key leader at ReWork America Alliance, State of Texas Career Schools, Goodwill Central Texas, and Austin Urban League. Active with Workforce Solutions, Texas Workforce Commission, and the City of Austin. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
     missionRelevance:
       "25+ years delivering workforce training through partnerships with the ReWork America Alliance, Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
     bioBlocks: [
       {
         type: 'paragraph',
         text:
-          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings a wealth of expertise in business development, project management, and education, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, ReWork America Alliance, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to propel business growth through thoughtful strategic planning, operational innovation, and continuous improvement.',
+          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings deep expertise in business development, project management, education, and workforce operations, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, ReWork America Alliance, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
       },
       {
         type: 'paragraph',
         text:
-          'Throughout his career, Michael has successfully delivered transformative results by leveraging his comprehensive knowledge of business systems and a disciplined approach to strategic marketing and operational processes. His leadership has yielded significant growth and profitability for organizations, with a proven ability to forge successful partnerships across government and private sectors alike.',
+          'Throughout his career, Michael has successfully delivered transformative results by leveraging his comprehensive knowledge of business systems and a disciplined approach to strategic marketing and operational processes. His leadership has yielded significant growth and profitability for organizations, with a proven ability to forge successful partnerships across government, nonprofit, faith, and private-sector partners alike.',
       },
       {
         type: 'paragraph',
@@ -88,7 +88,7 @@ export const LEADERS: Leader[] = [
       {
         type: 'paragraph',
         text:
-          'In summary, Michael Brown is a dynamic and visionary leader, committed family man, and community advocate. His proven track record of delivering exceptional outcomes underscores his reputation as a trusted business partner and industry leader.',
+          'He leads WorkforceAP with a practical, member-first philosophy: clear next steps, real employer alignment, and support systems that help people move from uncertainty into work. His proven track record of delivering exceptional outcomes underscores his reputation as a trusted business partner and industry leader.',
       },
     ],
     stats: [

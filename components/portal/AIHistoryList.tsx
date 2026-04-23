@@ -54,7 +54,7 @@ const FILTER_OPTIONS = [
   { value: 'resume_analysis', label: 'Resume Analysis' },
   { value: 'salary_negotiation', label: 'Salary Negotiation' },
   { value: 'gap_analyzer', label: 'Gap Analyzer' },
-  { value: 'career_counselor', label: 'Career Counselor' },
+  { value: 'career_counselor', label: 'Career Counselor / AI Elevator Speech' },
   { value: 'voice_interview_video', label: 'Voice Interview Recording' },
 ];
 

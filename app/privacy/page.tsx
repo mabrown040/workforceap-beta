@@ -113,7 +113,7 @@ export default function PrivacyPage() {
             <p>
               <strong>Workforce Advancement Project</strong><br />
               Email: <a href="mailto:info@workforceap.org">info@workforceap.org</a><br />
-              Phone: <a href="tel:5127771808">(512) 777-1808</a><br />
+              Phone: <a href="tel:+15127771808">(512) 777-1808</a><br />
               <a href="/contact">Contact Form</a>
             </p>
           </div>

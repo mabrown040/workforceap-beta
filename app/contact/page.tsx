@@ -69,7 +69,7 @@ const contactCards = [
     body: (
       <>
         <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontFamily: 'monospace' }}>
-          <a href="tel:5127771808" style={{ color: 'inherit' }}>(512) 777-1808</a>
+          <a href="tel:+15127771808" style={{ color: 'inherit' }}>(512) 777-1808</a>
         </p>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', margin: '0.35rem 0 0' }}>
           Mon–Fri, 9:00 AM – 5:00 PM CT

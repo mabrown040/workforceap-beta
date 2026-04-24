@@ -4,8 +4,8 @@ import { Redis } from '@upstash/redis';
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// When Upstash is not configured, signup/contact fail closed (deny). Auth + AI tools fail open so the app stays
-// usable in dev; set UPSTASH_* in production for rate limiting.
+// Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.
+// Contact/confirmation remain fail-closed (spam risk). Add UPSTASH_* env vars to enable Redis-backed limits.
 const FAIL_CLOSED = !redisUrl || !redisToken;
 
 let signupRateLimiter: Ratelimit | null = null;
@@ -105,14 +105,14 @@ if (redisUrl && redisToken) {
 }
 
 export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await signupRateLimiter!.limit(identifier);
+  if (!signupRateLimiter) return { success: true };
+  const result = await signupRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };
 }
 
 export async function checkApplySignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await applySignupRateLimiter!.limit(identifier);
+  if (!applySignupRateLimiter) return { success: true };
+  const result = await applySignupRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };
 }
 

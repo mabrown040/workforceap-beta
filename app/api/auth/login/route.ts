@@ -70,7 +70,18 @@ export async function POST(request: Request) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    const msg = error.message ?? '';
+    let friendly: string;
+    if (/email not confirmed/i.test(msg)) {
+      friendly =
+        "Your email hasn’t been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.";
+    } else if (/user.*disabled|account.*disabled|banned/i.test(msg)) {
+      friendly =
+        "Your account isn’t available. Contact us at (512) 777-1808 for help.";
+    } else {
+      friendly = msg || 'Incorrect email or password.';
+    }
+    return NextResponse.json({ error: friendly }, { status: 401 });
   }
 
   if (!data.session) {

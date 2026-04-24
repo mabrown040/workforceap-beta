@@ -1,10 +1,25 @@
 import 'server-only';
 
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+
 type StringMap = Record<string, string>;
 type StringArrayMap = Record<string, string[]>;
 
 const DEFAULT_API_BASE_URL = 'https://api.coursera.com/ent/api/rest/v1';
 const DEFAULT_PLATFORM_URL = 'https://www.coursera.org';
+
+const DISCOVERED_PROGRAM_ID_MAP: StringMap = Object.fromEntries(
+  Object.entries(DISCOVERED_COURSERA_PROGRAMS).map(([programSlug, mapping]) => [programSlug, mapping.courseraProgramId])
+);
+
+const DISCOVERED_COURSE_ID_MAP: StringArrayMap = Object.fromEntries(
+  Object.entries(DISCOVERED_COURSERA_PROGRAMS).map(([programSlug, mapping]) => [
+    programSlug,
+    mapping.courses.map((course) => course.courseId),
+  ])
+);
+
+const DISCOVERED_DEFAULT_PROGRAM_ID = Object.values(DISCOVERED_COURSERA_PROGRAMS)[0]?.courseraProgramId ?? '';
 
 function deriveProgramIdFromUrl(raw: string | undefined): string {
   const value = raw?.trim() || '';
@@ -78,6 +93,8 @@ function interpolateTemplate(template: string, values: Record<string, string | u
 export function getCourseraConfig() {
   const programHomeUrl = process.env.COURSERA_PROGRAM_HOME_URL?.trim() || '';
   const explicitProgramId = process.env.COURSERA_PROGRAM_ID?.trim() || '';
+  const envProgramIdMap = parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP);
+  const envCourseIdMap = parseStringArrayMap(process.env.COURSERA_COURSE_ID_MAP);
 
   return {
     apiBaseUrl: process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL,
@@ -88,8 +105,8 @@ export function getCourseraConfig() {
     oauthTokenUrl:
       process.env.COURSERA_OAUTH_TOKEN_URL?.trim() ||
       'https://api.coursera.com/oauth2/client_credentials/token',
-    programId: explicitProgramId || deriveProgramIdFromUrl(programHomeUrl),
-    programIdMap: parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP),
+    programId: explicitProgramId || deriveProgramIdFromUrl(programHomeUrl) || DISCOVERED_DEFAULT_PROGRAM_ID,
+    programIdMap: { ...DISCOVERED_PROGRAM_ID_MAP, ...envProgramIdMap },
     programHomeUrl,
     programUrlTemplate: process.env.COURSERA_PROGRAM_URL_TEMPLATE?.trim() || '',
     /** Template for deep-linking to individual courses: {courseId}, {programId}, {userId}, {email} */
@@ -97,7 +114,7 @@ export function getCourseraConfig() {
     defaultSkillsetIds: parseCsv(process.env.COURSERA_DEFAULT_SKILLSET_IDS),
     skillsetIdMap: parseStringArrayMap(process.env.COURSERA_SKILLSET_ID_MAP),
     /** Map of programSlug → courseIndex → Coursera course ID */
-    courseIdMap: parseStringArrayMap(process.env.COURSERA_COURSE_ID_MAP),
+    courseIdMap: { ...DISCOVERED_COURSE_ID_MAP, ...envCourseIdMap },
     webhookSecret:
       process.env.COURSERA_WEBHOOK_SECRET?.trim() || process.env.WEBHOOK_SECRET?.trim() || '',
     platformUrl: DEFAULT_PLATFORM_URL,

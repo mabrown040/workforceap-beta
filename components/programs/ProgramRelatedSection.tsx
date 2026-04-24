@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
-import type { Program } from '@/lib/content/programs';
+import { getProgramDisplayPartner, getProgramDisplayTitle, type Program } from '@/lib/content/programs';
 
 export default function ProgramRelatedSection({ programs }: { programs: Program[] }) {
   if (programs.length === 0) return null;
@@ -19,10 +19,10 @@ export default function ProgramRelatedSection({ programs }: { programs: Program[
             <article className="program-related__card">
               <p className="program-related__cat">{p.categoryLabel}</p>
               <h3 className="program-related__name">
-                <Link href={`/programs/${p.slug}`}>{p.title}</Link>
+                <Link href={`/programs/${p.slug}`}>{getProgramDisplayTitle(p)}</Link>
               </h3>
               <p className="program-related__meta">
-                {p.partner} · Starting range {salaryRangeDisplay(p)}
+                {getProgramDisplayPartner(p)} · Starting range {salaryRangeDisplay(p)}
               </p>
               <div className="program-related__actions">
                 <Link href={`/programs/${p.slug}`} className="btn btn-outline btn-sm">

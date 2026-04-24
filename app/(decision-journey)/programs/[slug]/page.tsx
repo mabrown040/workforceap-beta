@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
-import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { PROGRAMS, getProgramBySlug, getProgramDisplayPartner, getProgramDisplayTitle } from '@/lib/content/programs';
 import { PROGRAM_COMPARISON_FEATURED } from '@/lib/content/programComparisonTracks';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
@@ -23,18 +23,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const program = getProgramBySlug(slug);
   if (!program) return { title: 'Program' };
 
+  const displayTitle = getProgramDisplayTitle(program);
+  const displayPartner = getProgramDisplayPartner(program);
   const salaryRange = salaryRangeDisplay(program);
     // Only name the certifying body if it's an external partner (not WorkforceAP/CPT/CLT internal certs)
   const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA'];
-  const certClause = externalPartners.includes(program.partner)
-    ? ` Earn your ${program.partner}-recognized certification.`
+  const certClause = externalPartners.includes(displayPartner)
+    ? ` Earn your ${displayPartner}-recognized certification.`
     : '';
-  const partnerBadge = externalPartners.includes(program.partner)
-    ? `${program.partner} certified`
-    : program.partner;
-  const description = `Training in ${program.title} offered at no cost to members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
+  const description = `Training in ${displayTitle} offered at no cost to members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
   return buildPageMetadata({
-    title: `${program.title} Training & Certification`,
+    title: `${displayTitle} Training & Certification`,
     description,
     path: `/programs/${slug}`,
   });
@@ -45,10 +44,12 @@ export default async function ProgramPage({ params }: Props) {
   const program = getProgramBySlug(slug);
   if (!program) notFound();
 
+  const displayTitle = getProgramDisplayTitle(program);
+  const displayPartner = getProgramDisplayPartner(program);
   const externalPartners = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA'];
-  const partnerBadge = externalPartners.includes(program.partner)
-    ? `${program.partner} certified`
-    : program.partner;
+  const partnerBadge = externalPartners.includes(displayPartner)
+    ? `${displayPartner} certified`
+    : displayPartner;
   const extra = getProgramExtra(slug);
   const compareBaselineSlug =
     program.slug === 'digital-literacy-empowerment-class'
@@ -75,7 +76,7 @@ export default async function ProgramPage({ params }: Props) {
           >
             {program.categoryLabel}
           </span>
-          <h1>{program.title}</h1>
+          <h1>{displayTitle}</h1>
           <p style={{ marginTop: '0.5rem' }}>
             {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, national framing)
           </p>

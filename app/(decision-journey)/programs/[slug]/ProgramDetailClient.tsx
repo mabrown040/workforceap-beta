@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import type { Program } from '@/lib/content/programs';
+import { getProgramDisplayTitle, type Program } from '@/lib/content/programs';
 import ProgramOnetCareerSection from '@/components/programs/ProgramOnetCareerSection';
 
 export default function ProgramDetailClient({ program }: { program: Program }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const skills = program.skills.filter((s) => s.trim().length > 0);
+  const displayTitle = getProgramDisplayTitle(program);
 
   return (
     <div>
@@ -85,7 +86,7 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
                 aria-label={`${c.name} details`}
                 style={{ padding: '0 1rem 1rem 1rem', paddingLeft: '2rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}
               >
-                Part of the {program.title} program.
+                Part of the {displayTitle} program.
               </div>
             </div>
           );

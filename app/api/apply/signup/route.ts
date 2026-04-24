@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
     password,
     options: {
       data: { full_name: fullName, phone },
-      emailRedirectTo: `${new URL(request.url).origin}/dashboard`,
+      emailRedirectTo: `${new URL(request.url).origin}/auth/callback`,
     },
   });
 

@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         full_name: data.fullName,
         phone: data.phone,
       },
-      emailRedirectTo: `${request.nextUrl.origin}/login`,
+      emailRedirectTo: `${request.nextUrl.origin}/auth/callback`,
     },
   });
 
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       );
     }
     return NextResponse.json(
-      { error: authError.message },
+      { error: 'We could not create your account. Please try again or contact us at (512) 777-1808.' },
       { status: 400 }
     );
   }

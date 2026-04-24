@@ -130,8 +130,8 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await contactRateLimiter!.limit(ip);
+  if (!contactRateLimiter) return { success: true };
+  const result = await contactRateLimiter.limit(ip);
   return { success: result.success, remaining: result.remaining };
 }
 
@@ -155,9 +155,9 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Public confirmation-email endpoint — 5 per IP per hour. Fail-closed when Upstash not configured (security default). */
+/** Public confirmation-email endpoint — 5 per IP per hour. Fail-open without Upstash; Supabase enforces its own email send limits. */
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!confirmationEmailRateLimiter) return { success: false };
+  if (!confirmationEmailRateLimiter) return { success: true };
   const result = await confirmationEmailRateLimiter.limit(ip);
   return { success: result.success };
 }

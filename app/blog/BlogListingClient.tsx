@@ -168,7 +168,7 @@ export default function BlogListingClient({
           <div className="blog-empty-state">
             <p>
               {posts.length === 0
-                ? 'Articles are coming soon. For now, use the FAQ, browse programs, or start your application without waiting on the blog.'
+                ? 'No articles are published yet. For now, use the FAQ, browse programs, or start your application without waiting on the blog.'
                 : 'No posts match this filter.'}
             </p>
             {posts.length > 0 && filter !== null && (

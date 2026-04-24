@@ -1,12 +1,12 @@
 /**
- * WorkforceAP Service Worker v3 — PWA offline support + push notifications.
+ * WorkforceAP Service Worker v4 — PWA offline support + push notifications.
  * Caches shell assets and Google Fonts; push events show branded notifications.
  *
- * v3: aggressive cache cleanup, network-first for fonts on first load,
- *     no caching of navigation requests to avoid stale HTML.
+ * v4: stop intercepting Next.js hashed assets so deploys do not keep serving
+ *     stale JS/CSS bundles from the service worker cache on mobile clients.
  */
 
-const CACHE_NAME = 'workforceap-v3';
+const CACHE_NAME = 'workforceap-v4';
 const FONT_CACHE = 'workforceap-fonts-v2';
 const STATIC_ASSETS = [
   '/images/logo-tight.png',
@@ -39,6 +39,11 @@ self.addEventListener('fetch', (event) => {
 
   // API: always go to network, never intercept
   if (url.pathname.startsWith('/api/')) return;
+
+  // Let the browser and Vercel handle versioned Next bundles directly.
+  // This avoids stale UI after deploys when a mobile client briefly falls back
+  // to an older cached JS/CSS asset.
+  if (url.pathname.startsWith('/_next/')) return;
 
   // Navigation requests (HTML pages): always network, never serve stale HTML
   if (event.request.mode === 'navigate') return;

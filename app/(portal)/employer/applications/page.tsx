@@ -8,7 +8,6 @@ import { prisma } from '@/lib/db/prisma';
 import EmployerApplicationsClient from '@/components/employer/EmployerApplicationsClient';
 import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const PAGE_SIZE = 25;
@@ -80,7 +79,6 @@ export default async function EmployerApplicationsPage({
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">

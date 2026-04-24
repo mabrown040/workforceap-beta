@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'How It Works for Employers',
@@ -294,7 +293,6 @@ export default async function EmployerGuidePage() {
         </Link>
       </div>
     </div>
-    <MobileBottomNav variant="employer" />
     </>
   );
 }

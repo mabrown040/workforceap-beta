@@ -545,7 +545,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <MemberDashboardVoiceSectionLazy />
         </section>
 
-        {nextBestActions.length > 0 && (
+        {dashboardState !== 'A' && nextBestActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
           </section>
@@ -664,7 +664,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   icon: 'school',
                 },
                 {
-                  eyebrow: 'AI Toolkit',
+                  eyebrow: 'Job search tools',
                   title: 'Practice interview answers',
                   desc: 'Build confidence for recruiter screens and counselor interviews.',
                   href: '/dashboard/ai-tools/interview-practice',
@@ -718,7 +718,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <div className="portal-quick-grid-2x2">
             {([
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'support_agent', label: 'AI Coach', href: '/dashboard/readiness' },
+              { icon: 'support_agent', label: 'My Progress', href: '/dashboard/readiness' },
               { icon: 'forum', label: 'Interview Prep', href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
             ] as const).map((action) => (
@@ -797,6 +797,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <DashboardHomeClient
             recommendedActions={recommendedActions}
             jobSearchUrl={jobSearchUrl}
+            aiToolsUsedCount={recentTools.length}
             firstName={firstName}
             nextBestActions={nextBestActions}
             assessmentDone={assessmentCompleted}

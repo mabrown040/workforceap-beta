@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { getUser } from '@/lib/auth/server';
+import { getEmployerForUser } from '@/lib/auth/roles';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Hire Certified Tech Graduates',
@@ -114,7 +117,13 @@ const EMPLOYER_VALUE_CARDS = [
   { stat: 'Ready', label: 'Support from intake through hiring' },
 ];
 
-export default function EmployersPage() {
+export default async function EmployersPage() {
+  const user = await getUser();
+  if (user) {
+    const employerCtx = await getEmployerForUser(user.id);
+    if (employerCtx) redirect('/employer');
+  }
+
   return (
     <div className="inner-page">
       {/* ── Hero ── */}
@@ -231,6 +240,25 @@ export default function EmployersPage() {
             >
               Request a Hiring Match
             </Link>
+            {!user && (
+              <Link
+                href="/login?redirectTo=/employer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'transparent',
+                  color: '#fff',
+                  padding: '1rem 2rem',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255,255,255,0.24)',
+                }}
+              >
+                Employer Sign In
+              </Link>
+            )}
           </div>
         </div>
 
@@ -767,9 +795,16 @@ export default function EmployersPage() {
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
           Tell us what you&apos;re hiring for, how many roles you have open, and your timeline so we can route you to the right employer intake path.
         </p>
-        <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
-          Start Employer Intake
-        </a>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.875rem', flexWrap: 'wrap' }}>
+          <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+            Start Employer Intake
+          </a>
+          {!user && (
+            <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+              Employer Sign In
+            </Link>
+          )}
+        </div>
       </section>
 
       <style>{`

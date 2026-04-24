@@ -8,7 +8,6 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import {
@@ -227,7 +226,6 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
             ))
           )}
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
 
       {/* ── Desktop section ── */}

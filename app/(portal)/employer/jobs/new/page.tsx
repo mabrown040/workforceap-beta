@@ -8,7 +8,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -48,7 +47,6 @@ export default async function NewJobPage() {
             <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
           </div>
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
       <div className="wa-hidden wa-md:wa-block">
         <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />

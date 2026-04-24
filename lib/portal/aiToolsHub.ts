@@ -22,7 +22,6 @@ const TOOL_CARDS = {
   resumeRewriter: { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter', icon: 'description' },
   resumeAnalysis: { label: 'Resume Analysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check' },
   coverLetter: { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft' },
-  applicationTracker: { label: 'Application Tracker', href: '/dashboard/ai-tools/application-tracker', icon: 'task_alt' },
   interviewPractice: { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice', icon: 'record_voice_over' },
   interviewCoach: { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent' },
   jobMatchScorer: { label: 'Job Match Scorer', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
@@ -83,15 +82,15 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
 
 export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
   {
-    title: 'More resume and application tools',
-    tools: [TOOL_CARDS.resumeRewriter, TOOL_CARDS.resumeAnalysis, TOOL_CARDS.coverLetter, TOOL_CARDS.applicationTracker],
+    title: 'Step 1: Get your resume and applications ready',
+    tools: [TOOL_CARDS.resumeRewriter, TOOL_CARDS.resumeAnalysis, TOOL_CARDS.coverLetter],
   },
   {
-    title: 'More interview and search tools',
+    title: 'Step 2: Practice interviews and target the right roles',
     tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper],
   },
   {
-    title: 'More profile and strategy tools',
+    title: 'Step 3: Polish your profile and job-search strategy',
     tools: [TOOL_CARDS.linkedInHeadline, TOOL_CARDS.linkedInAbout, TOOL_CARDS.gapAnalyzer, TOOL_CARDS.salaryNegotiation],
   },
 ];

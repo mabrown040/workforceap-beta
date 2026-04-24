@@ -9,7 +9,6 @@ import { prisma } from '@/lib/db/prisma';
 import EmployerPipelineClient from '@/components/employer/EmployerPipelineClient';
 import EmployerKanban from '@/components/employer/EmployerKanban';
 import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatusSelect';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import StatusBadge from '@/components/portal/StatusBadge';
@@ -147,7 +146,6 @@ export default async function EmployerPipelinePage() {
             })
           )}
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
       <div className="wa-hidden wa-md:wa-block">
         {jobs.length === 0 ? (

@@ -7,7 +7,6 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Company settings',
@@ -88,7 +87,6 @@ export default async function EmployerSettingsPage() {
           </p>
         </div>
       </div>
-      <MobileBottomNav variant="employer" />
     </>
   );
 }

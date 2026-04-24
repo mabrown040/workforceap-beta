@@ -86,10 +86,32 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       id: 'upload_resume',
       title: 'Add your resume',
       body: 'Upload a resume so employers and AI tools can tailor help to your background.',
-      href: '/dashboard/resume',
-      cta: 'Upload resume',
+      href: '/dashboard/ai-tools/resume-rewriter',
+      cta: 'Try resume rewriter',
       variant: 'default',
       weight: 80,
+    });
+  }
+
+  if (ctx.state === 'D') {
+    out.push({
+      id: 'interview_practice',
+      title: 'Practice your interview answers',
+      body: 'Use guided interview practice so you sound ready for recruiter screens and counselor interviews.',
+      href: '/dashboard/ai-tools/interview-practice',
+      cta: 'Practice interviews',
+      variant: 'default',
+      weight: 72,
+    });
+
+    out.push({
+      id: 'career_readiness',
+      title: 'Build your job readiness plan',
+      body: 'Review your readiness checklist so applications, interview prep, and counselor guidance stay in sync.',
+      href: '/dashboard/readiness',
+      cta: 'Open readiness',
+      variant: 'default',
+      weight: 68,
     });
   }
 

@@ -41,7 +41,7 @@ export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' |
 
 export type NavGroup = 'primary' | 'workflows' | 'people' | 'pipeline' | 'content' | 'insights' | 'manage';
 
-export type NavTab = 'journey' | 'program' | 'jobs' | 'tools' | 'me';
+export type NavTab = 'journey' | 'program' | 'jobs' | 'me';
 
 export type NavBadgeKey =
   | 'jobs_draft'
@@ -79,8 +79,7 @@ export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   journey: { label: 'Home', icon: 'home' },
   program: { label: 'My Program', icon: 'school' },
   jobs: { label: 'Jobs', icon: 'work' },
-  tools: { label: 'Tools', icon: 'construction' },
-  me: { label: 'AI Toolkit', icon: 'person' },
+  me: { label: 'AI Toolkit', icon: 'auto_awesome' },
 };
 
 export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'me'];

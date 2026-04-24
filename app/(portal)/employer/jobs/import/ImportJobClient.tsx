@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import JobForm from '@/components/employer/JobForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { trackEmployerImport, trackFunnelEvent } from '@/lib/analytics/events';
 
 type ImportJobClientProps = {
@@ -231,7 +230,6 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           isImportReview
         />
       </div>
-      <MobileBottomNav variant="employer" />
       </>
     );
   }
@@ -403,7 +401,6 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         </div>
       )}
     </div>
-    <MobileBottomNav variant="employer" />
     </>
   );
 }

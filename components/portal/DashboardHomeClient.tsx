@@ -48,6 +48,7 @@ type DashboardHomeClientProps = {
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
   nextBestActions?: NextBestAction[];
+  aiToolsUsedCount?: number;
   jobSearchUrl?: string | null;
   age?: number | null;
   isMinor?: boolean;
@@ -74,6 +75,7 @@ export default function DashboardHomeClient({
   checklistAllDone,
   recommendedActions,
   nextBestActions = [],
+  aiToolsUsedCount = 0,
   jobSearchUrl,
   applicationStatus,
   noApplicationOnFile,
@@ -197,8 +199,8 @@ export default function DashboardHomeClient({
       : []),
     {
       label: 'AI Tools Used',
-      value: '—',
-      hint: 'Resume, interviews',
+      value: aiToolsUsedCount.toString(),
+      hint: aiToolsUsedCount > 0 ? 'Recent AI activity' : 'No recent AI activity',
       icon: 'auto_awesome',
       accent: 'gold' as const,
       href: '/dashboard/ai-tools',
@@ -333,7 +335,7 @@ export default function DashboardHomeClient({
       {/* ── 2. PRIMARY NEXT ACTION — first nextBestAction ── */}
       {nextBestActions.length > 0 && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
-          <MemberNextStepsStrip actions={nextBestActions.slice(0, 1)} fillRow />
+          <MemberNextStepsStrip actions={nextBestActions.slice(0, 3)} />
         </div>
       )}
 
@@ -566,6 +568,8 @@ export default function DashboardHomeClient({
 
             {/* Secondary Recommended Action Card */}
             {primaryAction && state !== 'A' && (
+              <Link href={primaryAction.href} style={{ textDecoration: 'none', color: 'inherit' }}
+                onClick={() => handleDashboardAction('primary_recommended_action_clicked')}>
               <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
                 <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
@@ -578,8 +582,13 @@ export default function DashboardHomeClient({
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>schedule</span> Recommended
                   </span>
+                  <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--color-accent)' }}>
+                    Open
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                  </span>
                 </div>
               </div>
+              </Link>
             )}
 
             {/* Contextual third card */}
@@ -633,7 +642,7 @@ export default function DashboardHomeClient({
                 Talk to AI coach
               </Link>
               <Link href="/dashboard/ai-tools" className="btn btn-outline" onClick={() => handleDashboardAction('ai_tools_clicked')}>
-                Open AI Toolkit
+                Open job search tools
               </Link>
             </div>
           </div>
@@ -648,7 +657,7 @@ export default function DashboardHomeClient({
             <div className="portal-quick-actions-grid" style={{ marginTop: '1rem' }}>
               {[
                 { href: '/dashboard/weekly-recap', label: 'Weekly Recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
-                { href: '/dashboard/ai-tools', label: 'AI Toolkit', desc: 'Resume, interview, elevator speech', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+                { href: '/dashboard/ai-tools', label: 'Job Search Tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
                 { href: '/dashboard/skills-assessment', label: 'Assessments', desc: 'Skills evaluation', icon: 'history_edu', action: 'quicklink_assessments_clicked' },

@@ -663,6 +663,27 @@ export default function AdminSuperMessagesClient() {
                   </li>
                 ))}
               </ul>
+              <form onSubmit={sendStaffReply} style={{ marginTop: '1.25rem' }}>
+                {staffErr ? (
+                  <p className="admin-error-banner" role="alert" style={{ marginBottom: '0.5rem' }}>
+                    {staffErr}
+                  </p>
+                ) : null}
+                <label htmlFor="staff-reply-member" className="admin-form-hint" style={{ display: 'block', marginBottom: '0.35rem' }}>
+                  Reply as WorkforceAP
+                </label>
+                <textarea
+                  id="staff-reply-member"
+                  className="admin-form-input"
+                  rows={3}
+                  value={staffDraft}
+                  onChange={(e) => setStaffDraft(e.target.value)}
+                  style={{ width: '100%', marginBottom: '0.5rem' }}
+                />
+                <button type="submit" className="btn btn-primary btn-sm" disabled={staffSending || !staffDraft.trim()}>
+                  {staffSending ? 'Sending…' : 'Send reply'}
+                </button>
+              </form>
             </>
           ) : detail && detail.kind === 'employer' ? (
             <>

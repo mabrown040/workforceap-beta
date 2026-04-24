@@ -6,13 +6,28 @@ const COOKIE_CONSENT_KEY = 'wap-cookie-consent';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
+  const [mobilePortalOffset, setMobilePortalOffset] = useState(false);
 
   useEffect(() => {
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
     if (!consent) {
       setVisible(true);
     }
+    const syncViewport = () => setMobilePortalOffset(window.innerWidth < 768);
+    syncViewport();
+    window.addEventListener('resize', syncViewport);
+    return () => window.removeEventListener('resize', syncViewport);
   }, []);
+
+  useEffect(() => {
+    const previousPadding = document.body.style.paddingBottom;
+    if (visible) {
+      document.body.style.paddingBottom = mobilePortalOffset ? '14rem' : '8rem';
+    }
+    return () => {
+      document.body.style.paddingBottom = previousPadding;
+    };
+  }, [visible, mobilePortalOffset]);
 
   const accept = () => {
     localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify({ accepted: true, date: new Date().toISOString() }));
@@ -30,7 +45,7 @@ export default function CookieConsentBanner() {
     <div
       style={{
         position: 'fixed',
-        bottom: 0,
+        bottom: mobilePortalOffset ? '5.25rem' : 0,
         left: 0,
         right: 0,
         background: 'var(--surface-container-high)',
@@ -42,6 +57,7 @@ export default function CookieConsentBanner() {
         gap: '1rem',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        boxShadow: '0 -10px 30px rgba(0,0,0,0.18)',
       }}
       role="dialog"
       aria-label="Cookie consent"

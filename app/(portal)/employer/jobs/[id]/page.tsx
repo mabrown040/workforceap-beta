@@ -10,7 +10,6 @@ import JobForm from '@/components/employer/JobForm';
 import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 type Props = { params: Promise<{ id: string }> };
@@ -225,7 +224,6 @@ export default async function EmployerJobDetailPage({ params }: Props) {
           </div>
         </PortalPageFrame>
       </article>
-      <MobileBottomNav variant="employer" />
     </>
   );
 }

@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
@@ -49,13 +48,13 @@ export default async function EmployerCandidateProfilePage({
   params,
   searchParams,
 }: Props) {
+  const { studentId } = await params;
   const user = await getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect(`/login?redirectTo=/employer/candidates/${studentId}`);
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect('/employers');
 
-  const { studentId } = await params;
   const sp = (await searchParams) ?? {};
   const highlightJobId = typeof sp.jobId === 'string' ? sp.jobId : null;
 
@@ -322,7 +321,6 @@ export default async function EmployerCandidateProfilePage({
           </div>
         </div>
 
-        <MobileBottomNav variant="employer" />
       </div>
 
       <div className="wa-hidden wa-md:wa-block">

@@ -69,8 +69,8 @@ const FAQS = [
     a: 'Most members complete the core program in 4–8 weeks, but you can move at your own pace. There\'s no deadline.',
   },
   {
-    q: 'Is everything free for me?',
-    a: 'Yes. WorkforceAP is available at no cost to members. All tools, resources, and counselor access are included. No cost for members.',
+    q: 'What will this cost me?',
+    a: 'WorkforceAP is available at no cost to members. Tools, resources, and counselor access are included through funded pathways.',
   },
   {
     q: 'When will I get matched with a job?',

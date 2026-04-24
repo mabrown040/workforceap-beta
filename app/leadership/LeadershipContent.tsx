@@ -417,7 +417,7 @@ export default function LeadershipContent() {
                             color: 'var(--color-on-surface-variant)',
                           }}
                         >
-                          Photo coming soon
+                          WorkforceAP leadership
                         </span>
                       </div>
                     )}

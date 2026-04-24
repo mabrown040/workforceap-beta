@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
 
 export default function LearningCivicBotPanel() {
-  const [notice, setNotice] = useState<string | null>(null);
-
   return (
     <div
       style={{
@@ -50,7 +48,7 @@ export default function LearningCivicBotPanel() {
               Preview
             </span>
           </div>
-          <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>Conversational help is on the roadmap — use Training and pathways for now.</div>
+          <div style={{ fontSize: '0.75rem', opacity: 0.85 }}>Use Training and pathway modules for study help today.</div>
         </div>
       </div>
       <div style={{ padding: 'var(--space-4)', minHeight: '120px' }}>
@@ -64,53 +62,32 @@ export default function LearningCivicBotPanel() {
             marginBottom: 'var(--space-3)',
           }}
         >
-          Hi! I can help you study, explain concepts, or quiz you on your current module. What would you like to work on?
+          Need help with your current module? Open your training path to review lessons, resources, and next steps.
         </div>
-        {notice ? (
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-accent)', margin: 0 }} role="status">
-            {notice}
-          </p>
-        ) : null}
       </div>
       <div style={{ padding: '0 var(--space-4) var(--space-4)', display: 'flex', gap: 'var(--space-2)' }}>
-        <div
+        <Link
+          href="/dashboard/training"
           style={{
             flex: 1,
-            background: 'var(--surface-container)',
+            background: 'var(--color-accent)',
+            color: 'var(--color-white)',
             borderRadius: 'var(--radius-full)',
             padding: 'var(--space-2) var(--space-4)',
             fontSize: 'var(--font-size-sm)',
-            color: 'var(--color-on-surface-variant)',
-            opacity: 0.6,
-          }}
-        >
-          Type a message…
-        </div>
-        <button
-          type="button"
-          style={{
-            background: 'var(--color-accent)',
-            color: 'var(--color-white)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '36px',
-            height: '36px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-          aria-label="Send message"
-          onClick={() => {
-            setNotice('Chat coming soon — head to Training or your pathway modules to keep learning now.');
-            window.setTimeout(() => setNotice(null), 6000);
+            gap: '0.35rem',
+            fontWeight: 700,
+            textDecoration: 'none',
           }}
         >
+          Open Training
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
-            send
+            arrow_forward
           </span>
-        </button>
+        </Link>
       </div>
     </div>
   );

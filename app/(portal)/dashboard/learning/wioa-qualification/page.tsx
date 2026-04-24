@@ -10,8 +10,8 @@ import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Free Training Eligibility Check',
-  description: 'Answer a few questions to help your counselor identify which free training services may be available to you.',
+  title: 'Training Funding Eligibility Check',
+  description: 'Answer a few questions to help your counselor identify which no-cost training services may be available to you.',
   path: '/dashboard/learning/wioa-qualification',
 });
 

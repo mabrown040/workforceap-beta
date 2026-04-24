@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+
+function getMfaSetupNextPath() {
+  if (typeof window === 'undefined') return '/dashboard';
+  return sanitizeRedirectPath(new URLSearchParams(window.location.search).get('next'), '/dashboard');
+}
 
 export default function SetupMfaPage() {
   const [step, setStep] = useState<'loading' | 'qr' | 'confirm' | 'done' | 'error'>('loading');
@@ -11,8 +17,11 @@ export default function SetupMfaPage() {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [nextPath, setNextPath] = useState('/dashboard');
 
   useEffect(() => {
+    setNextPath(getMfaSetupNextPath());
+
     fetch('/api/auth/setup-mfa', { method: 'POST' })
       .then(async (r) => {
         if (!r.ok) {
@@ -81,7 +90,7 @@ export default function SetupMfaPage() {
           <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: '0.5rem' }}>error</span>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Setup Failed</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>{error}</p>
-          <Link href="/admin" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Go to Admin</Link>
+          <Link href={nextPath} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Continue</Link>
         </div>
       </div>
     );
@@ -97,7 +106,7 @@ export default function SetupMfaPage() {
             Two-factor authentication is now active on your account. You'll need your authenticator app each time you sign in.
           </p>
           <Link
-            href="/admin"
+            href={nextPath}
             style={{
               display: 'inline-block',
               padding: '0.75rem 1.5rem',
@@ -108,7 +117,7 @@ export default function SetupMfaPage() {
               textDecoration: 'none',
             }}
           >
-            Go to Admin
+            Continue
           </Link>
         </div>
       </div>

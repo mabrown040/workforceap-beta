@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+
+function getMfaNextPath() {
+  if (typeof window === 'undefined') return '/dashboard';
+  return sanitizeRedirectPath(new URLSearchParams(window.location.search).get('next'), '/dashboard');
+}
 
 export default function VerifyMfaPage() {
   const [code, setCode] = useState('');
@@ -9,12 +15,23 @@ export default function VerifyMfaPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [trustDevice, setTrustDevice] = useState(true);
+  const [nextPath, setNextPath] = useState('/dashboard');
 
   // Redirect to login if no active session (no aal1 session)
   useEffect(() => {
+    const destination = getMfaNextPath();
+    setNextPath(destination);
+
     fetch('/api/auth/check-mfa-required')
-      .then((r) => {
-        if (!r.ok) window.location.href = '/login';
+      .then(async (r) => {
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          window.location.href = '/login';
+          return;
+        }
+        if (!data.mfaRequired) {
+          window.location.href = destination;
+        }
       })
       .catch(() => { window.location.href = '/login'; });
   }, []);
@@ -46,9 +63,9 @@ export default function VerifyMfaPage() {
       }
 
       setSuccess(true);
-      // Redirect to admin or dashboard after brief delay
+      // Redirect to the intended staff portal after brief delay
       setTimeout(() => {
-        window.location.href = '/admin';
+        window.location.href = nextPath;
       }, 800);
     } catch {
       setError('Something went wrong. Please try again.');
@@ -62,7 +79,7 @@ export default function VerifyMfaPage() {
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 64, color: 'var(--color-green)', marginBottom: '1rem' }}>check_circle</span>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Verified</h1>
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>Redirecting to the admin dashboard…</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>Redirecting…</p>
         </div>
       </div>
     );

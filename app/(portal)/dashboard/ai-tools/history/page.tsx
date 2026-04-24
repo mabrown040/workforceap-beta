@@ -103,7 +103,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
           <div>
             <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>My AI Results</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-              Revisit your past resume rewrites, cover letters, interview questions, and headlines.
+              Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines.
             </p>
           </div>
         </div>

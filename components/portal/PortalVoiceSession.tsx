@@ -96,6 +96,10 @@ export type PortalVoiceSessionProps = {
   suggestionsEndpoint?: string;
   /** If set, transcript will be posted here after the session completes. */
   completionEndpoint?: string;
+  /** Lightweight endpoint for periodic auto-save during session (no AI processing). */
+  checkpointEndpoint?: string;
+  /** Interval in ms for auto-saving transcript during active session. */
+  checkpointIntervalMs?: number;
   /** Extra JSON fields to send alongside the transcript to `completionEndpoint`. */
   completionPayload?: Record<string, unknown>;
   /** Called when user accepts a suggestion */
@@ -198,6 +202,8 @@ export default function PortalVoiceSession({
   optionalCameraForRecording = false,
   videoStreamRef,
   conversationOverrides,
+  checkpointEndpoint,
+  checkpointIntervalMs = 30000,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
@@ -214,6 +220,9 @@ export default function PortalVoiceSession({
   const disconnectIssueRef = useRef(false);
   const lastLiveDraftSentRef = useRef<string | null>(null);
   const completionPostedRef = useRef(false);
+  const checkpointPostedRef = useRef(false);
+  /** Auto-save timer handle */
+  const autoSaveTimerRef = useRef<number | null>(null);
   const sessionPayloadRef = useRef(sessionPayload);
   sessionPayloadRef.current = sessionPayload;
   /** Scroll container for live transcript — never use scrollIntoView (it scrolls the whole page). */
@@ -265,6 +274,17 @@ export default function PortalVoiceSession({
   useEffect(() => {
     if (phase === 'pre' || phase === 'done') {
       lastLiveDraftSentRef.current = null;
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+    } else if (phase === 'active' && checkpointEndpoint) {
+      // Start auto-save timer
+      if (!autoSaveTimerRef.current) {
+        autoSaveTimerRef.current = window.setInterval(() => {
+          void persistCheckpointTranscript();
+        }, checkpointIntervalMs);
+      }
     }
   }, [phase]);
 
@@ -484,6 +504,10 @@ export default function PortalVoiceSession({
         } else {
           disconnectIssueRef.current = !intentionalRef.current && typed.reason === 'error';
           setPhase('done');
+          // Save checkpoint on unexpected disconnect so transcript isn't lost
+          if (!intentionalRef.current && transcriptRef.current.length > 0) {
+            void persistCheckpointTranscript();
+          }
         }
         intentionalRef.current = false;
         setAgentSpeaking(false);
@@ -585,6 +609,36 @@ export default function PortalVoiceSession({
     }
   }
 
+  async function persistCheckpointTranscript() {
+    if (!checkpointEndpoint || transcriptRef.current.length === 0) return;
+
+    const payload = JSON.stringify({
+      transcript: transcriptRef.current.map((turn) => ({
+        role: turn.speaker === 'agent' ? 'agent' : 'user',
+        text: turn.text,
+      })),
+      toolType: 'career_counselor',
+      inputSummary: `${title} checkpoint`,
+    });
+
+    try {
+      const res = await fetch(checkpointEndpoint, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      });
+      if (res.ok) {
+        checkpointPostedRef.current = true;
+        logVoice('checkpoint_saved', { lines: transcriptRef.current.length });
+      } else {
+        logVoice('checkpoint_failed', { status: res.status });
+      }
+    } catch (err) {
+      logVoice('checkpoint_error', err);
+    }
+  }
+
   async function persistCompletionTranscript() {
     if (!completionEndpoint || completionPostedRef.current) return;
     if (transcriptRef.current.length === 0) return;
@@ -679,6 +733,11 @@ export default function PortalVoiceSession({
     setSuggestions([]);
     setDismissed(new Set());
     completionPostedRef.current = false;
+    checkpointPostedRef.current = false;
+    if (autoSaveTimerRef.current) {
+      clearInterval(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = null;
+    }
     transcriptRef.current = [];
     setLiveLines([]);
   }

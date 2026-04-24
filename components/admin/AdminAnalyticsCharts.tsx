@@ -37,6 +37,34 @@ const tooltipStyle = {
   itemStyle: { color: 'var(--color-on-surface-variant)' },
 };
 
+function ActivityLegend({ payload }: { payload?: Array<{ color?: string; value?: string }> }) {
+  if (!payload?.length) return null;
+
+  return (
+    <ul
+      aria-label="Activity chart legend"
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '0.5rem 1rem',
+        padding: 0,
+        margin: '0.5rem 0 0',
+        listStyle: 'none',
+        fontSize: '0.75rem',
+        color: 'var(--color-on-surface-variant)',
+      }}
+    >
+      {payload.map((entry) => (
+        <li key={entry.value} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', whiteSpace: 'nowrap' }}>
+          <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: entry.color ?? MUTED }} />
+          <span>{entry.value}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgram, placementStats, inactive14Days, applicationsSubmitted, resourcesCompleted }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -64,7 +92,7 @@ export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgra
             <XAxis dataKey="date" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} />
             <YAxis tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} />
             <Tooltip {...tooltipStyle} />
-            <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+            <Legend verticalAlign="bottom" content={<ActivityLegend />} />
             <Area type="monotone" dataKey="events" name="Member events" stroke={ACCENT} fill="url(#gEvents)" strokeWidth={2} dot={false} />
             <Area type="monotone" dataKey="aiTools" name="AI tool runs" stroke={BLUE} fill="url(#gAI)" strokeWidth={2} dot={false} />
             <Area type="monotone" dataKey="applications" name="Applications" stroke={GREEN} fill="url(#gApps)" strokeWidth={2} dot={false} />

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getAdminMetrics } from '@/lib/admin/metrics';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET() {
@@ -10,19 +11,11 @@ export async function GET() {
   }
 
   try {
-    // Total members
-    const totalMembers = await prisma.$queryRaw<{ count: number }[]>`
-      SELECT COUNT(*)::int as count FROM users
-    `;
-
-    // Enrolled members (have a program)
-    const enrolledMembers = await prisma.$queryRaw<{ count: number }[]>`
-      SELECT COUNT(*)::int as count FROM users WHERE enrolled_program IS NOT NULL
-    `;
+    const metrics = await getAdminMetrics();
 
     // Members who completed assessment
     const assessmentCompleted = await prisma.$queryRaw<{ count: number }[]>`
-      SELECT COUNT(*)::int as count FROM users WHERE assessment_completed = true
+      SELECT COUNT(*)::int as count FROM users WHERE assessment_completed = true AND deleted_at IS NULL
     `;
 
     // Dashboard views (unique members)
@@ -35,14 +28,21 @@ export async function GET() {
       SELECT COUNT(*)::int as count FROM member_events WHERE event_name = 'member_dashboard_activated'
     `;
 
-    // AI tool runs (completed)
-    const aiToolRuns = await prisma.$queryRaw<{ count: number }[]>`
-      SELECT COUNT(*)::int as count FROM member_events WHERE event_name = 'ai_tool_run_completed'
+    // Distinct members who used at least one AI tool. Total run count comes from getAdminMetrics(),
+    // which merges saved AI results with event-only voice sessions.
+    const aiToolUsers = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(DISTINCT user_id)::int as count
+      FROM (
+        SELECT user_id FROM ai_tool_results
+        UNION
+        SELECT user_id FROM member_events
+        WHERE event_name = 'ai_tool_run_started' AND entity_type = 'ai_tool'
+      ) ai_users
     `;
 
-    // Job applications tracked
-    const jobApplications = await prisma.$queryRaw<{ count: number }[]>`
-      SELECT COUNT(*)::int as count FROM member_events WHERE event_name = 'application_added'
+    // Distinct members who tracked at least one submitted/in-progress application.
+    const jobApplicationUsers = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(DISTINCT user_id)::int as count FROM job_applications WHERE status <> 'SAVED'
     `;
 
     // Weekly trend data (last 30 days)
@@ -50,10 +50,6 @@ export async function GET() {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     // Placement metrics
-    const totalPlacements = await prisma.$queryRaw<{ count: number }[]>`
-      SELECT COUNT(*)::int as count FROM placement_records
-    `;
-
     const recentPlacements = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count FROM placement_records WHERE placed_at >= ${thirtyDaysAgo}
     `;
@@ -86,13 +82,15 @@ export async function GET() {
       ORDER BY week
     `;
 
-    const total = Number(totalMembers[0].count);
-    const enrolled = Number(enrolledMembers[0].count);
+    const total = metrics.totalMembers;
+    const enrolled = metrics.placementStats.enrolled;
     const assessed = Number(assessmentCompleted[0].count);
     const dashboardViewers = Number(dashboardViews[0].count);
     const activated = Number(dashboardActivated[0].count);
-    const aiRuns = Number(aiToolRuns[0].count);
-    const jobApps = Number(jobApplications[0].count);
+    const aiRuns = metrics.aiToolRuns;
+    const aiUsers = Number(aiToolUsers[0].count);
+    const jobApps = metrics.applicationsSubmitted;
+    const jobAppUsers = Number(jobApplicationUsers[0].count);
 
     return NextResponse.json({
       summary: {
@@ -104,10 +102,10 @@ export async function GET() {
         activationRate: dashboardViewers > 0 ? Math.round((activated / dashboardViewers) * 100) : 0,
         aiToolRuns: aiRuns,
         jobApplicationsTracked: jobApps,
-        totalPlacements: Number(totalPlacements[0].count),
+        totalPlacements: metrics.placementStats.placed,
         recentPlacements: Number(recentPlacements[0].count),
         avgPlacementSalary: Math.round(avgSalary[0].avg ?? 0),
-        placementRate: enrolled > 0 ? Math.round((Number(totalPlacements[0].count) / enrolled) * 100) : 0,
+        placementRate: metrics.placementStats.placementRate,
       },
       funnels: [
         {
@@ -140,17 +138,17 @@ export async function GET() {
         },
         {
           name: 'AI Tool Usage',
-          current: aiRuns,
+          current: aiUsers,
           target: total,
-          rate: total > 0 ? Math.round((aiRuns / total) * 100) : 0,
-          description: 'Total AI tool runs by members',
+          rate: total > 0 ? Math.round((aiUsers / total) * 100) : 0,
+          description: 'Members who used at least one AI tool',
         },
         {
           name: 'Job Tracker Usage',
-          current: jobApps,
+          current: jobAppUsers,
           target: total,
-          rate: total > 0 ? Math.round((jobApps / total) * 100) : 0,
-          description: 'Job applications tracked',
+          rate: total > 0 ? Math.round((jobAppUsers / total) * 100) : 0,
+          description: 'Members who tracked at least one application',
         },
       ],
       trends: {

@@ -19,39 +19,89 @@ function ResetPasswordForm() {
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
+    const invalidLinkMessage = 'This reset link is invalid or has expired. Please request a new one.';
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (!active) return;
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        setVerifyError(null);
+        setStage('ready');
+      }
+    });
+
     async function exchangeToken() {
       const code = searchParams.get('code');
       const tokenHash = searchParams.get('token_hash');
       const type = searchParams.get('type');
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const hashType = hashParams.get('type');
 
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (accessToken && refreshToken && hashType === 'recovery') {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (!active) return;
         if (error) {
-          setVerifyError('This reset link is invalid or has expired. Please request a new one.');
+          setVerifyError(invalidLinkMessage);
           setStage('error');
-        } else {
-          setStage('ready');
+          return;
         }
+        window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
+        setVerifyError(null);
+        setStage('ready');
         return;
       }
 
       if (tokenHash && type === 'recovery') {
         const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+        if (!active) return;
         if (error) {
-          setVerifyError('This reset link is invalid or has expired. Please request a new one.');
+          setVerifyError(invalidLinkMessage);
           setStage('error');
         } else {
+          setVerifyError(null);
           setStage('ready');
         }
         return;
       }
 
-      // Neither code nor token_hash — direct visit with no token
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!active) return;
+        if (error) {
+          setVerifyError(invalidLinkMessage);
+          setStage('error');
+        } else {
+          setVerifyError(null);
+          setStage('ready');
+        }
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!active) return;
+      if (session) {
+        setVerifyError(null);
+        setStage('ready');
+        return;
+      }
+
       setVerifyError('No password reset token found. Please request a new reset link.');
       setStage('error');
     }
 
-    exchangeToken();
+    void exchangeToken();
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

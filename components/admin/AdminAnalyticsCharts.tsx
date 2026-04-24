@@ -12,6 +12,12 @@ type Props = {
   inactive14Days: number;
   applicationsSubmitted: number;
   resourcesCompleted: number;
+  aiToolStats?: {
+    runsLastNDays: number;
+    trend: number;
+    totalRuns: number;
+    breakdown: { toolType: string; count: number }[];
+  };
 };
 
 const ACCENT = '#ad2c4d';
@@ -65,7 +71,29 @@ function ActivityLegend({ payload }: { payload?: Array<{ color?: string; value?:
   );
 }
 
-export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgram, placementStats, inactive14Days, applicationsSubmitted, resourcesCompleted }: Props) {
+const TOOL_LABEL: Record<string, string> = {
+  cover_letter: 'Cover Letter',
+  elevator_pitch: 'Elevator Pitch',
+  gap_analyzer: 'Gap Analyzer',
+  interview_practice: 'Interview Practice',
+  job_match_scorer: 'Job Match',
+  linkedin_about: 'LinkedIn About',
+  linkedin_headline: 'LinkedIn Headline',
+  resume_rewriter: 'Resume Rewriter',
+  skill_assessment: 'Skill Assessment',
+  interest_profiler: 'Interest Profiler',
+  voice_interview_video: 'Voice Interview',
+  readiness_voice_session: 'Readiness Coach',
+  wioa_prequalification_voice_session: 'WIOA Pre-qual',
+  employer_voice_session: 'Employer Voice',
+  partner_voice_session: 'Partner Voice',
+};
+
+export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgram, placementStats, inactive14Days, applicationsSubmitted, resourcesCompleted, aiToolStats }: Props) {
+  const aiBreakdown = (aiToolStats?.breakdown ?? []).map((r) => ({
+    tool: TOOL_LABEL[r.toolType] ?? r.toolType,
+    count: r.count,
+  }));
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
@@ -164,6 +192,36 @@ export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgra
         </div>
 
       </div>
+
+      {/* AI tool usage breakdown */}
+      {aiBreakdown.length > 0 && (
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+          <SectionLabel
+            title="AI Tool Usage — Last 7 Days"
+            sub={`${aiToolStats?.runsLastNDays ?? 0} runs${aiToolStats?.trend !== 0 ? ` · ${aiToolStats!.trend > 0 ? '+' : ''}${aiToolStats!.trend}% vs prior week` : ''} · ${aiToolStats?.totalRuns ?? 0} all-time`}
+          />
+          <ResponsiveContainer width="100%" height={Math.max(180, aiBreakdown.length * 36)}>
+            <BarChart data={aiBreakdown} layout="vertical" margin={{ left: 8, right: 40, top: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <YAxis type="category" dataKey="tool" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} width={130} />
+              <Tooltip {...tooltipStyle} />
+              <Bar dataKey="count" name="Runs" radius={[0, 4, 4, 0]} label={{ position: 'right', fontSize: 10, fill: MUTED }}>
+                {aiBreakdown.map((_, i) => (
+                  <Cell key={i} fill={PROGRAM_COLORS[i % PROGRAM_COLORS.length]} fillOpacity={0.85} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {aiBreakdown.length === 0 && aiToolStats !== undefined && (
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          No AI tool runs recorded in the last 7 days.
+        </div>
+      )}
+
     </div>
   );
 }

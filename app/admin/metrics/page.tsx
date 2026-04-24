@@ -80,6 +80,7 @@ export default async function AdminMetricsPage() {
         inactive14Days={data.inactive14Days}
         applicationsSubmitted={data.applicationsSubmitted}
         resourcesCompleted={data.resourcesCompleted}
+        aiToolStats={data.aiToolStats}
       />
 
       <p style={{ marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>

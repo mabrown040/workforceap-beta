@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
 
   const emailSent = await sendWioaScreeningNotification({
     source: 'public_page',

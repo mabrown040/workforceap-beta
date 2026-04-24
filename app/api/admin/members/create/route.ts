@@ -8,6 +8,7 @@ import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -127,7 +128,7 @@ export async function POST(request: Request) {
     }
     authUser = createData.user;
     // Optionally trigger password reset so user can set their own
-    await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${siteUrl}/dashboard` });
+    await sendPasswordResetEmail(email);
   }
 
   if (!authUser) {

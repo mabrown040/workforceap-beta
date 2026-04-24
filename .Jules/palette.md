@@ -36,3 +36,6 @@
 ## 2026-04-20 - Site-wide UI Audit, Button Types, and Roles
 **Learning:** Found numerous `<button>` elements missing explicit `type="button"` attributes, which can lead to accidental form submissions. Similarly, many custom interactive elements using `<div>`, `<span>`, or `<li>` with `onClick` handlers lacked `role="button"` and `tabIndex={0}`, making them inaccessible to keyboard and screen reader users.
 **Action:** When creating `<button>` elements, always explicitly define their `type` (e.g. `type="button"` or `type="submit"`). When applying `onClick` to non-button semantic elements, you must also provide `role="button"`, `tabIndex={0}`, and an `onKeyDown` handler that responds to 'Enter' and 'Space' for proper accessibility. Ensure you do not add conflicting roles if the element already has a role (e.g., `role="dialog"`).
+## 2026-05-02 - Accessible Toggle Buttons
+**Learning:** Found toggle buttons (in `components/portal/DevViewToggle.tsx`) that act like tabs or mode switchers but lacked screen reader hints regarding their active state.
+**Action:** When implementing toggle or tab-like buttons that indicate a selected mode, apply `aria-pressed={isActive}` (or `aria-selected` depending on the role) so screen readers can announce the current state.

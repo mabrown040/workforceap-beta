@@ -34,21 +34,21 @@ const TOOL_CARDS = {
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
   {
-    id: 'elevator-pitch',
-    title: TOOL_CARDS.elevatorPitch.label,
-    icon: TOOL_CARDS.elevatorPitch.icon,
-    description: 'Generate a sharp 10 to 20 second intro, save it, email it to yourself, then rehearse it on camera.',
-    links: [
-      { label: 'Open AI elevator speech', href: TOOL_CARDS.elevatorPitch.href },
-    ],
-  },
-  {
     id: 'readiness',
     title: TOOL_CARDS.readinessCoach.label,
     icon: TOOL_CARDS.readinessCoach.icon,
     description: 'Talk through interviews, certifications, and next steps with an AI coach.',
     links: [
       { label: 'Open readiness coach', href: TOOL_CARDS.readinessCoach.href },
+    ],
+  },
+  {
+    id: 'elevator-pitch',
+    title: TOOL_CARDS.elevatorPitch.label,
+    icon: TOOL_CARDS.elevatorPitch.icon,
+    description: 'Generate a sharp 10 to 20 second intro, save it, email it to yourself, then rehearse it on camera.',
+    links: [
+      { label: 'Open AI elevator speech', href: TOOL_CARDS.elevatorPitch.href },
     ],
   },
   {

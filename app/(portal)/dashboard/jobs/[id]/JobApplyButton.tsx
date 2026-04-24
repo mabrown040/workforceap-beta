@@ -145,7 +145,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }} role="alert">
           {error}
           {error === 'Please log in to apply.' && (
-            <Link href={`/login?redirectTo=/dashboard/jobs/${jobId}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
+            <Link href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
               Log in
             </Link>
           )}

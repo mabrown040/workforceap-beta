@@ -16,7 +16,7 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function InterviewCoachPage() {
   const user = await getUser();
   if (!user) {
-    redirect('/login');
+    redirect('/login?redirectTo=/dashboard/ai-tools/interview-coach');
   }
 
   return (

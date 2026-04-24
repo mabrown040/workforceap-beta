@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/auth/server';
+import { createClient } from '@supabase/supabase-js';
 import { checkForgotPasswordRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
@@ -25,7 +25,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 });
   }
 
-  const supabase = await createSupabaseServerClient();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.json({ error: 'Password reset is temporarily unavailable.' }, { status: 500 });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      flowType: 'implicit',
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
+
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const redirectTo = `${baseUrl}/reset-password`;
 

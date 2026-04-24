@@ -145,7 +145,7 @@ export default function CourseraMappingsAdmin({
 
   return (
     <div style={{ display: 'grid', gap: '1.25rem' }}>
-      <section style={cardStyle}>
+      <section style={{ ...cardStyle, minWidth: 0, overflow: 'hidden' }}>
         <div className="coursera-header-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Manual identity mapping</h2>
@@ -286,7 +286,7 @@ export default function CourseraMappingsAdmin({
         `}</style>
       </section>
 
-      <section style={cardStyle}>
+      <section style={{ ...cardStyle, minWidth: 0, overflow: 'hidden' }}>
         <div style={{ marginBottom: '1rem' }}>
           <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Saved mappings</h2>
           <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)' }}>
@@ -294,8 +294,8 @@ export default function CourseraMappingsAdmin({
           </p>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '760px' }}>
+        <div className="coursera-table-wrap" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <table className="coursera-desktop-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '760px' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--outline-variant)' }}>
                 <th style={{ padding: '0.75rem 0.5rem' }}>Member</th>
@@ -334,9 +334,30 @@ export default function CourseraMappingsAdmin({
             </tbody>
           </table>
         </div>
+
+        <div className="coursera-mobile-list" aria-label="Saved mappings mobile view">
+          {mappings.length === 0 ? (
+            <div className="coursera-mobile-card" style={{ color: 'var(--color-on-surface-variant)' }}>
+              No manual mappings yet.
+            </div>
+          ) : mappings.map((mapping) => (
+            <article key={mapping.id} className="coursera-mobile-card">
+              <div className="coursera-mobile-row">
+                <strong>{mapping.userFullName}</strong>
+                <span style={{ color: 'var(--color-on-surface-variant)' }}>{mapping.userEmail}</span>
+              </div>
+              <div className="coursera-mobile-field"><strong>Coursera email:</strong> {mapping.courseraEmail || '—'}</div>
+              <div className="coursera-mobile-field"><strong>Actor ID:</strong> {mapping.actorIdentifier || '—'}</div>
+              {mapping.actorHomePage ? <div className="coursera-mobile-field"><strong>Actor home page:</strong> {mapping.actorHomePage}</div> : null}
+              <div className="coursera-mobile-field"><strong>Source:</strong> {mapping.source}</div>
+              <div className="coursera-mobile-field"><strong>Last seen:</strong> {fmtDate(mapping.lastSeenAt)}</div>
+              <div className="coursera-mobile-field"><strong>Notes:</strong> {mapping.notes || '—'}</div>
+            </article>
+          ))}
+        </div>
       </section>
 
-      <section style={cardStyle}>
+      <section style={{ ...cardStyle, minWidth: 0, overflow: 'hidden' }}>
         <div style={{ marginBottom: '1rem' }}>
           <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Unmatched xAPI events</h2>
           <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)' }}>
@@ -344,8 +365,8 @@ export default function CourseraMappingsAdmin({
           </p>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '860px' }}>
+        <div className="coursera-table-wrap" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+          <table className="coursera-desktop-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '860px' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--outline-variant)' }}>
                 <th style={{ padding: '0.75rem 0.5rem' }}>Learner identity</th>
@@ -387,6 +408,64 @@ export default function CourseraMappingsAdmin({
             </tbody>
           </table>
         </div>
+
+        <div className="coursera-mobile-list" aria-label="Unmatched xAPI events mobile view">
+          {unmatchedEvents.length === 0 ? (
+            <div className="coursera-mobile-card" style={{ color: 'var(--color-on-surface-variant)' }}>
+              No unmatched events yet.
+            </div>
+          ) : unmatchedEvents.map((event) => (
+            <article key={event.id} className="coursera-mobile-card">
+              <div className="coursera-mobile-field"><strong>Learner:</strong> {event.actorEmail || '—'}</div>
+              {event.actorIdentifier ? <div className="coursera-mobile-field"><strong>Actor ID:</strong> {event.actorIdentifier}</div> : null}
+              {event.actorHomePage ? <div className="coursera-mobile-field"><strong>Actor home page:</strong> {event.actorHomePage}</div> : null}
+              {event.statementId ? <div className="coursera-mobile-field"><strong>Statement:</strong> {event.statementId}</div> : null}
+              <div className="coursera-mobile-field"><strong>Course:</strong> {event.courseName || event.courseSlug || '—'}</div>
+              {event.verbId ? <div className="coursera-mobile-field"><strong>Verb:</strong> {event.verbId}</div> : null}
+              <div className="coursera-mobile-field"><strong>Status:</strong> {event.completionStatus}</div>
+              <div className="coursera-mobile-field"><strong>Received:</strong> {fmtDate(event.receivedAt)}</div>
+              {event.error ? <div className="coursera-mobile-field" style={{ color: '#fca5a5' }}><strong>Error:</strong> {event.error}</div> : null}
+              <button type="button" className="btn btn-outline" onClick={() => applyUnmatchedEvent(event)}>
+                Use in form
+              </button>
+            </article>
+          ))}
+        </div>
+
+        <style jsx>{`
+          .coursera-mobile-list {
+            display: none;
+            gap: 0.75rem;
+          }
+
+          .coursera-mobile-card {
+            display: grid;
+            gap: 0.5rem;
+            padding: 0.9rem;
+            border: 1px solid var(--outline-variant);
+            border-radius: 0.85rem;
+            background: var(--surface-container);
+          }
+
+          .coursera-mobile-row,
+          .coursera-mobile-field {
+            display: grid;
+            gap: 0.2rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+          }
+
+          @media (max-width: 640px) {
+            .coursera-desktop-table,
+            .coursera-table-wrap {
+              display: none;
+            }
+
+            .coursera-mobile-list {
+              display: grid;
+            }
+          }
+        `}</style>
       </section>
     </div>
   );

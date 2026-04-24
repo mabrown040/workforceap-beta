@@ -7,7 +7,7 @@ import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { listCourseraIdentityMappings, listRecentUnmatchedXapiEvents } from '@/lib/xapi/mappings';
 
@@ -54,7 +54,12 @@ export default async function AdminCourseraPage() {
     id: member.id,
     fullName: member.fullName,
     email: member.email,
-    programTitle: member.enrolledProgram ? getProgramBySlug(member.enrolledProgram)?.title ?? member.enrolledProgram : null,
+    programTitle: member.enrolledProgram
+      ? (() => {
+          const program = getProgramBySlug(member.enrolledProgram);
+          return program ? getProgramDisplayTitle(program) : member.enrolledProgram;
+        })()
+      : null,
   }));
 
   return (

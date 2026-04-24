@@ -9,7 +9,6 @@ import EmployerMessagesInboxClient from '@/components/portal/EmployerMessagesInb
 import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import { buildEmployerInbox } from '@/lib/messages/employerInbox';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -58,7 +57,6 @@ export default async function EmployerMessagesPage() {
             messages: serializedMessages,
           }}
         />
-        <MobileBottomNav variant="employer" />
       </div>
       <div className="wa-hidden wa-md:wa-block">
         <EmployerMessagesInboxClient

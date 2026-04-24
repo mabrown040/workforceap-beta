@@ -165,7 +165,17 @@ export default function EmailCronsClient({
   };
 
   const categories = ['all', ...Array.from(new Set(crons.map(c => c.category)))];
-  const filtered = filterCategory === 'all' ? crons : crons.filter(c => c.category === filterCategory);
+  const neverRunCount = crons.filter(c => !c.lastRunAt).length;
+  const attentionCount = crons.filter(c => !c.lastRunAt || c.lastRunStatus === 'error' || c.lastRunStatus === 'errored').length;
+  const filtered = (filterCategory === 'all' ? crons : crons.filter(c => c.category === filterCategory))
+    .slice()
+    .sort((a, b) => {
+      const aScore = !a.lastRunAt ? 2 : (a.lastRunStatus === 'error' || a.lastRunStatus === 'errored') ? 1 : 0;
+      const bScore = !b.lastRunAt ? 2 : (b.lastRunStatus === 'error' || b.lastRunStatus === 'errored') ? 1 : 0;
+      if (aScore !== bScore) return bScore - aScore;
+      if (a.enabled !== b.enabled) return Number(b.enabled) - Number(a.enabled);
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <div>
@@ -199,6 +209,24 @@ export default function EmailCronsClient({
           </div>
           <p className="portal-metric-card__value" style={{ color: errorRuns > 0 ? 'var(--color-accent)' : undefined }}>{errorRuns}</p>
           <p className="portal-metric-card__label">Recent Errors</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap" style={{ background: neverRunCount > 0 ? 'rgba(255,187,0,0.12)' : 'rgba(74,155,79,0.1)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: neverRunCount > 0 ? 'var(--color-gold)' : 'var(--color-green, #4a9b4f)', fontVariationSettings: "'FILL' 1" }}>
+              {neverRunCount > 0 ? 'hourglass_empty' : 'done_all'}
+            </span>
+          </div>
+          <p className="portal-metric-card__value" style={{ color: neverRunCount > 0 ? 'var(--color-gold)' : undefined }}>{neverRunCount}</p>
+          <p className="portal-metric-card__label">Never Run</p>
+        </div>
+        <div className="portal-metric-card">
+          <div className="portal-metric-card__icon-wrap" style={{ background: attentionCount > 0 ? 'rgba(173,44,77,0.1)' : 'rgba(74,155,79,0.1)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: attentionCount > 0 ? 'var(--color-accent)' : 'var(--color-green, #4a9b4f)', fontVariationSettings: "'FILL' 1" }}>
+              {attentionCount > 0 ? 'notification_important' : 'verified'}
+            </span>
+          </div>
+          <p className="portal-metric-card__value" style={{ color: attentionCount > 0 ? 'var(--color-accent)' : undefined }}>{attentionCount}</p>
+          <p className="portal-metric-card__label">Need Attention</p>
         </div>
       </div>
 
@@ -258,6 +286,16 @@ export default function EmailCronsClient({
                     {!cron.enabled && (
                       <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                         Disabled
+                      </span>
+                    )}
+                    {!cron.lastRunAt && (
+                      <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(255,187,0,0.12)', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                        Never run
+                      </span>
+                    )}
+                    {(cron.lastRunStatus === 'error' || cron.lastRunStatus === 'errored') && (
+                      <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                        Failed last run
                       </span>
                     )}
                   </div>

@@ -6,7 +6,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = {
   title: 'Application Tracker',
-  description: 'Track your job applications and interview progress',
+  description: 'Track your job applications and interview progress from the Jobs workflow.',
 };
 
 export default async function JobApplicationsPage() {
@@ -21,7 +21,7 @@ export default async function JobApplicationsPage() {
     <div className="container wa-mx-auto wa-px-4 wa-py-8">
       <h1 className="wa-text-3xl wa-font-bold wa-mb-2">Application Tracker</h1>
       <p className="wa-text-gray-600 wa-mb-6">
-        Track every job you've applied to and where you stand in the process.
+        Track every job you've applied to and where you stand in the process. This lives under Jobs so saved roles, outreach, and application status stay in one workflow.
       </p>
       
       <JobApplicationsTracker userId={user.id} />

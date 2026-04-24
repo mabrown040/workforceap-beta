@@ -7,7 +7,6 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
@@ -144,7 +143,6 @@ export default async function EmployerMatchesPage() {
             })
           )}
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
       <div className="wa-hidden wa-md:wa-block">
         {initialRows.length === 0 ? (

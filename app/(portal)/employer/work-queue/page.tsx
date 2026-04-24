@@ -6,7 +6,6 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerWorkQueueClient from '@/components/employer/EmployerWorkQueueClient';
 import EmployerWorkflowTimeline from '@/components/employer/EmployerWorkflowTimeline';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
 import { listEmployerWorkflowEvents } from '@/lib/portal/workflowEvents';
 
@@ -77,7 +76,6 @@ export default async function EmployerWorkQueuePage({
 
       <EmployerWorkflowTimeline events={events} />
     </div>
-    <MobileBottomNav variant="employer" />
     </>
   );
 }

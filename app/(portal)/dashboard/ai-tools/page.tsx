@@ -11,7 +11,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Toolkit',
-  description: 'Core AI tools plus the full member toolkit for resumes, interviews, job search, and career strategy.',
+  description: 'Guided member tools for resumes, applications, interviews, LinkedIn, and job-search strategy.',
   path: '/dashboard/ai-tools',
 });
 
@@ -80,7 +80,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            Start with the 5 core AI tools, then use the full toolkit below for resumes, interviews, LinkedIn, and job search.
+            Start with the 5 core tools below, then move step by step through resume prep, applications, interviews, and profile polish.
           </p>
 
           <div className="wa-block wa-md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
@@ -119,7 +119,7 @@ export default async function AIToolsPage() {
                   className="wa-text-base wa-font-bold"
                   style={{ color: 'var(--color-white)', margin: 0, position: 'relative', zIndex: 1 }}
                 >
-                  Your 5 core tools
+                  Start with these 5 tools
                 </h2>
                 <p
                   style={{
@@ -130,7 +130,7 @@ export default async function AIToolsPage() {
                     zIndex: 1,
                   }}
                 >
-                  Start here, then keep scrolling for the rest of your tools.
+                  Start here first, then follow the guided steps below.
                 </p>
               </div>
             </PortalCard>
@@ -198,8 +198,21 @@ export default async function AIToolsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            More AI Tools
+            Guided Job Search Steps
           </h2>
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <PortalCard className="portal-card--flat">
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+              Looking for your application tracker? It now lives under <strong style={{ color: 'var(--color-on-surface)' }}>Jobs</strong> so your saved roles and application status stay with the rest of your job search workflow.
+            </p>
+            <div style={{ marginTop: '0.875rem' }}>
+              <Link href="/dashboard/job-applications" className="btn btn-outline">
+                Open Application Tracker
+              </Link>
+            </div>
+          </PortalCard>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', alignItems: 'start' }}>

@@ -7,6 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
@@ -253,6 +254,16 @@ export default async function AdminPage() {
     return `${diffD}d ago`;
   }
 
+  const [slaBreaches48h, recentCronErrors] = await Promise.all([
+    countThreadsWithSlaBreach(48).catch(() => 0),
+    prisma.workflowDiagnostic.count({
+      where: {
+        status: { in: ['error', 'errored'] },
+        createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      },
+    }).catch(() => 0),
+  ]);
+
   return (
     <PortalPageFrame>
       <PageHeader
@@ -271,6 +282,27 @@ export default async function AdminPage() {
           </div>
         }
       />
+
+      {(slaBreaches48h > 0 || recentCronErrors > 0) && (
+        <div className="portal-alert" style={{ margin: '0 1.5rem 1.25rem', borderColor: 'rgba(173,44,77,0.35)' }}>
+          <span className="portal-alert__label">
+            {slaBreaches48h > 0 ? `${slaBreaches48h} member thread${slaBreaches48h === 1 ? '' : 's'} over 48h without reply` : 'No stale member threads'}
+            {recentCronErrors > 0 ? ` · ${recentCronErrors} cron error${recentCronErrors === 1 ? '' : 's'} in the last 7 days` : ''}
+          </span>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {slaBreaches48h > 0 && (
+              <Link href="/admin/messages" className="portal-alert__action">
+                Review messages &rarr;
+              </Link>
+            )}
+            {recentCronErrors > 0 && (
+              <Link href="/admin/email-crons" className="portal-alert__action">
+                Check cron health &rarr;
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (

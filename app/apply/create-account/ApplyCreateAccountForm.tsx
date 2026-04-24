@@ -265,7 +265,8 @@ export default function ApplyCreateAccountForm() {
         return;
       }
 
-      window.location.href = data.redirectTo ?? '/dashboard';
+      const dest = typeof data.redirectTo === 'string' && data.redirectTo.startsWith('/') ? data.redirectTo : '/dashboard';
+      window.location.href = dest;
     } catch {
       setError('Something went wrong while creating your account. Please try again, or call (512) 777-1808 if you need help finishing.');
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });

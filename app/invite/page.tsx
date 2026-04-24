@@ -95,9 +95,7 @@ function InviteContent() {
           : '/login?redirectTo=/dashboard';
       setPostAcceptRedirect(next);
       setSuccess(true);
-      if (result.redirectTo) {
-        window.location.href = result.redirectTo;
-      }
+      window.location.href = next;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Try again in a moment.');
       setSubmitting(false);

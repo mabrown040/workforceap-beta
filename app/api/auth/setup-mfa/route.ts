@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
+import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 /**
  * POST /api/auth/setup-mfa
@@ -13,6 +14,10 @@ import { cookies } from 'next/headers';
  * Body: { factorId, code }
  */
 export async function POST(request: Request) {
+  if (!isStaffMfaEnforcementEnabled()) {
+    return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
+  }
+
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
@@ -55,6 +60,10 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  if (!isStaffMfaEnforcementEnabled()) {
+    return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
+  }
+
   const body: { factorId?: string; code?: string } = await request.json().catch(() => ({}));
   const factorId = typeof body.factorId === 'string' ? body.factorId : '';
   const code = typeof body.code === 'string' ? body.code.trim() : '';

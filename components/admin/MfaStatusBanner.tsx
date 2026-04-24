@@ -10,6 +10,10 @@ export default function MfaStatusBanner() {
       .then(async (r) => {
         if (!r.ok) return setMfaStatus('missing');
         const data = await r.json();
+        if (data.mfaEnforcement === false) {
+          setMfaStatus('enrolled');
+          return;
+        }
         // If no session or already aal2, MFA is enrolled
         if (!data.mfaRequired && data.currentAal === 'aal2') {
           setMfaStatus('enrolled');

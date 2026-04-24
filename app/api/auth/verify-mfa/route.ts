@@ -7,6 +7,7 @@ import {
   getAdminMfaTrustCookieOptions,
   issueAdminMfaTrustToken,
 } from '@/lib/auth/mfaTrust';
+import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 /**
  * POST /api/auth/verify-mfa
@@ -15,6 +16,10 @@ import {
  * Requires active session with aal1 (from password login).
  */
 export async function POST(request: Request) {
+  if (!isStaffMfaEnforcementEnabled()) {
+    return NextResponse.json({ error: 'MFA verification is currently disabled.' }, { status: 404 });
+  }
+
   const body: { code?: string; trustDevice?: boolean } = await request.json().catch(() => ({}));
   const code = typeof body.code === 'string' ? body.code.trim() : '';
   const trustDevice = body.trustDevice !== false;

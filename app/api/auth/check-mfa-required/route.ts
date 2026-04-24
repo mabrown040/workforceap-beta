@@ -4,6 +4,7 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { prisma } from '@/lib/db/prisma';
+import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 /**
  * GET /api/auth/check-mfa-required
@@ -11,6 +12,16 @@ import { prisma } from '@/lib/db/prisma';
  * Used by the verify-mfa page to guard access.
  */
 export async function GET(request: Request) {
+  if (!isStaffMfaEnforcementEnabled()) {
+    return NextResponse.json({
+      mfaRequired: false,
+      mfaEnforcement: false,
+      reason: 'mfa_enforcement_disabled',
+      currentAal: 'disabled',
+      nextAal: 'disabled',
+    });
+  }
+
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
@@ -69,6 +80,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     mfaRequired,
+    mfaEnforcement: true,
     currentAal: aalData.currentLevel,
     nextAal: aalData.nextLevel,
   });

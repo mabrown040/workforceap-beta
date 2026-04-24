@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { createSupabaseServerClient } from '@/lib/auth/server';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 /**
  * POST /api/admin/members/[id]/reset-password
@@ -29,11 +29,7 @@ export async function POST(
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   try {
-    const supabase = await createSupabaseServerClient();
-    // Use the admin API to send a password reset
-    const { error } = await supabase.auth.resetPasswordForEmail(member.email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org'}/forgot-password/confirm`,
-    });
+    const { error } = await sendPasswordResetEmail(member.email);
     if (error) throw error;
 
     return NextResponse.json({ success: true, message: `Password reset email sent to ${member.email}` });

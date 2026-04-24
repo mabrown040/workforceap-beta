@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { createSupabaseServerClient } from '@/lib/auth/server';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 export async function POST(
   _req: NextRequest,
@@ -20,10 +20,7 @@ export async function POST(
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   try {
-    const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org'}/forgot-password/confirm`,
-    });
+    const { error } = await sendPasswordResetEmail(user.email);
     if (error) throw error;
     return NextResponse.json({ success: true, message: `Password reset email sent to ${user.email}` });
   } catch (error) {

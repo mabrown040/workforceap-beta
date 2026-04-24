@@ -12,6 +12,7 @@ import {
   ensureProfileRole,
   syncManagedUserRoles,
 } from '@/lib/admin/adminUserProvisioning';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 /** List users for admin dropdowns (e.g. subgroup leader selection). Returns id, fullName, email. */
 export async function GET() {
@@ -152,10 +153,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (sendResetEmail) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/forgot-password/confirm`,
-      });
+      const { error } = await sendPasswordResetEmail(email);
       if (error) {
         return NextResponse.json({
           success: true,

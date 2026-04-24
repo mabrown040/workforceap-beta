@@ -34,6 +34,10 @@ function isProtectedPath(pathname: string) {
   return isPortalPath(pathname) || isAdminPath(pathname);
 }
 
+function requestedPathWithSearch(request: NextRequest) {
+  return `${request.nextUrl.pathname}${request.nextUrl.search}`;
+}
+
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   const pathname = request.nextUrl.pathname;
@@ -51,7 +55,7 @@ export async function middleware(request: NextRequest) {
   if (!supabaseUrl || !supabaseAnonKey) {
     if (isProtectedPath(request.nextUrl.pathname)) {
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+      loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
       return NextResponse.redirect(loginUrl);
     }
     return response;
@@ -86,7 +90,7 @@ export async function middleware(request: NextRequest) {
 
   if (isProtectedPath(request.nextUrl.pathname) && !user) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+    loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
     return NextResponse.redirect(loginUrl);
   }
 

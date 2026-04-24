@@ -16,7 +16,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function CounselorPage() {
   const user = await getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/login?redirectTo=/dashboard/counselor');
 
   const firstName = user.user_metadata?.full_name?.split(' ')[0] as string | undefined;
 

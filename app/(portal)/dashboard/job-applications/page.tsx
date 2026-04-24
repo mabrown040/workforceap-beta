@@ -13,7 +13,7 @@ export default async function JobApplicationsPage() {
   const user = await getUser();
   
   if (!user?.id) {
-    redirect('/login');
+    redirect('/login?redirectTo=/dashboard/job-applications');
   }
 
   return (

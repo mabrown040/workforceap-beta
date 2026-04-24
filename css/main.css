@@ -2053,6 +2053,18 @@ html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger.active 
     left: auto;
     min-width: 200px;
 }
+.nav-login-dropdown:not(.active) .nav-login-flyout-menu {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+}
+.nav-login-dropdown.active .nav-login-flyout-menu {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
 html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-primary {
     color: rgba(255, 255, 255, 0.92);
 }

@@ -256,7 +256,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
               After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 1–2 business days.
             </p>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
-              Questions? Call <a href="tel:5127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
+              Questions? Call <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
             </p>
           </div>
         </aside>

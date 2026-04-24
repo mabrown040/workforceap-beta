@@ -24,6 +24,8 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
   const [editingId, setEditingId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [resettingId, setResettingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err' | 'warn'; text: string } | null>(null);
   const [draft, setDraft] = useState<{ fullName: string; email: string; role: string }>({ fullName: '', email: '', role: 'member' });
@@ -91,6 +93,29 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
       setMessage({ type: 'err', text: 'Network error while sending reset.' });
     } finally {
       setResettingId(null);
+    }
+  }
+
+  async function deleteUser(userId: string) {
+    setDeletingId(userId);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMessage({ type: 'err', text: data.error ?? 'Could not delete user.' });
+        return;
+      }
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setConfirmDeleteId(null);
+      setMessage({ type: 'ok', text: 'User deleted.' });
+    } catch {
+      setMessage({ type: 'err', text: 'Network error while deleting user.' });
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -264,6 +289,21 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                       <button type="button" className="btn btn-outline btn-sm" disabled={resettingId === user.id} onClick={() => void sendReset(user.id)}>
                         {resettingId === user.id ? 'Sending…' : 'Reset password'}
                       </button>
+                      {canManageRoles && (
+                        confirmDeleteId === user.id ? (
+                          <>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Confirm?</span>
+                            <button type="button" className="btn btn-sm" style={{ background: '#c00', color: '#fff' }} disabled={deletingId === user.id} onClick={() => void deleteUser(user.id)}>
+                              {deletingId === user.id ? '…' : 'Yes, delete'}
+                            </button>
+                            <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
+                          </>
+                        ) : (
+                          <button type="button" className="btn btn-outline btn-sm" style={{ color: '#c00', borderColor: '#c00' }} onClick={() => setConfirmDeleteId(user.id)}>
+                            Delete
+                          </button>
+                        )
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -310,6 +350,20 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                   {resettingId === user.id ? 'Sending…' : 'Reset password'}
                 </button>
                 {user.memberHref ? <a href={user.memberHref} className="btn btn-ghost btn-sm">Open record</a> : null}
+                {canManageRoles && (
+                  confirmDeleteId === user.id ? (
+                    <>
+                      <button type="button" className="btn btn-sm" style={{ background: '#c00', color: '#fff' }} disabled={deletingId === user.id} onClick={() => void deleteUser(user.id)}>
+                        {deletingId === user.id ? '…' : 'Confirm delete'}
+                      </button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
+                    </>
+                  ) : (
+                    <button type="button" className="btn btn-outline btn-sm" style={{ color: '#c00', borderColor: '#c00' }} onClick={() => setConfirmDeleteId(user.id)}>
+                      Delete
+                    </button>
+                  )
+                )}
               </div>
             </li>
           );

@@ -6,6 +6,39 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
 
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const actor = await getUser();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await isSuperAdmin(actor.id))) return NextResponse.json({ error: 'Super admin required.' }, { status: 403 });
+
+  const { id } = await params;
+
+  if (id === actor.id) {
+    return NextResponse.json({ error: 'Cannot delete your own account.' }, { status: 400 });
+  }
+
+  const target = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+  if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
+
+  try {
+    await prisma.user.update({ where: { id }, data: { deletedAt: new Date() } });
+
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase.auth.admin.deleteUser(id);
+    if (error) {
+      console.error('[admin/users/:id DELETE] Supabase delete error:', error.message);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error('[admin/users/:id DELETE]', err);
+    return NextResponse.json({ error: 'Failed to delete user.' }, { status: 500 });
+  }
+}
+
 const schema = z.object({
   fullName: z.string().trim().min(1).max(200),
   email: z.string().trim().email().max(200),

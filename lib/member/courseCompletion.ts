@@ -8,18 +8,39 @@ import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 
+function normalizeText(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function normalizeSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function resolveProgramCourse(
   program: Program,
   args: { courseSlug?: string; courseName?: string }
 ): { slug: string; name: string } | null {
   if (args.courseSlug) {
-    const bySlug = program.courses.find((course) => course.slug === args.courseSlug?.trim());
+    const requestedSlug = args.courseSlug.trim();
+    const requestedSlugNormalized = normalizeSlug(requestedSlug);
+    const bySlug = program.courses.find((course) =>
+      course.slug === requestedSlug
+      || normalizeSlug(course.slug) === requestedSlugNormalized
+      || normalizeSlug(course.name) === requestedSlugNormalized
+    );
     if (bySlug) return { slug: bySlug.slug, name: bySlug.name };
   }
 
   if (args.courseName) {
-    const target = args.courseName.trim().toLowerCase();
-    const byName = program.courses.find((course) => course.name.trim().toLowerCase() === target);
+    const target = normalizeText(args.courseName);
+    const targetSlug = normalizeSlug(args.courseName);
+    const byName = program.courses.find((course) =>
+      normalizeText(course.name) === target || normalizeSlug(course.name) === targetSlug
+    );
     if (byName) return { slug: byName.slug, name: byName.name };
   }
 

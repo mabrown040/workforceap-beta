@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import {
+  PROGRAMS,
+  WORKFORCEAP_PROGRAM_CATALOG_SIZE,
+  getProgramDisplayPartner,
+  getProgramDisplayTitle,
+} from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
@@ -46,6 +51,8 @@ function ProgramCard({ program }: { program: Program }) {
   const skills = nonEmptySkills.slice(0, 3);
   const moreSkills = nonEmptySkills.length - 3;
   const borderColor = CATEGORY_BORDER[program.category] ?? program.borderColor;
+  const displayTitle = getProgramDisplayTitle(program);
+  const displayPartner = getProgramDisplayPartner(program);
 
   return (
     <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
@@ -53,7 +60,7 @@ function ProgramCard({ program }: { program: Program }) {
         <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
-      <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{program.title}</h3>
+      <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>
       {extra?.bestFor && (
         <p className="program-card-best-for">
           <strong>Best for:</strong> {extra.bestFor}
@@ -127,7 +134,7 @@ function ProgramCard({ program }: { program: Program }) {
         className="program-card-footer"
         style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        <span style={{ fontSize: '.8rem', color: 'var(--color-on-surface-variant)' }}>Partner: {program.partner}</span>
+        <span style={{ fontSize: '.8rem', color: 'var(--color-on-surface-variant)' }}>Partner: {displayPartner}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
           <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program

@@ -4,6 +4,8 @@
  * Icons are Lucide icon names — rendered by components that import from lucide-react.
  */
 
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -32,6 +34,44 @@ export interface Program {
   partner: string;
 }
 
+function normalizeDiscoveredProgramTitle(title: string): string {
+  return title.replace('Heath Information', 'Health Information').trim();
+}
+
+function getDiscoveredProgram(program: Program | string) {
+  const slug = typeof program === 'string' ? program : program.slug;
+  return DISCOVERED_COURSERA_PROGRAMS[slug];
+}
+
+function inferDiscoveredPartnerLabel(program: Program | string): string | null {
+  const discovered = getDiscoveredProgram(program);
+  if (!discovered) return null;
+
+  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle);
+  const brandedSuffix = title.match(/\(([^)]+)\)\s*$/)?.[1]?.trim();
+  const recognizedCredentialBrands = new Set(['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA']);
+  if (brandedSuffix && recognizedCredentialBrands.has(brandedSuffix)) return brandedSuffix;
+  if (title.startsWith('CompTIA ')) return 'CompTIA';
+
+  const partners = Array.from(new Set(discovered.courses.map((course) => course.partner).filter(Boolean)));
+  if (partners.length === 1) return partners[0] ?? null;
+
+  return 'Coursera partners';
+}
+
+export function getProgramDisplayTitle(program: Program | string): string {
+  const discovered = getDiscoveredProgram(program);
+  if (!discovered) return typeof program === 'string' ? program : program.title;
+  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle);
+}
+
+export function getProgramDisplayPartner(program: Program | string): string {
+  if (typeof program === 'string') {
+    return inferDiscoveredPartnerLabel(program) ?? program;
+  }
+  return inferDiscoveredPartnerLabel(program) ?? program.partner;
+}
+
 function mkProgram(
   title: string,
   category: string,
@@ -48,11 +88,18 @@ function mkProgram(
   slugOverride?: string
 ): Program {
   const slug = slugOverride ?? slugify(title);
-  const courses: ProgramCourse[] = courseNames.map((name, i) => ({
-    slug: `${slug}-course-${i + 1}`,
-    name,
-    estimatedHours: defaultHours,
-  }));
+  const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
+  const courses: ProgramCourse[] = discoveredCourses?.length
+    ? discoveredCourses.map((course) => ({
+        slug: course.slug,
+        name: course.name,
+        estimatedHours: course.estimatedHours || defaultHours,
+      }))
+    : courseNames.map((name, i) => ({
+        slug: `${slug}-course-${i + 1}`,
+        name,
+        estimatedHours: defaultHours,
+      }));
   return {
     slug,
     title,

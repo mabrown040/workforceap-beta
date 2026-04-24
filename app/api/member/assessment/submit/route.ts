@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
   const adminLink = `${siteUrl}/admin/assessments?userId=${user.id}`;
 
   const resendKey = process.env.RESEND_API_KEY;

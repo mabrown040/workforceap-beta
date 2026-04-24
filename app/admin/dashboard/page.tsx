@@ -144,60 +144,64 @@ export default function ExecutiveDashboardPage() {
           marginBottom: '1.5rem',
         }}
       >
-        {funnels.map((f) => (
-          <div
-            key={f.name}
-            style={{
-              background: 'var(--surface-container-low)',
-              borderRadius: 12,
-              padding: '1rem',
-              border: '1px solid var(--outline-variant)',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-              <h3 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>{f.name}</h3>
-              <span
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: 800,
-                  color: f.rate >= 50 ? 'var(--color-green)' : f.rate >= 25 ? 'var(--color-gold)' : 'var(--color-accent)',
-                }}
-              >
-                {f.rate}%
-              </span>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
-              {f.description}
-            </p>
-            {/* Progress bar */}
+        {funnels.map((f) => {
+          const boundedRate = Math.min(Math.max(f.rate, 0), 100);
+
+          return (
             <div
+              key={f.name}
               style={{
-                height: 8,
-                background: 'var(--surface-container-highest)',
-                borderRadius: 4,
-                overflow: 'hidden',
+                background: 'var(--surface-container-low)',
+                borderRadius: 12,
+                padding: '1rem',
+                border: '1px solid var(--outline-variant)',
               }}
             >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>{f.name}</h3>
+                <span
+                  style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 800,
+                    color: f.rate >= 50 ? 'var(--color-green)' : f.rate >= 25 ? 'var(--color-gold)' : 'var(--color-accent)',
+                  }}
+                >
+                  {f.rate}%
+                </span>
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+                {f.description}
+              </p>
+              {/* Progress bar */}
               <div
                 style={{
-                  width: `${f.rate}%`,
-                  height: '100%',
-                  background:
-                    f.rate >= 50
-                      ? 'var(--color-green)'
-                      : f.rate >= 25
-                        ? 'var(--color-gold)'
-                        : 'var(--color-accent)',
+                  height: 8,
+                  background: 'var(--surface-container-highest)',
                   borderRadius: 4,
-                  transition: 'width 0.3s ease',
+                  overflow: 'hidden',
                 }}
-              />
+              >
+                <div
+                  style={{
+                    width: `${boundedRate}%`,
+                    height: '100%',
+                    background:
+                      f.rate >= 50
+                        ? 'var(--color-green)'
+                        : f.rate >= 25
+                          ? 'var(--color-gold)'
+                          : 'var(--color-accent)',
+                    borderRadius: 4,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </div>
+              <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', textAlign: 'right' }}>
+                {f.current} of {f.target}
+              </p>
             </div>
-            <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', textAlign: 'right' }}>
-              {f.current} of {f.target}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Trend Charts */}

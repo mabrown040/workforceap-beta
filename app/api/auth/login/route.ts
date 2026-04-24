@@ -6,6 +6,7 @@ import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
+import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 export async function POST(request: Request) {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
@@ -101,13 +102,15 @@ export async function POST(request: Request) {
     select: { role: true },
   });
 
-  // Check if MFA is required for this user
-  const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  const needsMfa = aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2';
+  const staffMfaEnabled = isStaffMfaEnforcementEnabled();
+  const aalData = staffMfaEnabled
+    ? (await supabase.auth.mfa.getAuthenticatorAssuranceLevel()).data
+    : null;
+  const needsMfa = staffMfaEnabled && aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2';
   const isStaff = profile?.role === 'super_admin' || profile?.role === 'admin' || profile?.role === 'counselor';
 
   // If staff and no MFA enrolled yet, redirect to setup
-  if (isStaff && !needsMfa) {
+  if (staffMfaEnabled && isStaff && !needsMfa) {
     const { data: factors } = await supabase.auth.mfa.listFactors();
     if (!factors?.totp?.length) {
       return NextResponse.json({ ok: true, mfaSetupRequired: true, redirectTo: '/setup-mfa' });
@@ -115,7 +118,7 @@ export async function POST(request: Request) {
   }
 
   // If MFA required (staff with factor enrolled), tell client to verify
-  if (needsMfa && isStaff) {
+  if (staffMfaEnabled && needsMfa && isStaff) {
     const trustedDevice = await verifyAdminMfaTrustToken({
       token: cookieStore.get(getAdminMfaTrustCookieName())?.value,
       userId: data.user.id,

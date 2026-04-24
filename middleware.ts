@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
+import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 const PORTAL_PATHS = [
   '/dashboard',
@@ -90,7 +91,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // MFA enforcement for admin UI and admin API paths
-  if ((isAdminPath(request.nextUrl.pathname) || isAdminApiPath(request.nextUrl.pathname)) && user) {
+  if (isStaffMfaEnforcementEnabled() && (isAdminPath(request.nextUrl.pathname) || isAdminApiPath(request.nextUrl.pathname)) && user) {
     const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 
     // If at aal1 and next level is aal2, MFA verification is required

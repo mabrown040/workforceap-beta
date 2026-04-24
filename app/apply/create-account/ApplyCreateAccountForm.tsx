@@ -292,10 +292,11 @@ export default function ApplyCreateAccountForm() {
           Go to login
         </Link>
         <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
-          Didn&apos;t get it? Check your spam folder, or{' '}
-          <a href={`/api/apply/resend-verification?email=${encodeURIComponent(verifyEmail)}`} style={{ color: '#ad2c4d', fontWeight: 600 }}>
-            resend the email
-          </a>.
+          Didn&apos;t get it? Check your spam folder, then call{' '}
+          <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
+            (512) 777-1808
+          </a>{' '}
+          if you need help finishing your account.
         </p>
       </div>
     );

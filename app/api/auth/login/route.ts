@@ -108,12 +108,18 @@ export async function POST(request: Request) {
     : null;
   const needsMfa = staffMfaEnabled && aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2';
   const isStaff = profile?.role === 'super_admin' || profile?.role === 'admin' || profile?.role === 'counselor';
+  const roleAwareRedirect =
+    profile?.role === 'super_admin'
+      ? '/admin'
+      : redirectTo === '/dashboard' && profile?.role === 'admin'
+        ? '/admin'
+        : redirectTo;
 
   // If staff and no MFA enrolled yet, redirect to setup
   if (staffMfaEnabled && isStaff && !needsMfa) {
     const { data: factors } = await supabase.auth.mfa.listFactors();
     if (!factors?.totp?.length) {
-      return NextResponse.json({ ok: true, mfaSetupRequired: true, redirectTo: '/setup-mfa' });
+      return NextResponse.json({ ok: true, mfaSetupRequired: true, redirectTo: `/setup-mfa?next=${encodeURIComponent(roleAwareRedirect)}` });
     }
   }
 
@@ -126,29 +132,15 @@ export async function POST(request: Request) {
     });
 
     if (trustedDevice) {
-      const trustedRedirect =
-        profile?.role === 'super_admin'
-          ? '/admin'
-          : redirectTo === '/dashboard' && profile?.role === 'admin'
-            ? '/admin'
-            : redirectTo;
-
       if (request.headers.get('x-wap-login-flow') === 'client') {
-        return NextResponse.json({ ok: true, redirectTo: trustedRedirect, mfaTrusted: true });
+        return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect, mfaTrusted: true });
       }
 
-      return NextResponse.redirect(new URL(trustedRedirect, request.url), 302);
+      return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
     }
 
-    return NextResponse.json({ ok: true, mfaRequired: true, redirectTo: '/verify-mfa' });
+    return NextResponse.json({ ok: true, mfaRequired: true, redirectTo: `/verify-mfa?next=${encodeURIComponent(roleAwareRedirect)}` });
   }
-
-  const roleAwareRedirect =
-    profile?.role === 'super_admin'
-      ? '/admin'
-      : redirectTo === '/dashboard' && profile?.role === 'admin'
-        ? '/admin'
-        : redirectTo;
 
   if (request.headers.get('x-wap-login-flow') === 'client') {
     return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect });

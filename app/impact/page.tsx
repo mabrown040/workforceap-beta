@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 const IMPACT_STATS = [
   { value: '25+', label: 'Years removing barriers to workforce opportunity' },
-  { value: '2,000+', label: 'Learners trained through WorkforceAP-led programs' },
+  { value: '2,000+', label: 'Learners trained through workforce development programs (historical)' },
   { value: `${WORKFORCEAP_PROGRAM_CATALOG_SIZE}`, label: 'Career tracks aligned to real employer demand' },
   { value: '$0', label: 'Cost to members — funded by grants and partnerships' },
 ];

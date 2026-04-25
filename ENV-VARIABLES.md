@@ -1,8 +1,7 @@
 # WorkforceAP Environment Variables — Production Configuration
 
 **File:** `.env.local` (for local dev) or Vercel Environment Variables (for production)  
-**Last Updated:** 2026-03-20  
-**Status:** ⚠️ Production missing RESEND_API_KEY
+**Last Updated:** 2026-04-24
 
 ---
 
@@ -11,9 +10,12 @@
 ### Email Service (Resend)
 | Variable | Production Value | Local Dev Value | Source |
 |----------|------------------|-----------------|--------|
-| `RESEND_API_KEY` | ❌ **NOT SET** — Add from https://resend.com/api-keys | (your dev key) | Resend Dashboard |
+| `RESEND_API_KEY` | ✅ Set (`re_...`) | (your dev key) | Resend Dashboard |
 | `EMAIL_FROM` | `info@workforceap.org` | `info@workforceap.org` | Your domain |
-| `EMAIL_TO_ADMIN` | `info@workforceap.org` | (your test email) | Admin notification recipient |
+| `SMTP_HOST` | `smtp.gmail.com` | `smtp.gmail.com` | Gmail / Google Workspace |
+| `SMTP_USER` | `michael.brown2@workforceap.org` | (your email) | Gmail account |
+| `SMTP_PASS` | (app password) | (app password) | Google Account → App Passwords |
+| `SMTP_PORT` | `587` | `587` | Standard TLS port |
 
 ### Database (Supabase)
 | Variable | Production Value | Local Dev Value | Source |
@@ -27,16 +29,53 @@
 |----------|------------------|-----------------|--------|
 | `NEXT_PUBLIC_SITE_URL` | `https://www.workforceap.org` | `http://localhost:3000` | Your domain |
 
-### AI Tools: ElevenLabs (Interview Simulator)
+### Rate Limiting (Upstash Redis) — Optional but Recommended
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `UPSTASH_REDIS_REST_URL` | (set in Vercel) | (optional) | Upstash Console |
+| `UPSTASH_REDIS_REST_TOKEN` | (set in Vercel) | (optional) | Upstash Console |
+
+**Note:** Without Upstash, signup/apply rate limits fail open (Supabase enforces its own auth limits). Contact/confirmation remain fail-closed (spam risk).
+
+### AI Tools: ElevenLabs (Voice Interview + Conversational AI Coaches)
 | Variable | Production Value | Local Dev Value | Source |
 |----------|------------------|-----------------|--------|
 | `ELEVENLABS_API_KEY` | (set in Vercel) | (set in .env) | ElevenLabs Dashboard |
+| `ELEVENLABS_READINESS_AGENT_ID` | `agent_5801kmznwny0e8gtmb726aaeevnt` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_INTERVIEW_AGENT_ID` | `agent_9001kmy4g522e5ttvj88k5z1ygem` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | `agent_2801kmznvsemfmms06r0e02es1b9` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_EMPLOYER_AGENT_ID` | `agent_0901kmznx45vf19s9psjrctqr6x5` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_PARTNER_AGENT_ID` | `agent_7601kntxhqx3e0mvznpwk9bqj5yw` | (same) | ElevenLabs ConvAI |
+| `ELEVENLABS_RESUME_COACH_AGENT_ID` | `agent_6601kmznw90ffxkbk7mpbym73vh9` | (same) | ElevenLabs ConvAI |
+
+### AI Tools: Groq (Chat/Completion Backend)
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `GROQ_API_KEY` | (set in Vercel) | (set in .env) | Groq Dashboard |
+
+### AI Tools: Anthropic (Interview Feedback Fallback)
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `ANTHROPIC_API_KEY` | (optional) | (optional) | Anthropic Console |
+| `ANTHROPIC_MODEL` | `claude-3-5-sonnet-latest` | (same) | Model selector |
 
 ### AI Tools: O*NET (Skill Mapper)
 | Variable | Production Value | Local Dev Value | Source |
 |----------|------------------|-----------------|--------|
-| `ONET_API_USERNAME` | (optional — public data) | (optional) | https://services.onetcenter.org/ |
-| `ONET_API_PASSWORD` | (optional — public data) | (optional) | O*NET Web Services registration |
+| `ONET_API_KEY` | (optional — public data) | (optional) | https://services.onetcenter.org/ |
+
+### Web Scraping / Research
+| Variable | Production Value | Local Dev Value | Source |
+|----------|------------------|-----------------|--------|
+| `FIRECRAWL_API_KEY` | (set in Vercel) | (optional) | Firecrawl Dashboard |
+| `TAVILY_API_KEY` | (set in Vercel) | (optional) | Tavily Dashboard |
+
+### Staff MFA Enforcement
+| Variable | Production Value | Local Dev Value | Description |
+|----------|------------------|-----------------|-------------|
+| `STAFF_MFA_ENFORCEMENT` | `0` (default) | `0` | Set to `1` to require MFA for admin/counselor login |
+
+**Note:** Staff MFA is disabled by default for launch. Enable after staff onboarding is complete.
 
 ### Optional: Analytics/Monitoring
 | Variable | Production Value | Local Dev Value | Source |
@@ -48,92 +87,24 @@
 
 ## Current Vercel Production Status
 
-**Checked:** 2026-03-20  
-**Status:** ❌ INCOMPLETE — Email service broken
+**Checked:** 2026-04-24
 
-**Missing:**
-- [ ] `RESEND_API_KEY` — Critical for all email functionality
-- [ ] `EMAIL_FROM` — Should be `info@workforceap.org`
-
-**Likely Present:**
-- [x] `NEXT_PUBLIC_SUPABASE_URL` — Database works (site is functional)
-- [x] `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Auth works (login functional)
-- [x] `SUPABASE_SERVICE_ROLE_KEY` — Server-side DB operations work
-
----
-
-## How to Add Missing Variables to Vercel
-
-### Step 1: Get Resend API Key
-1. Go to https://resend.com
-2. Login with your email
-3. Click **API Keys** in left sidebar
-4. Click **Create API Key**
-5. Name: `WorkforceAP Production`
-6. Permission: Select **Sending**
-7. Click **Create**
-8. **Copy the key** (starts with `re_`)
-
-### Step 2: Add to Vercel
-1. Go to https://vercel.com/dashboard
-2. Select **workforceap-beta** project
-3. Click **Settings** tab at top
-4. Click **Environment Variables** in left menu
-5. Click **Add** button:
-   - Name: `RESEND_API_KEY`
-   - Value: (paste the key from Step 1)
-   - Environment: ✓ Production, ✓ Preview, ☐ Development
-6. Click **Save**
-7. Repeat for:
-   - Name: `EMAIL_FROM`
-   - Value: `info@workforceap.org`
-   - Environment: ✓ Production, ✓ Preview, ☐ Development
-
-### Step 3: Redeploy
-1. Go to **Deployments** tab
-2. Find the latest deployment
-3. Click the **...** menu → **Redeploy**
-4. Select **Use Existing Build Cache**: Yes
-5. Wait 2-3 minutes for deployment
-
-### Step 4: Test
-1. Go to https://www.workforceap.org/contact
-2. Submit test form
-3. Check `info@workforceap.org` inbox
-
----
-
-## Local Development Setup
-
-Create `.env.local` file in project root:
-
-```bash
-# Database
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIs...
-
-# Email (use Resend test key or skip for local)
-RESEND_API_KEY=re_your_test_key_here
-EMAIL_FROM=info@workforceap.org
-EMAIL_TO_ADMIN=your-test-email@gmail.com
-
-# Site URL
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
-
-**Get Supabase keys:**
-1. Go to https://app.supabase.com
-2. Select your project
-3. Project Settings → API
-4. Copy URL and anon/service_role keys
+**Present:**
+- ✅ `RESEND_API_KEY` — Email service functional
+- ✅ `ELEVENLABS_API_KEY` + agent IDs — Voice coaches functional
+- ✅ `GROQ_API_KEY` — AI chat/completion functional
+- ✅ `NEXT_PUBLIC_SUPABASE_URL` — Database works
+- ✅ `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Auth works
+- ✅ `SUPABASE_SERVICE_ROLE_KEY` — Server-side DB operations work
+- ✅ `SMTP_HOST/USER/PASS/PORT` — Gmail SMTP for transactional email
+- ✅ `UPSTASH_REDIS_REST_URL/TOKEN` — Rate limiting active (50/30min for signup)
 
 ---
 
 ## Security Notes
 
-⚠️ **NEVER commit this file to git**  
-⚠️ **NEVER share service_role_key** — it bypasses all Row Level Security  
+⚠️ **NEVER commit `.env.local` to git**  
+⚠️ **NEVER share `SUPABASE_SERVICE_ROLE_KEY`** — it bypasses all Row Level Security  
 ⚠️ **Rotate keys if accidentally exposed**
 
 **Protection:**
@@ -143,43 +114,30 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 ---
 
-## Troubleshooting
+## Launch Checklist (May 1)
 
-### "Email service is not configured"
-- Missing `RESEND_API_KEY` in Vercel
-- Fix: Add key and redeploy
-
-### "Invalid Supabase credentials"
-- Wrong project URL or anon key
-- Fix: Verify keys in Supabase dashboard
-
-### Emails work locally but not in production
-- Vercel env vars not set
-- Fix: Check Settings → Environment Variables in Vercel
-
-### Changes not taking effect
-- Didn't redeploy after adding env vars
-- Fix: Redeploy latest build
+- [x] Auth flows (login, signup, invite) tested
+- [x] Password reset working (public + admin-triggered)
+- [x] Rate limits bumped to 50/30min for workforce centers
+- [x] Staff MFA disabled by default
+- [x] Voice coach first-message config fixed
+- [x] Voice coach transcripts auto-save
+- [x] No member-facing "Coming soon" stubs
+- [x] No dead links or localhost fallbacks on public surfaces
+- [ ] **Mike:** Live prod smoke test
+- [ ] **Mike:** Pre-launch tag + env snapshot
+- [ ] **Mike:** DB fixture cleanup (Test employers/jobs)
+- [ ] **Mike:** Verify `partnersupport@` / `partnerships@` MX delivery
 
 ---
 
 ## Related Files
 
+- `DEPLOY.md` — Deployment guide
 - `EMAIL-SETUP.md` — Full email configuration guide
 - `lib/email.ts` — Email sending functions
-- `app/api/contact/route.ts` — Uses RESEND_API_KEY
-- `.env.local.example` — Template (create this if missing)
-
----
-
-## Next Actions
-
-1. [ ] Get Resend API key from https://resend.com
-2. [ ] Add `RESEND_API_KEY` to Vercel production environment
-3. [ ] Add `EMAIL_FROM=info@workforceap.org` to Vercel
-4. [ ] Redeploy production
-5. [ ] Test contact form on live site
-6. [ ] Document actual key value in password manager (1Password, etc.)
+- `lib/rate-limit.ts` — Rate limiting configuration
+- `lib/ai/elevenlabsAgents.ts` — ElevenLabs agent registry
 
 ---
 

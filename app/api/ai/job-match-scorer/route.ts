@@ -28,7 +28,6 @@ async function extractJobDescriptionFromUrl(url: string): Promise<
 
   // Tier 1: Use structured ATS APIs for known providers with job IDs
   if (detected && isKnownStructuredApiProvider(detected.provider) && detected.jobId) {
-    console.log(`[job-match-scorer] Using ${detected.provider} API for job ${detected.jobId}`);
     
     const result: ATSParseResult = await importJobsFromUrl(url);
     
@@ -61,7 +60,6 @@ async function extractJobDescriptionFromUrl(url: string): Promise<
   
   // Tier 2: Fallback to generic page scraping
   // This also handles: unknown providers, API failures, JS-rendered pages
-  console.log('[job-match-scorer] Falling back to page scraping for URL');
   const scrapeResult = await fetchPageText(url, { waitFor: 2500 });
   
   if ('source' in scrapeResult && scrapeResult.text) {
@@ -239,7 +237,6 @@ export async function POST(request: Request) {
           finalJobDescription = sanitized;
           scrapedFromUrl = true;
           scrapeSource = extractResult.source;
-          console.log(`[job-match-scorer] Extracted job description via ${extractResult.source} (${sanitized.length} chars)`);
         } else {
           // Scraped content too short — preserve any manually-provided description
           console.warn(`[job-match-scorer] Scraped content too short (${sanitized.length} chars), falling back to manual description`);

@@ -4,7 +4,7 @@ import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 /**
- * AI toolkit voice section — compact 3-column grid so all coaches are
+ * AI toolkit voice section — compact 5-column grid so all core coaches are
  * immediately visible without scrolling.
  */
 export default function VoiceCoachesPromo() {
@@ -24,8 +24,8 @@ export default function VoiceCoachesPromo() {
         </h2>
       </div>
 
-      {/* 4-column compact grid on desktop, 1-column on mobile */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+      {/* 5-column compact grid on desktop, 1-column on mobile */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
         <VoiceCoachLauncherCard
           {...readinessVoiceSurface}
           title="AI Readiness Coach"
@@ -59,6 +59,17 @@ export default function VoiceCoachesPromo() {
           description="Launch the full mock interview experience with setup guidance and optional recording."
           href="/dashboard/ai-tools/voice-interview"
           ctaLabel="Start mock interview"
+        />
+
+        <VoiceCoachLauncherCard
+          badge="Career & Business"
+          icon="💼"
+          glowColor="#0d9488"
+          gradient="linear-gradient(135deg, #0f766e, #0d9488, #5eead4)"
+          title="Career & Business Coach"
+          description="Get broader career, project management, sales, marketing, and business guidance in one place."
+          href="/dashboard/ai-tools/career-business-coach"
+          ctaLabel="Open career coach"
         />
       </div>
     </section>

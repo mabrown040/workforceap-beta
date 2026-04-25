@@ -165,27 +165,30 @@ export default function MemberOnboardingWizard({
             </p>
           ) : null}
           <div className="wa-grid wa-grid-cols-1 wa-gap-3 sm:wa-grid-cols-2">
-            <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+            <label htmlFor="member-first-name" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
               First name
               <input
+                id="member-first-name"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
                 required
               />
             </label>
-            <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+            <label htmlFor="member-last-name" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
               Last name
               <input
+                id="member-last-name"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
               />
             </label>
           </div>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="member-phone" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Phone *
             <input
+              id="member-phone"
               type="tel"
               value={phone}
               onChange={(e) => {
@@ -196,9 +199,10 @@ export default function MemberOnboardingWizard({
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
             />
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="member-street-address" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Street address *
             <input
+              id="member-street-address"
               type="text"
               value={addressLine1}
               onChange={(e) => {
@@ -211,9 +215,10 @@ export default function MemberOnboardingWizard({
             />
           </label>
           <div className="wa-grid wa-grid-cols-1 wa-gap-3 sm:wa-grid-cols-3">
-            <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600 sm:wa-col-span-1">
+            <label htmlFor="member-city" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600 sm:wa-col-span-1">
               City *
               <input
+                id="member-city"
                 value={city}
                 onChange={(e) => {
                   setCity(e.target.value);
@@ -223,9 +228,10 @@ export default function MemberOnboardingWizard({
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
               />
             </label>
-            <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+            <label htmlFor="member-state" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
               State *
               <input
+                id="member-state"
                 value={stateVal}
                 onChange={(e) => {
                   setStateVal(e.target.value);
@@ -235,9 +241,10 @@ export default function MemberOnboardingWizard({
                 className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
               />
             </label>
-            <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+            <label htmlFor="member-zip" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
               ZIP *
               <input
+                id="member-zip"
                 value={zip}
                 onChange={(e) => {
                   setZip(e.target.value);
@@ -259,11 +266,13 @@ export default function MemberOnboardingWizard({
           {topPrograms.map((p) => (
             <label
               key={p.slug}
+              htmlFor={`member-program-${p.slug}`}
               className={`wa-flex wa-cursor-pointer wa-items-start wa-gap-3 wa-rounded-lg wa-border wa-p-3 wa-text-sm ${
                 programInterest === p.title ? 'wa-border-brand-primary wa-bg-blue-50' : 'wa-border-slate-200'
               }`}
             >
               <input
+                id={`member-program-${p.slug}`}
                 type="radio"
                 name="prog"
                 checked={programInterest === p.title}
@@ -290,8 +299,9 @@ export default function MemberOnboardingWizard({
             </legend>
             <div className="wa-flex wa-flex-wrap wa-gap-3">
               {(['yes', 'no', 'unsure'] as const).map((v) => (
-                <label key={v} className="wa-flex wa-items-center wa-gap-1.5 wa-text-sm">
+                <label key={v} htmlFor={`member-aid-${v}`} className="wa-flex wa-items-center wa-gap-1.5 wa-text-sm">
                   <input
+                    id={`member-aid-${v}`}
                     type="radio"
                     name="aid"
                     checked={financialAid === v}
@@ -302,9 +312,10 @@ export default function MemberOnboardingWizard({
               ))}
             </div>
           </fieldset>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="member-referral-source" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             How did you hear about WorkforceAP?
             <select
+              id="member-referral-source"
               value={referralSource}
               onChange={(e) => setReferralSource(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"

@@ -39,3 +39,6 @@
 ## 2026-05-02 - Accessible Toggle Buttons
 **Learning:** Found toggle buttons (in `components/portal/DevViewToggle.tsx`) that act like tabs or mode switchers but lacked screen reader hints regarding their active state.
 **Action:** When implementing toggle or tab-like buttons that indicate a selected mode, apply `aria-pressed={isActive}` (or `aria-selected` depending on the role) so screen readers can announce the current state.
+## 2026-05-18 - Form Accessibility: Explicit vs. Implicit Labels
+**Learning:** Found several input elements inside onboarding forms (e.g., `MemberOnboardingWizard`, `EmployerOnboardingWizard`) that were implicitly wrapped inside `<label>` tags but lacked explicit `id` and `htmlFor` bindings. While implicit wrapping is technically valid HTML, relying solely on it can cause inconsistent screen reader behavior across different browser/AT combinations, and violates strict accessibility audit guidelines which require explicit linkage.
+**Action:** Always provide explicit label-to-input linkage. Ensure all form input fields (e.g., `<input>`, `<select>`, `<textarea>`) have unique and valid `id` attributes that are explicitly bound to their corresponding `<label>`'s `htmlFor` attribute, even if the input is implicitly wrapped inside the label element.

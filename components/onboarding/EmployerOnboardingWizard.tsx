@@ -101,17 +101,19 @@ export default function EmployerOnboardingWizard({
       subtitle: 'Tell us about your organization.',
       content: (
         <div className="wa-space-y-3">
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="employer-company-name" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Company name
             <input
+              id="employer-company-name"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
             />
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="employer-industry" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Industry
             <select
+              id="employer-industry"
               value={industry}
               onChange={(e) => setIndustry(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
@@ -124,9 +126,10 @@ export default function EmployerOnboardingWizard({
               ))}
             </select>
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="employer-company-size" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Company size
             <select
+              id="employer-company-size"
               value={companySize}
               onChange={(e) => setCompanySize(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
@@ -139,9 +142,10 @@ export default function EmployerOnboardingWizard({
               ))}
             </select>
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="employer-website" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Website (optional)
             <input
+              id="employer-website"
               type="url"
               value={companyWebsite}
               onChange={(e) => setCompanyWebsite(e.target.value)}

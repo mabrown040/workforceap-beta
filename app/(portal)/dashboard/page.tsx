@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -24,6 +25,7 @@ import { buildNextBestActions } from '@/lib/member/nextBestActions';
 import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
+import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 
@@ -768,90 +770,98 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       {/* ── Desktop view (hidden on mobile) ── */}
       <div className="wa-hidden wa-md:wa-block">
         <PortalEntryErrorBoundary>
-        <PortalEntryClient
-          portal="member"
-          tourStorageUserId={user.id}
-          showOnboardingWizard={showMemberOnboarding}
-          showTour={showMemberTour}
-          isSuperAdmin={superAdmin}
-          tourSteps={MEMBER_PORTAL_TOUR_STEPS}
-          wizardProps={{
-            initialFullName: intakeExtra?.fullName ?? '',
-            initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
-            initialCity: intakeExtra?.profile?.city ?? '',
-            initialState: intakeExtra?.profile?.state ?? '',
-            initialZip: intakeExtra?.profile?.zip ?? '',
-            initialProgramInterest: wizardProgramInterest,
-            initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
-          }}
-        >
-          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-            <MemberDashboardVoiceSectionLazy />
-          </div>
-          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
-            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-            <div style={{ maxWidth: '300px' }}>
-              <LogCertificationModal />
-            </div>
-          </div>
-          <DashboardHomeClient
-            recommendedActions={recommendedActions}
-            jobSearchUrl={jobSearchUrl}
-            aiToolsUsedCount={recentTools.length}
-            firstName={firstName}
-            nextBestActions={nextBestActions}
-            assessmentDone={assessmentCompleted}
-            preScreeningDone={!!intakeExtra?.preScreeningResponse}
-            interviewEligible={intakeExtra?.interviewEligible ?? false}
-            interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-            interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-            state={dashboardState}
-            programTitle={program?.title}
-            enrolledAt={dbUser.enrolledAt}
-            assessmentScorePct={dbUser.assessmentScorePct}
-            completedCount={completedCount}
-            totalCourses={totalCourses}
-            nextMilestone={nextIncompleteCourse?.name}
-            recentActivity={lastThree}
-            checklist={checklist}
-            checklistAllDone={checklistAllDone}
-            applicationStatus={applicationStatus}
-            noApplicationOnFile={noApplicationOnFile}
-            age={userAge}
-            isMinor={isMinor}
-          />
-          <PlacementConfirmationStrip offers={jobOffers} />
-          {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
-          {recentTools.length > 0 && (
-            <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
-              <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
-                <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
-                <Link href="/dashboard/ai-tools/history" className="portal-section-action">
-                  View all
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
-                </Link>
+          <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
+            <PortalEntryClient
+              portal="member"
+              tourStorageUserId={user.id}
+              showOnboardingWizard={showMemberOnboarding}
+              showTour={showMemberTour}
+              isSuperAdmin={superAdmin}
+              tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+              wizardProps={{
+                initialFullName: intakeExtra?.fullName ?? '',
+                initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+                initialCity: intakeExtra?.profile?.city ?? '',
+                initialState: intakeExtra?.profile?.state ?? '',
+                initialZip: intakeExtra?.profile?.zip ?? '',
+                initialProgramInterest: wizardProgramInterest,
+                initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+              }}
+            >
+              <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+                <MemberDashboardVoiceSectionLazy />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {recentTools.map((r) => (
-                  <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                      {r.inputSummary && (
-                        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {stripMarkdownForPreview(r.inputSummary)}
-                        </p>
-                      )}
-                    </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
-                      {formatPortalDate(r.createdAt)}
-                    </span>
+              <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
+                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                <div style={{ maxWidth: '300px' }}>
+                  <LogCertificationModal />
+                </div>
+              </div>
+              <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
+                <DashboardHomeClient
+                  recommendedActions={recommendedActions}
+                  jobSearchUrl={jobSearchUrl}
+                  aiToolsUsedCount={recentTools.length}
+                  firstName={firstName}
+                  nextBestActions={nextBestActions}
+                  assessmentDone={assessmentCompleted}
+                  preScreeningDone={!!intakeExtra?.preScreeningResponse}
+                  interviewEligible={intakeExtra?.interviewEligible ?? false}
+                  interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+                  interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+                  state={dashboardState}
+                  programTitle={program?.title}
+                  enrolledAt={dbUser.enrolledAt}
+                  assessmentScorePct={dbUser.assessmentScorePct}
+                  completedCount={completedCount}
+                  totalCourses={totalCourses}
+                  nextMilestone={nextIncompleteCourse?.name}
+                  recentActivity={lastThree}
+                  checklist={checklist}
+                  checklistAllDone={checklistAllDone}
+                  applicationStatus={applicationStatus}
+                  noApplicationOnFile={noApplicationOnFile}
+                  age={userAge}
+                  isMinor={isMinor}
+                />
+              </Suspense>
+              <PlacementConfirmationStrip offers={jobOffers} />
+              {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
+                <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
+                  <MatchedRoles />
+                </Suspense>
+              )}
+              {recentTools.length > 0 && (
+                <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+                  <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
+                    <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
+                    <Link href="/dashboard/ai-tools/history" className="portal-section-action">
+                      View all
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
+                    </Link>
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </PortalEntryClient>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {recentTools.map((r) => (
+                      <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                          {r.inputSummary && (
+                            <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {stripMarkdownForPreview(r.inputSummary)}
+                            </p>
+                          )}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
+                          {formatPortalDate(r.createdAt)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </PortalEntryClient>
+          </Suspense>
         </PortalEntryErrorBoundary>
       </div>
 

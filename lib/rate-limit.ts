@@ -33,7 +33,9 @@ if (redisUrl && redisToken) {
   });
   applySignupRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(20, '30 m'),
+    // Launch bump: 50 per 30 min per IP (up from 20) — workforce centers / libraries
+    // have many applicants on shared public IPs. Revert after launch if abuse appears.
+    limiter: Ratelimit.slidingWindow(50, '30 m'),
     prefix: 'ratelimit:apply-signup',
   });
   authRateLimiter = new Ratelimit({

@@ -561,16 +561,17 @@
     }
 }
 
-/* AI Tools hub — eight category cards */
+/* AI Tools hub — 2-2-1 layout (5 cards, 2-col grid, last lone card centered) */
 .ai-tools-hub-grid {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-@media (min-width: 900px) {
-    .ai-tools-hub-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+.ai-tools-hub-grid > *:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 0.5rem);
+    margin-inline: auto;
+    width: 100%;
 }
 .ai-tools-hub-card {
     padding: 1.1rem 1.15rem;

@@ -42,7 +42,7 @@ export default function FindYourPathPage() {
           <p style={{
             color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.65, marginBottom: '1.5rem', fontStyle: 'italic',
           }}>
-            You don&apos;t need to have it all figured out — that&apos;s what this is for. Just answer honestly and we&apos;ll point you toward the right first step.
+            You don&rsquo;t need to have it all figured out — that&rsquo;s what this is for. Just answer honestly and we&rsquo;ll point you toward the right first step.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <a href="#find-your-path-quiz" className="btn btn-primary">

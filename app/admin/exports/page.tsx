@@ -95,7 +95,7 @@ export default async function AdminExportsPage() {
         {/* What's included explainer */}
         <section style={{ marginBottom: '6rem' }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-            What&apos;s in the Member Training Report?
+            What&rsquo;s in the Member Training Report?
           </h3>
           <div className="portal-grid-3col" style={{ gap: '1rem' }}>
             {[

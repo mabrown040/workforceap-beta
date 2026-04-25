@@ -69,7 +69,7 @@ function ForgotPasswordForm() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>Reset your password</h1>
-          <p>Enter your email and we&apos;ll send you a link to reset your password.</p>
+          <p>Enter your email and we&rsquo;ll send you a link to reset your password.</p>
         </div>
       </section>
 

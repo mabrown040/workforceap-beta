@@ -283,7 +283,7 @@ export default function JobMatchScorerForm() {
         <label htmlFor="job-url">
           Job posting URL (optional)
           <span style={{ fontWeight: 400, color: 'var(--color-on-surface-variant)', marginLeft: '0.5rem' }}>
-            — we&apos;ll scrape the job description
+            — we&rsquo;ll scrape the job description
           </span>
         </label>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

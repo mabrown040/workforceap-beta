@@ -185,7 +185,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
                   </button>
                 </div>
                 <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem' }}>
-                  The invite is saved. Close when you&apos;re done, or configure <code>RESEND_API_KEY</code> and use
+                  The invite is saved. Close when you&rsquo;re done, or configure <code>RESEND_API_KEY</code> and use
                   Resend on the list.
                 </p>
               </div>

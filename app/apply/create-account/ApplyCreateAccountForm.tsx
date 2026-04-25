@@ -292,7 +292,7 @@ export default function ApplyCreateAccountForm() {
           Go to login
         </Link>
         <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
-          Didn&apos;t get it? Check your spam folder, then call{' '}
+          Didn&rsquo;t get it? Check your spam folder, then call{' '}
           <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
             (512) 777-1808
           </a>{' '}
@@ -310,7 +310,7 @@ export default function ApplyCreateAccountForm() {
     return (
       <div className="apply-form-missing-session">
         <p role="alert" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-          We couldn&apos;t find your saved program choice. This usually happens if you skipped step 2, opened this page in a new tab or device,
+          We couldn&rsquo;t find your saved program choice. This usually happens if you skipped step 2, opened this page in a new tab or device,
           or your browser cleared site data.
         </p>
         <p style={{ marginBottom: '0.75rem' }}>
@@ -522,7 +522,7 @@ export default function ApplyCreateAccountForm() {
             </span>
           </button>
         </div>
-        <p className="apply-field-hint">Use at least 8 characters. You&apos;ll use this password to come back and check your status.</p>
+        <p className="apply-field-hint">Use at least 8 characters. You&rsquo;ll use this password to come back and check your status.</p>
         {fieldErrors.password ? <p className="form-error">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">

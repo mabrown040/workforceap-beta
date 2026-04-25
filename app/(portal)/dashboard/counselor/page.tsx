@@ -32,7 +32,7 @@ export default async function CounselorPage() {
           AI Career Counselor
         </h1>
         <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-          Your session is private. Speak naturally — I&apos;m here to help.
+          Your session is private. Speak naturally — I&rsquo;m here to help.
         </p>
       </div>
 

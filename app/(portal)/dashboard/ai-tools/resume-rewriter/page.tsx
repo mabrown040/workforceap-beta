@@ -245,13 +245,13 @@ export default async function ResumeRewriterPage() {
                   school
                 </span>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                  Understanding the Curator&apos;s Standard
+                  Understanding the Curator&rsquo;s Standard
                 </h3>
               </div>
               <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-                Our AI follows the WorkforceAP Curator&apos;s Standard — a methodology that balances ATS keyword density with
+                Our AI follows the WorkforceAP Curator&rsquo;s Standard — a methodology that balances ATS keyword density with
                 authentic professional voice. Each bullet is evaluated for quantifiable impact, strong action verbs, and
-                alignment with your target role&apos;s core competencies.
+                alignment with your target role&rsquo;s core competencies.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <span

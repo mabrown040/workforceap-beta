@@ -129,7 +129,7 @@ export default async function MemberGuidePage() {
           Your WorkforceAP Journey
         </h1>
         <p style={{ fontSize: '1.0625rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, maxWidth: '38rem' }}>
-          Hey {firstName} — here&apos;s exactly how to get from enrolled to employed. Five steps. You can do this.
+          Hey {firstName} — here&rsquo;s exactly how to get from enrolled to employed. Five steps. You can do this.
         </p>
       </header>
 
@@ -310,7 +310,7 @@ export default async function MemberGuidePage() {
             Still have questions?
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-            Message your counselor — they&apos;re here to help with anything.{' '}
+            Message your counselor — they&rsquo;re here to help with anything.{' '}
             <Link href="/dashboard/messages" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
               Send a message →
             </Link>

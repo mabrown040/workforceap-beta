@@ -17,7 +17,7 @@ export default function ApplyResultsPage() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>Step 2 of 3 — choose your program</h1>
-          <p>Pick the program you want to discuss first. You&apos;ll create your account on the next step so we can save it and follow up.</p>
+          <p>Pick the program you want to discuss first. You&rsquo;ll create your account on the next step so we can save it and follow up.</p>
         </div>
       </section>
 

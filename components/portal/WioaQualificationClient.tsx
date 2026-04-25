@@ -453,7 +453,7 @@ export default function WioaQualificationClient({
             <strong>WorkforceAP counselor:</strong> go see your Workforce advancement counselor to confirm eligibility and next steps.
           </li>
           <li>
-            <strong>What to say:</strong> “I&apos;m interested in WIOA-funded training and I&apos;d like to confirm eligibility and next steps.”
+            <strong>What to say:</strong> “I&rsquo;m interested in WIOA-funded training and I&rsquo;d like to confirm eligibility and next steps.”
           </li>
         </ol>
       </section>

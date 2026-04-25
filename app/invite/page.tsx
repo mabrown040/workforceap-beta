@@ -177,7 +177,7 @@ function InviteContent() {
           padding: '2rem',
         }}
       >
-        <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>You&apos;re Invited!</h1>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>You&rsquo;re Invited!</h1>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           {data.inviterName} has invited you to join WorkforceAP as a <strong>{data.roleLabel}</strong>.
         </p>

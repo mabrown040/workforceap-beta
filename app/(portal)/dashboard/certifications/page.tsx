@@ -77,7 +77,7 @@ export default async function DashboardCertificationsPage() {
             My Certificates
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Certificates and credentials you&apos;ve earned.
+            Certificates and credentials you&rsquo;ve earned.
           </p>
         </div>
 

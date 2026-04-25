@@ -130,7 +130,7 @@ export default function ElevatorPitchClient() {
       <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div className="portal-card portal-card--gradient-accent" style={{ padding: '1.125rem', borderRadius: '0.875rem', marginBottom: '0.25rem' }}>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.55 }}>
-            <strong>Answer 5 quick questions</strong> and we&apos;ll write a 10–20 second elevator statement you can rehearse and record.
+            <strong>Answer 5 quick questions</strong> and we&rsquo;ll write a 10–20 second elevator statement you can rehearse and record.
           </p>
         </div>
 
@@ -198,7 +198,7 @@ export default function ElevatorPitchClient() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
           <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Ready to rehearse?</p>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
-            We&apos;ll turn on your camera and mic. Read the speech out loud, watch yourself, and refine the delivery immediately.
+            We&rsquo;ll turn on your camera and mic. Read the speech out loud, watch yourself, and refine the delivery immediately.
           </p>
           <button type="button" onClick={() => void startRehearsal()} className="btn btn-primary">
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">videocam</span>

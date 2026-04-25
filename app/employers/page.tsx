@@ -793,7 +793,7 @@ export default async function EmployersPage() {
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>Ready to Hire?</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-          Tell us what you&apos;re hiring for, how many roles you have open, and your timeline so we can route you to the right employer intake path.
+          Tell us what you&rsquo;re hiring for, how many roles you have open, and your timeline so we can route you to the right employer intake path.
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.875rem', flexWrap: 'wrap' }}>
           <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>

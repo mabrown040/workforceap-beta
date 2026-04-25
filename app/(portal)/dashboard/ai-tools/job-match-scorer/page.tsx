@@ -99,7 +99,7 @@ export default async function JobMatchScorerPage() {
                 <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Session</h4>
               </div>
               <p style={{ fontSize: '0.78rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Results reflect this run&apos;s inputs. Re-run after you update your resume or try a different posting.
+                Results reflect this run&rsquo;s inputs. Re-run after you update your resume or try a different posting.
               </p>
             </div>
           </div>

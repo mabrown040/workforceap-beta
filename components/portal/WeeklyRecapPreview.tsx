@@ -12,7 +12,7 @@ export default function WeeklyRecapPreview({ userId }: Props) {
       <h3>Weekly recap</h3>
       <p>Your personalized summary of the week and recommended next actions.</p>
       <Link href="/dashboard/weekly-recap" className="btn btn-outline btn-sm">
-        View this week&apos;s recap
+        View this week&rsquo;s recap
       </Link>
     </div>
   );

@@ -351,7 +351,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         }} />
         <div>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
-            Here&apos;s your action plan
+            Here&rsquo;s your action plan
           </h2>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Three things to move forward this week

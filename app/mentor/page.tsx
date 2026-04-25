@@ -17,7 +17,7 @@ export default function BecomeMentorPage() {
           Share Your Expertise. Change a Career.
         </h1>
         <p style={{ fontSize: '1.125rem', maxWidth: 600, margin: '0 auto 2rem', opacity: 0.9 }}>
-          WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it&apos;s tax-deductible.
+          WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it&rsquo;s tax-deductible.
         </p>
         <Link
           href="/mentor/apply"

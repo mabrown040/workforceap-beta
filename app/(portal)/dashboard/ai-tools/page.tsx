@@ -5,7 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
-import { AI_TOOLKIT_EXTRA_SECTIONS, AI_TOOLS_HUB } from '@/lib/portal/aiToolsHub';
+import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
@@ -18,10 +18,6 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
-
-  const featuredTools = AI_TOOLS_HUB.flatMap((cat) =>
-    cat.links.map((link) => ({ ...link, icon: cat.icon }))
-  );
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
@@ -153,48 +149,13 @@ export default async function AIToolsPage() {
         <VoiceCoachesPromo />
       </div>
 
-      {/* Core tools in one dense grid */}
-      <section style={{ maxWidth: '1100px', margin: '0 auto 1.5rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+      <section style={{ maxWidth: '1100px', margin: '0 auto 2rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>grid_view</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Featured 5 Tools
+            Guided Job Search Steps
           </h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.625rem' }}>
-          {featuredTools.map((tool) => (
-            <Link
-              key={tool.href + tool.label}
-              href={tool.href}
-              className="portal-quick-action-item"
-              style={{ textDecoration: 'none', minHeight: '84px', padding: '0.75rem 0.875rem' }}
-            >
-              <div className="portal-quick-action-item__icon">
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p
-                  className="portal-quick-action-item__label"
-                  style={{
-                    display: 'block',
-                    overflow: 'visible',
-                    whiteSpace: 'normal',
-                    textWrap: 'balance',
-                    lineHeight: 1.35,
-                    minHeight: '2.7rem',
-                    wordBreak: 'break-word',
-                  }}
-                >
-                  {tool.label}
-                </p>
-              </div>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ maxWidth: '1100px', margin: '0 auto 2rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>

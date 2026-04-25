@@ -4,8 +4,7 @@ import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 /**
- * AI toolkit voice section — compact 5-column grid so all core coaches are
- * immediately visible without scrolling.
+ * AI toolkit voice section — 4 cards in a row, 1 wider horizontal card below.
  */
 export default function VoiceCoachesPromo() {
   return (
@@ -24,8 +23,8 @@ export default function VoiceCoachesPromo() {
         </h2>
       </div>
 
-      {/* 5-column compact grid on desktop, 1-column on mobile */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+      {/* 4 cards in a row on desktop */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '0.75rem' }}>
         <VoiceCoachLauncherCard
           {...readinessVoiceSurface}
           title="AI Readiness Coach"
@@ -60,7 +59,10 @@ export default function VoiceCoachesPromo() {
           href="/dashboard/ai-tools/voice-interview"
           ctaLabel="Start mock interview"
         />
+      </div>
 
+      {/* 1 wider horizontal card below */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
         <VoiceCoachLauncherCard
           badge="Career & Business"
           icon="💼"

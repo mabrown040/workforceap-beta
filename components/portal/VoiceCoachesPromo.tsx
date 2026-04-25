@@ -24,7 +24,14 @@ export default function VoiceCoachesPromo() {
       </div>
 
       {/* 4 cards in a row on desktop */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '0.75rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '0.75rem',
+          marginBottom: '0.75rem',
+        }}
+      >
         <VoiceCoachLauncherCard
           {...readinessVoiceSurface}
           title="AI Readiness Coach"

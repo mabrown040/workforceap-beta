@@ -1639,7 +1639,7 @@ const COMPTIA_NETWORK_COURSES: CourseSkillMapping[] = [
 const COMPTIA_SECURITY_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'comptia-security-course-1',
-    courseName: 'Network Security',
+    courseName: 'Network Security Fundamentals',
     programSlug: 'comptia-security-professional-certificate',
     programTitle: 'CompTIA Security+ Professional Certificate',
     partner: 'CompTIA',
@@ -1654,7 +1654,7 @@ const COMPTIA_SECURITY_COURSES: CourseSkillMapping[] = [
   },
   {
     courseSlug: 'comptia-security-course-2',
-    courseName: 'Introduction to Network Security',
+    courseName: 'Security Threats and Vulnerabilities',
     programSlug: 'comptia-security-professional-certificate',
     programTitle: 'CompTIA Security+ Professional Certificate',
     partner: 'CompTIA',
@@ -1669,7 +1669,7 @@ const COMPTIA_SECURITY_COURSES: CourseSkillMapping[] = [
   },
   {
     courseSlug: 'comptia-security-course-3',
-    courseName: 'System and Network Security',
+    courseName: 'System Hardening and Endpoint Security',
     programSlug: 'comptia-security-professional-certificate',
     programTitle: 'CompTIA Security+ Professional Certificate',
     partner: 'CompTIA',
@@ -1684,7 +1684,7 @@ const COMPTIA_SECURITY_COURSES: CourseSkillMapping[] = [
   },
   {
     courseSlug: 'comptia-security-course-4',
-    courseName: 'Computer Networks and Network Security',
+    courseName: 'Cryptography and Secure Communications',
     programSlug: 'comptia-security-professional-certificate',
     programTitle: 'CompTIA Security+ Professional Certificate',
     partner: 'CompTIA',

@@ -908,7 +908,7 @@ export default function PortalVoiceSession({
                 Live transcript
               </span>
               <span style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
-                Powered by your session
+                Powered by ElevenLabs
               </span>
             </div>
             <div

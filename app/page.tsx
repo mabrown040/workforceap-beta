@@ -534,7 +534,7 @@ export default async function HomePage() {
                 }}>{p.category}</span>
               </div>
               <div style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <h4 style={{ fontWeight: 700, fontSize: '1.1rem' }}>{p.static?.title ?? p.name}</h4>
+                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h4>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: 'auto' }}>
                   {/* Duration badge */}
                   <span style={{

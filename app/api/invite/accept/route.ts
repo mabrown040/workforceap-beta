@@ -277,7 +277,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid or missing token' }, { status: 400 });
   }
 
-  let debugStep = 'load_invitation';
   try {
     const invitation = await prisma.invitation.findFirst({
       where: { token },
@@ -316,7 +315,6 @@ export async function POST(request: NextRequest) {
     // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:
     // accept flow does not read userRoles; a broken roles join would 500 both branches here.
     const inviteEmail = String(invitation.email).trim().toLowerCase();
-    debugStep = 'lookup_existing_user';
     const existingUser = await prisma.user.findFirst({
       where: { email: inviteEmail },
       select: { id: true, fullName: true, email: true },
@@ -336,17 +334,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    debugStep = 'create_new_user';
     inviteAcceptLog('route:before_createNewUser', { invitationId: invitation.id });
     return await createNewUserAndAccept(invitation, fullName, phone, password, request);
   } catch (e) {
     inviteAcceptLog('route:outer_catch', { err: e });
     console.error('[api/invite/accept]', e);
     return NextResponse.json(
-      {
-        error: 'Something went wrong accepting this invitation. Please try again.',
-        debugStep,
-      },
+      { error: 'Something went wrong accepting this invitation. Please try again.' },
       { status: 500 }
     );
   }
@@ -454,16 +448,8 @@ async function acceptExistingUser(
     });
   } catch (dbError) {
     console.error('[acceptExistingUser] transaction failed:', dbError);
-    const prismaCode =
-      dbError && typeof dbError === 'object' && 'code' in dbError
-        ? ((dbError as { code?: string }).code ?? null)
-        : null;
     return NextResponse.json(
-      {
-        error: 'Failed to update your account with the new role. Please try again.',
-        debugTxStep: txStep,
-        prismaCode,
-      },
+      { error: 'Failed to update your account with the new role. Please try again.' },
       { status: 500 }
     );
   }
@@ -701,16 +687,8 @@ async function finishNewUserDbSetup(
   } catch (dbError) {
     inviteAcceptLog('tx:failed', { invitationId, err: dbError });
     console.error('[finishNewUserDbSetup] transaction failed:', dbError);
-    const prismaCode =
-      dbError && typeof dbError === 'object' && 'code' in dbError
-        ? ((dbError as { code?: string }).code ?? null)
-        : null;
     return NextResponse.json(
-      {
-        error: 'Failed to complete signup. Please try again.',
-        debugTxStep: txStep,
-        prismaCode,
-      },
+      { error: 'Failed to complete signup. Please try again.' },
       { status: 500 }
     );
   }

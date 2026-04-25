@@ -27,6 +27,8 @@ const routes = [
   '/terms',
   '/what-we-do',
   '/privacy',
+  '/wioa-qualification',
+  '/mentor',
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

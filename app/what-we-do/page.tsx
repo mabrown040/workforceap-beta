@@ -345,7 +345,7 @@ export default function WhatWeDoPage() {
                     2,000+
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Trained through workforce programs.
+                    Trained through workforce development programs (historical).
                   </div>
                 </div>
               </div>

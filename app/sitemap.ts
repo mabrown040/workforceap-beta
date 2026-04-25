@@ -26,6 +26,7 @@ const routes = [
   '/salary-guide',
   '/terms',
   '/what-we-do',
+  '/wioa-qualification',
   '/privacy',
   '/wioa-qualification',
   '/mentor',

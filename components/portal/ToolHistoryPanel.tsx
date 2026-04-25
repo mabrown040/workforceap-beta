@@ -47,7 +47,7 @@ export default async function ToolHistoryPanel({
     return (
       <section className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginTop: '1rem' }}>
         <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
-          Saved history is temporarily unavailable while this tool finishes syncing.
+          Saved history is temporarily unavailable. Please try again in a few minutes.
         </p>
       </section>
     );

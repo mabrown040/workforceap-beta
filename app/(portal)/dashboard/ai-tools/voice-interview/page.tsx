@@ -83,7 +83,7 @@ export default async function VoiceInterviewPage() {
             userId={user.id}
             toolType="voice_interview_video"
             title="Recent saved interview recordings"
-            emptyMessage="No saved recordings yet. If you just finished one and it does not appear yet, WorkforceAP may still be syncing the recording history schema."
+            emptyMessage="No saved recordings yet. If you just finished a session and it does not appear, try refreshing in a few minutes."
           />
         </div>
         <MobileBottomNav variant="portal" />

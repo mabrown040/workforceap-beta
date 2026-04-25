@@ -37,8 +37,11 @@ export default async function PartnerDashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
+  const superAdmin = await isSuperAdmin(user.id);
+  const fallbackForUnlinked = superAdmin ? '/admin/partners' : '/dashboard';
+
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(fallbackForUnlinked);
 
   const partnerRow = await prisma.partner.findUnique({
     where: { id: ctx.partnerId },
@@ -54,7 +57,7 @@ export default async function PartnerDashboardPage() {
     },
   });
 
-  if (!partnerRow) redirect('/dashboard');
+  if (!partnerRow) redirect(fallbackForUnlinked);
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
@@ -119,7 +122,6 @@ export default async function PartnerDashboardPage() {
   const showPartnerOnboarding = partnerRow.onboardingCompletedAt == null;
   const showPartnerTour =
     partnerRow.onboardingCompletedAt != null && partnerRow.tourCompletedAt == null;
-  const superAdmin = await isSuperAdmin(user.id);
 
   /** Share of referred members who reached a placed outcome (placements / total referrals). */
   const conversionRate = total > 0 ? Math.round((placements / total) * 100) : 0;

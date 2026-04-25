@@ -36,6 +36,6 @@ export function validateFileType(buffer: Buffer, mimeType: string, fileName: str
   return MAGIC_BYTES.some((m) => {
     if (m.ext !== ext) return false;
     const searchBytes = Buffer.from(m.bytes);
-    return searchArea.indexOf(searchBytes) !== -1;
+    return Buffer.from(searchArea).indexOf(searchBytes) !== -1;
   });
 }

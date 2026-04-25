@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
-import { validateFileType } from './file-validation';
+import { validateFileType } from './file-validation.ts';
 
 test('validates valid pdf', () => {
     const buf = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x00, 0x00]);

@@ -195,7 +195,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <h1 style={sPage.heroHeading}>Start Your Application</h1>
         <p style={sPage.heroDesc}>
           This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&apos;re not sure yet — and a member advisor will follow up within 1–2 business days to walk you through your options.
-          <strong> No prior experience required. No-cost for qualifying members, funded by grants and partnerships.</strong>
+          <strong> No prior experience required. No-cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link>, funded by grants and partnerships.</strong>
         </p>
         <div style={sPage.heroFallback}>
           <p style={sPage.heroFallbackTitle}>Need help getting started?</p>

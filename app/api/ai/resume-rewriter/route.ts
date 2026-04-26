@@ -129,13 +129,13 @@ Reposition this resume toward the career goal above. Remember: only work with wh
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Resume rewriter error:', err);
     if (message.includes('rate') || message.includes('429')) {
-      return NextResponse.json({ error: 'AI service is busy. Please try again in a minute.' }, { status: 429 });
+      return NextResponse.json({ error: 'Our AI tools are busy right now. Please try again in a minute.' }, { status: 429 });
     }
     if (message.includes('401') || message.includes('invalid') || message.includes('api_key')) {
-      return NextResponse.json({ error: 'AI service configuration error. Please contact support.' }, { status: 503 });
+      return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
     }
     return NextResponse.json(
-      { error: 'Failed to process your resume. Please try again.' },
+      { error: 'We could not rewrite your resume just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

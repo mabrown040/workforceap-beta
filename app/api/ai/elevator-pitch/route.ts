@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
 import {
   getVoiceCoachTranscriptRecipients,
@@ -31,7 +32,13 @@ export async function POST(request: Request) {
   try { body = await request.json() as Record<string, string>; }
   catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
 
-  const { name, targetRole, strengths, certifications, industry } = body;
+  const { name, targetRole, strengths, certifications, industry, subjectMemberId, sessionId } = body;
+
+  
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) {
+    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  }
 
   if (!name?.trim() || !targetRole?.trim()) {
     return NextResponse.json({ error: 'Name and target role are required.' }, { status: 400 });
@@ -71,10 +78,11 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
       const trimmedPitch = pitch.trim();
 
       await saveAIToolResult(
-        user.id,
+        onBehalf.subjectUserId,
         'career_counselor',
         `AI elevator speech for ${targetRole.trim()}`,
-        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch: trimmedPitch })
+        trimmedPitch,
+        { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId }
       );
 
       try {

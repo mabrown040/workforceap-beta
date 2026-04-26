@@ -30,6 +30,7 @@ export default function WalkInSessionClient({
   const [targetRole, setTargetRole] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [existingMemberId, setExistingMemberId] = useState<string | null>(null);
 
   const canSubmit = firstName.trim().length > 0 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) && !submitting;
 
@@ -52,6 +53,9 @@ export default function WalkInSessionClient({
       });
       const data = await res.json();
       if (!res.ok) {
+        if (res.status === 409 && data.existingMemberId) {
+          setExistingMemberId(data.existingMemberId);
+        }
         setError(data.error ?? 'Could not create account. Try again.');
         setSubmitting(false);
         return;
@@ -154,7 +158,17 @@ export default function WalkInSessionClient({
 
       {error ? (
         <div role="alert" style={{ background: 'rgba(173,44,77,0.08)', borderLeft: '4px solid var(--color-accent)', padding: '0.75rem 1rem', borderRadius: '0 6px 6px 0', marginBottom: '1rem', color: 'var(--color-on-surface)' }}>
-          {error}
+          <p style={{ margin: 0 }}>{error}</p>
+          {existingMemberId ? (
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+              onClick={() => router.push(`${runRedirectBase}/${existingMemberId}/run`)}
+            >
+              Start session with existing member
+            </button>
+          ) : null}
         </div>
       ) : null}
 

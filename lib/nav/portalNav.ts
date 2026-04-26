@@ -287,6 +287,11 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Primary ──
   { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
 
+  // ── In-office sessions — counselor/admin builds resume + cover letter +
+  // interview prep with a member during a 30-min session, all-in-one.
+  // Shared route under /counselor/* (admin role passes the same auth). ──
+  { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
+
   // ── People — everyone in the system ──
   { href: '/admin/members', label: 'Members', group: 'people', Icon: Users },
   { href: '/admin/users', label: 'Users', group: 'people', Icon: User },
@@ -340,6 +345,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor', label: 'Overview', group: 'primary', Icon: Home },
+  { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
   { href: '/counselor/students', label: 'My members', group: 'workflows', Icon: Users },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },
   { href: '/counselor/resources', label: 'Resources', group: 'manage', Icon: BookOpen },

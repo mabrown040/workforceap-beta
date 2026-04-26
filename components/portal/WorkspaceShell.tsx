@@ -93,7 +93,7 @@ export default function WorkspaceShell({
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
   const isSuperAdmin = useIsSuperAdmin();
-  const mainRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);
 
@@ -447,11 +447,11 @@ export default function WorkspaceShell({
           </div>
         </aside>
 
-        <main ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
+        <div ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
           {topBanner}
           <div className="workspace-shell-main-inner">{children}</div>
           {footer}
-        </main>
+        </div>
       </div>
       {/* Mobile bottom nav — shown on all portal roles on small screens */}
       {ROLE_TO_NAV_VARIANT[portalRole] ? (

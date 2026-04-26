@@ -20,13 +20,14 @@ export default function VoiceCoachLauncherCard({
 }: VoiceCoachLauncherCardProps) {
   return (
     <VoiceAgentSurface {...surface} headline={title}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', flex: 1 }}>
         <p
           style={{
             margin: 0,
             fontSize: '0.86rem',
             lineHeight: 1.55,
             color: 'var(--color-on-surface-variant)',
+            flex: 1,
           }}
         >
           {description}

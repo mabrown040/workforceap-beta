@@ -34,6 +34,9 @@ export default function VoiceAgentSurface({
         padding: '1px',
         background: gradient,
         boxShadow: `0 16px 48px ${glowColor}28`,
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
       }}
     >
       <div
@@ -45,6 +48,9 @@ export default function VoiceAgentSurface({
           background: 'var(--surface-container-lowest)',
           position: 'relative',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
         }}
       >
         <div
@@ -120,7 +126,9 @@ export default function VoiceAgentSurface({
             ) : null}
           </div>
         </div>
-        {children}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {children}
+        </div>
       </div>
     </div>
   );

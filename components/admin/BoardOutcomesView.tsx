@@ -1,4 +1,4 @@
-import { Award, Briefcase, GraduationCap, TrendingUp, Users } from 'lucide-react';
+import { Award, Briefcase, GraduationCap, Info, TrendingUp, Users } from 'lucide-react';
 import type { BoardOutcomes } from '@/lib/admin/boardOutcomes';
 
 /**
@@ -23,8 +23,16 @@ export default function BoardOutcomesView({
 }) {
   const t = outcomes.totals;
 
+  // Pilot-phase framing: when the cohort is small or pre-placement, raw
+  // metrics ("Placement rate: 0%") read as "broken platform" to a buyer.
+  // Frame the data instead — show cohort size + trajectory so the demo
+  // lands as "early in the cycle" not "doesn't work." Hidden once we
+  // hit ≥5 placements, when the metrics speak for themselves.
+  const isPilotPhase = t.membersPlaced < 5;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1100px' }}>
+      {isPilotPhase ? <PilotPhaseBanner totals={t} /> : null}
       {/* Header band */}
       <section
         style={{
@@ -219,6 +227,82 @@ export default function BoardOutcomesView({
         Generated {new Date().toLocaleString()} &middot; Powered by WorkforceAP
       </footer>
     </div>
+  );
+}
+
+/**
+ * Pilot-phase framing for the buyer demo. When membersPlaced < 5, the
+ * raw "0% placement rate" headline is misleading — a workforce board
+ * reading the page cold needs context that the cohort is mid-training
+ * (typical 12-week program), not failed. Removes itself once placements
+ * accumulate.
+ */
+function PilotPhaseBanner({ totals }: { totals: BoardOutcomes['totals'] }) {
+  const { membersServed, membersEnrolled, membersInTraining, membersCertified, membersPlaced } = totals;
+
+  // What's the most accurate "where we are" phrase given the data?
+  let phase: string;
+  if (membersPlaced > 0) {
+    phase = `Cohort is mid-cycle: ${membersPlaced} placed, ${membersInTraining} still in training.`;
+  } else if (membersCertified > 0) {
+    phase = `${membersCertified} member${membersCertified === 1 ? '' : 's'} certified and entering job search; placements typically follow within 4–8 weeks.`;
+  } else if (membersInTraining > 0) {
+    phase = `${membersInTraining} member${membersInTraining === 1 ? '' : 's'} mid-training. Most programs run 8–12 weeks before certification + placement.`;
+  } else if (membersEnrolled > 0) {
+    phase = `${membersEnrolled} member${membersEnrolled === 1 ? '' : 's'} enrolled and onboarding. Training cycles begin within 1–2 weeks of enrollment.`;
+  } else {
+    phase = `Pre-cohort. Program infrastructure is live and ready to receive members.`;
+  }
+
+  return (
+    <section
+      style={{
+        padding: '1rem 1.25rem',
+        background: 'color-mix(in srgb, var(--color-blue, #2b7bb9) 8%, white)',
+        border: '1px solid color-mix(in srgb, var(--color-blue, #2b7bb9) 22%, var(--outline-variant))',
+        borderRadius: '0.875rem',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '0.875rem',
+      }}
+    >
+      <span
+        aria-hidden
+        style={{
+          background: 'color-mix(in srgb, var(--color-blue, #2b7bb9) 14%, transparent)',
+          color: 'var(--color-blue, #2b7bb9)',
+          width: '2.25rem',
+          height: '2.25rem',
+          borderRadius: 'var(--radius-md)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}
+      >
+        <Info size={18} aria-hidden />
+      </span>
+      <div style={{ minWidth: 0 }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: '0.7rem',
+            fontWeight: 800,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--color-blue, #2b7bb9)',
+          }}
+        >
+          Pilot phase &middot; {membersServed} member{membersServed === 1 ? '' : 's'} served
+        </p>
+        <p style={{ margin: '0.35rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
+          {phase}
+        </p>
+        <p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+          Numbers below are real-time. Placement rate and median wage will populate as the first cohort hires close.
+        </p>
+      </div>
+    </section>
   );
 }
 

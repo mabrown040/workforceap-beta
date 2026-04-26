@@ -65,12 +65,63 @@ export async function POST(request: Request) {
 
   const supabase = getSupabaseAdmin();
 
+  // Pre-flight self-heal: if a Prisma row with this email is soft-deleted,
+  // its email is still occupying the @unique slot. Free it before we ask
+  // Supabase to invite — otherwise even after Supabase succeeds we'd fail
+  // when the transaction tries to insert the new User row. See #757 + #761.
+  const existingPrisma = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, deletedAt: true },
+  });
+  if (existingPrisma?.deletedAt) {
+    const freedEmail = `deleted_${existingPrisma.id}_${Date.now()}_${email}@deleted.invalid`.slice(0, 255);
+    await prisma.user.update({
+      where: { id: existingPrisma.id },
+      data: { email: freedEmail },
+    });
+  } else if (existingPrisma) {
+    // Active Prisma row — this really is an existing member; can't walk-in.
+    return NextResponse.json(
+      {
+        error:
+          'A member with this email already exists. Use the existing-member path from the In-office sessions index.',
+      },
+      { status: 409 }
+    );
+  }
+
   // Invite first (sends a welcome / set-password email). Falls back to
   // createUser + reset-link if invite isn't available in this Supabase setup.
-  const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+  let { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
     redirectTo: `${siteUrl}/dashboard`,
     data: { full_name: fullName, phone, walked_in_by: user.id },
   });
+
+  // Second self-heal: orphan Supabase auth user from a prior failed delete.
+  // If the Prisma row was already soft-deleted (or never existed) and only
+  // a stale auth row remains, deleting and re-inviting clears the ghost.
+  // We only attempt this when there's no active Prisma user with that email
+  // (checked above) — so removing the auth row is safe.
+  if (
+    (inviteError?.message?.includes('already') || inviteError?.code === 'user_already_exists') &&
+    !existingPrisma // no active Prisma user — auth row is an orphan
+  ) {
+    try {
+      const list = await supabase.auth.admin.listUsers();
+      const orphan = list.data?.users?.find((u) => u.email?.toLowerCase() === email);
+      if (orphan) {
+        await supabase.auth.admin.deleteUser(orphan.id);
+        const retry = await supabase.auth.admin.inviteUserByEmail(email, {
+          redirectTo: `${siteUrl}/dashboard`,
+          data: { full_name: fullName, phone, walked_in_by: user.id },
+        });
+        inviteData = retry.data;
+        inviteError = retry.error;
+      }
+    } catch (err) {
+      console.error('[walk-in] orphan auth cleanup failed', err);
+    }
+  }
 
   let authUser: { id: string; email?: string } | null = null;
   if (!inviteError && inviteData.user) {

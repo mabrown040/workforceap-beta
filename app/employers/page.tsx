@@ -151,7 +151,7 @@ export default async function EmployersPage() {
             </p>
           </div>
           <a
-            href="#employer-contact"
+            href="#employer-contact-form"
             className="btn btn-primary btn-small"
             style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
           >

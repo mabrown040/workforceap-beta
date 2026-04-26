@@ -11,6 +11,37 @@ export const metadata: Metadata = buildPageMetadata({
 export default function BecomeMentorPage() {
   return (
     <main style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      {/* ── Pre-launch mentor waitlist banner ──
+          Per /plan-ceo-review (2026-04-26): with 12 cohort members, mentor
+          supply far exceeds demand. We accept applications but match
+          mentors as members reach the interview-prep stage of their program
+          (typically 4-8 weeks in). Setting honest expectations here is
+          better than recruiting mentors who churn before pairing. */}
+      <section
+        aria-label="Mentor waitlist"
+        style={{
+          background: 'color-mix(in srgb, var(--color-accent) 6%, white)',
+          borderBottom: '1px solid color-mix(in srgb, var(--color-accent) 18%, var(--outline-variant))',
+          padding: '1.5rem clamp(1rem, 4vw, 2rem)',
+        }}
+      >
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '260px' }}>
+            <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+              Mentor waitlist &middot; Pre-launch
+            </p>
+            <p style={{ margin: '0.4rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
+              We&rsquo;re accepting mentor applications now and matching as our cohort grows. Most pairings
+              start <strong>4&ndash;8 weeks after you apply</strong>, when a member reaches the interview-prep
+              stage of their program in your domain.
+            </p>
+          </div>
+          <Link href="/mentor/apply" className="btn btn-primary btn-small" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+            Join the waitlist
+          </Link>
+        </div>
+      </section>
+
       {/* Hero */}
       <section style={{ background: 'var(--color-accent)', color: '#fff', padding: '4rem 2rem', textAlign: 'center' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>

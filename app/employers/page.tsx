@@ -126,6 +126,40 @@ export default async function EmployersPage() {
 
   return (
     <div className="inner-page">
+      {/* ── Pre-launch hiring partner banner ──
+          Per /plan-ceo-review (2026-04-26): WorkforceAP has 12 cohort
+          members in mid-training, not 1,000+ certified job-ready candidates.
+          The marketing content below was written for the 1,000-member state.
+          This banner sets honest expectations until cohort 3+. */}
+      <section
+        aria-label="Hiring partner waitlist"
+        style={{
+          background: 'color-mix(in srgb, var(--color-accent) 6%, white)',
+          borderBottom: '1px solid color-mix(in srgb, var(--color-accent) 18%, var(--outline-variant))',
+          padding: '1.5rem clamp(1rem, 4vw, 2rem)',
+        }}
+      >
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '260px' }}>
+            <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+              Hiring partner waitlist &middot; Pre-launch
+            </p>
+            <p style={{ margin: '0.4rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
+              We&rsquo;re focused on placing our first cohort right now. <strong>Hire-now applications are
+              welcome below</strong> &mdash; we&rsquo;ll match you with certified candidates as they finish
+              their programs. Hiring volume scales over the next two cohorts.
+            </p>
+          </div>
+          <a
+            href="#employer-contact-form"
+            className="btn btn-primary btn-small"
+            style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+          >
+            Join the waitlist
+          </a>
+        </div>
+      </section>
+
       {/* ── Hero ── */}
       <section
         style={{

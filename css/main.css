@@ -15706,3 +15706,48 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
 .coursera-footer-note a {
     color: var(--color-accent);
 }
+
+/* Mobile Stacked Card Layout for Admin Tables */
+@media (max-width: 767px) {
+    .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
+        display: block;
+        width: 100%;
+    }
+    .admin-table thead {
+        display: none;
+    }
+    .admin-table tr {
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--surface-container-high);
+        background: var(--surface-container-low);
+        padding: 0.5rem;
+        overflow: hidden;
+    }
+    .admin-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--surface-container-high);
+        text-align: right;
+    }
+    .admin-table td:last-child {
+        border-bottom: none;
+    }
+    .admin-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.75rem;
+        color: var(--color-on-surface-variant);
+        text-transform: uppercase;
+        margin-right: 1rem;
+        text-align: left;
+    }
+}
+
+/* Global Focus-Visible Outline */
+*:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}

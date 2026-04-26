@@ -44,7 +44,7 @@ function CareerTipCard() {
       <div className="portal-messages-tip-card__text">
         <strong className="portal-messages-tip-card__title">Career tip</strong>
         <p className="portal-messages-tip-card__body">
-          Replying within 24 hours helps your counselor support you faster.
+          When you reply quickly, your counselor can act on your goals faster — they reply within 2 business days.
         </p>
       </div>
     </div>

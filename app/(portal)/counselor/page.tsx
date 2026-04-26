@@ -4,6 +4,8 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
+import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
+import CounselorCommandCenter from '@/components/portal/counselor/CounselorCommandCenter';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
@@ -85,6 +87,13 @@ export default async function CounselorPortalPage() {
   const firstName = (dbUser.fullName ?? 'Counselor').split(' ')[0];
   const greeting = getTimeOfDayGreeting();
 
+  // Today's priorities — needs-reply, at-risk, and interviewing rows.
+  const isAdminUser = await isAdmin(user.id);
+  const commandCenter = await getCounselorCommandCenter(user.id, {
+    isAdmin: isAdminUser && !counselor,
+    perSectionLimit: 5,
+  });
+
   const statCards = [
     { icon: 'groups', label: 'Your Members', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
     { icon: 'mark_email_unread', label: 'Awaiting Reply', value: messagesNeedingReply, bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', iconColor: 'var(--color-blue)' },
@@ -95,6 +104,14 @@ export default async function CounselorPortalPage() {
   return (
     <PortalPageFrame maxWidth="76rem">
       <h1 className="wa-sr-only">Counselor Dashboard - Welcome back, {firstName}</h1>
+
+      {/* ── Today's priorities — Counselor Command Center.
+          Sits above both mobile + desktop layouts so it shows everywhere.
+          Per /plan-ceo-review (2026-04-26) brutal multi-persona review. ── */}
+      <div style={{ padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+        <CounselorCommandCenter data={commandCenter} />
+      </div>
+
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}

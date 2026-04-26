@@ -8,11 +8,23 @@ export async function POST() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    // Soft-delete in app DB
-    await prisma.user.update({
+    // Soft-delete in app DB AND release the email from the unique
+    // constraint so the user (or anyone) can sign up again with the
+    // same address. See app/api/admin/members/[id]/delete/route.ts.
+    const existing = await prisma.user.findUnique({
       where: { id: user.id },
-      data: { deletedAt: new Date() },
+      select: { email: true, deletedAt: true },
     });
+    if (existing) {
+      const now = new Date();
+      const newEmail = existing.deletedAt
+        ? existing.email
+        : `deleted_${user.id}_${now.getTime()}_${existing.email}@deleted.invalid`.slice(0, 255);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { deletedAt: now, email: newEmail },
+      });
+    }
 
     // Hard-delete from Supabase Auth so the user cannot log back in
     const supabaseAdmin = getSupabaseAdmin();

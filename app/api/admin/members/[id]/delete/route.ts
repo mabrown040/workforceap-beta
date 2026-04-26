@@ -15,9 +15,35 @@ export async function POST(
 
     const { id } = await params;
 
+    // Soft-delete the Prisma row AND release the email from the unique
+    // constraint so a fresh sign-up with the same address can succeed.
+    // Without the email rewrite, re-creating a deleted test user (or a
+    // real user who deleted their account and wants to come back) hits
+    // the User.email @unique constraint and the new account can't be
+    // created. We rewrite to a sentinel address that preserves the
+    // original for audit (deleted_<userId>_<originalEmail>@deleted.invalid).
+    const now = new Date();
+    const existing = await prisma.user.findUnique({
+      where: { id },
+      select: { email: true, deletedAt: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // If the row is already soft-deleted, leave its email rewrite alone —
+    // don't double-rewrite (would build up nested "deleted_deleted_..."
+    // prefixes if an admin clicks delete twice).
+    const newEmail = existing.deletedAt
+      ? existing.email
+      : `deleted_${id}_${now.getTime()}_${existing.email}@deleted.invalid`.slice(0, 255);
+
     await prisma.user.update({
       where: { id },
-      data: { deletedAt: new Date() },
+      data: {
+        deletedAt: now,
+        email: newEmail,
+      },
     });
 
     const supabaseAdmin = getSupabaseAdmin();
@@ -26,7 +52,7 @@ export async function POST(
       console.error('[admin/members/[id]/delete] Supabase auth delete error:', error.message);
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, originalEmail: existing.email });
   } catch (error) {
     console.error('[admin/members/[id]/delete POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

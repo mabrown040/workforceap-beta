@@ -94,12 +94,22 @@ export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgra
     tool: TOOL_LABEL[r.toolType] ?? r.toolType,
     count: r.count,
   }));
+
+  // The chart renders an empty rectangle if every day is zero — it
+  // looks like the page is broken. Detect "no activity yet" and show
+  // a clear empty state instead. Same pattern as the AI tools chart
+  // empty state from #751.
+  const hasActivity = dailyActivity.some(
+    (d) => d.events > 0 || d.aiTools > 0 || d.applications > 0,
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
       {/* Activity trend — 14-day area chart */}
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
         <SectionLabel title="Activity — Last 14 Days" sub="Member events, AI tool runs, and job applications per day" />
+        {hasActivity ? (
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={dailyActivity} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
             <defs>
@@ -126,6 +136,26 @@ export default function AdminAnalyticsCharts({ dailyActivity, enrollmentByProgra
             <Area type="monotone" dataKey="applications" name="Applications" stroke={GREEN} fill="url(#gApps)" strokeWidth={2} dot={false} />
           </AreaChart>
         </ResponsiveContainer>
+        ) : (
+          <div
+            style={{
+              height: 240,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '2rem 1rem',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+              No activity in the last 14 days yet
+            </p>
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '32rem' }}>
+              Once members start using the platform, daily counts of events, AI tool runs, and job applications will graph here.
+            </p>
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>

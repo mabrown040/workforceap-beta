@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { cookies } from 'next/headers';
 import { getEmployerForUser, isSuperAdmin, SUPER_ADMIN_EMPLOYER_COOKIE } from '@/lib/auth/roles';
@@ -20,7 +21,7 @@ export default async function EmployerPortalLayout({
 
   const [superAdmin, portalRoles] = await Promise.all([isSuperAdmin(user.id), getPortalSwitcherRoles(user.id)]);
   const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
   const cookieStore = await cookies();
   const superAdminImpersonating =
     superAdmin && Boolean(cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value);

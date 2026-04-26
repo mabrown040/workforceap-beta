@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
@@ -25,7 +26,7 @@ export default async function PartnerAttentionPage({
   if (!user) redirect('/login?redirectTo=/partner/attention');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const sp = (await searchParams) ?? {};
   const tr = sp.tier;

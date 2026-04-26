@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -23,7 +24,7 @@ export default async function PartnerReferredMembersPage() {
   if (!user) redirect('/login?redirectTo=/partner/referred-members');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
   const rows = toPartnerMembersListRows(pipelineMembers);

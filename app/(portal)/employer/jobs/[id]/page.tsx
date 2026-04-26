@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
@@ -41,7 +42,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
   if (!user) redirect('/login?redirectTo=/employer/jobs');
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const { id } = await params;
   const job = await prisma.job.findFirst({

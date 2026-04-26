@@ -22,7 +22,9 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
   const accentColor = '#ad2c4d';
   const labelColor = '#a3a3a3';
 
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background:#1e2022;border-radius:12px">`;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
+  // Background rect (more reliable than CSS background when drawn to canvas)
+  svg += `<rect width="${size}" height="${size}" rx="12" fill="#1e2022"/>`;
   // Grid polygons
   for (const level of gridLevels) {
     const pts = data.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ');
@@ -53,8 +55,10 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
 /** Convert an SVG string to a PNG data URL via canvas. */
 async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
   return new Promise((resolve, reject) => {
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    // Use base64 inline data URL — more reliable than blob URLs which browsers
+    // may block in canvas toDataURL() due to origin security restrictions.
+    const b64 = btoa(unescape(encodeURIComponent(svgString)));
+    const url = `data:image/svg+xml;base64,${b64}`;
     const img = new Image();
     img.onload = () => {
       const scale = 2; // 2x for crisp export
@@ -64,10 +68,9 @@ async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
       const ctx = canvas.getContext('2d')!;
       ctx.scale(scale, scale);
       ctx.drawImage(img, 0, 0, size, size);
-      URL.revokeObjectURL(url);
       resolve(canvas.toDataURL('image/png'));
     };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG render failed')); };
+    img.onerror = () => reject(new Error('SVG render failed'));
     img.src = url;
   });
 }

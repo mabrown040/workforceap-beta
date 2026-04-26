@@ -83,10 +83,20 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   // Research
   ['research', 'Research', 75], ['writing', 'Research', 70],
   ['technical writing', 'Research', 80], ['documentation', 'Research', 70],
-  ['content', 'Research', 65], ['mba', 'Research', 70],
-  ['degree', 'Research', 60], ['certification', 'Research', 65],
+  ['content', 'Research', 65], ['certification', 'Research', 65],
   ['training', 'Research', 60], ['learning', 'Research', 60],
   ['curriculum', 'Research', 65], ['analysis', 'Research', 65],
+  // Degrees → axis boosts (extrapolate coursework from credential)
+  ['mba', 'Strategy', 75], ['mba', 'Analytics', 65], ['mba', 'Research', 70], ['mba', 'Ethics', 60],
+  ['master', 'Research', 70], ['bachelor', 'Research', 55],
+  ['phd', 'Research', 85], ['phd', 'Analytics', 70],
+  ['degree', 'Research', 58],
+  // Senior titles → Strategy floor
+  ['director', 'Strategy', 78], ['vice president', 'Strategy', 82],
+  [' vp ', 'Strategy', 80], ['chief ', 'Strategy', 85],
+  ['executive director', 'Strategy', 82],
+  // Ethics coursework
+  ['ethics', 'Ethics', 68], ['corporate responsibility', 'Ethics', 65],
   // Healthcare / clinical
   ['patient care', 'Ethics', 70], ['clinical', 'Research', 65],
   ['nursing', 'Ethics', 70], ['cna', 'Ethics', 68],

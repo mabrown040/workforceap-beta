@@ -21,16 +21,26 @@ const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 
 const SYSTEM_PROMPT = `You are a workforce skills analyst. Given a resume, extract and score the person's competency across exactly 6 skill axes. Return ONLY valid JSON, no markdown fences.
 
 The 6 axes and what they measure:
-- Analytics: Data analysis, statistics, SQL, spreadsheets, business intelligence, machine learning, metrics, KPIs, quantitative reasoning
+- Analytics: Data analysis, statistics, SQL, spreadsheets, business intelligence, machine learning, metrics, KPIs, quantitative reasoning, financial modeling
 - Engineering: Programming, software development, systems, networking, cloud, hardware, DevOps, automation, IT, cybersecurity, databases
 - Design: UX/UI design, graphic design, visual design, prototyping, wireframing, user research, content creation, branding, multimedia
-- Strategy: Project management, leadership, planning, agile/scrum, stakeholder management, business development, operations, budgeting, negotiation, sales, account management, pipeline management, quota attainment, CRM, territory management, closing deals, prospecting, B2B, SaaS sales, revenue growth, account executive, sales representative
-- Ethics: Compliance, HIPAA, privacy, customer service, communication, teamwork, mentoring, diversity, empathy, professionalism, safety regulations
-- Research: Academic research, technical writing, documentation, continuous learning, certifications, data collection, analysis methodology
+- Strategy: Project management, leadership, planning, agile/scrum, stakeholder management, business development, operations, budgeting, negotiation, sales, account management, pipeline management, quota attainment, CRM, territory management, revenue growth, account executive
+- Ethics: Compliance, HIPAA, privacy, customer service, communication, teamwork, mentoring, diversity, empathy, professionalism, safety, patient care, ethics coursework
+- Research: Academic research, technical writing, documentation, continuous learning, certifications, data collection, analysis methodology, thesis, dissertation
 
-Score each axis 0-100 based on evidence in the resume. 0 = no evidence. 30-50 = some mentions. 60-80 = solid experience. 80-100 = expert level with multiple strong signals.
+IMPORTANT — extrapolate from degrees, titles, and coursework. Do not be overly conservative:
+- MBA or Master's in Business: Analytics ≥65, Strategy ≥75, Research ≥65, Ethics ≥60 (MBA programs require stats, finance, strategy, ethics, and research methods courses)
+- Any Bachelor's degree: Research ≥50 (academic writing, methodology, coursework)
+- PhD or Master's in any field: Research ≥75, Analytics ≥60
+- Job titles like Director, VP, C-suite, Senior Manager: Strategy ≥70 minimum
+- 5+ years of continuous work experience in a domain: treat that axis as at least 60
+- Mentions of college courses (Ethics, Statistics, Marketing, Finance, etc.) count as direct evidence for that axis
+- Healthcare roles (nurse, CNA, medical assistant, patient care): Ethics ≥65 minimum
+- Teaching or training roles: Research ≥55, Ethics ≥60 minimum
 
-For each axis, also list 2-5 specific keywords/phrases from the resume that justify the score.
+Score each axis 0-100. 0 = no evidence. 30-50 = some indirect signals. 60-80 = solid demonstrated experience. 80-100 = expert/extensive evidence.
+
+For each axis, list 2-5 specific keywords/phrases from the resume that justify the score (include degree or job title if that's the evidence).
 
 Output format (JSON only):
 {

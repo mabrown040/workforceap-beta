@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -36,7 +37,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobTarget, targetSalary, targetLocation } = parsed.data;
+  const { resume, jobTarget, targetSalary, targetLocation, subjectMemberId, sessionId } = parsed.data;
+
+  // Resolve subject (In-Office Session: counselor/admin on behalf of member).
+  // Default: actor IS subject (legacy member self-serve path).
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) {
+    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  }
 
   // Build context string for salary/location signals
   const goalContext = [
@@ -99,7 +107,19 @@ Reposition this resume toward the career goal above. Remember: only work with wh
     try {
       await ensureUserInDb(user);
       const contextLabel = [jobTarget, targetLocation, targetSalary].filter(Boolean).join(' | ');
-      await saveAIToolResult(user.id, 'resume_rewriter', contextLabel, output);
+      // Save to SUBJECT's history; tag actor metadata so the member's
+      // dashboard can render the "Your session with {actor}" card.
+      await saveAIToolResult(
+        onBehalf.subjectUserId,
+        'resume_rewriter',
+        contextLabel,
+        output,
+        {
+          actorUserId: onBehalf.actorUserId,
+          actorName: onBehalf.actorName,
+          sessionId: sessionId ?? null,
+        }
+      );
     } catch (saveErr) {
       console.error('Resume rewriter: failed to save result', saveErr);
     }

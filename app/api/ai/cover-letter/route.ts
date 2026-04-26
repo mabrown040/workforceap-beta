@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { coverLetterSchema } from '@/lib/validation/coverLetter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +30,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobDescription, companyName, tone } = parsed.data;
+  const { resume, jobDescription, companyName, tone, subjectMemberId, sessionId } = parsed.data;
+
+  // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) {
+    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  }
 
   const toneInstructions: Record<string, string> = {
     formal: 'Use a formal, traditional tone. Professional and polished. Standard business language.',
@@ -69,7 +76,17 @@ Write a tailored cover letter.`;
     const summary = `${companyName} — ${jobDescription.slice(0, 60)}${jobDescription.length > 60 ? '...' : ''}`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'cover_letter', summary, output);
+      await saveAIToolResult(
+        onBehalf.subjectUserId,
+        'cover_letter',
+        summary,
+        output,
+        {
+          actorUserId: onBehalf.actorUserId,
+          actorName: onBehalf.actorName,
+          sessionId: sessionId ?? null,
+        }
+      );
     } catch (saveErr) {
       console.error('Cover letter: failed to save result', saveErr);
     }

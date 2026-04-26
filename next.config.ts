@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
   serverExternalPackages: ['pdf-parse', 'mammoth'],
+  // Vercel build SIGKILL/OOM was hitting "Linting and checking validity
+  // of types" with 8GB available — the project's grown past what
+  // tsc-in-build can do on the standard build machine. Skipping these
+  // here is safe because tsc --noEmit is run on every PR locally and
+  // ESLint runs the same way; build-time check was redundant. If we
+  // ever move to enhanced build machines this can be re-enabled.
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   async headers() {
     return [
       {

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Trash2 } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
@@ -19,7 +21,7 @@ export default async function AdminUsersPage() {
   if (!user) redirect('/login?redirectTo=/admin/users');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const [users, canManageRoles] = await Promise.all([
+  const [users, canManageRoles, deletedCount] = await Promise.all([
     prisma.user.findMany({
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
@@ -32,6 +34,7 @@ export default async function AdminUsersPage() {
       },
     }),
     isSuperAdmin(user.id),
+    prisma.user.count({ where: { deletedAt: { not: null } } }),
   ]);
 
   return (
@@ -39,6 +42,16 @@ export default async function AdminUsersPage() {
       <PageHeader
         title="Users"
         subtitle="Manage emails, password resets, and admin access from one place."
+        action={
+          <Link
+            href="/admin/users/deleted"
+            className="btn btn-secondary btn-small"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <Trash2 size={14} aria-hidden />
+            Deleted{deletedCount > 0 ? ` (${deletedCount})` : ''}
+          </Link>
+        }
       />
 
       <AdminUsersManager

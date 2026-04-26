@@ -90,13 +90,13 @@ export default async function DashboardReadinessPage() {
         title="Career Readiness"
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">Your readiness score across 4 key categories.</span>
-            <span className="wa-hidden wa-md:wa-block">Track your progress from training to landing a job. Your counselor updates this as you hit milestones.</span>
+            <span className="wa-block md:wa-hidden">Your readiness score across 4 key categories.</span>
+            <span className="wa-hidden md:wa-block">Track your progress from training to landing a job. Your counselor updates this as you hit milestones.</span>
           </>
         }
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}
       />
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <ReadinessMobileScoreCard
           overallScore={overallScore}
           categories={categories}
@@ -112,7 +112,7 @@ export default async function DashboardReadinessPage() {
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div
           style={{
             display: 'grid',

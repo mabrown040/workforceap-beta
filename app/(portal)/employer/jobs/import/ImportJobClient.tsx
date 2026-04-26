@@ -168,7 +168,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
 
     return (
       <>
-      <div className="import-job-review wa-pb-24 wa-md:wa-pb-0">
+      <div className="import-job-review wa-pb-24 md:wa-pb-0">
         <div className="import-job-back">
           <button
             type="button"
@@ -238,7 +238,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
 
   return (
     <>
-    <div className="import-job-page wa-pb-24 wa-md:wa-pb-0">
+    <div className="import-job-page wa-pb-24 md:wa-pb-0">
       <div className="import-job-back">
         <Link href="/employer/jobs">← Back to jobs</Link>
       </div>

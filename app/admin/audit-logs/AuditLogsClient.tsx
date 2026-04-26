@@ -195,7 +195,7 @@ export default function AuditLogsClient({
       </div>
 
       {/* Desktop table */}
-      <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
         <table
           style={{
             width: '100%',
@@ -279,7 +279,7 @@ export default function AuditLogsClient({
       </div>
 
       {/* Mobile card list */}
-      <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
         {events.map((e) => (
           <div
             key={e.id}

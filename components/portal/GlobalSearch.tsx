@@ -84,7 +84,7 @@ export default function GlobalSearch() {
       style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
     >
       <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>search</span>
-      <span className="wa-hidden wa-md:wa-inline">Search</span>
+      <span className="wa-hidden md:wa-inline">Search</span>
       <kbd style={{ fontSize: '0.625rem', fontWeight: 700, padding: '0.1rem 0.3rem', borderRadius: '0.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', display: 'inline-block' }}>⌘K</kbd>
     </button>
   );

@@ -78,7 +78,7 @@ export default async function AdminMentorsPage() {
         subtitle="Review mentor applications and toggle active mentor availability."
       />
 
-      <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {mentors.map((mentor) => {
           const status = getMentorStatusLabel(mentor);
           return (
@@ -136,7 +136,7 @@ export default async function AdminMentorsPage() {
         })}
       </div>
 
-      <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '52rem' }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-subtle)' }}>

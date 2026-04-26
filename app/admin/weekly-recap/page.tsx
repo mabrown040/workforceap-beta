@@ -25,7 +25,7 @@ export default async function AdminWeeklyRecapAnalyticsPage() {
       />
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
         {/* Desktop table */}
-        <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+        <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
           <table className="admin-table">
             <thead>
               <tr>
@@ -53,7 +53,7 @@ export default async function AdminWeeklyRecapAnalyticsPage() {
         </div>
 
         {/* Mobile cards */}
-        <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+        <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
           {rows.map((r) => (
             <div
               key={r.cohortKey}

@@ -151,7 +151,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   return (
     <>
       {/* ── Mobile ─────────────────────────────────────────── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Back nav */}
         <div style={{ padding: '1rem 1rem 0' }}>
           <Link
@@ -427,7 +427,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div className="portal-main-content">
           <Link
             href="/counselor/students"

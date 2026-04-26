@@ -197,7 +197,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
   return (
     <VoiceAgentSurface {...counselorStaffMessagingSurface} headline="Member messages" subtext="Staff view, aligned with the member portal.">
     <>
-      <div className="wa-md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
         {mobileList ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>{listPane({ mobile: true })}</div>
         ) : (
@@ -236,7 +236,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         )}
       </div>
 
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <InboxShell>
           {listPane({ mobile: false })}
           <InboxPane variant="thread" style={{ flex: 1, background: 'var(--surface-container-lowest)' }}>

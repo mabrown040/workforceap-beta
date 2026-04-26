@@ -148,7 +148,7 @@ export default function AssessmentsTable({
       </form>
 
       {/* Mobile cards (≤768px) */}
-      <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
         {sorted.length === 0 ? (
           <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '2rem' }}>No assessments match your filters.</p>
         ) : sorted.map((u) => {
@@ -212,7 +212,7 @@ export default function AssessmentsTable({
       </div>
 
       {/* Desktop table (≥768px) */}
-      <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
         <table className="admin-table employer-applications-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>

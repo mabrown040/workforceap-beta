@@ -58,7 +58,7 @@ export default async function AdminProgramsPage() {
       ) : (
         <>
           {/* Desktop table */}
-          <div className="wa-hidden wa-md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
+          <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
             <table className="admin-table employer-applications-table">
               <thead>
                 <tr>
@@ -96,7 +96,7 @@ export default async function AdminProgramsPage() {
           </div>
 
           {/* Mobile cards — portal-metric style */}
-          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {PROGRAMS.map((p) => {
               const stats = byProgram.get(p.slug) ?? { count: 0, scores: [], completed: 0 };
               const avgScore = stats.scores.length > 0

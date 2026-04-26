@@ -187,7 +187,7 @@ export default function JobApplicationKanban({
   return (
     <>
       {/* Mobile card list — hidden on md+ */}
-      <div className="wa-block wa-md:wa-hidden">
+      <div className="wa-block md:wa-hidden">
         {applications.length === 0 ? (
           <div className="portal-kanban-mobile-empty">
             <p style={{ margin: 0 }}>No applications yet.</p>
@@ -224,7 +224,7 @@ export default function JobApplicationKanban({
       </div>
 
       {/* Desktop kanban — hidden on mobile */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
           {STATUSES.map((status) => (
             <div

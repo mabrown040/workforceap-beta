@@ -196,7 +196,7 @@ export default function EmployerMessagesInboxClient({
     <VoiceAgentSurface {...employerMessagingSurface} headline="Employer messages" subtext="Same portal feel, tuned for employers.">
     <>
       {/* Mobile master–detail */}
-      <div className="wa-md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
         {mobileList ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>{listPane({ mobile: true })}</div>
         ) : (
@@ -237,7 +237,7 @@ export default function EmployerMessagesInboxClient({
       </div>
 
       {/* Desktop split */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <InboxShell>
           {listPane({ mobile: false })}
           <InboxPane variant="thread">{threadPane}</InboxPane>

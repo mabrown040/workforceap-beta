@@ -43,7 +43,7 @@ export default async function DashboardResumePage() {
   return (
     <>
       {/* ── Mobile ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div
           style={{
             padding: '1rem 1rem 1.25rem',
@@ -104,7 +104,7 @@ export default async function DashboardResumePage() {
       </div>
 
       {/* ── Desktop ── */}
-      <div className="wa-hidden wa-md:wa-block" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      <div className="wa-hidden md:wa-block" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
         <div
           style={{
             padding: '1.25rem 2rem 1.5rem',

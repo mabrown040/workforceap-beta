@@ -120,7 +120,7 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
       ) : (
         <>
           {/* Desktop table */}
-          <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+          <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
             <table className="admin-table admin-table--sticky-first" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--outline-variant)' }}>
@@ -158,7 +158,7 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
           </div>
 
           {/* Mobile cards */}
-          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {enriched.map((r) => (
               <div
                 key={r.id}

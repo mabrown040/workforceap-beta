@@ -121,7 +121,7 @@ export default async function EmployerCandidateProfilePage({
 
   return (
     <>
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
           title={student.fullName ?? 'Candidate'}
           subtitle="Shared because this member matched or applied to one of your roles."
@@ -324,7 +324,7 @@ export default async function EmployerCandidateProfilePage({
 
       </div>
 
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
             title={student.fullName ?? 'Candidate'}

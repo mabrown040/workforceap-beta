@@ -29,19 +29,19 @@ export default async function PartnerMilestonesPage() {
         title="Milestones"
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">Review member certificates, placements, and progress events.</span>
-            <span className="wa-hidden wa-md:wa-block">Recent certificates, placements, and milestone events across your referrals.</span>
+            <span className="wa-block md:wa-hidden">Review member certificates, placements, and progress events.</span>
+            <span className="wa-hidden md:wa-block">Recent certificates, placements, and milestone events across your referrals.</span>
           </>
         }
       />
       {/* ── MOBILE SECTION ── */}
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PartnerMilestonesMobile />
         <MobileBottomNav variant="partner" />
       </div>
 
       {/* ── DESKTOP SECTION ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PartnerMilestonesView />
       </div>
     </PortalPageFrame>

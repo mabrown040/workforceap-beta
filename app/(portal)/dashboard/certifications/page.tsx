@@ -70,7 +70,7 @@ export default async function DashboardCertificationsPage() {
     <>
       <h1 className="wa-sr-only">Certificates &amp; achievements</h1>
       {/* ── MOBILE ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
         <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
           <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
@@ -252,7 +252,7 @@ export default async function DashboardCertificationsPage() {
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
           <PageHeader
             title="My Certificates"

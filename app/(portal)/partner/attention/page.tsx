@@ -45,14 +45,14 @@ export default async function PartnerAttentionPage({
 
   return (
     <PortalPageFrame>
-      <div style={{ paddingBottom: '6rem' }} className="wa-md:wa-pb-8">
+      <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
         <PageHeader
           title="Attention queue"
           subtitle="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
         />
         <PartnerWorkflowTimeline events={events} />
         <PartnerAttentionClient initialTier={initialTier} />
-        <div className="wa-md:wa-hidden">
+        <div className="md:wa-hidden">
           <MobileBottomNav variant="partner" />
         </div>
       </div>

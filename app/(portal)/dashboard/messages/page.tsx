@@ -51,7 +51,7 @@ export default async function MemberMessagesPage() {
   return (
     <>
       {/* ── Mobile-only messages view (≤md) ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <MemberMessagesMobileClient
           initial={{
             memberUserId: user.id,
@@ -74,7 +74,7 @@ export default async function MemberMessagesPage() {
       </div>
 
       {/* ── Desktop view ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PageHeader
           title="Messages"
           breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Messages' }]}

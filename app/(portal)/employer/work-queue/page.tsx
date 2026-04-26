@@ -56,7 +56,7 @@ export default async function EmployerWorkQueuePage({
 
   return (
     <>
-    <div className="employer-work-queue-page wa-pb-24 wa-md:wa-pb-0">
+    <div className="employer-work-queue-page wa-pb-24 md:wa-pb-0">
       <PageHeader
         title="Work queue"
         subtitle="Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."

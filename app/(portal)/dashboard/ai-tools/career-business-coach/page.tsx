@@ -96,7 +96,7 @@ export default async function CareerBusinessCoachPage() {
         </VoiceAgentSurface>
       </div>
 
-      <div className="wa-block wa-md:wa-hidden">
+      <div className="wa-block md:wa-hidden">
         <MobileBottomNav variant="portal" />
       </div>
     </div>

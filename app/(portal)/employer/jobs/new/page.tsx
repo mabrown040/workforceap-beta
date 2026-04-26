@@ -42,14 +42,14 @@ export default async function NewJobPage() {
           { label: 'New Job' },
         ]}
       />
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1rem', overflowY: 'auto' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
           </div>
         </div>
       </div>
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <JobForm companyName={employer?.companyName ?? ''} programSlugs={programSlugs} />
       </div>
     </PortalPageFrame>

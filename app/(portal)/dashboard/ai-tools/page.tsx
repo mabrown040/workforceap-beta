@@ -22,8 +22,8 @@ export default async function AIToolsPage() {
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
-      <div className="wa-pb-24 wa-md:wa-pb-0">
-        <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
+      <div className="wa-pb-24 md:wa-pb-0">
+        <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
             { label: 'Member Portal', href: '/dashboard' },
             { label: 'AI Toolkit' },
@@ -37,7 +37,7 @@ export default async function AIToolsPage() {
           }}
         >
           <p
-            className="wa-block wa-md:wa-hidden"
+            className="wa-block md:wa-hidden"
             style={{
               fontSize: '0.625rem',
               fontWeight: 700,
@@ -80,7 +80,7 @@ export default async function AIToolsPage() {
             Start with the 5 core tools below, then move step by step through resume prep, applications, interviews, and profile polish.
           </p>
 
-          <div className="wa-block wa-md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
+          <div className="wa-block md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
             <PortalCard
               className="portal-card--flat"
             >
@@ -214,7 +214,7 @@ export default async function AIToolsPage() {
         </div>
       </section>
 
-      <div className="wa-block wa-md:wa-hidden">
+      <div className="wa-block md:wa-hidden">
         <MobileBottomNav variant="portal" />
       </div>
       <Footer variant="inner" />

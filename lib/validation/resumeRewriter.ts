@@ -5,6 +5,10 @@ export const resumeRewriterSchema = z.object({
   jobTarget: z.string().min(5, 'Job target is required').max(500, 'Job target must be under 500 characters'),
   targetSalary: z.string().max(100).optional(),
   targetLocation: z.string().max(200).optional(),
+  /** Counselor/admin In-Office Session: run on behalf of this member. */
+  subjectMemberId: z.string().uuid().optional(),
+  /** Group multiple tool runs into one session. */
+  sessionId: z.string().uuid().optional(),
 });
 
 export type ResumeRewriterInput = z.infer<typeof resumeRewriterSchema>;

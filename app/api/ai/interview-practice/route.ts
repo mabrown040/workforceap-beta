@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 const LEVEL_PROMPTS = {
   entry: 'entry-level / junior (0-2 years experience)',
@@ -42,8 +43,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const { role, experienceLevel, count, resumeContext } = parsed.data;
+  const { role, experienceLevel, count, resumeContext, subjectMemberId, sessionId } = parsed.data;
   const levelDesc = LEVEL_PROMPTS[experienceLevel];
+
+  // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) {
+    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  }
 
   const systemPrompt = `You are a career coach and interview preparation expert. Generate interview questions for job seekers.
 
@@ -90,7 +97,17 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
     const summary = `${role} (${experienceLevel})`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'interview_practice', summary, output);
+      await saveAIToolResult(
+        onBehalf.subjectUserId,
+        'interview_practice',
+        summary,
+        output,
+        {
+          actorUserId: onBehalf.actorUserId,
+          actorName: onBehalf.actorName,
+          sessionId: sessionId ?? null,
+        }
+      );
     } catch (saveErr) {
       console.error('Interview practice: failed to save result', saveErr);
     }

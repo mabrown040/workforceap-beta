@@ -172,14 +172,14 @@ export default async function EmployerGuidePage() {
                   width: '1.5rem',
                   height: '1.5rem',
                   borderRadius: '50%',
-                  background: 'rgba(128,217,159,0.15)',
+                  background: 'color-mix(in srgb, var(--color-green) 15%, transparent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
                   marginTop: '0.125rem',
                 }}>
-                  <span className="material-symbols-outlined" style={{ color: '#80d99f', fontSize: '0.875rem' }} aria-hidden="true">check</span>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '0.875rem' }} aria-hidden="true">check</span>
                 </div>
                 <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>{item}</p>
               </div>

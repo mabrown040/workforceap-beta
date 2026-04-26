@@ -128,7 +128,7 @@ export default async function SkillsAssessmentPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-green)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
                   <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Assessment complete</h2>
-                  <span style={{ marginLeft: 'auto', padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#166534' }}>
+                  <span style={{ marginLeft: 'auto', padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)' }}>
                     Done
                   </span>
                 </div>
@@ -303,7 +303,7 @@ export default async function SkillsAssessmentPage() {
                       Earned {cert.earnedAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
-                  <span style={{ padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#166534', flexShrink: 0 }}>
+                  <span style={{ padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)', flexShrink: 0 }}>
                     Verified
                   </span>
                 </div>

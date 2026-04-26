@@ -289,7 +289,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     >
                       <span style={{ color: 'var(--color-on-surface-variant)' }}>{course.name}</span>
                       {done ? (
-                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }} aria-hidden="true">check_circle</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green)' }} aria-hidden="true">check_circle</span>
                       ) : (
                         <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
                       )}

@@ -417,7 +417,7 @@ export default async function DashboardProfilePage() {
           <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
             <div className="portal-profile-section-card__header">
               <h2 className="portal-profile-section-card__title">Skills Assessment</h2>
-              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#4ade80' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)' }}>
                 Complete
               </span>
             </div>

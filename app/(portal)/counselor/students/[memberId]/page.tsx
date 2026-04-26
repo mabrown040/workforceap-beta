@@ -442,6 +442,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               { label: 'Members', href: '/counselor/students' },
               { label: 'Member details' },
             ]}
+            action={
+              <Link
+                href={`/counselor/sessions/${member.id}/run`}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                Start in-office session →
+              </Link>
+            }
           />
 
           {wioaSnap ? (

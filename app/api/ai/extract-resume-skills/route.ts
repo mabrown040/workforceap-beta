@@ -100,7 +100,7 @@ export async function POST() {
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0]);
       } else {
-        return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 });
+        return NextResponse.json({ error: 'We could not read the AI response just now. Please try again in a moment.' }, { status: 500 });
       }
     }
 

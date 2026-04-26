@@ -146,6 +146,6 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
     return NextResponse.json({ pitch: pitch.trim(), emailSent, emailError });
   } catch (e) {
     console.error('[elevator-pitch] generation failed', e);
-    return NextResponse.json({ error: 'Failed to generate pitch' }, { status: 500 });
+    return NextResponse.json({ error: 'We could not generate your pitch just now. Please try again in a moment.' }, { status: 500 });
   }
 }

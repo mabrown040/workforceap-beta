@@ -82,7 +82,7 @@ Identify any employment gaps and provide framing language for each.`;
   } catch (err) {
     console.error('Gap analyzer error:', err);
     return NextResponse.json(
-      { error: 'Failed to analyze gaps. Please try again.' },
+      { error: 'We could not analyze the skill gaps just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

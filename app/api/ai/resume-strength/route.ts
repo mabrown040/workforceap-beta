@@ -72,6 +72,6 @@ Keep it concise and actionable. No fluff.`;
     return NextResponse.json({ output });
   } catch (err) {
     console.error('Resume strength error:', err);
-    return NextResponse.json({ error: 'Failed to analyze resume. Please try again.' }, { status: 500 });
+    return NextResponse.json({ error: 'We could not analyze your resume just now. Please try again in a moment.' }, { status: 500 });
   }
 }

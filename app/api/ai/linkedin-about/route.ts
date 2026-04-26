@@ -104,7 +104,7 @@ Write a 3-paragraph LinkedIn About section.`;
   } catch (err) {
     console.error('LinkedIn about error:', err);
     return NextResponse.json(
-      { error: 'Failed to generate About section. Please try again.' },
+      { error: 'We could not generate your About section just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

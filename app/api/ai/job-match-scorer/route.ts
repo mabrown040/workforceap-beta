@@ -5,14 +5,194 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { jobMatchScorerSchema } from '@/lib/validation/jobMatchScorer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { 
+  fetchPageText, 
+  detectProvider, 
+  isKnownStructuredApiProvider,
+  importJobsFromUrl,
+  type ATSParseResult,
+} from '@/lib/ai/atsProviders';
+import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
+
+/**
+ * Extract job description from URL using provider-aware logic.
+ * Tier 1: Use ATS provider APIs (Greenhouse, Lever, Ashby) for known job URLs
+ * Tier 2: Fallback to generic page scraping (fetchPageText)
+ * Returns the job description text or null with a user-friendly, actionable reason.
+ */
+async function extractJobDescriptionFromUrl(url: string): Promise<
+  | { text: string; source: 'ats-api' | 'scraping' }
+  | { text: null; reason: string; guidance: 'unsupported-url' | 'scrape-failed' | 'paste-manually' | 'service-busy' }
+> {
+  const detected = detectProvider(url);
+
+  // Tier 1: Use structured ATS APIs for known providers with job IDs
+  if (detected && isKnownStructuredApiProvider(detected.provider) && detected.jobId) {
+    
+    const result: ATSParseResult = await importJobsFromUrl(url);
+    
+    if (result.jobs.length > 0) {
+      // Successfully got structured job data from API
+      const job = result.jobs[0];
+      const descriptionParts: string[] = [];
+      
+      if (job.title) descriptionParts.push(`Title: ${job.title}`);
+      if (job.company) descriptionParts.push(`Company: ${job.company}`);
+      if (job.location) descriptionParts.push(`Location: ${job.location}`);
+      if (job.description) descriptionParts.push(`\n${job.description}`);
+      if (job.requirements && job.requirements.length > 0) {
+        descriptionParts.push(`\nRequirements:\n${job.requirements.join('\n')}`);
+      }
+      
+      const fullText = descriptionParts.join('\n').trim();
+      if (fullText.length >= 100) {
+        return { text: fullText, source: 'ats-api' };
+      }
+      // Job was found but description is too short - fall through to scraping
+      console.warn(`[job-match-scorer] ${detected.provider} API returned short description (${fullText.length} chars), trying fallback`);
+    }
+    
+    // API returned no jobs or errors - try fallback scraping
+    if (result.errors.length > 0) {
+      console.warn(`[job-match-scorer] ${detected.provider} API failed:`, result.errors.join('; '));
+    }
+  }
+  
+  // Tier 2: Fallback to generic page scraping
+  // This also handles: unknown providers, API failures, JS-rendered pages
+  const scrapeResult = await fetchPageText(url, { waitFor: 2500 });
+  
+  if ('source' in scrapeResult && scrapeResult.text) {
+    return { text: scrapeResult.text, source: 'scraping' };
+  }
+
+  // Scraping failed — surface a user-friendly reason based on error type
+  if ('error' in scrapeResult) {
+    if (scrapeResult.error === 'rate_limited' || scrapeResult.error === 'quota_exceeded') {
+      return {
+        text: null,
+        reason: 'Job description reader is temporarily busy. Please try again in a few minutes, or paste the job description directly.',
+        guidance: 'service-busy',
+      };
+    }
+
+    // Known JS-rendered ATS pages may still scrape successfully, but if scraping fails,
+    // give the member a more specific fallback suggestion.
+    if (detected && ['rippling', 'workday', 'icims'].includes(detected.provider)) {
+      return {
+        text: null,
+        reason: `${detected.provider.charAt(0).toUpperCase() + detected.provider.slice(1)} career pages could not be read automatically this time. Please paste the job description directly if retrying does not work.`,
+        guidance: 'paste-manually',
+      };
+    }
+
+    // Check if this URL is from a known unsupported domain
+    const urlLower = url.toLowerCase();
+    const unsupportedDomains = [
+      'linkedin.com',
+      'indeed.com',
+      'glassdoor.com',
+      'monster.com',
+      'ziprecruiter.com',
+      'careerbuilder.com',
+    ];
+    const isUnsupportedDomain = unsupportedDomains.some(domain => urlLower.includes(domain));
+    
+    if (isUnsupportedDomain) {
+      return {
+        text: null,
+        reason: `This job board (${new URL(url).hostname}) is not supported for automatic reading.`,
+        guidance: 'unsupported-url',
+      };
+    }
+    
+    return {
+      text: null,
+      reason: 'Could not extract job description from URL. The page may require login, use JavaScript rendering, or block automated reading.',
+      guidance: 'scrape-failed',
+    };
+  }
+
+  return {
+    text: null,
+    reason: 'Could not extract job description from URL.',
+    guidance: 'scrape-failed',
+  };
+}
+
+export interface MatchAnalysisOutput {
+  matchScore: number;
+  strengths: string[];
+  gaps: string[];
+  quickWins: string[];
+  rawText: string;
+}
+
+function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
+  const lines = aiOutput.split('\n');
+  let matchScore = 70; // Default realistic score
+  const strengths: string[] = [];
+  const gaps: string[] = [];
+  const quickWins: string[] = [];
+
+  let currentSection: 'strengths' | 'gaps' | 'quickWins' | null = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Parse MATCH SCORE
+    const scoreMatch = trimmed.match(/MATCH\s*SCORE:\s*(\d+)%?/i);
+    if (scoreMatch) {
+      const parsed = parseInt(scoreMatch[1], 10);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 100) {
+        matchScore = parsed;
+      }
+      continue;
+    }
+
+    // Detect section headers
+    if (/^STRENGTHS:/i.test(trimmed) || /^STRENGTHS$/i.test(trimmed)) {
+      currentSection = 'strengths';
+      continue;
+    }
+    if (/^GAPS\s*(TO\s*ADDRESS)?:/i.test(trimmed) || /^GAPS$/i.test(trimmed)) {
+      currentSection = 'gaps';
+      continue;
+    }
+    if (/^QUICK\s*WINS:/i.test(trimmed) || /^QUICK\s*WINS$/i.test(trimmed)) {
+      currentSection = 'quickWins';
+      continue;
+    }
+
+    // Parse bullet points
+    const bulletMatch = trimmed.match(/^[•\-\*]\s*(.+)/);
+    if (bulletMatch && currentSection) {
+      const content = bulletMatch[1].trim();
+      if (content.length > 5) {
+        if (currentSection === 'strengths') strengths.push(content);
+        else if (currentSection === 'gaps') gaps.push(content);
+        else if (currentSection === 'quickWins') quickWins.push(content);
+      }
+    }
+  }
+
+  return {
+    matchScore,
+    strengths: strengths.length > 0 ? strengths : ['Resume shows relevant experience'],
+    gaps: gaps.length > 0 ? gaps : ['Review job requirements for specific gaps'],
+    quickWins: quickWins.length > 0 ? quickWins : ['Tailor resume keywords to job posting'],
+    rawText: aiOutput,
+  };
+}
 
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+  if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
 
   const { success } = await checkAIToolRateLimit(user.id);
-  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
 
   let body: unknown;
   try {
@@ -29,7 +209,98 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobDescription } = parsed.data;
+  const { resume, jobDescription, jobUrl } = parsed.data;
+
+  // Validate that at least one job source is provided
+  if (!jobDescription?.trim() && !jobUrl?.trim()) {
+    return NextResponse.json(
+      { error: 'Please provide either a job description or a job URL' },
+      { status: 400 }
+    );
+  }
+
+  // Fetch job description from URL if provided
+  let finalJobDescription = jobDescription?.trim() ?? '';
+  let scrapedFromUrl = false;
+  let scrapeError: string | null = null;
+  let scrapeSource: 'ats-api' | 'scraping' | null = null;
+  let scrapeGuidance: 'unsupported-url' | 'scrape-failed' | 'paste-manually' | 'service-busy' | null = null;
+
+  if (jobUrl?.trim()) {
+    try {
+      const extractResult = await extractJobDescriptionFromUrl(jobUrl.trim());
+      
+      if ('source' in extractResult && extractResult.text) {
+        // Successful extraction — only use if substantive enough
+        const sanitized = sanitizeScrapedJobText(extractResult.text).slice(0, 8000);
+        if (sanitized.length >= 50) {
+          finalJobDescription = sanitized;
+          scrapedFromUrl = true;
+          scrapeSource = extractResult.source;
+        } else {
+          // Scraped content too short — preserve any manually-provided description
+          console.warn(`[job-match-scorer] Scraped content too short (${sanitized.length} chars), falling back to manual description`);
+          if (!finalJobDescription) {
+            return NextResponse.json(
+              { 
+                error: 'Could not extract a full job description from that URL. Try pasting the job description directly.',
+                guidance: 'paste-manually',
+              },
+              { status: 400 }
+            );
+          }
+        }
+      } else if ('reason' in extractResult) {
+        // Extraction failed with a specific reason and guidance
+        scrapeError = extractResult.reason;
+        scrapeGuidance = extractResult.guidance;
+        console.error('[job-match-scorer] URL extraction failed:', scrapeError, 'guidance:', scrapeGuidance);
+      }
+
+      // If we have no job description from either source, return error with guidance
+      if (!finalJobDescription && scrapeError) {
+        const errorMessage = scrapeGuidance === 'paste-manually'
+          ? `${scrapeError} Please paste the job description text directly.`
+          : scrapeGuidance === 'unsupported-url'
+          ? `${scrapeError} Copy and paste the job description text instead.`
+          : scrapeGuidance === 'service-busy'
+          ? scrapeError
+          : `${scrapeError} You can paste the job description text directly instead.`;
+        
+        return NextResponse.json(
+          { 
+            error: errorMessage,
+            guidance: scrapeGuidance,
+          },
+          { status: 400 }
+        );
+      }
+    } catch (err) {
+      console.error('[job-match-scorer] URL fetch error:', err);
+      if (!finalJobDescription) {
+        return NextResponse.json(
+          { 
+            error: 'Failed to fetch job description from URL. Please paste the job description directly.',
+            guidance: 'paste-manually',
+          },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
+  // Final validation of job description
+  if (!finalJobDescription || finalJobDescription.length < 50) {
+    return NextResponse.json(
+      { 
+        error: scrapedFromUrl
+          ? 'Could not extract enough content from that URL. Try pasting the job description directly.'
+          : 'Job description must be at least 50 characters',
+        guidance: scrapedFromUrl ? 'paste-manually' : undefined,
+      },
+      { status: 400 }
+    );
+  }
 
   const systemPrompt = `You are a career coach and ATS expert. Analyze how well a candidate's resume matches a job description.
 
@@ -55,7 +326,7 @@ Keep it concise. No fluff. Members want to know exactly why they're not getting 
 
   const userPrompt = `Job description:
 ---
-${jobDescription}
+${finalJobDescription}
 ---
 
 Candidate's resume:
@@ -74,9 +345,11 @@ Analyze the match and output in the format above.`;
       { maxTokens: 1200, temperature: 0.5 }
     );
 
-    if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+    if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
 
-    const summary = jobDescription.slice(0, 80) + (jobDescription.length > 80 ? '...' : '');
+    const parsedOutput = parseMatchAnalysis(output);
+    const summary = finalJobDescription.slice(0, 80) + (finalJobDescription.length > 80 ? '...' : '');
+
     try {
       await ensureUserInDb(user);
       await saveAIToolResult(user.id, 'job_match_scorer', summary, output);
@@ -84,7 +357,12 @@ Analyze the match and output in the format above.`;
       console.error('Job match scorer: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({
+      output,
+      parsed: parsedOutput,
+      scrapedFromUrl,
+      scrapeSource,
+    });
   } catch (err) {
     console.error('Job match scorer error:', err);
     return NextResponse.json(

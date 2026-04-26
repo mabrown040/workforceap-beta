@@ -3,7 +3,21 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
 
-const SKIP_PREFIXES = ['/partner', '/employer', '/counselor', '/admin', '/certifications', '/profile'];
+/** Paths where we skip partner→/partner redirect (dedicated shells or legacy redirects). */
+const SKIP_PREFIXES = [
+  '/partner',
+  '/employer',
+  '/counselor',
+  '/admin',
+  '/certifications',
+  '/profile',
+  '/resources',
+  '/help',
+  '/account',
+  '/dashboard/help',
+  '/dashboard/account',
+  '/dashboard/career-library',
+];
 
 /**
  * Partner-only accounts should not use member portal surfaces. Redirect server-side
@@ -19,7 +33,8 @@ export default async function PartnerExclusiveServerGate() {
   if (!user) return null;
 
   try {
-    const [partnerCtx, superAdmin] = await Promise.all([getPartnerForUser(user.id), isSuperAdmin(user.id)]);
+    const superAdmin = await isSuperAdmin(user.id);
+    const partnerCtx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
     if (partnerCtx && !superAdmin) {
       redirect('/partner');
     }

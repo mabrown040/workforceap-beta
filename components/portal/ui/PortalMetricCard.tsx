@@ -42,7 +42,6 @@ export default function PortalMetricCard({
         <span className={`portal-metric-card__trend portal-metric-card__trend--${trend.direction}`}>
           <span
             className="material-symbols-outlined"
-            aria-hidden="true"
             style={{ fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}
           >
             {trend.direction === 'up' ? 'trending_up' : 'remove'}

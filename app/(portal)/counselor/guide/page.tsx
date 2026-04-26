@@ -34,17 +34,17 @@ const QUICK_ACTIONS = [
   { icon: 'forum', label: 'Message a member', href: '/counselor/messages' },
   { icon: 'edit_note', label: 'Log a session note', href: '/counselor/students' },
   { icon: 'warning', label: 'View flagged members', href: '/counselor/students' },
-  { icon: 'group_add', label: 'View all students', href: '/counselor/students' },
+  { icon: 'group_add', label: 'View all members', href: '/counselor/students' },
 ];
 
 const FAQS = [
   {
     q: 'How do I get assigned new members?',
-    a: 'New assignments are made by the WorkforceAP admin team. When a new member is assigned to you, you\'ll see them appear in your student roster. Reach out to program staff if you need to adjust your caseload.',
+    a: 'New assignments are made by the WorkforceAP admin team. When a new member is assigned to you, you\'ll see them appear in your member roster. Reach out to program staff if you need to adjust your caseload.',
   },
   {
     q: 'Can I see what AI tools my members have used?',
-    a: 'Yes — open any member\'s profile from your student list to see their tool history, assessment scores, and readiness stage.',
+    a: 'Yes — open any member\'s profile from your member list to see their tool history, assessment scores, and readiness stage.',
   },
   {
     q: 'How do I flag a member for additional support?',
@@ -88,7 +88,7 @@ export default async function CounselorGuidePage() {
 
   return (
     <>
-    <div className="wa-pb-24 wa-md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <div className="wa-pb-24 md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/counselor" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
@@ -116,7 +116,7 @@ export default async function CounselorGuidePage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '1rem',
         }}>
-          <div className="stitch-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-accent)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-accent)' }}>
             <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
               Members assigned
             </p>
@@ -124,7 +124,7 @@ export default async function CounselorGuidePage() {
               {totalAssigned}
             </p>
           </div>
-          <div className="stitch-card" style={{ padding: '1.5rem', borderLeft: needsAttentionCount > 0 ? '4px solid #fbbf24' : '4px solid rgba(88,65,68,0.1)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', borderLeft: needsAttentionCount > 0 ? '4px solid #fbbf24' : '4px solid rgba(88,65,68,0.1)' }}>
             <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
               Need attention this week
             </p>
@@ -132,9 +132,9 @@ export default async function CounselorGuidePage() {
               {needsAttentionCount}
             </p>
           </div>
-          <div className="stitch-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.75rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.75rem' }}>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-              View your full student roster to see where each member is in their journey.
+              View your full member roster to see where each member is in their journey.
             </p>
             <Link href="/counselor/students" style={{
               display: 'inline-flex',
@@ -149,8 +149,8 @@ export default async function CounselorGuidePage() {
               textDecoration: 'none',
               alignSelf: 'flex-start',
             }}>
-              View your students
-              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+              View your members
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
             </Link>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default async function CounselorGuidePage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
         {/* What you can do */}
-        <section className="stitch-card" style={{ padding: '2rem' }}>
+        <section className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             What you can do here
           </h2>
@@ -175,7 +175,7 @@ export default async function CounselorGuidePage() {
                   justifyContent: 'center',
                   flexShrink: 0,
                 }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>{item.icon}</span>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1rem' }} aria-hidden="true">{item.icon}</span>
                 </div>
                 <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface)', lineHeight: 1.5, paddingTop: '0.25rem' }}>{item.text}</p>
               </div>
@@ -200,9 +200,9 @@ export default async function CounselorGuidePage() {
                 borderRadius: '0.625rem',
                 textDecoration: 'none',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{item.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{item.icon}</span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', flex: 1 }}>{item.label}</span>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
               </Link>
             ))}
           </div>
@@ -210,7 +210,7 @@ export default async function CounselorGuidePage() {
       </div>
 
       {/* Member Journey Reference */}
-      <section className="stitch-card" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
+      <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2.5rem' }}>
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
           Member journey reference
         </h2>
@@ -241,7 +241,7 @@ export default async function CounselorGuidePage() {
                 fontWeight: 800,
                 color: s.done ? '#80d99f' : 'var(--color-accent)',
               }}>
-                {s.done ? <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check</span> : s.stage}
+                {s.done ? <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">check</span> : s.stage}
               </div>
               <div>
                 <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{s.label}</p>
@@ -257,9 +257,9 @@ export default async function CounselorGuidePage() {
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
           Common questions
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>

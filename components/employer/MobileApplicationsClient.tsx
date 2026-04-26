@@ -27,7 +27,7 @@ function statusColor(status: string): { bg: string; color: string } {
   if (status === 'hired') return { bg: '#dcfce7', color: '#166534' };
   if (status === 'rejected') return { bg: '#fee2e2', color: '#991b1b' };
   if (status === 'pending') return { bg: '#fff1f2', color: 'var(--color-accent)' };
-  if (status === 'reviewing') return { bg: '#fef3c7', color: 'var(--color-gold)' };
+  if (status === 'reviewing') return { bg: '#fef3c7', color: '#92400e' };
   if (status === 'interview') return { bg: '#dbeafe', color: '#1e3a8a' };
   if (status === 'offered') return { bg: '#f3e8ff', color: '#6b21a8' };
   return { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };
@@ -131,11 +131,11 @@ export default function MobileApplicationsClient({
   return (
     <div>
       {/* Filter chips */}
-      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0 1rem 0.75rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '0 1rem 0.75rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', whiteSpace: 'nowrap' }}>
         {STATUS_CHIP_FILTERS.map((f) => {
           const active = filter === f.value;
           return (
-            <button
+            <button type="button"
               key={f.value}
               onClick={() => setFilter(f.value)}
               className="text-xs font-semibold transition-colors"
@@ -158,7 +158,7 @@ export default function MobileApplicationsClient({
       <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {visible.length === 0 ? (
           <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
-            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }}>inbox</span>
+            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }} aria-hidden="true">inbox</span>
             <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
           </div>
         ) : (
@@ -176,9 +176,9 @@ export default function MobileApplicationsClient({
                 style={{ borderRadius: '0.75rem', overflow: 'hidden', background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
               >
                 {/* Card header — tap to expand */}
-                <button
-                  className="active:opacity-80" style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}
-                  onClick={() => {
+                <button type="button"
+                  style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'flex-start', background: 'none', border: 'none', cursor: 'pointer' }}
+                  aria-expanded={isExpanded} aria-label={isExpanded ? `Collapse details for ${studentName}` : `Expand details for ${studentName}`} onClick={() => {
                     const nextExpanded = isExpanded ? null : app.id;
                     setExpandedId(nextExpanded);
                     if (nextExpanded !== app.id && openChatId === app.id) {
@@ -187,19 +187,17 @@ export default function MobileApplicationsClient({
                   }}
                 >
                   {/* Avatar */}
-                  <div
-                    className="text-white font-bold text-base" style={{ width: '3.5rem', height: '3.5rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--color-accent)' }}
-                  >
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', color: '#fff', fontWeight: 700, fontSize: '0.9375rem' }}>
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <h4 className="font-bold text-sm truncate" style={{ color: 'var(--color-on-surface)' }}>
                         {studentName}
                       </h4>
                       <span
                         className="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0"
-                        style={{ background: sc.bg, color: sc.color }}
+                        style={{ background: sc.bg, color: sc.color, whiteSpace: 'nowrap' }}
                       >
                         {statusLabel(app.status)}
                       </span>
@@ -214,7 +212,7 @@ export default function MobileApplicationsClient({
                   <span
                     className="material-symbols-outlined text-[18px] flex-shrink-0 mt-1 transition-transform"
                     style={{ color: 'var(--color-accent)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                  >
+                   aria-hidden="true">
                     expand_more
                   </span>
                 </button>
@@ -227,32 +225,40 @@ export default function MobileApplicationsClient({
                       <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)' }}>{app.student.email}</p>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                    {/* Action buttons */}
+                    <div className="flex flex-col gap-2" style={{ marginBottom: '0.5rem' }}>
                       <button
                         type="button"
                         disabled={isChatLoading}
                         onClick={() => void toggleChat(app.id)}
-                        className="py-2.5 px-4 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
+                        className="w-full font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                         style={{
-                          background: isChatOpen ? '#f3e8ff' : '#fff1f2',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.375rem',
+                          padding: '0.75rem',
+                          borderRadius: '0.75rem',
+                          border: 'none',
+                          cursor: isChatLoading ? 'default' : 'pointer',
+                          background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
                           color: 'var(--color-accent)',
                         }}
                       >
-                        {isChatLoading ? 'Loading chat…' : isChatOpen ? 'Close messages' : '💬 Message applicant'}
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
+                        {isChatLoading ? 'Loading…' : isChatOpen ? 'Close messages' : 'Message applicant'}
                       </button>
-                    </div>
 
-                    {/* Status action buttons */}
                     {nextStatuses.length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
+                      <>
                         {nextStatuses.map((s) => {
                           const isReject = s === 'rejected';
                           return (
-                            <button
+                            <button type="button"
                               key={s}
                               disabled={busyId === app.id}
                               onClick={() => patchStatus(app.id, s)}
-                              className="flex-1 py-2.5 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
+                              className="w-full py-3 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                               style={
                                 isReject
                                   ? { background: '#ffdad6', color: '#93000a' }
@@ -263,8 +269,9 @@ export default function MobileApplicationsClient({
                             </button>
                           );
                         })}
-                      </div>
+                      </>
                     )}
+                  </div>
                     {nextStatuses.length === 0 && !isChatOpen && (
                       <p className="text-xs text-center" style={{ color: 'var(--color-on-surface-variant)' }}>No further actions available.</p>
                     )}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -8,13 +9,12 @@ import { prisma } from '@/lib/db/prisma';
 import EmployerApplicationsClient from '@/components/employer/EmployerApplicationsClient';
 import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const PAGE_SIZE = 25;
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'WorkforceAP Applicants',
+  title: 'Applicants',
   description: 'View applications from WorkforceAP members to your job postings.',
   path: '/employer/applications',
 });
@@ -28,7 +28,7 @@ export default async function EmployerApplicationsPage({
   if (!user) redirect('/login?redirectTo=/employer/applications');
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const sp = (await searchParams) ?? {};
   const page = Math.max(1, parseInt(String(sp.page ?? '1'), 10) || 1);
@@ -63,27 +63,29 @@ export default async function EmployerApplicationsPage({
   }));
 
   return (
-    <>
+    <PortalPageFrame>
+      <PageHeader
+        title={`Applicants (${totalCount})`}
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">Review candidates and update their status.</span>
+            <span className="wa-hidden md:wa-block">Review candidates and update their status as you move them through your hiring process.</span>
+          </>
+        }
+        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
+      />
       {/* ── Mobile Applications View (≤640px) ── */}
-      <div className="wa-block wa-md:wa-hidden wa-pb-24">
-        <PageHeader title="Applicants" subtitle="Review and update candidate status." />
+      <div className="wa-block md:wa-hidden wa-pb-24">
         <MobileApplicationsClient initialRows={initialRows} />
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
       {/* ── Desktop View ── */}
-      <div className="wa-hidden wa-md:wa-block">
-        <PortalPageFrame>
-          <PageHeader
-            title="Applicants"
-            subtitle="Update application status as you review candidates. Invalid workflow steps are blocked."
-          />
-          <EmployerApplicationsClient initialRows={initialRows} />
-          <EmployerApplicationsPager page={page} totalPages={totalPages} />
-        </PortalPageFrame>
+      <div className="wa-hidden md:wa-block">
+        <EmployerApplicationsClient initialRows={initialRows} />
+        <EmployerApplicationsPager page={page} totalPages={totalPages} />
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

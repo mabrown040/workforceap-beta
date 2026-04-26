@@ -14,16 +14,16 @@ export type ProgramExtra = {
 
 export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'digital-literacy-empowerment-class': {
-    bestFor: 'Anyone building foundational digital skills — no tech background needed.',
-    jobOutcomes: ['Office roles', 'Customer service', 'Administrative support'],
+    bestFor: 'Members who are new to computers and the internet — no tech background required. If you already use email and browse the web daily, a program like IT Support or Cybersecurity may be a stronger fit.',
+    jobOutcomes: ['Office Support Specialist', 'Customer Service Representative', 'Administrative Assistant'],
     difficulty: 1,
-    rampNote: 'No tech background required. Our shortest program.',
+    rampNote: 'No tech background required. Six weeks, beginner pace. Start here if technology feels unfamiliar.',
   },
   'ai-professional-developer-certificate-ibm': {
-    bestFor: 'Career changers with some coding interest. Best if you can invest 4–6 months.',
+    bestFor: 'Career changers with some coding interest. Best if you can invest 3–5 months consistently.',
     jobOutcomes: ['AI / ML Engineer', 'Software Developer', 'Applications Engineer'],
     difficulty: 3,
-    rampNote: 'Longer program. Best if you enjoy problem-solving and tech.',
+    rampNote: 'Intermediate track. Best if you enjoy problem-solving, structured learning, and tech.',
   },
   'aws-cloud-technology-amazon': {
     bestFor: 'Tech-curious learners ready for cloud. Strong demand, higher salary ceiling.',
@@ -40,36 +40,50 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'comptia-network-professional-certificate': {
     bestFor: 'Building on A+ or networking interest. Next step after IT fundamentals.',
     jobOutcomes: ['Network Administrator', 'Network Technician', 'Systems Administrator'],
+    difficulty: 2,
+    rampNote: 'Builds on IT basics. Best taken after A+ or equivalent experience.',
   },
   'comptia-security-professional-certificate': {
     bestFor: 'Moving into security. Builds on networking knowledge.',
     jobOutcomes: ['Security Analyst', 'Security Administrator', 'Compliance Analyst'],
+    difficulty: 2,
+    rampNote: 'Assumes networking fundamentals. Strong credential for security roles.',
   },
   'cybersecurity-professional-certificate-google': {
-    bestFor: 'Career changers into security. No prior cyber experience required.',
-    jobOutcomes: ['Cybersecurity Analyst', 'SOC Analyst', 'Security Operations'],
+    bestFor: 'Career changers ready to enter the security field. You do not need a security background, but comfort with computers helps — members new to technology entirely should complete Digital Literacy or IT Support first.',
+    jobOutcomes: ['Cybersecurity Analyst', 'SOC Analyst', 'Security Operations Specialist'],
     difficulty: 3,
-    rampNote: 'Moderate ramp. Strong demand and salary.',
+    rampNote: 'Assumes basic computer comfort. Strong employer demand and higher salary ceiling than most entry tracks.',
   },
   'data-analytics-professional-certificate-google': {
     bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',
     jobOutcomes: ['Data Analyst', 'Business Analyst', 'Marketing Analyst'],
+    difficulty: 2,
+    rampNote: 'Spreadsheets first, then SQL and R. No prior data experience required.',
   },
   'data-science-professional-certificate-ibm': {
     bestFor: 'Strong interest in data + programming. Python, ML, Jupyter.',
     jobOutcomes: ['Data Scientist', 'ML Engineer', 'Analytics Engineer'],
+    difficulty: 3,
+    rampNote: 'Involves Python and machine learning — best with some coding comfort.',
   },
   'project-management-professional-certificate-microsoft': {
     bestFor: 'Organizers and coordinators. Agile, Scrum — transferable across industries.',
     jobOutcomes: ['Project Coordinator', 'Project Manager', 'Scrum Master'],
+    difficulty: 2,
+    rampNote: 'No tech background required. Strong for career changers from any field.',
   },
   'digital-marketing-e-commerce-google': {
     bestFor: 'Creative, marketing-minded. SEO, analytics, e-commerce.',
     jobOutcomes: ['Digital Marketing Specialist', 'E-commerce Coordinator', 'Marketing Analyst'],
+    difficulty: 1,
+    rampNote: 'Beginner-friendly. Good fit if you enjoy content, creative, or social media work.',
   },
   'ux-design-professional-certificate-google': {
     bestFor: 'Design-minded, user-focused. Figma, prototyping, research.',
     jobOutcomes: ['UX Designer', 'UI Designer', 'Product Designer'],
+    difficulty: 2,
+    rampNote: 'No design background needed. Builds from research to high-fidelity Figma prototypes.',
   },
   'it-support-professional-certificate-ibm': {
     bestFor: 'First IT credential. Help desk, hardware, customer support.',
@@ -78,26 +92,38 @@ export const PROGRAM_EXTRAS: Record<string, ProgramExtra> = {
   'it-automation-with-python-google': {
     bestFor: 'Automation and scripting. Builds on basic IT or Python knowledge.',
     jobOutcomes: ['IT Automation Specialist', 'DevOps Engineer', 'Systems Engineer'],
+    difficulty: 2,
+    rampNote: 'Some Python comfort helps. Good next step after IT Support or A+.',
   },
   'health-information-technology-mchit': {
-    bestFor: 'Healthcare administration focus. Medical coding, EHR, HIPAA.',
+    bestFor: 'Members drawn to healthcare who want an administrative role rather than a clinical one. No prior medical background needed — this program starts from fundamentals. If your interest is more in tech than healthcare, an IT or data track may be a better path.',
     jobOutcomes: ['Medical Coder', 'Health Information Technician', 'Billing Specialist'],
+    difficulty: 2,
+    rampNote: 'Starts from healthcare fundamentals. No prior clinical experience required.',
   },
-  'production-technology-certificate-cpt': {
+  'certified-production-technician-cpt': {
     bestFor: 'Hands-on learners. CNC, manufacturing, quality control.',
     jobOutcomes: ['Manufacturing Technician', 'CNC Operator', 'Quality Inspector'],
+    difficulty: 2,
+    rampNote: 'Hands-on pathway focused on production, safety, and shop-floor fundamentals.',
   },
-  'logistics-and-supply-chain-certificate-clt': {
+  'certified-logistics-technician-clt': {
     bestFor: 'Supply chain, inventory, logistics. SAP and operations.',
     jobOutcomes: ['Logistics Coordinator', 'Supply Chain Analyst', 'Inventory Manager'],
+    difficulty: 2,
+    rampNote: 'Good fit if you like process, movement, inventory systems, and operations work.',
   },
-  'construction-readiness-certificate-osha-10': {
+  'core-construction-training-certificate': {
     bestFor: 'Construction industry entry. OSHA-10, blueprint reading, safety.',
     jobOutcomes: ['Construction Laborer', 'Apprentice', 'Site Coordinator'],
+    difficulty: 1,
+    rampNote: 'Shorter construction-readiness track focused on safety, tools, and jobsite basics.',
   },
   'software-developer-professional-certificate-ibm': {
     bestFor: 'Full-stack development. HTML, JavaScript, Python, React, Docker.',
     jobOutcomes: ['Software Developer', 'Full-Stack Developer', 'Web Developer'],
+    difficulty: 3,
+    rampNote: 'Longer build-focused path. Best if you have patience for step-by-step coding work over 4–6 months.',
   },
 };
 

@@ -1,9 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import type { WioaBarrier, WioaEligibilitySignal, WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
+import PortalCard from '@/components/portal/ui/PortalCard';
+import { PortalInput } from '@/components/portal/ui/PortalInput';
+import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+
+type ClientMode = 'member' | 'public';
 
 const BARRIERS: WioaBarrier[] = [
   'none',
@@ -18,32 +24,50 @@ const BARRIERS: WioaBarrier[] = [
 
 const SIGNAL_COPY: Record<WioaEligibilitySignal, { title: string; body: string }> = {
   likely: {
-    title: 'Next step: talk with staff',
+    title: 'Strong next step, talk with staff',
     body:
-      'Several of your answers match common WIOA pathways. This is not a final determination — a counselor or American Job Center can confirm eligibility and services.',
+      'Several of your answers line up with common WIOA pathways. This is still a pre-check, not a final eligibility decision.',
   },
   possible: {
-    title: 'You may qualify',
+    title: 'You may be a fit',
     body:
-      'Your answers suggest you could be a good fit for WIOA-funded services. Staff will review income, barriers, and documentation.',
+      'Your answers suggest WIOA-funded support could make sense. WorkforceAP staff can confirm eligibility, documentation, and timing.',
   },
   review: {
-    title: 'Plan a review',
+    title: 'Worth a staff review',
     body:
-      'Eligibility depends on details we did not collect here. Schedule time with WorkforceAP or visit a local American Job Center.',
+      'We need a little more detail before anyone can say yes or no. A WorkforceAP team member can walk through it with you.',
   },
   unclear: {
-    title: 'Youth or special cases',
+    title: 'Youth or special-case review',
     body:
-      'Youth programs and some populations follow different rules. Staff will help you understand options (including WIOA Youth).',
+      'Youth programs and some special populations follow different rules. Staff can help you understand the right track and next step.',
   },
 };
 
-export default function WioaQualificationClient({ initialSnapshot }: { initialSnapshot: WioaQualificationSnapshot | null }) {
+export default function WioaQualificationClient({
+  initialSnapshot,
+  mode = 'member',
+  submitEndpoint = mode === 'public' ? '/api/public/wioa-qualification' : '/api/member/wioa-qualification',
+  voiceSessionEndpoint =
+    mode === 'public'
+      ? '/api/public/wioa-qualification/voice-session'
+      : '/api/member/wioa-qualification/voice-session',
+}: {
+  initialSnapshot: WioaQualificationSnapshot | null;
+  mode?: ClientMode;
+  submitEndpoint?: string;
+  voiceSessionEndpoint?: string;
+}) {
+  const isPublic = mode === 'public';
   const [snapshot, setSnapshot] = useState<WioaQualificationSnapshot | null>(initialSnapshot);
+  const [entryMode, setEntryMode] = useState<'voice' | 'form'>('voice');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [ageBracket, setAgeBracket] = useState<'under18' | '18_24' | '25_54' | '55_plus'>('25_54');
   const [countyOrZip, setCountyOrZip] = useState('');
   const [primaryBarrier, setPrimaryBarrier] = useState<WioaBarrier>('none');
@@ -52,12 +76,31 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
   const [trainingInterest, setTrainingInterest] = useState(true);
   const [completedIntakeSelfReport, setCompletedIntakeSelfReport] = useState(false);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const voicePayload = useMemo(
+    () => ({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      countyOrZip: countyOrZip.trim(),
+      screeningSource: isPublic ? 'public_page' : 'member_portal',
+      wioaPronunciation: 'W. I. O. A.',
+    }),
+    [countyOrZip, email, fullName, isPublic, phone]
+  );
+
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+
+    if (isPublic && (!fullName.trim() || !email.trim())) {
+      setError('Please add your name and email so WorkforceAP can follow up.');
+      setSubmitting(false);
+      return;
+    }
+
     try {
-      const res = await fetch('/api/member/wioa-qualification', {
+      const res = await fetch(submitEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -68,6 +111,15 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
           lowIncomeSelfReport,
           trainingInterest,
           completedIntakeSelfReport,
+          ...(isPublic
+            ? {
+                contact: {
+                  fullName: fullName.trim(),
+                  email: email.trim(),
+                  phone: phone.trim(),
+                },
+              }
+            : {}),
         }),
       });
       const data = (await res.json()) as { snapshot?: WioaQualificationSnapshot; error?: string };
@@ -76,8 +128,9 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
         return;
       }
       if (data.snapshot) setSnapshot(data.snapshot);
+      setEntryMode('form');
     } catch {
-      setError('Network error — try again.');
+      setError('Network error, try again.');
     } finally {
       setSubmitting(false);
     }
@@ -85,146 +138,322 @@ export default function WioaQualificationClient({ initialSnapshot }: { initialSn
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '1.5rem 1rem 3rem' }}>
-      <nav aria-label="Breadcrumb" style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
-        <Link href="/dashboard/learning" style={{ color: 'var(--color-accent)' }}>
-          Learning Hub
-        </Link>
-        <span style={{ margin: '0 0.35rem' }}>/</span>
-        <span>WIOA screening</span>
-      </nav>
+      {!isPublic ? (
+        <nav className="portal-breadcrumb" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
+          <Link href="/dashboard/learning">Learning Hub</Link>
+          <span style={{ margin: '0 0.35rem' }}>/</span>
+          <span>WIOA screening</span>
+        </nav>
+      ) : null}
 
       <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>
         WIOA eligibility screening
       </h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.55 }}>
-        This short questionnaire helps you prepare for a conversation about Workforce Innovation and Opportunity Act (WIOA)
-        services. <strong>It is not a legal eligibility determination.</strong> Counselors and American Job Centers confirm
-        eligibility with documentation.
+        {isPublic
+          ? 'Use this quick pre-screen to see whether Workforce Innovation and Opportunity Act (WIOA) funding may be worth exploring. It is fast, public, and built to help WorkforceAP staff follow up with the right next step.'
+          : 'This short questionnaire helps you prepare for a conversation about Workforce Innovation and Opportunity Act (WIOA) services.'}{' '}
+        <strong>It is not a final eligibility determination.</strong> WorkforceAP staff and American Job Centers confirm eligibility with documentation.
       </p>
 
       {snapshot ? (
-        <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12, marginBottom: '1.5rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
-            Last saved
-          </p>
-          <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem' }}>
-            {new Date(snapshot.submittedAt).toLocaleString()}
-          </p>
+        <PortalCard
+          title={isPublic ? 'Your screening result' : 'Last saved'}
+          subtitle={new Date(snapshot.submittedAt).toLocaleString()}
+          className="wa-mb-6"
+        >
           <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>{SIGNAL_COPY[snapshot.signal].title}</p>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
             {SIGNAL_COPY[snapshot.signal].body}
           </p>
           <ul style={{ margin: '1rem 0 0', paddingLeft: '1.25rem', fontSize: '0.88rem', lineHeight: 1.5 }}>
-            {snapshot.reasons.map((r, idx) => (
-              <li key={idx}>{r}</li>
+            {snapshot.reasons.map((reason, idx) => (
+              <li key={idx}>{reason}</li>
             ))}
           </ul>
-        </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
+            {isPublic ? (
+              <>
+                <Link href="/apply" className="btn btn-primary">
+                  Start the application
+                </Link>
+                <Link href="/contact?topic=wioa" className="btn btn-secondary">
+                  Talk to WorkforceAP
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/dashboard/messages" className="btn btn-primary">
+                  Message your counselor
+                </Link>
+                <Link href="/dashboard/learning" className="btn btn-secondary">
+                  Back to learning hub
+                </Link>
+              </>
+            )}
+          </div>
+        </PortalCard>
       ) : null}
 
-      <form onSubmit={onSubmit} className="stitch-card" style={{ padding: '1.25rem', borderRadius: 12 }}>
-        <div className="form-group">
-          <label htmlFor="wioa-age">Age group</label>
-          <select
-            id="wioa-age"
-            value={ageBracket}
-            onChange={(e) => setAgeBracket(e.target.value as typeof ageBracket)}
+      <PortalCard
+        title="Choose how to complete it"
+        subtitle={
+          isPublic
+            ? 'Use voice for a quick walkthrough, or switch to the form to send your pre-screen to WorkforceAP.'
+            : 'Use voice for a guided pre-check, or switch to the form any time.'
+        }
+      >
+        <div
+          role="tablist"
+          aria-label="WIOA screening mode"
+          style={{
+            display: 'inline-flex',
+            padding: '0.25rem',
+            borderRadius: '999px',
+            background: 'var(--color-surface-2, rgba(0,0,0,0.04))',
+            gap: '0.25rem',
+            marginBottom: '1rem',
+          }}
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={entryMode === 'voice'}
+            onClick={() => setEntryMode('voice')}
+            className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-secondary'}
           >
-            <option value="under18">Under 18</option>
-            <option value="18_24">18–24</option>
-            <option value="25_54">25–54</option>
-            <option value="55_plus">55+</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="wioa-zip">County or ZIP (optional)</label>
-          <input
-            id="wioa-zip"
-            type="text"
-            maxLength={120}
-            value={countyOrZip}
-            onChange={(e) => setCountyOrZip(e.target.value)}
-            placeholder="e.g. Travis County or 78701"
-            autoComplete="postal-code"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="wioa-barrier">Primary barrier to work or training</label>
-          <select
-            id="wioa-barrier"
-            value={primaryBarrier}
-            onChange={(e) => setPrimaryBarrier(e.target.value as WioaBarrier)}
+            Voice pre-check
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={entryMode === 'form'}
+            onClick={() => setEntryMode('form')}
+            className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-secondary'}
           >
-            {BARRIERS.map((b) => (
-              <option key={b} value={b}>
-                {barrierLabel(b)}
-              </option>
-            ))}
-          </select>
+            Fill out the form instead
+          </button>
         </div>
 
-        <div className="form-group">
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
-            <span>I am unemployed or was laid off from my last job (dislocated worker)</span>
-          </label>
-        </div>
+        <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, fontSize: '0.93rem' }}>
+          {isPublic
+            ? 'The voice option is a quick guided conversation. The form is what sends a structured screening to WorkforceAP for follow-up.'
+            : 'The voice option is meant to feel like a quick guided intake. If you would rather type, switch to the form and we will save the same pre-screening details for staff review.'}
+        </p>
 
-        <div className="form-group">
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
-            <span>My household income is limited or near self-sufficiency (self-reported)</span>
-          </label>
-        </div>
+        {entryMode === 'voice' ? (
+          <>
+            {isPublic ? (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '0.75rem',
+                  marginBottom: '1rem',
+                }}
+              >
+                <PortalInput
+                  label="Your name (optional for voice)"
+                  id="wioa-public-name-voice"
+                  type="text"
+                  maxLength={120}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Jane Doe"
+                  autoComplete="name"
+                />
+                <PortalInput
+                  label="Email (optional for voice)"
+                  id="wioa-public-email-voice"
+                  type="email"
+                  maxLength={200}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="jane@example.com"
+                  autoComplete="email"
+                />
+              </div>
+            ) : null}
+            <VoiceAgentSurface
+              badge="Voice pre-check"
+              headline="WIOA pre-qualification guide"
+              subtext={
+                isPublic
+                  ? 'Talk through a quick walkthrough, then use the form to send the structured screening to our team.'
+                  : 'Talk through your goals, barriers, and likely eligibility before staff reviews the details.'
+              }
+              icon="🎙️"
+              glowColor="#0d9488"
+              gradient="linear-gradient(135deg, #99f6e4 0%, #14b8a6 45%, #0f766e 100%)"
+            >
+              <PortalVoiceSession
+                sessionEndpoint={voiceSessionEndpoint}
+                sessionPayload={voicePayload}
+                title="WIOA pre-check"
+                description="Talk through your work goals, barriers, and likely eligibility before the formal review."
+                accent="#0d9488"
+                accentDark="#0f766e"
+                speakingLabel="Guide is speaking…"
+                listeningLabel="Listening…"
+              />
+            </VoiceAgentSurface>
+          </>
+        ) : (
+          <form onSubmit={onSubmit}>
+            {isPublic ? (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '0.75rem',
+                  marginBottom: '0.25rem',
+                }}
+              >
+                <PortalInput
+                  label="Full name"
+                  id="wioa-public-name"
+                  type="text"
+                  maxLength={120}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Jane Doe"
+                  autoComplete="name"
+                  required
+                />
+                <PortalInput
+                  label="Email"
+                  id="wioa-public-email"
+                  type="email"
+                  maxLength={200}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="jane@example.com"
+                  autoComplete="email"
+                  required
+                />
+                <PortalInput
+                  label="Phone (optional)"
+                  id="wioa-public-phone"
+                  type="tel"
+                  maxLength={40}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="(555) 555-5555"
+                  autoComplete="tel"
+                />
+              </div>
+            ) : null}
 
-        <div className="form-group">
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
-            <span>I am interested in training for an in-demand occupation</span>
-          </label>
-        </div>
+            <div className="portal-field">
+              <label className="portal-field__label" htmlFor="wioa-age">
+                Age group
+              </label>
+              <select
+                id="wioa-age"
+                className="portal-input"
+                value={ageBracket}
+                onChange={(e) => setAgeBracket(e.target.value as typeof ageBracket)}
+              >
+                <option value="under18">Under 18</option>
+                <option value="18_24">18–24</option>
+                <option value="25_54">25–54</option>
+                <option value="55_plus">55+</option>
+              </select>
+            </div>
 
-        <div className="form-group">
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={completedIntakeSelfReport}
-              onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
+            <PortalInput
+              label="County or ZIP (optional)"
+              id="wioa-zip"
+              type="text"
+              maxLength={120}
+              value={countyOrZip}
+              onChange={(e) => setCountyOrZip(e.target.value)}
+              placeholder="e.g. Travis County or 78701"
+              autoComplete="postal-code"
             />
-            <span>I have completed WorkforceAP intake or orientation (self-reported)</span>
-          </label>
-        </div>
 
-        {error ? (
-          <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
-            {error}
-          </p>
-        ) : null}
+            <div className="portal-field">
+              <label className="portal-field__label" htmlFor="wioa-barrier">
+                Primary barrier to work or training
+              </label>
+              <select
+                id="wioa-barrier"
+                className="portal-input"
+                value={primaryBarrier}
+                onChange={(e) => setPrimaryBarrier(e.target.value as WioaBarrier)}
+              >
+                {BARRIERS.map((barrier) => (
+                  <option key={barrier} value={barrier}>
+                    {barrierLabel(barrier)}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? 'Saving…' : snapshot ? 'Update screening' : 'Save screening'}
-        </button>
-      </form>
+            <div className="portal-field">
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={dislocatedWorker} onChange={(e) => setDislocatedWorker(e.target.checked)} />
+                <span><strong>I am currently unemployed or was laid off</strong> — this is a standalone WIOA qualifier</span>
+              </label>
+            </div>
+
+            <div className="portal-field">
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
+                <span>My household income is limited or near self-sufficiency (additional documentation for WIA)</span>
+              </label>
+            </div>
+
+            <div className="portal-field">
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={trainingInterest} onChange={(e) => setTrainingInterest(e.target.checked)} />
+                <span>I want training that leads to an in-demand job</span>
+              </label>
+            </div>
+
+            <div className="portal-field">
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={completedIntakeSelfReport}
+                  onChange={(e) => setCompletedIntakeSelfReport(e.target.checked)}
+                />
+                <span>I have already completed WorkforceAP intake or orientation</span>
+              </label>
+            </div>
+
+            {error ? (
+              <p role="alert" style={{ color: '#b91c1c', fontSize: '0.9rem' }}>
+                {error}
+              </p>
+            ) : null}
+
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting
+                ? isPublic
+                  ? 'Sending…'
+                  : 'Saving…'
+                : isPublic
+                  ? 'Send screening'
+                  : snapshot
+                    ? 'Update screening'
+                    : 'Save screening'}
+            </button>
+          </form>
+        )}
+      </PortalCard>
 
       <section style={{ marginTop: '2rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Pre-test &amp; next steps</h2>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Next steps</h2>
         <ol style={{ paddingLeft: '1.25rem', lineHeight: 1.6, fontSize: '0.92rem', color: 'var(--color-on-surface-variant)' }}>
           <li>
-            <strong>Bring to your appointment:</strong> photo ID, proof of income if asked, and any layoff or unemployment
-            notices.
+            <strong>Bring to your appointment:</strong> photo ID, proof of income if asked, and any layoff or unemployment notices.
           </li>
           <li>
-            <strong>American Job Center:</strong> use{' '}
-            <a href="https://www.careeronestop.org/LocalHelp/service-locator.aspx" target="_blank" rel="noopener noreferrer">
-              CareerOneStop Service Locator
-            </a>{' '}
-            to find a one-stop near you.
+            <strong>WorkforceAP counselor:</strong> go see your Workforce advancement counselor to confirm eligibility and next steps.
           </li>
           <li>
-            <strong>What to say:</strong> “I’m interested in WIOA-funded training. I completed a self-screening in the
-            WorkforceAP portal and would like to confirm eligibility and next steps.”
+            <strong>What to say:</strong> “I&rsquo;m interested in WIOA-funded training and I&rsquo;d like to confirm eligibility and next steps.”
           </li>
         </ol>
       </section>

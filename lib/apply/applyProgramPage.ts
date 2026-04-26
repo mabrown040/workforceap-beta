@@ -37,7 +37,7 @@ export function buildApplyProgramSeo(program: Program): { title: string; descrip
   const cert = program.partner;
   const field = programFieldLabel(program);
   const title = `Apply for ${program.title} Training — WorkforceAP`;
-  const description = `Get free ${program.title} training with ${cert} from WorkforceAP. No-cost career certification in ${field}. Apply in 10 minutes.`;
+  const description = `Get ${program.title} training at no cost to members with ${cert} from WorkforceAP. Career certification in ${field}. Apply in 10 minutes.`;
   return { title, description };
 }
 
@@ -49,7 +49,7 @@ export function buildApplyPageMetadata(programParam: string | undefined): Metada
     return buildPageMetadata({
       title: 'Apply for Career Training',
       description:
-        'Apply for no-cost career certification training. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We respond within 24–48 hours.',
+        'Apply for career certification training at no cost to members. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We follow up with next steps in 1 to 2 business days.',
       path: '/apply',
     });
   }

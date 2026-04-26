@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import CoverLetterForm from '@/components/portal/tools/CoverLetterForm';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Cover Letter Builder',
@@ -26,58 +28,29 @@ export default async function CoverLetterPage() {
             background: 'var(--surface-container-low)',
           }}
         >
-          <Link
-            href="/dashboard/ai-tools"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              fontSize: '0.85rem',
-              color: 'var(--color-accent)',
-              textDecoration: 'none',
-              marginBottom: '0.75rem',
-              fontWeight: 500,
-            }}
-          >
-            ← AI Tools
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>description</span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                Cover Letter Builder
-              </h1>
-              <p style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>
-                Tailored cover letters that connect your experience to the job.
-              </p>
-            </div>
-          </div>
+          <PageHeader
+            title="Cover Letter Builder"
+            subtitle="Tailored cover letters that connect your experience to the job."
+            breadcrumbs={[
+              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Cover Letter' },
+            ]}
+          />
         </div>
 
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Create a compelling, tailored cover letter in minutes. Our AI connects your experience
-              directly to the job requirements, highlighting why you&apos;re the right fit.
+              directly to the job requirements, highlighting why you&rsquo;re the right fit.
             </p>
           </div>
 
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <CoverLetterForm />
           </div>
+
+          <ToolHistoryPanel userId={user.id} toolType="cover_letter" />
         </div>
 
         <MobileBottomNav variant="portal" />

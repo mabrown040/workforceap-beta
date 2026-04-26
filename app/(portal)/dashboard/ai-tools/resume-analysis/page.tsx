@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ResumeStrengthForm from '@/components/portal/tools/ResumeStrengthForm';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Analysis',
@@ -26,71 +28,19 @@ export default async function ResumeAnalysisPage() {
             background: 'var(--surface-container-low)',
           }}
         >
-          <Link
-            href="/dashboard/ai-tools"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.85rem',
-              color: 'var(--color-accent)',
-              textDecoration: 'none',
-              marginBottom: '0.75rem',
-              fontWeight: 500,
-            }}
-          >
-            ← AI Tools
-          </Link>
-          <nav
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.8rem',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <Link href="/dashboard/ai-tools" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>
-              AI Tools
-            </Link>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>
-              chevron_right
-            </span>
-            <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Resume Analysis</span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>
-                analytics
-              </span>
-            </div>
-            <div>
-              <h1 className="text-display-sm" style={{ margin: '0 0 0.35rem', fontSize: '1.25rem' }}>
-                Resume Analysis
-              </h1>
-              <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.85rem', maxWidth: '560px' }}>
-                Get an ATS-aware review of your resume: score, strengths, priority fixes, and quick wins. Your uploaded resume
-                pre-fills when available.
-              </p>
-            </div>
-          </div>
+          <PageHeader
+            title="Resume Analysis"
+            subtitle="Get an ATS-aware review of your resume: score, strengths, priority fixes, and quick wins. Your uploaded resume pre-fills when available."
+            breadcrumbs={[
+              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Resume Analysis' },
+            ]}
+          />
         </div>
 
         <div style={{ padding: '1rem 1rem 2rem', maxWidth: 960, margin: '0 auto' }}>
           <div
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
@@ -100,6 +50,8 @@ export default async function ResumeAnalysisPage() {
           </div>
 
           <ResumeStrengthForm />
+
+          <ToolHistoryPanel userId={user.id} toolType="resume_analysis" />
         </div>
 
         <MobileBottomNav variant="portal" />

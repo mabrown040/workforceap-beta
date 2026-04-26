@@ -25,7 +25,7 @@ const REASON_BY_ANSWER: Record<string, Partial<Record<string, string>>> = {
   },
   q3: {
     as_fast: "You need to get working soon - this program's timeline fits that goal.",
-    '3_5_months': "You can invest 3-5 months - that's ideal for most of our tracks.",
+    '3_5_months': "You can invest 3-5 months - that's a strong fit for most of our Coursera-based tracks.",
     planning_ahead: "You're planning ahead - you have time for programs that take a bit longer.",
     employed_switch: "You're switching careers while employed - this program's pace suits that.",
   },
@@ -39,7 +39,7 @@ const REASON_BY_ANSWER: Record<string, Partial<Record<string, string>>> = {
   q5: {
     comfortable: "You're comfortable with tech - you can focus on the credential.",
     basic_apps: 'You use phones and basics - we have programs that start where you are.',
-    tech_savvy: "You're tech-savvy - this credential will unlock next-level roles.",
+    tech_savvy: "You're tech-savvy — this credential will open next-level roles.",
     basics: 'You need to start from the basics - this program is designed for that.',
   },
 };

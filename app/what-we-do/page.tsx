@@ -7,7 +7,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
   description:
-    'How WorkforceAP works: employer-aligned training, no-cost to participants, job placement support. Operating model that scales beyond one market.',
+    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, no cost to members, job placement support, and grant- and partner-funded access.',
   path: '/what-we-do',
 });
 
@@ -21,13 +21,13 @@ const BENTO_ITEMS = [
   {
     icon: 'lock_open',
     title: 'Zero-Barrier Access',
-    desc: 'No tuition for members. No prerequisites. Funding comes from grants and partnerships — participants are not charged for access.',
+    desc: 'No cost for members. No prerequisites. Funding comes from grants and partnerships — members are never charged for access.',
     span: 'large',
   },
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed. Empower you today for the future workforce.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
     span: 'small',
   },
   {
@@ -52,14 +52,13 @@ const VALUES = [
   {
     num: '03',
     title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we leverage collective strength so participants don\'t carry the load alone.',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we bring the right people together so members don\'t have to figure it out alone.',
   },
 ];
 
 export default function WhatWeDoPage() {
   return (
     <div className="inner-page">
-      <div className="marketing-desktop">
       {/* ── Hero ── */}
       <section
         className="wwd-photo-hero"
@@ -76,8 +75,7 @@ export default function WhatWeDoPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&q=80)',
+            backgroundImage: 'url(/images/austin-skyline.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -128,7 +126,7 @@ export default function WhatWeDoPage() {
             >
               history_edu
             </span>
-            Creating Opportunity for All Since 1999
+            Built on Decades of Workforce Experience
           </span>
 
           <h1
@@ -159,7 +157,7 @@ export default function WhatWeDoPage() {
               textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
-            Employer-aligned training. No cost to participants. Job placement built in.
+            Employer-aligned training. No cost to members. Job placement built in.
             A model that works — and scales.
           </p>
 
@@ -215,18 +213,24 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* Find Your Career CTA */}
+      {/* Find Your Path CTA */}
       <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
         <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Find Your Career
-        </a>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.75rem' }}>
+          <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+            Find Your Path
+          </a>
+          <Link href="/wioa-qualification" className="btn btn-secondary btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+            Check WIOA Funding
+          </Link>
+        </div>
       </section>
 
       {/* ── Legacy Section ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="wwd-legacy-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -245,7 +249,7 @@ export default function WhatWeDoPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
+                  src="/images/hero-people.jpg"
                   alt="Diverse team collaborating on workforce development"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
                 />
@@ -264,7 +268,7 @@ export default function WhatWeDoPage() {
               >
                 <div style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1 }}>25+</div>
                 <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.9 }}>
-                  Years
+                  Years Experience
                 </div>
               </div>
             </div>
@@ -296,9 +300,9 @@ export default function WhatWeDoPage() {
                   lineHeight: 1.7,
                 }}
               >
-                Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
-                state and local initiatives. We know what works. Employers fund talent pipelines.
-                Grants fund access. We don&rsquo;t charge participants.
+                Built on 25+ years of workforce development leadership across Goodwill, Austin Area Urban League,
+                and state and local initiatives. We know what works. Employers help shape talent pipelines.
+                Grants and partnerships fund access. We don&rsquo;t charge members.
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
@@ -322,11 +326,11 @@ export default function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-gold)',
                   }}
                 >
-                  <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>
-                    $700M+
+                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-gold)', lineHeight: 1.3 }}>
+                    Nonprofit &amp; 501(c)(3)
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Cumulative economic impact across programs and placements
+                    WorkforceAP is a national nonprofit and 501(c)(3) organization serving communities nationwide.
                   </div>
                 </div>
                 <div
@@ -337,11 +341,11 @@ export default function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-accent)',
                   }}
                 >
-                  <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
+                  <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
                     2,000+
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Lives impacted through workforce programs over 25 years
+                    Trained through workforce development programs (historical).
                   </div>
                 </div>
               </div>
@@ -385,7 +389,7 @@ export default function WhatWeDoPage() {
               return (
                 <div
                   key={item.title}
-                  className="stitch-card"
+                  className="portal-card portal-card--flat"
                   style={{
                     ...spanStyles[item.span],
                     padding: '2.5rem',
@@ -407,9 +411,9 @@ export default function WhatWeDoPage() {
                     style={{
                       fontSize: '2.5rem',
                       color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                      fontVariationSettings: "'FILL' 1",
+                      '--ms-fill': 1,
                     }}
-                  >
+                   aria-hidden="true">
                     {item.icon}
                   </span>
                   <h3
@@ -564,7 +568,7 @@ export default function WhatWeDoPage() {
                 position: 'relative',
               }}
             >
-              Join individuals who are transforming their careers through employer-aligned training and certifications.
+              Join individuals who are launching new careers through employer-aligned training and certifications.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -582,7 +586,7 @@ export default function WhatWeDoPage() {
                 }}
               >
                 Apply Now
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/programs"
@@ -621,327 +625,10 @@ export default function WhatWeDoPage() {
           </div>
         </div>
       </section>
-      </div>{/* end desktop */}
-
-      <div className="marketing-mobile marketing-mobile-pb-for-bottom-nav">
-      {/* ── Mobile rebuild aligned to desktop + Stitch ── */}
-      <section
-        style={{
-          padding: '1rem 1rem 1.5rem',
-          background: 'linear-gradient(180deg, #141618 0%, #1c1b1b 58%, var(--color-surface) 58%)',
-        }}
-      >
-        <div
-          style={{
-            position: 'relative',
-            overflow: 'hidden',
-            borderRadius: '1.5rem',
-            minHeight: '30rem',
-            backgroundImage: 'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&q=80)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.28)',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(180deg, rgba(10,12,14,0.16) 0%, rgba(10,12,14,0.56) 34%, rgba(10,12,14,0.92) 100%)',
-            }}
-          />
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              minHeight: '30rem',
-              padding: '1.5rem',
-            }}
-          >
-            <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.24em', marginBottom: '0.75rem', color: 'rgba(255,255,255,0.72)' }}>
-              What We Do
-            </span>
-            <h1 style={{ fontSize: '2.15rem', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.02, marginBottom: '0.75rem', color: '#fff' }}>
-              Creating Opportunity
-            </h1>
-            <p style={{ fontSize: '0.98rem', lineHeight: '1.75rem', marginBottom: '1.25rem', color: 'rgba(255,255,255,0.9)' }}>
-              Employer-aligned training. No cost to participants. Job placement built in.
-              A model that works — and scales.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
-              {[
-                { val: '2,000+', label: 'People Served', accent: '#ad2c4d' },
-                { val: '$0', label: 'Cost to Members', accent: '#f0b429' },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  style={{
-                    borderRadius: '1rem', padding: '1rem',
-                    background: 'rgba(255,255,255,0.14)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.16)',
-                  }}
-                >
-                  <div style={{ fontSize: '1.9rem', fontWeight: 900, lineHeight: 1, color: s.accent }}>{s.val}</div>
-                  <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.16em', marginTop: '0.5rem', color: 'rgba(255,255,255,0.76)' }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <Link
-                href="/programs"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  width: '100%',
-                  padding: '0.95rem 1rem',
-                  borderRadius: '0.9rem',
-                  background: 'var(--color-accent)',
-                  color: '#fff',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                }}
-              >
-                Explore Our Impact
-                <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', color: 'inherit' }} aria-hidden>
-                  arrow_forward
-                </span>
-              </Link>
-              <Link
-                href="/contact?topic=partnership"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  width: '100%',
-                  padding: '0.95rem 1rem',
-                  borderRadius: '0.9rem',
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', color: 'inherit' }} aria-hidden>
-                  handshake
-                </span>
-                Partner With Us
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section style={{ padding: '0 1rem 2rem', background: 'var(--color-surface)' }}>
-        <div style={{ borderRadius: '1.4rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
-            <div>
-              <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>25+ Years</span>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.08, color: 'var(--color-on-surface)' }}>
-                Investing in the Future Workforce
-              </h2>
-            </div>
-          </div>
-          <blockquote
-            style={{
-              fontSize: '0.98rem', lineHeight: '1.75rem',
-              color: 'var(--color-on-surface-variant)',
-              borderLeft: '3px solid var(--color-accent)',
-              paddingLeft: '1rem',
-              margin: 0,
-            }}
-          >
-            Built on 25+ years of workforce development — Goodwill, Austin Area Urban League,
-            state and local initiatives. We know what works. Employers fund talent pipelines.
-            Grants fund access. We don’t charge participants.
-          </blockquote>
-        </div>
-      </section>
-
-      <section style={{ padding: '0 1rem 2rem', background: 'var(--color-surface)' }}>
-        <div style={{ marginBottom: '1.25rem' }}>
-          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Making an impact</span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>How the model works</h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {BENTO_ITEMS.map((item, index) => (
-            <div
-              key={item.title}
-              style={{
-                borderRadius: '1.4rem', padding: '1.25rem',
-                background: index === 1 ? 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)' : 'var(--surface-container-low)',
-                border: index === 1 ? 'none' : '1px solid var(--outline-variant)',
-                boxShadow: index === 1 ? '0 18px 40px rgba(140,15,55,0.22)' : '0 6px 20px rgba(28,27,27,0.06)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                <div
-                  style={{
-                    borderRadius: '1rem', padding: '0.75rem', flexShrink: 0,
-                    background: index === 1 ? 'rgba(255,255,255,0.14)' : 'rgba(140,15,55,0.08)',
-                    color: index === 1 ? '#fff' : 'var(--color-accent)',
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'inherit' }}>{item.icon}</span>
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: 800, marginBottom: '0.5rem', color: index === 1 ? '#fff' : 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{item.title}</h3>
-                  <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: index === 1 ? 'rgba(255,255,255,0.88)' : 'var(--color-on-surface-variant)' }}>{item.desc}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ padding: '2rem 1rem', background: 'var(--surface-container-low)' }}>
-        <div style={{ marginBottom: '1.25rem' }}>
-          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>What We Stand For</span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>Our core values</h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {VALUES.map((value) => (
-            <div key={value.title} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--color-surface)', border: '1px solid var(--outline-variant)' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                <div
-                  style={{ display: 'flex', height: '2.75rem', width: '2.75rem', flexShrink: 0, alignItems: 'center', justifyContent: 'center', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: 900, background: 'rgba(140,15,55,0.1)', color: 'var(--color-accent)' }}
-                >
-                  {value.num}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)', overflowWrap: 'anywhere' }}>{value.title}</h3>
-                  <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: 'var(--color-on-surface-variant)' }}>{value.desc}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
-        <div style={{ marginBottom: '1.25rem' }}>
-          <span style={{ display: 'block', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>The Journey</span>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.025em', color: 'var(--color-on-surface)' }}>From application to placement</h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {[
-            { step: '01', title: 'Application', desc: '10-minute online form to start your journey and share your potential.' },
-            { step: '02', title: 'Training', desc: 'Industry-aligned curriculum from global leaders in tech and business.' },
-            { step: '03', title: 'Certification', desc: 'Earn credentials recognized by top employers as a mark of excellence.' },
-            { step: '04', title: 'Placement', desc: 'Direct pipeline to hiring partners with 150-day post-placement support.' },
-          ].map((s) => (
-            <div key={s.step} style={{ borderRadius: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-              <span style={{ display: 'block', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Step {s.step}</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{s.title}</h3>
-              <p style={{ fontSize: '0.875rem', lineHeight: '1.75rem', color: 'var(--color-on-surface-variant)' }}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section style={{ padding: '2rem 1rem', background: 'var(--color-surface)' }}>
-        <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', textAlign: 'center', marginBottom: '1.25rem', color: 'var(--color-on-surface-variant)' }}>Supported By Industry Giants</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.625rem' }}>
-          {['Google', 'IBM', 'AWS', 'Microsoft', 'CompTIA', 'Coursera'].map((p) => (
-            <span
-              key={p}
-              style={{ display: 'inline-block', padding: '0.625rem 1rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', border: '1px solid var(--outline-variant)' }}
-            >
-              {p}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      <section
-        style={{ padding: '0.5rem 1rem 2rem', background: 'var(--color-surface)' }}
-      >
-        <div
-          style={{
-            padding: '2rem 1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
-            borderRadius: '1.5rem',
-            boxShadow: '0 20px 40px rgba(140,15,55,0.2)',
-          }}
-        >
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '0.75rem', color: '#fff' }}>
-            Ready to build the future?
-          </h2>
-          <p style={{ fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.5rem', color: 'rgba(255,255,255,0.86)' }}>
-            Join individuals who are transforming their careers through employer-aligned training and certifications.
-          </p>
-          <div style={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '0.75rem' }}>
-            <Link
-              href="/apply"
-              style={{
-                display: 'block',
-                width: '100%',
-                fontWeight: 800,
-                padding: '1rem',
-                borderRadius: '0.9rem',
-                fontSize: '0.95rem',
-                background: 'var(--color-gold)',
-                color: '#1c1b1b',
-                textDecoration: 'none',
-                textAlign: 'center',
-              }}
-            >
-              Apply Now
-            </Link>
-            <Link
-              href="/programs"
-              style={{
-                display: 'block',
-                width: '100%',
-                fontWeight: 700,
-                padding: '1rem',
-                borderRadius: '0.9rem',
-                fontSize: '0.95rem',
-                border: '1px solid rgba(255,255,255,0.24)',
-                color: '#fff',
-                textDecoration: 'none',
-                textAlign: 'center',
-              }}
-            >
-              Explore Programs
-            </Link>
-            <Link
-              href="/leadership"
-              style={{
-                display: 'block',
-                width: '100%',
-                fontWeight: 700,
-                padding: '1rem',
-                borderRadius: '0.9rem',
-                fontSize: '0.95rem',
-                border: '1px solid rgba(255,255,255,0.24)',
-                color: '#fff',
-                textDecoration: 'none',
-                textAlign: 'center',
-              }}
-            >
-              Meet Our Team
-            </Link>
-          </div>
-        </div>
-      </section>
-      </div>{/* end mobile */}
 
       <style>{`
         @media (max-width: 1023px) {
+          .wwd-legacy-grid { gap: 2rem !important; }
           .wwd-legacy-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .wwd-legacy-text { grid-column: span 12 !important; }
           .wwd-values-grid { grid-template-columns: 1fr !important; }
@@ -954,6 +641,8 @@ export default function WhatWeDoPage() {
 
       <MobileBottomNav />
       <Footer />
+      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );
 }

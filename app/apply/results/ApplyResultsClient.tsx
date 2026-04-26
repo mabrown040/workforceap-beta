@@ -221,7 +221,12 @@ export default function ApplyResultsClient() {
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>Looks like a strong funding fit.</strong> Rank the programs you want most, then create your account so a counselor can confirm next steps within 3–5 business days.
+                <strong>Looks like a strong funding fit.</strong> Rank the programs you want most, then create your account so a counselor can confirm next steps within 1–2 business days.
+              </p>
+            </div>
+            <div className="apply-undecided-reassurance" style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>
+              <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>
+                <strong style={{ color: 'var(--color-on-surface)' }}>Not sure which program?</strong> That is normal. Pick the one that feels closest to your goals — a counselor will help confirm the fit when we follow up. You are not locked in.
               </p>
             </div>
             <h2 className="apply-step-title">Which programs interest you most?</h2>
@@ -231,13 +236,13 @@ export default function ApplyResultsClient() {
           <>
             <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px' }}>
               <p style={{ margin: 0 }}>
-                <strong>Your answers don&apos;t match our standard funding profile right now.</strong> That is not a final decision. We still review every application,
+                <strong>Your answers don&rsquo;t match our standard funding profile right now.</strong> That is not a final decision. We still review every application,
                 suggest realistic next steps, and often start people with foundational options while we sort out timing and support.
               </p>
             </div>
             <section className="apply-foundational-support" aria-labelledby="apply-foundational-heading">
               <h2 id="apply-foundational-heading" className="apply-foundational-support__title">
-                Start with support, not a dead end
+                Start with support
               </h2>
               <ul className="apply-foundational-support__list">
                 <li>

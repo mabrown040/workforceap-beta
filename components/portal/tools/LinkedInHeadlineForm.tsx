@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 
 export default function LinkedInHeadlineForm() {
   const [role, setRole] = useState('');
@@ -13,6 +14,10 @@ export default function LinkedInHeadlineForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+
+  useDraftAutosave('ai-tool:linkedin-headline:role', role, setRole);
+  useDraftAutosave('ai-tool:linkedin-headline:keySkills', keySkills, setKeySkills);
+  useDraftAutosave('ai-tool:linkedin-headline:yearsExperience', yearsExperience, setYearsExperience);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,8 +115,21 @@ export default function LinkedInHeadlineForm() {
                   type="button"
                   className="btn btn-outline btn-sm"
                   onClick={() => void handleCopy(h, i)}
+                  aria-label={copiedIdx === i ? "Copied" : "Copy headline"}
                 >
-                  {copiedIdx === i ? 'Copied!' : 'Copy'}
+                  <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    {copiedIdx === i ? (
+                      <>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">content_copy</span>
+                        Copy
+                      </>
+                    )}
+                  </span>
                 </button>
               </li>
             ))}

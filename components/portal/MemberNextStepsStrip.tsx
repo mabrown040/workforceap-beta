@@ -1,5 +1,10 @@
+'use client';
+
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function MemberNextStepsStrip({
   actions,
@@ -11,7 +16,21 @@ export default function MemberNextStepsStrip({
   /** When one card: stretch to full width so the grid does not look half-empty */
   fillRow?: boolean;
 }) {
-  if (actions.length === 0) return null;
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const dismiss = useCallback((id: string) => {
+    setDismissed((prev) => new Set([...prev, id]));
+    if (UUID_RE.test(id)) {
+      fetch(`/api/member/nba/${id}`, { method: 'PATCH' }).catch(() => {});
+    }
+  }, []);
+
+  const visible = actions.filter((a) => !dismissed.has(a.id));
+  if (visible.length === 0) return null;
+
+  // Product stake: when there is one clear next step, emphasize it so the dashboard feels
+  // guided and calm instead of making members hunt through a menu.
+  const isFeatured = fillRow && visible.length === 1 && !compact;
 
   return (
     <section
@@ -32,7 +51,7 @@ export default function MemberNextStepsStrip({
       >
         <h3
           style={{
-            fontSize: compact ? '0.7rem' : '0.75rem',
+            fontSize: compact ? '0.75rem' : '0.8rem',
             fontWeight: 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
@@ -40,10 +59,10 @@ export default function MemberNextStepsStrip({
             margin: 0,
           }}
         >
-          Your next steps
+          {isFeatured ? 'Recommended next step' : 'Your next steps'}
         </h3>
-        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
-          Picked for you based on your progress
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+          {isFeatured ? 'Start here based on your progress' : 'Picked for you based on your progress'}
         </span>
       </div>
 
@@ -51,46 +70,91 @@ export default function MemberNextStepsStrip({
         style={{
           display: 'grid',
           gridTemplateColumns:
-            fillRow && actions.length === 1
+            fillRow && visible.length === 1
               ? '1fr'
               : compact
-                ? 'repeat(auto-fill, minmax(240px, 1fr))'
-                : 'repeat(auto-fill, minmax(260px, 1fr))',
+                ? 'repeat(auto-fill, minmax(200px, 1fr))'
+                : 'repeat(auto-fit, minmax(210px, 1fr))',
           gap: compact ? '0.65rem' : '1rem',
         }}
       >
-        {actions.map((a) => (
+        {visible.map((a) => (
           <div
             key={a.id}
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{
-              padding: compact ? '0.85rem' : '1rem',
+              padding: compact ? '0.85rem' : isFeatured ? '1.25rem' : '1rem',
               borderLeft:
-                a.variant === 'urgent' ? '4px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+                a.variant === 'urgent' || isFeatured ? '4px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+              background: isFeatured ? 'color-mix(in srgb, var(--color-accent) 7%, var(--surface-container-low))' : undefined,
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.5rem',
+              gap: isFeatured ? '0.65rem' : '0.5rem',
               minHeight: compact ? 'auto' : undefined,
+              position: 'relative',
+              boxShadow: isFeatured ? '0 10px 30px -18px rgba(140,15,55,0.35)' : undefined,
             }}
           >
+            {!isFeatured && (
+              <button
+                type="button"
+                aria-label={`Dismiss "${a.title}"`}
+                onClick={() => dismiss(a.id)}
+                style={{
+                  position: 'absolute',
+                  top: compact ? '0.5rem' : '0.65rem',
+                  right: compact ? '0.5rem' : '0.65rem',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '1rem',
+                  lineHeight: 1,
+                  padding: '0.15rem',
+                  borderRadius: '4px',
+                  opacity: 0.6,
+                }}
+              >
+                ✕
+              </button>
+            )}
+            {isFeatured && (
+              <span
+                style={{
+                  alignSelf: 'flex-start',
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '9999px',
+                  background: 'var(--color-accent)',
+                  color: '#fff',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Start here
+              </span>
+            )}
             <h4
               style={{
                 fontWeight: 700,
-                fontSize: compact ? '0.9rem' : '0.95rem',
+                fontSize: compact ? '0.9rem' : isFeatured ? '1.1rem' : '0.95rem',
                 margin: 0,
                 color: 'var(--color-on-surface)',
                 lineHeight: 1.3,
+                paddingRight: isFeatured ? '0' : '1.5rem',
               }}
             >
               {a.title}
             </h4>
             <p
               style={{
-                fontSize: compact ? '0.78rem' : '0.82rem',
+                fontSize: compact ? '0.8125rem' : isFeatured ? '0.95rem' : '0.875rem',
                 color: 'var(--color-on-surface-variant)',
                 lineHeight: 1.5,
                 margin: 0,
                 flex: 1,
+                maxWidth: isFeatured ? '42rem' : undefined,
               }}
             >
               {a.body}
@@ -100,8 +164,8 @@ export default function MemberNextStepsStrip({
               className="btn btn-primary"
               style={{
                 alignSelf: 'flex-start',
-                fontSize: compact ? '0.75rem' : '0.8rem',
-                padding: compact ? '0.4rem 0.85rem' : '0.45rem 1rem',
+                fontSize: compact ? '0.8rem' : isFeatured ? '0.9rem' : '0.85rem',
+                padding: compact ? '0.5rem 0.85rem' : isFeatured ? '0.65rem 1.1rem' : '0.55rem 1rem',
                 textDecoration: 'none',
                 marginTop: '0.25rem',
               }}

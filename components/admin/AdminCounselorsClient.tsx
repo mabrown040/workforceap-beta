@@ -12,14 +12,13 @@ type Row = {
   partnerId: string | null;
   partnerName: string | null;
 };
-
 type PartnerOpt = { id: string; name: string };
 
 export default function AdminCounselorsClient({ partners }: { partners: PartnerOpt[] }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState('');
-  const [partnerId, setPartnerId] = useState<string>('');
+  const [partnerId, setPartnerId] = useState('');
   const [title, setTitle] = useState('');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
@@ -28,133 +27,117 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
     setLoading(true);
     try {
       const r = await fetch('/api/admin/counselors', { credentials: 'include' });
-      const d = (await r.json()) as { counselors?: Row[] };
+      const d = await r.json();
       if (r.ok && d.counselors) setRows(d.counselors);
       else setRows([]);
-    } catch {
-      setRows([]);
-    } finally {
-      setLoading(false);
-    }
+    } catch { setRows([]); }
+    finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    if (!userId.trim()) {
-      setMsg({ type: 'err', text: 'Enter the user ID (UUID) of the WorkforceAP account to promote.' });
-      return;
-    }
-    setSaving(true);
-    setMsg(null);
+    if (!userId.trim()) { setMsg({ type: 'err', text: 'Enter the user ID of the account to promote.' }); return; }
+    setSaving(true); setMsg(null);
     try {
       const r = await fetch('/api/admin/counselors', {
-        method: 'POST',
-        credentials: 'include',
+        method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: userId.trim(),
-          partnerId: partnerId || null,
-          title: title.trim() || null,
-        }),
+        body: JSON.stringify({ userId: userId.trim(), partnerId: partnerId || null, title: title.trim() || null }),
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        setMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Save failed' });
-        return;
-      }
-      setMsg({ type: 'ok', text: 'Counselor added. They can sign in and open the Counselor portal.' });
-      setUserId('');
-      setTitle('');
+      if (!r.ok) { setMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Save failed' }); return; }
+      setMsg({ type: 'ok', text: 'Counselor added. They can now sign in via the Counselor portal.' });
+      setUserId(''); setTitle('');
       void load();
-    } catch {
-      setMsg({ type: 'err', text: 'Network error' });
-    } finally {
-      setSaving(false);
-    }
+    } catch { setMsg({ type: 'err', text: 'Network error' }); }
+    finally { setSaving(false); }
   }
 
   return (
     <div>
-      <section style={{ marginBottom: '2rem', padding: '1.25rem', border: '1px solid var(--color-border)', borderRadius: '8px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Add counselor</h2>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '42rem' }}>
-          Link an existing WorkforceAP user account. Choose <strong>WorkforceAP (org)</strong> for internal staff, or select a partner
-          for partner-affiliated counselors.
+      {/* Add counselor form */}
+      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.5rem', maxWidth: '560px' }}>
+        <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.875rem' }}>
+          Add Counselor
+        </h2>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.55 }}>
+          Link an existing WorkforceAP user. Choose <strong>WorkforceAP</strong> for internal staff or select a partner for affiliated counselors.
         </p>
-        {msg ? (
-          <p style={{ fontSize: '0.9rem', color: msg.type === 'ok' ? '#166534' : '#b91c1c', marginBottom: '0.75rem' }} role="status">
+        {msg && (
+          <div style={{ padding: '0.625rem 0.875rem', borderRadius: '0.625rem', background: msg.type === 'ok' ? 'rgba(74,155,79,0.1)' : 'rgba(173,44,77,0.1)', color: msg.type === 'ok' ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
             {msg.text}
-          </p>
-        ) : null}
-        <form onSubmit={handleAdd} style={{ display: 'grid', gap: '0.75rem', maxWidth: '32rem' }}>
-          <label className="admin-form-hint" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            User ID (UUID)
-            <input
-              className="admin-form-input"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="Paste user id from admin member detail URL"
-              autoComplete="off"
-            />
-          </label>
-          <label className="admin-form-hint" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            Affiliation
-            <select className="admin-form-input" value={partnerId} onChange={(e) => setPartnerId(e.target.value)}>
-              <option value="">WorkforceAP (organization counselor)</option>
-              {partners.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="admin-form-hint" style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            Title (optional)
-            <input className="admin-form-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Career coach" />
-          </label>
-          <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-            {saving ? 'Saving…' : 'Add counselor'}
-          </button>
-        </form>
-      </section>
-
-      <section>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>All counselors</h2>
-        {loading ? (
-          <p className="admin-muted-text">Loading…</p>
-        ) : rows.length === 0 ? (
-          <p className="admin-muted-text">No counselors yet.</p>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Affiliation</th>
-                  <th>Title</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.fullName}</td>
-                    <td>{r.email}</td>
-                    <td>{r.partnerName ?? 'WorkforceAP'}</td>
-                    <td>{r.title ?? '—'}</td>
-                    <td>{r.active ? 'Active' : 'Inactive'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         )}
-      </section>
+        <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {[
+            { label: 'User ID (UUID)', value: userId, set: setUserId, placeholder: 'Paste from admin member detail URL', type: 'text' },
+            { label: 'Title (optional)', value: title, set: setTitle, placeholder: 'e.g. Career Coach', type: 'text' },
+          ].map(({ label, value, set, placeholder, type }) => (
+            <div key={label}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>{label}</label>
+              <input type={type} value={value} onChange={(e) => set(e.target.value)} placeholder={placeholder}
+                style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', boxSizing: 'border-box' as const }} />
+            </div>
+          ))}
+          <div>
+            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Affiliation</label>
+            <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)}
+              style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
+              <option value="">WorkforceAP (internal)</option>
+              {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <button type="submit" className="btn btn-primary btn-sm" disabled={saving} style={{ alignSelf: 'flex-start' }}>
+            {saving ? 'Adding…' : 'Add Counselor'}
+          </button>
+        </form>
+      </div>
+
+      {/* Counselors list */}
+      <div>
+        <div className="portal-dash-section-header" style={{ marginBottom: '0.875rem' }}>
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>
+            All Counselors
+          </h2>
+          <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+            {loading ? '…' : `${rows.length} total`}
+          </span>
+        </div>
+
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {[1, 2, 3].map(i => <div key={i} className="portal-skeleton" style={{ height: '4rem', borderRadius: '0.875rem' }} />)}
+          </div>
+        ) : rows.length === 0 ? (
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>No counselors yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {rows.map((r) => {
+              const initials = r.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+              return (
+                <div key={r.id} className="portal-activity-item" style={{ justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
+                    <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
+                      {initials}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>{r.fullName}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {r.email} · {r.partnerName ?? 'WorkforceAP'}{r.title ? ` · ${r.title}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: r.active ? 'rgba(74,155,79,0.12)' : 'var(--surface-container-high)', color: r.active ? 'var(--color-green, #4a9b4f)' : 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>
+                    {r.active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

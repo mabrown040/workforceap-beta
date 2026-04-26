@@ -5,6 +5,7 @@ import { scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
 import { getFitReasoning } from '@/lib/content/quizReasoning';
 import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations';
 import { translateOccupationDescription, translateSkillName, translateTaskLine } from '@/lib/onet/copy';
+import { getOccupation } from '@/lib/onet/client';
 import type { CareerMatchResult, ExperienceBandUi } from '@/lib/onet/types';
 import { ANCHOR_DIGITAL_LITERACY_SLUG, ANCHOR_IT_SUPPORT_SLUG } from '@/lib/onet/programAnchors';
 import { mergeRiasecIntoWeights, type InterestProfilerRiasec } from '@/lib/content/quizIpMerge';
@@ -181,6 +182,16 @@ export async function buildCareerMatchResult(
     });
     if (!occ) continue;
 
+    // Self-healing: if the stored title is just the O*NET code, fetch the real
+    // title from O*NET so users do not see raw codes like "15-1252.00".
+    let occupationTitle = occ.title;
+    if (!occupationTitle || /^\d{2}-\d{4}\.\d{2}$/.test(occupationTitle)) {
+      const fresh = await getOccupation(code);
+      if (fresh?.title && !/^\d{2}-\d{4}\.\d{2}$/.test(fresh.title)) {
+        occupationTitle = fresh.title;
+      }
+    }
+
     const relatedTitles = await Promise.all(
       occ.relatedFrom.slice(0, 3).map(async (r) => {
         const rel = await prisma.onetOccupation.findUnique({
@@ -210,8 +221,8 @@ export async function buildCareerMatchResult(
 
     topOccupations.push({
       onetCode: code,
-      title: occ.title,
-      description: translateOccupationDescription(occ.description, occ.title),
+      title: occupationTitle,
+      description: translateOccupationDescription(occ.description, occupationTitle),
       confidence: Math.min(0.98, 0.55 + conf * 0.08 + (i === 0 ? 0.1 : 0)),
       whyFit: whyFit.slice(0, 3),
       commonTasks: occ.tasks.map((t) => translateTaskLine(t.taskText)).filter(Boolean),

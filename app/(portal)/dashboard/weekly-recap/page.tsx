@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -57,28 +57,26 @@ export default async function WeeklyRecapPage() {
 
   return (
     <>
-    <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <Link href="/dashboard/career-brief" className="resource-back-link">
-            ← Back to Career Brief
-          </Link>
-          <h1>Your Weekly Recap</h1>
-          <p>Your personalized summary and recommended next actions.</p>
-        </div>
-      </section>
-
-      <section className="content-section">
-        <div className="container">
+      <div style={{ paddingBottom: '5rem' }}>
+        <PageHeader
+          title="Weekly Recap"
+          subtitle="Your activity summary and recommended next actions."
+          breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
+        />
+        {recap === null ? (
+          <div className="mx-auto max-w-2xl px-4 py-8">
+            <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+              Your recap isn&rsquo;t ready yet — check back after your next activity or try refreshing.
+            </div>
+          </div>
+        ) : (
           <WeeklyRecapClient
             recap={recap}
             recapData={recapData}
             weekStart={weekStart.toISOString()}
           />
-        </div>
-      </section>
-
-    </div>
+        )}
+      </div>
       <MobileBottomNav variant="portal" />
     </>
   );

@@ -25,7 +25,7 @@ export const resumeCoachVoiceSurface: Surface = {
 
 export const counselorStaffVoiceSurface: Surface = {
   badge: 'Counselor assistant',
-  subtext: 'Student support, outreach, and how to use this workspace.',
+  subtext: 'Member support, outreach, and how to use this workspace.',
   icon: '💬',
   glowColor: '#c026d3',
   gradient: 'linear-gradient(135deg, #86198f, #c026d3, #f0abfc)',

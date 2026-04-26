@@ -75,10 +75,8 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
-      <Link href="/admin/partners" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
-        &larr; Back to Partners
-      </Link>
       <PageHeader
+        breadcrumbs={[{ label: 'Partners', href: '/admin/partners' }, { label: 'Partner Details' }]}
         title={partner.name}
         subtitle={`${partner._count.counselors} counselor${partner._count.counselors !== 1 ? 's' : ''} · ${partner._count.referrals} referral${partner._count.referrals !== 1 ? 's' : ''}`}
         action={
@@ -135,7 +133,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '2rem' }}>
         <section>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Counselors ({partner.counselors.length})</h2>
           {partner.counselors.length === 0 ? (

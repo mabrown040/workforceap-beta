@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { CSSProperties } from 'react';
-import { JobApplication, JobApplicationStatus } from '@prisma/client';
-import JobApplicationCard from './JobApplicationCard';
+import { useState } from "react";
+import type { CSSProperties } from "react";
+import { JobApplication, JobApplicationStatus } from "@prisma/client";
+import JobApplicationCard from "./JobApplicationCard";
 
 interface JobApplicationKanbanProps {
   applications: JobApplication[];
@@ -12,40 +12,40 @@ interface JobApplicationKanbanProps {
 
 /** Full pipeline including saved leads and rejections (curated board "track only" lands in Saved). */
 const STATUSES: JobApplicationStatus[] = [
-  'SAVED',
-  'APPLIED',
-  'PHONE_SCREEN',
-  'INTERVIEWING',
-  'OFFER',
-  'REJECTED',
+  "SAVED",
+  "APPLIED",
+  "PHONE_SCREEN",
+  "INTERVIEWING",
+  "OFFER",
+  "REJECTED",
 ];
 
 const STATUS_LABELS: Record<JobApplicationStatus, string> = {
-  APPLIED: 'Applied',
-  PHONE_SCREEN: 'Phone Screen',
-  INTERVIEWING: 'Interviewing',
-  OFFER: 'Offer',
-  SAVED: 'Saved',
-  REJECTED: 'Rejected',
+  APPLIED: "Applied",
+  PHONE_SCREEN: "Phone Screen",
+  INTERVIEWING: "Interviewing",
+  OFFER: "Offer",
+  SAVED: "Saved",
+  REJECTED: "Rejected",
 };
 
 const STATUS_BADGE_CLASSES: Record<JobApplicationStatus, string> = {
-  APPLIED: 'wa-bg-gray-100 wa-text-gray-700',
-  PHONE_SCREEN: 'wa-bg-blue-100 wa-text-blue-700',
-  INTERVIEWING: 'wa-bg-amber-100 wa-text-amber-700',
-  OFFER: 'wa-bg-green-100 wa-text-green-700',
-  SAVED: 'wa-bg-slate-200 wa-text-slate-800',
-  REJECTED: 'wa-bg-red-100 wa-text-red-700',
+  APPLIED: "wa-bg-gray-100 wa-text-gray-700",
+  PHONE_SCREEN: "wa-bg-blue-100 wa-text-blue-700",
+  INTERVIEWING: "wa-bg-amber-100 wa-text-amber-700",
+  OFFER: "wa-bg-green-100 wa-text-green-700",
+  SAVED: "wa-bg-slate-200 wa-text-slate-800",
+  REJECTED: "wa-bg-red-100 wa-text-red-700",
 };
 
 /** Left accent on kanban cards / columns — WorkforceAP burgundy on Applied */
 const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
-  SAVED: '#64748b',
-  APPLIED: '#8c0f37',
-  PHONE_SCREEN: '#2563eb',
-  INTERVIEWING: '#d97706',
-  OFFER: '#16a34a',
-  REJECTED: '#dc2626',
+  SAVED: "#64748b",
+  APPLIED: "#8c0f37",
+  PHONE_SCREEN: "#2563eb",
+  INTERVIEWING: "#d97706",
+  OFFER: "#16a34a",
+  REJECTED: "#dc2626",
 };
 
 function MobileApplicationCard({
@@ -56,11 +56,17 @@ function MobileApplicationCard({
   onStatusChange: (id: string, updates: Partial<JobApplication>) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<JobApplicationStatus>(application.status);
+  const [selectedStatus, setSelectedStatus] = useState<JobApplicationStatus>(
+    application.status,
+  );
 
   const formatDate = (date: Date | null) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const handleSave = () => {
@@ -72,25 +78,37 @@ function MobileApplicationCard({
 
   return (
     <div
-      className="portal-kanban-card stitch-card"
+      className="portal-kanban-card"
       style={
         {
-          padding: '1rem',
-          marginBottom: '0.75rem',
-          '--portal-kanban-accent': STATUS_ACCENTS[application.status],
+          padding: "1rem",
+          marginBottom: "0.75rem",
+          "--portal-kanban-accent": STATUS_ACCENTS[application.status],
         } as CSSProperties
       }
     >
       <div className="wa-flex wa-items-start wa-justify-between wa-gap-2">
         <div className="wa-flex-1 wa-min-w-0">
-          <p className="wa-font-bold wa-text-sm wa-truncate" style={{ color: 'var(--color-on-surface)' }}>
+          <p
+            className="wa-font-bold wa-text-sm wa-truncate"
+            style={{ color: "var(--color-on-surface)" }}
+          >
             {application.role}
           </p>
-          <p className="wa-text-xs wa-mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <p
+            className="wa-text-xs wa-mt-0.5"
+            style={{ color: "var(--color-on-surface-variant)" }}
+          >
             {application.company}
           </p>
           {application.appliedAt && (
-            <p className="wa-text-xs wa-mt-1" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
+            <p
+              className="wa-text-xs wa-mt-1"
+              style={{
+                color: "var(--color-on-surface-variant)",
+                opacity: 0.85,
+              }}
+            >
               Applied {formatDate(application.appliedAt)}
             </p>
           )}
@@ -104,10 +122,18 @@ function MobileApplicationCard({
 
       {open ? (
         <div className="wa-mt-3 wa-border-t wa-pt-3">
-          <label className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-1">Update Status</label>
+          <label
+            htmlFor={`mobile-status-${application.id}`}
+            className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-1"
+          >
+            Update Status
+          </label>
           <select
+            id={`mobile-status-${application.id}`}
             value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value as JobApplicationStatus)}
+            onChange={(e) =>
+              setSelectedStatus(e.target.value as JobApplicationStatus)
+            }
             className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm wa-mb-3"
           >
             {STATUSES.map((s) => (
@@ -155,13 +181,13 @@ export default function JobApplicationKanban({
       acc[status] = applications.filter((app) => app.status === status);
       return acc;
     },
-    {} as Record<JobApplicationStatus, JobApplication[]>
+    {} as Record<JobApplicationStatus, JobApplication[]>,
   );
 
   return (
     <>
       {/* Mobile card list — hidden on md+ */}
-      <div className="wa-block wa-md:wa-hidden">
+      <div className="wa-block md:wa-hidden">
         {applications.length === 0 ? (
           <div className="portal-kanban-mobile-empty">
             <p style={{ margin: 0 }}>No applications yet.</p>
@@ -179,10 +205,16 @@ export default function JobApplicationKanban({
                     >
                       {STATUS_LABELS[status]}
                     </span>
-                    <span className="wa-text-xs wa-text-gray-500">{group.length}</span>
+                    <span className="wa-text-xs wa-text-gray-500">
+                      {group.length}
+                    </span>
                   </div>
                   {group.map((app) => (
-                    <MobileApplicationCard key={app.id} application={app} onStatusChange={onStatusChange} />
+                    <MobileApplicationCard
+                      key={app.id}
+                      application={app}
+                      onStatusChange={onStatusChange}
+                    />
                   ))}
                 </div>
               );
@@ -192,17 +224,25 @@ export default function JobApplicationKanban({
       </div>
 
       {/* Desktop kanban — hidden on mobile */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
           {STATUSES.map((status) => (
             <div
               key={status}
               className="portal-kanban-column"
-              style={{ '--portal-kanban-accent': STATUS_ACCENTS[status] } as CSSProperties}
+              style={
+                {
+                  "--portal-kanban-accent": STATUS_ACCENTS[status],
+                } as CSSProperties
+              }
             >
               <div className="portal-kanban-column__head">
-                <span className="portal-kanban-column__title">{STATUS_LABELS[status]}</span>
-                <span className="portal-kanban-column__count">{grouped[status].length}</span>
+                <span className="portal-kanban-column__title">
+                  {STATUS_LABELS[status]}
+                </span>
+                <span className="portal-kanban-column__count">
+                  {grouped[status].length}
+                </span>
               </div>
 
               <div className="wa-space-y-3">

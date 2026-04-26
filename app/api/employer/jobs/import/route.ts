@@ -28,11 +28,19 @@ const importSchema = z.object({
 }).refine((d) => d.url || d.rawText, { message: 'Provide url or rawText' });
 
 async function parseDirectJobUrl(url: string) {
-  const textToParse = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
-  if (!textToParse || textToParse.length < 50) return null;
+  const result = await fetchSubJobPageText(url, { waitFor: getImportWaitForMs(url) });
+  
+  if ('error' in result || !result.text) {
+    return null;
+  }
+
+  const textToParse = result.text;
+  if (textToParse.length < 50) return null;
+  
   const parsedJob = await parseJobFromText(textToParse);
   const extractedRaw = parsedJob ?? buildFallbackParsedJobFromScrape(undefined, textToParse);
   if (!extractedRaw) return null;
+  
   return {
     extracted: normalizeImportedParsedJob(extractedRaw),
     provider: parsedJob ? 'ai+direct-job-url' : 'scrape+fallback',

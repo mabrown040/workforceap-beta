@@ -46,6 +46,8 @@ export default function InterviewPracticeSaved({ results }: { results: SavedResu
                 type="button"
                 className="interview-practice-saved-header"
                 onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                aria-expanded={isExpanded}
+                aria-controls={`saved-practice-content-${r.id}`}
               >
                 <span className="interview-practice-saved-summary">{r.inputSummary}</span>
                 <span className="interview-practice-saved-date">
@@ -56,7 +58,7 @@ export default function InterviewPracticeSaved({ results }: { results: SavedResu
                 </span>
               </button>
               {isExpanded && (
-                <div className="interview-practice-saved-content">
+                <div id={`saved-practice-content-${r.id}`} className="interview-practice-saved-content">
                   <ol className="interview-practice-list">
                     {questions.map((q, i) => (
                       <li key={i} className="interview-practice-item">

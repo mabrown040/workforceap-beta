@@ -113,11 +113,59 @@ export default async function AdminJobsPage({
 
   return (
     <div>
-      <PageHeader title="Jobs" subtitle="Employer submits → Admin reviews → Approve/Reject → Live. Manage job postings." />
+      <PageHeader title="Jobs" subtitle="Employer submits → Admin reviews → Approve or reject, then publish roles live." />
 
       <AdminJobsFilterTabs currentFilter={currentFilter} tabs={tabs} />
 
-      <div style={{ overflowX: 'auto' }}>
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {jobs.map((job) => (
+          <div
+            key={job.id}
+            className="portal-card portal-card--flat"
+            style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
+              <div>
+                <Link href={`/admin/jobs/${job.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>
+                  {job.title}
+                </Link>
+                <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                  {job.employer?.companyName ?? 'Unknown company'}
+                </p>
+              </div>
+              <span className={getJobStatusPillClass(job.status)}>
+                {STATUS_LABELS[job.status] ?? job.status}
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                  Applications
+                </p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '1rem', fontWeight: 700 }}>{job._count?.applications ?? 0}</p>
+              </div>
+              <div>
+                <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+                  Queue
+                </p>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>{currentFilter}</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <Link href={`/admin/jobs/${job.id}`} className="btn btn-primary" style={{ justifyContent: 'center' }}>
+                Review job
+              </Link>
+              <Link href={`/admin/jobs/${job.id}#matches`} className="btn btn-outline" style={{ justifyContent: 'center' }}>
+                View AI matches
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
         <table className="admin-table admin-jobs-table">
           <thead>
             <tr>
@@ -135,18 +183,6 @@ export default async function AdminJobsPage({
                   <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
                     {j.title}
                   </Link>
-                  <div className="admin-jobs-mobile-company">{j.employer?.companyName ?? 'Unknown'}</div>
-                  <div className="admin-jobs-mobile-meta">
-                    <span>Applications: {j._count?.applications ?? 0}</span>
-                    <span>
-                      <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
-                        Review
-                      </Link>
-                      <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
-                        AI Matches
-                      </Link>
-                    </span>
-                  </div>
                 </td>
                 <td className="admin-jobs-col-company">{j.employer?.companyName ?? 'Unknown'}</td>
                 <td>

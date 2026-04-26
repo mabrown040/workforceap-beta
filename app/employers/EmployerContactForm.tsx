@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { trackLeadFormEvent } from '@/lib/analytics/events';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -37,6 +38,10 @@ const INTEREST_USE_CASE = [
 
 export default function EmployerContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    trackLeadFormEvent('employer_intake', 'viewed');
+  }, []);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
@@ -89,6 +94,11 @@ export default function EmployerContactForm() {
 
     setStatus('sending');
     setErrorMsg(null);
+    trackLeadFormEvent('employer_intake', 'submitted', {
+      hiring_timeline: hiringTimeline || undefined,
+      interest_use_case: interestUseCase || undefined,
+      open_roles: openRoles || undefined,
+    });
 
     try {
       const res = await fetch('/api/contact', {
@@ -100,14 +110,21 @@ export default function EmployerContactForm() {
 
       if (!res.ok) {
         setStatus('error');
+        trackLeadFormEvent('employer_intake', 'errored', { reason: json.error ?? 'request_failed' });
         setErrorMsg(json.error ?? 'Something went wrong. Please try again.');
         return;
       }
 
       setStatus('success');
+      trackLeadFormEvent('employer_intake', 'succeeded', {
+        hiring_timeline: hiringTimeline || undefined,
+        interest_use_case: interestUseCase || undefined,
+        open_roles: openRoles || undefined,
+      });
       form.reset();
     } catch {
       setStatus('error');
+      trackLeadFormEvent('employer_intake', 'errored', { reason: 'network_error' });
       setErrorMsg('Network error. Please try again.');
     }
   }
@@ -116,39 +133,54 @@ export default function EmployerContactForm() {
     return (
       <div
         style={{
+          background: 'var(--surface-container)',
+          borderRadius: 'var(--radius-xl)',
           padding: '2rem',
-          background: 'rgba(74, 155, 79, 0.1)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(74, 155, 79, 0.3)',
-          textAlign: 'center',
         }}
       >
-        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-          Thank you — we received your inquiry
-        </p>
-        <p style={{ color: 'var(--color-on-surface-variant)' }}>
-          We&rsquo;ll reach out within 24–48 hours.
-        </p>
+        <div
+          style={{
+            padding: '2rem',
+            background: 'rgba(74, 155, 79, 0.1)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid rgba(74, 155, 79, 0.3)',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+            Thank you — we received your inquiry
+          </p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>
+            We&rsquo;ll reach out within 1–2 business days.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
+    <div
+      style={{
+        background: 'var(--surface-container)',
+        borderRadius: 'var(--radius-xl)',
+        padding: '2rem',
+      }}
+    >
     <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
       <div
         style={{
           marginBottom: '1.25rem',
           padding: '1rem 1.1rem',
           borderRadius: 'var(--radius-md)',
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,255,255,0.14)',
+          background: 'var(--surface-container-high)',
+          border: '1px solid var(--outline-variant)',
         }}
       >
-        <p style={{ margin: 0, color: '#fff', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.5 }}>
+        <p style={{ margin: 0, color: 'var(--color-on-surface)', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.5 }}>
           Employer intake for hiring managers, talent leaders, and program owners.
         </p>
-        <p style={{ margin: '0.5rem 0 0', color: 'rgba(255,255,255,0.88)', fontSize: '0.85rem', lineHeight: 1.5 }}>
-          Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 24–48 hours and route you to the right partnership path.
+        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+          Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 1–2 business days and route you to the right partnership path.
         </p>
       </div>
       {status === 'error' && errorMsg && (
@@ -247,8 +279,9 @@ export default function EmployerContactForm() {
         {status === 'sending' ? 'Sending…' : 'Submit employer intake'}
       </button>
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.85rem' }}>
-        We respond within 24–48 hours.
+        We respond within 1–2 business days.
       </p>
     </form>
+    </div>
   );
 }

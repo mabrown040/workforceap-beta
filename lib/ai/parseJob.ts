@@ -160,7 +160,7 @@ export function sanitizeScrapedJobText(rawText: string): string {
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
     .replace(/@font-face\s*\{[\s\S]{0,4000}?\}/gi, ' ')
-    .replace(/:root\s*\{[\s\S]{0,20000}?\}/gi, ' ')
+    .replace(/:root\s*\{[\s\S]{0,5000}?\}/gi, ' ')
     .replace(/(?:^|\n)\s*(?:body|html|main|div|span|ul|ol|li|p|h[1-6]|\.truncate|\.lineClamp(?:--inline)?)\s*\{[^\n]*\}/gi, '\n');
 
   const lines = cleaned
@@ -173,6 +173,9 @@ export function sanitizeScrapedJobText(rawText: string): string {
     .replace(/\n{3,}/g, '\n\n')
     .replace(/[ \t]{2,}/g, ' ')
     .trim();
+
+  // Cap output to prevent oversized payloads reaching the LLM
+  if (cleaned.length > 12000) cleaned = cleaned.slice(0, 12000);
 
   return cleaned;
 }
@@ -245,7 +248,7 @@ function extractJobsFromMarkdown(rawText: string): ParsedJobListing[] | null {
   return jobs.length > 0 ? jobs.slice(0, 25) : null;
 }
 
-/** Keep prompts within model context: for noisy ATS pages, include start + end so the real JD isn't only in the tail. */
+/** Keep prompts within model context: for noisy ATS pages, include start + end so the real JD is not only in the tail. */
 export function clipJobSourceTextForLLM(rawText: string, maxChars = 26000): string {
   const t = sanitizeScrapedJobText(rawText).trim();
   if (t.length <= maxChars) return t;

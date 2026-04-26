@@ -21,7 +21,7 @@ test.describe('Production portal smoke (env login)', () => {
 
   test('login and member dashboard loads', async ({ page }) => {
     await loginMemberPortal(page);
-    await expect(page.getByRole('heading', { name: /start here/i })).toBeVisible({
+    await expect(page.locator('h1').filter({ hasText: /welcome back/i })).toBeVisible({
       timeout: 20_000,
     });
   });
@@ -29,7 +29,7 @@ test.describe('Production portal smoke (env login)', () => {
   test('resources page loads after login', async ({ page }) => {
     await loginMemberPortal(page);
     await page.goto('/resources');
-    await expect(page.getByRole('heading', { name: /career resources/i })).toBeVisible({
+    await expect(page.getByRole('heading', { name: /career resource library/i })).toBeVisible({
       timeout: 20_000,
     });
   });
@@ -40,5 +40,14 @@ test.describe('Production portal smoke (env login)', () => {
     await expect(page.getByRole('heading', { name: /ai career toolkit/i })).toBeVisible({
       timeout: 20_000,
     });
+  });
+
+  test('member messages inbox has no fake rows', async ({ page }) => {
+    await loginMemberPortal(page);
+    await page.goto('/dashboard/messages', { waitUntil: 'networkidle' });
+
+    // Member inbox must not show hardcoded demo rows.
+    await expect(page.getByText('Program Team')).toHaveCount(0);
+    await expect(page.getByText('Career Services')).toHaveCount(0);
   });
 });

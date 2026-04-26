@@ -11,17 +11,22 @@ import {
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 /* ─── constants (preserved from MemberSignupForm) ─── */
 const EMPLOYMENT_OPTIONS = [
   'Employed full-time',
   'Employed part-time',
   'Unemployed',
-  'Student',
+  'Member',
   'Self-employed',
   'Other',
 ];
 const VETERAN_OPTIONS = ['Yes', 'No', 'Prefer not to say'];
+
+type SignupFormProps = {
+  initialRedirectTo?: string;
+};
 
 /* ─── styles ─── */
 const s = {
@@ -94,44 +99,6 @@ const s = {
     fontWeight: 800,
     color: 'var(--color-on-surface)',
     marginBottom: 'var(--space-6)',
-  } as React.CSSProperties,
-
-  socialRow: {
-    display: 'flex',
-    gap: 'var(--space-3)',
-    marginBottom: 'var(--space-4)',
-  } as React.CSSProperties,
-
-  socialBtn: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 'var(--space-2)',
-    padding: 'var(--space-3) var(--space-4)',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: 600,
-    background: 'var(--surface-container)',
-    border: '1px solid var(--outline-variant)',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--color-on-surface)',
-    cursor: 'pointer',
-    transition: 'background 0.2s',
-  } as React.CSSProperties,
-
-  divider: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    margin: 'var(--space-4) 0',
-    color: 'var(--color-on-surface-variant)',
-    fontSize: 'var(--font-size-sm)',
-  } as React.CSSProperties,
-
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    background: 'var(--outline-variant)',
   } as React.CSSProperties,
 
   label: {
@@ -250,8 +217,12 @@ function strengthColor(score: number, index: number): string {
   return 'var(--color-green)';
 }
 
-export default function SignupForm() {
+export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupFormProps) {
   /* ─── all business logic preserved from MemberSignupForm ─── */
+  const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+  const isMemberSignup = redirectTo === '/dashboard';
+
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [passwordVal, setPasswordVal] = useState('');
@@ -318,13 +289,13 @@ export default function SignupForm() {
     return (
       <div style={{ ...s.wrapper, justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ textAlign: 'center', maxWidth: 440, padding: 'var(--space-8)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-green)', marginBottom: 'var(--space-4)', display: 'block' }}>mark_email_read</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-green)', marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">mark_email_read</span>
           <h2 style={{ ...s.heading, marginBottom: 'var(--space-4)' }}>Check your email</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', lineHeight: 'var(--line-height-normal)' }}>
-            We&apos;ve sent you a verification link. Click it to activate your account, then you can log in.
+            We&rsquo;ve sent you a verification link. Click it to activate your account, then you can log in.
           </p>
           <Link
-            href="/login"
+            href={loginHref}
             style={{ ...s.primaryBtn, display: 'inline-block', textDecoration: 'none', textAlign: 'center', maxWidth: 280 }}
           >
             Go to login
@@ -349,12 +320,12 @@ export default function SignupForm() {
         </div>
 
         <div style={s.brandContent}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, opacity: 0.9, marginBottom: 'var(--space-4)', display: 'block' }}>account_balance</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 48, opacity: 0.9, marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">account_balance</span>
           <h1 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: 'var(--space-4)', letterSpacing: '-0.02em' }}>
-            The modern institutional archive
+            Career training at no cost to members
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.75, lineHeight: 'var(--line-height-normal)' }}>
-            Industry-recognized credentials. Career-changing programs. Zero cost to qualifying participants.
+            Industry-recognized credentials. Career-changing programs. Funded through grants and partnerships so members are not charged.
           </p>
         </div>
 
@@ -364,7 +335,7 @@ export default function SignupForm() {
             &ldquo;WorkforceAP gave me the skills and support to transition into a tech career. The program changed my life.&rdquo;
           </p>
           <p style={{ marginTop: 'var(--space-3)', fontSize: 'var(--font-size-sm)', opacity: 0.6, margin: 'var(--space-3) 0 0' }}>
-            -- Program Graduate, 2025
+            — Member, 2025
           </p>
         </div>
       </div>
@@ -373,24 +344,11 @@ export default function SignupForm() {
       <div style={s.formPanel}>
         <div style={s.formContainer}>
           <h2 style={s.heading}>Create an account</h2>
-
-          {/* Social login */}
-          <div style={s.socialRow}>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
-              Google
-            </button>
-            <button type="button" style={s.socialBtn}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>code</span>
-              GitHub
-            </button>
-          </div>
-
-          <div style={s.divider}>
-            <span style={s.dividerLine} />
-            <span>Or continue with</span>
-            <span style={s.dividerLine} />
-          </div>
+          <p style={{ color: 'var(--color-on-surface-variant)', margin: '0 0 var(--space-6)', lineHeight: 'var(--line-height-normal)', fontSize: 'var(--font-size-sm)' }}>
+            {isMemberSignup
+              ? 'This creates your member portal account so you can apply, track progress, and use career tools.'
+              : 'This page creates a member portal account. Staff, counselor, employer, and admin access are issued by WorkforceAP.'}
+          </p>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Full Name */}
@@ -448,7 +406,7 @@ export default function SignupForm() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   aria-pressed={showPassword}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
                     {showPassword ? 'visibility_off' : 'visibility'}
                   </span>
                 </button>
@@ -572,13 +530,13 @@ export default function SignupForm() {
               disabled={submitStatus === 'loading'}
               style={{ ...s.primaryBtn, opacity: submitStatus === 'loading' ? 0.7 : 1 }}
             >
-              {submitStatus === 'loading' ? 'Creating account...' : 'Initialize Access'}
+              {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
             </button>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-            Already part of the archive?{' '}
-            <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
+            Already have an account?{' '}
+            <Link href={loginHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
           </p>
         </div>
       </div>

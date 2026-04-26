@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { trackLeadFormEvent } from '@/lib/analytics/events';
 
 const ORG_TYPES = [
   { value: '', label: 'Select…' },
@@ -23,6 +24,10 @@ const MONTHLY = [
 
 export default function PartnerSignupForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    trackLeadFormEvent('partner_signup', 'viewed');
+  }, []);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -43,6 +48,7 @@ export default function PartnerSignupForm() {
 
     setStatus('sending');
     setErrorMsg(null);
+    trackLeadFormEvent('partner_signup', 'submitted', { org_type: payload.orgType, expected_monthly: payload.expectedMonthly });
 
     try {
       const res = await fetch('/api/partner/signup', {
@@ -53,13 +59,16 @@ export default function PartnerSignupForm() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setStatus('error');
+        trackLeadFormEvent('partner_signup', 'errored', { reason: typeof data.error === 'string' ? data.error : 'request_failed' });
         setErrorMsg(typeof data.error === 'string' ? data.error : 'Something went wrong.');
         return;
       }
       setStatus('success');
+      trackLeadFormEvent('partner_signup', 'succeeded', { org_type: payload.orgType, expected_monthly: payload.expectedMonthly });
       form.reset();
     } catch {
       setStatus('error');
+      trackLeadFormEvent('partner_signup', 'errored', { reason: 'network_error' });
       setErrorMsg('Network error. Please try again.');
     }
   }

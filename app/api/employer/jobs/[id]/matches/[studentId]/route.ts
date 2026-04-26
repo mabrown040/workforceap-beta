@@ -32,7 +32,7 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
   }
 
   const job = await prisma.job.findFirst({
-    where: { id: jobId, employerId: employerCtx.employerId },
+    where: { id: jobId, employerId: employerCtx.employerId, status: 'live' },
     select: { id: true },
   });
   if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });

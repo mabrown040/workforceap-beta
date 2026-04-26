@@ -1,13 +1,24 @@
-import type { CSSProperties } from 'react';
+/**
+ * Shared status badge pill used across all portals.
+ *
+ * Semantic variants map to every badge pattern in the app:
+ *   success  → enrolled, placed, on track, live, healthy, hired
+ *   warning  → needs focus, in review, pending review
+ *   error    → at risk, not enrolled, rejected
+ *   neutral  → draft, closed, default, unknown
+ *   info     → in training, applied, interview, offered
+ *   accent   → portal accent color (enrollment, pipeline default)
+ */
 
-type Variant = 'success' | 'accent' | 'blue' | 'gold' | 'neutral';
+export type BadgeVariant = 'success' | 'warning' | 'error' | 'neutral' | 'info' | 'accent';
 
-const variantStyles: Record<Variant, { bg: string; color: string }> = {
-  success: { bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)' },
-  accent: { bg: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', color: 'var(--color-accent)' },
-  blue: { bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', color: 'var(--color-blue)' },
-  gold: { bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', color: 'var(--color-gold)' },
-  neutral: { bg: 'var(--surface-container-highest)', color: 'var(--color-on-surface-variant)' },
+const VARIANT_STYLES: Record<BadgeVariant, { background: string; color: string }> = {
+  success: { background: 'color-mix(in srgb, var(--color-green) 15%, transparent)', color: 'var(--color-green)' },
+  warning: { background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)', color: 'var(--color-gold)' },
+  error:   { background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)', color: 'var(--color-accent)' },
+  neutral: { background: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)' },
+  info:    { background: 'color-mix(in srgb, var(--color-blue) 15%, transparent)', color: 'var(--color-blue)' },
+  accent:  { background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)' },
 };
 
 export default function StatusBadge({
@@ -16,28 +27,15 @@ export default function StatusBadge({
   className = '',
 }: {
   label: string;
-  variant?: string;
+  variant?: BadgeVariant;
   className?: string;
 }) {
-  const safeVariant = (variant in variantStyles ? variant : 'neutral') as Variant;
-  const style = variantStyles[safeVariant];
+  const { background, color } = VARIANT_STYLES[variant];
 
   return (
     <span
-      className={className}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '0.25rem 0.625rem',
-        borderRadius: '9999px',
-        fontSize: '0.6875rem',
-        fontWeight: 700,
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        background: style.bg,
-        color: style.color,
-        whiteSpace: 'nowrap',
-      }}
+      className={`portal-status-badge ${className}`.trim()}
+      style={{ background, color }}
     >
       {label}
     </span>

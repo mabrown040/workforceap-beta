@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
@@ -20,24 +21,27 @@ export default async function PartnerMilestonesPage() {
   if (!user) redirect('/login?redirectTo=/partner/milestones');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   return (
     <PortalPageFrame>
+      <PageHeader
+        title="Milestones"
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">Review member certificates, placements, and progress events.</span>
+            <span className="wa-hidden md:wa-block">Recent certificates, placements, and milestone events across your referrals.</span>
+          </>
+        }
+      />
       {/* ── MOBILE SECTION ── */}
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader title="Milestones" subtitle="Review member certificates, placements, and progress events." />
-
+      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PartnerMilestonesMobile />
         <MobileBottomNav variant="partner" />
       </div>
 
       {/* ── DESKTOP SECTION ── */}
-      <div className="wa-hidden wa-md:wa-block">
-        <PageHeader
-          title="Milestones"
-          subtitle="Recent certificates, placements, and milestone events across your referrals."
-        />
+      <div className="wa-hidden md:wa-block">
         <PartnerMilestonesView />
       </div>
     </PortalPageFrame>

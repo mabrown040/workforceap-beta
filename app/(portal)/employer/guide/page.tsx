@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'How WorkforceAP works for employers',
+  title: 'How It Works for Employers',
   description: 'Access vetted, job-ready talent in a few simple steps.',
   path: '/employer/guide',
 });
@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: "What's the 10% giveback?",
-    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program free for members.",
+    a: "When you hire a WorkforceAP member, we invite you to give back 10% of their first-year salary to fund the next candidate's training. It's optional — not a fee — but it's how we keep the program at no cost to members.",
   },
   {
     q: 'How are candidates screened?',
@@ -42,7 +42,7 @@ const FAQS = [
   },
   {
     q: 'How long until I see candidates?',
-    a: 'You can start seeing AI-matched candidates within 24–48 hours of posting a role, depending on your location and requirements.',
+    a: 'You can start seeing AI-matched candidates within 1–2 business days of posting a role, depending on your location and requirements.',
   },
   {
     q: 'What industries do you serve?',
@@ -55,11 +55,11 @@ export default async function EmployerGuidePage() {
   if (!user) redirect('/login?redirectTo=/employer/guide');
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   return (
     <>
-    <div className="wa-pb-24 wa-md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <div className="wa-pb-24 md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/employer" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
@@ -109,7 +109,7 @@ export default async function EmployerGuidePage() {
               icon: 'handshake',
             },
           ].map((step, i) => (
-            <div key={step.num} className="stitch-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+            <div key={step.num} className="portal-card portal-card--flat" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: '1rem', right: '1.25rem', fontSize: '3.5rem', fontWeight: 900, color: 'var(--color-accent)', opacity: 0.06, lineHeight: 1, letterSpacing: '-0.05em', userSelect: 'none' }}>
                 {step.num}
               </div>
@@ -123,7 +123,7 @@ export default async function EmployerGuidePage() {
                 justifyContent: 'center',
                 marginBottom: '1.25rem',
               }}>
-                <span className="material-symbols-outlined" style={{ color: i === 0 ? '#fff' : 'var(--color-accent)', fontSize: '1.25rem' }}>{step.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: i === 0 ? '#fff' : 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{step.icon}</span>
               </div>
               <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.625rem', letterSpacing: '-0.02em' }}>
                 {step.title}
@@ -146,12 +146,12 @@ export default async function EmployerGuidePage() {
                   letterSpacing: '-0.01em',
                 }}>
                   {step.cta}
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               )}
               {i === 2 && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic', marginTop: '0.75rem' }}>
-                  Optional but appreciated — it funds the next candidate&apos;s training.
+                  Optional but appreciated — it funds the next candidate&rsquo;s training.
                 </p>
               )}
             </div>
@@ -161,7 +161,7 @@ export default async function EmployerGuidePage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '3.5rem' }}>
         {/* Candidate differentiators */}
-        <section className="stitch-card" style={{ padding: '2rem' }}>
+        <section className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
           <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             What sets WorkforceAP candidates apart
           </h2>
@@ -179,7 +179,7 @@ export default async function EmployerGuidePage() {
                   flexShrink: 0,
                   marginTop: '0.125rem',
                 }}>
-                  <span className="material-symbols-outlined" style={{ color: '#80d99f', fontSize: '0.875rem' }}>check</span>
+                  <span className="material-symbols-outlined" style={{ color: '#80d99f', fontSize: '0.875rem' }} aria-hidden="true">check</span>
                 </div>
                 <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>{item}</p>
               </div>
@@ -201,7 +201,7 @@ export default async function EmployerGuidePage() {
               textDecoration: 'none',
               boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>post_add</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">post_add</span>
               Post your first job
             </Link>
           </div>
@@ -225,9 +225,9 @@ export default async function EmployerGuidePage() {
                 textDecoration: 'none',
                 transition: 'background 0.15s',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{item.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{item.icon}</span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', flex: 1 }}>{item.label}</span>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }}>chevron_right</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
               </Link>
             ))}
           </div>
@@ -239,9 +239,9 @@ export default async function EmployerGuidePage() {
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
           Common questions
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', gap: '1rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>
@@ -267,7 +267,7 @@ export default async function EmployerGuidePage() {
       }}>
         <div>
           <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-            Have questions? We&apos;re here.
+            Have questions? We&rsquo;re here.
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
             Email us at{' '}
@@ -290,11 +290,10 @@ export default async function EmployerGuidePage() {
           whiteSpace: 'nowrap',
         }}>
           Post a job
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
         </Link>
       </div>
     </div>
-    <MobileBottomNav variant="employer" />
     </>
   );
 }

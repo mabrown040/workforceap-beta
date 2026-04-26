@@ -1,28 +1,54 @@
 import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/auth/server';
+import { getUser, hasSupabaseServerEnv } from '@/lib/auth/server';
 import {
   getProfileRole,
   getPartnerForUser,
   getEmployerAccountForNav,
+  getCounselorForUser,
   isSuperAdmin,
 } from '@/lib/auth/roles';
+import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 
 export async function GET() {
   try {
-    const user = await getUser();
-    if (!user) {
-      console.error('[auth-me] User not authenticated');
+    if (!hasSupabaseServerEnv()) {
       return NextResponse.json(
-        { role: null, partner: null, employer: null, superAdmin: false, canAccessMemberDashboard: false },
+        {
+          role: null,
+          partner: null,
+          employer: null,
+          counselor: null,
+          superAdmin: false,
+          canAccessMemberDashboard: false,
+          availablePortals: [],
+        },
         { status: 200 }
       );
     }
 
-    const [role, partnerCtx, superAdmin, employerNav] = await Promise.all([
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json(
+        {
+          role: null,
+          partner: null,
+          employer: null,
+          counselor: null,
+          superAdmin: false,
+          canAccessMemberDashboard: false,
+          availablePortals: [],
+        },
+        { status: 200 }
+      );
+    }
+
+    const [role, partnerCtx, counselorCtx, superAdmin, employerNav, availablePortals] = await Promise.all([
       getProfileRole(user.id),
       getPartnerForUser(user.id),
+      getCounselorForUser(user.id),
       isSuperAdmin(user.id),
       getEmployerAccountForNav(user.id),
+      getPortalSwitcherRoles(user.id),
     ]);
 
     const partnerExclusive = !!partnerCtx && !superAdmin;
@@ -32,14 +58,13 @@ export async function GET() {
       role: role || 'member',
       partner: partnerCtx ? { partnerId: partnerCtx.partnerId, name: partnerCtx.partner.name } : null,
       employer: employerNav,
+      counselor: counselorCtx ? { counselorId: counselorCtx.counselorId, partnerId: counselorCtx.partnerId } : null,
       superAdmin,
       canAccessMemberDashboard,
+      availablePortals,
     });
   } catch (err) {
     console.error('[auth-me] Fatal error in auth/me route:', err);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

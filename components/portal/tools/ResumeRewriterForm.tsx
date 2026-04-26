@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ExportPdfButton from './ExportPdfButton';
 
 const SALARY_RANGES = [
@@ -76,6 +77,12 @@ export default function ResumeRewriterForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
 
+  // Persist the most expensive-to-retype field (job target) so a refresh or
+  // accidental nav doesn't lose what the member typed. The resume body is
+  // already hydrated server-side, so we only autosave the free-text fields.
+  useDraftAutosave('ai-tool:resume-rewriter:jobTarget', jobTarget, setJobTarget);
+  useDraftAutosave('ai-tool:resume-rewriter:targetLocation', targetLocation, setTargetLocation);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -146,7 +153,7 @@ export default function ResumeRewriterForm({
       {/* Controls bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem', padding: '0.875rem 1rem', background: 'var(--surface-container)', borderRadius: '0.75rem', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: '1 1 auto' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }}>tune</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">tune</span>
           <label htmlFor="tone-select" style={{ fontSize: '0.8125rem', fontWeight: 600, whiteSpace: 'nowrap' }}>Tone</label>
           <select
             id="tone-select"
@@ -168,7 +175,7 @@ export default function ResumeRewriterForm({
             disabled={loading}
             style={{ width: '18px', height: '18px', accentColor: 'var(--color-accent)' }}
           />
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: atsOptimize ? 'var(--color-green)' : 'var(--color-on-surface-variant)' }}>verified</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: atsOptimize ? 'var(--color-green)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">verified</span>
           ATS Optimized
         </label>
       </div>
@@ -277,7 +284,7 @@ export default function ResumeRewriterForm({
       {/* Knowledge card */}
       <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container-low)', borderRadius: '0.75rem', border: '1px solid var(--outline-variant, rgba(0,0,0,0.08))' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-gold)' }}>lightbulb</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-gold)' }} aria-hidden="true">lightbulb</span>
           <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Resume tips</span>
         </div>
         <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>

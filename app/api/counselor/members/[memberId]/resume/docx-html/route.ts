@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
+import mammoth from 'mammoth';
 
 const BUCKET = 'member-resumes';
 
@@ -48,7 +49,6 @@ export async function POST(req: NextRequest, { params }: Props) {
 
   const buf = Buffer.from(await data.arrayBuffer());
   try {
-    const mammoth = await import('mammoth');
     const { value: html } = await mammoth.convertToHtml({ buffer: buf });
     return NextResponse.json({
       html: `<div class="mammoth-doc">${html}</div>`,

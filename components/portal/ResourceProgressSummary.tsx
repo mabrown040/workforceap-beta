@@ -20,7 +20,7 @@ export default function ResourceProgressSummary({ progress }: Props) {
     return (
       <div className="resource-progress-summary">
         <h3>Resource progress</h3>
-        <p>No resources viewed yet. <Link href="/resources">Explore resources</Link></p>
+        <p>No resources viewed yet. <Link href="/dashboard/career-library">Explore resources</Link></p>
       </div>
     );
   }
@@ -29,7 +29,7 @@ export default function ResourceProgressSummary({ progress }: Props) {
     <div className="resource-progress-summary">
       <h3>Resource progress</h3>
       <p>{completed} completed, {viewed} viewed</p>
-      <Link href="/resources" className="btn btn-outline btn-sm">
+      <Link href="/dashboard/career-library" className="btn btn-outline btn-sm">
         View all resources
       </Link>
     </div>

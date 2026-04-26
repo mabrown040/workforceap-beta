@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
-import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
+import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
@@ -102,7 +102,9 @@ export async function GET(request: NextRequest) {
         employer: { select: { companyName: true, logoUrl: true } },
       },
     });
-    const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
+    const visible = jobs.filter(
+      (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+    );
     return NextResponse.json(visible);
   } catch (err) {
     captureApiError(err, { route: 'GET /api/jobs' });

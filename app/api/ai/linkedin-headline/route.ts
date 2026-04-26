@@ -9,10 +9,10 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+  if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
 
   const { success } = await checkAIToolRateLimit(user.id);
-  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
 
   let body: unknown;
   try {
@@ -48,7 +48,7 @@ Generate 3 LinkedIn headline options.`;
       { maxTokens: 500, temperature: 0.8 }
     );
 
-    if (!raw) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+    if (!raw) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
 
     const match = raw.match(/\[[\s\S]*?\]/);
     const jsonStr = match ? match[0] : raw;

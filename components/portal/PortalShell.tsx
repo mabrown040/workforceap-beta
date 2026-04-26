@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import PortalNav from './PortalNav';
+import PortalRoleSwitcher from './PortalRoleSwitcher';
+import type { PortalRole } from '@/lib/nav/portalNav';
 
 const MEMBER_PORTAL_PREFIXES = ['/dashboard', '/programs', '/apply', '/certifications', '/profile'];
 const DEDICATED_SHELL_PREFIXES = ['/employer', '/partner', '/counselor'];
@@ -21,20 +23,32 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   const isPartnerPortal = pathname.startsWith('/partner');
   const isDedicatedShell = hasDedicatedShell(pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userRoles, setUserRoles] = useState<{ role: PortalRole; roleLabel: string; homeHref: string }[]>([]);
+  const [currentRole, setCurrentRole] = useState<PortalRole>('member');
 
-  // Redirect partner users away from member portal
+  // Fetch user roles and determine current portal
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const res = await fetch('/api/auth/me');
-        const data = (await res.json()) as { partner?: { partnerId: string } | null; superAdmin?: boolean };
-        if (cancelled || !data.partner) return;
-        if (data.superAdmin) return;
-        if (pathname.startsWith('/partner')) return;
-        if (isMemberPortalPath(pathname)) {
-          window.location.replace('/partner');
-        }
+        const data = await res.json() as {
+          availablePortals?: { role: PortalRole; roleLabel: string; homeHref: string }[];
+        };
+        
+        if (cancelled) return;
+        
+        const roles = data.availablePortals ?? [];
+
+        // Determine current portal based on pathname
+        let current: PortalRole = 'member';
+        if (pathname.startsWith('/employer')) current = 'employer';
+        else if (pathname.startsWith('/partner')) current = 'partner';
+        else if (pathname.startsWith('/counselor')) current = 'counselor';
+        else if (pathname.startsWith('/admin')) current = 'admin';
+        
+        setUserRoles(roles);
+        setCurrentRole(current);
       } catch {
         /* ignore */
       }
@@ -79,11 +93,15 @@ export default function PortalShell({ children }: { children: React.ReactNode })
   }, [pathname]);
 
   const showNav = !isDashboard && !isPartnerPortal && !isDedicatedShell;
+  const showRoleSwitcher = userRoles.length > 1;
 
   return (
     <>
       {showNav && (
         <>
+          {showRoleSwitcher && (
+            <PortalRoleSwitcher userRoles={userRoles} currentRole={currentRole} />
+          )}
           <button
             type="button"
             className="portal-hamburger md:wa-hidden"
@@ -100,7 +118,11 @@ export default function PortalShell({ children }: { children: React.ReactNode })
               onClick={() => setSidebarOpen(false)}
             />
           )}
-          <PortalNav className={sidebarOpen ? 'open' : ''} />
+          <PortalNav 
+            className={sidebarOpen ? 'open' : ''} 
+            currentRole={currentRole}
+            currentPath={pathname}
+          />
         </>
       )}
       {children}

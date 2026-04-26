@@ -32,9 +32,9 @@ export async function POST(request: Request) {
 
     const supabase = getSupabaseAdmin();
     const path = `${organizationId}/logo.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const arrayBuffer = await file.arrayBuffer();
 
-    const { error } = await supabase.storage.from(BUCKET).upload(path, buffer, {
+    const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
       upsert: true,
       contentType: file.type || 'image/png',
     });

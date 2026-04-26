@@ -67,7 +67,17 @@ function JobCardSkeleton() {
   );
 }
 
-function JobCard({ job, isAuthenticated }: { job: Job; isAuthenticated: boolean }) {
+function JobCard({
+  job,
+  isAuthenticated,
+  matchPct,
+  isApplied,
+}: {
+  job: Job;
+  isAuthenticated: boolean;
+  matchPct?: number;
+  isApplied?: boolean;
+}) {
   const locationDisplay = job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType;
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
 
@@ -92,7 +102,27 @@ function JobCard({ job, isAuthenticated }: { job: Job; isAuthenticated: boolean 
         )}
       </div>
       <div className="job-card__body">
-        <h3 className="job-card__title">{job.title}</h3>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', justifyContent: 'space-between' }}>
+          <h3 className="job-card__title" style={{ margin: 0, flex: 1 }}>{job.title}</h3>
+          <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {isApplied && (
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, background: 'rgba(22,163,74,0.12)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.3)', borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+                Applied
+              </span>
+            )}
+            {matchPct !== undefined && matchPct > 0 && (
+              <span style={{
+                fontSize: '0.7rem', fontWeight: 700,
+                background: matchPct >= 70 ? 'rgba(13,148,136,0.12)' : matchPct >= 40 ? 'rgba(217,119,6,0.12)' : 'rgba(107,114,128,0.12)',
+                color: matchPct >= 70 ? '#0d9488' : matchPct >= 40 ? '#d97706' : '#6b7280',
+                border: `1px solid ${matchPct >= 70 ? 'rgba(13,148,136,0.3)' : matchPct >= 40 ? 'rgba(217,119,6,0.3)' : 'rgba(107,114,128,0.3)'}`,
+                borderRadius: '999px', padding: '0.15rem 0.5rem',
+              }}>
+                {matchPct}% match
+              </span>
+            )}
+          </div>
+        </div>
         <p className="job-card__company">{job.employer.companyName}</p>
         <div className="job-card__meta">
           <span className="job-card__meta-item">
@@ -166,7 +196,7 @@ function JobsNoResultsState({ isAuthenticated }: { isAuthenticated: boolean }) {
       <h3 className="jobs-empty-state__title">No jobs available right now</h3>
       <p className="jobs-empty-state__text">
         New job opportunities are added regularly as our employer partners post openings. While you wait,
-        explore our training programs and get job-ready — we&apos;ll help you find the right role when new positions become available.
+        explore our training programs and get job-ready — we&rsquo;ll help you find the right role when new positions become available.
       </p>
       <div className="jobs-empty-state__actions">
         <Link href="/programs" className="btn btn-primary">
@@ -183,16 +213,18 @@ function JobsNoResultsState({ isAuthenticated }: { isAuthenticated: boolean }) {
   );
 }
 
-export default function JobsListingClient({ 
-  isAuthenticated = true, 
+export default function JobsListingClient({
+  isAuthenticated = true,
   ageGroup = 'adult18plus' as 'under14' | 'youth14to17' | 'adult18plus',
   initialJobs = [] as Job[],
   initialTotal = 0,
-}: { 
+  appliedJobIds = [] as string[],
+}: {
   isAuthenticated?: boolean;
   ageGroup?: 'under14' | 'youth14to17' | 'adult18plus';
   initialJobs?: Job[];
   initialTotal?: number;
+  appliedJobIds?: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -202,6 +234,7 @@ export default function JobsListingClient({
   const hasInitialData = initialJobs.length > 0;
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [matchedJobs, setMatchedJobs] = useState<MatchedJob[]>([]);
+  const appliedSet = new Set(appliedJobIds);
   const [loading, setLoading] = useState(!hasInitialData);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -281,7 +314,7 @@ export default function JobsListingClient({
     setLoading(true);
     fetch(`/api/dashboard/jobs?${params}`)
       .then((r) => r.json())
-      .then(setJobs)
+      .then((data) => { if (Array.isArray(data)) setJobs(data); })
       .finally(() => setLoading(false));
   }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasFetchedInitially, hasActiveFilters]);
 
@@ -561,9 +594,18 @@ export default function JobsListingClient({
             {jobs.length} {jobs.length === 1 ? 'job' : 'jobs'} found
           </p>
           <div className="jobs-grid">
-            {jobs.map((j) => (
-              <JobCard key={j.id} job={j} isAuthenticated={isAuthenticated} />
-            ))}
+            {jobs.map((j) => {
+              const matched = matchedJobs.find((m) => m.id === j.id);
+              return (
+                <JobCard
+                  key={j.id}
+                  job={j}
+                  isAuthenticated={isAuthenticated}
+                  matchPct={matched?.matchPct}
+                  isApplied={appliedSet.has(j.id)}
+                />
+              );
+            })}
           </div>
         </>
       )}

@@ -1,8 +1,15 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { cookies } from 'next/headers';
 import { getEmployerForUser, isSuperAdmin, SUPER_ADMIN_EMPLOYER_COOKIE } from '@/lib/auth/roles';
+import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import EmployerPortalShell from '@/components/portal/EmployerPortalShell';
+
+export const metadata: Metadata = {
+  title: 'Employer Portal',
+};
 
 export default async function EmployerPortalLayout({
   children,
@@ -12,10 +19,9 @@ export default async function EmployerPortalLayout({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer');
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
-
-  const superAdmin = await isSuperAdmin(user.id);
+  const [superAdmin, portalRoles] = await Promise.all([isSuperAdmin(user.id), getPortalSwitcherRoles(user.id)]);
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
   const cookieStore = await cookies();
   const superAdminImpersonating =
     superAdmin && Boolean(cookieStore.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value);
@@ -27,6 +33,7 @@ export default async function EmployerPortalLayout({
       employerTier={ctx.employer.tier}
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
+      portalRoles={portalRoles}
     >
       {children}
     </EmployerPortalShell>

@@ -36,11 +36,11 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         if (res.status === 401) {
           setError('Please log in to apply.');
         } else {
-          setError(data.error ?? 'Failed to apply');
+          setError(data.error ?? "We couldn't submit your application. Try again in a moment.");
         }
       }
     } catch {
-      setError('Network error');
+      setError("We couldn't connect. Check your connection and try again.");
     } finally {
       setApplying(false);
     }
@@ -59,10 +59,10 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
       if (res.ok) {
         setTracked(true);
       } else {
-        setError(data.error ?? 'Could not add to tracker');
+        setError(data.error ?? "We couldn't save this to your tracker. Try again in a moment.");
       }
     } catch {
-      setError('Network error');
+      setError("We couldn't connect. Check your connection and try again.");
     } finally {
       setTracking(false);
     }
@@ -145,7 +145,7 @@ export default function JobApplyButton({ jobId, authenticated = true }: { jobId:
         <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 'var(--radius-sm)' }} role="alert">
           {error}
           {error === 'Please log in to apply.' && (
-            <Link href={`/login?redirectTo=/dashboard/jobs/${jobId}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
+            <Link href={`/login?redirectTo=${encodeURIComponent(`/dashboard/jobs/${jobId}`)}`} style={{ marginLeft: '0.5rem', textDecoration: 'underline' }}>
               Log in
             </Link>
           )}

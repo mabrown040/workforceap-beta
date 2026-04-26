@@ -61,24 +61,24 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      "PMP, nonprofit executive. Former owner of Consulting Solutions.Net; key leader at Goodwill Career & Technical Academy, Austin Area Urban League. Active with Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin initiatives. 100 Black Men of Austin, Alpha Phi Alpha, Elder at Celebration Church.",
+      'PMP, nonprofit executive, and founder focused on practical workforce pathways. Built WorkforceAP on 25+ years of workforce development leadership across the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation.',
     missionRelevance:
-      "25+ years delivering workforce training through partnerships with Workforce Solutions, State of Texas, Texas Workforce Commission, City of Austin, Goodwill, and Urban League — the barrier-breaking experience that built WorkforceAP.",
+      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — the barrier-breaking experience that built WorkforceAP.',
     bioBlocks: [
       {
         type: 'paragraph',
         text:
-          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings a wealth of expertise in business development, project management, and education, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader at the State of Texas Career Schools, Goodwill Central Texas, and the Austin Urban League, Michael has repeatedly demonstrated his ability to propel business growth through thoughtful strategic planning, operational innovation, and continuous improvement.',
+          'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
       },
       {
         type: 'paragraph',
         text:
-          'Throughout his career, Michael has successfully delivered transformative results by leveraging his comprehensive knowledge of business systems and a disciplined approach to strategic marketing and operational processes. His leadership has yielded significant growth and profitability for organizations, with a proven ability to forge successful partnerships across government and private sectors alike.',
+          'Throughout his career, Michael has successfully delivered transformative results by leveraging his comprehensive knowledge of business systems and a disciplined approach to strategic marketing and operational processes. His leadership has yielded significant growth and profitability for organizations, with a proven ability to forge successful partnerships across government, nonprofit, faith, and private-sector partners alike.',
       },
       {
         type: 'paragraph',
         text:
-          'Beyond his professional endeavors, Michael is deeply committed to community engagement and personal values. A devoted husband of 33 years and proud father of two adult children, his dedication to service is reflected in his active membership with the esteemed 100 Black Men of Austin, his lifelong brotherhood with Alpha Phi Alpha Fraternity, and his role as an Elder at Celebration Church.',
+          'Beyond his professional endeavors, Michael is deeply committed to community engagement and personal values. A devoted husband of 35 years and proud father of two adult children, his dedication to service is reflected in his active membership with 100 Black Men of Austin, his lifelong brotherhood with Alpha Phi Alpha Fraternity, service with Concordia High School and Job Seekers Network boards, and his role as an Elder at Celebration Church.',
       },
       {
         type: 'paragraph',
@@ -88,11 +88,11 @@ export const LEADERS: Leader[] = [
       {
         type: 'paragraph',
         text:
-          'In summary, Michael Brown is a dynamic and visionary leader, committed family man, and community advocate. His proven track record of delivering exceptional outcomes underscores his reputation as a trusted business partner and industry leader.',
+          'He leads WorkforceAP with a practical, member-first philosophy: clear next steps, real employer alignment, and support systems that help people move from uncertainty into work. His proven track record of delivering exceptional outcomes underscores his reputation as a trusted business partner and industry leader.',
       },
     ],
     stats: [
-      { label: 'Family', value: '33 years married' },
+      { label: 'Family', value: '35 years married' },
       { label: 'Community', value: '100 Black Men of Austin' },
       { label: 'Fraternity', value: 'Alpha Phi Alpha Fraternity' },
       { label: 'Faith', value: 'Elder at Celebration Church' },
@@ -453,8 +453,7 @@ export const LEADERS: Leader[] = [
     name: 'Michael Brown II',
     role: 'Lead Consultant',
     title: 'Lead Consultant',
-    /** Empty until a real headshot is available — listing and bio pages omit the placeholder */
-    image: '',
+    image: '/images/michael-brown-ii.png',
     founder: false,
     linkedin: '',
     section: 'consultant',

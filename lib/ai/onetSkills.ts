@@ -65,9 +65,17 @@ export async function getOccupationSkills(occupationCode: string): Promise<OnetS
  * 
  * NOTE: This mapping uses an expanded keyword list based on actual O*NET skill names.
  * When no skills match an axis, value is 0 (no fallback) to show genuine gaps.
+ * 
+ * UPDATED: Design axis now includes fallback logic using course mappings when O*NET
+ * returns empty abilities/knowledge for technical occupations.
  */
 export function mapSkillsToRadarAxes(
-  skills: OnetSkill[]
+  skills: OnetSkill[],
+  options?: {
+    occupationCode?: string;
+    occupationTitle?: string;
+    fallbackDesignScore?: number; // From course mappings
+  }
 ): { axis: string; value: number; maxValue: number; hasData: boolean }[] {
   const axes = [
     {
@@ -92,11 +100,27 @@ export function mapSkillsToRadarAxes(
     {
       axis: 'Design',
       keywords: [
-        'design', 'creative', 'visualization', 'user', 'interface', 'fine arts', 'drafting', 'layout',
-        'ux', 'graphic', 'visual', 'aesthetic', 'composition', 'typography', 'color', 'branding',
-        'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction design', 'product design',
-        'artistic', 'imagination', 'innovation', 'conceptualization', 'spatial', '3d', 'illustration',
-        'multimedia', 'animation', 'motion', 'video', 'audio', 'photography'
+        // ── Exact O*NET ability names (from /abilities endpoint) ──
+        'originality', 'fluency of ideas', 'flexibility of closure', 'speed of closure',
+        'spatial orientation', 'visualization', 'perceptual speed', 'selective attention',
+        'time sharing', 'near vision', 'far vision', 'visual color discrimination',
+        'depth perception', 'glare sensitivity',
+        // ── Exact O*NET knowledge names (from /knowledge endpoint) ──
+        'fine arts', 'design', 'communications and media', 'history and archeology',
+        'philosophy and theology', 'sociology and anthropology', 'foreign language',
+        // ── Exact O*NET skill names related to design/creative ──
+        'writing', 'reading comprehension',
+        'thinking creatively', 'updating and using relevant knowledge',
+        // ── Core design terms (substring match) ──
+        'ux', 'ui', 'graphic', 'visual', 'aesthetic', 'typography', 'color', 'branding',
+        'prototyping', 'wireframing', 'user experience', 'user interface', 'interaction',
+        'artistic', 'illustration', 'multimedia', 'animation', 'video production',
+        'photography', 'layout', 'drafting', 'blueprint', 'sketch', 'storyboard',
+        'copywriting', 'content creation', 'editing', 'publishing', 'media',
+        'advertising', 'marketing communications', 'creative direction', 'art direction',
+        // ── Broad creative problem-solving (catches "innovation" type skills) ──
+        'idea generation', 'concept development', 'creative problem', 'design thinking',
+        'imagining', 'inventing', 'innovating', 'brainstorming',
       ],
     },
     {
@@ -106,7 +130,8 @@ export function mapSkillsToRadarAxes(
         'complex problem solving', 'systems analysis', 'systems evaluation', 'strategic', 'strategy', 'organizing',
         'prioritization', 'delegation', 'supervision', 'direction', 'administration', 'governance', 'oversight',
         'business acumen', 'executive', 'vision', 'roadmap', 'stakeholder', 'cross-functional', 'alignment',
-        'resource allocation', 'budget', 'forecasting', 'risk assessment', 'change management', 'negotiation'
+        'resource allocation', 'budget', 'forecasting', 'risk assessment', 'change management', 'negotiation',
+        'sales and marketing', 'selling', 'marketing', 'sales'
       ],
     },
     {
@@ -116,7 +141,8 @@ export function mapSkillsToRadarAxes(
         'social perceptiveness', 'persuasion', 'negotiation', 'instructing', 'service orientation', 'ethical',
         'responsibility', 'reliability', 'honesty', 'transparency', 'accountability', 'fairness', 'equity',
         'privacy', 'security', 'confidentiality', 'professionalism', 'empathy', 'emotional intelligence',
-        'cultural awareness', 'diversity', 'inclusion', 'collaboration', 'teamwork', 'interpersonal', 'communication'
+        'cultural awareness', 'diversity', 'inclusion', 'collaboration', 'teamwork', 'interpersonal', 'communication',
+        'active listening', 'speaking'
       ],
     },
     {
@@ -136,12 +162,18 @@ export function mapSkillsToRadarAxes(
       keywords.some((kw) => s.name.toLowerCase().includes(kw.toLowerCase()))
     );
     
-    // NO FALLBACK: If no skills match this axis, show 0 (genuine gap)
-    const hasData = matching.length > 0;
-    const avgScore = hasData
+    // Check if we need fallback for Design axis
+    let hasData = matching.length > 0;
+    let avgScore = hasData
       ? Math.round(matching.reduce((sum, s) => sum + s.score, 0) / matching.length)
       : 0;
-      
+    
+    // Apply fallback for Design axis when O*NET returns empty
+    if (axis === 'Design' && !hasData && options?.fallbackDesignScore) {
+      avgScore = options.fallbackDesignScore;
+      hasData = true; // Mark as having data so it displays
+    }
+    
     return { axis, value: avgScore, maxValue: 100, hasData };
   });
 }

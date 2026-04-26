@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import GapAnalyzerForm from '@/components/portal/tools/GapAnalyzerForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata = buildPageMetadata({
   title: 'Resume Gap Analyzer',
@@ -54,7 +55,7 @@ export default async function GapAnalyzerPage() {
                 flexShrink: 0,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>history</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">history</span>
             </div>
             <div>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
@@ -68,16 +69,18 @@ export default async function GapAnalyzerPage() {
         </div>
 
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
-              Upload your resume. We&apos;ll flag employment gaps and suggest framing language for cover letters
+              Upload your resume. We&rsquo;ll flag employment gaps and suggest framing language for cover letters
               and interviews so you can address them confidently.
             </p>
           </div>
 
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <GapAnalyzerForm />
           </div>
+
+          <ToolHistoryPanel userId={user.id} toolType="gap_analyzer" />
         </div>
 
         <MobileBottomNav variant="portal" />

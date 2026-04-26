@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { CertTrack } from '@/lib/content/certificationTracks';
 import { CERTIFICATION_TRACKS } from '@/lib/content/certificationTracks';
+import PortalLoadingState from '@/components/portal/PortalLoadingState';
 
 export default function CertificationRoadmap() {
   const [earned, setEarned] = useState<Set<string>>(new Set());
@@ -43,7 +44,7 @@ export default function CertificationRoadmap() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <PortalLoadingState message="Loading certifications…" />;
 
   return (
     <div className="certification-roadmap">

@@ -1,8 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Find a Mentor',
+  description: 'Browse WorkforceAP mentors and request a session with someone in your field.',
+  path: '/dashboard/mentors',
+});
 
 export default async function MentorsBrowsePage() {
   const user = await getUser();
@@ -17,7 +25,7 @@ export default async function MentorsBrowsePage() {
   return (
     <>
       {/* Mobile */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>Find a Mentor</h1>
         <div style={{ display: 'grid', gap: '0.75rem' }}>
           {mentors.map((mentor) => (
@@ -35,9 +43,9 @@ export default async function MentorsBrowsePage() {
       </div>
 
       {/* Desktop */}
-      <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>Find a Mentor</h1>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+      <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem' }}>
+        <h2 aria-hidden="true" style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>Find a Mentor</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
           {mentors.map((mentor) => (
             <div key={mentor.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1rem', background: 'var(--surface-container-lowest)' }}>
               <div style={{ fontSize: '1.05rem', fontWeight: 700 }}>{mentor.fullName}</div>

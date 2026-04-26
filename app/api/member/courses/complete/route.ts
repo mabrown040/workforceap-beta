@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
-import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
-import { sendCourseCompletedEmail } from '@/lib/email';
+import { completeMemberCourse } from '@/lib/member/courseCompletion';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -23,49 +20,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'courseSlug is required' }, { status: 400 });
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { enrolledProgram: true, coursesCompleted: true, email: true, fullName: true },
-  });
-
-  if (!dbUser?.enrolledProgram) {
-    return NextResponse.json({ error: 'No program enrolled' }, { status: 400 });
+  try {
+    const result = await completeMemberCourse({
+      userId: user.id,
+      courseSlug,
+      source: 'member',
+    });
+    return NextResponse.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unable to mark course complete';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
-
-  const program = getProgramBySlug(dbUser.enrolledProgram);
-  if (!program) {
-    return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
-  }
-
-  const courseExists = program.courses.some((c) => c.slug === courseSlug);
-  if (!courseExists) {
-    return NextResponse.json({ error: 'Course not in your program' }, { status: 400 });
-  }
-
-  const completed = (dbUser.coursesCompleted as string[] | null) ?? [];
-  if (completed.includes(courseSlug)) {
-    return NextResponse.json({ ok: true });
-  }
-
-  const updated = [...completed, courseSlug];
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { coursesCompleted: updated },
-  });
-
-  const courseMeta = program.courses.find((c) => c.slug === courseSlug);
-  const courseName = courseMeta?.name ?? courseSlug;
-
-  sendPartnerMilestoneEmail(user.id, 'Course completed', {
-    Course: courseName,
-  }).catch((err) => console.error('Partner milestone email failed:', err));
-
-  sendCourseCompletedEmail({
-    to: dbUser.email,
-    fullName: dbUser.fullName,
-    courseName,
-  }).catch((err) => console.error('Course completed email failed:', err));
-
-  return NextResponse.json({ ok: true });
 }

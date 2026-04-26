@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { scoreAssessment, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import type { QuestionChoice } from '@/lib/assessment/answer-key';
 import { brandedEmailLayout } from '@/lib/email/template';
+import { trackEvent } from '@/lib/events/track';
 
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';
 
@@ -59,8 +60,17 @@ export async function POST(request: Request) {
     },
   });
 
+  // Track assessment completion for funnel analytics
+  await trackEvent({
+    userId: user.id,
+    eventName: 'apply_signup_completed',
+    entityType: 'assessment',
+    metadata: { rawScore: raw, scorePct: pct, programInterest },
+    sourcePage: '/dashboard/assessment',
+  });
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
   const adminLink = `${siteUrl}/admin/assessments?userId=${user.id}`;
 
   const resendKey = process.env.RESEND_API_KEY;

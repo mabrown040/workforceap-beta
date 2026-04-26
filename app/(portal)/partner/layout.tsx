@@ -1,33 +1,31 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser, isSuperAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import PartnerPortalShell from '@/components/portal/PartnerPortalShell';
+
+export const metadata: Metadata = {
+  title: 'Partner Portal',
+};
 
 export default async function PartnerPortalLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
-  const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  const [superUser, portalRoles] = await Promise.all([isSuperAdmin(user.id), getPortalSwitcherRoles(user.id)]);
+  const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superUser });
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  let directPartnerUser: { id: string } | null = null;
-  try {
-    directPartnerUser = await prisma.partnerUser.findUnique({
-      where: { userId: user.id },
-      select: { id: true },
-    });
-  } catch (e) {
-    console.error('[partner/layout] partnerUser lookup failed', e);
-  }
-  const superUser = await isSuperAdmin(user.id);
-  const superBanner = superUser && !directPartnerUser;
+  const superBanner = superUser && !ctx.hasDirectPartnerLink;
 
   return (
     <PartnerPortalShell
       partnerName={ctx.partner.name}
       superAdmin={superBanner}
       superAdminImpersonating={superBanner}
+      portalRoles={portalRoles}
     >
       {children}
     </PartnerPortalShell>

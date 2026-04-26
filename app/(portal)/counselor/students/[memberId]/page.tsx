@@ -7,11 +7,23 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import Link from 'next/link';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
+import StatusBadge from '@/components/portal/StatusBadge';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
+import {
+  employerAiMatchStatusBadgeVariant,
+  employerMatchPipelineLabel,
+} from '@/lib/employer/aiMatchPipelineLabels';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -50,6 +62,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       enrolledProgram: true,
       programInterest: true,
       assessmentScorePct: true,
+      coursesCompleted: true,
       wioaQualificationJson: true,
       wioaReviewStatus: true,
       wioaReviewedAt: true,
@@ -74,6 +87,23 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     notFound();
   }
 
+  const [applications, aiMatches] = await Promise.all([
+    prisma.jobPostingApplication.findMany({
+      where: { studentId: memberId },
+      orderBy: { appliedAt: 'desc' },
+      include: {
+        job: { select: { id: true, title: true, employer: { select: { companyName: true } } } },
+      },
+    }),
+    prisma.aIJobMatch.findMany({
+      where: { studentId: memberId },
+      orderBy: { matchScore: 'desc' },
+      include: {
+        job: { select: { id: true, title: true, employer: { select: { companyName: true } } } },
+      },
+    }),
+  ]);
+
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const messages = await prisma.message.findMany({
     where: { threadId: thread.id },
@@ -92,6 +122,18 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     enrolledProgram: member.enrolledProgram,
     assessmentScorePct: member.assessmentScorePct,
   });
+  const enrollmentBadgeVariant = counselorStudentStatusBadgeVariant({
+    enrolledProgram: member.enrolledProgram,
+    assessmentScorePct: member.assessmentScorePct,
+  });
+
+  // Program progress — real data from enrolled program courses
+  const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
+  const programCourses = programMeta?.courses ?? [];
+  const completedSlugs = new Set(parseCourseSlugList(member.coursesCompleted));
+  const progressPct = programCourses.length > 0
+    ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
+    : 0;
 
   const hasResumeFiles =
     !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
@@ -109,7 +151,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   return (
     <>
       {/* ── Mobile ─────────────────────────────────────────── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Back nav */}
         <div style={{ padding: '1rem 1rem 0' }}>
           <Link
@@ -124,10 +166,10 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               textDecoration: 'none',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               arrow_back
             </span>
-            All Students
+            All Members
           </Link>
         </div>
 
@@ -138,7 +180,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               background: '#fff',
               borderRadius: '1rem',
               padding: '1.25rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
@@ -148,7 +190,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   width: 56,
                   height: 56,
                   borderRadius: '0.875rem',
-                  background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
+                  background: 'var(--color-accent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -170,20 +212,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 >
                   {program}
                 </p>
-                <span
-                  style={{
-                    padding: '0.125rem 0.625rem',
-                    borderRadius: '9999px',
-                    background: enrollmentBadge.style.background,
-                    color: enrollmentBadge.style.color,
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase' as const,
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {enrollmentBadge.label}
-                </span>
+                <StatusBadge label={enrollmentBadge.label} variant={enrollmentBadgeVariant} />
               </div>
             </div>
 
@@ -191,48 +220,18 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             <div style={{ display: 'flex', gap: '0.625rem' }}>
               <Link
                 href="/counselor/messages"
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0',
-                  background: 'var(--surface-container)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: 'var(--color-on-surface)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  textDecoration: 'none',
-                }}
+                className="btn btn-outline"
+                style={{ flex: 1, fontSize: '0.8rem' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-                  chat
-                </span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">chat</span>
                 Message
               </Link>
-              <button
+              <button type="button"
                 disabled
-                style={{
-                  flex: 1,
-                  padding: '0.625rem 0',
-                  background: 'var(--color-accent)',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: '#fff',
-                  cursor: 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  opacity: 0.5,
-                }}
+                className="btn btn-primary"
+                style={{ flex: 1, fontSize: '0.8rem', opacity: 0.5, cursor: 'not-allowed' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
                   event
                 </span>
                 Schedule
@@ -248,82 +247,57 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               background: '#fff',
               borderRadius: '0.75rem',
               padding: '1.25rem',
-              border: '1px solid #ebe7e7',
+              border: '1px solid var(--outline-variant)',
             }}
           >
             <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
               Program Progress
             </h3>
-            {/* Overall progress bar */}
-            <div style={{ marginBottom: '1rem' }}>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}
-              >
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                  Overall Completion
-                </span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>68%</span>
-              </div>
-              <div
-                style={{
-                  height: 6,
-                  background: 'var(--surface-container)',
-                  borderRadius: '9999px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: '68%',
-                    background: 'linear-gradient(90deg,#8c0f37,#ad2c4d)',
-                    borderRadius: '9999px',
-                  }}
-                />
-              </div>
-            </div>
-            {/* Module list */}
-            {[
-              { name: 'Module 1: Introduction', done: true },
-              { name: 'Module 2: Core Skills', done: true },
-              { name: 'Module 3: Applied Practice', done: false, inProgress: true },
-              { name: 'Module 4: Capstone', done: false },
-            ].map((mod) => (
-              <div
-                key={mod.name}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '0.8rem',
-                  padding: '0.375rem 0',
-                  borderTop: '1px solid #f0edec',
-                  opacity: mod.done || mod.inProgress ? 1 : 0.5,
-                }}
-              >
-                <span style={{ color: 'var(--color-on-surface-variant)' }}>{mod.name}</span>
-                {mod.done ? (
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }}>
-                    check_circle
-                  </span>
-                ) : mod.inProgress ? (
-                  <span
-                    style={{
-                      padding: '0.125rem 0.5rem',
-                      borderRadius: '9999px',
-                      background: '#fef3c7',
-                      color: 'var(--color-gold)',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    In Progress
-                  </span>
-                ) : (
-                  <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
-                )}
-              </div>
-            ))}
+            {programCourses.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                {member.enrolledProgram ? 'No course data available for this program.' : 'Not enrolled in a program yet.'}
+              </p>
+            ) : (
+              <>
+                {/* Overall progress bar */}
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                      Overall Completion
+                    </span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{progressPct}%</span>
+                  </div>
+                  <div style={{ height: 6, background: 'var(--surface-container)', borderRadius: '9999px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-accent)', borderRadius: '9999px' }} />
+                  </div>
+                </div>
+                {/* Course list */}
+                {programCourses.map((course) => {
+                  const done = completedSlugs.has(course.slug);
+                  return (
+                    <div
+                      key={course.slug}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '0.8rem',
+                        padding: '0.375rem 0',
+                        borderTop: '1px solid var(--outline-variant)',
+                        opacity: done ? 1 : 0.6,
+                      }}
+                    >
+                      <span style={{ color: 'var(--color-on-surface-variant)' }}>{course.name}</span>
+                      {done ? (
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#166534' }} aria-hidden="true">check_circle</span>
+                      ) : (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>Not started</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
 
@@ -351,7 +325,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 background: '#fff',
                 borderRadius: '0.75rem',
                 padding: '1.25rem',
-                border: '1px solid #ebe7e7',
+                border: '1px solid var(--outline-variant)',
               }}
             >
               <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
@@ -361,18 +335,123 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </div>
           </div>
         ) : null}
+
+        {/* Job Pipeline */}
+        <div style={{ padding: '0 1rem 1.5rem' }}>
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: '0.75rem',
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+              Job Pipeline
+            </h3>
+
+            {applications.length === 0 && aiMatches.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                No applications or AI matches yet.
+              </p>
+            ) : null}
+
+            {applications.length > 0 ? (
+              <div style={{ marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Applications
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {applications.map((app) => (
+                    <div
+                      key={app.id}
+                      style={{
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--surface-container-low)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-on-surface)', margin: 0 }}>{app.job.title}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{app.job.employer.companyName}</p>
+                        </div>
+                        <StatusBadge
+                          label={employerJobPostingApplicationStatusLabel(app.status)}
+                          variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {aiMatches.length > 0 ? (
+              <div>
+                <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  AI Matches
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {aiMatches.map((m) => (
+                    <div
+                      key={m.id}
+                      style={{
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--surface-container-low)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--color-on-surface)', margin: 0 }}>{m.job.title}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{m.job.employer.companyName}</p>
+                        </div>
+                        <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
+                          <div style={{ marginTop: '0.25rem' }}>
+                            <StatusBadge
+                              label={employerMatchPipelineLabel(m.status)}
+                              variant={employerAiMatchStatusBadgeVariant(m.status)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div className="portal-main-content">
           <Link
             href="/counselor/students"
             style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
           >
-            ← Back to students
+            ← Back to members
           </Link>
-          <PageHeader title={member.fullName} subtitle={member.email} />
+          <PageHeader
+            title={member.fullName}
+            subtitle={member.email}
+            breadcrumbs={[
+              { label: 'Members', href: '/counselor/students' },
+              { label: 'Member details' },
+            ]}
+            action={
+              <Link
+                href={`/counselor/sessions/${member.id}/run`}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                Start in-office session →
+              </Link>
+            }
+          />
 
           {wioaSnap ? (
             <section style={{ marginTop: '1.5rem' }}>
@@ -390,7 +469,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             <section style={{ marginTop: '1.5rem' }}>
               <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>
               <div
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
               >
                 <StaffMemberResumePanel memberId={member.id} />
@@ -417,6 +496,66 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 })),
               }}
             />
+          </section>
+
+          {/* Job Pipeline — Desktop */}
+          <section style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Job Pipeline</h2>
+            {applications.length === 0 && aiMatches.length === 0 ? (
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}>
+                <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications or AI matches yet.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '1rem' }}>
+                {applications.length > 0 ? (
+                  <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}>
+                    <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Applications</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {applications.map((app) => (
+                        <div key={app.id} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                            <div>
+                              <p style={{ fontWeight: 700, margin: 0 }}>{app.job.title}</p>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{app.job.employer.companyName}</p>
+                            </div>
+                            <StatusBadge
+                              label={employerJobPostingApplicationStatusLabel(app.status)}
+                              variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                {aiMatches.length > 0 ? (
+                  <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}>
+                    <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem', color: 'var(--color-on-surface-variant)' }}>AI Matches</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {aiMatches.map((m) => (
+                        <div key={m.id} style={{ padding: '0.75rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                            <div>
+                              <p style={{ fontWeight: 700, margin: 0 }}>{m.job.title}</p>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>{m.job.employer.companyName}</p>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>
+                              <div style={{ marginTop: '0.25rem' }}>
+                                <StatusBadge
+                                  label={employerMatchPipelineLabel(m.status)}
+                                  variant={employerAiMatchStatusBadgeVariant(m.status)}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            )}
           </section>
 
           {adminUser ? (

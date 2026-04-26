@@ -35,7 +35,7 @@ export default function Error({
           />
         </Link>
         <p className="app-system-page__eyebrow">Something went wrong</p>
-        <h1 className="app-system-page__title">We couldn&apos;t load this page</h1>
+        <h1 className="app-system-page__title">We couldn&rsquo;t load this page</h1>
         <p className="app-system-page__text">
           Please try again. If it keeps happening, contact{' '}
           <a href="mailto:info@workforceap.org">info@workforceap.org</a>

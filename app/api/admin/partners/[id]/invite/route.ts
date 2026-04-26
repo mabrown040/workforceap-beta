@@ -24,6 +24,61 @@ async function findAuthUserIdByEmail(admin: ReturnType<typeof getSupabaseAdmin>,
   return null;
 }
 
+async function ensurePartnerUserLink(userId: string, partnerId: string) {
+  const existing = await prisma.partnerUser.findFirst({
+    where: { userId },
+    select: { id: true, partnerId: true },
+  });
+
+  if (existing) {
+    if (existing.partnerId !== partnerId) {
+      await prisma.partnerUser.update({
+        where: { id: existing.id },
+        data: { partnerId },
+      });
+    }
+    return;
+  }
+
+  await prisma.partnerUser.create({
+    data: { partnerId, userId },
+  });
+}
+
+async function ensurePartnerInviteUser(params: {
+  userId: string;
+  organizationId: string;
+  email: string;
+  fullName: string;
+}) {
+  const existing = await prisma.user.findFirst({
+    where: { id: params.userId },
+    select: { id: true },
+  });
+
+  if (existing) {
+    await prisma.user.update({
+      where: { id: params.userId },
+      data: {
+        organizationId: params.organizationId,
+        email: params.email,
+        fullName: params.fullName,
+      },
+      select: { id: true },
+    });
+    return;
+  }
+
+  await prisma.user.create({
+    data: {
+      id: params.userId,
+      organizationId: params.organizationId,
+      email: params.email,
+      fullName: params.fullName,
+    },
+    select: { id: true },
+  });
+}
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const adminUser = await getUser();
   if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,7 +99,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   const email = parsed.data.email.toLowerCase().trim();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const displayName = partner.contactName?.trim() || 'Partner User';
 
   let authUserId: string | null = null;
@@ -66,22 +121,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    await prisma.user.upsert({
-      where: { id: authUserId },
-      create: {
-        id: authUserId,
-        organizationId: partner.organizationId,
-        email,
-        fullName: displayName,
-      },
-      update: { email },
+    await ensurePartnerInviteUser({
+      userId: authUserId,
+      organizationId: partner.organizationId,
+      email,
+      fullName: displayName,
     });
 
-    await prisma.partnerUser.upsert({
-      where: { userId: authUserId },
-      create: { partnerId, userId: authUserId },
-      update: { partnerId },
-    });
+    await ensurePartnerUserLink(authUserId, partnerId);
   } catch (e) {
     console.error('Partner invite DB error:', e);
     return NextResponse.json({ error: 'Failed to link partner user' }, { status: 500 });

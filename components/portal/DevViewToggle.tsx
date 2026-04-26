@@ -49,6 +49,7 @@ export default function DevViewToggle() {
     <div className="dev-view-toggle">
       <button
         type="button"
+        aria-pressed={mode === 'student'}
         onClick={() => handleToggle('student')}
         style={{
           padding: '0.35rem 0.6rem',
@@ -59,10 +60,11 @@ export default function DevViewToggle() {
           cursor: 'pointer',
         }}
       >
-        Student View
+        Member View
       </button>
       <button
         type="button"
+        aria-pressed={mode === 'admin'}
         onClick={() => handleToggle('admin')}
         style={{
           padding: '0.35rem 0.6rem',

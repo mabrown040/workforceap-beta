@@ -54,7 +54,7 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}
+                  style={{ fontSize: '1rem', color: cat.color, '--ms-fill': 1 }}
                 >
                   {cat.icon}
                 </span>
@@ -76,7 +76,7 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
               <span
                 className="material-symbols-outlined"
-                style={{ fontSize: '1.375rem', color: 'var(--color-gold, #f59e0b)', fontVariationSettings: "'FILL' 1", flexShrink: 0 }}
+                style={{ fontSize: '1.375rem', color: 'var(--color-gold, #f59e0b)', '--ms-fill': 1, flexShrink: 0 }}
               >
                 priority_high
               </span>
@@ -94,7 +94,7 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
                   }}
                 >
                   Take Action
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                 </a>
               </div>
             </div>

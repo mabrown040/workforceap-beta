@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -18,16 +19,20 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
-import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
+import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
+import PortalLoadingState from '@/components/portal/PortalLoadingState';
+import LogCertificationModal from './LogCertificationModal';
+import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Member overview',
-  description: 'Your WorkforceAP member portal overview.',
+  title: 'Your Dashboard',
+  description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
   path: '/dashboard',
 });
 
@@ -41,7 +46,7 @@ export default async function DashboardPage() {
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&apos;t load your dashboard</h1>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&rsquo;t load your dashboard</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
           Something went wrong while loading this page. This is usually temporary. Try again, or open another section from
           the menu.
@@ -134,7 +139,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, sessionEventsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -151,6 +156,29 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         createdAt: true,
       },
     }),
+    prisma.memberNextBestAction.findMany({
+      where: { memberId: user.id, status: 'PENDING' },
+      orderBy: { priority: 'desc' },
+      take: 2,
+    }),
+    prisma.jobApplication.findMany({
+      where: { userId: user.id, status: 'OFFER' },
+    }),
+    // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
+    // ai_tool_run_completed event in the last 30 days where a counselor or
+    // admin acted on behalf of this member, so the dashboard can render a
+    // "Your session with {actor} on {date}" card.
+    prisma.memberEvent.findMany({
+      where: {
+        userId: user.id,
+        eventName: 'ai_tool_run_completed',
+        sessionId: { not: null },
+        createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      select: { sessionId: true, entityId: true, createdAt: true, metadata: true },
+    }),
   ]);
 
   const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
@@ -162,6 +190,49 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   if (applicationResult.status === 'rejected') {
     console.error('[dashboard] latest application query failed', applicationResult.reason);
   }
+
+  const dynamicNextActions = dynamicActionsResult.status === 'fulfilled' ? dynamicActionsResult.value : [];
+  if (dynamicActionsResult.status === 'rejected') {
+    console.error('[dashboard] dynamic actions query failed', dynamicActionsResult.reason);
+  }
+
+  const jobOffers = jobApplicationsResult.status === 'fulfilled' ? jobApplicationsResult.value : [];
+
+  // Group on-behalf-of session events by sessionId so the dashboard can
+  // render a single "Your session with {actor}" card for the most recent run.
+  const sessionEvents = sessionEventsResult.status === 'fulfilled' ? sessionEventsResult.value : [];
+  if (sessionEventsResult.status === 'rejected') {
+    console.error('[dashboard] session events query failed', sessionEventsResult.reason);
+  }
+  type SessionSummary = {
+    sessionId: string;
+    actorName: string;
+    startedAt: Date;
+    toolCount: number;
+    resultIds: string[];
+  };
+  const sessionMap = new Map<string, SessionSummary>();
+  for (const ev of sessionEvents) {
+    if (!ev.sessionId) continue;
+    const meta = (ev.metadata ?? {}) as { runOnBehalf?: boolean; actorName?: string | null };
+    if (!meta.runOnBehalf) continue;
+    const existing = sessionMap.get(ev.sessionId);
+    if (existing) {
+      existing.toolCount += 1;
+      if (ev.entityId) existing.resultIds.push(ev.entityId);
+      if (ev.createdAt < existing.startedAt) existing.startedAt = ev.createdAt;
+    } else {
+      sessionMap.set(ev.sessionId, {
+        sessionId: ev.sessionId,
+        actorName: meta.actorName ?? 'your counselor',
+        startedAt: ev.createdAt,
+        toolCount: 1,
+        resultIds: ev.entityId ? [ev.entityId] : [],
+      });
+    }
+  }
+  const latestSession =
+    [...sessionMap.values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0] ?? null;
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
@@ -218,25 +289,43 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     fullName: dbUser.fullName,
     email: dbUser.email,
   });
+  const profileMissingFields = getProfileMissingFields(profileForCompleteness, {
+    fullName: dbUser.fullName,
+    email: dbUser.email,
+  });
 
-  const nextBestActions = buildNextBestActions({
+  let nextBestActions = buildNextBestActions({
     state: dashboardState,
     noApplicationOnFile,
     enrolledProgram,
     assessmentCompleted,
     hasResume: engagementSignals.hasResume,
     profileCompletenessPct,
+    profileMissingFields,
     jobApplicationCount: engagementSignals.jobApplicationCount,
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
   });
 
+  for (const dbAction of dynamicNextActions.reverse()) {
+    nextBestActions.unshift({
+      id: dbAction.id,
+      title: dbAction.title,
+      body: dbAction.description,
+      href: dbAction.ctaHref,
+      cta: dbAction.ctaLabel,
+      variant: 'urgent',
+      weight: dbAction.priority + 100,
+    });
+  }
+  nextBestActions = nextBestActions.slice(0, 4);
+
   const checklist = {
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    startFirstCourse: completedCount > 0,
-    completeFirstCourse: completedCount >= 1, // true after completing any single course
+    startFirstCourse: !!enrolledProgram && assessmentCompleted, // training unlocked
+    completeFirstCourse: completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
 
@@ -267,6 +356,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   /* Mobile progress percentage for orb */
   const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
+  const mobileProgressSummary = totalCourses > 0
+    ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
+    : 'Courses will appear once your program is set';
   const orbCircumference = 251.2;
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
@@ -288,6 +381,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const interviewRequested = !!intakeExtra?.interviewRequestedAt;
   const interviewEligibleFlag = intakeExtra?.interviewEligible ?? false;
 
+  const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
+
   /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
     {
@@ -302,7 +397,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       done: assessmentCompleted,
       active: !!enrolledProgram && !assessmentCompleted,
       locked: !enrolledProgram,
-      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to unlock training' : 'Locked until enrolled',
+      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to start training' : 'Waiting for enrollment',
     },
     {
       label: 'Interview',
@@ -352,59 +447,180 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     <>
       <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
 
+      {/* ── Recent in-office session card — shown to both mobile + desktop
+          when a counselor or admin ran tools on the member's behalf in the
+          last 30 days. See lib/auth/actAsSubject.ts. ── */}
+      {latestSession ? (
+        <MemberSessionCard
+          actorName={latestSession.actorName}
+          startedAt={latestSession.startedAt}
+          toolCount={latestSession.toolCount}
+        />
+      ) : null}
+
       {/* ── Mobile-only dashboard (≤767px) ── */}
-      <div className="wa-md:wa-hidden portal-mobile-content">
+      <div className="md:wa-hidden portal-mobile-content">
 
         {/* ── Hero: greeting + progress ring ── */}
-        <section style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1.5rem 1.25rem 1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '62%' }}>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
-              {formatPortalDate(new Date())}
-            </p>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.2 }}>
-              Hi, {firstName}
-            </h2>
-            {program && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-                {program.title}
-              </p>
-            )}
-          </div>
+        <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
+          <div
+            style={{
+              borderRadius: '1.5rem',
+              padding: '1rem',
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, white) 0%, white 52%)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 14%, var(--outline-variant))',
+              boxShadow: '0 16px 40px rgba(17, 24, 39, 0.08)',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: '-2.5rem',
+                right: '-2rem',
+                width: '8rem',
+                height: '8rem',
+                borderRadius: '999px',
+                background: 'radial-gradient(circle, color-mix(in srgb, var(--color-accent) 18%, transparent) 0%, transparent 68%)',
+                pointerEvents: 'none',
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.9rem', position: 'relative' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start', padding: '0.35rem 0.55rem', borderRadius: '999px', background: 'rgba(255,255,255,0.8)', border: '1px solid var(--outline-variant)' }}>
+                  <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>
+                    {formatPortalDate(new Date())}
+                  </p>
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+                    Member dashboard
+                  </p>
+                  <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
+                    Hi, {firstName}
+                  </h2>
+                </div>
+                {program && (
+                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'rgba(255,255,255,0.9)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
+                    <p style={{ fontSize: '0.76rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.35, fontWeight: 600 }}>
+                      {program.title}
+                    </p>
+                  </div>
+                )}
+              </div>
 
-          {/* Progress ring */}
-          <div className="portal-progress-ring" style={{ width: '5.25rem', height: '5.25rem', flexShrink: 0 }}>
-            <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
-              <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
-              <circle
-                cx="48" cy="48" r="40" fill="transparent"
-                stroke="var(--color-accent)" strokeWidth="7"
-                strokeDasharray={orbCircumference}
-                strokeDashoffset={orbDashoffset}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="portal-progress-ring__inner">
-              <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{mobilePct}%</span>
-              <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-gold)', marginTop: '0.15rem' }}>Progress</span>
+              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
+              {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+                <div
+                  className="portal-progress-ring"
+                  style={{
+                    width: '6rem',
+                    height: '6rem',
+                    flexShrink: 0,
+                    borderRadius: '999px',
+                    background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
+                    boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
+                  }}
+                >
+                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
+                    <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
+                    <circle
+                      cx="48" cy="48" r="40" fill="transparent"
+                      stroke="var(--color-accent)" strokeWidth="7"
+                      strokeDasharray={orbCircumference}
+                      strokeDashoffset={orbDashoffset}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
+                    <span className="wa-text-xl wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
+                    <span className="wa-text-[9px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
+                      {mobileProgressTone}
+                    </span>
+                  </div>
+                </div>
+                <div
+                  style={{
+                    padding: '0.38rem 0.72rem',
+                    borderRadius: '999px',
+                    background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
+                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, white)',
+                  }}
+                >
+                  <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
+                    Training progress
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
+                  {mobileProgressSummary}
+                </p>
+              </div>}
             </div>
+
+            {dashboardState !== 'A' && (
+            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
+              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
+                Training progress is based on completed courses. Your application steps are shown below.
+              </p>
+            </div>
+            )}
           </div>
         </section>
 
-        {/* ── Voice section ── */}
-        <section style={{ padding: '0 1.25rem 1rem' }}>
+        {/* ── State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ── */}
+        {dashboardState === 'A' && (
+          <section style={{ padding: '0 1.25rem 1.25rem' }}>
+            <Link
+              href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
+              style={{
+                display: 'block',
+                borderRadius: '1rem',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+                boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 28%, transparent)',
+                padding: '1.25rem',
+                textDecoration: 'none',
+              }}
+            >
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.78)', margin: '0 0 0.4rem' }}>
+                Your next step
+              </p>
+              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
+                {noApplicationOnFile
+                  ? 'Apply now — 10 minutes'
+                  : 'Choose your program'}
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
+                {noApplicationOnFile
+                  ? 'Career training at no cost to members, funded by grants and partnerships. A counselor will help you pick the right program and next steps.'
+                  : 'Pick the career track that fits your goals. Programs are available at no cost to members, funded by grants and partnerships.'}
+              </p>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
+                <span>{noApplicationOnFile ? 'Start Application' : 'Choose Program'}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </div>
+            </Link>
+          </section>
+        )}
+
+        <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
 
-        {nextBestActions.length > 0 && (
+        {dashboardState !== 'A' && nextBestActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
           </section>
         )}
 
         {/* ── Priority next-step card ── */}
+        <PlacementConfirmationStrip offers={jobOffers} />
         {applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px rgba(173,44,77,0.3)' }}>
+            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
@@ -413,10 +629,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                       {applicationStatus.nextStep}
                     </h2>
                   </div>
-                  <span className="material-symbols-outlined" style={{ color: '#ffbb00', fontVariationSettings: "'FILL' 1", flexShrink: 0, marginLeft: '0.5rem' }} aria-hidden>bolt</span>
+                  <span className="material-symbols-outlined wa-text-xl" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }} aria-hidden>bolt</span>
                 </div>
                 <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-                  For {applicationStatus.programInterest ?? program?.title ?? 'your program'}.
+                  For {program?.title ?? applicationStatus.programInterest ?? 'your program'}.
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}
@@ -432,6 +648,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         {/* ── Career path ── */}
         <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+          <LogCertificationModal />
         </div>
 
         {/* ── Application journey timeline ── */}
@@ -462,78 +679,95 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Programs / Next Milestones scroll row ── */}
+        {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
         {!enrolledProgram ? (
-          <section style={{ marginBottom: '1.5rem' }}>
-            <div className="portal-dash-section-header" style={{ padding: '0 1.25rem' }}>
-              <h3 className="portal-dash-section-header__title">Recommended Programs</h3>
-              <a href="/programs" className="portal-dash-section-header__action">View All</a>
+          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
+              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
+              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
             </div>
-            <div className="portal-card-scroll-row" style={{ padding: '0 1.25rem' }}>
-              {PROGRAMS.slice(0, 4).map((prog, i) => (
-                <a key={i} href="/programs" className="portal-mini-action-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div
-                    className="portal-mini-action-card__header"
-                    style={{ background: `linear-gradient(135deg, ${prog.categoryColor ?? 'var(--surface-container-high)'} 0%, var(--surface-container-highest) 100%)`, position: 'relative' }}
-                  >
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }} />
+            <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
+              {PROGRAMS.slice(0, 3).map((prog, i) => (
+                <div
+                  key={i}
+                  className="portal-card portal-card--flat"
+                  style={{
+                    width: mobileCarouselCardWidth,
+                    minWidth: mobileCarouselCardWidth,
+                    overflow:"hidden",
+                    flexShrink:0,
+                    background:"var(--surface-container-lowest)",
+                    borderRadius:"0.75rem",
+                  }}
+                >
+                  <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
+                  <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
+                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
+                    <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
                   </div>
-                  <div className="portal-mini-action-card__body">
-                    <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-gold)', margin: 0 }}>
-                      {prog.partner ?? 'WorkforceAP'}
-                    </p>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.3 }}>
-                      {prog.title}
-                    </p>
-                  </div>
-                </a>
+                </div>
               ))}
             </div>
           </section>
         ) : (
-          <section style={{ marginBottom: '1.5rem' }}>
-            <div className="portal-dash-section-header" style={{ padding: '0 1.25rem' }}>
-              <h3 className="portal-dash-section-header__title">Next Milestones</h3>
-              <a href="/dashboard/training" className="portal-dash-section-header__action">Training</a>
+          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
+              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
+                Next milestones
+              </h3>
+              <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
+                Training
+              </a>
             </div>
-            <div className="portal-card-scroll-row" style={{ padding: '0 1.25rem' }}>
-              {([
+            <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
+              {[
                 {
-                  eyebrow: program?.title ?? 'Your Program',
-                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue Training',
-                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track.',
+                  eyebrow: program?.title ?? 'Your program',
+                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue your training',
+                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track and keep progressing.',
                   href: '/dashboard/training',
                   icon: 'school',
-                  gradient: 'portal-action-card-gradient--tools',
                 },
                 {
-                  eyebrow: 'Career Tools',
-                  title: 'Practice Interviews',
-                  desc: 'Build confidence for screens.',
+                  eyebrow: 'Job search tools',
+                  title: 'Practice interview answers',
+                  desc: 'Build confidence for recruiter screens and counselor interviews.',
                   href: '/dashboard/ai-tools/interview-practice',
                   icon: 'record_voice_over',
-                  gradient: 'portal-action-card-gradient--career',
                 },
                 {
-                  eyebrow: 'Jobs',
-                  title: 'Browse Job Board',
-                  desc: 'Explore roles that fit your program.',
+                  eyebrow: 'Connect',
+                  title: 'Browse job board',
+                  desc: 'Explore roles that fit your program and interests.',
                   href: '/dashboard/jobs',
                   icon: 'work',
-                  gradient: 'portal-action-card-gradient--tech',
                 },
-              ] as const).map((card) => (
-                <a key={card.href} href={card.href} className="portal-mini-action-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className={`portal-mini-action-card__header ${card.gradient}`} style={{ position: 'relative' }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }} />
-                    <div style={{ position: 'absolute', top: '0.625rem', right: '0.625rem', width: '1.75rem', height: '1.75rem', borderRadius: '0.4rem', background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span className="material-symbols-outlined" aria-hidden="true" style={{ color: '#fff', fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
+              ].map((card) => (
+                <a
+                  key={card.href}
+                  href={card.href}
+                  className="wa-no-underline active:scale-[0.98] wa-transition-transform"
+                  style={{ width: mobileCarouselCardWidth, minWidth: mobileCarouselCardWidth, flexShrink:0 }}
+                >
+                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
+                    <div className="portal-card__body" style={{ padding:"1rem" }}>
+                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
+                        <div style={{ minWidth:0 }}>
+                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0 }}>
+                            {card.eyebrow}
+                          </p>
+                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0" }}>
+                            {card.title}
+                          </p>
+                        </div>
+                        <span className="material-symbols-outlined" style={{ color:'var(--color-accent)', fontSize:"1.1rem", flexShrink:0 }}>
+                          {card.icon}
+                        </span>
+                      </div>
+                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4 }}>
+                        {card.desc}
+                      </p>
                     </div>
-                    <p style={{ position: 'absolute', bottom: '0.625rem', left: '0.75rem', fontSize: '0.55rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.8)', margin: 0 }}>{card.eyebrow}</p>
-                  </div>
-                  <div className="portal-mini-action-card__body">
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>{card.title}</p>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0', lineHeight: 1.4 }}>{card.desc}</p>
                   </div>
                 </a>
               ))}
@@ -549,13 +783,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <div className="portal-quick-grid-2x2">
             {([
               { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'event_available', label: 'Book Coaching', href: '/dashboard/messages' },
+              { icon: 'support_agent', label: 'My Progress', href: '/dashboard/readiness' },
               { icon: 'forum', label: 'Interview Prep', href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
             ] as const).map((action) => (
               <a key={action.label} href={action.href} className="portal-quick-grid-item">
                 <div className="portal-quick-grid-item__icon">
-                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
                 </div>
                 <span className="portal-quick-grid-item__label">{action.label}</span>
               </a>
@@ -597,90 +831,100 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       </div>
 
       {/* ── Desktop view (hidden on mobile) ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
-        <PortalEntryClient
-          portal="member"
-          showOnboardingWizard={showMemberOnboarding}
-          showTour={showMemberTour}
-          isSuperAdmin={superAdmin}
-          tourSteps={MEMBER_PORTAL_TOUR_STEPS}
-          wizardProps={{
-            initialFullName: intakeExtra?.fullName ?? '',
-            initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
-            initialCity: intakeExtra?.profile?.city ?? '',
-            initialState: intakeExtra?.profile?.state ?? '',
-            initialZip: intakeExtra?.profile?.zip ?? '',
-            initialProgramInterest: wizardProgramInterest,
-            initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
-          }}
-        >
-          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-            <MemberDashboardVoiceSectionLazy />
-          </div>
-          <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
-            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-          </div>
-          <DashboardHomeClient
-            recommendedActions={recommendedActions}
-            jobSearchUrl={jobSearchUrl}
-            firstName={firstName}
-            nextBestActions={nextBestActions}
-            assessmentDone={assessmentCompleted}
-            preScreeningDone={!!intakeExtra?.preScreeningResponse}
-            interviewEligible={intakeExtra?.interviewEligible ?? false}
-            interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-            interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-            state={dashboardState}
-            programTitle={program?.title}
-            enrolledAt={dbUser.enrolledAt}
-            assessmentScorePct={dbUser.assessmentScorePct}
-            completedCount={completedCount}
-            totalCourses={totalCourses}
-            nextMilestone={nextIncompleteCourse?.name}
-            recentActivity={lastThree}
-            checklist={checklist}
-            checklistAllDone={checklistAllDone}
-            applicationStatus={applicationStatus}
-            noApplicationOnFile={noApplicationOnFile}
-            age={userAge}
-            isMinor={isMinor}
-          />
-          {showMatchedRoles && userAge !== null && userAge < 14 ? null : <MatchedRoles />}
-          {recentTools.length > 0 && (
-            <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
-              <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
-                <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
-                <Link href="/dashboard/ai-tools/history" className="portal-section-action">
-                  View all
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
-                </Link>
+          <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
+            <PortalEntryClient
+              portal="member"
+              tourStorageUserId={user.id}
+              showOnboardingWizard={showMemberOnboarding}
+              showTour={showMemberTour}
+              isSuperAdmin={superAdmin}
+              tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+              wizardProps={{
+                initialFullName: intakeExtra?.fullName ?? '',
+                initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+                initialCity: intakeExtra?.profile?.city ?? '',
+                initialState: intakeExtra?.profile?.state ?? '',
+                initialZip: intakeExtra?.profile?.zip ?? '',
+                initialProgramInterest: wizardProgramInterest,
+                initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+              }}
+            >
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+                <MemberDashboardVoiceSectionLazy />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {recentTools.map((r) => (
-                  <div key={r.id} className="portal-activity-item">
-                    <div className="portal-activity-item__icon">
-                      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                        {AI_TOOL_LABELS[r.toolType] ?? r.toolType}
-                      </p>
-                      {r.inputSummary && (
-                        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {stripMarkdownForPreview(r.inputSummary)}
-                        </p>
-                      )}
-                    </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
-                      {formatPortalDate(r.createdAt)}
-                    </span>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                <div style={{ maxWidth: '300px' }}>
+                  <LogCertificationModal />
+                </div>
+              </div>
+              <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
+                <DashboardHomeClient
+                  recommendedActions={recommendedActions}
+                  jobSearchUrl={jobSearchUrl}
+                  aiToolsUsedCount={recentTools.length}
+                  firstName={firstName}
+                  nextBestActions={nextBestActions}
+                  assessmentDone={assessmentCompleted}
+                  preScreeningDone={!!intakeExtra?.preScreeningResponse}
+                  interviewEligible={intakeExtra?.interviewEligible ?? false}
+                  interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+                  interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+                  state={dashboardState}
+                  programTitle={program?.title}
+                  enrolledAt={dbUser.enrolledAt}
+                  assessmentScorePct={dbUser.assessmentScorePct}
+                  completedCount={completedCount}
+                  totalCourses={totalCourses}
+                  nextMilestone={nextIncompleteCourse?.name}
+                  recentActivity={lastThree}
+                  checklist={checklist}
+                  checklistAllDone={checklistAllDone}
+                  applicationStatus={applicationStatus}
+                  noApplicationOnFile={noApplicationOnFile}
+                  age={userAge}
+                  isMinor={isMinor}
+                />
+              </Suspense>
+              <PlacementConfirmationStrip offers={jobOffers} />
+              {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
+                <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
+                  <MatchedRoles />
+                </Suspense>
+              )}
+              {recentTools.length > 0 && (
+                <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+                  <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
+                    <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
+                    <Link href="/dashboard/ai-tools/history" className="portal-section-action">
+                      View all
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
+                    </Link>
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </PortalEntryClient>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {recentTools.map((r) => (
+                      <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                          {r.inputSummary && (
+                            <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {stripMarkdownForPreview(r.inputSummary)}
+                            </p>
+                          )}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
+                          {formatPortalDate(r.createdAt)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </PortalEntryClient>
+          </Suspense>
         </PortalEntryErrorBoundary>
       </div>
 

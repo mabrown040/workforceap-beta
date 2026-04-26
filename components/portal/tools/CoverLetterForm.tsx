@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ExportPdfButton from './ExportPdfButton';
 
@@ -19,6 +20,10 @@ export default function CoverLetterForm() {
   const { copy, copied } = useCopyToClipboard();
 
   useHydrateMemberResumePlainText(setResume);
+  // Resume hydrates server-side. Persist only user-typed fields so a refresh
+  // doesn't lose work mid-paste of a long job description.
+  useDraftAutosave('ai-tool:cover-letter:jobDescription', jobDescription, setJobDescription);
+  useDraftAutosave('ai-tool:cover-letter:companyName', companyName, setCompanyName);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

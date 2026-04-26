@@ -8,9 +8,9 @@ type Props = { children: ReactNode };
 type State = { error: Error | null };
 
 /**
- * Catches client-side render errors on `/dashboard` (hydration, browser APIs, etc.)
- * without replacing the whole member shell — `dashboard/error.tsx` only handles
- * errors that bubble past the layout’s children.
+ * Catches client-side render errors in member workspace main content (all `/dashboard/*`
+ * routes) without replacing the shell — `dashboard/error.tsx` handles errors that bubble
+ * past this boundary (e.g. in WorkspaceShell chrome).
  */
 export default class DashboardPageErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -30,7 +30,7 @@ export default class DashboardPageErrorBoundary extends Component<Props, State> 
     if (this.state.error) {
       return (
         <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '40rem', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>This section couldn&apos;t load</h1>
+          <h1 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>This section couldn&rsquo;t load</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
             A part of the dashboard failed in your browser. Your sidebar and other pages should still work. Try again, or
             pick another area from the menu.

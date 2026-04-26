@@ -122,7 +122,7 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
           ))}
         </select>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          The leader can view this subgroup&apos;s members in the portal.
+          The leader can view this subgroup&rsquo;s members in the portal.
         </p>
       </div>
 

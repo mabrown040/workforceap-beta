@@ -18,9 +18,10 @@ import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { partnerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { partnerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
+import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -36,8 +37,11 @@ export default async function PartnerDashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
+  const superAdmin = await isSuperAdmin(user.id);
+  const fallbackForUnlinked = superAdmin ? '/admin/partners' : '/dashboard';
+
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(fallbackForUnlinked);
 
   const partnerRow = await prisma.partner.findUnique({
     where: { id: ctx.partnerId },
@@ -53,7 +57,7 @@ export default async function PartnerDashboardPage() {
     },
   });
 
-  if (!partnerRow) redirect('/dashboard');
+  if (!partnerRow) redirect(fallbackForUnlinked);
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
@@ -118,7 +122,6 @@ export default async function PartnerDashboardPage() {
   const showPartnerOnboarding = partnerRow.onboardingCompletedAt == null;
   const showPartnerTour =
     partnerRow.onboardingCompletedAt != null && partnerRow.tourCompletedAt == null;
-  const superAdmin = await isSuperAdmin(user.id);
 
   /** Share of referred members who reached a placed outcome (placements / total referrals). */
   const conversionRate = total > 0 ? Math.round((placements / total) * 100) : 0;
@@ -149,6 +152,7 @@ export default async function PartnerDashboardPage() {
   return (
     <PortalEntryClient
       portal="partner"
+      tourStorageUserId={user.id}
       showOnboardingWizard={showPartnerOnboarding}
       showTour={showPartnerTour}
       isSuperAdmin={superAdmin}
@@ -163,13 +167,16 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
     {/* ── MOBILE SECTION ── */}
-    <div className="wa-block wa-md:wa-hidden portal-mobile-content">
+    <div className="wa-block md:wa-hidden portal-mobile-content">
       {/* Header */}
-      <div style={{ padding: '1.5rem 1.25rem 0.5rem' }}>
-        <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
+      <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
+        <p
+          className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
+          style={{ color: 'var(--color-accent)' }}
+        >
           Partner Dashboard
         </p>
-        <h1 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
+        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h1>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
@@ -177,22 +184,12 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      {/* KPI metric strip */}
-      <div className="portal-card-scroll-row" style={{ padding: '1rem 1.25rem 0.5rem' }}>
-        {[
-          { label: 'Active Members', value: activeMembersCount, icon: 'groups', accent: 'accent' as const },
-          { label: 'Placements', value: placements, icon: 'person_check', accent: 'green' as const },
-          { label: 'Certificates', value: completions, icon: 'workspace_premium', accent: 'gold' as const },
-          { label: 'Needs Review', value: needsReviewCount, icon: 'pending_actions', accent: 'accent' as const },
-        ].map((s) => (
-          <div key={s.label} className="portal-metric-card" style={{ minWidth: '120px', flexShrink: 0 }}>
-            <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${s.accent}`}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
-            </div>
-            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{s.value}</p>
-            <p className="portal-metric-card__label">{s.label}</p>
-          </div>
-        ))}
+      {/* 2×2 KPI Grid */}
+      <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
+        <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
+        <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
+        <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
+        <PortalKpiCard accent="accent" label="Needs Review" value={needsReviewCount} hint="Applied/enrolled or stalled" />
       </div>
 
       {/* Next Step Guidance */}
@@ -350,7 +347,7 @@ export default async function PartnerDashboardPage() {
     </div>
 
     {/* ── DESKTOP SECTION ── */}
-    <div className="wa-hidden wa-md:wa-block">
+    <div className="wa-hidden md:wa-block">
     <div className="partner-impact-console">
 
       {/* ── Header ── */}
@@ -418,24 +415,21 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Journey Snapshot (5-col metric strip) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <div className="portal-dash-section-header">
-          <h2 className="portal-dash-section-header__title">Journey Snapshot</h2>
-        </div>
-        <div className="portal-metric-strip">
-          {(JOURNEY_STAGES as readonly string[]).map((s, i) => {
-            const stageKey = s as typeof JOURNEY_STAGES[number];
-            const accents = ['accent', 'blue', 'gold', 'green', 'accent'] as const;
-            const icons = ['person_add', 'school', 'menu_book', 'workspace_premium', 'work'] as const;
-            return (
-              <div key={s} className="portal-metric-card">
-                <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${accents[i] ?? 'accent'}`}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{icons[i]}</span>
-                </div>
-                <p className="portal-metric-card__value" style={{ fontSize: '1.75rem' }}>{stageCounts[stageKey] ?? 0}</p>
-                <p className="portal-metric-card__label">{(PIPELINE_STAGE_LABELS as Record<string, string>)[s]}</p>
-              </div>
-            );
-          })}
+        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
+        <div className="portal-grid-metrics">
+          {JOURNEY_STAGES.map((s, i) => (
+            <div
+              key={s}
+              className="portal-card portal-card--flat portal-card--padded-sm"
+              style={{
+                textAlign: 'center',
+                borderLeft: i === 0 ? '3px solid var(--color-accent)' : 'none',
+              }}
+            >
+              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{stageCounts[s] ?? 0}</p>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{PIPELINE_STAGE_LABELS[s]}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -468,8 +462,8 @@ export default async function PartnerDashboardPage() {
                   const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
                   return (
                     <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <div className="portal-activity-item" style={{ justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                      <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background-color 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div style={{
                             width: '2.25rem', height: '2.25rem', borderRadius: '9999px',
                             background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
@@ -508,8 +502,8 @@ export default async function PartnerDashboardPage() {
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
               {/* Placement rate + referral link usage */}
-              <div className="portal-card portal-card--flat portal-card--padded portal-card--gradient-accent">
-                <h3 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Partner Insights</h3>
+              <div className="portal-card portal-card--flat portal-card--padded">
+                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
                     <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>

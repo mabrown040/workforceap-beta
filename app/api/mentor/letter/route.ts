@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
   <p><strong>Total volunteer hours logged:</strong></p>
   <div class="hours">${totalHours.toFixed(1)} hours</div>
 
-  <p>WorkforceAP is a 501(c)(3) nonprofit organization dedicated to providing free career training and job placement support to adults. ${mentor.fullName}&rsquo;s volunteer mentorship directly supported members working to advance their careers.</p>
+  <p>WorkforceAP is a 501(c)(3) nonprofit organization dedicated to providing career training and job placement support to adults at no cost to members. ${mentor.fullName}&rsquo;s volunteer mentorship directly supported members working to advance their careers.</p>
 
   <p>Per IRS guidelines, services donated to a 501(c)(3) organization may have tax implications. We recommend consulting your tax advisor regarding the deductibility of professional services donated to nonprofit organizations.</p>
 

@@ -7,6 +7,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { trackEvent } from '@/lib/events/track';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -92,7 +94,7 @@ export async function POST(request: Request) {
   }
 
   const fullName = `${firstName} ${lastName}`.trim() || firstName;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
   const supabase = getSupabaseAdmin();
 
@@ -126,7 +128,7 @@ export async function POST(request: Request) {
     }
     authUser = createData.user;
     // Optionally trigger password reset so user can set their own
-    await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${siteUrl}/dashboard` });
+    await sendPasswordResetEmail(email);
   }
 
   if (!authUser) {
@@ -137,6 +139,7 @@ export async function POST(request: Request) {
 
   try {
     await prisma.$transaction(async (tx) => {
+      const enrolledAt = new Date();
       await tx.user.create({
         data: {
           id: authUser.id,
@@ -145,7 +148,20 @@ export async function POST(request: Request) {
           fullName,
           phone: phone || null,
           enrolledProgram: programSlug,
-          enrolledAt: new Date(),
+          enrolledAt,
+        },
+      });
+
+      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+      // The member self-enrollment flow (POST /api/member/enroll) does this in a
+      // transaction. Admin creation must do the same.
+      await tx.courseEnrollment.create({
+        data: {
+          organizationId,
+          userId: authUser.id,
+          programSlug,
+          enrolledAt,
+          enrolledByAdminId: user.id,
         },
       });
 
@@ -216,6 +232,15 @@ export async function POST(request: Request) {
   sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
     Program: program.title,
   }).catch((err) => console.error('Partner milestone email failed:', err));
+
+  // Track enrollment for funnel analytics
+  await trackEvent({
+    userId: authUser.id,
+    eventName: 'program_enrolled',
+    entityType: 'course_enrollment',
+    metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
+    sourcePage: '/admin/members/create',
+  });
 
   return NextResponse.json({
     ok: true,

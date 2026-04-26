@@ -1,49 +1,57 @@
 'use client';
 
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
+import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
-/** Member home (`/dashboard`) — readiness + resume voice coaches. */
+/** Member home (`/dashboard`) — show all three voice options in a tighter horizontal row on desktop. */
 export default function MemberDashboardVoiceSection() {
   return (
-    <section aria-label="Voice assistants">
+    <section aria-label="AI coaches">
       <h2
         className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em]"
         style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}
       >
-        Voice assistants
+        AI coaches
       </h2>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.25rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '1rem',
+          alignItems: 'stretch',
         }}
       >
-        <VoiceAgentSurface {...readinessVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/readiness/voice-session"
-            title="Career readiness"
-            description="Talk through interviews, certifications, and next steps with your coach."
-            accent="#0d9488"
-            accentDark="#0f766e"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening — share where you are"
-          />
-        </VoiceAgentSurface>
-        <VoiceAgentSurface {...resumeCoachVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/member/resume-coach/session"
-            retryWithoutDynamicVariables={false}
-            title="Resume & experience"
-            description="Practice how you describe your background and target role out loud."
-            accent="#2563eb"
-            accentDark="#1d4ed8"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening — describe your background"
-          />
-        </VoiceAgentSurface>
+        <VoiceCoachLauncherCard
+          {...readinessVoiceSurface}
+          title="AI Readiness Coach"
+          description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
+          href="/dashboard/readiness"
+          ctaLabel="Talk to AI coach"
+        />
+        <VoiceCoachLauncherCard
+          badge="Quick intro"
+          icon="🎤"
+          glowColor="#7c3aed"
+          gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
+          title="AI Elevator Speech"
+          description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
+          href="/dashboard/ai-tools/elevator-pitch"
+          ctaLabel="Build elevator speech"
+        />
+        <VoiceCoachLauncherCard
+          {...resumeCoachVoiceSurface}
+          title="Resume & Experience"
+          description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
+          href="/dashboard/ai-tools/resume-coach"
+          ctaLabel="Open resume coach"
+        />
+        <VoiceCoachLauncherCard
+          {...mockInterviewVoiceSurface}
+          title="Voice Interviewer"
+          description="Launch the full mock interview experience with setup guidance and optional recording."
+          href="/dashboard/ai-tools/voice-interview"
+          ctaLabel="Start mock interview"
+        />
       </div>
     </section>
   );

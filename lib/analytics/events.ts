@@ -36,6 +36,19 @@ export function trackFunnelEvent(
   });
 }
 
+export function trackLeadFormEvent(
+  formType: 'contact' | 'employer_intake' | 'partner_signup',
+  phase: 'viewed' | 'submitted' | 'succeeded' | 'errored',
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'lead_form',
+    lead_form_type: formType,
+    lead_form_phase: phase,
+    ...extra,
+  });
+}
+
 export function trackApplyFunnel(
   step: number,
   stepName: string,
@@ -144,6 +157,14 @@ export function trackConversionRouteView(route: string) {
   pushEvent({
     event: 'conversion_route_view',
     conversion_route: route,
+  });
+}
+
+/** Member / employer / partner / counselor / admin workspace views (for GA4 exploration). */
+export function trackPortalRouteView(route: string) {
+  pushEvent({
+    event: 'portal_route_view',
+    portal_route: route,
   });
 }
 

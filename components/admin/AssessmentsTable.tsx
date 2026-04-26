@@ -87,6 +87,13 @@ export default function AssessmentsTable({
     return a as Record<number, string>;
   };
 
+  const scoreColor = (pct: number | null) => {
+    if (pct === null) return 'var(--color-on-surface-variant)';
+    if (pct >= 80) return 'var(--color-green, #4a9b4f)';
+    if (pct >= 60) return 'var(--color-gold)';
+    return 'var(--color-accent)';
+  };
+
   return (
     <div>
       <form
@@ -140,8 +147,73 @@ export default function AssessmentsTable({
         </button>
       </form>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+      {/* Mobile cards (≤768px) */}
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+        {sorted.length === 0 ? (
+          <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '2rem' }}>No assessments match your filters.</p>
+        ) : sorted.map((u) => {
+          const isExpanded = expandedId === u.id;
+          const userAnswers = answers(u);
+          const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+          return (
+            <div key={u.id} className="portal-card portal-card--flat" style={{ overflow: 'hidden', background: highlightUserId === u.id ? 'rgba(74,155,79,0.07)' : undefined }}>
+              <button
+                type="button"
+                style={{ width: '100%', textAlign: 'left', padding: '1rem', display: 'flex', gap: '0.875rem', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer' }}
+                aria-expanded={isExpanded} aria-label={isExpanded ? "Collapse details for " + u.fullName : "Expand details for " + u.fullName} onClick={() => setExpandedId(isExpanded ? null : u.id)}
+              >
+                <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.875rem', flexShrink: 0 }}>
+                  {initials}
+                </div>
+                <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                  <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>{u.fullName}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {u.programInterest ?? 'No program'} · {u.assessmentCompletedAt?.toLocaleDateString() ?? '—'}
+                  </p>
+                </div>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: scoreColor(u.assessmentScorePct) }}>
+                    {u.assessmentScorePct !== null ? `${u.assessmentScorePct}%` : '—'}
+                  </span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+                </div>
+              </button>
+              {isExpanded && (
+                <div style={{ padding: '0 1rem 1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem', margin: '0.875rem 0' }}>
+                    <div>
+                      <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Email</p>
+                      <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0, wordBreak: 'break-all' }}>{u.email}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Phone</p>
+                      <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>{formatPhone(u.phone) || '—'}</p>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0.5rem' }}>Answer Breakdown</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                    {ASSESSMENT_QUESTIONS.map((q) => {
+                      const ans = userAnswers[q.id];
+                      const correct = ans === q.correct;
+                      return (
+                        <div key={q.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.375rem 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: correct ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', flexShrink: 0, minWidth: '1.5rem' }}>Q{q.id}</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: correct ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>{correct ? 'check_circle' : 'cancel'}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.4 }}>{ans ?? '—'}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop table (≥768px) */}
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
+        <table className="admin-table employer-applications-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
               <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('name'); setSortDir(sortBy === 'name' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
@@ -165,15 +237,26 @@ export default function AssessmentsTable({
                 onClick={() => setExpandedId(expandedId === u.id ? null : u.id)}
                 style={{
                   cursor: 'pointer',
-                  background: highlightUserId === u.id ? 'rgba(74, 155, 79, 0.1)' : expandedId === u.id ? 'var(--color-light)' : undefined,
+                  background: highlightUserId === u.id ? 'rgba(74, 155, 79, 0.08)' : expandedId === u.id ? 'rgba(173,44,77,0.05)' : undefined,
                 }}
               >
-                <td style={{ padding: '0.5rem' }}>{u.fullName}</td>
-                <td style={{ padding: '0.5rem' }}>{u.email}</td>
-                <td style={{ padding: '0.5rem' }}>{formatPhone(u.phone)}</td>
-                <td style={{ padding: '0.5rem' }}>{u.programInterest ?? '—'}</td>
-                <td style={{ padding: '0.5rem' }}>{u.assessmentScorePct ?? '—'}%</td>
-                <td style={{ padding: '0.5rem' }}>{u.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '2rem', height: '2rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
+                      {(u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
+                    <span style={{ fontWeight: 600 }}>{u.fullName}</span>
+                  </div>
+                </td>
+                <td>{u.email}</td>
+                <td>{formatPhone(u.phone)}</td>
+                <td>{u.programInterest ?? '—'}</td>
+                <td>
+                  <span style={{ fontWeight: 700, color: scoreColor(u.assessmentScorePct) }}>
+                    {u.assessmentScorePct ?? '—'}{u.assessmentScorePct !== null ? '%' : ''}
+                  </span>
+                </td>
+                <td>{u.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</td>
               </tr>,
               ...(expandedId === u.id
                 ? [
@@ -207,6 +290,7 @@ export default function AssessmentsTable({
       {users.length === 0 && (
         <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>No assessments match your filters.</p>
       )}
+
     </div>
   );
 }

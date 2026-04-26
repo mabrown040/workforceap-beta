@@ -19,7 +19,7 @@ export default function FindYourCareerSection({ compact }: Props) {
             className="wa-bg-white wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border wa-border-[#e8e0dd]"
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">explore</span>
+            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">explore</span>
             <div>
               <div className="wa-font-semibold wa-text-[#1c1b1b]">O*NET Interest Profiler</div>
               <div className="wa-text-xs wa-text-[#584144]">RIASEC interests · 30 questions</div>
@@ -30,7 +30,7 @@ export default function FindYourCareerSection({ compact }: Props) {
             className="wa-bg-white wa-flex wa-items-center wa-gap-3 wa-p-4 wa-rounded-xl wa-shadow-sm wa-border wa-border-[#e8e0dd]"
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">radar</span>
+            <span className="material-symbols-outlined wa-text-[#8c0f37]" aria-hidden="true">radar</span>
             <div>
               <div className="wa-font-semibold wa-text-[#1c1b1b]">O*NET skill mapping</div>
               <div className="wa-text-xs wa-text-[#584144]">Explore occupation skills &amp; gaps</div>
@@ -53,7 +53,7 @@ export default function FindYourCareerSection({ compact }: Props) {
           <li>
             <Link href="/dashboard/learning/find-your-career" className="learning-hub-card">
               <span className="learning-hub-card-icon" aria-hidden>
-                <span className="material-symbols-outlined" style={{ fontSize: 28 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28 }} aria-hidden="true">
                   explore
                 </span>
               </span>
@@ -69,7 +69,7 @@ export default function FindYourCareerSection({ compact }: Props) {
           <li>
             <Link href="/dashboard/ai-tools/skill-mapper" className="learning-hub-card">
               <span className="learning-hub-card-icon" aria-hidden>
-                <span className="material-symbols-outlined" style={{ fontSize: 28 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 28 }} aria-hidden="true">
                   radar
                 </span>
               </span>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 const categories = [
   { key: 'General Questions', icon: 'help_outline' },
-  { key: 'Admissions', icon: 'how_to_reg' },
+  { key: 'Applying & Eligibility', icon: 'how_to_reg' },
   { key: 'Cost & Funding', icon: 'payments' },
   { key: 'Programs & Training', icon: 'school' },
   { key: 'Job Placement', icon: 'work' },
@@ -16,56 +16,58 @@ const categories = [
 const faqData: Record<string, { q: string; a: string; link?: { text: string; href: string } }[]> = {
   'General Questions': [
     {
-      q: 'What is Workforce Investment Project (WorkforceAP)?',
-      a: 'Workforce Advancement Project (WorkforceAP) is a nonprofit that provides free, WIOA-aligned career training and certifications. We help individuals gain industry-recognized credentials and connect them with employers hiring for those roles.',
+      q: 'What is Workforce Advancement Project (WorkforceAP)?',
+      a: 'Workforce Advancement Project (WorkforceAP) is a national nonprofit and 501(c)(3) that helps members explore career training, industry credentials, and next-step support. Programs are offered through WorkforceAP and partner-backed pathways.',
       link: { text: 'Learn About Our Mission', href: '/what-we-do' },
     },
-    { q: 'Who can apply?', a: 'To apply: (1) 16 years or older, (2) U.S. citizen or permanent resident, (3) high school diploma or GED (or in process), (4) committed to program completion, (5) willing to participate in job placement, (6) access to reliable internet and computer. We welcome applicants from all backgrounds.', link: { text: 'Start Your Application', href: '/apply' } },
-    { q: 'Is there any cost?', a: 'No. Our programs are available at no cost to members. No hidden fees, no textbook costs, no application charges. This is made possible through grants, employer partnerships, and community funding.' },
-    { q: 'How long are the programs?', a: 'Most programs take 3-5 months at 10 hours per week. Digital Literacy is shorter at 6-7 weeks. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Is it really free?', a: 'Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Who qualifies?', a: "Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application or WIOA screening and WorkforceAP can help you understand the best next step.", link: { text: 'Check WIOA Screening', href: '/wioa-qualification' } },
+    { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Can I talk to someone before I apply?', a: 'Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.', link: { text: 'Contact Us', href: '/contact' } },
   ],
-  Admissions: [
-    { q: 'What are the eligibility requirements?', a: 'To apply: (1) 16 years or older, (2) U.S. citizen or permanent resident, (3) high school diploma or GED (or in process), (4) committed to program completion, (5) willing to participate in job placement, (6) access to reliable internet and computer. We welcome applicants from all backgrounds — no prior tech experience needed.', link: { text: 'View All Programs', href: '/programs' } },
-    { q: 'Do I need prior tech experience to apply?', a: "No. Our programs are built for beginners. We've trained career-changers, unemployed workers, and people with zero tech experience. We start with fundamentals. The main thing we look for is commitment to learning and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
-    { q: 'What is the application process?', a: "Simple: (1) Fill out our online form with your info and program interest, (2) We review within 48 hours, (3) We schedule a brief call to discuss your goals and answer questions, (4) You get your start date and onboarding. No test, no gatekeeping.", link: { text: 'Start Your Application', href: '/apply' } },
-    { q: 'Is there an application fee?', a: 'No. Zero fees. We review your goals, confirm fit, and share next steps. No cost to apply, no cost to participate if you qualify.' },
-    { q: 'When do programs start?', a: "Rolling basis. New programs start monthly or bi-weekly depending on the track. Once approved, we'll connect you with the next available start.", link: { text: 'See How It Works', href: '/how-it-works' } },
+  'Applying & Eligibility': [
+    { q: 'What if I\'m not technical?', a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history, no prior tech experience required. We've helped career-changers, people re-entering the workforce, and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to showing up and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
+    { q: "What if I'm starting over?", a: "Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, are leaving a difficult situation, or are just ready for a different path — we work with you from where you are now. Your counselor will help you pick the right program, set a realistic pace, and stay on track through the whole process.", link: { text: 'Find Your Path', href: '/find-your-path' } },
+    { q: 'What are the eligibility requirements?', a: 'Requirements vary by pathway and funding source. WorkforceAP reviews your goals, location, readiness, and any funding options that may apply, then helps you understand the right next step.', link: { text: 'View All Programs', href: '/programs' } },
+    { q: 'What happens after I apply?', a: 'After you apply, WorkforceAP reviews your information, follows up if more context is needed, and helps you understand the next step for your pathway. That may include a conversation, documentation review, or program guidance.', link: { text: 'Start Your Application', href: '/apply' } },
+    { q: 'Is there an application fee?', a: 'No. There is no application fee. We review your goals, confirm fit, and share next steps. Applying does not cost anything, and qualifying pathways are offered at no cost to members.' },
+    { q: 'When do programs start?', a: 'Program timing depends on the pathway, partner schedule, and available cohorts. WorkforceAP will help you understand what is currently open and what the next available start looks like.', link: { text: 'See How It Works', href: '/how-it-works' } },
   ],
   'Cost & Funding': [
-    { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'Compare All Programs', href: '/program-comparison' } },
-    { q: "What does 'qualifying' mean?", a: "16+, US citizen or permanent resident, unemployed or underemployed, household income under $60K — you likely qualify. We also consider special circumstances. Apply and we'll confirm within 24-48 hours.", link: { text: 'Check Your Eligibility', href: '/apply' } },
+    { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'View Programs', href: '/programs' } },
+    { q: "What does 'qualifying' mean?", a: 'It means eligibility is reviewed based on the pathway, funding source, and your situation. If you are not sure, apply or use the WIOA screening flow and WorkforceAP can help clarify your options.', link: { text: 'Check WIOA Screening', href: '/wioa-qualification' } },
     { q: 'Do I need to pay anything back?', a: 'No. This is not a loan. Training is funded through grants and partnerships. There are no income-sharing agreements (ISAs), no loans, and no hidden costs. Ever.', link: { text: 'Read Success Stories', href: '/blog' } },
-    { q: 'Are certification exam fees included?', a: 'Yes. Certification exam fees are covered for members. There are no out-of-pocket costs for exams when you complete the program through WorkforceAP.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Are certification exam fees included?', a: 'Certification support can vary by program and funding path. WorkforceAP can explain what is included for the pathway you are considering.', link: { text: 'View Programs', href: '/programs' } },
   ],
   'Programs & Training': [
-    { q: 'How long are the programs?', a: 'Most programs take 3-5 months at 10 hours per week. Digital Literacy is shorter at 6-7 weeks. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Program Details', href: '/programs' } },
-    { q: 'Are programs online or in person?', a: 'Virtual and hybrid — you can complete training from home with an internet connection. Some programs offer optional in-person events and career fairs.', link: { text: 'See Available Programs', href: '/programs' } },
-    { q: 'Do I need my own computer?', a: 'Access to a computer and internet is required to participate. Upon successful program completion, you may earn a refurbished laptop through our Loaner Laptop Program.', link: { text: 'Learn About Support', href: '/what-we-do' } },
+    { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Program Details', href: '/programs' } },
+    { q: 'Is this online?', a: "Yes. All training is delivered virtually — you can participate from home, a library, or anywhere with a reliable internet connection. You do not need to commute, relocate, or take time off work to attend. Some programs include optional in-person events and local career fairs if you want them.", link: { text: 'See Available Programs', href: '/programs' } },
+    { q: 'Do I need a laptop?', a: 'You need access to a computer and reliable internet to participate. If you do not have a laptop, apply anyway. Laptops are available for members who need them.', link: { text: 'Learn About Support', href: '/what-we-do' } },
     { q: 'What certifications will I earn?', a: "You'll earn industry-recognized certificates from partners like Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials employers hire against.", link: { text: 'View Certification Paths', href: '/salary-guide' } },
     { q: 'What if I fail a certification exam?', a: 'Many certification providers allow retakes. We work with you to prepare for exams and, when available, support retake options. Your counselor can help you understand the specific retake policy for your program.', link: { text: 'See How It Works', href: '/how-it-works' } },
   ],
   'Job Placement': [
-    { q: 'Will you help me find a job?', a: 'Yes. We provide 100% job search support including resume building, interview prep, and connections to employers hiring for your role.', link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
+    { q: 'Do you help members find jobs?', a: 'Yes. WorkforceAP provides support like resume help, interview prep, career guidance, and employer-facing support as members move toward job readiness.', link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
     { q: 'What kind of jobs will I qualify for?', a: 'Entry-level to mid-level roles in IT, cybersecurity, data analytics, project management, healthcare, and skilled trades. Starting salaries range from $38K to $145K depending on the program.', link: { text: 'See Salary Guide', href: '/salary-guide' } },
-    { q: 'How soon after graduating can I get hired?', a: 'Many members begin applying during training. Most graduates secure employment within 3-6 months of certification.', link: { text: 'Read Career Tips', href: '/blog' } },
+    { q: 'How soon after completing the program can I get hired?', a: 'Hiring timelines vary by market, role, location, and the path you choose. Many members begin preparing and applying during training so they are ready for the next step as they finish.', link: { text: 'Read Career Tips', href: '/blog' } },
   ],
   'For Members': [
-    { q: 'What support do I get during training?', a: 'You receive a dedicated counselor, access to our member portal with AI tools (resume help, interview practice), career readiness resources, and job placement assistance.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
+    { q: 'What support do I get during training?', a: 'You receive a dedicated counselor, access to our member portal with career readiness tools (resume help, interview practice), and job placement assistance from intake through your first job.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
     { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned a counselor who supports you from intake through job placement. Your counselor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
-    { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. The 10-hour weekly commitment is manageable alongside most work schedules.', link: { text: 'Check Program Flexibility', href: '/programs' } },
+    { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. Most programs are paced for about 10 hours per week, and Digital Literacy is lighter at roughly 5 hours per week.', link: { text: 'Check Program Flexibility', href: '/programs' } },
     { q: 'What if I fall behind?', a: "Your counselor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.", link: { text: 'Meet the Team', href: '/leadership' } },
-    { q: 'Is this too good to be true?', a: "We get it — free training with job placement sounds skeptical. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not your tuition.", link: { text: 'Meet the Team', href: '/leadership' } },
+    { q: 'Is this too good to be true?', a: "We get it. Training at no cost to members can feel hard to trust at first. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.", link: { text: 'Meet the Team', href: '/leadership' } },
   ],
   'For Employers': [
     { q: 'How do employer partnerships work?', a: 'We train and certify job-ready candidates in high-demand fields. Employers gain access to a pipeline of pre-vetted, certified talent at no recruitment cost. We handle training, you handle hiring.', link: { text: 'Partner With Us', href: '/partners' } },
     { q: 'What certifications do your graduates hold?', a: "Graduates earn industry-recognized certifications from Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials you'd see on any qualified candidate's resume.", link: { text: 'View Programs', href: '/programs' } },
     { q: 'Can I refer someone from my community?', a: 'Yes. We serve communities nationwide. Refer anyone who could benefit — we intake, assess, and connect them with the right program. No harm in applying.', link: { text: 'Refer Someone', href: '/partners' } },
-    { q: 'Is this legitimate?', a: "We're a registered nonprofit with real leadership — Michael Brown (PMP) has trained thousands through Goodwill, Austin Area Urban League, and other established organizations. We work with employers who hire our graduates.", link: { text: 'Partner With Us', href: '/partners' } },
+    { q: 'Is this legitimate?', a: "Yes. WorkforceAP is a nonprofit and 501(c)(3) with public-facing leadership, real contact paths, and partner-backed training pathways. If you want to talk through fit or partnership questions, our team can help.", link: { text: 'Partner With Us', href: '/partners' } },
   ],
 };
 
 const sidebarGroups = [
-  { label: 'General Questions', keys: ['General Questions', 'Admissions', 'Cost & Funding'] },
+  { label: 'General Questions', keys: ['General Questions', 'Applying & Eligibility', 'Cost & Funding'] },
   { label: 'For Members', keys: ['Programs & Training', 'Job Placement', 'For Members'] },
   { label: 'For Employers', keys: ['For Employers'] },
 ];
@@ -132,7 +134,7 @@ export default function FAQContent() {
                           transition: 'background-color 0.15s, color 0.15s',
                         }}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>{cat.icon}</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">{cat.icon}</span>
                         {key}
                       </button>
                     );
@@ -149,10 +151,10 @@ export default function FAQContent() {
               borderRadius: '0.75rem',
               border: '1px solid var(--outline-variant)',
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>support_agent</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">support_agent</span>
               <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Still need support?</p>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                Our team responds within 24-48 hours.
+                Reach out and WorkforceAP can help you figure out the right next step.
               </p>
               <Link href="/contact" style={{
                 display: 'block',
@@ -184,7 +186,7 @@ export default function FAQContent() {
                 alignItems: 'center',
                 gap: '1rem',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }}>handshake</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }} aria-hidden="true">handshake</span>
                 <div>
                   <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', fontSize: '0.95rem' }}>Employer Partnership Inquiries</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
@@ -197,7 +199,7 @@ export default function FAQContent() {
             {/* Section heading */}
             <div style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">
                   {categories.find((c) => c.key === activeCategory)?.icon ?? 'help_outline'}
                 </span>
                 {activeCategory}
@@ -248,7 +250,7 @@ export default function FAQContent() {
                           transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                           flexShrink: 0,
                         }}
-                      >
+                       aria-hidden="true">
                         expand_more
                       </span>
                     </button>
@@ -270,7 +272,7 @@ export default function FAQContent() {
                               }}
                             >
                               {item.link.text}
-                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                             </Link>
                           </p>
                         )}
@@ -300,7 +302,7 @@ export default function FAQContent() {
               Didn&rsquo;t find your answer?
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '28rem' }}>
-              Our team is here to help. Reach out directly and we&rsquo;ll get back to you within 24-48 hours.
+              Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Link href="/contact" style={{
@@ -336,7 +338,7 @@ export default function FAQContent() {
             aspectRatio: '4/3',
           }}>
             <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }}>forum</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }} aria-hidden="true">forum</span>
               <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>We&rsquo;re here to help</p>
             </div>
           </div>

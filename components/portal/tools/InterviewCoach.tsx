@@ -294,8 +294,10 @@ export default function InterviewCoach() {
             const isExpanded = expandedSession === s.id;
             return (
               <div key={s.id} style={{ border: '1px solid var(--surface-container-high)', borderRadius: 8, marginBottom: '0.625rem', overflow: 'hidden' }}>
-                <button
+                <button type="button"
                   onClick={() => setExpandedSession(isExpanded ? null : s.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={`interview-coach-session-${s.id}`}
                   style={{ width: '100%', textAlign: 'left', padding: '0.875rem 1rem', background: 'var(--surface-container-low)', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -312,7 +314,7 @@ export default function InterviewCoach() {
                   )}
                 </button>
                 {isExpanded && (
-                  <div style={{ padding: '1rem', background: 'var(--color-surface)', borderTop: '1px solid var(--surface-container-high)' }}>
+                  <div id={`interview-coach-session-${s.id}`} style={{ padding: '1rem', background: 'var(--color-surface)', borderTop: '1px solid var(--surface-container-high)' }}>
                     {s.feedback && (
                       <div style={{ marginBottom: '1rem' }}>
                         <div style={{ fontWeight: 700, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Overall Assessment</div>
@@ -332,7 +334,7 @@ export default function InterviewCoach() {
                         ))}
                       </div>
                     )}
-                    <button
+                    <button type="button"
                       onClick={() => { setExpandedSession(null); reset(); }}
                       style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                     >
@@ -375,13 +377,13 @@ export default function InterviewCoach() {
           </label>
           <div style={{ display: 'flex', gap: '0.625rem' }}>
             {INTERVIEW_TYPES.map((t) => (
-              <button key={t} onClick={() => setInterviewType(t)} style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1.5px solid', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', background: interviewType === t ? 'var(--color-accent)' : 'transparent', color: interviewType === t ? '#fff' : 'var(--color-accent)', borderColor: 'var(--color-accent)' }}>
+              <button type="button" key={t} onClick={() => setInterviewType(t)} style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1.5px solid', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', background: interviewType === t ? 'var(--color-accent)' : 'transparent', color: interviewType === t ? '#fff' : 'var(--color-accent)', borderColor: 'var(--color-accent)' }}>
                 {t}
               </button>
             ))}
           </div>
         </div>
-        <button onClick={startInterview} disabled={loading || !role.trim()} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.875rem 2rem', fontWeight: 700, fontSize: '1rem', cursor: loading || !role.trim() ? 'not-allowed' : 'pointer', opacity: loading || !role.trim() ? 0.6 : 1 }}>
+        <button type="button" onClick={startInterview} disabled={loading || !role.trim()} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.875rem 2rem', fontWeight: 700, fontSize: '1rem', cursor: loading || !role.trim() ? 'not-allowed' : 'pointer', opacity: loading || !role.trim() ? 0.6 : 1 }}>
           {loading ? 'Starting…' : '▶ Start Interview'}
         </button>
         <p style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
@@ -399,7 +401,7 @@ export default function InterviewCoach() {
         <div style={{ background: 'var(--color-accent)', borderRadius: 12, padding: '1.5rem', color: '#fff', marginBottom: '1rem', textAlign: 'center' }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎙️</div>
           <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.25rem' }}>
-            {wsStatus === 'connecting' ? 'Connecting to your interview coach…' : 
+            {wsStatus === 'connecting' ? 'Connecting to your interview coach…' :
              wsStatus === 'connected' ? 'Interview in progress — speak clearly' :
              'Session ended'}
           </div>
@@ -414,15 +416,15 @@ export default function InterviewCoach() {
           {voiceError && (
             <div style={{ marginTop: '0.75rem', padding: '0.6rem', background: 'rgba(0,0,0,0.3)', borderRadius: 8, fontSize: '0.75rem', textAlign: 'left', wordBreak: 'break-all' as const }}>
               ⚠️ Error: {voiceError}
-              <button onClick={() => { setVoiceError(''); startTextFallback(); }} style={{ display: 'block', marginTop: '0.4rem', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: '0.75rem' }}>Switch to text mode</button>
+              <button type="button" onClick={() => { setVoiceError(''); startTextFallback(); }} style={{ display: 'block', marginTop: '0.4rem', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: '0.75rem' }}>Switch to text mode</button>
             </div>
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={endVoiceSession} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
+          <button type="button" onClick={endVoiceSession} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
             End Interview & Get Feedback
           </button>
-          <button onClick={reset} style={{ background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--surface-container-high)', borderRadius: 8, padding: '0.75rem 1rem', fontWeight: 600, cursor: 'pointer' }}>
+          <button type="button" onClick={reset} style={{ background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--surface-container-high)', borderRadius: 8, padding: '0.75rem 1rem', fontWeight: 600, cursor: 'pointer' }}>
             Cancel
           </button>
         </div>
@@ -458,10 +460,10 @@ export default function InterviewCoach() {
         </div>
         <textarea value={currentAnswer} onChange={(e) => setCurrentAnswer(e.target.value)} placeholder="Type your answer here…" rows={4} style={{ width: '100%', border: '1px solid var(--surface-container-high)', borderRadius: 8, padding: '0.75rem', fontSize: '0.9rem', background: 'var(--color-surface)', color: 'var(--color-on-surface)', boxSizing: 'border-box', resize: 'vertical', marginBottom: '0.75rem' }} />
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={submitAnswer} disabled={loading || !currentAnswer.trim()} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: loading || !currentAnswer.trim() ? 'not-allowed' : 'pointer', opacity: loading || !currentAnswer.trim() ? 0.6 : 1 }}>
+          <button type="button" onClick={submitAnswer} disabled={loading || !currentAnswer.trim()} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: loading || !currentAnswer.trim() ? 'not-allowed' : 'pointer', opacity: loading || !currentAnswer.trim() ? 0.6 : 1 }}>
             {loading ? '…' : transcript.length + 1 >= MAX_QUESTIONS ? 'Finish & Get Feedback' : 'Next Question →'}
           </button>
-          <button onClick={() => getFeedback(transcript)} disabled={loading || transcript.length === 0} style={{ background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--surface-container-high)', borderRadius: 8, padding: '0.75rem 1rem', fontWeight: 600, cursor: 'pointer' }}>
+          <button type="button" onClick={() => getFeedback(transcript)} disabled={loading || transcript.length === 0} style={{ background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--surface-container-high)', borderRadius: 8, padding: '0.75rem 1rem', fontWeight: 600, cursor: 'pointer' }}>
             End Early & Get Feedback
           </button>
         </div>
@@ -478,7 +480,7 @@ export default function InterviewCoach() {
         </h3>
         <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--color-on-surface)' }}>{feedback}</div>
       </div>
-      <button onClick={reset} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
+      <button type="button" onClick={reset} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
         Practice Again
       </button>
       {pastSessionsSection}

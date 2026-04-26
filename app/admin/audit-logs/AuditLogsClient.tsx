@@ -195,7 +195,7 @@ export default function AuditLogsClient({
       </div>
 
       {/* Desktop table */}
-      <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
         <table
           style={{
             width: '100%',
@@ -258,7 +258,7 @@ export default function AuditLogsClient({
                 </td>
                 <td style={{ padding: '0.625rem 0.5rem' }}>
                   {e.metadata ? (
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
                       {expandedId === e.id ? 'expand_less' : 'expand_more'}
                     </span>
                   ) : (
@@ -279,7 +279,7 @@ export default function AuditLogsClient({
       </div>
 
       {/* Mobile card list */}
-      <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
         {events.map((e) => (
           <div
             key={e.id}

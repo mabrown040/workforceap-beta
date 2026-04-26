@@ -1,7 +1,13 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
+import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
+
+export const metadata: Metadata = {
+  title: 'Member Dashboard',
+};
 
 export default async function DashboardLayout({
   children,
@@ -10,6 +16,8 @@ export default async function DashboardLayout({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
+
+  const portalRolesPromise = getPortalSwitcherRoles(user.id);
 
   let dbUser: {
     deletedAt: Date | null;
@@ -42,7 +50,7 @@ export default async function DashboardLayout({
     dbUser?.profile?.resumeOriginalPath || dbUser?.profile?.resumeEnhancedPath
   );
 
-  return (
-    <MemberWorkspaceShell hasResume={hasResume}>{children}</MemberWorkspaceShell>
-  );
+  const portalRoles = await portalRolesPromise;
+
+  return <MemberWorkspaceShell hasResume={hasResume} portalRoles={portalRoles}>{children}</MemberWorkspaceShell>;
 }

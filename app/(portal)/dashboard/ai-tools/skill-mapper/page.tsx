@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SkillMapperClient from '@/components/portal/tools/SkillMapperClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Skill Mapper',
@@ -54,7 +55,7 @@ export default async function SkillMapperPage() {
                 flexShrink: 0,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>radar</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">radar</span>
             </div>
             <div>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
@@ -67,10 +68,15 @@ export default async function SkillMapperPage() {
           </div>
         </div>
 
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
-          <div className="stitch-card" style={{ padding: '1rem', borderRadius: 12 }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '1rem 1.5rem 2rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <SkillMapperClient />
           </div>
+          <ToolHistoryPanel
+            userId={user.id}
+            toolType="skill_assessment"
+            title="Recent skill mapper lookups"
+          />
         </div>
 
         <MobileBottomNav variant="portal" />

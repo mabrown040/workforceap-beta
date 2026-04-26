@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'New Invite',
@@ -44,16 +45,11 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
 
   return (
     <div style={{ maxWidth: '680px', paddingTop: '1.5rem' }}>
-      <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-        <Link href="/admin/invites" className="btn btn-outline">
-          Back to Invites
-        </Link>
-      </div>
-
-      <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Send New Invite</h1>
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
-        This form posts directly to the server and works even if client-side modal actions are unavailable.
-      </p>
+      <PageHeader
+        breadcrumbs={[{ label: 'Invites', href: '/admin/invites' }, { label: 'New Invite' }]}
+        title="Send New Invite"
+        subtitle="Invite someone to join WorkforceAP. They'll get an email with a link to sign up."
+      />
 
       {error ? (
         <div className="admin-inline-feedback admin-inline-feedback--error" role="alert" style={{ marginBottom: '1rem' }}>
@@ -61,7 +57,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </div>
       ) : null}
 
-      <form method="post" action="/api/admin/invites" className="stitch-card" style={{ padding: '1.25rem', display: 'grid', gap: '1rem' }}>
+      <form method="post" action="/api/admin/invites" className="portal-card portal-card--flat" style={{ padding: '1.25rem', display: 'grid', gap: '1rem' }}>
         <label className="form-group" style={{ margin: 0 }}>
           <span>Email address</span>
           <input name="email" type="email" required placeholder="person@example.com" />
@@ -72,16 +68,16 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
           <select name="role" defaultValue="member">
             <option value="admin">Admin</option>
             <option value="partner">Partner</option>
-            <option value="member">Student</option>
+            <option value="member">Member</option>
             <option value="counselor">Counselor</option>
           </select>
           <small style={{ color: 'var(--color-on-surface-variant)' }}>
-            Optional fields below are applied only when relevant for the selected role.
+            The fields below change based on which role you pick.
           </small>
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Subgroup (partner invites only)</span>
+          <span>Subgroup (for partners)</span>
           <select name="subgroupId" defaultValue="">
             <option value="">None</option>
             {subgroups.map((sg) => (
@@ -93,7 +89,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Partner affiliation (counselor invites only)</span>
+          <span>Partner affiliation (for counselors)</span>
           <select name="partnerId" defaultValue="">
             <option value="">WorkforceAP (organization counselor)</option>
             {partners.map((partner) => (
@@ -105,7 +101,7 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
         </label>
 
         <label className="form-group" style={{ margin: 0 }}>
-          <span>Program pre-assignment (student invites only)</span>
+          <span>Assign to program (for members)</span>
           <select name="programSlug" defaultValue="">
             <option value="">None</option>
             {PROGRAMS.map((program) => (

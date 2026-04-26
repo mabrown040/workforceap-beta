@@ -1,6 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
+import { ensureUserInDb } from '@/lib/auth/ensureUser';
+import { saveAIToolResult } from '@/lib/ai/saveResult';
+import {
+  normalizeResumeCoachTranscript,
+  parseResumeCoachSuggestionsFromTranscript,
+} from '@/lib/ai/parseResumeCoachSuggestions';
+import { prisma } from '@/lib/db/prisma';
+import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
+
+const MAX_HISTORY_CHARS = 16000;
+
+type ResumeTranscriptTurn = { speaker: 'agent' | 'user'; text: string };
+
+function buildHistoryOutput(transcript: ResumeTranscriptTurn[], suggestions: Array<{ original?: string; suggested: string; context: string }>): string {
+  const lines: string[] = [];
+  lines.push('Resume voice coach transcript');
+  lines.push('');
+  lines.push(`Suggestions detected: ${suggestions.length}`);
+  lines.push('');
+  if (suggestions.length > 0) {
+    lines.push('Suggestions');
+    lines.push('-----------');
+    suggestions.forEach((s, i) => {
+      const original = s.original?.trim();
+      if (original) {
+        lines.push(`${i + 1}. Replace "${original}" with "${s.suggested}"`);
+      } else {
+        lines.push(`${i + 1}. Add "${s.suggested}"`);
+      }
+      lines.push(`   Why: ${s.context}`);
+    });
+    lines.push('');
+  }
+  lines.push('Transcript');
+  lines.push('----------');
+  transcript.forEach((turn) => {
+    lines.push(`${turn.speaker === 'agent' ? 'Coach' : 'Member'}: ${turn.text}`);
+  });
+  return lines.join('\n').slice(0, MAX_HISTORY_CHARS);
+}
 
 /**
  * POST — parse voice coach transcript into structured resume suggestions.
@@ -11,69 +50,53 @@ export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { transcript } = (await req.json()) as {
+  const { transcript: rawTranscript } = (await req.json()) as {
     transcript: Array<{ speaker: string; text: string }>;
   };
 
+  const transcript = normalizeResumeCoachTranscript(rawTranscript ?? []);
   if (!transcript?.length) {
     return NextResponse.json({ suggestions: [] });
   }
 
-  const agentLines = transcript
-    .filter((t) => t.speaker === 'agent')
-    .map((t) => t.text)
-    .join('\n');
-
-  // Use Anthropic to extract structured suggestions
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (!anthropicKey) {
-    return NextResponse.json({ suggestions: extractResumeCoachSuggestionsFromText(agentLines) });
-  }
+  const suggestions = await parseResumeCoachSuggestionsFromTranscript(transcript);
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-        max_tokens: 1200,
-        temperature: 0.1,
-        system:
-          'Extract resume improvement suggestions from a voice coaching transcript. Return strict JSON array of objects with keys: original (the text to change, if quoted), suggested (the improved version), context (brief explanation). If no concrete suggestions exist, return empty array. Only include actionable resume text changes.',
-        messages: [
-          {
-            role: 'user',
-            content: `Voice coach transcript (agent lines only):\n\n${agentLines.slice(0, 6000)}`,
-          },
-        ],
-      }),
-    });
+    await ensureUserInDb(user);
+    const inputSummary = `Resume Helper voice session (${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'})`;
+    const output = buildHistoryOutput(transcript, suggestions);
+    await saveAIToolResult(user.id, 'resume_rewriter', inputSummary, output);
 
-    if (res.ok) {
-      const payload = (await res.json()) as {
-        content?: Array<{ type: string; text?: string }>;
-      };
-      const text = payload.content?.find((p) => p.type === 'text')?.text;
-      if (text) {
-        // Extract JSON from response (may be wrapped in markdown)
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]) as Array<{
-            original?: string;
-            suggested: string;
-            context: string;
-          }>;
-          return NextResponse.json({ suggestions: parsed.slice(0, 10) });
-        }
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { fullName: true, email: true },
+      });
+
+      const recipients = getVoiceCoachTranscriptRecipients();
+      if (recipients.length > 0) {
+        await sendVoiceCoachTranscriptEmail({
+          to: recipients,
+          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+          memberEmail: dbUser?.email?.trim() || user.email || null,
+          coachLabel: 'Resume Coach',
+          transcriptTurns: transcript.map((turn) => ({
+            role: turn.speaker === 'agent' ? 'agent' : 'user',
+            text: turn.text,
+          })),
+          highlights: suggestions.map((suggestion) => {
+            const original = suggestion.original?.trim();
+            if (original) return `Replace "${original}" with "${suggestion.suggested}". Why: ${suggestion.context}`;
+            return `Add "${suggestion.suggested}". Why: ${suggestion.context}`;
+          }),
+        });
       }
+    } catch (emailErr) {
+      console.error('[parse-suggestions] failed to email session transcript', emailErr);
     }
-  } catch (err) {
-    console.error('[parse-suggestions] Anthropic error:', err);
+  } catch (saveErr) {
+    console.error('[parse-suggestions] failed to persist session transcript', saveErr);
   }
 
-  return NextResponse.json({ suggestions: extractResumeCoachSuggestionsFromText(agentLines) });
+  return NextResponse.json({ suggestions });
 }

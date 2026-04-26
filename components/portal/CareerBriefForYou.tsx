@@ -33,7 +33,7 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
         ) : null}
         {programShortLabel && (
           <p className="career-brief-for-you-line">
-            You&apos;re targeting <strong>{programShortLabel}</strong>
+            You&rsquo;re targeting <strong>{programShortLabel}</strong>
             {location && (
               <> in <strong>{location}</strong></>
             )}
@@ -47,7 +47,7 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
         )}
         {applicationsCount > 0 && (
           <p className="career-brief-for-you-line">
-            You&apos;ve logged {applicationsCount} application{applicationsCount !== 1 ? 's' : ''} so far.
+            You&rsquo;ve logged {applicationsCount} application{applicationsCount !== 1 ? 's' : ''} so far.
           </p>
         )}
         {jobSearchUrl && (

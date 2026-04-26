@@ -4,8 +4,8 @@ import { Redis } from '@upstash/redis';
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// When Upstash is not configured, signup/contact fail closed (deny). Auth + AI tools fail open so the app stays
-// usable in dev; set UPSTASH_* in production for rate limiting.
+// Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.
+// Contact/confirmation remain fail-closed (spam risk). Add UPSTASH_* env vars to enable Redis-backed limits.
 const FAIL_CLOSED = !redisUrl || !redisToken;
 
 let signupRateLimiter: Ratelimit | null = null;
@@ -21,18 +21,21 @@ let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
 let forgotPasswordRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
+let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
   signupRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    limiter: Ratelimit.slidingWindow(12, '30 m'),
     prefix: 'ratelimit:signup',
   });
   applySignupRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    // Launch bump: 50 per 30 min per IP (up from 20) — workforce centers / libraries
+    // have many applicants on shared public IPs. Revert after launch if abuse appears.
+    limiter: Ratelimit.slidingWindow(50, '30 m'),
     prefix: 'ratelimit:apply-signup',
   });
   authRateLimiter = new Ratelimit({
@@ -91,6 +94,11 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(120, '1 h'),
     prefix: 'ratelimit:careers-public-get',
   });
+  publicVoiceSessionRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(6, '10 m'),
+    prefix: 'ratelimit:public-voice-session',
+  });
   inviteAcceptRateLimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
@@ -99,14 +107,14 @@ if (redisUrl && redisToken) {
 }
 
 export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await signupRateLimiter!.limit(identifier);
+  if (!signupRateLimiter) return { success: true };
+  const result = await signupRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };
 }
 
 export async function checkApplySignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await applySignupRateLimiter!.limit(identifier);
+  if (!applySignupRateLimiter) return { success: true };
+  const result = await applySignupRateLimiter.limit(identifier);
   return { success: result.success, remaining: result.remaining };
 }
 
@@ -124,8 +132,8 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  if (FAIL_CLOSED) return { success: false };
-  const result = await contactRateLimiter!.limit(ip);
+  if (!contactRateLimiter) return { success: true };
+  const result = await contactRateLimiter.limit(ip);
   return { success: result.success, remaining: result.remaining };
 }
 
@@ -149,9 +157,9 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Public confirmation-email endpoint — 5 per IP per hour. Fail-closed when Upstash not configured (security default). */
+/** Public confirmation-email endpoint — 5 per IP per hour. Fail-open without Upstash; Supabase enforces its own email send limits. */
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!confirmationEmailRateLimiter) return { success: false };
+  if (!confirmationEmailRateLimiter) return { success: true };
   const result = await confirmationEmailRateLimiter.limit(ip);
   return { success: result.success };
 }
@@ -181,6 +189,13 @@ export async function checkForgotPasswordRateLimit(ip: string): Promise<{ succes
 export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicCareersGetRateLimiter) return { success: true };
   const result = await publicCareersGetRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Public voice-session minting — per IP; fail-open without Redis in dev, but throttle aggressively when configured. */
+export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicVoiceSessionRateLimiter) return { success: true };
+  const result = await publicVoiceSessionRateLimiter.limit(ip);
   return { success: result.success };
 }
 

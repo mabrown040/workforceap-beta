@@ -3,18 +3,18 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getScoreBreakdownSafe } from '@/lib/readiness/score';
+import PageHeader from '@/components/portal/PageHeader';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
-import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { readinessVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
+import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturnButton';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Career Readiness',
-  description: 'Your job readiness checklist.',
+  title: 'Job Readiness Checklist',
+  description: 'Track your progress toward being job-ready.',
   path: '/dashboard/readiness',
 });
 
@@ -86,65 +86,107 @@ export default async function DashboardReadinessPage() {
 
   return (
     <>
-      {/* ── MOBILE ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Header */}
-        <div style={{ padding: '1.25rem 1rem 0.75rem' }}>
-          <h1 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
-            Career Readiness
-          </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Your readiness score across 4 key categories.
-          </p>
-        </div>
-
-        <div style={{ padding: '0 1rem 1rem' }}>
-          <VoiceAgentSurface {...readinessVoiceSurface}>
-            <PortalVoiceSession
-              sessionEndpoint="/api/member/readiness/voice-session"
-              title="Talk through your readiness plan"
-              description="Ask about interviews, certifications, LinkedIn, or your next milestone."
-              accent="#0d9488"
-              accentDark="#0f766e"
-              speakingLabel="Coach is speaking…"
-              listeningLabel="Listening — share where you are"
-            />
-          </VoiceAgentSurface>
-        </div>
-
+      <PageHeader
+        title="Career Readiness"
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">Your readiness score across 4 key categories.</span>
+            <span className="wa-hidden md:wa-block">Track your progress from training to landing a job. Your counselor updates this as you hit milestones.</span>
+          </>
+        }
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}
+      />
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <ReadinessMobileScoreCard
           overallScore={overallScore}
           categories={categories}
           priorityAction={priorityAction}
         />
 
+        <div id="readiness-coach-panel" className="portal-pad-x" style={{ marginTop: '1rem', scrollMarginTop: '6rem' }}>
+          <CompactReadinessCoach />
+        </div>
+
+        <ReadinessCoachReturnButton />
         <MobileBottomNav variant="portal" />
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className="wa-hidden wa-md:wa-block">
-        <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Your Career Readiness</h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-            Track your progress from training to career. Your counselor updates this checklist as you hit milestones.
-          </p>
+      <div className="wa-hidden md:wa-block">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) 340px',
+            gap: '1.5rem',
+            alignItems: 'start',
+          }}
+        >
+          <div>
+          {/* Score summary — desktop metric strip */}
           <div style={{ marginBottom: '1.5rem' }}>
-            <VoiceAgentSurface {...readinessVoiceSurface}>
-              <PortalVoiceSession
-                sessionEndpoint="/api/member/readiness/voice-session"
-                title="Talk through your readiness plan"
-                description="Ask about interviews, certifications, LinkedIn, or your next milestone."
-                accent="#0d9488"
-                accentDark="#0f766e"
-                speakingLabel="Coach is speaking…"
-                listeningLabel="Listening — share where you are"
-              />
-            </VoiceAgentSurface>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              {/* Overall score ring */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', background: 'var(--surface-container-low)', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)', flex: '0 0 auto' }}>
+                <div style={{ position: 'relative', width: '5rem', height: '5rem', flexShrink: 0 }}>
+                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 80 80" aria-hidden>
+                    <circle cx="40" cy="40" r="34" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="6" />
+                    <circle
+                      cx="40" cy="40" r="34" fill="transparent"
+                      stroke="var(--color-accent)" strokeWidth="6"
+                      strokeDasharray={213.6}
+                      strokeDashoffset={213.6 - (213.6 * overallScore) / 100}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{overallScore}</span>
+                    <span style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>/ 100</span>
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>Overall Score</p>
+                  <p style={{ fontSize: '1.375rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: 0 }}>{overallScore}<span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}> / 100</span></p>
+                  {priorityAction && (
+                    <a href={priorityAction.href} style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none', display: 'block', marginTop: '0.375rem' }}>
+                      Next: {priorityAction.label.slice(0, 50)}{priorityAction.label.length > 50 ? '…' : ''} →
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Category mini-metrics */}
+              <div className="portal-metric-strip" style={{ flex: 1 }}>
+                {categories.map((cat) => (
+                  <div key={cat.label} className="portal-metric-card">
+                    <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: `${cat.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.25rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: cat.color, fontVariationSettings: "'FILL' 1" }}>{cat.icon}</span>
+                    </div>
+                    <p className="portal-metric-card__value" style={{ fontSize: '1.375rem', color: cat.pct >= 60 ? cat.color : 'var(--color-on-surface)' }}>{cat.pct}%</p>
+                    <p className="portal-metric-card__label">{cat.label}</p>
+                    <div className="portal-progress-bar portal-progress-bar--thin" style={{ marginTop: '0.5rem' }}>
+                      <div className="portal-progress-bar__fill" style={{ width: `${cat.pct}%`, background: cat.color }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           <ReadinessMemberClient
             initialSections={checklistSections ?? []}
-            loadError={checklistSections === null ? 'We could not load your counselor checklist. Refresh the page or try again shortly.' : null}
+            loadError={checklistSections === null ? 'Couldn\'t load your checklist — try refreshing the page.' : null}
           />
+          </div>
+
+          <aside
+            id="readiness-coach-panel"
+            style={{
+              position: 'sticky',
+              top: 'calc(var(--main-nav-layout-height, 4rem) + 1rem)',
+              scrollMarginTop: '6rem',
+            }}
+          >
+            <CompactReadinessCoach />
+          </aside>
         </div>
       </div>
     </>

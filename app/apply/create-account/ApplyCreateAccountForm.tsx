@@ -187,14 +187,14 @@ export default function ApplyCreateAccountForm() {
         nextFieldErrors.zip;
       setError(
         needsContact
-          ? 'Phone and address are required for membership.'
+          ? 'Please add a phone number and home address to continue.'
           : 'Please fix the highlighted fields and try again.'
       );
       return;
     }
 
     if (!programRankedSlugs?.length) {
-      setError('We lost your selected program(s). Go back to step 2 and choose at least one program.');
+      setError('Your program selection wasn\'t saved — please go back to step 2 and choose at least one program.');
       return;
     }
 
@@ -240,7 +240,7 @@ export default function ApplyCreateAccountForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'We could not create your account yet. Please try again.');
+        setError(data.error ?? 'Something went wrong — please try again.');
         trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: data.error ?? 'unknown_error' });
         setLoading(false);
         return;
@@ -265,7 +265,8 @@ export default function ApplyCreateAccountForm() {
         return;
       }
 
-      window.location.href = data.redirectTo ?? '/dashboard';
+      const dest = typeof data.redirectTo === 'string' && data.redirectTo.startsWith('/') ? data.redirectTo : '/dashboard';
+      window.location.href = dest;
     } catch {
       setError('Something went wrong while creating your account. Please try again, or call (512) 777-1808 if you need help finishing.');
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });
@@ -276,7 +277,7 @@ export default function ApplyCreateAccountForm() {
   if (verifyEmailMode) {
     return (
       <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }}>mark_email_unread</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
         <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
           We sent a verification link to:
@@ -291,10 +292,11 @@ export default function ApplyCreateAccountForm() {
           Go to login
         </Link>
         <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
-          Didn&apos;t get it? Check your spam folder, or{' '}
-          <a href={`/api/apply/resend-verification?email=${encodeURIComponent(verifyEmail)}`} style={{ color: '#ad2c4d', fontWeight: 600 }}>
-            resend the email
-          </a>.
+          Didn&rsquo;t get it? Check your spam folder, then call{' '}
+          <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
+            (512) 777-1808
+          </a>{' '}
+          if you need help finishing your account.
         </p>
       </div>
     );
@@ -308,7 +310,7 @@ export default function ApplyCreateAccountForm() {
     return (
       <div className="apply-form-missing-session">
         <p role="alert" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-          We couldn&apos;t find your saved program choice. This usually happens if you skipped step 2, opened this page in a new tab or device,
+          We couldn&rsquo;t find your saved program choice. This usually happens if you skipped step 2, opened this page in a new tab or device,
           or your browser cleared site data.
         </p>
         <p style={{ marginBottom: '0.75rem' }}>
@@ -336,11 +338,11 @@ export default function ApplyCreateAccountForm() {
 
       <div className="apply-transition-card" role="note" aria-label="Why account creation matters">
         <strong>Why we ask for this now:</strong>
-        <span> your account saves the program you selected, lets you log back in, and gives our team the information needed to follow up. It is not a final enrollment decision by itself.</span>
+        <span> your account saves the program you selected, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
       </div>
 
       <p className="apply-step-desc" style={{ marginTop: '1rem' }}>
-        You&apos;ll get next steps after account creation. In many cases, that means you can go straight to your dashboard. Some applicants may be asked to verify their email first.
+        After you create your account, you can view your dashboard and next steps. Some applicants are asked to verify their email first — check your inbox if so.
       </p>
 
       <div className="form-group">
@@ -515,12 +517,12 @@ export default function ApplyCreateAccountForm() {
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>
         </div>
-        <p className="apply-field-hint">Use at least 8 characters. You&apos;ll use this password to come back and check your status.</p>
+        <p className="apply-field-hint">Use at least 8 characters. You&rsquo;ll use this password to come back and check your status.</p>
         {fieldErrors.password ? <p className="form-error">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">
@@ -544,7 +546,7 @@ export default function ApplyCreateAccountForm() {
             aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showConfirmPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>
@@ -553,7 +555,7 @@ export default function ApplyCreateAccountForm() {
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>
-        {loading ? 'Creating your account…' : 'Create account and see next steps'}
+        {loading ? 'Creating your account…' : 'Create account and enter your path'}
       </button>
     </form>
   );

@@ -33,6 +33,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [manualLink, setManualLink] = useState<{ url: string; message: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +73,8 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
     if (!manualLink) return;
     try {
       await navigator.clipboard.writeText(manualLink.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       setError('Could not copy — select the link and copy manually.');
     }
@@ -165,12 +168,24 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
                   >
                     {manualLink.url}
                   </code>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()}>
-                    Copy link
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()} aria-label={copied ? "Copied" : "Copy link"}>
+                    <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      {copied ? (
+                        <>
+                          <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">check</span>
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">content_copy</span>
+                          Copy link
+                        </>
+                      )}
+                    </span>
                   </button>
                 </div>
                 <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem' }}>
-                  The invite is saved. Close when you&apos;re done, or configure <code>RESEND_API_KEY</code> and use
+                  The invite is saved. Close when you&rsquo;re done, or configure <code>RESEND_API_KEY</code> and use
                   Resend on the list.
                 </p>
               </div>
@@ -208,7 +223,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
               >
                 <option value="admin">Admin</option>
                 <option value="partner">Partner</option>
-                <option value="member">Student</option>
+                <option value="member">Member</option>
                 <option value="counselor">Counselor</option>
               </select>
             </div>
@@ -216,7 +231,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'counselor' && partners.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-counselor-partner" style={labelStyle}>
-                  Partner affiliation (optional)
+                  Partner affiliation (for counselors)
                 </label>
                 <select
                   id="invite-counselor-partner"
@@ -240,7 +255,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'partner' && subgroups.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-subgroup" style={labelStyle}>
-                  Subgroup (optional)
+                  Subgroup (for partners)
                 </label>
                 <select
                   id="invite-subgroup"
@@ -261,7 +276,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
             {role === 'member' && programs.length > 0 && (
               <div style={{ marginBottom: '1rem' }}>
                 <label htmlFor="invite-program" style={labelStyle}>
-                  Program pre-assignment (optional)
+                  Assign to program (for students)
                 </label>
                 <select
                   id="invite-program"

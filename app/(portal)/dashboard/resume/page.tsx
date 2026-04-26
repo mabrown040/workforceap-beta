@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -42,7 +43,7 @@ export default async function DashboardResumePage() {
   return (
     <>
       {/* ── Mobile ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div
           style={{
             padding: '1rem 1rem 1.25rem',
@@ -78,7 +79,7 @@ export default async function DashboardResumePage() {
                 flexShrink: 0,
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>description</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden="true">description</span>
             </div>
             <div>
               <h1 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
@@ -103,7 +104,7 @@ export default async function DashboardResumePage() {
       </div>
 
       {/* ── Desktop ── */}
-      <div className="wa-hidden wa-md:wa-block" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
+      <div className="wa-hidden md:wa-block" style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
         <div
           style={{
             padding: '1.25rem 2rem 1.5rem',
@@ -111,53 +112,20 @@ export default async function DashboardResumePage() {
             background: 'var(--surface-container-low)',
           }}
         >
-          <nav
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.8rem',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: '1rem',
-            }}
-          >
-            <Link href="/dashboard/ai-tools" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>
-              Career Suite
-            </Link>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>chevron_right</span>
-            <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>My Resume</span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark, #8b1a3a))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: '#fff' }}>description</span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                My Resume
-              </h1>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-                Upload your resume, view it inline, or generate one from your profile.
-              </p>
-            </div>
-          </div>
+          <PageHeader
+            title="My Resume"
+            subtitle="Upload your resume, view it inline, or generate one from your profile."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Resume' }]}
+          />
         </div>
 
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '2rem' }}>
+        <div style={{ padding: '2rem' }}>
           <ResumeClient
             completeness={completeness}
             witData={{ name: fields.name, email: fields.email, phone: fields.phone, recentEmployer: '', targetJob: '', skills: '' }}
             hasOriginal={!!profile?.resumeOriginalPath}
             hasEnhanced={!!profile?.resumeEnhancedPath}
+            layout="side-by-side"
           />
         </div>
       </div>

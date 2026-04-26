@@ -69,7 +69,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
             >
               {chip.label}
               {chip.count > 0 ? (
-                <span style={{ marginLeft: '0.375rem', fontSize: '0.625rem', opacity: 0.85 }}>{chip.count}</span>
+                <span style={{ marginLeft: '0.375rem', fontSize: '0.75rem', opacity: 0.85 }}>{chip.count}</span>
               ) : null}
             </button>
           );
@@ -79,7 +79,7 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
       <div style={{ padding: '0 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {rows.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }} aria-hidden="true">
               group
             </span>
             <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
@@ -156,9 +156,9 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
                   <span
                     style={{
                       flexShrink: 0,
-                      padding: '0.15rem 0.5rem',
+                      padding: '0.2rem 0.6rem',
                       borderRadius: '9999px',
-                      fontSize: '0.6rem',
+                      fontSize: '0.75rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       background: badgeBg,

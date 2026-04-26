@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
@@ -53,20 +54,21 @@ const PHASES = [
 
 export default async function HowItWorksPage() {
   let overviewVideoEmbed: string | null = null;
-  try {
-    const orgId = await getDefaultOrganizationId();
-    const org = await prisma.organization.findUnique({
-      where: { id: orgId },
-      select: { overviewVideoUrl: true },
-    });
-    if (org?.overviewVideoUrl) overviewVideoEmbed = toVideoEmbedUrl(org.overviewVideoUrl);
-  } catch {
-    overviewVideoEmbed = null;
+  if (!shouldSkipOptionalDbQueriesAtBuild()) {
+    try {
+      const orgId = await getDefaultOrganizationId();
+      const org = await prisma.organization.findUnique({
+        where: { id: orgId },
+        select: { overviewVideoUrl: true },
+      });
+      if (org?.overviewVideoUrl) overviewVideoEmbed = toVideoEmbedUrl(org.overviewVideoUrl);
+    } catch {
+      overviewVideoEmbed = null;
+    }
   }
 
   return (
     <div className="inner-page">
-      <div className="marketing-desktop">
       {/* Hero Section */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
@@ -86,11 +88,11 @@ export default async function HowItWorksPage() {
                 Member Experience
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Your better future{' '}
+                Your path{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-                We provide the tools, training, and long-term support needed to bridge the gap between where you are and where you want to be.
+                No gatekeeping. No cost to members. Just a clear, guided process — from your first conversation with us to your first day on the job (and beyond).
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
@@ -121,7 +123,7 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Apply now — free
+                  Apply now
                 </Link>
                 <Link
                   href="/programs"
@@ -150,10 +152,10 @@ export default async function HowItWorksPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              Your Journey With Us
+              What Happens After You Apply
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-              A structured, 10-step roadmap — the same journey you see on our homepage — from applicant to career growth.
+              Ten steps, three phases. Every step has a purpose — and a person supporting you through it.
             </p>
           </div>
 
@@ -163,13 +165,13 @@ export default async function HowItWorksPage() {
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
                 <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '1.5rem' }}>
                 {phase.steps.map((step) => {
                   const isHighlight = step.num === 1 || step.num === 7 || step.num === 9 || step.num === 10;
                   return (
                     <div
                       key={step.num}
-                      className="stitch-card"
+                      className="portal-card portal-card--flat"
                       style={{
                         padding: '1.5rem',
                         ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
@@ -225,19 +227,23 @@ export default async function HowItWorksPage() {
           <div className="editorial-grid" style={{ gap: '1.5rem' }}>
             {/* Loaner Laptop */}
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
-              <div className="stitch-card-elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ maxWidth: '60%' }}>
+              <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ maxWidth: 'min(42rem, 100%)' }}>
                   <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
                     Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
                   </p>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {['Pre-configured with all necessary software', 'Technical support included', 'Zero upfront cost for qualifying members'].map((item) => (
+                    {['Pre-configured with all necessary software', 'Technical support included'].map((item) => (
                       <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
                         {item}
                       </li>
                     ))}
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                      Zero upfront cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', marginLeft: '0.25rem' }}>qualifying members</Link>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -248,7 +254,7 @@ export default async function HowItWorksPage() {
               <div style={{ background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', padding: '3rem', color: '#fff', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div>
                   <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', '--ms-fill': 1 }}>calendar_today</span>
                   </div>
                   <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>150-Day Post-Hire Support</h2>
                   <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
@@ -272,11 +278,11 @@ export default async function HowItWorksPage() {
 
             {/* Career Training Benefits */}
             <div style={{ gridColumn: 'span 12' }}>
-              <div className="stitch-card" style={{ padding: '3rem' }}>
+              <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
                 <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
                   {[
-                    { icon: 'school', title: 'Tuition Coverage', desc: 'Comprehensive financial support for approved certification tracks and technical bootcamps.' },
+                    { icon: 'school', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
                     { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
                     { icon: 'work', title: 'Direct Pipeline', desc: 'Immediate consideration for openings within our 50+ employer partner network.' },
                     { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
@@ -284,7 +290,7 @@ export default async function HowItWorksPage() {
                     <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', fontVariationSettings: "'FILL' 1" }}>{b.icon}</span>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>{b.icon}</span>
                         </div>
                         <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
                       </div>
@@ -311,10 +317,10 @@ export default async function HowItWorksPage() {
           overflow: 'hidden',
         }}>
           <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
-            Ready to bridge the gap?
+            Ready to take the first step?
           </h2>
           <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            Join hundreds of successful members who have launched their careers through Workforce Advancement Project.
+            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and there&rsquo;s no application fee.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
             <Link
@@ -357,158 +363,10 @@ export default async function HowItWorksPage() {
         }
       `}</style>
 
-      </div>{/* end hidden md:block desktop wrapper */}
-
-      {/* ── Mobile Journey View (≤640px) — inline styles only (Tailwind wa- prefix) ── */}
-      <section
-        className="marketing-mobile marketing-mobile-pb-for-bottom-nav"
-        style={{
-          background: 'var(--color-surface)',
-          paddingLeft: '1rem',
-          paddingRight: '1rem',
-          paddingTop: '2rem',
-        }}
-      >
-        <div style={{ marginBottom: '1.5rem' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: '10px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              padding: '0.25rem 0.75rem',
-              borderRadius: '9999px',
-              marginBottom: '0.75rem',
-              background: '#ffbb00',
-              color: 'var(--color-on-surface)',
-            }}
-          >
-            Member Experience
-          </span>
-          <h2
-            style={{
-              fontSize: '1.875rem',
-              fontWeight: 800,
-              letterSpacing: '-0.025em',
-              lineHeight: 1.1,
-              marginBottom: '0.75rem',
-              color: 'var(--color-on-surface)',
-            }}
-          >
-            Your better future{' '}
-            <span style={{ color: '#ad2c4d' }}>starts here.</span>
-          </h2>
-          <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#584144' }}>
-            10 steps from application to career growth.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {PHASES.flatMap((phase) =>
-            phase.steps.map((step) => {
-              const isIntensive = step.num >= 5 && step.num <= 9;
-              return (
-                <div
-                  key={step.num}
-                  style={{
-                    position: 'relative',
-                    overflow: 'hidden',
-                    borderRadius: '0.75rem',
-                    padding: '1rem',
-                    background: isIntensive ? 'rgba(173, 44, 77, 0.06)' : '#fff',
-                    border: isIntensive ? '1px solid rgba(173,44,77,0.15)' : 'none',
-                    boxShadow: isIntensive ? 'none' : '0 1px 4px rgba(28,27,27,0.06)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <span
-                      style={{
-                        width: '2.5rem',
-                        height: '2.5rem',
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '50%',
-                        fontSize: '0.875rem',
-                        fontWeight: 700,
-                        background: '#ad2c4d',
-                        color: '#fff',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {String(step.num).padStart(2, '0')}
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                    {isIntensive && step.num === 5 && (
-                      <span
-                        style={{
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.1em',
-                          padding: '0.125rem 0.5rem',
-                          borderRadius: '9999px',
-                          marginBottom: '0.5rem',
-                          display: 'inline-block',
-                          background: '#ad2c4d',
-                          color: '#fff',
-                        }}
-                      >
-                        Intensive Learning Phase
-                      </span>
-                    )}
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{step.title}</p>
-                    <p style={{ fontSize: '0.75rem', marginTop: '0.125rem', lineHeight: 1.55, color: '#584144' }}>{step.desc}</p>
-                  </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <Link
-            href="/apply"
-            style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'center',
-              fontWeight: 700,
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
-              color: '#fff',
-              textDecoration: 'none',
-            }}
-          >
-            Start Your Application
-          </Link>
-          <Link
-            href="/programs"
-            style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'center',
-              fontWeight: 700,
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              background: '#ebe7e7',
-              color: 'var(--color-on-surface)',
-              textDecoration: 'none',
-            }}
-          >
-            View Programs
-          </Link>
-        </div>
-      </section>
-
       <MobileBottomNav />
       <Footer />
+      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );
 }

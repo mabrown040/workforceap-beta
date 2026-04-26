@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Member guide',
@@ -32,7 +33,7 @@ const JOURNEY_STEPS = [
   {
     num: 3,
     title: 'Build your materials',
-    desc: 'Use our AI tools to rewrite your resume, write a cover letter, and sharpen your LinkedIn profile.',
+    desc: 'Use our AI tools to rewrite your resume, write a cover letter, and practice your interview skills.',
     href: '/dashboard/ai-tools',
     cta: 'Open AI tools',
     icon: 'auto_awesome',
@@ -56,10 +57,10 @@ const JOURNEY_STEPS = [
 ];
 
 const BENEFITS = [
-  { icon: 'workspace_premium', title: 'LinkedIn Premium', desc: 'Request free access through your dashboard.' },
-  { icon: 'school', title: 'Coursera Access', desc: 'Earn free professional certificates.' },
-  { icon: 'auto_awesome', title: 'AI Career Tools', desc: '7 tools: resume, cover letter, LinkedIn, interview coach, and more.' },
+  { icon: 'school', title: 'Coursera Access', desc: 'Access professional certificates from top institutions as part of your membership.' },
+  { icon: 'auto_awesome', title: 'Job Search Tools', desc: '5 core tools for resume help, elevator pitches, readiness, voice interviews, and career coaching.' },
   { icon: 'person_pin', title: 'Your Counselor', desc: 'A human counselor is assigned to you — they want to hear from you.' },
+  { icon: 'work', title: 'Job Board', desc: 'Browse openings from employers actively hiring WorkforceAP graduates.' },
 ];
 
 const FAQS = [
@@ -68,8 +69,8 @@ const FAQS = [
     a: 'Most members complete the core program in 4–8 weeks, but you can move at your own pace. There\'s no deadline.',
   },
   {
-    q: 'Is everything free for me?',
-    a: 'Yes. WorkforceAP is completely free for members. All tools, resources, and counselor access are included at no cost.',
+    q: 'What will this cost me?',
+    a: 'WorkforceAP is available at no cost to members. Tools, resources, and counselor access are included through funded pathways.',
   },
   {
     q: 'When will I get matched with a job?',
@@ -128,7 +129,7 @@ export default async function MemberGuidePage() {
           Your WorkforceAP Journey
         </h1>
         <p style={{ fontSize: '1.0625rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, maxWidth: '38rem' }}>
-          Hey {firstName} — here&apos;s exactly how to get from enrolled to employed. Five steps. You can do this.
+          Hey {firstName} — here&rsquo;s exactly how to get from enrolled to employed. Five steps. You can do this.
         </p>
       </header>
 
@@ -177,9 +178,9 @@ export default async function MemberGuidePage() {
                     transition: 'all 0.2s',
                   }}>
                     {isDone ? (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.125rem' }}>check</span>
+                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.125rem' }} aria-hidden="true">check</span>
                     ) : (
-                      <span className="material-symbols-outlined" style={{ color: isActive ? '#fff' : 'var(--color-on-surface-variant)', fontSize: '1.125rem' }}>{step.icon}</span>
+                      <span className="material-symbols-outlined" style={{ color: isActive ? '#fff' : 'var(--color-on-surface-variant)', fontSize: '1.125rem' }} aria-hidden="true">{step.icon}</span>
                     )}
                   </div>
                 </div>
@@ -203,30 +204,8 @@ export default async function MemberGuidePage() {
                     }}>
                       Step {step.num}
                     </span>
-                    {isDone && (
-                      <span style={{
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--color-green)',
-                        background: 'color-mix(in srgb, var(--color-green) 12%, transparent)',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '9999px',
-                      }}>Done</span>
-                    )}
-                    {isActive && (
-                      <span style={{
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--color-accent)',
-                        background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '9999px',
-                      }}>Up next</span>
-                    )}
+                    {isDone && <StatusBadge label="Done" variant="success" />}
+                    {isActive && <StatusBadge label="Up next" variant="accent" />}
                   </div>
                   <h3 style={{
                     fontSize: '1rem',
@@ -255,7 +234,7 @@ export default async function MemberGuidePage() {
                       letterSpacing: '-0.01em',
                     }}>
                       {step.cta}
-                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                     </Link>
                   )}
                   {!isActive && !isDone && (
@@ -270,7 +249,7 @@ export default async function MemberGuidePage() {
                       marginTop: '0.375rem',
                     }}>
                       {step.cta}
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">arrow_forward</span>
                     </Link>
                   )}
                 </div>
@@ -287,7 +266,7 @@ export default async function MemberGuidePage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
           {BENEFITS.map((b) => (
-            <div key={b.title} className="stitch-card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div key={b.title} className="portal-card portal-card--flat" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{
                 width: '2.5rem',
                 height: '2.5rem',
@@ -297,7 +276,7 @@ export default async function MemberGuidePage() {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>{b.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{b.icon}</span>
               </div>
               <div>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{b.title}</h3>
@@ -315,7 +294,7 @@ export default async function MemberGuidePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>
@@ -331,7 +310,7 @@ export default async function MemberGuidePage() {
             Still have questions?
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-            Message your counselor — they&apos;re here to help with anything.{' '}
+            Message your counselor — they&rsquo;re here to help with anything.{' '}
             <Link href="/dashboard/messages" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
               Send a message →
             </Link>

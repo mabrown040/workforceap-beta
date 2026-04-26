@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -7,6 +6,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AdminJobReview from '@/components/admin/AdminJobReview';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
+import PageHeader from '@/components/portal/PageHeader';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -57,11 +57,10 @@ export default async function AdminJobDetailPage({ params }: Props) {
 
   return (
     <div>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <Link href="/admin/jobs" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-          ← Back to Jobs
-        </Link>
-      </div>
+      <PageHeader
+        breadcrumbs={[{ label: 'Jobs', href: '/admin/jobs' }, { label: 'Job Review' }]}
+        title={job.title}
+      />
       <AdminJobReview job={job} />
     </div>
   );

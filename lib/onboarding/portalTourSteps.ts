@@ -49,7 +49,7 @@ export const EMPLOYER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-jobs',
     title: 'Job postings',
-    body: 'Post new roles, import from your ATS or LinkedIn, and manage live postings.',
+    body: 'Post new roles, import from your job board or LinkedIn, and manage live postings.',
     placement: 'right',
   },
   {
@@ -61,7 +61,7 @@ export const EMPLOYER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-pipeline',
     title: 'Hiring pipeline',
-    body: 'Track candidates from reviewed → interviewed → offered. Kanban-style.',
+    body: 'Track candidates from reviewed → interviewed → offered on a visual board.',
     placement: 'right',
   },
   {

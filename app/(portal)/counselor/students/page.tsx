@@ -3,10 +3,23 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
+
+const HOT_QUEUE_LOOKBACK_DAYS = 7;
+
+function formatHotQueueTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const diffHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+  return `${diffDays}d ago`;
+}
 
 function getInitials(name: string): string {
   return name
@@ -41,6 +54,7 @@ export default async function CounselorStudentsPage() {
               enrolledProgram: true,
               programInterest: true,
               assessmentScorePct: true,
+              coursesCompleted: true,
             },
           },
         },
@@ -50,13 +64,43 @@ export default async function CounselorStudentsPage() {
 
   const activeCount = assignments.length;
   const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
+  const memberIds = assignments.map((a) => a.memberId);
+  const hotQueueCutoff = new Date(Date.now() - HOT_QUEUE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+
+  const hotQueue = memberIds.length
+    ? await prisma.memberNextBestAction.findMany({
+        where: {
+          memberId: { in: memberIds },
+          status: 'PENDING',
+          icon: 'auto_awesome',
+          createdAt: { gte: hotQueueCutoff },
+        },
+        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
+        select: {
+          id: true,
+          memberId: true,
+          title: true,
+          description: true,
+          ctaLabel: true,
+          ctaHref: true,
+          createdAt: true,
+          member: {
+            select: {
+              id: true,
+              fullName: true,
+              enrolledProgram: true,
+              programInterest: true,
+            },
+          },
+        },
+      })
+    : [];
 
   return (
     <PortalPageFrame>
+      <PageHeader title="My members" subtitle="Members assigned to you for coaching and messaging." />
       {/* ── Mobile ─────────────────────────────────────────── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
-
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
         <div
           style={{
@@ -68,9 +112,9 @@ export default async function CounselorStudentsPage() {
           }}
         >
           {[
-            { label: 'Active Students', value: activeCount, accent: 'var(--color-accent)' },
+            { label: 'Active Members', value: activeCount, accent: 'var(--color-accent)' },
             { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
-            { label: 'Messages', value: 0, accent: 'var(--color-accent)' },
+            { label: 'Hot Queue', value: hotQueue.length, accent: '#b45309' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
@@ -100,35 +144,63 @@ export default async function CounselorStudentsPage() {
           ))}
         </div>
 
-        {/* Filter chips */}
-        <div
-          style={{
-            display: 'flex', flexWrap: 'wrap',
-            gap: '0.625rem',
-            padding: '1rem 1rem 0',
-            scrollbarWidth: 'none',
-          }}
-        >
-          {['All', 'At Risk', 'Upcoming Session'].map((chip, i) => (
-            <button
-              key={chip}
+        {/* TODO: Add real filter chips (At Risk, Upcoming Session) when
+             student list is converted to a client component with filter state.
+             Removed non-functional decorative chips that looked clickable. */}
+
+        {hotQueue.length > 0 ? (
+          <div style={{ padding: '1rem 1rem 0' }}>
+            <div
               style={{
-                flexShrink: 0,
-                padding: '0.375rem 1rem',
-                borderRadius: '9999px',
-                border: 'none',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                letterSpacing: '0.04em',
-                cursor: 'pointer',
-                background: i === 0 ? 'var(--color-accent)' : 'var(--outline-variant)',
-                color: i === 0 ? '#fff' : 'var(--color-on-surface)',
+                background: '#fff7ed',
+                border: '1px solid #fdba74',
+                borderRadius: '1rem',
+                padding: '1rem',
               }}
             >
-              {chip}
-            </button>
-          ))}
-        </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9a3412' }}>
+                    Hot member queue
+                  </p>
+                  <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: '#7c2d12' }}>
+                    Fresh completions that need counselor follow-up
+                  </h2>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                {hotQueue.map((action) => (
+                  <Link
+                    key={action.id}
+                    href={`/counselor/students/${action.memberId}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div
+                      style={{
+                        background: 'rgba(255,255,255,0.9)',
+                        borderRadius: '0.875rem',
+                        border: '1px solid rgba(194,65,12,0.15)',
+                        padding: '0.875rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                          {action.member.fullName ?? 'Member'}
+                        </p>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9a3412', whiteSpace: 'nowrap' }}>
+                          {formatHotQueueTime(action.createdAt)}
+                        </span>
+                      </div>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.8rem', fontWeight: 700, color: '#7c2d12' }}>{action.title}</p>
+                      <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Header */}
         <div
@@ -140,7 +212,7 @@ export default async function CounselorStudentsPage() {
           }}
         >
           <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Active Roster</span>
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }}>
+          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }} aria-hidden="true">
             sort
           </span>
         </div>
@@ -148,25 +220,33 @@ export default async function CounselorStudentsPage() {
         {/* Student list */}
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {assignments.length === 0 ? (
-            <div style={{ borderRadius: '0.75rem', padding: '2.5rem 1.5rem', textAlign: 'center', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
-              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)' }}>person_search</span>
-              </div>
-              <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.5rem', fontSize: '1rem' }}>
-                No students assigned yet
-              </p>
-              <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', maxWidth: '20rem', margin: '0 auto 1.25rem' }}>
-                Students will appear here once assigned by an administrator.
-              </p>
-              <Link href="/counselor/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                Open Messages
-              </Link>
-            </div>
+            <PortalEmptyState
+              title="No members assigned yet"
+              description="Members will appear here once assigned by an administrator."
+              icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
+              primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
+              secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+            />
           ) : (
             assignments.map((a) => {
               const initials = getInitials(a.member.fullName ?? 'U');
               const program = a.member.enrolledProgram ?? a.member.programInterest ?? '—';
+              const enrolledSlug = a.member.enrolledProgram ?? null;
+              const programMeta = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+              const completed = (a.member.coursesCompleted as string[] | null) ?? [];
+              const completedSet = new Set(completed);
+              const totalCourses = programMeta?.courses.length ?? 0;
+              const completedCount =
+                programMeta && totalCourses > 0
+                  ? programMeta.courses.filter((c) => completedSet.has(c.slug)).length
+                  : 0;
+              const trainingProgressPct =
+                programMeta && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
               const statusBadge = counselorStudentStatusBadge({
+                enrolledProgram: a.member.enrolledProgram,
+                assessmentScorePct: a.member.assessmentScorePct,
+              });
+              const statusVariant = counselorStudentStatusBadgeVariant({
                 enrolledProgram: a.member.enrolledProgram,
                 assessmentScorePct: a.member.assessmentScorePct,
               });
@@ -177,15 +257,13 @@ export default async function CounselorStudentsPage() {
                   style={{ textDecoration: 'none' }}
                 >
                   <div
-                    className="active:scale-[0.98] wa-transition-all"
+                    className="portal-kpi-card active:scale-[0.98] wa-transition-all"
                     style={{
-                      background: '#fff',
-                      borderRadius: '0.75rem',
                       padding: '1rem',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.875rem',
-                      border: '1px solid #ebe7e7',
+                      border: '1px solid var(--outline-variant)',
                     }}
                   >
                     {/* Avatar */}
@@ -194,7 +272,7 @@ export default async function CounselorStudentsPage() {
                         width: 44,
                         height: 44,
                         borderRadius: '0.625rem',
-                        background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))',
+                        background: 'var(--color-accent)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -225,48 +303,41 @@ export default async function CounselorStudentsPage() {
                       >
                         {program}
                       </p>
-                      {/* Progress bar placeholder */}
-                      <div
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                      >
-                        <div
-                          style={{
-                            flex: 1,
-                            height: 4,
-                            background: 'var(--surface-container)',
-                            borderRadius: '9999px',
-                            overflow: 'hidden',
-                          }}
-                        >
+                      {trainingProgressPct === null ? (
+                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                        </p>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <div
                             style={{
-                              height: '100%',
-                              width: a.member.enrolledProgram ? '50%' : '10%',
-                              background: 'var(--color-accent)',
+                              flex: 1,
+                              height: 4,
+                              background: 'var(--surface-container)',
                               borderRadius: '9999px',
+                              overflow: 'hidden',
                             }}
-                          />
+                          >
+                            <div
+                              style={{
+                                height: '100%',
+                                width: `${trainingProgressPct}%`,
+                                background: 'var(--color-accent)',
+                                borderRadius: '9999px',
+                              }}
+                            />
+                          </div>
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                            {trainingProgressPct}%
+                          </span>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Status + chevron */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem' }}>
-                      <span
-                        style={{
-                          padding: '0.125rem 0.5rem',
-                          borderRadius: '9999px',
-                          background: statusBadge.style.background,
-                          color: statusBadge.style.color,
-                          fontSize: '9px',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                        }}
-                      >
-                        {statusBadge.label}
-                      </span>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }}>
+                      <StatusBadge label={statusBadge.label} variant={statusVariant} />
+                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }} aria-hidden="true">
                         chevron_right
                       </span>
                     </div>
@@ -279,11 +350,74 @@ export default async function CounselorStudentsPage() {
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
-      <div className="wa-hidden wa-md:wa-block">
-        <PageHeader title="My students" subtitle="Members assigned to you for coaching and messaging." />
+      <div className="wa-hidden md:wa-block">
+        {hotQueue.length > 0 ? (
+          <section style={{ marginBottom: '1.5rem' }}>
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                padding: '1.25rem',
+                border: '1px solid #fdba74',
+                background: 'linear-gradient(180deg, #fff7ed 0%, #ffffff 100%)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9a3412' }}>
+                    Hot member queue
+                  </p>
+                  <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: '#7c2d12' }}>
+                    Members who just became actionable
+                  </h2>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
+              </div>
+
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {hotQueue.map((action) => (
+                  <Link
+                    key={action.id}
+                    href={`/counselor/students/${action.memberId}`}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) auto',
+                      gap: '1rem',
+                      alignItems: 'center',
+                      textDecoration: 'none',
+                      border: '1px solid rgba(194,65,12,0.15)',
+                      borderRadius: '0.9rem',
+                      padding: '0.9rem 1rem',
+                      background: '#fff',
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+                        {action.member.fullName ?? 'Member'}
+                      </p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: '#7c2d12' }}>{action.title}</p>
+                      <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: '#9a3412' }}>
+                        {formatHotQueueTime(action.createdAt)}
+                      </p>
+                      <span className="btn btn-primary btn-sm">Open member</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {assignments.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No assigned students yet.</p>
+          <PortalEmptyState
+            title="No members assigned yet"
+            description="Members will appear here once assigned by an administrator."
+            icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
+            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
+            secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+          />
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
             {assignments.map((a) => (

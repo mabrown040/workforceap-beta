@@ -2,7 +2,7 @@
 
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { counselorStaffVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { counselorStaffVoiceSurface } from '@/lib/portal/voice';
 
 /**
  * Staff counselor portal — voice uses the ConvAI agent’s configured TTS (no client `voice_id` override;
@@ -14,7 +14,8 @@ export default function CounselorPortalVoiceBlock() {
       <PortalVoiceSession
         sessionEndpoint="/api/counselor/session"
         title="Counselor voice assistant"
-        description="Talk through student support, outreach, or how to use this portal."
+        titleAs="h2"
+        description="Talk through member support, outreach, or how to use this portal."
         accent="#c026d3"
         accentDark="#86198f"
         speakingLabel="Assistant is speaking…"

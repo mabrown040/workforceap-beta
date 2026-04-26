@@ -3,10 +3,13 @@ import { redirect } from 'next/navigation';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   robots: {
@@ -27,12 +30,16 @@ export default async function AdminLayout({
     const hasAdmin = await isAdmin(user.id);
     if (!hasAdmin) redirect('/dashboard');
 
-    const [branding, superAdmin] = await Promise.all([getDefaultOrgBranding(), isSuperAdmin(user.id)]);
+    const [branding, superAdmin, portalRoles] = await Promise.all([
+      getDefaultOrgBranding(),
+      isSuperAdmin(user.id),
+      getPortalSwitcherRoles(user.id),
+    ]);
 
     return (
       <>
         <OrgBrandingBar branding={branding} />
-        <AdminPortalShell superAdmin={superAdmin}>{children}</AdminPortalShell>
+        <AdminPortalShell superAdmin={superAdmin} portalRoles={portalRoles}>{children}</AdminPortalShell>
       </>
     );
   } catch (err) {

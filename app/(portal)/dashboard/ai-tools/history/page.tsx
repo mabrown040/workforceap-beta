@@ -24,8 +24,22 @@ const TOOL_LABELS: Record<string, string> = {
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
   interview_coach: 'AI Interview Coach',
+  voice_interview_video: 'Mock Interview Video',
   career_counselor: 'Career Counselor',
+  skill_assessment: 'Skill Mapper / Skill Assessment',
 };
+
+function getHistoryToolLabel(toolType: string, output: string): string {
+  if (toolType === 'career_counselor') {
+    try {
+      const parsed = JSON.parse(output) as { type?: string };
+      if (parsed?.type === 'elevator_pitch') return 'AI Elevator Speech';
+    } catch {
+      // ignore
+    }
+  }
+  return TOOL_LABELS[toolType] ?? toolType;
+}
 
 type Props = { searchParams: Promise<{ tool?: string }> };
 
@@ -35,15 +49,20 @@ export default async function AIHistoryPage({ searchParams }: Props) {
 
   const { tool } = await searchParams;
 
-  const results = await prisma.aIToolResult.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-  });
+  let results: Awaited<ReturnType<typeof prisma.aIToolResult.findMany>> = [];
+  try {
+    results = await prisma.aIToolResult.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+  } catch {
+    // Non-fatal — renders empty state
+  }
 
   const withLabels = results.map((r) => ({
     ...r,
-    toolLabel: TOOL_LABELS[r.toolType] ?? r.toolType,
+    toolLabel: getHistoryToolLabel(r.toolType, r.output),
   }));
 
   return (
@@ -69,7 +88,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
             marginBottom: '0.75rem',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>arrow_back</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">arrow_back</span>
           Back to AI Tools
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -84,12 +103,12 @@ export default async function AIHistoryPage({ searchParams }: Props) {
               justifyContent: 'center',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }}>history</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">history</span>
           </div>
           <div>
             <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>My AI Results</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-              Revisit your past resume rewrites, cover letters, interview questions, and headlines.
+              Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines.
             </p>
           </div>
         </div>
@@ -99,34 +118,41 @@ export default async function AIHistoryPage({ searchParams }: Props) {
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1.5rem' }}>
         {withLabels.length === 0 ? (
           <div
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{
               padding: '3rem 2rem',
               textAlign: 'center',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">
               folder_open
             </span>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>No results yet. Use an AI tool to get started.</p>
-            <Link
-              href="/dashboard/ai-tools"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.5rem 1.25rem',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                borderRadius: '8px',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                textDecoration: 'none',
-              }}
-            >
-              Go to AI Tools
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
-            </Link>
+            <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>No saved results yet</p>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', fontSize: '0.875rem' }}>
+              Start with the Resume Rewriter or Interview Practice — your outputs save here automatically.
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Link
+                href="/dashboard/ai-tools/resume-rewriter"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
+                  borderRadius: '8px', background: 'var(--color-accent)', color: '#fff', textDecoration: 'none',
+                }}
+              >
+                Resume Rewriter
+              </Link>
+              <Link
+                href="/dashboard/ai-tools/interview-practice"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
+                  borderRadius: '8px', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', textDecoration: 'none',
+                }}
+              >
+                Interview Practice
+              </Link>
+            </div>
           </div>
         ) : (
           <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />

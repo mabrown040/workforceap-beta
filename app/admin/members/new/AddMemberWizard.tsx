@@ -131,9 +131,7 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFile = async (file: File) => {
     setResumeFile(file);
     setError('');
     setLoading('parse');
@@ -162,7 +160,6 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       setError('Upload failed');
     } finally {
       setLoading(null);
-      e.target.value = '';
     }
   };
 
@@ -186,6 +183,16 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
       setError('Enhancement failed');
     } finally {
       setLoading(null);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await handleFile(file);
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -479,19 +486,14 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               e.preventDefault();
               e.currentTarget.classList.remove('dragover');
               const file = e.dataTransfer.files?.[0];
-              if (file && ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
-                const input = document.getElementById('wizard-resume-input') as HTMLInputElement;
-                if (input) {
-                  const dt = new DataTransfer();
-                  dt.items.add(file);
-                  input.files = dt.files;
-                  input.dispatchEvent(new Event('change'));
-                }
+              const ext = file?.name.split('.').pop()?.toLowerCase();
+              if (file && ['pdf', 'doc', 'docx', 'txt'].includes(ext || '')) {
+                void handleFile(file);
               }
             }}
           >
-            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
-            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, or DOCX here (max 5MB)<br />or click to browse</span>}
+            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
+            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, DOCX, or TXT here (max 5MB)<br />or click to browse</span>}
           </div>
           {!resumeFile && (
             <button type="button" className="wizard-skip-link" onClick={() => setStep(5)}>

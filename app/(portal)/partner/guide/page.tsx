@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
@@ -15,8 +16,8 @@ export const metadata: Metadata = buildPageMetadata({
 
 const FAQS = [
   {
-    q: "What if someone doesn't qualify?",
-    a: "If a candidate doesn't meet program requirements, let them know what the gaps are and encourage them to reapply when they're ready. Some candidates may qualify for a different program track — our team can help assess.",
+    q: "What if someone does not qualify?",
+    a: "If a candidate does not meet program requirements, let them know what the gaps are and encourage them to reapply when they're ready. Some candidates may qualify for a different program track — our team can help assess.",
   },
   {
     q: 'How do I know if my referral was accepted?',
@@ -37,7 +38,7 @@ export default async function PartnerGuidePage() {
   if (!user) redirect('/login?redirectTo=/partner/guide');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   // Referral impact stats
   const [totalReferred, assessmentCount, placedCount] = await Promise.all([
@@ -59,7 +60,7 @@ export default async function PartnerGuidePage() {
   const partnerName = ctx.partner.name;
 
   return (
-    <div style={{ maxWidth: '56rem', margin: '0 auto', paddingBottom: '6rem' }} className="wa-md:wa-pb-12">
+    <div style={{ maxWidth: '56rem', margin: '0 auto', paddingBottom: '6rem' }} className="md:wa-pb-12">
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/partner" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
@@ -81,7 +82,7 @@ export default async function PartnerGuidePage() {
       </header>
 
       {/* Who is WorkforceAP for */}
-      <section className="stitch-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+      <section className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
           Who is WorkforceAP for?
         </h2>
@@ -89,7 +90,7 @@ export default async function PartnerGuidePage() {
           Job seekers who are <strong style={{ color: 'var(--color-on-surface)' }}>unemployed, underemployed, or changing careers</strong>.
         </p>
         <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-          The program is <strong style={{ color: 'var(--color-on-surface)' }}>completely free</strong> for members.
+          The program is available <strong style={{ color: 'var(--color-on-surface)' }}>at no cost</strong> to members.
           Your referrals help them access job training, AI career tools, counseling, and employer connections.
         </p>
       </section>
@@ -141,7 +142,7 @@ export default async function PartnerGuidePage() {
               }}>
                 {step.num}
               </div>
-              <div className="stitch-card" style={{ flex: 1, padding: '1.25rem' }}>
+              <div className="portal-card portal-card--flat" style={{ flex: 1, padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>{step.icon}</span>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{step.title}</h3>
@@ -184,7 +185,7 @@ export default async function PartnerGuidePage() {
             { label: 'Completed assessment', value: assessmentCount, icon: 'assignment_turned_in' },
             { label: 'Placed in jobs', value: placedCount, icon: 'work' },
           ].map((stat) => (
-            <div key={stat.label} className="stitch-card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+            <div key={stat.label} className="portal-card portal-card--flat" style={{ padding: '1.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem', display: 'block', marginBottom: '0.75rem' }}>{stat.icon}</span>
               <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: '0.375rem' }}>
                 {stat.value}
@@ -204,7 +205,7 @@ export default async function PartnerGuidePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {FAQS.map((faq) => (
-            <div key={faq.q} className="stitch-card" style={{ padding: '1.25rem' }}>
+            <div key={faq.q} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
                 {faq.q}
               </h3>
@@ -238,7 +239,7 @@ export default async function PartnerGuidePage() {
           </p>
         </div>
       </div>
-      <div className="wa-md:wa-hidden">
+      <div className="md:wa-hidden">
         <MobileBottomNav variant="partner" />
       </div>
     </div>

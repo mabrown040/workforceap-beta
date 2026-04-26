@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
+import { validateFileType } from '@/lib/resume/file-validation';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -30,25 +31,26 @@ export async function POST(request: Request) {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
 
   try {
-    if (ext === 'pdf' || ext === 'docx' || ext === 'doc' || ext === 'txt') {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const text = await extractTextFromResumeBuffer(buffer, ext);
-      if (ext === 'pdf' && !text) {
-        return NextResponse.json(
-          {
-            error:
-              'Could not extract text from this PDF. It may be a scanned image. Try pasting your resume text instead.',
-          },
-          { status: 400 }
-        );
-      }
-      return NextResponse.json({ text });
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    if (!validateFileType(buffer, file.type || '', file.name)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Use PDF, DOCX, or TXT.' },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json(
-      { error: 'Unsupported format. Use PDF, DOCX, or TXT.' },
-      { status: 400 }
-    );
+    const text = await extractTextFromResumeBuffer(buffer, ext);
+    if (ext === 'pdf' && !text) {
+      return NextResponse.json(
+        {
+          error:
+            'Could not extract text from this PDF. It may be a scanned image. Try pasting your resume text instead.',
+        },
+        { status: 400 }
+      );
+    }
+    return NextResponse.json({ text });
   } catch (err) {
     console.error('Extract resume text error:', err);
     return NextResponse.json(

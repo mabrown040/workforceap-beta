@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -23,19 +24,19 @@ export default async function PartnerReferredMembersPage() {
   if (!user) redirect('/login?redirectTo=/partner/referred-members');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
   const rows = toPartnerMembersListRows(pipelineMembers);
 
   return (
     <PortalPageFrame>
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title="Referred members"
-          subtitle="Search and filter everyone your organization has referred to WorkforceAP."
-          action={(
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
+      <PageHeader
+        title="Referred members"
+        subtitle="Search and filter everyone your organization has referred to WorkforceAP."
+        action={
+          <>
+            <div className="wa-block md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
               <PartnerInviteMemberButton compact />
               <a
                 href="/partner/exports"
@@ -55,20 +56,23 @@ export default async function PartnerReferredMembersPage() {
                   border: '1px solid #ebe7e7',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>download</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>
                 Export CSV
               </a>
             </div>
-          )}
-        />
-
+            <div className="wa-hidden md:wa-block">
+              <PartnerInviteMemberButton />
+            </div>
+          </>
+        }
+      />
+      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PartnerReferredMembersMobile rows={rows} />
 
         <MobileBottomNav variant="partner" />
       </div>
 
-      <div className="wa-hidden wa-md:wa-block">
-        <PageHeader title="Referred members" subtitle="Search and filter everyone your organization has referred to WorkforceAP." action={<PartnerInviteMemberButton />} />
+      <div className="wa-hidden md:wa-block">
         <PartnerMembersList members={rows} />
       </div>
     </PortalPageFrame>

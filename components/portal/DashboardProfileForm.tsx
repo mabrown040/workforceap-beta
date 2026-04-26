@@ -70,7 +70,7 @@ export default function DashboardProfileForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '480px' }}>
+    <form onSubmit={handleSubmit} style={{ maxWidth: '640px' }}>
       <div style={{ display: 'grid', gap: '1rem' }}>
         <div className="form-group">
           <label htmlFor="firstName">First Name *</label>

@@ -1,7 +1,14 @@
 import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
+import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
+
+export function hasSupabaseServerEnv() {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+  );
+}
 
 /**
  * Creates a Supabase client for Server Components, Server Actions, and Route Handlers.
@@ -9,12 +16,21 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
  */
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!hasSupabaseServerEnv() || !url || !anonKey) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
+  }
+
+  // Preserve "session only" preference across server-side token refreshes
+  const sessionOnly = cookieStore.get(SESSION_ONLY_COOKIE)?.value === '1';
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
-      cookieOptions: getSupabaseCookieOptions(),
+      cookieOptions: getSupabaseCookieOptions(sessionOnly),
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -22,8 +38,15 @@ export async function createSupabaseServerClient() {
         setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
-              const opts = options as { path?: string; maxAge?: number; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
-              cookieStore.set(name, value, opts ?? {});
+              if (sessionOnly) {
+                // Strip maxAge/expires to keep the session ephemeral
+                const { maxAge: _1, expires: _2, ...rest } = (options ?? {}) as Record<string, unknown>;
+                const opts = rest as { path?: string; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
+                cookieStore.set(name, value, opts ?? {});
+              } else {
+                const opts = options as { path?: string; maxAge?: number; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
+                cookieStore.set(name, value, opts ?? {});
+              }
             });
           } catch (err) {
             console.error('Supabase setAll cookies error:', err);
@@ -38,6 +61,7 @@ export async function createSupabaseServerClient() {
  * Gets the current session from the server. Returns null if not authenticated.
  */
 export async function getSession() {
+  if (!hasSupabaseServerEnv()) return null;
   const supabase = await createSupabaseServerClient();
   const {
     data: { session },
@@ -51,6 +75,7 @@ export async function getSession() {
  * Request-level memoization avoids duplicate Supabase round-trips when layout + page both call getUser().
  */
 export const getUser = cache(async function getUser() {
+  if (!hasSupabaseServerEnv()) return null;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

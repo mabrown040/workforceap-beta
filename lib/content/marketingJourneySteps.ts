@@ -20,12 +20,12 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     shortDesc:
       'Submit your application online in about 10 minutes. We use it to understand your background and match you with the right opportunity.',
     longDesc:
-      'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We reach out within 48 hours.',
+      'Fill out a short online form — no test, no gatekeeping. We use it to understand your goals so we can help you. We follow up with your next step in 1 to 2 business days.',
     why: 'So we can personalize your path instead of sending you into a generic funnel.',
   },
   {
     num: 2,
-    title: 'Overview & eligibility review',
+    title: 'Overview & Eligibility Review',
     shortDesc:
       'Meet with a counselor to review programs, timelines, and eligibility. Know what to expect before you commit.',
     longDesc:
@@ -34,16 +34,16 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 3,
-    title: 'Membership enrollment',
+    title: 'Membership Enrollment',
     shortDesc:
-      'Join at no cost. Get access to your member portal, resources, and support — no hidden fees.',
+      'Join at no cost to members. Get access to your member portal, resources, and support — no hidden fees.',
     longDesc:
-      'Join at no cost. All members get free access to resources, support, and training. No hidden fees, ever.',
+      'Join at no cost to members. All members get access to resources, support, and training. No hidden fees.',
     why: 'We remove money as a barrier so you can focus on learning.',
   },
   {
     num: 4,
-    title: 'Skills assessment',
+    title: 'Skills Assessment',
     shortDesc:
       'Discover your strengths and growth areas so we can personalize your pathway — not a pass/fail test.',
     longDesc:
@@ -79,7 +79,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 8,
-    title: 'Certificate completion',
+    title: 'Certificate Completion',
     shortDesc:
       'Earn credentials employers recognize — CompTIA, AWS, Google, Microsoft, and more.',
     longDesc:
@@ -88,7 +88,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 9,
-    title: 'Job readiness & placement assistance',
+    title: 'Job Readiness & Placement Assistance',
     shortDesc:
       'Resume review, interview prep, employer connections, and job search support until you land.',
     longDesc:
@@ -97,7 +97,7 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
   },
   {
     num: 10,
-    title: 'Career opportunities & growth',
+    title: 'Career Opportunities & Growth',
     shortDesc:
       'Land your role with ongoing support — and build toward raises, promotions, and long-term career growth.',
     longDesc:

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/auth/server';
 import { checkForgotPasswordRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
@@ -25,13 +25,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 });
   }
 
-  const supabase = await createSupabaseServerClient();
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-  const redirectTo = `${baseUrl}/login?reset=success`;
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo,
-  });
+  let error: { message?: string } | null = null;
+  try {
+    ({ error } = await sendPasswordResetEmail(email));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Password reset is temporarily unavailable.';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 
   // Uniform response — avoids revealing whether the email is registered
   if (error && process.env.NODE_ENV === 'development') {

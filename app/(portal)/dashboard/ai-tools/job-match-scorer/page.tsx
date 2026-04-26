@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata = buildPageMetadata({
   title: 'Job Match Scorer',
@@ -26,70 +28,19 @@ export default async function JobMatchScorerPage() {
             background: 'var(--surface-container-low)',
           }}
         >
-          <Link
-            href="/dashboard/ai-tools"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              fontSize: '0.85rem',
-              color: 'var(--color-accent)',
-              textDecoration: 'none',
-              marginBottom: '0.75rem',
-              fontWeight: 500,
-            }}
-          >
-            ← AI Tools
-          </Link>
-          <nav
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.8rem',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <Link href="/dashboard/ai-tools" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>
-              AI Tools
-            </Link>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden>
-              chevron_right
-            </span>
-            <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Job Match Scorer</span>
-          </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }}>
-                target
-              </span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                Job Match Scorer
-              </h1>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-                Paste a job description and your resume. Get a match score and specific gaps to address.
-              </p>
-            </div>
-          </div>
+          <PageHeader
+            title="Job Match Scorer"
+            subtitle="Paste a job description and your resume. Get a match score and specific gaps to address."
+            breadcrumbs={[
+              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Job Match Scorer' },
+            ]}
+          />
         </div>
 
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <div
-            className="stitch-card"
+            className="portal-card portal-card--flat"
             style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
@@ -98,7 +49,7 @@ export default async function JobMatchScorerPage() {
             </p>
           </div>
 
-          <div className="stitch-card" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '2rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 1rem', color: 'var(--color-on-surface)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'middle', marginRight: '0.4rem', color: 'var(--color-accent)' }} aria-hidden>
                 compare
@@ -108,6 +59,8 @@ export default async function JobMatchScorerPage() {
             <JobMatchScorerForm />
           </div>
 
+          <ToolHistoryPanel userId={user.id} toolType="job_match_scorer" />
+
           <div
             style={{
               display: 'grid',
@@ -115,7 +68,7 @@ export default async function JobMatchScorerPage() {
               gap: '1.25rem',
             }}
           >
-            <div className="stitch-card" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   science
@@ -126,7 +79,7 @@ export default async function JobMatchScorerPage() {
                 Keyword overlap, semantic similarity, and role-relevant weighting produce an actionable compatibility score.
               </p>
             </div>
-            <div className="stitch-card" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   shield
@@ -138,7 +91,7 @@ export default async function JobMatchScorerPage() {
                 if you need to keep them.
               </p>
             </div>
-            <div className="stitch-card" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', borderRadius: 14, background: 'var(--surface-container-low)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.6rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }} aria-hidden>
                   info
@@ -146,7 +99,7 @@ export default async function JobMatchScorerPage() {
                 <h4 style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Session</h4>
               </div>
               <p style={{ fontSize: '0.78rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Results reflect this run&apos;s inputs. Re-run after you update your resume or try a different posting.
+                Results reflect this run&rsquo;s inputs. Re-run after you update your resume or try a different posting.
               </p>
             </div>
           </div>

@@ -9,11 +9,11 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           {variant === 'inner' ? (
             <Image
-              src="/images/logo.png"
+              src="/images/logo-tight.png"
               alt="WorkforceAP"
               className="footer-logo"
-              width={1600}
-              height={900}
+              width={1930}
+              height={985}
               sizes="(max-width: 768px) 140px, 210px"
               quality={85}
               loading="lazy"
@@ -25,14 +25,17 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             </div>
           )}
           <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: 'var(--color-on-surface-variant, #debfc2)' }}>
-            Empowering the workforce through intentional education and industry-leading partnerships.
+            Built in Austin. Available nationwide.
+          </p>
+          <p style={{ fontSize: '0.75rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant, #debfc2)', opacity: 0.85, marginTop: '0.75rem' }}>
+            A national nonprofit and 501(c)(3) organization. EIN: 41-2612389. Contributions are tax-deductible.
           </p>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>public</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }} aria-hidden="true">public</span>
             </a>
             <a href="mailto:info@workforceap.org" aria-label="Email">
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>alternate_email</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }} aria-hidden="true">alternate_email</span>
             </a>
           </div>
         </div>
@@ -42,7 +45,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
           <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Programs</h6>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <li><Link href="/programs" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>All Programs</Link></li>
-            <li><Link href="/find-your-path" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Find Your Career</Link></li>
+            <li><Link href="/find-your-path" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Find Your Path</Link></li>
             <li><Link href="/program-comparison" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Compare Programs</Link></li>
             <li><Link href="/salary-guide" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Salary Guide</Link></li>
             <li><Link href="/apply" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Apply Now</Link></li>

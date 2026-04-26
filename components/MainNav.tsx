@@ -18,6 +18,7 @@ const navItems = [
     ],
   },
   { href: '/programs', label: 'Programs' },
+  { href: '/wioa-qualification', label: 'Check Eligibility' },
   { href: '/find-your-path', label: 'Find Your Path' },
   { href: '/partners', label: 'Partners' },
   { href: '/employers', label: 'Employers' },
@@ -40,12 +41,13 @@ export default function MainNav() {
     primary: { href: string; label: string };
     submenu: Array<{ href: string; label: string }>;
   }>({
-    primary: { href: '/login', label: 'Login' },
-    submenu: [
-      { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
-      { href: '/login?redirectTo=/employer', label: 'Employer portal' },
-      { href: '/login?redirectTo=/partner', label: 'Partner portal' },
-    ],
+      primary: { href: '/login', label: 'Login' },
+      submenu: [
+      { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+      { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
+      { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+      { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+      ],
   });
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -89,9 +91,10 @@ export default function MainNav() {
             setPortalState({
               primary: { href: '/login', label: 'Login' },
               submenu: [
-                { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
-                { href: '/login?redirectTo=/employer', label: 'Employer portal' },
-                { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+                { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+                { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
+                { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+                { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
               ],
             });
             return;
@@ -99,8 +102,12 @@ export default function MainNav() {
           const partnerExclusive = !!data.partner && !data.superAdmin;
           if (partnerExclusive) {
             setPortalState({
-              primary: { href: '/partner', label: 'Account' },
-              submenu: [{ href: '/partner', label: 'Partner dashboard' }],
+              primary: { href: '/partner', label: 'Partner' },
+              submenu: [
+                { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+                { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+                { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+              ],
             });
             return;
           }
@@ -113,7 +120,7 @@ export default function MainNav() {
           if (data.partner && data.superAdmin) {
             sub.push({ href: '/partner', label: 'Partner portal' });
           }
-          sub.push({ href: '/account', label: 'Account settings' });
+          sub.push({ href: '/dashboard/account', label: 'Account settings' });
           setPortalState({
             primary: { href: '/dashboard', label: 'Account' },
             submenu: sub,
@@ -123,9 +130,10 @@ export default function MainNav() {
             setPortalState({
               primary: { href: '/login', label: 'Login' },
               submenu: [
-                { href: '/login?redirectTo=/dashboard', label: 'Member portal' },
-                { href: '/login?redirectTo=/employer', label: 'Employer portal' },
-                { href: '/login?redirectTo=/partner', label: 'Partner portal' },
+                { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+                { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
+                { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+                { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
               ],
             });
           }
@@ -208,7 +216,8 @@ export default function MainNav() {
         pathname.startsWith('/admin') ||
         pathname.startsWith('/counselor') ||
         pathname.startsWith('/mentor') ||
-        pathname.startsWith('/account')
+        pathname.startsWith('/account') ||
+        pathname.startsWith('/dashboard/account')
       );
     }
     return pathname === href || pathname.startsWith(`${href}/`);

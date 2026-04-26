@@ -21,6 +21,7 @@ export type NextBestActionsContext = {
   assessmentCompleted: boolean;
   hasResume: boolean;
   profileCompletenessPct: number;
+  profileMissingFields?: string[];
   jobApplicationCount: number;
   counselorUnreadCount: number;
   weeklyRecapUnopened: boolean;
@@ -33,7 +34,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'submit_application',
       title: 'Submit a program application',
-      body: 'We don’t have an application on file yet. Apply so we can match you to funding and a counselor.',
+      body: "Takes about 10 minutes — we'll match you to a funded program and connect you with a counselor.",
       href: '/apply',
       cta: 'Start application',
       variant: 'urgent',
@@ -57,7 +58,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'skills_assessment',
       title: 'Complete your skills assessment',
-      body: 'Unlock your training path and job matching with a short assessment.',
+      body: 'Start your training path and job matching with a short assessment.',
       href: '/dashboard/assessment',
       cta: 'Take assessment',
       variant: 'urgent',
@@ -85,10 +86,32 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       id: 'upload_resume',
       title: 'Add your resume',
       body: 'Upload a resume so employers and AI tools can tailor help to your background.',
-      href: '/dashboard/resume',
-      cta: 'Upload resume',
+      href: '/dashboard/ai-tools/resume-rewriter',
+      cta: 'Try resume rewriter',
       variant: 'default',
       weight: 80,
+    });
+  }
+
+  if (ctx.state === 'D') {
+    out.push({
+      id: 'interview_practice',
+      title: 'Practice your interview answers',
+      body: 'Use guided interview practice so you sound ready for recruiter screens and counselor interviews.',
+      href: '/dashboard/ai-tools/interview-practice',
+      cta: 'Practice interviews',
+      variant: 'default',
+      weight: 72,
+    });
+
+    out.push({
+      id: 'career_readiness',
+      title: 'Build your job readiness plan',
+      body: 'Review your readiness checklist so applications, interview prep, and counselor guidance stay in sync.',
+      href: '/dashboard/readiness',
+      cta: 'Open readiness',
+      variant: 'default',
+      weight: 68,
     });
   }
 
@@ -110,10 +133,12 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
   }
 
   if (ctx.profileCompletenessPct < 55 && ctx.enrolledProgram) {
+    const missing = ctx.profileMissingFields?.slice(0, 3) ?? [];
+    const missingNote = missing.length > 0 ? ` Missing: ${missing.join(', ')}.` : '';
     out.push({
       id: 'complete_profile',
       title: 'Strengthen your profile',
-      body: `Your profile is about ${ctx.profileCompletenessPct}% complete — add a few details for better matches and AI tools.`,
+      body: `Profile ${ctx.profileCompletenessPct}% complete — employers and AI tools use this data.${missingNote}`,
       href: '/dashboard/profile',
       cta: 'Complete profile',
       variant: 'default',

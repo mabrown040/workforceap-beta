@@ -4,7 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
-import { studentCounselorVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -16,7 +16,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function CounselorPage() {
   const user = await getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/login?redirectTo=/dashboard/counselor');
 
   const firstName = user.user_metadata?.full_name?.split(' ')[0] as string | undefined;
 
@@ -32,12 +32,12 @@ export default async function CounselorPage() {
           AI Career Counselor
         </h1>
         <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-          Your session is private. Speak naturally — I&apos;m here to help.
+          Your session is private. Speak naturally — I&rsquo;m here to help.
         </p>
       </div>
 
       {/* Mobile */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1.5rem 1rem' }}>
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />
@@ -47,7 +47,7 @@ export default async function CounselorPage() {
       </div>
 
       {/* Desktop */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '3rem 1.5rem' }}>
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />

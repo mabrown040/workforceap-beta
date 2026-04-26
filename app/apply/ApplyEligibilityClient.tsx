@@ -94,10 +94,10 @@ export default function ApplyEligibilityClient() {
         <p className="apply-step-kicker">About 1 minute • no account required yet</p>
         <h2 className="apply-step-title">Quick check — we want to point you to the best next step</h2>
         <p className="apply-step-desc">
-          Answer 3 short questions first. Then you&apos;ll see program options, choose the one you want, and create your account only after that.
+          Answer 3 short questions first. Then you&rsquo;ll see program options, choose the one you want, and create your account only after that.
         </p>
         <p className="apply-step-desc apply-eligibility-exception-note">
-          These questions help us estimate funding fit. They do <strong>not</strong> automatically accept or deny you. If you&apos;re between situations,
+          These questions help us estimate funding fit. They do <strong>not</strong> automatically accept or deny you. If you&rsquo;re between situations,
           slightly over the threshold, or unsure how to answer, continue anyway — we review real-life circumstances individually, consistent with our{' '}
           <Link href="/faq" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
             FAQ
@@ -107,7 +107,7 @@ export default function ApplyEligibilityClient() {
 
         <div className="apply-transition-card" role="note" aria-label="What happens after this step">
           <strong>What happens next:</strong>
-          <span> Step 2 is program selection. Step 3 is account creation so we can save your choice and follow up within 3–5 business days.</span>
+          <span> Step 2 is program selection. Step 3 is account creation so we can save your choice and follow up within 1–2 business days.</span>
         </div>
 
         <div className="funding-questions">
@@ -199,7 +199,7 @@ export default function ApplyEligibilityClient() {
               </p>
             ) : (
               <p>
-                <strong>You may still have options.</strong> Continue to program selection — we&apos;ll still review your situation, suggest a realistic path,
+                <strong>You may still have options.</strong> Continue to program selection — we&rsquo;ll still review your situation, suggest a realistic path,
                 and follow up personally.
               </p>
             )}

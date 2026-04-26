@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ExternalLink, Check, AlertCircle } from 'lucide-react';
 import JobForm from '@/components/employer/JobForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { trackEmployerImport, trackFunnelEvent } from '@/lib/analytics/events';
 
 type ImportJobClientProps = {
@@ -169,7 +168,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
 
     return (
       <>
-      <div className="import-job-review wa-pb-24 wa-md:wa-pb-0">
+      <div className="import-job-review wa-pb-24 md:wa-pb-0">
         <div className="import-job-back">
           <button
             type="button"
@@ -231,7 +230,6 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           isImportReview
         />
       </div>
-      <MobileBottomNav variant="employer" />
       </>
     );
   }
@@ -240,7 +238,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
 
   return (
     <>
-    <div className="import-job-page wa-pb-24 wa-md:wa-pb-0">
+    <div className="import-job-page wa-pb-24 md:wa-pb-0">
       <div className="import-job-back">
         <Link href="/employer/jobs">← Back to jobs</Link>
       </div>
@@ -403,7 +401,6 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
         </div>
       )}
     </div>
-    <MobileBottomNav variant="employer" />
     </>
   );
 }

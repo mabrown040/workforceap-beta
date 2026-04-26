@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ExportPdfButton from './ExportPdfButton';
 
 export default function SalaryNegotiationForm() {
@@ -17,6 +18,11 @@ export default function SalaryNegotiationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { copy, copied } = useCopyToClipboard();
+
+  useDraftAutosave('ai-tool:salary-negotiation:currentOffer', currentOffer, setCurrentOffer);
+  useDraftAutosave('ai-tool:salary-negotiation:targetSalary', targetSalary, setTargetSalary);
+  useDraftAutosave('ai-tool:salary-negotiation:jobTitle', jobTitle, setJobTitle);
+  useDraftAutosave('ai-tool:salary-negotiation:companyName', companyName, setCompanyName);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

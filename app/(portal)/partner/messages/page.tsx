@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
@@ -10,6 +11,8 @@ import { getOrCreatePartnerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PortalCard from '@/components/portal/ui/PortalCard';
+import { InboxRowLayout } from '@/components/portal/ui/inbox/InboxPrimitives';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -22,7 +25,7 @@ export default async function PartnerMessagesPage() {
   if (!user) redirect('/login?redirectTo=/partner/messages');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const thread = await getOrCreatePartnerMessageThread(ctx.partnerId);
 
@@ -37,50 +40,29 @@ export default async function PartnerMessagesPage() {
   return (
     <PortalPageFrame>
       <>
-        <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
-          <PageHeader title="Messages" subtitle="Direct line to your WorkforceAP partnership team" />
-
-          <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
-            <div
-              style={{
-                background: 'var(--surface-container-lowest, #fff)',
-                borderRadius: '0.875rem',
-                border: '1px solid var(--color-border, #ebe7e7)',
-                overflow: 'hidden',
-                boxShadow: '0 1px 4px rgba(28,27,27,0.06)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem' }}>
-                <div
-                  style={{
-                    width: '2.75rem',
-                    height: '2.75rem',
-                    borderRadius: '9999px',
-                    background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#fff' }}>
-                    support_agent
-                  </span>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)' }}>WorkforceAP Team</div>
-                  <div style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-                    {serializedMessages.length > 0 ? last?.body ?? 'No messages yet' : 'No messages yet — ask us anything'}
-                  </div>
-                </div>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--outline-variant)', flexShrink: 0 }}>
-                  chevron_right
-                </span>
+        <PageHeader
+          title="Messages"
+          subtitle={
+            <>
+              <span className="wa-block md:wa-hidden">Direct line to your WorkforceAP partnership team</span>
+              <span className="wa-hidden md:wa-block">Direct line to your WorkforceAP partnership team — referrals, milestones, and resources.</span>
+            </>
+          }
+        />
+        <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+          <div className="portal-pad-x wa-mb-4">
+            <PortalCard>
+              <div className="portal-inbox-row__inner" style={{ padding: '0.25rem 0' }}>
+                <InboxRowLayout
+                  title="WorkforceAP Team"
+                  preview={serializedMessages.length > 0 ? last?.body ?? 'No messages yet' : 'No messages yet — ask us anything'}
+                  badge={<span className="material-symbols-outlined" aria-hidden>chevron_right</span>}
+                />
               </div>
-            </div>
+            </PortalCard>
           </div>
 
-          <div style={{ padding: '0 1rem' }}>
+          <div className="portal-pad-x">
             <PortalTeamChatClient
               surfaceVariant="partner"
               apiPath="/api/partner/messages"
@@ -99,11 +81,7 @@ export default async function PartnerMessagesPage() {
           <MobileBottomNav variant="partner" />
         </div>
 
-        <div className="wa-hidden wa-md:wa-block">
-          <PageHeader
-            title="Messages"
-            subtitle="Direct line to your WorkforceAP partnership team — referrals, milestones, and resources."
-          />
+        <div className="wa-hidden md:wa-block">
           <PortalTeamChatClient
             surfaceVariant="partner"
             apiPath="/api/partner/messages"

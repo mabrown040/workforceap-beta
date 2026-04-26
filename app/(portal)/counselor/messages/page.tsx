@@ -33,10 +33,18 @@ export default async function CounselorMessagesHubPage() {
 
   return (
     <PortalPageFrame>
+      <PageHeader
+        title="Member Messages"
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">Conversations with your members</span>
+            <span className="wa-hidden md:wa-block">Search, open a thread, or view the full member profile.</span>
+          </>
+        }
+      />
       <>
         {/* Mobile View */}
-        <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
-          <PageHeader title="Student Messages" subtitle="Conversations with your students" />
+        <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
           <div style={{ minHeight: '50vh' }}>
             <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
           </div>
@@ -44,12 +52,11 @@ export default async function CounselorMessagesHubPage() {
         </div>
 
         {/* Desktop View */}
-        <div className="wa-hidden wa-md:wa-block">
-          <PageHeader title="Student Messages" subtitle="Search, open a thread, or view the full student profile." />
+        <div className="wa-hidden md:wa-block">
           <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
           <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
             <Link href="/counselor/students" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Browse all students
+              Browse all members
             </Link>
           </p>
         </div>

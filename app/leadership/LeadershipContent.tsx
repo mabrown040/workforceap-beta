@@ -12,6 +12,12 @@ const boardMembers = LEADERS.filter(
 );
 const leadConsultants = LEADERS.filter((l) => l.section === 'consultant');
 
+function portraitStyleFor(slug: string) {
+  return slug === 'michael-brown'
+    ? { objectFit: 'cover' as const, objectPosition: 'center 24%' }
+    : { objectFit: 'cover' as const };
+}
+
 export default function LeadershipContent() {
   return (
     <>
@@ -53,7 +59,7 @@ export default function LeadershipContent() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <article
-                  className="stitch-card"
+                  className="portal-card portal-card--flat"
                   style={{
                     background: 'var(--surface-container)',
                     borderRadius: 'var(--radius-xl, 1rem)',
@@ -85,9 +91,7 @@ export default function LeadershipContent() {
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       priority={index === 0}
-                      style={{
-                        objectFit: 'cover',
-                      }}
+                      style={portraitStyleFor(leader.slug)}
                     />
                     {leader.founder && (
                       <span
@@ -229,8 +233,8 @@ export default function LeadershipContent() {
                   <div
                     className="leadership-board-photo"
                     style={{
-                      width: 152,
-                      height: 152,
+                      width: 176,
+                      height: 176,
                       borderRadius: '50%',
                       overflow: 'hidden',
                       flexShrink: 0,
@@ -241,10 +245,8 @@ export default function LeadershipContent() {
                       src={leader.image}
                       alt={leader.name}
                       fill
-                      sizes="152px"
-                      style={{
-                        objectFit: 'cover',
-                      }}
+                      sizes="176px"
+                      style={portraitStyleFor(leader.slug)}
                     />
                   </div>
 
@@ -305,7 +307,7 @@ export default function LeadershipContent() {
                       opacity: 0.7,
                       fontSize: '1.25rem',
                     }}
-                  >
+                   aria-hidden="true">
                     arrow_forward
                   </span>
                 </article>
@@ -351,7 +353,7 @@ export default function LeadershipContent() {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <article
-                    className="stitch-card"
+                    className="portal-card portal-card--flat"
                     style={{
                       background: 'var(--surface-container-lowest)',
                       borderRadius: 'var(--radius-xl, 1rem)',
@@ -403,7 +405,7 @@ export default function LeadershipContent() {
                             color: 'var(--color-accent)',
                             opacity: 0.85,
                           }}
-                        >
+                         aria-hidden="true">
                           support_agent
                         </span>
                         <span
@@ -415,7 +417,7 @@ export default function LeadershipContent() {
                             color: 'var(--color-on-surface-variant)',
                           }}
                         >
-                          Photo coming soon
+                          WorkforceAP leadership
                         </span>
                       </div>
                     )}
@@ -495,7 +497,7 @@ export default function LeadershipContent() {
                 opacity: 0.85,
                 display: 'block',
               }}
-            >
+             aria-hidden="true">
               group_add
             </span>
             <h2
@@ -541,7 +543,7 @@ export default function LeadershipContent() {
                   transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
                   mail
                 </span>
                 Get in Touch
@@ -563,7 +565,7 @@ export default function LeadershipContent() {
                   transition: 'background 0.15s ease',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
                   school
                 </span>
                 View Programs

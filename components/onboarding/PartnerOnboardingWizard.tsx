@@ -75,17 +75,19 @@ export default function PartnerOnboardingWizard({
       subtitle: 'Confirm how we should list you.',
       content: (
         <div className="wa-space-y-3">
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="partner-org-name" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Organization name
             <input
+              id="partner-org-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
             />
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="partner-org-type" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Organization type
             <select
+              id="partner-org-type"
               value={organizationType}
               onChange={(e) => setOrganizationType(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
@@ -98,17 +100,19 @@ export default function PartnerOnboardingWizard({
               ))}
             </select>
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="partner-contact-name" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Primary contact name
             <input
+              id="partner-contact-name"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
             />
           </label>
-          <label className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
+          <label htmlFor="partner-contact-phone" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             Primary contact phone
             <input
+              id="partner-contact-phone"
               type="tel"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}

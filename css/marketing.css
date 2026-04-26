@@ -22,21 +22,8 @@ html.dark .partner-logos-small span {
 }
 
 /*
- * Marketing mobile vs desktop (768px) — pairs with `wa-hidden md:wa-block` / `md:wa-hidden`.
- * Use `.marketing-desktop` on desktop-only trees and `.marketing-mobile` on Stitch/mobile-only trees
- * so a single breakpoint stays consistent even if utility classes fail to load.
+ * Marketing mobile vs desktop (768px) — REMOVED — site is now fully responsive.
  */
-@media (max-width: 767px) {
-  .marketing-desktop {
-    display: none !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .marketing-mobile {
-    display: none !important;
-  }
-}
 
 /* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
 .marketing-stack {
@@ -109,6 +96,26 @@ html.dark .marketing-mobile {
 @media (max-width: 768px) {
   .home-employer-elevated {
     transform: none !important;
+  }
+}
+
+/* Hero mobile CTA: hide the secondary outline button on small viewports to reduce CTA overload.
+   The ExperimentedCtaLink still mounts for exposure tracking; only the rendered link is hidden.
+   A text-link apply path (.home-hero-mobile-apply) is shown instead. */
+@media (max-width: 767px) {
+  .home-hero-outline-cta {
+    display: none !important;
+  }
+}
+
+/* Mobile-only apply text link — hidden on desktop where the outline button is already visible */
+.home-hero-mobile-apply {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .home-hero-mobile-apply {
+    display: block;
   }
 }
 
@@ -198,18 +205,36 @@ html.dark .marketing-bottom-nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 12px;
+  text-align: center;
+  gap: 3px;
+  padding: 8px 12px;
   border-radius: 12px;
   min-width: 56px;
-  transition: background 150ms ease, color 150ms ease;
+  min-height: 44px;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
   text-decoration: none;
   color: var(--mbn-inactive-fg);
+}
+
+/*
+ * Mobile bottom bar: never use partial font-variation-settings inline — WebKit (iOS) can drop
+ * other axes and ligatures fail, so icon names render as plain text. Keep full axis tuple in CSS.
+ */
+.marketing-bottom-nav .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
+}
+
+.marketing-bottom-nav__link--active .material-symbols-outlined {
+  --ms-fill: 1;
 }
 
 .marketing-bottom-nav__link--active {
   background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
   color: var(--color-white);
+  box-shadow: 0 8px 20px rgba(173, 44, 77, 0.22);
 }
 
 .marketing-bottom-nav__link--active .marketing-bottom-nav__label {
@@ -217,39 +242,51 @@ html.dark .marketing-bottom-nav {
 }
 
 .marketing-bottom-nav__label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   line-height: 1;
   color: inherit;
 }
 
-/* Portal variants: reduce crowding in fixed bottom nav labels */
+/* Portal variants: ensure 44px min touch targets */
 .mobile-bottom-nav--portal .marketing-bottom-nav__link,
 .mobile-bottom-nav--employer .marketing-bottom-nav__link,
 .mobile-bottom-nav--counselor .marketing-bottom-nav__link,
 .mobile-bottom-nav--partner .marketing-bottom-nav__link {
-  padding: 6px 8px;
+  padding: 8px 6px 10px;
   min-width: 0;
+  min-height: 44px;
   flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .mobile-bottom-nav--portal .marketing-bottom-nav__label,
 .mobile-bottom-nav--employer .marketing-bottom-nav__label,
 .mobile-bottom-nav--counselor .marketing-bottom-nav__label,
 .mobile-bottom-nav--partner .marketing-bottom-nav__label {
-  font-size: 9px;
-  letter-spacing: 0.02em;
+  font-size: 10px;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
   text-transform: none;
 }
 
 .mobile-bottom-nav--partner .marketing-bottom-nav__label {
-  font-size: 8px;
+  font-size: 9px;
+}
+
+.mobile-bottom-nav--portal .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--employer .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--counselor .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--partner .marketing-bottom-nav__link--active {
+  transform: translateY(-1px);
 }
 
 .mobile-bottom-nav--partner .marketing-bottom-nav__link {
-  gap: 1px;
+  gap: 2px;
 }
 
 /*
@@ -269,14 +306,16 @@ html.has-marketing-main-nav {
 
 /*
  * Fixed `MobileBottomNav` (~56px row + vertical padding) plus device safe area.
- * Use on mobile marketing roots so content is not covered; match sticky CTAs with sticky-above class.
+ * Only apply on mobile where the bottom nav is actually rendered.
  */
-.marketing-mobile-pb-for-bottom-nav {
-  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-}
+@media (max-width: 767px) {
+  .marketing-mobile-pb-for-bottom-nav {
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
 
-.marketing-mobile-sticky-above-bottom-nav {
-  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  .marketing-mobile-sticky-above-bottom-nav {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* /programs: mobile sticky quiz CTA clears last catalog rows */

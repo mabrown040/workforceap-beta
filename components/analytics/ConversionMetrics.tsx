@@ -8,22 +8,29 @@ import { trackConversionRouteView, trackWebVitalMetric } from '@/lib/analytics/e
 const CONVERSION_ROUTES = new Set([
   '/',
   '/apply',
+  '/apply/results',
+  '/apply/create-account',
+  '/apply/confirmation',
   '/programs',
   '/find-your-path',
   '/program-comparison',
 ]);
+
+function isConversionRoute(route: string) {
+  return CONVERSION_ROUTES.has(route) || route.startsWith('/programs/');
+}
 
 export default function ConversionMetrics() {
   const pathname = usePathname();
   const route = pathname ?? '';
 
   useEffect(() => {
-    if (!CONVERSION_ROUTES.has(route)) return;
+    if (!isConversionRoute(route)) return;
     trackConversionRouteView(route);
   }, [route]);
 
   useReportWebVitals((metric) => {
-    if (!CONVERSION_ROUTES.has(route)) return;
+    if (!isConversionRoute(route)) return;
     trackWebVitalMetric(metric.name, metric.value, metric.id, metric.rating, route);
   });
 

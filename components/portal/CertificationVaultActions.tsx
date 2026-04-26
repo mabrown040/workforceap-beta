@@ -124,7 +124,7 @@ export function CertificationDownloadOneButton({
         style={{ padding: '0.35rem 0.5rem', minWidth: 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         aria-label={`Download record for ${certName}`}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">
           download
         </span>
       </a>
@@ -190,7 +190,7 @@ export function CertificationEarnedRowMobile({
       >
         <span
           className="material-symbols-outlined"
-          style={{ fontSize: '1.375rem', color: 'var(--color-green)', fontVariationSettings: "'FILL' 1" }}
+          style={{ fontSize: '1.375rem', color: 'var(--color-green)', '--ms-fill': 1 }}
         >
           {icon}
         </span>
@@ -238,7 +238,7 @@ export function DownloadAllCertificatesButton({ certs }: { certs: CertRow[] }) {
           cursor: 'not-allowed',
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
           download
         </span>
         Download list (CSV)
@@ -262,7 +262,7 @@ export function DownloadAllCertificatesButton({ certs }: { certs: CertRow[] }) {
         textDecoration: 'none',
       }}
     >
-      <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
         download
       </span>
       Download list (CSV)

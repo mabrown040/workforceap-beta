@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -36,13 +35,11 @@ export default async function AddMemberPage() {
 
   return (
     <div className="add-member-page">
-      <Link
-        href="/admin/members"
-        style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
-      >
-        ← Back to Members
-      </Link>
-      <PageHeader title="Add Member" subtitle="Multi-step onboarding. All WIOA fields required for grant reporting." />
+      <PageHeader
+        breadcrumbs={[{ label: 'Members', href: '/admin/members' }, { label: 'New Member' }]}
+        title="Add Member"
+        subtitle="Multi-step onboarding. All WIOA fields required for grant reporting."
+      />
       <AddMemberWizard programs={PROGRAMS} partners={partners} subgroups={subgroups} />
     </div>
   );

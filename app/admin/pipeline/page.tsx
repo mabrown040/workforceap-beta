@@ -3,12 +3,16 @@ import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, type PipelineStage } from '@/lib/pipeline/stage';
 import Link from 'next/link';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import AdminPipelineKanban, {
   type PipelineKanbanMember,
 } from '@/components/admin/AdminPipelineKanban';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { getStaleApplications } from '@/lib/data/applications';
+import StaleApplicationsBanner from './StaleApplicationsBanner';
 
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
@@ -48,7 +52,6 @@ function toKanbanMember(s: {
 }
 
 export default async function AdminPipelinePage() {
-  // Defense in depth: middleware also requires a session for /admin/*; this enforces admin role.
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/pipeline');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
@@ -56,7 +59,7 @@ export default async function AdminPipelinePage() {
   let students;
   try {
     students = await prisma.user.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -115,62 +118,32 @@ export default async function AdminPipelinePage() {
       : null;
 
   const initialByStage = JSON.parse(JSON.stringify(byStage)) as Record<PipelineStage, PipelineKanbanMember[]>;
+  const staleApps = await getStaleApplications();
 
   return (
     <div style={{ paddingTop: '1.5rem' }}>
       <PageHeader
-        title="Student Pipeline"
-        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a student’s stage is derived from enrollment, courses, certifications, and placement."
+        title="Member Pipeline"
+        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a member's stage is derived from enrollment, courses, certifications, and placement."
         action={
-          <Link
-            href="/admin/placements/new"
-            style={{
-              padding: '0.5rem 1rem',
-              background: 'var(--color-blue)',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
+          <Link href="/admin/placements/new" className="btn btn-primary">
             Record Placement
           </Link>
         }
       />
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        {[
-          { label: 'Total Active', value: totalActive },
-          { label: 'Placed', value: totalPlaced },
-          {
-            label: 'Placement Rate',
-            value: totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '—',
-          },
-          { label: 'Avg Salary', value: avgSalary ? `$${avgSalary.toLocaleString()}` : '—' },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            style={{
-              padding: '1.5rem',
-              background: 'var(--surface-container)',
-              borderRadius: '8px',
-              minWidth: '120px',
-              textAlign: 'center',
-            }}
-          >
-            <div style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.2 }}>{stat.value}</div>
-            <div
-              style={{
-                fontSize: '0.875rem',
-                color: 'var(--color-on-surface-variant)',
-                marginTop: '0.25rem',
-              }}
-            >
-              {stat.label}
-            </div>
-          </div>
-        ))}
+      <div className="portal-grid-metrics" style={{ marginBottom: '1.5rem' }}>
+        <PortalKpiCard label="Total Active" value={totalActive} accent="neutral" />
+        <PortalKpiCard label="Placed" value={totalPlaced} accent="green" />
+        <PortalKpiCard
+          label="Placement Rate"
+          value={totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '-'}
+          accent="blue"
+        />
+        <PortalKpiCard label="Avg Salary" value={avgSalary ? `$${avgSalary.toLocaleString()}` : '-'} accent="gold" />
       </div>
+
+      <StaleApplicationsBanner staleApps={staleApps} />
 
       <AdminPipelineKanban initialByStage={initialByStage} />
     </div>

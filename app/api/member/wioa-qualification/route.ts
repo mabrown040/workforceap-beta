@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import {
-  computeWioaSignal,
-  parseWioaAnswers,
-  type WioaQualificationSnapshot,
-} from '@/lib/wioa/wioaQualification';
-
-const NOTIFY_EMAIL = process.env.WIOA_SCREENING_NOTIFY_EMAIL ?? 'info@workforceap.org';
+import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 
 export async function GET() {
   const user = await getUser();
@@ -65,38 +59,20 @@ export async function POST(request: Request) {
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
 
-  const resendKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
-  let emailSent = false;
-
-  if (resendKey && dbUser) {
-    try {
-      const resend = new Resend(resendKey);
-      await resend.emails.send({
-        from: emailFrom,
-        to: NOTIFY_EMAIL,
-        subject: `WIOA self-screening — ${dbUser.fullName}`,
-        text: [
-          `Member: ${dbUser.fullName}`,
-          `Email: ${dbUser.email}`,
-          `User ID: ${user.id}`,
-          `Signal (heuristic): ${signal}`,
-          `Location (self-reported): ${answers.countyOrZip || '(not provided)'}`,
-          `Submitted: ${snapshot.submittedAt}`,
-          '',
-          'Reasons shown to member:',
-          ...reasons.map((r) => `• ${r}`),
-          '',
-          `Admin: ${siteUrl}/admin/members/${user.id}`,
-        ].join('\n'),
-      });
-      emailSent = true;
-    } catch (err) {
-      console.error('[wioa-qualification] email failed:', err);
-    }
-  }
+  const emailSent = dbUser
+    ? await sendWioaScreeningNotification({
+        source: 'member_portal',
+        contact: {
+          fullName: dbUser.fullName || 'WorkforceAP member',
+          email: dbUser.email,
+        },
+        snapshot,
+        userId: user.id,
+        adminUrl: `${siteUrl}/admin/members/${user.id}`,
+      })
+    : false;
 
   return NextResponse.json({ ok: true, snapshot, emailSent });
 }

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
 /**
  * Responsive breakpoint for mobile nav visibility
@@ -16,13 +17,6 @@ const MARKETING_TABS = [
   { href: '/apply', label: 'Apply', icon: 'assignment_turned_in' },
 ];
 
-const PORTAL_TABS = [
-  { href: '/dashboard', label: 'Journey', icon: 'map', tourTarget: 'tour-dashboard' },
-  { href: '/dashboard/ai-tools', label: 'AI Tools', icon: 'auto_awesome', tourTarget: 'tour-ai-tools' },
-  { href: '/dashboard/messages', label: 'Messages', icon: 'chat', tourTarget: 'tour-messages' },
-  { href: '/dashboard/profile', label: 'Profile', icon: 'person', tourTarget: 'tour-profile' },
-];
-
 const EMPLOYER_TABS = [
   { href: '/employer', label: 'Overview', icon: 'dashboard' },
   { href: '/employer/jobs', label: 'Jobs', icon: 'work' },
@@ -32,7 +26,7 @@ const EMPLOYER_TABS = [
 
 const COUNSELOR_TABS = [
   { href: '/counselor', label: 'Overview', icon: 'dashboard' },
-  { href: '/counselor/students', label: 'Students', icon: 'groups' },
+  { href: '/counselor/students', label: 'Members', icon: 'groups' },
   { href: '/counselor/messages', label: 'Messages', icon: 'chat' },
   { href: '/counselor/resources', label: 'Resources', icon: 'menu_book' },
 ];
@@ -45,19 +39,32 @@ const PARTNER_TABS = [
   { href: '/partner/outcomes', label: 'Outcomes', icon: 'bar_chart' },
 ];
 
+const ADMIN_TABS = [
+  { href: '/admin', label: 'Overview', icon: 'dashboard' },
+  { href: '/admin/members', label: 'Members', icon: 'groups' },
+  { href: '/admin/pipeline', label: 'Pipeline', icon: 'account_tree' },
+  { href: '/admin/exports', label: 'Exports', icon: 'download' },
+];
+
 interface MobileBottomNavProps {
-  variant?: 'marketing' | 'portal' | 'employer' | 'counselor' | 'partner';
+  variant?: 'marketing' | 'portal' | 'employer' | 'counselor' | 'partner' | 'admin';
+  badgeCounts?: Partial<Record<NavBadgeKey, number>>;
 }
 
-export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomNavProps) {
-  const pathname = usePathname();
+export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: MobileBottomNavProps) {
+  // Member portal switched from bottom-tab to sticky-top horizontal-scroll nav
+  // (/plan-design-review Decision 3, 2026-04-25). The top nav is rendered by
+  // WorkspaceShell. Pages that still call <MobileBottomNav variant="portal"/>
+  // become no-ops so the change ships without touching 40+ page files.
+  if (variant === 'portal') return null;
+
+  const pathname = usePathname() ?? '';
   const tabs =
-    variant === 'portal' ? PORTAL_TABS
-    : variant === 'employer' ? EMPLOYER_TABS
+    variant === 'employer' ? EMPLOYER_TABS
     : variant === 'counselor' ? COUNSELOR_TABS
     : variant === 'partner' ? PARTNER_TABS
+    : variant === 'admin' ? ADMIN_TABS
     : MARKETING_TABS;
-
   return (
     <>
       {/* Mobile-only visibility: hidden on desktop (≥768px) */}
@@ -80,12 +87,13 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         bottom: 0,
         left: 0,
         width: '100%',
-        zIndex: 50,
+        zIndex: 60,
         display: 'flex',
-        justifyContent: 'space-around',
+        justifyContent: variant === 'marketing' ? 'space-around' : 'space-between',
         alignItems: 'center',
-        paddingLeft: '0.5rem',
-        paddingRight: '0.5rem',
+        gap: variant === 'marketing' ? 0 : '0.25rem',
+        paddingLeft: variant === 'marketing' ? '0.5rem' : '0.25rem',
+        paddingRight: variant === 'marketing' ? '0.5rem' : '0.25rem',
         paddingTop: '0.5rem',
         paddingBottom: 'env(safe-area-inset-bottom, 0.5rem)',
         backdropFilter: 'blur(12px)',
@@ -99,22 +107,53 @@ export default function MobileBottomNav({ variant = 'marketing' }: MobileBottomN
         const isActive = exactMatch.includes(href)
           ? pathname === href
           : pathname.startsWith(href);
+        // Member badge logic moved to MemberPortalTopNav. Other variants do not
+        // surface unread-message badges in the bottom nav today.
+        const b = 0;
+        const showBadge = b > 0;
         return (
           <Link
             key={href}
             href={href}
             className={`marketing-bottom-nav__link${isActive ? ' marketing-bottom-nav__link--active' : ''}`}
+            aria-current={isActive ? 'page' : undefined}
             {...(tourTarget ? { 'data-tour': tourTarget } : {})}
           >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: '22px',
-                lineHeight: 1,
-                fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
-              }}
-            >
-              {icon}
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: '28px',
+                  lineHeight: 1,
+                }}
+               aria-hidden="true">
+                {icon}
+              </span>
+              {b > 0 ? (
+                <span
+                  aria-label={`${b} unread`}
+                  style={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -6,
+                    minWidth: 16,
+                    height: 16,
+                    borderRadius: '50%',
+                    background: 'var(--color-accent, #ad2c4d)',
+                    border: '1.5px solid var(--color-white, #fff)',
+                    color: '#fff',
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 3px',
+                    lineHeight: 1,
+                  }}
+                >
+                  {b > 99 ? '99+' : b}
+                </span>
+              ) : null}
             </span>
             <span className="marketing-bottom-nav__label">{label}</span>
           </Link>

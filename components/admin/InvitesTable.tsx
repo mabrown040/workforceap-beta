@@ -24,7 +24,7 @@ type Props = {
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   partner: 'Partner',
-  member: 'Student',
+  member: 'Member',
   counselor: 'Counselor',
 };
 
@@ -35,6 +35,14 @@ const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   revoked: { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' },
 };
 
+// Pending invites past their expiresAt date are effectively expired even if the
+// row still has status='pending' in the DB. Stat cards already use this rule, so
+// the table displays/filters/badges must agree to keep the counts consistent.
+function effectiveStatus(inv: { status: string; expiresAt: string }): string {
+  if (inv.status === 'pending' && new Date(inv.expiresAt) <= new Date()) return 'expired';
+  return inv.status;
+}
+
 export default function InvitesTable({ invites }: Props) {
   const router = useRouter();
   const [filter, setFilter] = useState<string>('all');
@@ -43,7 +51,7 @@ export default function InvitesTable({ invites }: Props) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [revokeTarget, setRevokeTarget] = useState<{ id: string; email: string } | null>(null);
 
-  const filtered = invites.filter((i) => filter === 'all' || i.status === filter);
+  const filtered = invites.filter((i) => filter === 'all' || effectiveStatus(i) === filter);
 
   const handleResend = async (id: string) => {
     setResending(id);
@@ -135,7 +143,8 @@ export default function InvitesTable({ invites }: Props) {
             </thead>
             <tbody>
               {filtered.map((inv) => {
-                const statusStyle = STATUS_STYLES[inv.status] ?? STATUS_STYLES.pending;
+                const displayStatus = effectiveStatus(inv);
+                const statusStyle = STATUS_STYLES[displayStatus] ?? STATUS_STYLES.pending;
                 return (
                   <tr key={inv.id}>
                     <td>
@@ -163,7 +172,7 @@ export default function InvitesTable({ invites }: Props) {
                           color: statusStyle.color,
                         }}
                       >
-                        {inv.status}
+                        {displayStatus}
                       </span>
                     </td>
                     <td style={{ fontSize: '0.9rem' }}>{inv.invitedBy.fullName}</td>
@@ -173,7 +182,7 @@ export default function InvitesTable({ invites }: Props) {
                         : formatDate(inv.createdAt)}
                     </td>
                     <td>
-                      {inv.status === 'pending' && (
+                      {displayStatus === 'pending' && (
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <button
                             type="button"
@@ -219,7 +228,8 @@ export default function InvitesTable({ invites }: Props) {
       )}
       <ul className="admin-portal-card-list admin-invites-cards" aria-label="Invitations (mobile layout)">
         {filtered.map((inv) => {
-          const statusStyle = STATUS_STYLES[inv.status] ?? STATUS_STYLES.pending;
+          const displayStatus = effectiveStatus(inv);
+          const statusStyle = STATUS_STYLES[displayStatus] ?? STATUS_STYLES.pending;
           return (
             <li key={`card-${inv.id}`} className="admin-portal-card">
               <div className="admin-portal-card__header">
@@ -228,7 +238,7 @@ export default function InvitesTable({ invites }: Props) {
                   className="admin-portal-card__badge"
                   style={{ background: statusStyle.bg, color: statusStyle.color, textTransform: 'capitalize' }}
                 >
-                  {inv.status}
+                  {displayStatus}
                 </span>
               </div>
               {inv.subgroup && <p className="admin-portal-card__meta">Subgroup: {inv.subgroup.name}</p>}
@@ -249,7 +259,7 @@ export default function InvitesTable({ invites }: Props) {
                   ? formatDate(inv.acceptedAt)
                   : formatDate(inv.createdAt)}
               </p>
-              {inv.status === 'pending' && (
+              {displayStatus === 'pending' && (
                 <div className="admin-portal-card__actions">
                   <button type="button" className="btn btn-outline btn-sm" onClick={() => handleResend(inv.id)} disabled={!!resending}>
                     {resending === inv.id ? 'Resending...' : 'Resend'}

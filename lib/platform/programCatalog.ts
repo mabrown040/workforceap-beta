@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, type Program as StaticProgram, getProgramBySlug } from '@/lib/content/programs';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 
 export type ActiveProgramView = {
   slug: string;
@@ -44,6 +45,10 @@ function activeProgramsFromStaticCatalog(): ActiveProgramView[] {
  * / not seeded (local dev without `DATABASE_URL`).
  */
 export async function getActivePrograms(organizationId?: string): Promise<ActiveProgramView[]> {
+  if (shouldSkipOptionalDbQueriesAtBuild()) {
+    return activeProgramsFromStaticCatalog();
+  }
+
   try {
     const orgId = organizationId ?? (await getDefaultOrganizationId());
 
@@ -60,7 +65,7 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
       const staticP = getProgramBySlug(r.programSlug);
       return {
         slug: r.programSlug,
-        name: r.name,
+        name: staticP?.title ?? r.name,
         description: r.description,
         category: r.category,
         deliveryType: r.deliveryType,

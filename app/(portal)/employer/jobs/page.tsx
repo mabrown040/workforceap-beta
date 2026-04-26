@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -8,8 +9,8 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
 import {
   EMPLOYER_JOBS_PAGE_SIZE,
   employerJobsListHref,
@@ -18,21 +19,13 @@ import {
   prismaWhereDeletableInListFilter,
   prismaWhereEmployerJobList,
 } from '@/lib/employer/employerJobsListQuery';
+import { employerJobStatusBadgeVariant, employerJobStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Jobs',
   description: 'Manage your job postings.',
   path: '/employer/jobs',
 });
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Draft',
-  pending: 'In review',
-  approved: 'Approved',
-  live: 'Live',
-  filled: 'Filled',
-  closed: 'Closed',
-};
 
 type SearchProps = { searchParams: Promise<{ page?: string; filter?: string }> };
 
@@ -41,7 +34,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   if (!user) redirect('/login?redirectTo=/employer/jobs');
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const sp = await searchParams;
   const { filter, page } = parseEmployerJobsListQuery(sp);
@@ -104,7 +97,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       requirementsCount: j.requirements?.length ?? 0,
       suggestedProgramsCount: j.suggestedPrograms?.length ?? 0,
       status: j.status,
-      statusLabel: STATUS_LABELS[j.status] ?? j.status,
+      statusLabel: employerJobStatusLabel(j.status),
       applicationsCount: j._count.applications,
       updatedAt: j.updatedAt.toISOString(),
       readinessLevel: readiness.level,
@@ -114,14 +107,6 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   const titleByIdInFilter: Record<string, string> = {};
   for (const r of titlesInFilter) titleByIdInFilter[r.id] = r.title;
-
-  const statusBadgeStyle = (status: string): React.CSSProperties => {
-    if (status === 'live') return { background: '#dcfce7', color: '#166534' };
-    if (status === 'draft') return { background: '#f3f4f6', color: '#6b7280' };
-    if (status === 'filled') return { background: '#dbeafe', color: '#1e40af' };
-    if (status === 'pending') return { background: '#fef9c3', color: '#854d0e' };
-    return { background: '#f3f4f6', color: '#6b7280' };
-  };
 
   const FILTER_CHIPS = [
     { value: '', label: 'All' },
@@ -134,7 +119,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
     <>
       <h1 className="wa-sr-only">My Jobs</h1>
       {/* ── Mobile section ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
           title="My Jobs"
           subtitle="Manage your job postings and review candidate activity."
@@ -174,7 +159,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
         {/* Job cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 1rem' }}>
           {boardItems.length === 0 && totalInDb > 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>filter_alt_off</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>Nothing in this view</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
@@ -188,7 +173,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               </Link>
             </div>
           ) : boardItems.length === 0 ? (
-            <div className="stitch-card" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No jobs yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving AI-matched candidates.</p>
@@ -203,7 +188,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
             boardItems.map((job) => (
               <div
                 key={job.id}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   padding: '1rem',
                   border: job.status === 'draft' ? '1px dashed var(--outline-variant)' : undefined,
@@ -213,9 +198,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   <h3 className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
                     {job.title}
                   </h3>
-                  <span style={{ ...statusBadgeStyle(job.status), padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
-                    {job.statusLabel}
-                  </span>
+                  <StatusBadge label={job.statusLabel} variant={employerJobStatusBadgeVariant(job.status)} />
                 </div>
                 <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>{job.location}</p>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>
@@ -244,11 +227,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
             ))
           )}
         </div>
-        <MobileBottomNav variant="employer" />
       </div>
 
       {/* ── Desktop section ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
             title="My Jobs"
@@ -288,7 +270,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           />
 
           {totalInDb === 0 ? (
-            <div className="stitch-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>work_outline</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No jobs yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '28rem', marginInline: 'auto' }}>

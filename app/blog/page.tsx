@@ -1,54 +1,65 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BlogListingClient from './BlogListingClient';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Blog | Career Tips & Training News',
   description:
-    'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Free tech and career training advice for career-ready individuals nationwide.',
+    'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Career training advice, job-readiness guidance, and workforce insights for individuals nationwide.',
   path: '/blog',
 });
 
 export default async function BlogPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let posts: any[] = [];
-  try {
-    posts = await prisma.blogPost.findMany({
-      where: {
-        OR: [{ published: true }, { scheduledAt: { lte: new Date() } }],
-      },
-      orderBy: { publishedAt: 'desc' },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        excerpt: true,
-        coverImage: true,
-        heroImage: true,
-        authorName: true,
-        publishedAt: true,
-        scheduledAt: true,
-        category: true,
-      },
-    });
-  } catch {
-    posts = [];
+  if (!shouldSkipOptionalDbQueriesAtBuild()) {
+    try {
+      posts = await prisma.blogPost.findMany({
+        where: {
+          OR: [{ published: true }, { scheduledAt: { lte: new Date() } }],
+        },
+        orderBy: { publishedAt: 'desc' },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          excerpt: true,
+          coverImage: true,
+          heroImage: true,
+          authorName: true,
+          publishedAt: true,
+          scheduledAt: true,
+          category: true,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to fetch blog posts:', error);
+      posts = [];
+    }
   }
 
   const categories = [...new Set(posts.map((p) => p.category).filter(Boolean))] as string[];
+
+  const hasPosts = posts.length > 0;
 
   return (
     <div className="inner-page blog-page">
       <PageHero
         className="blog-page-hero"
-        title="Blog"
-        subtitle="Career tips, program spotlights, success stories, and local insights."
+        title={hasPosts ? 'Blog' : 'Career Resources'}
+        subtitle={
+          hasPosts
+            ? 'Career tips, program spotlights, success stories, and local insights.'
+            : 'Use programs, FAQ, and application help while new articles are being published.'
+        }
       />
       <BlogListingClient posts={posts} categories={categories} />
       <Footer />

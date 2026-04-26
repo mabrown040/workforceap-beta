@@ -5,14 +5,15 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { coverLetterSchema } from '@/lib/validation/coverLetter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+  if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
 
   const { success } = await checkAIToolRateLimit(user.id);
-  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
 
   let body: unknown;
   try {
@@ -29,7 +30,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobDescription, companyName, tone } = parsed.data;
+  const { resume, jobDescription, companyName, tone, subjectMemberId, sessionId } = parsed.data;
+
+  // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) {
+    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  }
 
   const toneInstructions: Record<string, string> = {
     formal: 'Use a formal, traditional tone. Professional and polished. Standard business language.',
@@ -64,12 +71,22 @@ Write a tailored cover letter.`;
       { maxTokens: 1500, temperature: 0.7 }
     );
 
-    if (!output) return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+    if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
 
     const summary = `${companyName} — ${jobDescription.slice(0, 60)}${jobDescription.length > 60 ? '...' : ''}`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'cover_letter', summary, output);
+      await saveAIToolResult(
+        onBehalf.subjectUserId,
+        'cover_letter',
+        summary,
+        output,
+        {
+          actorUserId: onBehalf.actorUserId,
+          actorName: onBehalf.actorName,
+          sessionId: sessionId ?? null,
+        }
+      );
     } catch (saveErr) {
       console.error('Cover letter: failed to save result', saveErr);
     }

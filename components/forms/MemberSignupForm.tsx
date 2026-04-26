@@ -98,7 +98,7 @@ export default function MemberSignupForm() {
           Check your email
         </h3>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-          We&apos;ve sent you a verification link. Click it to activate your account, then you can log in.
+          We&rsquo;ve sent you a verification link. Click it to activate your account, then you can log in.
         </p>
         <Link href="/login" className="btn btn-primary">
           Go to login

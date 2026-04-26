@@ -84,9 +84,32 @@ export async function searchOccupations(query: string): Promise<OnetSearchOccupa
     occupation?: { code: string; title: string }[];
     error?: string;
   };
-  const data = await onetGet<SearchResp>('online/search', { keyword: q, end: 25 });
+  const data = await onetGet<SearchResp>('online/search', { keyword: q, end: 30 });
   if (data.error) throw new Error(data.error);
-  return (data.occupation ?? []).map((o) => ({ code: o.code, title: o.title }));
+  const results = (data.occupation ?? []).map((o) => ({ code: o.code, title: o.title }));
+
+  // Re-rank so title-matching results appear before description-only matches.
+  // Scoring: exact title > query-prefix > all words whole-word-prefix > any word whole-word-prefix > API order.
+  // wordPrefixIn prevents suffix matches: "care" will not score "Daycare" but will score "Career".
+  const ql = q.toLowerCase();
+  const words = ql.split(/\s+/).filter(Boolean);
+  const wordPrefixIn = (needle: string, haystack: string): boolean => {
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?:^|[\\s\\-,/])${escaped}`, 'i').test(haystack);
+  };
+  const score = (title: string): number => {
+    const t = title.toLowerCase();
+    if (t === ql) return 4;
+    if (t.startsWith(ql)) return 3;
+    if (words.length > 1 && words.every((w) => wordPrefixIn(w, t))) return 2;
+    if (words.some((w) => wordPrefixIn(w, t))) return 1;
+    return 0;
+  };
+  // Stable sort: preserve API order within the same score tier.
+  return results
+    .map((o, i) => ({ o, i, s: score(o.title) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map(({ o }) => o);
 }
 
 export type OnetOccupationOverview = {
@@ -148,20 +171,25 @@ function mapSkillsPayload(data: unknown): { name: string; importance: number | n
 export async function getOccupationSkills(onetCode: string) {
   const code = encodeURIComponent(onetCode.trim());
   try {
-    // Details endpoint includes standardized importance values.
-    const details = await onetGet<unknown>(`online/occupations/${code}/details/skills`, {
-      sort: 'importance',
-      start: 1,
-      end: 25,
-    });
-    const mappedDetails = mapSkillsPayload(details);
-    if (mappedDetails.length > 0) return mappedDetails;
+    // Fetch skills, abilities, and knowledge in parallel — all three are needed
+    // so that Design (abilities: visualization, originality) and Research
+    // (knowledge: Fine Arts, Science) axes get data.
+    const [skillsRes, abilitiesRes, knowledgeRes] = await Promise.allSettled([
+      onetGet<unknown>(`online/occupations/${code}/details/skills`, { sort: 'importance', start: 1, end: 30 }),
+      onetGet<unknown>(`online/occupations/${code}/details/abilities`, { sort: 'importance', start: 1, end: 30 }),
+      onetGet<unknown>(`online/occupations/${code}/details/knowledge`, { sort: 'importance', start: 1, end: 20 }),
+    ]);
 
-    // Backward-compatible fallback for tenants that still mirror summary responses.
-    const summary = await onetGet<unknown>(`online/occupations/${code}/summary/skills`, {
-      start: 1,
-      end: 25,
-    });
+    const combined: { name: string; importance: number | null; level: number | null }[] = [];
+
+    if (skillsRes.status === 'fulfilled') combined.push(...mapSkillsPayload(skillsRes.value));
+    if (abilitiesRes.status === 'fulfilled') combined.push(...mapSkillsPayload(abilitiesRes.value));
+    if (knowledgeRes.status === 'fulfilled') combined.push(...mapSkillsPayload(knowledgeRes.value));
+
+    if (combined.length > 0) return combined;
+
+    // Fallback to summary/skills only
+    const summary = await onetGet<unknown>(`online/occupations/${code}/summary/skills`, { start: 1, end: 25 });
     return mapSkillsPayload(summary);
   } catch {
     return [];

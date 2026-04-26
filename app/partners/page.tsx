@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
+import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldCheck } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Community & Employer Partners | WorkforceAP',
+  title: 'Community & Employer Partners',
   description:
     'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
   path: '/partners',
@@ -12,15 +13,15 @@ export const metadata: Metadata = buildPageMetadata({
 
 const PARTNER_TYPES = [
   {
-    icon: 'group',
+    Icon: UsersRound,
     type: 'Referral Partners',
     who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
-    why: 'Refer clients who need career training. We follow up within 24-48 hours. No cost to refer. You get updates when referred individuals complete programs.',
+    why: 'Refer clients who need career training. We follow up within 1-2 business days. There is no cost to refer. You get updates when referred individuals complete programs.',
     nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
     colSpan: 8,
   },
   {
-    icon: 'school',
+    Icon: GraduationCap,
     type: 'Training Centers',
     who: 'Educational institutions, community colleges, vocational schools, digital literacy centers.',
     why: 'Co-deliver employer-recognized certification programs. We bring the employer pipeline; you bring the learning environment.',
@@ -28,7 +29,7 @@ const PARTNER_TYPES = [
     colSpan: 4,
   },
   {
-    icon: 'account_balance',
+    Icon: Building2,
     type: 'Public Agencies',
     who: 'Workforce Solutions, TWC, WIOA providers, government workforce programs.',
     why: 'Align your participants with employer-recognized in-demand certifications. We handle training and placement; you strengthen outcomes for your population.',
@@ -36,7 +37,7 @@ const PARTNER_TYPES = [
     colSpan: 5,
   },
   {
-    icon: 'favorite',
+    Icon: Heart,
     type: 'Philanthropic Funders',
     who: 'Foundations, corporate giving, impact investors, individual donors.',
     why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re growing nationwide and building toward national scale.',
@@ -47,17 +48,17 @@ const PARTNER_TYPES = [
 
 const PLATFORM_FEATURES = [
   {
-    icon: 'smart_toy',
+    Icon: Bot,
     title: 'Smart Intake',
-    desc: 'AI-assisted enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
+    desc: 'Structured enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
   },
   {
-    icon: 'dashboard',
+    Icon: BarChart3,
     title: 'Real-Time Dashboards',
     desc: 'Partners access live data on referral status, enrollment progress, certification completions, and placement outcomes.',
   },
   {
-    icon: 'verified_user',
+    Icon: ShieldCheck,
     title: 'Verification & Reporting',
     desc: 'Automated credential verification and WIOA-compliant reporting ensures accountability across every partnership.',
   },
@@ -70,7 +71,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Is there a cost to refer candidates?',
-    a: 'No. Referrals are free. We welcome partners who want to connect individuals in their network with our free career training programs.',
+    a: 'No. There is no cost to refer someone. We welcome partners who want to connect individuals in their network with our career training programs that are offered at no cost to members.',
   },
   {
     q: 'How do I refer someone?',
@@ -103,8 +104,7 @@ export default function PartnersPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&q=80)',
+            backgroundImage: 'url(/images/hero-people.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -135,7 +135,7 @@ export default function PartnersPage() {
               marginBottom: '1.5rem',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
               handshake
             </span>
             A Legacy of Opportunity
@@ -152,7 +152,7 @@ export default function PartnersPage() {
               marginBottom: '2rem',
             }}
           >
-            Elevate Your Community&rsquo;s{' '}
+            Build Your Community&rsquo;s{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',
@@ -174,8 +174,8 @@ export default function PartnersPage() {
               marginBottom: '2.5rem',
             }}
           >
-            Different partners, different roles. Find yours and take the next step
-            in building a skilled workforce together.
+            Refer candidates, hire graduates, or align your workforce programs.
+            Each partnership has a clear path and real outcomes.
           </p>
 
           <Link
@@ -192,24 +192,17 @@ export default function PartnersPage() {
               textDecoration: 'none',
             }}
           >
-            Find Your Role
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_downward</span>
+            Explore Partnership Types
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
           </Link>
         </div>
-      </section>
-
-      {/* Partner entry — scrolls to pathways (not member career finder) */}
-      <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
-        <a href="#partner-types" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-          Explore partnership types
-        </a>
       </section>
 
       {/* ── Narrative Section ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="partners-narrative-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -226,8 +219,8 @@ export default function PartnersPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
-                  alt="Community leader"
+                  src="/images/hero-people.jpg"
+                  alt="Community partners collaborating"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -265,7 +258,7 @@ export default function PartnersPage() {
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                Referral partners send us candidates who may benefit from complimentary career training.
+                Referral partners send us candidates who may benefit from career training offered at no cost to members.
                 We reach out within 24&ndash;48 hours and walk them through the process.
                 We welcome referrals of individuals motivated to improve the quality of their life and interested in training in technology, healthcare, manufacturing, or skilled trades.
               </p>
@@ -308,7 +301,7 @@ export default function PartnersPage() {
             {PARTNER_TYPES.map((pt) => (
               <div
                 key={pt.type}
-                className="stitch-card"
+                className="portal-card portal-card--flat"
                 style={{
                   gridColumn: `span ${pt.colSpan}`,
                   padding: '2.5rem',
@@ -321,14 +314,17 @@ export default function PartnersPage() {
                 }}
               >
                 <span
-                  className="material-symbols-outlined"
                   style={{
-                    fontSize: '2rem',
+                    width: '2rem',
+                    height: '2rem',
                     color: 'var(--color-accent)',
-                    fontVariationSettings: "'FILL' 1",
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
+                  aria-hidden="true"
                 >
-                  {pt.icon}
+                  <pt.Icon size={28} strokeWidth={2} />
                 </span>
                 <h3
                   style={{
@@ -360,7 +356,7 @@ export default function PartnersPage() {
                   }}
                 >
                   {pt.nextStep.text}
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
                 </Link>
               </div>
             ))}
@@ -369,9 +365,10 @@ export default function PartnersPage() {
       </section>
 
       {/* ── Digital Integration, Human Impact ── */}
-      <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
+      <section className="partners-platform-section" style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
+            className="partners-platform-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(12, 1fr)',
@@ -407,15 +404,18 @@ export default function PartnersPage() {
                     }}
                   >
                     <span
-                      className="material-symbols-outlined"
                       style={{
-                        fontSize: '1.75rem',
+                        width: '1.75rem',
+                        height: '1.75rem',
                         color: 'var(--color-accent)',
-                        fontVariationSettings: "'FILL' 1",
                         flexShrink: 0,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}
+                      aria-hidden="true"
                     >
-                      {f.icon}
+                      <f.Icon size={24} strokeWidth={2} />
                     </span>
                     <div>
                       <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.35rem' }}>
@@ -442,26 +442,12 @@ export default function PartnersPage() {
                 }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=82"
-                  alt="Diverse professionals collaborating at a laptop in a modern office"
+                  src="/images/hero-people.jpg"
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
                 />
-                <figcaption
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '0.75rem 1rem',
-                    fontSize: '0.7rem',
-                    color: 'rgba(255,255,255,0.92)',
-                    background: 'linear-gradient(180deg, transparent, rgba(18,20,22,0.82))',
-                    lineHeight: 1.45,
-                  }}
-                >
-                  Inclusive representation: we use imagery that reflects the communities we serve (66%+ diverse
-                  subjects across WorkforceAP marketing visuals).
-                </figcaption>
               </figure>
             </div>
           </div>
@@ -469,10 +455,10 @@ export default function PartnersPage() {
       </section>
 
       {/* ── Partner FAQ Accordion ── */}
-      <section style={{ padding: '6rem 0' }}>
+      <section className="partners-faq-section" style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: '720px' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">
               help
             </span>
             <h2
@@ -529,7 +515,7 @@ export default function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Lead the Change
+              Start a Partnership
             </h2>
             <p
               style={{
@@ -540,8 +526,7 @@ export default function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Join a growing network of partners building equitable pathways to career success
-              across the nation.
+              Clear next steps, real outcomes, and a team that follows up within 1–2 business days.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -559,7 +544,7 @@ export default function PartnersPage() {
                 }}
               >
                 Become a Partner
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
                 href="/employers"
@@ -585,11 +570,17 @@ export default function PartnersPage() {
 
       <style>{`
         @media (max-width: 1023px) {
+          .partners-narrative-grid { gap: 2rem !important; }
+          .partners-platform-grid { gap: 2rem !important; }
           .partners-narrative-portrait { grid-column: span 12 !important; max-width: 400px; margin: 0 auto; }
           .partners-narrative-text { grid-column: span 12 !important; }
           .partners-platform-text { grid-column: span 12 !important; }
           .partners-platform-img { grid-column: span 12 !important; }
-          #partner-types .stitch-card { grid-column: span 12 !important; }
+          #partner-types .portal-card.portal-card--flat { grid-column: span 12 !important; }
+        }
+        @media (max-width: 767px) {
+          .partners-platform-section { padding-bottom: 3rem !important; }
+          .partners-faq-section { padding-top: 3rem !important; }
         }
       `}</style>
 

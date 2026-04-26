@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -13,12 +14,12 @@ export async function POST(request: Request) {
   }
 
   if (!isAIConfigured()) {
-    return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+    return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
   }
 
   const { success } = await checkAIToolRateLimit(user.id);
   if (!success) {
-    return NextResponse.json({ error: 'Rate limit exceeded. Try again in an hour.' }, { status: 429 });
+    return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
   }
 
   let body: unknown;
@@ -36,7 +37,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobTarget, targetSalary, targetLocation } = parsed.data;
+  const { resume, jobTarget, targetSalary, targetLocation, subjectMemberId, sessionId } = parsed.data;
+
+  // Resolve subject (In-Office Session: counselor/admin on behalf of member).
+  // Default: actor IS subject (legacy member self-serve path).
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) {
+    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  }
 
   // Build context string for salary/location signals
   const goalContext = [
@@ -62,12 +70,12 @@ What you MUST NOT do:
 - Add certifications, degrees, or skills not present in the original
 - If a bullet is vague and you cannot strengthen it without fabricating, keep it as-is or flag it in the HOW WE POSITIONED YOU section with a suggestion for the member to add real detail
 
-Salary calibration (adjust LANGUAGE TONE only — do not invent content that isn't there):
+Salary calibration (adjust LANGUAGE TONE only — do not invent content that is not there):
 - $40K-$60K: Use straightforward, factual language. Emphasize reliability and task completion.
 - $60K-$80K: Use confident language. Surface contributions and demonstrated competencies from the resume.
 - $80K-$100K: Use precise, professional language. Bring forward any ownership or depth already stated.
 - $100K-$130K: Use polished, results-oriented language — but ONLY for outcomes already present in the resume.
-- $130K+: Use executive-register language — but ONLY when the resume already contains senior-level signals. If it doesn't, do not fabricate them; instead note in HOW WE POSITIONED YOU that the gap exists and what the member could add.
+- $130K+: Use executive-register language — but ONLY when the resume already contains senior-level signals. If it does not, do not fabricate them; instead note in HOW WE POSITIONED YOU that the gap exists and what the member could add.
 
 Format your response in two parts:
 1. REPOSITIONED RESUME: The full resume, repositioned toward their goal. Use clear section headers.
@@ -93,13 +101,25 @@ Reposition this resume toward the career goal above. Remember: only work with wh
     );
 
     if (!output) {
-      return NextResponse.json({ error: 'No response from AI' }, { status: 500 });
+      return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
     }
 
     try {
       await ensureUserInDb(user);
       const contextLabel = [jobTarget, targetLocation, targetSalary].filter(Boolean).join(' | ');
-      await saveAIToolResult(user.id, 'resume_rewriter', contextLabel, output);
+      // Save to SUBJECT's history; tag actor metadata so the member's
+      // dashboard can render the "Your session with {actor}" card.
+      await saveAIToolResult(
+        onBehalf.subjectUserId,
+        'resume_rewriter',
+        contextLabel,
+        output,
+        {
+          actorUserId: onBehalf.actorUserId,
+          actorName: onBehalf.actorName,
+          sessionId: sessionId ?? null,
+        }
+      );
     } catch (saveErr) {
       console.error('Resume rewriter: failed to save result', saveErr);
     }

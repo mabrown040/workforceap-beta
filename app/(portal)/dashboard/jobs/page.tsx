@@ -3,9 +3,10 @@ import { Suspense } from 'react';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { isExcludedPublicEmployerName } from '@/lib/jobs/publicJobFilters';
+import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
-import PageHero from '@/components/PageHero';
+import PageHeader from '@/components/portal/PageHeader';
+import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
 import PortalFooter from '@/components/portal/PortalFooter';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
@@ -33,6 +34,18 @@ export default async function JobsPage() {
     } catch {
       ageGroup = 'adult18plus';
     }
+  }
+
+  // SSR: fetch applied job IDs so job cards can show "Applied" badge
+  let appliedJobIds: string[] = [];
+  if (user) {
+    try {
+      const apps = await prisma.jobApplication.findMany({
+        where: { userId: user.id, status: { not: 'SAVED' }, curatedJobId: { not: null } },
+        select: { curatedJobId: true },
+      });
+      appliedJobIds = apps.map((a) => a.curatedJobId).filter((id): id is string => id !== null);
+    } catch { /* non-critical — badge just will not show */ }
   }
 
   // SSR: Prefetch first 20 jobs for SEO and faster initial load
@@ -67,7 +80,9 @@ export default async function JobsPage() {
         employer: { select: { companyName: true, logoUrl: true } },
       },
     });
-    const visible = jobs.filter((j) => !isExcludedPublicEmployerName(j.employer.companyName));
+    const visible = jobs.filter(
+      (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+    );
     initialJobs = visible;
     initialTotal = visible.length;
   } catch {
@@ -79,12 +94,45 @@ export default async function JobsPage() {
   return (
     <>
     <div className="inner-page">
-      <PageHero
+      <PageHeader
         title="Job Board"
-        subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create a free account or log in to apply."
+        subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create your account or log in to apply."
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
+        action={user ? <LogExternalApplicationButton /> : undefined}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
+          {/* Indeed search banner */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            padding: '0.875rem 1.25rem',
+            background: 'var(--surface-container-low)',
+            border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
+            borderRadius: '0.875rem',
+            marginBottom: '1.25rem',
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ flex: 1, minWidth: '12rem' }}>
+              <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
+                Also search Indeed
+              </p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                Browse millions of additional job listings outside our employer network.
+              </p>
+            </div>
+            <a
+              href="https://www.indeed.com/jobs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline"
+              style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', flexShrink: 0 }}
+            >
+              Search on Indeed ↗
+            </a>
+          </div>
+
           {!user ? (
             <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
               <strong>Applying is for members.</strong>{' '}
@@ -131,21 +179,23 @@ export default async function JobsPage() {
                 </p>
               </div>
               <Suspense fallback={<JobsBoardSkeleton />}>
-                <JobsListingClient 
-                  isAuthenticated={!!user} 
-                  ageGroup={ageGroup} 
+                <JobsListingClient
+                  isAuthenticated={!!user}
+                  ageGroup={ageGroup}
                   initialJobs={initialJobs}
                   initialTotal={initialTotal}
+                  appliedJobIds={appliedJobIds}
                 />
               </Suspense>
             </>
           ) : (
             <Suspense fallback={<JobsBoardSkeleton />}>
-              <JobsListingClient 
-                isAuthenticated={!!user} 
+              <JobsListingClient
+                isAuthenticated={!!user}
                 ageGroup={ageGroup}
                 initialJobs={initialJobs}
                 initialTotal={initialTotal}
+                appliedJobIds={appliedJobIds}
               />
             </Suspense>
           )}

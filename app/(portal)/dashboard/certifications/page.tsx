@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { PATHWAYS } from '@/lib/content/learningPathways';
+import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
+import PageHeader from '@/components/portal/PageHeader';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -14,9 +15,10 @@ import {
   DownloadAllCertificatesButton,
   CertificationViewButton,
 } from '@/components/portal/CertificationVaultActions';
+import CertificationAddForm from '@/components/portal/CertificationAddForm';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Certificates & Achievements — The Verification Vault',
+  title: 'My Certificates',
   description: 'Track credentials, download certificates, and follow your certification roadmap.',
   path: '/dashboard/certifications',
 });
@@ -25,7 +27,14 @@ export default async function DashboardCertificationsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
 
-  const primaryPathway = PATHWAYS[0];
+  // Look up the member's enrolled program to show the correct pathway.
+  // Previously hardcoded to PATHWAYS[0] — all members saw IT Support.
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { enrolledProgram: true },
+  });
+  const primaryPathway = getPathwayForProgram(dbUser?.enrolledProgram ?? null);
+
   const [certs, pathwayRows] = await Promise.all([
     prisma.userCertification.findMany({
       where: { userId: user.id },
@@ -61,14 +70,14 @@ export default async function DashboardCertificationsPage() {
     <>
       <h1 className="wa-sr-only">Certificates &amp; achievements</h1>
       {/* ── MOBILE ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Header */}
         <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
           <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
-            Verification Vault
+            My Certificates
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Your credentials and certificate progress.
+            Certificates and credentials you&rsquo;ve earned.
           </p>
         </div>
 
@@ -109,7 +118,7 @@ export default async function DashboardCertificationsPage() {
             >
               <span
                 className="material-symbols-outlined"
-                style={{ fontSize: '1rem', color: chip.color, fontVariationSettings: "'FILL' 1" }}
+                style={{ fontSize: '1rem', color: chip.color, '--ms-fill': 1 }}
               >
                 {chip.icon}
               </span>
@@ -137,8 +146,9 @@ export default async function DashboardCertificationsPage() {
               ))
             )}
           </div>
-          <div style={{ paddingTop: '0.75rem' }}>
+          <div style={{ paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             <DownloadAllCertificatesButton certs={certRows} />
+            <CertificationAddForm />
           </div>
         </section>
 
@@ -166,7 +176,7 @@ export default async function DashboardCertificationsPage() {
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1.375rem', color: 'var(--color-blue)', fontVariationSettings: "'FILL' 1" }}
+                  style={{ fontSize: '1.375rem', color: 'var(--color-blue)', '--ms-fill': 1 }}
                 >
                   {mobileProgressIcon}
                 </span>
@@ -207,7 +217,7 @@ export default async function DashboardCertificationsPage() {
           >
             <span
               className="material-symbols-outlined"
-              style={{ fontSize: '2rem', color: '#fff', fontVariationSettings: "'FILL' 1" }}
+              style={{ fontSize: '2rem', color: '#fff', '--ms-fill': 1 }}
             >
               emoji_events
             </span>
@@ -232,7 +242,7 @@ export default async function DashboardCertificationsPage() {
                 }}
               >
                 View Pathway
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_forward</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
               </a>
             </div>
           </div>
@@ -242,43 +252,18 @@ export default async function DashboardCertificationsPage() {
       </div>
 
       {/* ── DESKTOP ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
-          {/* Breadcrumb */}
-          <nav
-            aria-label="Breadcrumb"
-            style={{
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--color-on-surface-variant)',
-              marginBottom: 'var(--space-6)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}
-          >
-            <a href="/dashboard" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>Member Portal</a>
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>chevron_right</span>
-            <span>Certificates &amp; Achievements</span>
-          </nav>
-
-          {/* Page heading */}
-          <header style={{ marginBottom: 'var(--space-8)' }}>
-            <h2 style={{ fontSize: 'var(--font-size-h1)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', marginBottom: 'var(--space-2)' }}>
-              The Verification Vault
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-base)', maxWidth: '640px' }}>
-              Your credentials, milestones, and industry verifications in one place. Track progress across WorkforceAP certificate pathways and download proof of achievement.
-            </p>
-          </header>
+          <PageHeader
+            title="My Certificates"
+            subtitle="Certificates and credentials you've earned through training. Track your progress and download proof of what you've completed."
+            breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Certifications' }]}
+          />
 
           {/* 3-column stats bar */}
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: 'var(--space-4)',
-              marginBottom: 'var(--space-8)',
-            }}
+            className="portal-grid-metrics"
+            style={{ marginBottom: 'var(--space-8)' }}
           >
             {/* Total Credentials */}
             <div
@@ -299,9 +284,9 @@ export default async function DashboardCertificationsPage() {
                   background: 'rgba(173,44,77,0.12)',
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-3)',
-                  fontVariationSettings: "'FILL' 1",
+                  '--ms-fill': 1,
                 }}
-              >
+               aria-hidden="true">
                 workspace_premium
               </span>
               <div>
@@ -327,9 +312,9 @@ export default async function DashboardCertificationsPage() {
                     background: 'rgba(43,123,185,0.12)',
                     borderRadius: 'var(--radius-lg)',
                     padding: 'var(--space-3)',
-                    fontVariationSettings: "'FILL' 1",
+                    '--ms-fill': 1,
                   }}
-                >
+                 aria-hidden="true">
                   trending_up
                 </span>
                 <div>
@@ -369,9 +354,9 @@ export default async function DashboardCertificationsPage() {
                   background: 'rgba(74,155,79,0.12)',
                   borderRadius: 'var(--radius-lg)',
                   padding: 'var(--space-3)',
-                  fontVariationSettings: "'FILL' 1",
+                  '--ms-fill': 1,
                 }}
-              >
+               aria-hidden="true">
                 verified
               </span>
               <div>
@@ -394,12 +379,8 @@ export default async function DashboardCertificationsPage() {
 
           {/* Main bento grid */}
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: 'var(--space-4)',
-              marginBottom: 'var(--space-12)',
-            }}
+            className="portal-grid-metrics"
+            style={{ marginBottom: 'var(--space-12)' }}
           >
             {/* Active Pathway card (large) */}
             <div
@@ -414,14 +395,14 @@ export default async function DashboardCertificationsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}
+                  style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}
                 >
                   route
                 </span>
                 <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Active Pathway</h2>
               </div>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', fontSize: 'var(--font-size-sm)' }}>
-                Your current certification journey. Complete each milestone to unlock the next.
+                Your current certification journey. Complete each milestone to move to the next.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                 {pathwayMilestones.map((milestone) => (
@@ -451,9 +432,9 @@ export default async function DashboardCertificationsPage() {
                           : milestone.status === 'current'
                             ? 'var(--color-accent)'
                             : 'var(--color-on-surface-variant)',
-                        fontVariationSettings: milestone.status === 'complete' ? "'FILL' 1" : "'FILL' 0",
+                        '--ms-fill': milestone.status === 'complete' ? 1 : 0,
                       }}
-                    >
+                     aria-hidden="true">
                       {milestone.status === 'complete' ? 'check_circle' : milestone.status === 'locked' ? 'lock' : milestone.icon}
                     </span>
                     <div>
@@ -479,7 +460,7 @@ export default async function DashboardCertificationsPage() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                   download
                 </span>
                 <h3 style={{ fontSize: 'var(--font-size-h4)', fontWeight: 'var(--font-weight-medium)', margin: 0 }}>Ready for Download</h3>
@@ -522,6 +503,9 @@ export default async function DashboardCertificationsPage() {
                 </ul>
               ) : null}
               <DownloadAllCertificatesButton certs={certRows} />
+              <div style={{ marginTop: '0.75rem' }}>
+                <CertificationAddForm />
+              </div>
             </div>
 
             {/* Achievement badge with SVG ring */}
@@ -567,7 +551,7 @@ export default async function DashboardCertificationsPage() {
           {/* Certificate Roadmap section */}
           <section style={{ marginBottom: 'var(--space-12)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                 timeline
               </span>
               <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certificate Roadmap</h2>

@@ -47,14 +47,14 @@ function InviteContent() {
             error:
               status >= 500
                 ? 'The server could not load this invitation. Please try again shortly.'
-                : 'Failed to load invitation',
+                : "We couldn't load this invitation. Try again in a moment.",
           });
           return;
         }
         setData(data);
-        if (data.valid && data.email) setFullName(data.email.split('@')[0] || '');
+        if (data.valid && data.email) setFullName('');
       })
-      .catch(() => setData({ valid: false, error: 'Failed to load invitation' }))
+      .catch(() => setData({ valid: false, error: "We couldn't load this invitation. Try again in a moment." }))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -87,7 +87,7 @@ function InviteContent() {
       const result = parsed.data;
 
       if (!res.ok) {
-        throw new Error(result.error ?? 'Failed to accept invitation');
+        throw new Error(result.error ?? "We couldn't accept this invitation. Try again in a moment.");
       }
       const next =
         typeof result.redirectTo === 'string' && result.redirectTo.startsWith('/')
@@ -95,11 +95,9 @@ function InviteContent() {
           : '/login?redirectTo=/dashboard';
       setPostAcceptRedirect(next);
       setSuccess(true);
-      if (result.redirectTo) {
-        window.location.href = result.redirectTo;
-      }
+      window.location.href = next;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : 'Something went wrong. Try again in a moment.');
       setSubmitting(false);
     }
   };
@@ -179,7 +177,7 @@ function InviteContent() {
           padding: '2rem',
         }}
       >
-        <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>You&apos;re Invited!</h1>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>You&rsquo;re Invited!</h1>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           {data.inviterName} has invited you to join WorkforceAP as a <strong>{data.roleLabel}</strong>.
         </p>
@@ -199,8 +197,8 @@ function InviteContent() {
             Program: <strong>{data.program.title}</strong>
           </p>
         )}
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-          Complete the form below to accept this invitation.
+        <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+          Fill in the form below to accept and get started.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -263,19 +261,19 @@ function InviteContent() {
 
           <div style={{ marginBottom: '1.5rem' }}>
             <label htmlFor="invite-password" style={labelStyle}>
-              Password (required for new accounts)
+              Create a password
             </label>
             <input
               id="invite-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 8 characters — leave blank if you already have an account"
+              placeholder="At least 8 characters"
               minLength={8}
               style={inputStyle}
             />
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-              New to WorkforceAP? Enter a password to create your account. Already have an account? Leave blank to add this role.
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+              First time here? Create a password. Already have an account? Leave this blank.
             </p>
           </div>
 
@@ -290,7 +288,7 @@ function InviteContent() {
 
 export default function InvitePage() {
   return (
-    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ padding: '3rem', textAlign: 'center' }}>Loading invitation...</div>}>
       <InviteContent />
     </Suspense>
   );

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNextBestActions } from './nextBestActions.ts';
+import { buildNextBestActions } from './nextBestActions';
 
 test('buildNextBestActions prioritizes new application on file', () => {
   const actions = buildNextBestActions({
@@ -45,4 +45,38 @@ test('buildNextBestActions suggests tracker when eligible and no applications', 
     weeklyRecapUnopened: false,
   });
   assert.ok(actions.some((a) => a.id === 'job_tracker'));
+});
+
+test('buildNextBestActions adds state-D readiness actions', () => {
+  const actions = buildNextBestActions({
+    state: 'D',
+    noApplicationOnFile: false,
+    enrolledProgram: 'ai-software',
+    assessmentCompleted: true,
+    hasResume: true,
+    profileCompletenessPct: 90,
+    jobApplicationCount: 1,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+  });
+
+  assert.ok(actions.some((a) => a.id === 'interview_practice'));
+  assert.ok(actions.some((a) => a.id === 'career_readiness'));
+});
+
+test('buildNextBestActions routes missing resume to resume rewriter', () => {
+  const actions = buildNextBestActions({
+    state: 'D',
+    noApplicationOnFile: false,
+    enrolledProgram: 'ai-software',
+    assessmentCompleted: true,
+    hasResume: false,
+    profileCompletenessPct: 90,
+    jobApplicationCount: 1,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+  });
+
+  const resumeAction = actions.find((a) => a.id === 'upload_resume');
+  assert.equal(resumeAction?.href, '/dashboard/ai-tools/resume-rewriter');
 });

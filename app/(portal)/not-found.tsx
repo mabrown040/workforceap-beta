@@ -1,19 +1,20 @@
 import Link from 'next/link';
-import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 
-export default function PortalNotFound() {
+export default function NotFound() {
   return (
-    <PortalRouteFallback
-      title="Page not found"
-      description="That portal URL does not exist or you may not have access. Use the links below to get back on track."
-    >
-      <p className="portal-route-fallback__hint">
-        Looking for a job posting? Try the{' '}
-        <Link href="/dashboard/jobs" className="portal-route-fallback__inline-link">
-          public job board
-        </Link>
-        .
+    <div style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto', textAlign: 'center' }}>
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem' }}>Page not found</h1>
+      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+        The page you&rsquo;re looking for doesn&rsquo;t exist or may have been moved.
       </p>
-    </PortalRouteFallback>
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+        <Link href="/dashboard" className="btn btn-primary">
+          Go to Dashboard
+        </Link>
+        <Link href="/help" className="btn btn-ghost">
+          Get Help
+        </Link>
+      </div>
+    </div>
   );
 }

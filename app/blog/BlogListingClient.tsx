@@ -28,6 +28,7 @@ export default function BlogListingClient({
 }) {
   const [filter, setFilter] = useState<string | null>(null);
   const filtered = filter ? posts.filter((p) => p.category === filter) : posts;
+  const hasPosts = posts.length > 0;
 
   return (
     <section className="blog-page-section">
@@ -62,7 +63,7 @@ export default function BlogListingClient({
           >
             <GraduationCap size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600 }}>Explore Programs</div>
+              <div style={{ fontWeight: 600 }}>{hasPosts ? 'Explore Programs' : 'Start with Programs'}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                 {WORKFORCEAP_PROGRAM_CATALOG_SIZE} career training options
               </div>
@@ -84,7 +85,7 @@ export default function BlogListingClient({
           >
             <HelpCircle size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600 }}>Read FAQ</div>
+              <div style={{ fontWeight: 600 }}>{hasPosts ? 'Read FAQ' : 'Get Answers Fast'}</div>
               <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                 Common questions answered
               </div>
@@ -167,7 +168,7 @@ export default function BlogListingClient({
           <div className="blog-empty-state">
             <p>
               {posts.length === 0
-                ? 'No articles published yet. Explore programs and how to apply — new posts will appear here.'
+                ? 'No articles are published yet. For now, use the FAQ, browse programs, or start your application without waiting on the blog.'
                 : 'No posts match this filter.'}
             </p>
             {posts.length > 0 && filter !== null && (
@@ -183,7 +184,7 @@ export default function BlogListingClient({
                 Apply
               </Link>
               <Link href="/faq" className="btn btn-outline">
-                FAQ
+                Read FAQ
               </Link>
             </div>
           </div>
@@ -204,16 +205,19 @@ export default function BlogListingClient({
         {/* Bottom CTA */}
         <div className="blog-listing-bottom-cta">
           <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.95 }} aria-hidden />
-          <h3>Want personalized career guidance?</h3>
+          <h3>Ready to take the next step?</h3>
           <p>
-            Read our blog for tips, or get started finding the right program for your goals.
+            WorkforceAP offers no-cost career training paths for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link> — with guided tools, counselor support, and employer-aligned credentials.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
-              Take Career Quiz
+              Find Your Path
             </Link>
             <Link href="/programs" className="btn blog-listing-bottom-cta__ghost">
-              Browse Programs
+              Explore Programs
+            </Link>
+            <Link href="/apply" className="btn blog-listing-bottom-cta__ghost">
+              Apply Now
             </Link>
           </div>
         </div>

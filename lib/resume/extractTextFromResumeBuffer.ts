@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import pdfParse from 'pdf-parse/lib/pdf-parse.js';
+import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 
 /**
@@ -24,8 +24,19 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, ext: string): 
   }
 
   if (e === 'docx' || e === 'doc') {
-    const result = await mammoth.extractRawText({ buffer });
-    return (result.value?.trim() || '') as string;
+    try {
+      if (e === 'doc') throw new Error('Mammoth does not support .doc files natively');
+      const result = await mammoth.extractRawText({ buffer });
+      return (result.value?.trim() || '') as string;
+    } catch (err) {
+      console.error(`Error parsing ${e}:`, err);
+      const raw = buffer.toString('utf-8');
+      return raw
+        .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+        .replace(/\s{3,}/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
   }
 
   if (e === 'txt' || e === 'text') {

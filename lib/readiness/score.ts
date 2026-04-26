@@ -28,14 +28,24 @@ export type ScoreBreakdown = {
 };
 
 /** Narrow shapes — avoids coupling callers to full Prisma payloads. */
-type ProfileSlice = { address: string | null; city: string | null; zip: string | null } | null | undefined;
+type ProfileSlice = {
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  profilePhone: string | null;
+  profileLinkedin: string | null;
+  profileBio: string | null;
+  resumeOriginalPath: string | null;
+  resumeEnhancedPath: string | null;
+} | null | undefined;
 
 type UserSlice = { profile: ProfileSlice } | null;
 
 export function buildScoreBreakdownFromRelations(
   user: UserSlice,
   goals: unknown[],
-  aiResults: { toolType: string }[],
+  aiResults: { toolType: string; createdAt?: Date | null }[],
   resourceProgress: { completedAt: Date | null }[],
   learningProgress: unknown[],
   pathwaySteps: { status: string }[],
@@ -45,18 +55,36 @@ export function buildScoreBreakdownFromRelations(
 ): ScoreBreakdown {
   const toolTypes = new Set(aiResults.map((r) => r.toolType));
   const prof = user?.profile;
-  const hasProfile = !!prof && (!!prof.address || !!prof.city || !!prof.zip);
+  const profileSignals = [
+    prof?.address,
+    prof?.city,
+    prof?.state,
+    prof?.zip,
+    prof?.profilePhone,
+    prof?.profileLinkedin,
+    prof?.profileBio,
+  ].filter((value) => !!value).length;
+  const hasResumeFile = !!prof?.resumeOriginalPath || !!prof?.resumeEnhancedPath;
+  const hasProfile = profileSignals >= 2 || hasResumeFile;
   const hasGoals = goals.length > 0;
-  const hasResume = toolTypes.has('resume_rewriter');
+  const hasResume = hasResumeFile || ['resume_rewriter', 'resume_analysis'].some((tool) => toolTypes.has(tool));
   const resourcesCompleted = resourceProgress.filter((r) => r.completedAt).length;
-  const hasInterview = toolTypes.has('interview_practice');
+  const hasInterview = ['interview_practice', 'interview_coach', 'voice_interview_video'].some((tool) => toolTypes.has(tool));
   const hasPathway = learningProgress.length > 0;
   const pathwayStepsCompleted = pathwaySteps.filter((p) => p.status === 'completed').length;
   const appCount = jobApps.filter((a) => a.status !== 'SAVED').length;
   const hasCerts = certs.length > 0;
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const hasRecentActivity = lastEvent ? new Date(lastEvent.createdAt) >= sevenDaysAgo : false;
+  const lastAiActivity = aiResults.reduce((latest, row) => {
+    if (!(row.createdAt instanceof Date)) return latest;
+    if (!latest || row.createdAt > latest) return row.createdAt;
+    return latest;
+  }, null as Date | null);
+  const latestActivity = [lastEvent?.createdAt ?? null, lastAiActivity]
+    .filter((value): value is Date => !!value)
+    .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
+  const hasRecentActivity = latestActivity ? latestActivity >= sevenDaysAgo : false;
 
   return {
     completeProfile: {
@@ -125,10 +153,24 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
     await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
-        include: { profile: true },
+        include: {
+          profile: {
+            select: {
+              address: true,
+              city: true,
+              state: true,
+              zip: true,
+              profilePhone: true,
+              profileLinkedin: true,
+              profileBio: true,
+              resumeOriginalPath: true,
+              resumeEnhancedPath: true,
+            },
+          },
+        },
       }),
       prisma.goal.findMany({ where: { userId } }),
-      prisma.aIToolResult.findMany({ where: { userId }, select: { toolType: true } }),
+      prisma.aIToolResult.findMany({ where: { userId }, select: { toolType: true, createdAt: true } }),
       prisma.resourceProgress.findMany({ where: { userId } }),
       prisma.learningProgress.findMany({ where: { userId } }),
       prisma.pathwayStepProgress.findMany({ where: { userId } }),

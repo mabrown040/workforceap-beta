@@ -4,6 +4,7 @@
  *
  * Keys by surface:
  * - Member (readiness, interview, resume): member_name, program_*, organization_*, interview_eligible, + resume_* for resume coach
+ * - WIOA prequal: member fields above plus wioa_* screening snapshot fields when present
  * - Counselor: staff_name, partner_name, partner_id
  * - Employer: staff_name, employer_company_name, employer_tier, employer_id
  * - Partner: staff_name, partner_org_name, partner_slug, partner_id
@@ -13,6 +14,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getCounselorForUser, getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
+import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
 /** Merged into every voice session for consistent nonprofit / site framing in ElevenLabs prompts. */
 const VOICE_DEFAULTS: Record<string, string> = {
@@ -49,6 +51,59 @@ export async function fetchMemberPortalDynamicVariables(userId: string): Promise
     });
   } catch (err) {
     console.error('[elevenlabsPortalContext] member context error:', err);
+    return {};
+  }
+}
+
+export function buildPublicWioaPortalDynamicVariables(input?: {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  countyOrZip?: string;
+}): Record<string, string> {
+  return withVoiceDefaults({
+    member_name: input?.fullName?.trim() ?? '',
+    member_email: input?.email?.trim() ?? '',
+    member_phone: input?.phone?.trim() ?? '',
+    wioa_county_or_zip: input?.countyOrZip?.trim() ?? '',
+    wioa_public_screening: 'true',
+    wioa_program_name: 'Workforce Innovation and Opportunity Act (WIOA)',
+    wioa_pronunciation: 'W. I. O. A.',
+  });
+}
+
+export async function fetchWioaPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { organization: { select: { name: true, slug: true } } },
+    });
+    if (!dbUser) return {};
+
+    const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
+    const snapshot = parseWioaQualificationSnapshot(dbUser.wioaQualificationJson);
+
+    return withVoiceDefaults({
+      member_name: dbUser.fullName ?? '',
+      program_title: program?.title ?? '',
+      program_skills: program?.skills?.join(', ') ?? '',
+      enrolled_program_slug: dbUser.enrolledProgram ?? '',
+      organization_name: dbUser.organization?.name ?? '',
+      organization_slug: dbUser.organization?.slug ?? '',
+      interview_eligible: dbUser.interviewEligible ? 'true' : 'false',
+      wioa_age_bracket: snapshot?.answers.ageBracket ?? '',
+      wioa_county_or_zip: snapshot?.answers.countyOrZip ?? '',
+      wioa_primary_barrier: snapshot?.answers.primaryBarrier ?? '',
+      wioa_dislocated_worker: snapshot?.answers.dislocatedWorker ? 'true' : 'false',
+      wioa_low_income_self_report: snapshot?.answers.lowIncomeSelfReport ? 'true' : 'false',
+      wioa_training_interest: snapshot?.answers.trainingInterest ? 'true' : 'false',
+      wioa_completed_intake_self_report: snapshot?.answers.completedIntakeSelfReport ? 'true' : 'false',
+      wioa_signal: snapshot?.signal ?? '',
+      wioa_program_name: 'Workforce Innovation and Opportunity Act (WIOA)',
+      wioa_pronunciation: 'W. I. O. A.',
+    });
+  } catch (err) {
+    console.error('[elevenlabsPortalContext] wioa context error:', err);
     return {};
   }
 }

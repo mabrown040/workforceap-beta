@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { getBestActiveHref, isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
@@ -20,15 +20,30 @@ import {
   getActiveTab,
 } from '@/lib/nav/portalNav';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
-import SuperAdminViewSwitcher from '@/components/super-admin-view-switcher';
+import SuperAdminViewSwitcher, { useIsSuperAdmin } from '@/components/super-admin-view-switcher';
 import PortalHeaderActions from './PortalHeaderActions';
+import PortalRoleSwitcher from './PortalRoleSwitcher';
 import { SignOutButton } from './SignOutButton';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import MemberPortalTopNav from './MemberPortalTopNav';
+import GlobalSearch from './GlobalSearch';
+import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
+
+// Map non-member portal roles to MobileBottomNav variants. Member uses
+// MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
+// Decision 3 (2026-04-25).
+const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor'>> = {
+  employer: 'employer',
+  partner: 'partner',
+  counselor: 'counselor',
+};
 
 export default function WorkspaceShell({
   portalRole,
   navItems,
   workspaceLabel,
   contextLabel,
+  minimalMobileHeader = false,
   superAdmin,
   superAdminImpersonating,
   superAdminBackHref,
@@ -40,12 +55,15 @@ export default function WorkspaceShell({
   marketingSiteHref,
   marketingSiteLabel,
   showResumeUploadHint,
+  portalRoles,
   children,
 }: {
   portalRole: PortalRole;
   navItems: PortalNavItem[];
   workspaceLabel: string;
   contextLabel: string;
+  /** Reduce header chrome on mobile when bottom nav is primary (member portal). */
+  minimalMobileHeader?: boolean;
   /** Optional square logo next to company name (employer portal). */
   contextLogoUrl?: string | null;
   superAdmin?: boolean;
@@ -62,18 +80,22 @@ export default function WorkspaceShell({
   marketingSiteLabel?: string;
   /** Member: prompt to upload resume when none on file */
   showResumeUploadHint?: boolean;
+  /** Optional set of role-switch targets for authenticated multi-role users */
+  portalRoles?: PortalSwitcherRole[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
-  const filteredNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  const mobileDrawerNavItems = navItems;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
-  const mainRef = useRef<HTMLElement>(null);
+  const isSuperAdmin = useIsSuperAdmin();
+  const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);
 
@@ -126,6 +148,14 @@ export default function WorkspaceShell({
     return () => mq.removeEventListener('change', fn);
   }, []);
 
+  /** Enables `html[data-portal-role="…"]` rules in main.css (e.g. member mobile header chrome). */
+  useEffect(() => {
+    document.documentElement.setAttribute('data-portal-role', portalRole);
+    return () => {
+      document.documentElement.removeAttribute('data-portal-role');
+    };
+  }, [portalRole]);
+
   useEffect(() => {
     try {
       setCollapsed(localStorage.getItem(collapseKey) === '1');
@@ -143,16 +173,23 @@ export default function WorkspaceShell({
         });
         if (!r.ok) return;
         const data = (await r.json()) as Partial<Record<NavBadgeKey, number>>;
-        if (!cancelled) setBadges(data);
+        if (!cancelled) {
+          startTransition(() => setBadges(data));
+        }
       } catch {
         /* ignore */
       }
     };
-    void load();
+
+    const deferId = window.setTimeout(() => {
+      if (!cancelled) void load();
+    }, 0);
+
     const onRefresh = () => void load();
     window.addEventListener('wa-nav-badges-refresh', onRefresh);
     return () => {
       cancelled = true;
+      window.clearTimeout(deferId);
       window.removeEventListener('wa-nav-badges-refresh', onRefresh);
     };
   }, [portalRole]);
@@ -170,6 +207,7 @@ export default function WorkspaceShell({
   };
 
   const isCollapsedDesktop = collapsed && wide;
+  const isMobileDrawer = drawerOpen && !wide;
   const headerRef = useRef<HTMLElement>(null);
   const tabBarRef = useRef<HTMLElement | null>(null);
 
@@ -198,7 +236,10 @@ export default function WorkspaceShell({
 
   return (
     <div className="workspace-shell-root">
-      <header ref={headerRef} className="workspace-shell-header">
+      <header
+        ref={headerRef}
+        className={`workspace-shell-header${minimalMobileHeader ? ' workspace-shell-header--minimal-mobile' : ''}`}
+      >
         <div className="workspace-shell-header__brand">
           <button
             type="button"
@@ -243,6 +284,25 @@ export default function WorkspaceShell({
               {headerBadge}
             </span>
           ) : null}
+          {/* Role switcher: show PortalRoleSwitcher for multi-role non-super-admins, OR for super-admins when impersonating (so they can switch within context) */}
+          {!isSuperAdmin && portalRoles && portalRoles.length > 1 ? (
+            <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
+          ) : null}
+          {/* SuperAdminViewSwitcher: primary navigation for super admins; shown in all portal contexts */}
+          <SuperAdminViewSwitcher />
+          {/* When super admin is impersonating, show an inline impersonation chip for clarity */}
+          {superAdmin && superAdminImpersonating ? (
+            <span className="workspace-shell-impersonating-chip" title="You are viewing this workspace as an administrator">
+              <span className="workspace-shell-impersonating-indicator" />
+              Viewing as
+            </span>
+          ) : null}
+          {/* Global search — admin only, hidden on mobile */}
+          {portalRole === 'admin' && (
+            <div className="wa-hidden md:wa-block">
+              <GlobalSearch />
+            </div>
+          )}
           <PortalHeaderActions />
         </div>
       </header>
@@ -305,7 +365,7 @@ export default function WorkspaceShell({
         >
           <div className="workspace-sidebar-inner">
             <div className="workspace-sidebar-toolbar">
-              <div className="workspace-sidebar-label">{workspaceLabel}</div>
+              <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? NAV_TAB_META[activeTab].label : workspaceLabel}</div>
               {wide ? (
                 <button
                   type="button"
@@ -321,7 +381,8 @@ export default function WorkspaceShell({
             <nav aria-label={`${workspaceLabel} navigation`} className="workspace-sidebar-nav">
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {
-                  const inGroup = filteredNavItems.filter((i) => i.group === group);
+                  const list = wide ? desktopNavItems : mobileDrawerNavItems;
+                  const inGroup = list.filter((i) => i.group === group);
                   if (inGroup.length === 0) return null;
                   const groupLabel = NAV_GROUP_LABELS[group];
                   return (
@@ -388,12 +449,17 @@ export default function WorkspaceShell({
           </div>
         </aside>
 
-        <main ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
+        <div ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
+          {portalRole === 'member' ? <MemberPortalTopNav badgeCounts={badges} /> : null}
           {topBanner}
           <div className="workspace-shell-main-inner">{children}</div>
           {footer}
-        </main>
+        </div>
       </div>
+      {/* Mobile bottom nav for non-member roles. Members use MemberPortalTopNav. */}
+      {ROLE_TO_NAV_VARIANT[portalRole] ? (
+        <MobileBottomNav variant={ROLE_TO_NAV_VARIANT[portalRole]} badgeCounts={badges} />
+      ) : null}
     </div>
   );
 }

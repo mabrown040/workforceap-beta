@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { JobApplication } from '@prisma/client';
 import JobApplicationForm from './JobApplicationForm';
 import JobApplicationKanban from './JobApplicationKanban';
+import PortalEmptyState from './PortalEmptyState';
 
 interface JobApplicationsTrackerProps {
   userId: string;
@@ -21,12 +22,12 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
       try {
         setIsLoading(true);
         const res = await fetch('/api/member/job-applications');
-        if (!res.ok) throw new Error('Failed to fetch applications');
+        if (!res.ok) throw new Error("We couldn't load your applications. Try again in a moment.");
         const data = await res.json();
         setApplications(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "We couldn't load your applications. Try again in a moment.");
       } finally {
         setIsLoading(false);
       }
@@ -43,14 +44,14 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error('Failed to create application');
+      if (!res.ok) throw new Error("We couldn't add this application. Try again in a moment.");
       
       const newApp = await res.json();
       setApplications([newApp, ...applications]);
       setIsModalOpen(false);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "We couldn't add this application. Try again in a moment.");
     }
   };
 
@@ -62,14 +63,14 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
         body: JSON.stringify(updates),
       });
 
-      if (!res.ok) throw new Error('Failed to update application');
+      if (!res.ok) throw new Error("We couldn't update this application. Try again in a moment.");
       
       const updated = await res.json();
       const nextApplication = updated.application ?? updated;
       setApplications(applications.map(app => app.id === id ? nextApplication : app));
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "We couldn't update this application. Try again in a moment.");
     }
   };
 
@@ -97,7 +98,7 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
             {applications.length} Application{applications.length !== 1 ? 's' : ''}
           </h2>
         </div>
-        <button
+        <button type="button"
           onClick={() => setIsModalOpen(true)}
           className="wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-rounded-lg hover:wa-bg-[#6b0a2a] wa-transition-colors wa-font-medium"
         >
@@ -115,15 +116,12 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
       {/* Kanban */}
       {applications.length === 0 ? (
-        <div className="wa-text-center wa-py-12 wa-border-2 wa-border-dashed wa-border-gray-300 wa-rounded-lg">
-          <p className="wa-text-gray-500 wa-mb-3">No applications yet.</p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
-          >
-            Add your first application
-          </button>
-        </div>
+        <PortalEmptyState
+          title="No applications yet"
+          description="Track roles you apply to—add one manually or apply from the job board."
+          primaryAction={{ label: 'Add application', onClick: () => setIsModalOpen(true) }}
+          secondaryAction={{ label: 'Browse jobs', href: '/dashboard/jobs' }}
+        />
       ) : (
         <JobApplicationKanban
           applications={applications}

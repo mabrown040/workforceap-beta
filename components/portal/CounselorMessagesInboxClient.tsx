@@ -1,10 +1,22 @@
 'use client';
 
-import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import type { CounselorInboxRow } from '@/lib/messages/counselorInbox';
+import { counselorStaffMessagingSurface } from '@/lib/portal/messagingSurfaces';
+import {
+  InboxEmpty,
+  InboxHeader,
+  InboxList,
+  InboxPane,
+  InboxRowButton,
+  InboxRowLayout,
+  InboxSearch,
+  InboxShell,
+  InboxUnreadBadge,
+} from '@/components/portal/ui/inbox/InboxPrimitives';
 
 type ChatPayload = {
   member: { id: string; fullName: string };
@@ -72,103 +84,39 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
     if (isMobile) setMobileList(false);
   };
 
-  const rowStyle = (active: boolean, unread: boolean): CSSProperties => ({
-    width: '100%',
-    textAlign: 'left',
-    padding: '1rem 1.25rem',
-    cursor: 'pointer',
-    borderBottom: '1px solid rgba(222, 191, 194, 0.2)',
-    background: active
-      ? 'color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-lowest))'
-      : unread
-        ? 'color-mix(in srgb, var(--color-accent) 6%, transparent)'
-        : 'transparent',
-    borderLeft: active ? '3px solid var(--color-accent)' : '3px solid transparent',
-  });
-
   const listPane = (opts: { mobile: boolean }) => (
-    <div
-      style={
-        opts.mobile
-          ? { overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }
-          : {
-              borderRight: '1px solid #ebe7e7',
-              overflowY: 'auto',
-              width: 300,
-              flexShrink: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: 0,
-            }
-      }
-    >
-      <div style={{ padding: '1rem' }}>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search students…"
-          style={{
-            width: '100%',
-            padding: '0.625rem 0.875rem',
-            border: '1px solid #debfc2',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            background: '#f6f3f2',
-            outline: 'none',
-            fontFamily: 'inherit',
-          }}
-        />
-      </div>
-      {filtered.map((r) => (
-        <button
-          key={r.memberId}
-          type="button"
-          onClick={() => selectMember(r.memberId, opts.mobile)}
-          style={rowStyle(selectedId === r.memberId, r.unreadCount > 0)}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{r.memberName}</span>
-            <span style={{ fontSize: '0.7rem', color: '#8b7073' }}>{r.timeLabel}</span>
-          </div>
-          <p
-            style={{
-              fontSize: '0.8rem',
-              color: '#584144',
-              margin: 0,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {r.preview}
-          </p>
-          {r.unreadCount > 0 && (
-            <span
-              style={{
-                marginTop: '0.375rem',
-                display: 'inline-block',
-                padding: '0.125rem 0.5rem',
-                borderRadius: '9999px',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                fontSize: '0.65rem',
-                fontWeight: 700,
-              }}
+    <InboxPane variant="list" style={opts.mobile ? { flex: 1 } : { width: 320, flexShrink: 0 }}>
+      <InboxHeader title="Members" subtitle={rows.length > 0 ? 'Open a thread or search by name.' : undefined} />
+      <InboxSearch value={search} onChange={setSearch} placeholder="Search members…" />
+      <InboxList>
+        {filtered.length === 0 ? (
+          <InboxEmpty title="No matching members" description="Try a different search term." />
+        ) : (
+          filtered.map((r) => (
+            <InboxRowButton
+              key={r.memberId}
+              active={selectedId === r.memberId}
+              unread={r.unreadCount > 0}
+              onClick={() => selectMember(r.memberId, opts.mobile)}
             >
-              {r.unreadCount} new
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
+              <InboxRowLayout
+                title={r.memberName}
+                meta={r.timeLabel}
+                preview={r.preview}
+                badge={<InboxUnreadBadge count={r.unreadCount} />}
+              />
+            </InboxRowButton>
+          ))
+        )}
+      </InboxList>
+    </InboxPane>
   );
 
   const chatHeader = chat ? (
     <div
       style={{
         padding: '1rem 1.5rem',
-        borderBottom: '1px solid #ebe7e7',
+        borderBottom: '1px solid var(--outline-variant)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -202,7 +150,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         </div>
         <div style={{ minWidth: 0 }}>
           <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0 }}>{chat.member.fullName}</p>
-          <p style={{ fontSize: '0.75rem', color: '#584144', margin: 0 }} className="wa-truncate">
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
             {rows.find((x) => x.memberId === chat.member.id)?.programSubtitle ?? '—'}
           </p>
         </div>
@@ -211,13 +159,14 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         href={`/counselor/students/${chat.member.id}`}
         style={{
           padding: '0.5rem 0.875rem',
-          background: '#f0edec',
-          color: '#1c1b1b',
+          background: 'var(--surface-container)',
+          color: 'var(--color-on-surface)',
           borderRadius: '0.375rem',
           fontSize: '0.8rem',
           fontWeight: 600,
           textDecoration: 'none',
           flexShrink: 0,
+          border: '1px solid var(--outline-variant)',
         }}
       >
         View Profile
@@ -246,13 +195,19 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
     );
 
   return (
+    <VoiceAgentSurface {...counselorStaffMessagingSurface} headline="Member messages" subtext="Staff view, aligned with the member portal.">
     <>
-      <div className="wa-md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ flex: 1, minHeight: 0 }}>
         {mobileList ? (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>{listPane({ mobile: true })}</div>
         ) : (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #ebe7e7' }}>
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                borderBottom: '1px solid color-mix(in srgb, var(--outline-variant, #e8e0dd) 70%, transparent)',
+              }}
+            >
               <button
                 type="button"
                 onClick={() => setMobileList(true)}
@@ -269,7 +224,7 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
                   padding: 0,
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
                   arrow_back
                 </span>
                 All conversations
@@ -281,24 +236,16 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         )}
       </div>
 
-      <div
-        className="wa-hidden wa-md:wa-flex"
-        style={{
-          maxWidth: '1000px',
-          margin: '0 auto',
-          height: 'min(85vh, 900px)',
-          border: '1px solid var(--color-border, #ebe7e7)',
-          borderRadius: '0.75rem',
-          overflow: 'hidden',
-          flexDirection: 'row',
-        }}
-      >
-        {listPane({ mobile: false })}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0, background: '#fff' }}>
-          {chatHeader}
-          {chatBody}
-        </div>
+      <div className="wa-hidden md:wa-block">
+        <InboxShell>
+          {listPane({ mobile: false })}
+          <InboxPane variant="thread" style={{ flex: 1, background: 'var(--surface-container-lowest)' }}>
+            {chatHeader}
+            {chatBody}
+          </InboxPane>
+        </InboxShell>
       </div>
     </>
+    </VoiceAgentSurface>
   );
 }

@@ -87,6 +87,13 @@ export type PortalVoiceSessionProps = {
   /** JSON body for POST (e.g. role + interview type). Omit for empty body. */
   sessionPayload?: Record<string, unknown>;
   title: string;
+  /**
+   * Heading level for the title. Defaults to 'h3' (sub-section under a page-
+   * level h2). Pass 'h2' when this voice session is the page's primary
+   * top-level section (e.g. counselor portal staff voice block where the
+   * page h1 is the only heading above it).
+   */
+  titleAs?: 'h2' | 'h3';
   description: string;
   accent?: string;
   accentDark?: string;
@@ -94,11 +101,19 @@ export type PortalVoiceSessionProps = {
   listeningLabel?: string;
   /** If set, transcript will be parsed for suggestions after session ends */
   suggestionsEndpoint?: string;
+  /** If set, transcript will be posted here after the session completes. */
+  completionEndpoint?: string;
+  /** Lightweight endpoint for periodic auto-save during session (no AI processing). */
+  checkpointEndpoint?: string;
+  /** Interval in ms for auto-saving transcript during active session. */
+  checkpointIntervalMs?: number;
+  /** Extra JSON fields to send alongside the transcript to `completionEndpoint`. */
+  completionPayload?: Record<string, unknown>;
   /** Called when user accepts a suggestion */
   onAcceptSuggestion?: (s: ResumeSuggestion) => void;
   /**
    * When `delegatePostSessionSuggestions` is true, parsed post-session suggestions are passed here
-   * instead of rendering the default “done” suggestion cards inside this component.
+   * instead of rendering the default "done" suggestion cards inside this component.
    */
   onPostSessionSuggestions?: (suggestions: ResumeSuggestion[]) => void;
   /** Do not show post-session Approve/Deny cards here — parent handles them (e.g. draft panel). */
@@ -171,12 +186,15 @@ export default function PortalVoiceSession({
   sessionEndpoint,
   sessionPayload,
   title,
+  titleAs = 'h3',
   description,
   accent = '#8c0f37',
   accentDark = '#6b0c29',
   speakingLabel = 'Assistant is speaking…',
   listeningLabel = 'Listening — speak when ready',
   suggestionsEndpoint,
+  completionEndpoint,
+  completionPayload,
   onAcceptSuggestion,
   onPostSessionSuggestions,
   delegatePostSessionSuggestions = false,
@@ -192,6 +210,8 @@ export default function PortalVoiceSession({
   optionalCameraForRecording = false,
   videoStreamRef,
   conversationOverrides,
+  checkpointEndpoint,
+  checkpointIntervalMs = 30000,
 }: PortalVoiceSessionProps) {
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
@@ -205,7 +225,12 @@ export default function PortalVoiceSession({
   const transcriptRef = useRef<Array<{ speaker: string; text: string }>>([]);
   const phaseRef = useRef<Phase>('pre');
   const voiceErrorRef = useRef('');
+  const disconnectIssueRef = useRef(false);
   const lastLiveDraftSentRef = useRef<string | null>(null);
+  const completionPostedRef = useRef(false);
+  const checkpointPostedRef = useRef(false);
+  /** Auto-save timer handle */
+  const autoSaveTimerRef = useRef<number | null>(null);
   const sessionPayloadRef = useRef(sessionPayload);
   sessionPayloadRef.current = sessionPayload;
   /** Scroll container for live transcript — never use scrollIntoView (it scrolls the whole page). */
@@ -257,6 +282,17 @@ export default function PortalVoiceSession({
   useEffect(() => {
     if (phase === 'pre' || phase === 'done') {
       lastLiveDraftSentRef.current = null;
+      if (autoSaveTimerRef.current) {
+        clearInterval(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+    } else if (phase === 'active' && checkpointEndpoint) {
+      // Start auto-save timer
+      if (!autoSaveTimerRef.current) {
+        autoSaveTimerRef.current = window.setInterval(() => {
+          void persistCheckpointTranscript();
+        }, checkpointIntervalMs);
+      }
     }
   }, [phase]);
 
@@ -316,6 +352,8 @@ export default function PortalVoiceSession({
   }, [phase, pushLiveResumeDraftContext, sessionPayload]);
 
   async function startSession() {
+    disconnectIssueRef.current = false;
+    completionPostedRef.current = false;
     setVoiceError('');
     setLiveLines([]);
     liveTranscriptStickBottomRef.current = true;
@@ -364,6 +402,7 @@ export default function PortalVoiceSession({
     try {
       const res = await fetch(sessionEndpoint, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: sessionPayload ? JSON.stringify(sessionPayload) : '{}',
       });
@@ -471,7 +510,12 @@ export default function PortalVoiceSession({
           stopVideoRecordingStream();
           setPhase('pre');
         } else {
+          disconnectIssueRef.current = !intentionalRef.current && typed.reason === 'error';
           setPhase('done');
+          // Save checkpoint on unexpected disconnect so transcript isn't lost
+          if (!intentionalRef.current && transcriptRef.current.length > 0) {
+            void persistCheckpointTranscript();
+          }
         }
         intentionalRef.current = false;
         setAgentSpeaking(false);
@@ -484,7 +528,7 @@ export default function PortalVoiceSession({
             ? ev.message
             : typeof ev.text === 'string'
               ? ev.text
-              : '';
+            : '';
         const text = rawText.trim();
         if (!text) return;
 
@@ -573,11 +617,87 @@ export default function PortalVoiceSession({
     }
   }
 
+  async function persistCheckpointTranscript() {
+    if (!checkpointEndpoint || transcriptRef.current.length === 0) return;
+
+    const payload = JSON.stringify({
+      transcript: transcriptRef.current.map((turn) => ({
+        role: turn.speaker === 'agent' ? 'agent' : 'user',
+        text: turn.text,
+      })),
+      toolType: 'career_counselor',
+      inputSummary: `${title} checkpoint`,
+    });
+
+    try {
+      const res = await fetch(checkpointEndpoint, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      });
+      if (res.ok) {
+        checkpointPostedRef.current = true;
+        logVoice('checkpoint_saved', { lines: transcriptRef.current.length });
+      } else {
+        logVoice('checkpoint_failed', { status: res.status });
+      }
+    } catch (err) {
+      logVoice('checkpoint_error', err);
+    }
+  }
+
+  async function persistCompletionTranscript() {
+    if (!completionEndpoint || completionPostedRef.current) return;
+    if (transcriptRef.current.length === 0) return;
+
+    const payload = JSON.stringify({
+      ...(completionPayload ?? {}),
+      transcript: transcriptRef.current.map((turn) => ({
+        role: turn.speaker === 'agent' ? 'agent' : 'user',
+        text: turn.text,
+      })),
+    });
+
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      try {
+        const res = await fetch(completionEndpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+        });
+
+        if (res.ok) {
+          completionPostedRef.current = true;
+          return;
+        }
+
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        console.error(
+          `[voice] completion persistence failed (attempt ${attempt}):`,
+          data?.error ?? res.statusText
+        );
+      } catch (err) {
+        console.error(`[voice] completion persistence error (attempt ${attempt}):`, err);
+      }
+
+      completionPostedRef.current = false;
+
+      if (attempt < 2) {
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+      }
+    }
+  }
+
   async function endSession() {
     intentionalRef.current = true;
+    disconnectIssueRef.current = false;
     convRef.current?.endSession();
     setPhase('done');
     setAgentSpeaking(false);
+
+    await persistCompletionTranscript();
 
     // Parse suggestions from transcript
     if (suggestionsEndpoint && transcriptRef.current.length > 0) {
@@ -610,6 +730,7 @@ export default function PortalVoiceSession({
 
   function reset() {
     intentionalRef.current = true;
+    disconnectIssueRef.current = false;
     convRef.current?.endSession();
     convRef.current = null;
     intentionalRef.current = false;
@@ -619,11 +740,21 @@ export default function PortalVoiceSession({
     setAgentSpeaking(false);
     setSuggestions([]);
     setDismissed(new Set());
+    completionPostedRef.current = false;
+    checkpointPostedRef.current = false;
+    if (autoSaveTimerRef.current) {
+      clearInterval(autoSaveTimerRef.current);
+      autoSaveTimerRef.current = null;
+    }
     transcriptRef.current = [];
     setLiveLines([]);
   }
 
   const bgSoft = `${accent}14`;
+
+  // UX: Detect empty/disconnected transcript and warn the user
+  const transcriptWasEmpty = phase === 'done' && transcriptRef.current.length === 0;
+  const hadConnectionIssue = phase === 'done' && disconnectIssueRef.current;
 
   if (phase === 'pre') {
     return (
@@ -642,9 +773,15 @@ export default function PortalVoiceSession({
             />
           </div>
         </div>
-        <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
-          {title}
-        </h3>
+        {titleAs === 'h2' ? (
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
+            {title}
+          </h2>
+        ) : (
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
+            {title}
+          </h3>
+        )}
         <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.25rem', lineHeight: 1.55, fontSize: '0.9rem' }}>
           {description}
         </p>
@@ -787,7 +924,7 @@ export default function PortalVoiceSession({
                 Live transcript
               </span>
               <span style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
-                Powered by your session
+                Powered by ElevenLabs
               </span>
             </div>
             <div
@@ -877,7 +1014,32 @@ export default function PortalVoiceSession({
   return (
     <div style={{ maxWidth: 560 }}>
       <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>Session ended.</p>
+        {/* UX CLARITY: Warn when no transcript was captured due to disconnect or error */}
+        {transcriptWasEmpty || hadConnectionIssue ? (
+          <div
+            style={{
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: 8,
+              padding: '0.75rem 1rem',
+              marginBottom: '1rem',
+              fontSize: '0.85rem',
+              color: '#b91c1c',
+              textAlign: 'left',
+            }}
+          >
+            <strong>Session ended with no conversation recorded.</strong>
+            <p style={{ margin: '0.25rem 0 0', lineHeight: 1.4 }}>
+              {hadConnectionIssue
+                ? 'The connection was interrupted. Your microphone may not have transmitted audio, or the voice service may have disconnected unexpectedly.'
+                : 'No audio was captured during this session. Check that your microphone is working and try again.'}
+            </p>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Session ended.
+          </p>
+        )}
         <button
           type="button"
           onClick={reset}

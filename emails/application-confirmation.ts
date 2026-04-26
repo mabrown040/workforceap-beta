@@ -12,7 +12,7 @@ export function applicationConfirmationHtml(params: { firstName: string }): stri
     <ol>
       <li><strong>Our team reviews your application</strong> &mdash; a real WorkforceAP staff member looks at your goals and program interest, usually within 3 to 5 business days</li>
       <li><strong>You&rsquo;ll receive an email with next steps</strong> &mdash; we tell you what comes next so you are not left guessing</li>
-      <li><strong>If accepted, you&rsquo;ll get access to your student portal</strong> &mdash; training, AI career tools, and your counselor all in one place</li>
+      <li><strong>If accepted, you&rsquo;ll get access to your member portal</strong> &mdash; training, AI career tools, and your counselor all in one place</li>
     </ol>
     <p><strong>What you can do while you wait:</strong></p>
     <ul>

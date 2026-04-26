@@ -39,9 +39,15 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search members, program, or status"
+          aria-label="Search referred members by name, program, or status"
           style={{ minWidth: 260, flex: '1 1 280px', padding: '0.7rem 0.9rem', borderRadius: 8, border: '1px solid var(--color-border, #ddd)' }}
         />
-        <select value={stage} onChange={(e) => setStage(e.target.value)} style={{ padding: '0.7rem 0.9rem', borderRadius: 8, border: '1px solid var(--color-border, #ddd)' }}>
+        <select
+          value={stage}
+          onChange={(e) => setStage(e.target.value)}
+          aria-label="Filter by member journey stage"
+          style={{ padding: '0.7rem 0.9rem', borderRadius: 8, border: '1px solid var(--color-border, #ddd)' }}
+        >
           <option value="all">All stages</option>
           <option value="applied">Applied</option>
           <option value="enrolled">Enrolled</option>

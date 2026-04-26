@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 
 const RESUME_PREFILL_MAX = 3500;
 
@@ -18,6 +19,10 @@ export default function LinkedInAboutForm() {
   const [resumeLoading, setResumeLoading] = useState(true);
   const { copy, copied } = useCopyToClipboard();
   const userEditedBullets = useRef(false);
+
+  // Persist `role` only. `bullets` has existing server-prefill logic; mixing
+  // autosave with that prefill+override-tracking would duplicate state intent.
+  useDraftAutosave('ai-tool:linkedin-about:role', role, setRole);
 
   useEffect(() => {
     let cancelled = false;

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Loader2, Link as LinkIcon } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 
 interface ParsedMatchOutput {
@@ -186,6 +187,10 @@ export default function JobMatchScorerForm() {
   const [showFloating, setShowFloating] = useState(false);
 
   useHydrateMemberResumePlainText(setResume);
+  // Resume hydrates server-side. Persist the user-typed inputs so a refresh
+  // mid-paste of a long job description doesn't lose the work.
+  useDraftAutosave('ai-tool:job-match-scorer:jobDescription', jobDescription, setJobDescription);
+  useDraftAutosave('ai-tool:job-match-scorer:jobUrl', jobUrl, setJobUrl);
 
   const canSubmit = resume.trim().length > 0 && (jobDescription.trim().length > 0 || jobUrl.trim().length > 0) && !loading && !scrapingUrl;
 

@@ -377,7 +377,7 @@ export default async function AdminPage() {
           {/* Recent Signups Table with initials avatars */}
           <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container)' }}>
-              <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h3>
+              <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h2>
               <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
                 View all &rarr;
               </Link>
@@ -621,7 +621,7 @@ export default async function AdminPage() {
       {/* ── Mobile Recent Signups Section ── */}
       <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recent Signups</h3>
+          <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recent Signups</h2>
           <Link href="/admin/members" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration: 'none' }}>View all →</Link>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

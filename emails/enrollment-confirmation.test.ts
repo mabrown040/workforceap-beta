@@ -96,4 +96,41 @@ describe('enrollmentConfirmationHtml', () => {
     });
     assert.ok(html.length > 100, 'should return substantial HTML content');
   });
+
+  it('names the counselor when counselorName is provided', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'IT Support Professional Certificate',
+      counselorContact: 'jane@workforceap.org',
+      counselorName: 'Jane Rivera',
+    });
+    assert.ok(html.includes('Jane Rivera'), 'should name the counselor by name');
+    assert.ok(
+      html.includes('within 2 business days'),
+      'should publish the 2-business-day reply SLA from /plan-design-review Decision 1',
+    );
+  });
+
+  it('falls back gracefully when no counselor is assigned yet', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'IT Support Professional Certificate',
+      counselorContact: 'info@workforceap.org',
+    });
+    assert.ok(
+      html.includes('A counselor will reach out within 2 business days'),
+      'should fall back to a warm "counselor will reach out" message',
+    );
+    assert.ok(!html.includes('undefined'), 'should not leak undefined');
+  });
+
+  it('escapes HTML in counselorName to prevent XSS', () => {
+    const html = enrollmentConfirmationHtml({
+      firstName: 'Sarah',
+      programName: 'Test',
+      counselorContact: 'counselor@workforceap.org',
+      counselorName: '<script>steal()</script>',
+    });
+    assert.ok(!html.includes('<script>steal()</script>'), 'should escape script in counselorName');
+  });
 });

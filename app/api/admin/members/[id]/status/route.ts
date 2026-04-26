@@ -80,10 +80,23 @@ export async function PATCH(
     const interest = application.user.programInterest ?? application.programInterest;
     const program = interest ? getProgramByInterestValue(interest) : undefined;
     const programName = program?.title ?? application.programInterest ?? 'your selected program';
+
+    // Look up the assigned counselor so the welcome email can name them by
+    // name (per /plan-design-review day-1 storyboard: members feel "Someone
+    // is paying attention to me" only when that someone has a name).
+    const assignment = await prisma.counselorAssignment.findFirst({
+      where: { memberId: application.userId, active: true },
+      include: { counselor: { include: { user: { select: { fullName: true, email: true } } } } },
+    });
+    const counselorName = assignment?.counselor.user.fullName ?? undefined;
+    const counselorContact = assignment?.counselor.user.email ?? undefined;
+
     sendEnrollmentConfirmationEmail({
       to: application.user.email,
       fullName: application.user.fullName,
       programName,
+      counselorName,
+      counselorContact,
     }).catch((err) => console.error('Enrollment confirmation email failed:', err));
   } else if (status === 'DENIED') {
     sendApplicationRejectedEmail({

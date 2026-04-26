@@ -14,6 +14,7 @@ export default function CounselorPortalVoiceBlock() {
       <PortalVoiceSession
         sessionEndpoint="/api/counselor/session"
         title="Counselor voice assistant"
+        titleAs="h2"
         description="Talk through member support, outreach, or how to use this portal."
         accent="#c026d3"
         accentDark="#86198f"

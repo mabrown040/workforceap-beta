@@ -83,10 +83,10 @@ export default async function AdminProgramsPage() {
                 : '—';
               return (
                 <tr key={p.slug}>
-                  <td>{p.title}</td>
-                  <td>{stats.count}</td>
-                  <td>{avgScore}</td>
-                  <td>{stats.completed}</td>
+                  <td data-label="Program">{p.title}</td>
+                  <td data-label="Enrolled">{stats.count}</td>
+                  <td data-label="Avg Score %">{avgScore}</td>
+                  <td data-label="Courses Completed">{stats.completed}</td>
                 </tr>
               );
             })}

@@ -6,9 +6,15 @@ import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
-import { counselorStudentStatusBadge } from '@/lib/counselor/memberStatus';
+import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import PortalStatCard from '@/components/portal/PortalStatCard';
+import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
+import { getProgramBySlug } from '@/lib/content/programs';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export default async function CounselorPortalPage() {
   const user = await getUser();
@@ -39,6 +45,7 @@ export default async function CounselorPortalPage() {
               programInterest: true,
               enrolledProgram: true,
               assessmentScorePct: true,
+              coursesCompleted: true,
             },
           },
         },
@@ -79,49 +86,52 @@ export default async function CounselorPortalPage() {
   const greeting = getTimeOfDayGreeting();
 
   const statCards = [
-    { icon: 'groups', label: 'Active Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
-    { icon: 'mark_email_unread', label: 'Unread Messages', value: messagesNeedingReply, bg: 'rgba(59,130,246,0.1)', iconColor: '#3b82f6' },
-    { icon: 'school', label: 'Enrolled Modules', value: enrolledCount, bg: 'rgba(128,217,159,0.1)', iconColor: '#80d99f' },
-    { icon: 'warning', label: 'Needs Attention', value: needsAttentionCount, bg: 'rgba(251,191,36,0.1)', iconColor: '#fbbf24' },
+    { icon: 'groups', label: 'Your Students', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
+    { icon: 'mark_email_unread', label: 'Awaiting Reply', value: messagesNeedingReply, bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', iconColor: 'var(--color-blue)' },
+    { icon: 'school', label: 'In a Program', value: enrolledCount, bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', iconColor: 'var(--color-green)' },
+    { icon: 'warning', label: 'No Program Yet', value: needsAttentionCount, bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', iconColor: 'var(--color-gold)' },
   ];
 
   return (
     <PortalPageFrame maxWidth="76rem">
       <h1 className="wa-sr-only">Counselor Dashboard - Welcome back, {firstName}</h1>
       {/* ── Mobile Counselor View (≤640px) ── */}
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.5rem" }}>Academic Overview</p>
-          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            {greeting},<br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
+        <div style={{ padding: '1.5rem 1.25rem 0.75rem' }}>
+          <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>Counselor Dashboard</p>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
+            {greeting}, <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
-        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
-          <CounselorPortalVoiceBlock />
-        </div>
-        {/* Stats grid */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
-          <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
-            <div style={{ position:"relative", zIndex:10 }}>
-              <p className="wa-text-[10px] wa-uppercase wa-tracking-widest" style={{ opacity:0.8, marginBottom:"0.25rem" }}>Active Students</p>
-              <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
+
+        {/* Hero stats: students full-width + 2x mini */}
+        <div style={{ padding: '0 1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+          <div style={{ gridColumn: 'span 2', borderRadius: '1rem', padding: '1.25rem', position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 20px rgba(173,44,77,0.3)' }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.82)', marginBottom: '0.25rem' }}>Your Students</p>
+              <p style={{ fontSize: '2.75rem', fontWeight: 800, letterSpacing: '-0.04em', color: '#fff', lineHeight: 1, margin: 0 }}>{assignments.length}</p>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)', marginTop: '0.375rem' }}>assigned to you</p>
             </div>
-            <span className="material-symbols-outlined -wa-right-2 -wa-bottom-2" style={{position:"absolute", opacity:0.1, fontSize: '100px'}}>group</span>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }}>group</span>
           </div>
-          <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
-            <p className="wa-text-[10px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Enrolled</p>
-            <p className="wa-text-2xl wa-font-bold text-on-surface">{enrolledCount}</p>
-            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-gold)'}} />
+          <div className="portal-metric-card">
+            <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>school</span>
+            </div>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{enrolledCount}</p>
+            <p className="portal-metric-card__label">In a Program</p>
           </div>
-          <div className="bg-surface-container-low" style={{ borderRadius:"0.75rem", padding:"1rem" }}>
-            <p className="wa-text-[10px] wa-uppercase wa-tracking-widest text-on-surface-variant" style={{ marginBottom:"0.25rem" }}>Messages</p>
-            <p className="wa-text-2xl wa-font-bold text-on-surface">{messagesNeedingReply}</p>
-            <div style={{marginTop:"0.5rem", width:"2rem", height:"0.25rem", borderRadius:"9999px", background: 'var(--color-accent)'}} />
+          <div className="portal-metric-card">
+            <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>mark_email_unread</span>
+            </div>
+            <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
+            <p className="portal-metric-card__label">Awaiting Reply</p>
           </div>
         </div>
         {/* Filter chips */}
-        <div style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.75rem" }}>
+        <div className="portal-pad-x" style={{ display:"flex", gap:"0.5rem", overflowX:"auto", scrollbarWidth:"none", paddingBottom:"0.75rem" }}>
           {['All', 'At Risk', 'Upcoming Session', 'New'].map((f, i) => (
             <span key={f} className="wa-text-xs wa-font-semibold" style={Object.assign({ flexShrink:0, paddingLeft:"1rem", paddingRight:"1rem", paddingTop:"0.5rem", paddingBottom:"0.5rem", borderRadius:"9999px", cursor:"pointer" }, i === 0 ? { background: 'var(--color-accent)', color: '#fff' } : { background: 'var(--surface-container-highest)', color: 'var(--on-surface)' })}>
               {f}
@@ -129,55 +139,78 @@ export default async function CounselorPortalPage() {
           ))}
         </div>
         {/* Student roster */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem" }}>
+        <div className="portal-pad-x">
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
             <h3 className="wa-text-lg wa-font-bold wa-tracking-tight">Active Roster</h3>
             <span className="material-symbols-outlined text-on-surface-variant wa-text-xl">sort</span>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
-              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.5rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant" style={{ marginBottom: '0.75rem' }}>
-                  No students assigned yet. Ask your admin to assign members to you.
-                </p>
-                <a
-                  href="mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal"
-                  className="wa-text-sm wa-font-semibold"
-                  style={{ color: 'var(--color-accent)' }}
-                >
-                  Email WorkforceAP
-                </a>
-              </div>
+              <PortalEmptyState
+                title="No students assigned yet"
+                description="Students will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
+                icon={<span className="material-symbols-outlined">person_search</span>}
+                primaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+                secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
+              />
             ) : (
               assignments.map((a) => {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
-                const isEnrolled = !!a.member.enrolledProgram;
-                const hasInterest = !!a.member.programInterest;
-                const progressPct = isEnrolled ? 100 : hasInterest ? 50 : 0;
+                const enrolledSlug = a.member.enrolledProgram ?? null;
+                const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+                const completed = (a.member.coursesCompleted as string[] | null) ?? [];
+                const completedSet = new Set(completed);
+                const totalCourses = program?.courses.length ?? 0;
+                const completedCount =
+                  program && totalCourses > 0
+                    ? program.courses.filter((c) => completedSet.has(c.slug)).length
+                    : 0;
+                const trainingProgressPct =
+                  program && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
                 const rosterBadge = counselorStudentStatusBadge({
                   enrolledProgram: a.member.enrolledProgram,
                   assessmentScorePct: a.member.assessmentScorePct,
                 });
                 const statusLabel = rosterBadge.label;
-                const statusStyle = rosterBadge.style;
+                const badgeVariant = counselorStudentStatusBadgeVariant({
+                  enrolledProgram: a.member.enrolledProgram,
+                  assessmentScorePct: a.member.assessmentScorePct,
+                });
                 return (
-                  <Link key={a.id} href={`/counselor/students/${a.memberId}`}
-                    className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ borderRadius:"0.75rem", padding:"1rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                  <Link
+                    key={a.id}
+                    href={`/counselor/students/${a.memberId}`}
+                    className="portal-kpi-card active:scale-[0.98] wa-transition-all"
+                    style={{
+                      borderRadius: '0.75rem',
+                      padding: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      textDecoration: 'none',
+                    }}
+                  >
                     <div className="bg-surface-container-high" style={{ width:"3rem", height:"3rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                       <span className="material-symbols-outlined text-on-surface-variant">person</span>
                     </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-base wa-truncate">{a.member.fullName}</h4>
-                      <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
-                      <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-                        <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
-                          <div style={{height:"100%", borderRadius:"9999px", width: `${progressPct}%`, background: 'var(--color-accent)'}} />
+                      <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
+                      {trainingProgressPct === null ? (
+                        <p className="wa-text-[11px] wa-font-semibold text-on-surface-variant" style={{ margin: 0 }}>
+                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                        </p>
+                      ) : (
+                        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                          <div className="bg-surface-container" style={{ flex:1, height:"0.25rem", borderRadius:"9999px", overflow:"hidden" }}>
+                            <div style={{height:"100%", borderRadius:"9999px", width: `${trainingProgressPct}%`, background: 'var(--color-accent)'}} />
+                          </div>
+                          <span className="wa-text-[11px] wa-font-bold text-on-surface-variant">{trainingProgressPct}%</span>
                         </div>
-                        <span className="wa-text-[10px] wa-font-bold text-on-surface-variant">{progressPct}%</span>
-                      </div>
+                      )}
                     </div>
                     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"0.5rem" }}>
-                      <span className="wa-text-[9px] wa-font-bold wa-uppercase wa-tracking-wider" style={Object.assign({ paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.125rem", paddingBottom:"0.125rem", borderRadius:"0.25rem" }, statusStyle)}>{statusLabel}</span>
+                      <StatusBadge label={statusLabel} variant={badgeVariant} />
                       <span className="material-symbols-outlined text-surface-container-highest">chevron_right</span>
                     </div>
                   </Link>
@@ -191,46 +224,24 @@ export default async function CounselorPortalPage() {
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">
       {/* ── Welcome Header ── */}
-      <header style={{ marginBottom: '2.5rem' }}>
-        <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-          Welcome back, {firstName}.
-        </h1>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.6 }}>
-          Your academic oversight panel is synchronized
-        </p>
-      </header>
+      <PageHeader
+        title={`Welcome back, ${firstName}.`}
+        subtitle="See your assigned students, track their progress, and respond to messages."
+      />
 
-      <section style={{ marginBottom: '2.5rem' }}>
+      <section style={{ marginBottom: '2rem' }}>
         <CounselorPortalVoiceBlock />
       </section>
 
       {/* ── Stat Cards ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+      <section className="portal-metric-strip" style={{ marginBottom: '2rem' }}>
         {statCards.map((card) => (
-          <div
-            key={card.label}
-            className="stitch-card"
-            style={{
-              padding: '1.5rem',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '1rem',
-              transition: 'transform 0.15s, box-shadow 0.15s',
-              cursor: 'default',
-            }}
-          >
-            <div style={{
-              width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
-              background: card.bg,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: card.iconColor }}>{card.icon}</span>
+          <div key={card.label} className="portal-metric-card">
+            <div className="portal-metric-card__icon-wrap" style={{ background: card.bg }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: card.iconColor, fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
             </div>
-            <div>
-              <p style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', lineHeight: 1 }}>{card.value}</p>
-              <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</p>
-            </div>
+            <p className="portal-metric-card__value" style={{ color: card.value > 0 && card.label === 'Awaiting Reply' ? 'var(--color-accent)' : undefined }}>{card.value}</p>
+            <p className="portal-metric-card__label">{card.label}</p>
           </div>
         ))}
       </section>
@@ -243,66 +254,25 @@ export default async function CounselorPortalPage() {
 
           {/* Your Students */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <h3 className="portal-section-heading" style={{ margin: 0 }}>
                 Your Students
               </h3>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>filter_list</span>
-                </button>
-                <button style={{ padding: '0.5rem', background: 'var(--surface-container)', borderRadius: '0.5rem', border: 'none', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>sort</span>
-                </button>
-              </div>
+              <p className="portal-page-subtitle" style={{ margin: '0.35rem 0 0', fontSize: '0.85rem' }}>
+                Sorted by most recently assigned.
+              </p>
             </div>
 
             {assignments.length === 0 ? (
-              <div className="stitch-card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
-                <div style={{
-                  width: '4rem', height: '4rem', borderRadius: '50%',
-                  background: 'var(--surface-container-highest)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 1.25rem',
-                }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)' }}>person_search</span>
-                </div>
-                <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.5rem', fontSize: '1rem' }}>
-                  No students assigned yet
-                </p>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', marginBottom: '1.5rem', maxWidth: '24rem', margin: '0 auto 1.5rem' }}>
-                  Students will appear here once assigned by an administrator.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <a
-                    href="mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal"
-                    style={{
-                      padding: '0.625rem 1.25rem',
-                      background: 'var(--color-accent)',
-                      color: '#fff',
-                      fontWeight: 600,
-                      borderRadius: '0.5rem',
-                      fontSize: '0.875rem',
-                      textDecoration: 'none',
-                    }}
-                  >
-                    Contact admin for assignments
-                  </a>
-                  <Link href="/counselor/resources" style={{
-                    padding: '0.625rem 1.25rem',
-                    background: 'var(--surface-container-high)',
-                    color: 'var(--color-accent)',
-                    fontWeight: 600,
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    textDecoration: 'none',
-                  }}>
-                    Counselor resources
-                  </Link>
-                </div>
-              </div>
+              <PortalEmptyState
+                title="No students assigned yet"
+                description="Students will appear here once assigned by an administrator."
+                icon={<span className="material-symbols-outlined">person_search</span>}
+                primaryAction={{ label: 'Contact admin for assignments', href: 'mailto:info@workforceap.org?subject=Student%20assignments%20for%20counselor%20portal' }}
+                secondaryAction={{ label: 'Counselor resources', href: '/counselor/resources' }}
+              />
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {assignments.map((assignment) => {
                   const isEnrolled = !!assignment.member.enrolledProgram;
                   const initials = (assignment.member.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -312,41 +282,32 @@ export default async function CounselorPortalPage() {
                       href={`/counselor/students/${assignment.member.id}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <div className="stitch-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem', transition: 'background-color 0.15s' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div className="portal-activity-item" style={{ justifyContent: 'space-between', transition: 'background 0.15s' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
                           <div style={{
-                            width: '3rem', height: '3rem', borderRadius: '0.5rem',
-                            background: 'var(--surface-container-highest)',
+                            width: '2.75rem', height: '2.75rem', borderRadius: '0.75rem',
+                            background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)',
+                            fontSize: '0.875rem', fontWeight: 700, color: '#fff', flexShrink: 0,
                           }}>
                             {initials}
                           </div>
-                          <div>
-                            <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>
+                          <div style={{ minWidth: 0 }}>
+                            <h4 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
                               {assignment.member.fullName}
                             </h4>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500 }}>
-                              {assignment.member.programInterest || 'No program specified'} &middot; {assignment.member.email}
+                            <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {assignment.member.programInterest || 'No program'} · {assignment.member.email}
                             </p>
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.75rem',
-                            background: isEnrolled ? 'rgba(128,217,159,0.1)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                            color: isEnrolled ? '#80d99f' : 'var(--color-accent)',
-                            fontSize: '0.625rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            borderRadius: '9999px',
-                            border: `1px solid ${isEnrolled ? 'rgba(128,217,159,0.2)' : 'rgba(173,44,77,0.2)'}`,
-                          }}>
-                            {isEnrolled ? 'Enrolled' : 'Not enrolled'}
-                          </span>
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>more_vert</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flexShrink: 0 }}>
+                          <StatusBadge
+                            label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
+                            variant={isEnrolled ? 'success' : 'accent'}
+                          />
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.35, fontSize: '1rem' }}>chevron_right</span>
                         </div>
                       </div>
                     </Link>
@@ -356,28 +317,28 @@ export default async function CounselorPortalPage() {
             )}
           </section>
 
-          {/* System Diagnostics */}
+          {/* System Status */}
           <section>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '1.25rem', color: 'var(--color-on-surface)' }}>
-              System Diagnostics
+            <h3 className="portal-section-heading">
+              System Status
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="stitch-card" style={{ padding: '1.25rem' }}>
+              <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Curriculum Sync Status</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Data Sync</p>
                     <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{affiliation}</p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#80d99f', background: 'rgba(128,217,159,0.1)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>Healthy</span>
+                  <StatusBadge label="Healthy" variant="success" />
                 </div>
               </div>
-              <div className="stitch-card" style={{ padding: '1.25rem' }}>
+              <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>AI Teaching Assistant</p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>GPT Integration</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>AI Assistant</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Available</p>
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#80d99f', background: 'rgba(128,217,159,0.1)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>Operational</span>
+                  <StatusBadge label="Online" variant="success" />
                 </div>
               </div>
             </div>
@@ -388,8 +349,8 @@ export default async function CounselorPortalPage() {
         <aside style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
           {/* Quick Insights */}
-          <section className="stitch-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Quick Insights</h3>
+          <section className="portal-card portal-card--flat portal-card--padded">
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Insights</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Active students</span>
@@ -404,50 +365,39 @@ export default async function CounselorPortalPage() {
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
               </div>
               <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
-                <Link href="/counselor/messages" style={{
-                  display: 'block', width: '100%',
-                  padding: '0.625rem', textAlign: 'center',
-                  background: 'var(--color-accent)', color: '#fff',
-                  borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700,
-                  textDecoration: 'none',
-                }}>
+                <Link href="/counselor/messages" className="btn btn-primary btn-full-width" style={{ fontSize: '0.75rem' }}>
                   Open Messages
                 </Link>
               </div>
             </div>
           </section>
 
-          {/* Upcoming Events */}
+          {/* Quick Links */}
           <section>
-            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Upcoming Events</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
-                { day: '02', month: 'Apr', title: 'Cohort Check-in', desc: 'Weekly sync with all active students' },
-                { day: '08', month: 'Apr', title: 'Module Reviews Due', desc: 'Assess enrolled module progress' },
-                { day: '15', month: 'Apr', title: 'Partner Meeting', desc: `${affiliation} quarterly review` },
-              ].map((ev) => (
-                <div key={ev.title} className="stitch-card" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{
-                    width: '3rem', minWidth: '3rem', textAlign: 'center',
-                    background: 'var(--surface-container-highest)', borderRadius: '0.5rem', padding: '0.5rem 0',
-                  }}>
-                    <p style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-accent)', lineHeight: 1 }}>{ev.day}</p>
-                    <p style={{ fontSize: '0.5rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)' }}>{ev.month}</p>
+                { href: '/counselor/students', icon: 'groups', title: 'My Students', desc: 'View roster and student details', accent: 'accent' },
+                { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to student threads', accent: 'blue' },
+                { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links', accent: 'gold' },
+              ].map((link) => (
+                <Link key={link.href} href={link.href} className="portal-quick-action-item" style={{ textDecoration: 'none' }}>
+                  <div className={`portal-quick-action-item__icon portal-metric-card__icon-wrap--${link.accent}`} style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{link.icon}</span>
                   </div>
-                  <div>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{ev.title}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{ev.desc}</p>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="portal-quick-action-item__label">{link.title}</p>
+                    <p className="portal-quick-action-item__desc">{link.desc}</p>
                   </div>
-                </div>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+                </Link>
               ))}
             </div>
           </section>
 
           {/* Counselor Actions */}
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>Counselor Actions</h3>
-            </div>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Counselor Actions</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {needsAttentionCount > 0 && (
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>

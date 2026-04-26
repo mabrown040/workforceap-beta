@@ -169,7 +169,7 @@ export default function MembersTable({ members }: MembersTableProps) {
                 data-clickable
                 onClick={() => window.location.assign(`/admin/members/${m.id}`)}
               >
-                <td>
+                <td data-label="Name">
                   <Link
                     href={`/admin/members/${m.id}`}
                     onClick={(e) => e.stopPropagation()}
@@ -188,12 +188,12 @@ export default function MembersTable({ members }: MembersTableProps) {
                     <span>Last active {lastActive}</span>
                   </div>
                 </td>
-                <td>{m.email}</td>
-                <td className="members-col-md">{phoneDisplay}</td>
-                <td>{m.programTitle ?? '—'}</td>
-                <td>{m.partnerName ?? '—'}</td>
-                <td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td>
-                <td>
+                <td data-label="Email">{m.email}</td>
+                <td data-label="Phone" className="members-col-md">{phoneDisplay}</td>
+                <td data-label="Program">{m.programTitle ?? '—'}</td>
+                <td data-label="Partner">{m.partnerName ?? '—'}</td>
+                <td data-label="Fit">{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td>
+                <td data-label="Health">
                   {m.healthStatus ? (
                     <span style={{
                       fontSize: '0.8rem',
@@ -204,8 +204,8 @@ export default function MembersTable({ members }: MembersTableProps) {
                     </span>
                   ) : '—'}
                 </td>
-                <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
-                <td>
+                <td data-label="Enrolled">{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
+                <td data-label="Score %">
                   <span className={
                     m.assessmentScorePct != null
                       ? m.assessmentScorePct >= 70
@@ -218,8 +218,8 @@ export default function MembersTable({ members }: MembersTableProps) {
                     {m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}
                   </span>
                 </td>
-                <td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
-                <td className="members-col-md">{lastActive}</td>
+                <td data-label="Training">{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td>
+                <td data-label="Last Active" className="members-col-md">{lastActive}</td>
               </tr>
               );
             })}

@@ -59,7 +59,7 @@ export default function MobileProfileSkillsResume({
       {hasResume ? (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '24px' }}>description</span>
+            <span className="material-symbols-outlined" aria-hidden="true" style={{ color: '#8c0f37', fontSize: '24px' }}>description</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p className="wa-text-sm wa-font-semibold wa-truncate" style={{ color: '#1c1b1b' }}>
                 {fileName}
@@ -114,7 +114,7 @@ export default function MobileProfileSkillsResume({
         <label
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1.5rem 0', borderRadius: '0.75rem', border: '2px dashed #debfc2', background: '#f6f3f2', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1 }}
         >
-          <span className="material-symbols-outlined" style={{ color: '#ad2c4d', fontSize: '1.875rem' }}>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ color: '#ad2c4d', fontSize: '1.875rem' }}>
             {uploading ? 'hourglass_top' : 'upload_file'}
           </span>
           <p className="wa-text-sm wa-font-semibold" style={{ color: '#1c1b1b' }}>

@@ -6,14 +6,21 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { employerVoiceSurface } from '@/lib/portal/voiceAgentSurfaces';
+import { employerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import StatusBadge from '@/components/portal/StatusBadge';
+import PortalCard from '@/components/portal/ui/PortalCard';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -177,15 +184,58 @@ export default async function EmployerDashboardPage() {
     >
     <PortalPageFrame>
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-block wa-md:wa-hidden portal-mobile-content">
         {/* Hero */}
-        <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"1rem" }}>
-          <p className="wa-text-[10px] wa-uppercase wa-tracking-[0.15em] wa-font-semibold wa-text-[#8c0f37]" style={{ marginBottom:"0.25rem" }}>Overview</p>
-          <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            Elite Talent<br/>at your fingertips.
+        <div style={{ padding: '1.5rem 1.25rem 0.75rem' }}>
+          <p style={{ fontSize: '0.6875rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--color-accent)', marginBottom: '0.35rem' }}>
+            Employer Portal
+          </p>
+          <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--color-on-surface)', lineHeight: 1.15, margin: 0 }}>
+            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} in pipeline` : 'Your talent pipeline'}
           </h2>
         </div>
-        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginBottom: '1rem' }}>
+
+        {/* Metric strip */}
+        <div className="portal-card-scroll-row" style={{ padding: '0 1.25rem 0.5rem' }}>
+          {[
+            { label: 'Open Roles', value: activeJobs, icon: 'work', accent: 'accent' as const },
+            { label: 'Candidates', value: totalApplications, icon: 'groups', accent: 'neutral' as const },
+            { label: 'In Review', value: inReview, icon: 'pending', accent: 'neutral' as const },
+            { label: 'Hired', value: hiresTotal, icon: 'person_check', accent: 'green' as const },
+          ].map((s) => (
+            <div key={s.label} className="portal-metric-card" style={{ minWidth: '120px', flexShrink: 0 }}>
+              <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${s.accent}`}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{s.icon}</span>
+              </div>
+              <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{s.value}</p>
+              <p className="portal-metric-card__label">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Pipeline funnel card */}
+        <div style={{ margin: '0.75rem 1.25rem 0', padding: '1rem', borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.04)' }}>
+          <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>Pipeline Funnel</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {[
+              { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
+              { label: 'Interview', value: inReview },
+              { label: 'Offer', value: offerStageCount },
+              { label: 'Hired', value: filledPositions },
+            ].map((s, i, arr) => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>{s.label}</p>
+                  <p style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.03em', margin: 0 }}>{s.value}</p>
+                </div>
+                {i < arr.length - 1 && (
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', opacity: 0.3 }}>chevron_right</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginTop: '1rem' }}>
           <VoiceAgentSurface {...employerVoiceSurface}>
             <PortalVoiceSession
               sessionEndpoint="/api/employer/voice-session"
@@ -198,88 +248,92 @@ export default async function EmployerDashboardPage() {
             />
           </VoiceAgentSurface>
         </div>
-        {/* Stats row - horizontal scroll */}
-        <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
-          {[
-            { label: 'Open Roles', value: activeJobs, color: 'var(--color-accent)' },
-            { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
-            { label: 'In Review', value: inReview, color: 'var(--secondary)' },
-          ].map((s) => (
-            <div key={s.label} className="wa-bg-white" style={{ minWidth:"130px", flex:1, padding:"1rem", borderRadius:"0.75rem", boxShadow:"0 1px 2px rgba(0,0,0,0.05)" }}>
-              <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider text-on-surface-variant/60" style={{ marginBottom:"0.25rem" }}>{s.label}</p>
-              <p className="wa-text-2xl wa-font-bold" style={{ color: s.color }}>{s.value}</p>
-            </div>
-          ))}
-        </div>
-        {/* Pipeline summary strip */}
-        <div className="bg-surface-container-low" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
-          {[
-            { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
-            { label: 'Interview', value: inReview },
-            { label: 'Offer', value: offerStageCount },
-            { label: 'Hired', value: filledPositions },
-          ].map((s, i, arr) => (
-            <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-              <div style={{ flex:1, textAlign:"center" }}>
-                <p className="wa-text-[10px] wa-font-bold text-on-surface-variant/50 wa-uppercase wa-tracking-tighter">{s.label}</p>
-                <p className="wa-text-sm wa-font-bold text-on-surface">{s.value}</p>
-              </div>
-              {i < arr.length - 1 && <div className="bg-outline-variant/30" style={{ width: '1px', height:"1.25rem" }} />}
-            </div>
-          ))}
-        </div>
         {/* Quick actions */}
-        <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
-          <Link href="/employer/jobs/new"
-            className="wa-text-white active:scale-[0.98] wa-transition-all" style={{gridColumn:"span 2", padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", justifyContent:"space-between", textDecoration:"none", background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent))'}}>
-            <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-              <span className="material-symbols-outlined">add_circle</span>
-              <span className="wa-font-bold wa-tracking-tight">Post a Role</span>
-            </div>
-            <span className="material-symbols-outlined" style={{ opacity:0.6 }}>arrow_forward</span>
-          </Link>
-          <Link href="/employer/applications"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
-            <span className="material-symbols-outlined wa-text-[#7b5800]">grading</span>
-            <span className="wa-text-sm wa-font-bold wa-leading-tight">Review Apps</span>
-          </Link>
-          <Link href="/employer/messages"
-            className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none" }}>
-            <span className="material-symbols-outlined wa-text-[#8c0f37]">forum</span>
-            <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
-          </Link>
+        <div style={{ margin: '1rem 1.25rem 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          {totalApplications > 0 ? (
+            <Link href="/employer/applications"
+              style={{ gridColumn: 'span 2', padding: '1rem 1.25rem', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 16px rgba(173,44,77,0.3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span className="material-symbols-outlined" style={{ color: '#fff', fontVariationSettings: "'FILL' 1" }}>grading</span>
+                <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9375rem', letterSpacing: '-0.01em' }}>
+                  Review {totalApplications} Candidate{totalApplications !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)' }}>arrow_forward</span>
+            </Link>
+          ) : (
+            <Link href="/employer/jobs/new"
+              style={{ gridColumn: 'span 2', padding: '1rem 1.25rem', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 16px rgba(173,44,77,0.3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span className="material-symbols-outlined" style={{ color: '#fff', fontVariationSettings: "'FILL' 1" }}>add_circle</span>
+                <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9375rem', letterSpacing: '-0.01em' }}>Post Your First Role</span>
+              </div>
+              <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)' }}>arrow_forward</span>
+            </Link>
+          )}
+          {([
+            { href: '/employer/jobs/new', icon: 'add_circle', label: 'Post a Role', iconColor: 'var(--color-accent)' },
+            { href: '/employer/messages', icon: 'forum', label: 'Messages', iconColor: 'var(--color-gold)' },
+            { href: '/employer/jobs', icon: 'work', label: 'My Jobs', iconColor: 'var(--color-blue, #2b7bb9)' },
+            { href: '/employer/pipeline', icon: 'account_tree', label: 'Pipeline', iconColor: 'var(--color-green, #4a9b4f)' },
+          ] as const).map((a) => (
+            <Link key={a.href} href={a.href} className="portal-quick-grid-item">
+              <div className="portal-quick-grid-item__icon" style={{ background: 'var(--surface-container-high)' }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem', color: a.iconColor, fontVariationSettings: "'FILL' 1" }}>{a.icon}</span>
+              </div>
+              <span className="portal-quick-grid-item__label">{a.label}</span>
+            </Link>
+          ))}
         </div>
         {/* Recent applicants */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"1rem" }}>
             <h3 className="wa-text-xl wa-font-bold wa-tracking-tight text-on-surface">Recent Applicants</h3>
-            <Link href="/employer/applications" className="wa-text-xs wa-font-bold wa-text-[#8c0f37] wa-uppercase wa-tracking-widest" style={{ textDecoration:"none" }}>View All</Link>
+            <Link
+              href="/employer/applications"
+              className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest"
+              style={{ textDecoration:"none", color: 'var(--color-accent)' }}
+            >
+              View All
+            </Link>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
-              <div className="wa-bg-white" style={{ borderRadius:"0.75rem", padding:"1.25rem", textAlign:"center" }}>
-                <p className="wa-text-sm text-on-surface-variant">No applications yet. Post a role to get started.</p>
-              </div>
+              <PortalEmptyState
+                title="No applications yet"
+                description="Post a role to start receiving candidates from the WorkforceAP talent pool."
+                icon={<span className="material-symbols-outlined">inbox</span>}
+                primaryAction={{ label: 'Post a job', href: '/employer/jobs/new' }}
+              />
             ) : (
               recentApplications.slice(0, 5).map((app) => (
                 <Link key={app.id} href={`/employer/jobs/${app.jobId}`}
-                  className="wa-bg-white active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", alignItems:"center", gap:"0.75rem", textDecoration:"none" }}>
+                  className="active:scale-[0.98] wa-transition-all"
+                  style={{ textDecoration:"none" }}
+                >
+                  <PortalCard>
                   <div className="bg-surface-container-high" style={{ width:"2.5rem", height:"2.5rem", borderRadius:"9999px", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                     <span className="material-symbols-outlined wa-text-[18px] text-on-surface-variant">person</span>
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-sm wa-truncate">{app.student.fullName}</h4>
-                      <span className="wa-text-[10px] text-on-surface-variant/60 wa-font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
+                      <span className="wa-text-[11px] text-on-surface-variant/60 wa-font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
                         {new Date(app.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="wa-text-xs wa-text-[#7b5800] wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate" style={{ marginBottom:"0.25rem" }}>{app.job.title}</p>
-                    <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-tighter" style={{paddingLeft:"0.5rem", paddingRight:"0.5rem", paddingTop:"0.5", paddingBottom:"0.5", borderRadius:"9999px", background: app.status === 'pending' ? '#fff1f2' : '#fef3c7',
-                        color: app.status === 'pending' ? 'var(--color-accent)' : 'var(--color-gold)',}}>
-                      {app.status}
-                    </span>
+                    <p
+                      className="wa-text-xs wa-font-semibold wa-uppercase wa-tracking-wider wa-truncate"
+                      style={{ marginBottom:"0.25rem", color: 'var(--color-gold)' }}
+                    >
+                      {app.job.title}
+                    </p>
+                    <StatusBadge
+                      label={employerJobPostingApplicationStatusLabel(app.status)}
+                      variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                    />
                   </div>
+                  </PortalCard>
                 </Link>
               ))
             )}
@@ -290,33 +344,16 @@ export default async function EmployerDashboardPage() {
       {/* ── Desktop View ── */}
       <div className="wa-hidden wa-md:wa-block">
       {/* ── Header ── */}
-      <header style={{ marginBottom: '2.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
-        <div>
-          <h1 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
-            Talent Intelligence
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-            Strategic oversight of your cross-functional talent pipeline and credentialed candidate pools.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link href="/employer/jobs/import" style={{
-            padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)',
-            color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem',
-            fontWeight: 600, textDecoration: 'none',
-          }}>
-            Import Jobs
-          </Link>
-          <Link href="/employer/jobs/new" data-tour="tour-post-job" style={{
-            padding: '0.625rem 1.5rem',
-            background: 'linear-gradient(135deg, var(--color-accent) 0%, #670024 100%)',
-            color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem',
-            fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-          }}>
-            Post a Job
-          </Link>
-        </div>
-      </header>
+      <PageHeader
+        title="Employer overview"
+        subtitle="Manage job postings, review applicants, and track your hiring pipeline."
+        action={
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <Link href="/employer/jobs/import" className="btn btn-outline">Import Jobs</Link>
+            <Link href="/employer/jobs/new" data-tour="tour-post-job" className="btn btn-primary">Post a Job</Link>
+          </div>
+        }
+      />
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...employerVoiceSurface}>
@@ -332,193 +369,171 @@ export default async function EmployerDashboardPage() {
         </VoiceAgentSurface>
       </section>
 
-      {/* ── KPI Metric Cards ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        {kpiCards.map((card) => (
-          <div key={card.label} className="metric-card" style={card.borderAccent ? { borderLeft: '4px solid var(--color-accent)' } : {}}>
-            <p className="metric-label" style={{ marginBottom: '0.5rem' }}>{card.label}</p>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span className="metric-value">{card.value}</span>
-              {card.trend && <span style={{ fontSize: '0.75rem', fontWeight: 500, color: card.trendColor }}>{card.trend}</span>}
+      {/* ── Empty State (shown first for cold-start clarity) ── */}
+      {jobs.length === 0 && (
+        <section className="portal-section--lg">
+          <PortalEmptyState
+            title="Welcome — start with your first posting"
+            description="You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL."
+            icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)' }}>work</span>}
+            primaryAction={{ label: 'Post your first job', href: '/employer/jobs/new' }}
+            secondaryAction={{ label: 'Import jobs', href: '/employer/jobs/import' }}
+          />
+        </section>
+      )}
+
+      {/* ── KPI Metric Strip ── */}
+      <section className="portal-metric-strip" style={{ marginBottom: '2rem' }}>
+        {[
+          { label: 'Total Candidates', value: totalApplications, hint: applicationsLast30d > 0 ? `${applicationsLast30d} last 30d` : 'No recent', icon: 'groups', accent: 'accent' as const },
+          { label: 'Active Roles', value: activeJobs, hint: inReview > 0 ? `${inReview} awaiting go-live` : 'All live or closed', icon: 'work', accent: 'blue' as const },
+          { label: 'Verified Hires', value: hiresTotal, hint: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : 'No open offers', icon: 'person_check', accent: 'green' as const },
+          { label: 'Avg. Time to Hire', value: avgMatchToHireDays === null ? '—' : `${avgMatchToHireDays}d`, hint: avgMatchToHireDays !== null ? 'Match → hire' : 'Add hires to see', icon: 'timer', accent: 'gold' as const },
+        ].map((card) => (
+          <div key={card.label} className="portal-metric-card">
+            <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${card.accent}`}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
             </div>
+            <p className="portal-metric-card__value">{card.value}</p>
+            <p className="portal-metric-card__label">{card.label}</p>
+            <p className="portal-metric-card__hint">{card.hint}</p>
           </div>
         ))}
       </section>
 
-      {/* ── Empty State ── */}
-      {jobs.length === 0 && (
-        <section className="stitch-card" style={{ padding: '2rem', textAlign: 'center', marginBottom: '2rem' }}>
-          <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>Welcome -- start with your first posting</h3>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '36rem', margin: '0 auto 1rem' }}>
-            You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-            <Link href="/employer/jobs/new" style={{ padding: '0.5rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
-              Post your first job
-            </Link>
-            <Link href="/employer/jobs/import" style={{ padding: '0.5rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}>
-              Import jobs
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* ── Talent Pipeline + Verification Tools ── */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      {/* ── Talent Pipeline + Sidebar ── */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'minmax(0,2fr) minmax(0,1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
         {/* Pipeline */}
-        <div className="stitch-card" style={{ padding: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-on-surface)' }}>Talent Pipeline</h2>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
-            </div>
+        <div className="portal-card portal-card--flat portal-card--padded-lg">
+          <div className="portal-section-header" style={{ marginBottom: '1.5rem' }}>
+            <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Talent Pipeline</h2>
+            <Link href="/employer/jobs" className="portal-section-action">
+              All postings
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
+            </Link>
           </div>
 
-          {/* Placement snapshot stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+          {/* Placement snapshot — icon mini-cards */}
+          <div className="portal-grid-metrics" style={{ marginBottom: '1.75rem' }}>
             {placementCards.map((card) => (
-              <div key={card.label} style={{ background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', display: 'block', marginBottom: '0.5rem' }}>{card.icon}</span>
-                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.02em' }}>{card.value}</p>
-                <p style={{ fontSize: '0.625rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{card.label}</p>
+              <div key={card.label} className="portal-metric-card">
+                <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{card.icon}</span>
+                </div>
+                <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{card.value}</p>
+                <p className="portal-metric-card__label" style={{ fontSize: '0.6rem' }}>{card.label}</p>
               </div>
             ))}
           </div>
 
           {/* Action links */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {[
-              { label: 'Create a posting', desc: 'Add a role, set pay and location, then submit for review.', href: '/employer/jobs/new' },
-              { label: 'Manage postings', desc: 'Edit drafts, track what is live, and close roles once filled.', href: '/employer/jobs' },
-              { label: 'Review applicants', desc: 'See recent submissions, respond quickly, and keep placements moving.', href: '/employer/applications' },
+              { label: 'Create a posting', desc: 'Add a role, set pay and location, submit for review.', href: '/employer/jobs/new', icon: 'add_circle' },
+              { label: 'Manage postings', desc: 'Edit drafts, track what is live, close filled roles.', href: '/employer/jobs', icon: 'work' },
+              { label: 'Review applicants', desc: 'See recent submissions, respond, keep placements moving.', href: '/employer/applications', icon: 'grading' },
             ].map((item) => (
-              <Link key={item.label} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem',
-                  transition: 'background-color 0.15s', cursor: 'pointer',
-                }}>
-                  <div>
-                    <h4 style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', marginBottom: '0.125rem' }}>{item.label}</h4>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{item.desc}</p>
-                  </div>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.4 }}>chevron_right</span>
+              <Link key={item.label} href={item.href} className="portal-quick-action-item">
+                <div className="portal-quick-action-item__icon">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
                 </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="portal-quick-action-item__label">{item.label}</p>
+                  <p className="portal-quick-action-item__desc">{item.desc}</p>
+                </div>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
               </Link>
             ))}
           </div>
-
-          <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(88,65,68,0.1)', textAlign: 'center' }}>
-            <Link href="/employer/jobs" style={{ color: 'var(--color-accent)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-              View all job postings
-            </Link>
-          </div>
         </div>
 
-        {/* Verification + Featured */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="stitch-card">
-            <h3 style={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-              Pipeline Summary
+        {/* Pipeline summary sidebar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className="portal-card portal-card--flat portal-card--padded portal-card--gradient-accent">
+            <h3 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
+              Pipeline Status
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[
-                { icon: 'verified', label: 'Active Postings', value: activeJobs, status: 'Live', color: '#80d99f' },
-                { icon: 'history_edu', label: 'In Review', value: inReview, status: 'Pending', color: 'var(--color-on-surface-variant)' },
-                { icon: 'gavel', label: 'Filled/Closed', value: filledPositions, status: 'Complete', color: 'var(--color-on-surface-variant)' },
+                { icon: 'verified', label: 'Active Postings', value: activeJobs, iconColor: '#4ade80' },
+                { icon: 'history_edu', label: 'In Review', value: inReview, iconColor: 'var(--color-gold)' },
+                { icon: 'gavel', label: 'Filled / Closed', value: filledPositions, iconColor: 'var(--color-on-surface-variant)' },
               ].map((item) => (
-                <div key={item.label} style={{
-                  background: 'var(--surface-container-lowest)', padding: '1rem', borderRadius: '0.5rem',
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{item.label}</p>
-                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)' }}>{item.value} {item.status.toLowerCase()}</p>
+                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                  <div style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.625rem', background: 'var(--surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span className="material-symbols-outlined" style={{ color: item.iconColor, fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
                   </div>
-                  <span className="material-symbols-outlined" style={{ color: item.color, fontSize: '1.25rem' }}>
-                    {item.value > 0 ? 'check_circle' : 'pending'}
-                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>{item.label}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>{item.value} total</p>
+                  </div>
                 </div>
               ))}
             </div>
-            <Link href="/employer/jobs" style={{
-              display: 'block', width: '100%', marginTop: '1.5rem',
-              padding: '0.5rem', textAlign: 'center',
-              border: '1px solid var(--outline-variant)', borderRadius: '0.5rem',
-              fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface)',
-              textDecoration: 'none',
-            }}>
+            <Link href="/employer/jobs" className="btn btn-outline" style={{ display: 'block', width: '100%', marginTop: '1.5rem', textAlign: 'center', fontSize: '0.75rem' }}>
               Manage Postings
             </Link>
           </div>
 
-          <div style={{
-            background: 'var(--color-accent)', padding: '1.5rem', borderRadius: '0.75rem',
-            color: '#fff', position: 'relative', overflow: 'hidden',
-          }}>
+          <div className="portal-card portal-card--flat" style={{ background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', padding: '1.5rem', overflow: 'hidden', position: 'relative' }}>
+            <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '6rem', opacity: 0.08, color: '#fff' }}>school</span>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem' }}>Workforce Advancement</h3>
-              <p style={{ fontSize: '0.75rem', marginBottom: '1rem', opacity: 0.9 }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>Workforce Advancement</h3>
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', marginBottom: '1rem', lineHeight: 1.5 }}>
                 Access credentialed graduates from our training programs.
               </p>
-              <Link href="/employer/jobs/new" style={{
-                display: 'inline-block', padding: '0.5rem 1rem',
-                background: 'rgba(255,255,255,0.9)', color: 'var(--color-accent)',
-                borderRadius: '0.5rem', fontSize: '0.625rem', fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none',
-              }}>
+              <Link href="/employer/jobs/new" style={{ display: 'inline-block', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.9)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700, textDecoration: 'none' }}>
                 Post a Job
               </Link>
             </div>
-            <span className="material-symbols-outlined" style={{
-              position: 'absolute', bottom: '-1rem', right: '-1rem',
-              fontSize: '6rem', opacity: 0.1, color: '#fff',
-            }}>school</span>
           </div>
         </div>
       </section>
 
-      {/* ── Recent Activity ── */}
-      <section style={{ marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-          <div>
-            <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Recent activity</p>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Latest Applicants</h2>
-          </div>
-          <Link href="/employer/applications" style={{ color: 'var(--color-accent)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(173,44,77,0.2)', paddingBottom: '0.125rem' }}>
-            View all applications
+      {/* ── Recent Applicants ── */}
+      <section style={{ marginBottom: '2rem' }}>
+        <div className="portal-section-header">
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Latest Applicants</h2>
+          <Link href="/employer/applications" className="portal-section-action">
+            View all
+            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
           </Link>
         </div>
 
         {recentApplications.length === 0 ? (
-          <div className="stitch-card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>
+          <div className="portal-card portal-card--flat portal-card--padded-lg" style={{ textAlign: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }}>inbox</span>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
               No applications yet. Publish a job or import your current openings to start collecting candidates.
             </p>
+            <Link href="/employer/jobs/new" className="btn btn-primary" style={{ display: 'inline-flex' }}>Post your first job</Link>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {recentApplications.map((app) => (
-              <div key={app.id} className="stitch-card" style={{ padding: '1.5rem' }}>
-                <div style={{ marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{app.student.fullName}</h4>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 500, marginBottom: '0.75rem' }}>
-                    Applied to {app.job.title}
-                  </p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                    {app.appliedAt.toLocaleDateString()}
-                  </p>
+              <Link key={app.id} href={`/employer/jobs/${app.jobId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="portal-activity-item" style={{ justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}>
+                    <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.8125rem', flexShrink: 0 }}>
+                      {(app.student.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>{app.student.fullName}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 600, margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {app.job.title}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                    <StatusBadge
+                      label={employerJobPostingApplicationStatusLabel(app.status)}
+                      variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{app.appliedAt.toLocaleDateString()}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3 }}>chevron_right</span>
+                  </div>
                 </div>
-                <Link href={`/employer/jobs/${app.jobId}`} style={{
-                  display: 'block', width: '100%', padding: '0.625rem',
-                  textAlign: 'center', background: 'var(--surface-container-highest)',
-                  color: 'var(--color-on-surface)', fontSize: '0.875rem', fontWeight: 600,
-                  borderRadius: '0.5rem', textDecoration: 'none',
-                }}>
-                  View Details
-                </Link>
-              </div>
+              </Link>
             ))}
           </div>
         )}

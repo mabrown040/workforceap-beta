@@ -73,7 +73,6 @@ export default function SessionRunClient({
   // Per-tool state
   const [linkedinHlState, setLinkedinHlState] = useState<ToolState>(initialToolState);
   const [linkedinAboutState, setLinkedinAboutState] = useState<ToolState>(initialToolState);
-  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
   const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
   const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);

@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
+import {
+  startElevenLabsPortalSession,
+  type ElevenLabsPortalAgentKey,
+} from '@/lib/ai/elevenlabsAgents';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -11,21 +14,45 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * In-Office Session voice walk-through endpoint.
  *
  * Per user direction (2026-04-26): "we want these to be all voice tools
- * here." This mints an ElevenLabs ConvAI signed URL using the existing
- * resume_coach agent (multi-purpose: profile + resume + cover letter
- * scaffolding) with subject-member dynamic variables so the agent knows
- * who they're working with. Counselor + member sit together; the agent
- * walks them through resume + cover letter + interview prep in one
- * voice conversation.
+ * here." Per follow-up (2026-04-27): "each step is separate card. filling
+ * out as you go along. and all feeding to each other right." So this
+ * endpoint mints a ConvAI signed URL targeting the right agent for the
+ * card the counselor is on, with the *prior* card's outputs threaded in
+ * as dynamic variables so the agent picks up where the last one left off.
  *
- * After the session ends, the client captures the transcript and pre-fills
- * the SessionRunClient typing forms — counselor reviews, runs the existing
- * AI tool routes (resume-rewriter, cover-letter, interview-practice) with
- * voice-captured inputs.
+ * Card → agent map:
+ *   walkthrough → resume_coach   (full A→Z conversation, original behavior)
+ *   resume      → resume_coach   (focused on framing experience for target role)
+ *   cover       → resume_coach   (cover-letter framing — no dedicated agent yet)
+ *   interview   → interview      (mock interview / prep questions)
  */
+type CardKey = 'walkthrough' | 'resume' | 'cover' | 'interview';
+
+const CARD_TO_AGENT: Record<CardKey, ElevenLabsPortalAgentKey> = {
+  walkthrough: 'resume_coach',
+  resume: 'resume_coach',
+  cover: 'resume_coach',
+  interview: 'interview',
+};
+
+const CARD_PHASE: Record<CardKey, string> = {
+  walkthrough: 'profile-resume-cover-interview',
+  resume: 'resume-only',
+  cover: 'cover-letter',
+  interview: 'interview-prep',
+};
+
 const bodySchema = z.object({
   memberId: z.string().uuid(),
   sessionId: z.string().uuid(),
+  card: z.enum(['walkthrough', 'resume', 'cover', 'interview']).optional().default('walkthrough'),
+  // Prior-step outputs threaded forward so the next agent has full context.
+  resumeDraft: z.string().max(8000).optional(),
+  coverDraft: z.string().max(8000).optional(),
+  jobTarget: z.string().max(200).optional(),
+  jobDescription: z.string().max(8000).optional(),
+  companyName: z.string().max(200).optional(),
+  interviewLevel: z.enum(['entry', 'mid', 'senior']).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -40,7 +67,17 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    const { memberId, sessionId } = parsed.data;
+    const {
+      memberId,
+      sessionId,
+      card,
+      resumeDraft,
+      coverDraft,
+      jobTarget: jobTargetInput,
+      jobDescription,
+      companyName,
+      interviewLevel,
+    } = parsed.data;
 
     const onBehalf = await resolveActOnBehalf(user.id, memberId);
     if (!onBehalf.ok) {
@@ -55,21 +92,40 @@ export async function POST(req: NextRequest) {
 
     // Best-effort: pull existing resume to seed the agent's context. If
     // the member is a brand-new walk-in, this is empty and the agent
-    // walks them through profile-building from scratch.
+    // walks them through profile-building from scratch. Caller can also
+    // pass resumeDraft (e.g. transcript-pre-fill) which takes precedence.
     const existingResume = await getMemberResumePlainText(memberId, 4000, { preferOriginal: true });
+    const resumeContext = (resumeDraft && resumeDraft.trim().length > 50)
+      ? resumeDraft
+      : existingResume;
+    const targetRole = jobTargetInput?.trim()
+      || member.programInterest
+      || member.enrolledProgram
+      || '';
 
     const dynamicVariables: Record<string, string> = {
       member_first_name: member.fullName?.split(' ')[0] ?? 'the member',
       member_full_name: member.fullName ?? member.email,
-      target_role: member.programInterest ?? member.enrolledProgram ?? '',
+      target_role: targetRole,
       session_id: sessionId,
       actor_name: onBehalf.actorName ?? 'the counselor',
-      has_resume: existingResume ? 'true' : 'false',
-      resume_text: existingResume,
-      walkthrough_phase: 'profile-resume-cover-interview',
+      has_resume: resumeContext ? 'true' : 'false',
+      resume_text: resumeContext,
+      walkthrough_phase: CARD_PHASE[card],
+      card,
     };
 
-    const session = await startElevenLabsPortalSession('resume_coach', {
+    if (card === 'cover') {
+      dynamicVariables.company_name = companyName ?? '';
+      dynamicVariables.job_description = jobDescription ?? '';
+      dynamicVariables.cover_draft = coverDraft ?? '';
+    }
+    if (card === 'interview') {
+      dynamicVariables.interview_level = interviewLevel ?? 'entry';
+      dynamicVariables.cover_draft = coverDraft ?? '';
+    }
+
+    const session = await startElevenLabsPortalSession(CARD_TO_AGENT[card], {
       dynamicVariables,
     });
 

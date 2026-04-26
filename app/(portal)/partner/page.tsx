@@ -229,8 +229,8 @@ export default async function PartnerDashboardPage() {
                 sessionEndpoint="/api/partner/voice-session"
                 title="Partner voice assistant"
                 description="Ask about referrals, member progress, or using the partner portal."
-                accent="#ea580c"
-                accentDark="#c2410c"
+                accent="var(--color-amber)"
+                accentDark="var(--color-amber)"
                 speakingLabel="Assistant is speaking…"
                 listeningLabel="Listening — ask your question"
               />
@@ -374,8 +374,8 @@ export default async function PartnerDashboardPage() {
             sessionEndpoint="/api/partner/voice-session"
             title="Partner voice assistant"
             description="Ask about referrals, member progress, or using the partner portal."
-            accent="#ea580c"
-            accentDark="#c2410c"
+            accent="var(--color-amber)"
+            accentDark="var(--color-amber)"
             speakingLabel="Assistant is speaking…"
             listeningLabel="Listening — ask your question"
           />
@@ -556,7 +556,7 @@ export default async function PartnerDashboardPage() {
                       <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>{p.member.fullName}</span>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#80d99f' }}>{p.progress}%</span>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-green)' }}>{p.progress}%</span>
                         </div>
                       </Link>
                     ))}

@@ -163,9 +163,9 @@ export default async function ResumeRewriterPage() {
             Output Tags:
           </span>
           {[
-            { label: 'Quantifiable', color: '#2e7d32', icon: 'trending_up' },
-            { label: 'Action Verb', color: '#1565c0', icon: 'bolt' },
-            { label: 'Revenue Impact', color: '#e65100', icon: 'attach_money' },
+            { label: 'Quantifiable', color: 'var(--color-green)', icon: 'trending_up' },
+            { label: 'Action Verb', color: 'var(--color-blue)', icon: 'bolt' },
+            { label: 'Revenue Impact', color: 'var(--color-amber)', icon: 'attach_money' },
           ].map((tag) => (
             <span
               key={tag.label}

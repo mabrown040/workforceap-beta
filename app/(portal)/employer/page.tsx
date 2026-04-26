@@ -240,8 +240,8 @@ export default async function EmployerDashboardPage() {
               sessionEndpoint="/api/employer/voice-session"
               title="Employer voice assistant"
               description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
-              accent="#4f46e5"
-              accentDark="#4338ca"
+              accent="var(--color-blue)"
+              accentDark="var(--color-blue)"
               speakingLabel="Assistant is speaking…"
               listeningLabel="Listening — ask your question"
             />
@@ -356,8 +356,8 @@ export default async function EmployerDashboardPage() {
             sessionEndpoint="/api/employer/voice-session"
             title="Employer voice assistant"
             description="Ask about posting roles, reviewing applicants, or navigating this portal."
-            accent="#4f46e5"
-            accentDark="#4338ca"
+            accent="var(--color-blue)"
+            accentDark="var(--color-blue)"
             speakingLabel="Assistant is speaking…"
             listeningLabel="Listening — ask your question"
           />
@@ -447,7 +447,7 @@ export default async function EmployerDashboardPage() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {[
-                { icon: 'verified', label: 'Active Postings', value: activeJobs, iconColor: '#4ade80' },
+                { icon: 'verified', label: 'Active Postings', value: activeJobs, iconColor: 'var(--color-green)' },
                 { icon: 'history_edu', label: 'In Review', value: inReview, iconColor: 'var(--color-gold)' },
                 { icon: 'gavel', label: 'Filled / Closed', value: filledPositions, iconColor: 'var(--color-on-surface-variant)' },
               ].map((item) => (

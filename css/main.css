@@ -59,6 +59,9 @@
     --color-green: #4a9b4f;
     --color-gold: #FFBB00;
     --color-gold-light: #ffd54f;
+    --color-amber: #c2410c;
+    --color-amber-light: #fff7ed;
+    --color-teal: #0d9488;
     --color-purple: #8b4a9b;
 
     /* Surface Container Tonal Scale (dark mode values, light mode overrides below) */

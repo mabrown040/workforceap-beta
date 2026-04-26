@@ -114,7 +114,7 @@ export default async function CounselorStudentsPage() {
           {[
             { label: 'Active Members', value: activeCount, accent: 'var(--color-accent)' },
             { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
-            { label: 'Hot Queue', value: hotQueue.length, accent: '#b45309' },
+            { label: 'Hot Queue', value: hotQueue.length, accent: 'var(--color-amber)' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
@@ -152,22 +152,22 @@ export default async function CounselorStudentsPage() {
           <div style={{ padding: '1rem 1rem 0' }}>
             <div
               style={{
-                background: '#fff7ed',
-                border: '1px solid #fdba74',
+                background: 'var(--color-amber-light)',
+                border: '1px solid color-mix(in srgb, var(--color-amber) 40%, transparent)',
                 borderRadius: '1rem',
                 padding: '1rem',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9a3412' }}>
+                  <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
                     Hot member queue
                   </p>
-                  <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: '#7c2d12' }}>
+                  <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
                     Fresh completions that need counselor follow-up
                   </h2>
                 </div>
-                <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {hotQueue.map((action) => (
@@ -180,7 +180,7 @@ export default async function CounselorStudentsPage() {
                       style={{
                         background: 'rgba(255,255,255,0.9)',
                         borderRadius: '0.875rem',
-                        border: '1px solid rgba(194,65,12,0.15)',
+                        border: '1px solid color-mix(in srgb, var(--color-amber) 15%, transparent)',
                         padding: '0.875rem',
                       }}
                     >
@@ -188,11 +188,11 @@ export default async function CounselorStudentsPage() {
                         <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
                           {action.member.fullName ?? 'Member'}
                         </p>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9a3412', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)', whiteSpace: 'nowrap' }}>
                           {formatHotQueueTime(action.createdAt)}
                         </span>
                       </div>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.8rem', fontWeight: 700, color: '#7c2d12' }}>{action.title}</p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
                       <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
                     </div>
                   </Link>
@@ -357,20 +357,20 @@ export default async function CounselorStudentsPage() {
               className="portal-card portal-card--flat"
               style={{
                 padding: '1.25rem',
-                border: '1px solid #fdba74',
-                background: 'linear-gradient(180deg, #fff7ed 0%, #ffffff 100%)',
+                border: '1px solid color-mix(in srgb, var(--color-amber) 40%, transparent)',
+                background: 'linear-gradient(180deg, var(--color-amber-light) 0%, #ffffff 100%)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9a3412' }}>
+                  <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
                     Hot member queue
                   </p>
-                  <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: '#7c2d12' }}>
+                  <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
                     Members who just became actionable
                   </h2>
                 </div>
-                <span className="material-symbols-outlined" style={{ color: '#c2410c', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
               </div>
 
               <div style={{ display: 'grid', gap: '0.75rem' }}>
@@ -384,7 +384,7 @@ export default async function CounselorStudentsPage() {
                       gap: '1rem',
                       alignItems: 'center',
                       textDecoration: 'none',
-                      border: '1px solid rgba(194,65,12,0.15)',
+                      border: '1px solid color-mix(in srgb, var(--color-amber) 15%, transparent)',
                       borderRadius: '0.9rem',
                       padding: '0.9rem 1rem',
                       background: '#fff',
@@ -394,11 +394,11 @@ export default async function CounselorStudentsPage() {
                       <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
                         {action.member.fullName ?? 'Member'}
                       </p>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: '#7c2d12' }}>{action.title}</p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
                       <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: '#9a3412' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
                         {formatHotQueueTime(action.createdAt)}
                       </p>
                       <span className="btn btn-primary btn-sm">Open member</span>

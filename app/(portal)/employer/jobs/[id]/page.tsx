@@ -76,9 +76,9 @@ export default async function EmployerJobDetailPage({ params }: Props) {
 
   const readinessTone =
     editReadiness.level === 'solid'
-      ? { bg: 'rgba(74, 155, 79, 0.12)', color: '#2d7a32' }
+      ? { bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)' }
       : editReadiness.level === 'usable'
-        ? { bg: 'rgba(180, 129, 51, 0.14)', color: '#9a6400' }
+        ? { bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', color: 'var(--color-gold)' }
         : { bg: 'rgba(140, 15, 55, 0.1)', color: 'var(--color-accent)' };
 
   return (

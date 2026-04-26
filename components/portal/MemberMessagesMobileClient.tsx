@@ -291,7 +291,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
           </p>
           {thread.counselorUserId && (
             <p className="wa-text-[11px]" style={{ color: 'var(--color-on-surface-variant)' }}>
-              WorkforceAP Counselor
+              Replies within 2 business days
             </p>
           )}
         </div>

@@ -630,7 +630,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
         <div className="quiz-flow" style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
           <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Building your career match…</p>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
-            We&apos;re aligning your answers with real roles and WorkforceAP programs.
+            We&rsquo;re aligning your answers with real roles and WorkforceAP programs.
           </p>
         </div>
       </>

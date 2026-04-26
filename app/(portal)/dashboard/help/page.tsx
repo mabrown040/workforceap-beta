@@ -59,7 +59,7 @@ export default async function DashboardHelpPage() {
             Help & Support
           </h1>
           <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-            Questions or need access to a benefit? Here&apos;s how to get help.
+            Questions or need access to a benefit? Here&rsquo;s how to get help.
           </p>
         </header>
 
@@ -93,10 +93,10 @@ export default async function DashboardHelpPage() {
                   <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
                     info@workforceap.org
                   </a>{' '}
-                  with your name and the benefit you&apos;d like to request.
+                  with your name and the benefit you&rsquo;d like to request.
                 </p>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>
-                  We&apos;ll process your request and follow up within 2–3 business days.
+                  We&rsquo;ll process your request and follow up within 2–3 business days.
                 </p>
               </div>
             </div>
@@ -158,7 +158,7 @@ export default async function DashboardHelpPage() {
             Still need help?
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-            Message your counselor — they&apos;re your fastest path to answers.{' '}
+            Message your counselor — they&rsquo;re your fastest path to answers.{' '}
             <Link href="/dashboard/messages" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
               Send a message →
             </Link>

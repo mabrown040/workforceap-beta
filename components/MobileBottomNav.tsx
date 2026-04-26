@@ -86,10 +86,15 @@ interface MobileBottomNavProps {
 }
 
 export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: MobileBottomNavProps) {
+  // Member portal switched from bottom-tab to sticky-top horizontal-scroll nav
+  // (/plan-design-review Decision 3, 2026-04-25). The top nav is rendered by
+  // WorkspaceShell. Pages that still call <MobileBottomNav variant="portal"/>
+  // become no-ops so the change ships without touching 40+ page files.
+  if (variant === 'portal') return null;
+
   const pathname = usePathname() ?? '';
   const tabs =
-    variant === 'portal' ? getMemberBottomTabs()
-    : variant === 'employer' ? EMPLOYER_TABS
+    variant === 'employer' ? EMPLOYER_TABS
     : variant === 'counselor' ? COUNSELOR_TABS
     : variant === 'partner' ? PARTNER_TABS
     : variant === 'admin' ? ADMIN_TABS

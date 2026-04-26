@@ -285,7 +285,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
             value="true"
             disabled={status === 'sending'}
           />
-          <span>I&apos;d prefer to be contacted by text message</span>
+          <span>I&rsquo;d prefer to be contacted by text message</span>
         </label>
       </div>
       <div className="form-group">

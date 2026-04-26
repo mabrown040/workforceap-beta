@@ -16,7 +16,7 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
 
       {skills.length > 0 ? (
         <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Skills you&apos;ll learn</h2>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Skills you&rsquo;ll learn</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {skills.map((s) => (
               <span

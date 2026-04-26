@@ -31,8 +31,11 @@ export default async function EmployerDashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer');
 
+  const superAdmin = await isSuperAdmin(user.id);
+  const fallbackForUnlinked = superAdmin ? '/admin/employers' : '/employers';
+
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(fallbackForUnlinked);
 
   const employerRow = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -45,7 +48,7 @@ export default async function EmployerDashboardPage() {
       companyWebsite: true,
     },
   });
-  if (!employerRow) redirect('/employers');
+  if (!employerRow) redirect(fallbackForUnlinked);
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId },
@@ -128,7 +131,6 @@ export default async function EmployerDashboardPage() {
   const showEmployerOnboarding = employerRow.onboardingCompletedAt == null;
   const showEmployerTour =
     employerRow.onboardingCompletedAt != null && employerRow.tourCompletedAt == null;
-  const superAdmin = await isSuperAdmin(user.id);
 
   const kpiCards = [
     {

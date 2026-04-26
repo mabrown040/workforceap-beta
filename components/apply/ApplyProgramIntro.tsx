@@ -11,7 +11,7 @@ export default function ApplyProgramIntro({ programSlug }: { programSlug: string
   return (
     <section className="apply-program-intro" aria-labelledby="apply-program-intro-heading">
       <h2 id="apply-program-intro-heading" className="apply-program-intro__title">
-        You&apos;re applying for: {program.title}
+        You&rsquo;re applying for: {program.title}
       </h2>
       <p className="apply-program-intro__cert">
         Certifying partner: <strong>{program.partner}</strong>

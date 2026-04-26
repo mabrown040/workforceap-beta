@@ -36,7 +36,7 @@ export default function FAQPage() {
               How can we help you <span style={{ background: 'linear-gradient(to bottom right, var(--color-accent-light), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>bridge the gap?</span>
             </h1>
             <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7, fontWeight: 300, margin: 0 }}>
-              Answers that address your concerns, whether you&apos;re applying, supporting someone who is, or deciding if WorkforceAP is right for you.
+              Answers that address your concerns, whether you&rsquo;re applying, supporting someone who is, or deciding if WorkforceAP is right for you.
             </p>
           </div>
         </div>

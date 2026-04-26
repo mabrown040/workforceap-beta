@@ -30,7 +30,7 @@ export default class DashboardPageErrorBoundary extends Component<Props, State> 
     if (this.state.error) {
       return (
         <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '40rem', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>This section couldn&apos;t load</h1>
+          <h1 style={{ fontSize: '1.15rem', marginBottom: '0.75rem' }}>This section couldn&rsquo;t load</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
             A part of the dashboard failed in your browser. Your sidebar and other pages should still work. Try again, or
             pick another area from the menu.

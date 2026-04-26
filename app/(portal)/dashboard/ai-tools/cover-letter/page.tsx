@@ -42,7 +42,7 @@ export default async function CoverLetterPage() {
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Create a compelling, tailored cover letter in minutes. Our AI connects your experience
-              directly to the job requirements, highlighting why you&apos;re the right fit.
+              directly to the job requirements, highlighting why you&rsquo;re the right fit.
             </p>
           </div>
 

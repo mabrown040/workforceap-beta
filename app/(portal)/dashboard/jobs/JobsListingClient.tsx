@@ -196,7 +196,7 @@ function JobsNoResultsState({ isAuthenticated }: { isAuthenticated: boolean }) {
       <h3 className="jobs-empty-state__title">No jobs available right now</h3>
       <p className="jobs-empty-state__text">
         New job opportunities are added regularly as our employer partners post openings. While you wait,
-        explore our training programs and get job-ready — we&apos;ll help you find the right role when new positions become available.
+        explore our training programs and get job-ready — we&rsquo;ll help you find the right role when new positions become available.
       </p>
       <div className="jobs-empty-state__actions">
         <Link href="/programs" className="btn btn-primary">

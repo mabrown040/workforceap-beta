@@ -45,7 +45,7 @@ export default async function DashboardPage() {
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&apos;t load your dashboard</h2>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&rsquo;t load your dashboard</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
           Something went wrong while loading this page. This is usually temporary. Try again, or open another section from
           the menu.

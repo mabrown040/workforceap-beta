@@ -194,13 +194,13 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         </div>
         <h1 style={sPage.heroHeading}>Start Your Application</h1>
         <p style={sPage.heroDesc}>
-          This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&apos;re not sure yet — and a member advisor will follow up within 1–2 business days to walk you through your options.
+          This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&rsquo;re not sure yet — and a member advisor will follow up within 1–2 business days to walk you through your options.
           <strong> No prior experience required. No-cost for qualifying members, funded by grants and partnerships.</strong>
         </p>
         <div style={sPage.heroFallback}>
           <p style={sPage.heroFallbackTitle}>Need help getting started?</p>
           <p style={sPage.heroFallbackText}>
-            You can still reach us directly. Call a counselor or send a message, and we&apos;ll help you start the application manually.
+            You can still reach us directly. Call a counselor or send a message, and we&rsquo;ll help you start the application manually.
           </p>
           <div style={sPage.heroFallbackActions}>
             <Link href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
@@ -273,7 +273,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <div style={sPage.ssrFallback}>
               <h2 style={sPage.ssrFallbackHeading}>Start your application</h2>
               <p style={sPage.ssrFallbackText}>
-                If the form doesn&apos;t load, call{' '}
+                If the form doesn&rsquo;t load, call{' '}
                 <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
                 {' '}or email{' '}
                 <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>.

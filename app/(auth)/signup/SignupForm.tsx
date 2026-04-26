@@ -292,7 +292,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
           <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-green)', marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">mark_email_read</span>
           <h2 style={{ ...s.heading, marginBottom: 'var(--space-4)' }}>Check your email</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', lineHeight: 'var(--line-height-normal)' }}>
-            We&apos;ve sent you a verification link. Click it to activate your account, then you can log in.
+            We&rsquo;ve sent you a verification link. Click it to activate your account, then you can log in.
           </p>
           <Link
             href={loginHref}

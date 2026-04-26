@@ -71,7 +71,7 @@ export default async function GapAnalyzerPage() {
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
-              Upload your resume. We&apos;ll flag employment gaps and suggest framing language for cover letters
+              Upload your resume. We&rsquo;ll flag employment gaps and suggest framing language for cover letters
               and interviews so you can address them confidently.
             </p>
           </div>

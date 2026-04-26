@@ -78,7 +78,7 @@ export default function PartnerDeactivateDialog({ partner, partners, onClose }: 
               style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={loading}
             >
-              <option value="">— Don&apos;t reassign —</option>
+              <option value="">— Don&rsquo;t reassign —</option>
               {activePartners.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}

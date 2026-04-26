@@ -88,7 +88,7 @@ export default async function CourseraIntegrationPage() {
             <div className="content-card coursera-panel">
               <h3 className="coursera-panel__title">Your Coursera Courses</h3>
               <p className="coursera-enrolled-lead">
-                You&apos;re enrolled in <strong>{program.title}</strong>. Launch directly into your assigned course below.
+                You&rsquo;re enrolled in <strong>{program.title}</strong>. Launch directly into your assigned course below.
               </p>
 
               {/* Course pathway list */}
@@ -187,7 +187,7 @@ export default async function CourseraIntegrationPage() {
           <div className="content-card coursera-panel">
             <h3 className="coursera-panel__title">Your Coursera Courses</h3>
             <p className="coursera-empty-lead">
-              You aren&apos;t enrolled in a program yet. Once you&apos;re enrolled and courses are assigned, this page becomes your Coursera launch point and progress sync hub.
+              You aren&rsquo;t enrolled in a program yet. Once you&rsquo;re enrolled and courses are assigned, this page becomes your Coursera launch point and progress sync hub.
             </p>
             <Link href="/dashboard/program" className="btn btn-primary">
               View my program

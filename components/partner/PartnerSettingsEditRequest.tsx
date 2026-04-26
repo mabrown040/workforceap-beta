@@ -65,7 +65,7 @@ export default function PartnerSettingsEditRequest({
         <div>
           <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>Request sent</p>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0' }}>
-            We&apos;ll apply your changes within one business day.
+            We&rsquo;ll apply your changes within one business day.
           </p>
         </div>
       </div>

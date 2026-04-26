@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ExportPdfButton from './ExportPdfButton';
 
 const SALARY_RANGES = [
@@ -75,6 +76,12 @@ export default function ResumeRewriterForm({
   const [atsOptimize, setAtsOptimize] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
+
+  // Persist the most expensive-to-retype field (job target) so a refresh or
+  // accidental nav doesn't lose what the member typed. The resume body is
+  // already hydrated server-side, so we only autosave the free-text fields.
+  useDraftAutosave('ai-tool:resume-rewriter:jobTarget', jobTarget, setJobTarget);
+  useDraftAutosave('ai-tool:resume-rewriter:targetLocation', targetLocation, setTargetLocation);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -10,7 +10,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
  *
  * Deploy with Vercel Cron: schedule "0 10 * * 3" (Wednesday 10AM UTC)
  */
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   const secret = req.headers.get('x-cron-secret') ?? req.headers.get('authorization')?.replace('Bearer ', '');
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,3 +56,6 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ sent, failed, total: members.length });
 }
+
+export const GET = handle;
+export const POST = handle;

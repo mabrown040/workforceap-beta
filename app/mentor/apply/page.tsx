@@ -34,7 +34,7 @@ export default function MentorApplyPage() {
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.75rem' }}>Application Received!</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-            Thanks for applying to mentor with WorkforceAP. We&apos;ll review your application and reach out within a few business days.
+            Thanks for applying to mentor with WorkforceAP. We&rsquo;ll review your application and reach out within a few business days.
           </p>
           <Link href="/" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>← Back to Home</Link>
         </div>

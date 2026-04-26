@@ -52,7 +52,7 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
       <div className="portal-card portal-card--flat" style={{ padding: '2rem', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
         <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.75rem' }}>event_note</span>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.65 }}>
-          No recap generated yet. Come back after you&apos;ve used the portal this week.
+          No recap generated yet. Come back after you&rsquo;ve used the portal this week.
         </p>
         <Link href="/dashboard" className="btn btn-primary">Go to Dashboard</Link>
       </div>

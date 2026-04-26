@@ -141,7 +141,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
                   Invite a member to apply
                 </h2>
                 <p id={descriptionId} style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-                  We&apos;ll email your partner referral link so the member enters WorkforceAP through your organization.
+                  We&rsquo;ll email your partner referral link so the member enters WorkforceAP through your organization.
                 </p>
               </div>
               <button type="button" className="btn btn-outline" onClick={() => setOpen(false)} disabled={submitting}>

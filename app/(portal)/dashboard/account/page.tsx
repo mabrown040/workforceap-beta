@@ -54,7 +54,7 @@ export default async function DashboardAccountPage() {
 
               <h2 style={{ marginTop: '1.5rem' }}>Password</h2>
               <p style={{ marginBottom: '0.5rem' }}>
-                Use the link below to reset your password. You&apos;ll receive an email with instructions.
+                Use the link below to reset your password. You&rsquo;ll receive an email with instructions.
               </p>
               <Link href={`/forgot-password?email=${encodeURIComponent(email)}`} className="btn btn-outline">
                 Reset password

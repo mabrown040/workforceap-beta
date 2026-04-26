@@ -107,10 +107,10 @@ export default async function ContactPage({
               Get in Touch
             </span>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.25rem' }}>
-              We&apos;re here for <span style={{ color: 'var(--color-accent)' }}>members, employers, and partners</span> alike.
+              We&rsquo;re here for <span style={{ color: 'var(--color-accent)' }}>members, employers, and partners</span> alike.
             </h1>
             <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '46rem', lineHeight: 1.7, margin: 0 }}>
-              Whether you&apos;re a current or prospective member with program questions, an employer looking to hire or build a pipeline,
+              Whether you&rsquo;re a current or prospective member with program questions, an employer looking to hire or build a pipeline,
               a community partner exploring a referral relationship, or a donor interested in supporting our work, reach out and a
               member of our team will respond within 1–2 business days.
             </p>
@@ -153,7 +153,7 @@ export default async function ContactPage({
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>Built in Austin, supporting members nationwide</h3>
                 <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   We work from Austin, Texas and support members, partners, and employers across the country. Use the form,
-                  email, or phone to reach the right team and we&apos;ll follow up within 1–2 business days.
+                  email, or phone to reach the right team and we&rsquo;ll follow up within 1–2 business days.
                 </p>
               </div>
             </div>

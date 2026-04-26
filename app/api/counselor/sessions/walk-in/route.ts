@@ -80,11 +80,12 @@ export async function POST(request: Request) {
       data: { email: freedEmail },
     });
   } else if (existingPrisma) {
-    // Active Prisma row — this really is an existing member; can't walk-in.
+    // Active Prisma row — existing member. Return their ID so the client can
+    // offer a one-click "start session with them" path.
     return NextResponse.json(
       {
-        error:
-          'A member with this email already exists. Use the existing-member path from the In-office sessions index.',
+        error: 'A member with this email already exists.',
+        existingMemberId: existingPrisma.id,
       },
       { status: 409 }
     );

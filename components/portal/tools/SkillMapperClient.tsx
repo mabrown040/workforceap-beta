@@ -1002,9 +1002,11 @@ export default function SkillMapperClient() {
               )}
 
               {memberCerts.length === 0 && (
-                <div style={{ background: 'var(--surface-container)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  No certifications recorded yet. Add your earned certs in the <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)' }}>Verification Vault</a>.
-                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', marginTop: '-0.25rem' }}>
+                  No certifications on file —{' '}
+                  <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>add certs in Verification Vault</a>
+                  {' '}to strengthen your radar.
+                </p>
               )}
 
               {/* Gap analysis */}

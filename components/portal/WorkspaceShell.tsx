@@ -25,15 +25,17 @@ import PortalHeaderActions from './PortalHeaderActions';
 import PortalRoleSwitcher from './PortalRoleSwitcher';
 import { SignOutButton } from './SignOutButton';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 
-// Map portal roles to MobileBottomNav variants
-const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor' | 'portal'>> = {
+// Map non-member portal roles to MobileBottomNav variants. Member uses
+// MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
+// Decision 3 (2026-04-25).
+const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor'>> = {
   employer: 'employer',
   partner: 'partner',
   counselor: 'counselor',
-  member: 'portal',
 };
 
 export default function WorkspaceShell({
@@ -448,12 +450,13 @@ export default function WorkspaceShell({
         </aside>
 
         <div ref={mainRef} className="workspace-shell-main workspace-shell-main--stack">
+          {portalRole === 'member' ? <MemberPortalTopNav badgeCounts={badges} /> : null}
           {topBanner}
           <div className="workspace-shell-main-inner">{children}</div>
           {footer}
         </div>
       </div>
-      {/* Mobile bottom nav — shown on all portal roles on small screens */}
+      {/* Mobile bottom nav for non-member roles. Members use MemberPortalTopNav. */}
       {ROLE_TO_NAV_VARIANT[portalRole] ? (
         <MobileBottomNav variant={ROLE_TO_NAV_VARIANT[portalRole]} badgeCounts={badges} />
       ) : null}

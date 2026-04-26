@@ -234,12 +234,16 @@ export default async function HowItWorksPage() {
                     Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
                   </p>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {['Pre-configured with all necessary software', 'Technical support included', 'Zero upfront cost for qualifying members'].map((item) => (
+                    {['Pre-configured with all necessary software', 'Technical support included'].map((item) => (
                       <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
                         <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
                         {item}
                       </li>
                     ))}
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                      Zero upfront cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', marginLeft: '0.25rem' }}>qualifying members</Link>
+                    </li>
                   </ul>
                 </div>
               </div>

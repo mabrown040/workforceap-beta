@@ -229,7 +229,7 @@ export default async function HomePage() {
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ No credit card required</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ No-cost for qualifying members</span>
+              <span>✓ No-cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link></span>
             </p>
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
@@ -317,7 +317,7 @@ export default async function HomePage() {
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  No-cost for qualifying members
+                  No-cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link>
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
@@ -591,7 +591,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. We respond within 1–2 business days. Industry-recognized certificates and placement support. No-cost for qualifying members.
+            About 10 minutes to apply. We respond within 1–2 business days. Industry-recognized certificates and placement support. No-cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link>.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

@@ -29,7 +29,7 @@ export async function GET() {
     if (!id) return NextResponse.json({ employer: null });
 
     const employer = await prisma.employer.findFirst({
-      where: { id, status: 'active' },
+      where: { id },
       select: { id: true, companyName: true },
     });
     return NextResponse.json({ employer });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const employer = await prisma.employer.findFirst({
-      where: { id: parsed.data.employerId, status: 'active' },
+      where: { id: parsed.data.employerId },
       select: { id: true, companyName: true },
     });
     if (!employer) return NextResponse.json({ error: 'Employer not found' }, { status: 404 });

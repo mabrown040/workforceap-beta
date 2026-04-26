@@ -76,14 +76,24 @@ export default function MembersTable({ members }: MembersTableProps) {
 
       <div className="admin-table-scroll admin-members-desktop">
         <table className="admin-table">
-          <thead><tr><th>Name</th><th>Email</th><th className="members-col-md">Phone</th><th>Program</th><th>Partner</th><th>Fit</th><th>Health</th><th>Enrolled</th><th>Score %</th><th>Training</th><th className="members-col-md">Last Active</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th className="members-col-md">Phone</th><th>Program</th><th>Partner</th><th>Fit</th><th>Health</th><th>Enrolled</th><th>Score %</th><th>Training</th><th className="members-col-md">Last Active</th><th>Session</th></tr></thead>
           <tbody>{filtered.map((m) => {
             const rawPhone = m.profile?.profilePhone ?? m.phone;
             const phoneDisplay = formatPhone(rawPhone);
             const lastActive = formatMemberDate(m.updatedAt) ?? '—';
             return (<tr key={m.id} data-clickable onClick={() => window.location.assign(`/admin/members/${m.id}`)}>
               <td><Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.healthStatus && <HealthDot status={m.healthStatus} />}{m.fullName}</Link><div className="members-name-details">{rawPhone ? <><span>{phoneDisplay}</span><span className="members-name-details-sep"> · </span></> : null}<span>Last active {lastActive}</span></div></td>
-              <td>{m.email}</td><td className="members-col-md">{phoneDisplay}</td><td>{m.programTitle ?? '—'}</td><td>{m.partnerName ?? '—'}</td><td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td><td>{m.healthStatus ? <span style={{ fontSize: '0.8rem', fontWeight: 600, color: m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : '—'}</td><td>{formatMemberDate(m.enrolledAt) ?? '—'}</td><td><span className={m.assessmentScorePct != null ? m.assessmentScorePct >= 70 ? 'admin-score-high' : m.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low' : ''}>{m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}</span></td><td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td><td className="members-col-md">{lastActive}</td></tr>);
+              <td>{m.email}</td><td className="members-col-md">{phoneDisplay}</td><td>{m.programTitle ?? '—'}</td><td>{m.partnerName ?? '—'}</td><td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td><td>{m.healthStatus ? <span style={{ fontSize: '0.8rem', fontWeight: 600, color: m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : '—'}</td><td>{formatMemberDate(m.enrolledAt) ?? '—'}</td><td><span className={m.assessmentScorePct != null ? m.assessmentScorePct >= 70 ? 'admin-score-high' : m.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low' : ''}>{m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}</span></td><td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td><td className="members-col-md">{lastActive}</td>
+              <td>
+                <Link
+                  href={`/counselor/sessions/${m.id}/run`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}
+                >
+                  Start session
+                </Link>
+              </td></tr>);
           })}</tbody>
         </table>
       </div>
@@ -102,6 +112,16 @@ export default function MembersTable({ members }: MembersTableProps) {
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Fit</span> {m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</p>
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Training</span> {m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</p>
             <p className="admin-portal-card__meta">Last active {lastActive}</p>
+            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+              <Link
+                href={`/counselor/sessions/${m.id}/run`}
+                onClick={(e) => e.stopPropagation()}
+                className="btn btn-sm btn-outline"
+                style={{ fontSize: '0.75rem', flex: 1, textAlign: 'center' }}
+              >
+                Start session
+              </Link>
+            </div>
           </li>);
         })}
       </ul>

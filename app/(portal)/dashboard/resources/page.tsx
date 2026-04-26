@@ -9,7 +9,7 @@ import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import ResourcesClient from './ResourcesClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Program Resources',
@@ -71,30 +71,18 @@ export default async function DashboardResourcesPage() {
 
   return (
     <>
-      <div style={{ maxWidth: '60rem', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
-        {/* Breadcrumb */}
-        <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-          <PortalBreadcrumb
-            items={[
-              { href: '/dashboard', label: 'Member Portal' },
-              { href: '/dashboard/learning', label: 'Learning Hub' },
-              { label: 'Program Resources' },
+      <div style={{ maxWidth: 'var(--max-width, 60rem)', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
+        <div style={{ marginTop: '1rem', marginBottom: '2rem' }}>
+          <PageHeader
+            title="Program resources"
+            subtitle={`${categoryLabel} — AI tools, career tips, and links matched to your program, plus ways to reach the team.`}
+            breadcrumbs={[
+              { label: 'Member Portal', href: '/dashboard' },
+              { label: 'Learning Hub', href: '/dashboard/learning' },
+              { label: 'Program resources' },
             ]}
           />
-        </nav>
-
-        {/* Header */}
-        <header style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-            {categoryLabel}
-          </p>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-            Program Resources &amp; Tools
-          </h1>
-          <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-            AI tools, career tips, and links matched to your program — plus ways to reach the team.
-          </p>
-        </header>
+        </div>
 
         {/* Suggested AI tools */}
         {suggestedAiTools.length > 0 && (

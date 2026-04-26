@@ -24,3 +24,14 @@ export function getTimeOfDayGreeting(
     return 'Evening';
   }
 }
+
+/** Full phrase for visible greetings (avoids awkward "Afternoon," fragments). */
+export function getGoodTimeOfDayPhrase(
+  date: Date = new Date(),
+  timeZone = process.env.DEFAULT_GREETING_TZ ?? 'America/Chicago'
+): 'Good morning' | 'Good afternoon' | 'Good evening' {
+  const segment = getTimeOfDayGreeting(date, timeZone);
+  if (segment === 'Morning') return 'Good morning';
+  if (segment === 'Afternoon') return 'Good afternoon';
+  return 'Good evening';
+}

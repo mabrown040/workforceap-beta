@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -112,26 +113,17 @@ export default async function MemberGuidePage() {
 
   return (
     <>
-    <div style={{ maxWidth: '52rem', margin: '0 auto', padding: '0 1rem 4rem' }}>
-      {/* Breadcrumb */}
-      <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-        <Link href="/dashboard" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>
-          ← Back to dashboard
-        </Link>
-      </nav>
-
-      {/* Header */}
-      <header style={{ marginBottom: '2.5rem' }}>
-        <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-          Member Guide
-        </p>
-        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.75rem', lineHeight: 1.15 }}>
-          Your WorkforceAP Journey
-        </h1>
-        <p style={{ fontSize: '1.0625rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, maxWidth: '38rem' }}>
-          Hey {firstName} — here&rsquo;s exactly how to get from enrolled to employed. Five steps. You can do this.
-        </p>
-      </header>
+    <div style={{ maxWidth: 'var(--max-width, 52rem)', margin: '0 auto', padding: '0 1rem 4rem' }}>
+      <div style={{ marginTop: '1rem', marginBottom: '2.5rem' }}>
+        <PageHeader
+          title="Your WorkforceAP journey"
+          subtitle={`Hey ${firstName} — here’s exactly how to get from enrolled to employed. Five steps. You can do this.`}
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'Member guide' },
+          ]}
+        />
+      </div>
 
       {/* Journey Steps */}
       <section style={{ marginBottom: '3rem' }}>

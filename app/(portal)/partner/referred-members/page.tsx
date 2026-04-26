@@ -53,7 +53,7 @@ export default async function PartnerReferredMembersPage() {
                   fontWeight: 700,
                   color: 'var(--color-on-surface)',
                   textDecoration: 'none',
-                  border: '1px solid #ebe7e7',
+                  border: '1px solid var(--outline-variant)',
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>

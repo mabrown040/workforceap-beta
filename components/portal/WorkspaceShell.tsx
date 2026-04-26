@@ -454,6 +454,9 @@ export default function WorkspaceShell({
           {topBanner}
           <div className="workspace-shell-main-inner">{children}</div>
           {footer}
+          {ROLE_TO_NAV_VARIANT[portalRole] ? (
+            <div className="mobile-bottom-nav-spacer" aria-hidden />
+          ) : null}
         </div>
       </div>
       {/* Mobile bottom nav for non-member roles. Members use MemberPortalTopNav. */}

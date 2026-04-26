@@ -33,6 +33,7 @@ export default async function PartnerMilestonesPage() {
             <span className="wa-hidden md:wa-block">Recent certificates, placements, and milestone events across your referrals.</span>
           </>
         }
+        breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Milestones' }]}
       />
       {/* ── MOBILE SECTION ── */}
       <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>

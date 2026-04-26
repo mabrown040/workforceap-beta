@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { getUser } from '@/lib/auth/server';
@@ -18,7 +18,7 @@ export default async function CareerBusinessCoachPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/career-business-coach');
 
   return (
-    <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div
         style={{
           padding: '1.25rem 2rem 1.5rem',
@@ -26,26 +26,14 @@ export default async function CareerBusinessCoachPage() {
           background: 'var(--surface-container-low)',
         }}
       >
-        <nav
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            fontSize: '0.8rem',
-            color: 'var(--color-on-surface-variant)',
-            marginBottom: '1rem',
-          }}
-        >
-          <Link href="/dashboard/ai-tools" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500 }}>
-            AI Tools
-          </Link>
-          <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">chevron_right</span>
-          <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Career and Business Coach</span>
-        </nav>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Career and Business Coach</h1>
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', maxWidth: 640 }}>
-          Ask about project management, sales strategy, guerrilla marketing, communication challenges, or any career and business topic.
-        </p>
+        <PageHeader
+          title="Career and Business Coach"
+          subtitle="Ask about project management, sales strategy, guerrilla marketing, communication challenges, or any career and business topic."
+          breadcrumbs={[
+            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career and Business Coach' },
+          ]}
+        />
       </div>
 
       <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>

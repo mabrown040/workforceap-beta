@@ -6,19 +6,23 @@ export default function PageHeader({
   subtitle,
   action,
   breadcrumbs,
+  titleHeadingLevel = 1,
 }: {
   title: string;
   subtitle?: React.ReactNode;
   action?: React.ReactNode;
   breadcrumbs?: PortalBreadcrumbItem[];
+  /** Use 2 when the route already exposes a single visually hidden `h1` (e.g. responsive dual layouts). */
+  titleHeadingLevel?: 1 | 2;
 }) {
+  const TitleTag = titleHeadingLevel === 2 ? 'h2' : 'h1';
   return (
     <div className="portal-page-header">
       {breadcrumbs && breadcrumbs.length > 0 && (
         <PortalBreadcrumb items={breadcrumbs} />
       )}
       <div className="portal-page-header-main">
-        <h1 className="portal-page-title">{title}</h1>
+        <TitleTag className="portal-page-title">{title}</TitleTag>
         {subtitle && <p className="portal-page-subtitle">{subtitle}</p>}
       </div>
       {action && <div className="portal-page-header-action">{action}</div>}

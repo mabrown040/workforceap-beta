@@ -292,8 +292,19 @@ export default function ResumeClient({
               >
                 Download ↗
               </a>
+            ) : loading ? (
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Loading…</span>
             ) : (
-              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>Generating link…</span>
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>
+                File unavailable —{' '}
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('resume-file-input')?.click()}
+                  style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: 'inherit' }}
+                >
+                  re-upload
+                </button>
+              </span>
             )}
           </div>
           {resumeData?.previewOriginalPath && resumeData.originalExt === 'pdf' && (

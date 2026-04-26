@@ -1639,32 +1639,33 @@ html.dark .employer-applications-table.admin-table thead th {
 
 .portal-quick-action-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
-  background: var(--surface-container-low);
+  background: var(--surface-container-lowest);
   border-radius: var(--radius-lg, 12px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 60%, transparent);
   text-decoration: none;
   color: inherit;
   transition: all 0.2s ease;
 }
 .portal-quick-action-item:hover {
-  background: var(--surface-container);
-  border-color: var(--color-accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  background: var(--surface-container-low);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--outline-variant));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .portal-quick-action-item__icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.5rem;
-  background: rgba(173, 44, 77, 0.12);
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.375rem;
+  background: var(--surface-container-high);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-top: 0.1rem;
   color: var(--color-accent);
 }
 

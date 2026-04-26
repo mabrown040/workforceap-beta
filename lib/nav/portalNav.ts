@@ -188,14 +188,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'me', Icon: BookOpen },
   {
     href: '/dashboard/profile',
-    label: 'Profile',
+    label: 'Profile & Account',
     group: 'manage',
     tab: 'me',
     Icon: User,
-    aliases: ['/profile', '/account'],
+    aliases: ['/profile', '/account', '/dashboard/settings'],
     tourTarget: 'tour-profile',
   },
-  { href: '/dashboard/settings', label: 'My Account', group: 'manage', tab: 'me', Icon: Settings },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [

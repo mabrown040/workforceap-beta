@@ -73,8 +73,8 @@ export default function MemberNextStepsStrip({
             fillRow && visible.length === 1
               ? '1fr'
               : compact
-                ? 'repeat(auto-fill, minmax(240px, 1fr))'
-                : 'repeat(auto-fill, minmax(260px, 1fr))',
+                ? 'repeat(auto-fill, minmax(200px, 1fr))'
+                : 'repeat(auto-fit, minmax(210px, 1fr))',
           gap: compact ? '0.65rem' : '1rem',
         }}
       >

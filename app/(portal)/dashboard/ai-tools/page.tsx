@@ -185,27 +185,20 @@ export default async function AIToolsPage() {
                     key={tool.href}
                     href={tool.href}
                     className="portal-quick-action-item"
-                    style={{ textDecoration: 'none', minHeight: '82px', padding: '0.75rem 0.875rem' }}
+                    style={{ textDecoration: 'none', padding: '0.75rem 0.875rem' }}
                   >
                     <div className="portal-quick-action-item__icon">
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
                         className="portal-quick-action-item__label"
-                        style={{
-                          display: 'block',
-                          overflow: 'visible',
-                          whiteSpace: 'normal',
-                          lineHeight: 1.35,
-                          minHeight: '2.7rem',
-                          overflowWrap: 'break-word',
-                        }}
+                        style={{ whiteSpace: 'normal', lineHeight: 1.35, overflowWrap: 'break-word' }}
                       >
                         {tool.label}
                       </p>
                     </div>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }}>chevron_right</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35, flexShrink: 0, marginTop: '0.15rem' }}>chevron_right</span>
                   </Link>
                 ))}
               </div>

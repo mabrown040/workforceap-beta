@@ -32,8 +32,6 @@ interface Props {
   sessionId: string;
   existingResume: string;
   isFreshWalkIn: boolean;
-  memberDetailHref?: string;
-  sessionsListHref?: string;
   /** Where "Edit full profile" links to. Differs by actor (counselor vs admin). */
   memberDetailHref?: string;
   /** Where "Back to sessions" goes after the packet sends. Differs by actor. */

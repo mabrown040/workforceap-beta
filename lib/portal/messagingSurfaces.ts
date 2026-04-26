@@ -22,7 +22,7 @@ export const partnerMessagingSurface: MessagingSurface = {
   subtext: 'Direct line to WorkforceAP — referrals, milestones, and resources.',
   icon: '🤝',
   glowColor: '#ea580c',
-  gradient: 'linear-gradient(135deg, #c2410c, #ea580c, #fdba74)',
+  gradient: 'linear-gradient(135deg, #ea580c, #f97316, #fdba74)',
 };
 
 export const employerMessagingSurface: MessagingSurface = {
@@ -30,7 +30,7 @@ export const employerMessagingSurface: MessagingSurface = {
   subtext: 'Your team channel and candidate threads in one place.',
   icon: '🏢',
   glowColor: '#4f46e5',
-  gradient: 'linear-gradient(135deg, #3730a3, #4f46e6, #a5b4fc)',
+  gradient: 'linear-gradient(135deg, #4f46e5, #6366f1, #a5b4fc)',
 };
 
 export const counselorStaffMessagingSurface: MessagingSurface = {

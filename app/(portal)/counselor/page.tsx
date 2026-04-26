@@ -10,7 +10,6 @@ import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from 
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import PortalStatCard from '@/components/portal/PortalStatCard';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getTimeOfDayGreeting } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';

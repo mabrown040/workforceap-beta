@@ -2,15 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  type NavBadgeKey,
-  type NavTab,
-  type PortalNavItem,
-  MEMBER_PORTAL_NAV_ITEMS,
-  NAV_TAB_META,
-  NAV_TAB_ORDER,
-  getActiveTab,
-} from '@/lib/nav/portalNav';
+import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
 /**
  * Responsive breakpoint for mobile nav visibility
@@ -24,32 +16,6 @@ const MARKETING_TABS = [
   { href: '/programs', label: 'Programs', icon: 'school' },
   { href: '/apply', label: 'Apply', icon: 'assignment_turned_in' },
 ];
-
-function getMemberBottomTabs() {
-  // Align member mobile bottom tabs to the same tab model as the workspace shell.
-  // Link each tab to the first nav item in that tab.
-  return NAV_TAB_ORDER.map((tab) => {
-    const meta = NAV_TAB_META[tab];
-    const firstItem = MEMBER_PORTAL_NAV_ITEMS.find((i) => i.tab === tab);
-    return {
-      href: firstItem?.href ?? '/dashboard',
-      label: meta.label,
-      icon: meta.icon,
-      tourTarget: firstItem?.tourTarget,
-      tab,
-    };
-  });
-}
-
-/** Determine which tab contains a given badge key so the bottom nav dot shows on the right tab. */
-function tabForBadgeKey(items: PortalNavItem[], key: NavBadgeKey): NavTab | null {
-  for (const item of items) {
-    if ((item.badgeKey === key || item.badgeKeys?.includes(key)) && item.tab) {
-      return item.tab;
-    }
-  }
-  return null;
-}
 
 const EMPLOYER_TABS = [
   { href: '/employer', label: 'Overview', icon: 'dashboard' },
@@ -99,9 +65,6 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
     : variant === 'partner' ? PARTNER_TABS
     : variant === 'admin' ? ADMIN_TABS
     : MARKETING_TABS;
-  const activeMemberTab = variant === 'portal' ? getActiveTab(pathname, MEMBER_PORTAL_NAV_ITEMS) : null;
-  const messageTab = variant === 'portal' ? tabForBadgeKey(MEMBER_PORTAL_NAV_ITEMS, 'counselor_messages_unread') : null;
-
   return (
     <>
       {/* Mobile-only visibility: hidden on desktop (≥768px) */}
@@ -141,16 +104,12 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
         const { href, label, icon } = tab;
         const tourTarget = 'tourTarget' in tab ? tab.tourTarget : undefined;
         const exactMatch = ['/', '/dashboard', '/employer', '/counselor', '/partner'];
-        const isActive =
-          variant === 'portal' && 'tab' in tab
-            ? tab.tab === activeMemberTab
-            : exactMatch.includes(href)
-              ? pathname === href
-              : pathname.startsWith(href);
-        const b =
-          variant === 'portal' && 'tab' in tab && messageTab != null && tab.tab === messageTab
-            ? (badgeCounts?.counselor_messages_unread ?? 0)
-            : 0;
+        const isActive = exactMatch.includes(href)
+          ? pathname === href
+          : pathname.startsWith(href);
+        // Member badge logic moved to MemberPortalTopNav. Other variants do not
+        // surface unread-message badges in the bottom nav today.
+        const b = 0;
         const showBadge = b > 0;
         return (
           <Link

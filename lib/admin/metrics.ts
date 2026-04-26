@@ -30,9 +30,17 @@ async function countEventOnlyAiRunsBetween(start: Date, end: Date): Promise<numb
 }
 
 async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
+  // The earlier `toolType: { notIn: EVENT_ONLY_AI_TOOLS }` filter passed
+  // strings that aren't valid AIToolType enum members to the Postgres
+  // enum column — `invalid input value for enum AIToolType` at runtime,
+  // which rejected this entire function and cascaded up to make
+  // /admin/metrics charts render empty even when data existed. The
+  // filter was also unnecessary: EVENT_ONLY_AI_TOOLS are voice sessions
+  // tracked via member_events (entity_type='ai_tool'), they are never
+  // stored in ai_tool_results.toolType. So count all ai_tool_results
+  // in the window and add the event-only voice counts on top.
   const [savedResults, eventOnlyRuns] = await Promise.all([
-    // Exclude event-only voice tools to avoid double-counting if they ever start saving results
-    prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end }, toolType: { notIn: EVENT_ONLY_AI_TOOLS as unknown as AIToolType[] } } }),
+    prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end } } }),
     countEventOnlyAiRunsBetween(start, end),
   ]);
 
@@ -101,14 +109,28 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
     return { start, end, date: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) };
   });
 
+  // Per-day Promise.allSettled so a single bad subquery on one of the 14
+  // days can't kill the whole chart. Fall back to 0 for that day's affected
+  // series and surface in logs. Prior to this and the AIToolType-enum fix
+  // above, a single rejection cascaded up via Promise.all and the chart
+  // rendered as an empty rectangle even though other admin counts showed
+  // real data.
   return Promise.all(
     ranges.map(async ({ start, end, date }) => {
-      const [events, aiTools, applications] = await Promise.all([
+      const [eventsR, aiToolsR, applicationsR] = await Promise.allSettled([
         prisma.memberEvent.count({ where: { createdAt: { gte: start, lte: end } } }),
         countAiToolRunsBetween(start, end),
         prisma.jobApplication.count({ where: { createdAt: { gte: start, lte: end }, status: { not: 'SAVED' } } }),
       ]);
-      return { date, events, aiTools, applications };
+      if (eventsR.status === 'rejected') logMetricsReason(`dailyActivity:events:${date}`, eventsR.reason);
+      if (aiToolsR.status === 'rejected') logMetricsReason(`dailyActivity:aiTools:${date}`, aiToolsR.reason);
+      if (applicationsR.status === 'rejected') logMetricsReason(`dailyActivity:applications:${date}`, applicationsR.reason);
+      return {
+        date,
+        events: eventsR.status === 'fulfilled' ? eventsR.value : 0,
+        aiTools: aiToolsR.status === 'fulfilled' ? aiToolsR.value : 0,
+        applications: applicationsR.status === 'fulfilled' ? applicationsR.value : 0,
+      };
     })
   );
 }

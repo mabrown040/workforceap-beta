@@ -49,11 +49,16 @@ export default async function AIHistoryPage({ searchParams }: Props) {
 
   const { tool } = await searchParams;
 
-  const results = await prisma.aIToolResult.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-  });
+  let results: Awaited<ReturnType<typeof prisma.aIToolResult.findMany>> = [];
+  try {
+    results = await prisma.aIToolResult.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+  } catch {
+    // Non-fatal — renders empty state
+  }
 
   const withLabels = results.map((r) => ({
     ...r,
@@ -122,25 +127,32 @@ export default async function AIHistoryPage({ searchParams }: Props) {
             <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">
               folder_open
             </span>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>No results yet. Use an AI tool to get started.</p>
-            <Link
-              href="/dashboard/ai-tools"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.5rem 1.25rem',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                borderRadius: '8px',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                textDecoration: 'none',
-              }}
-            >
-              Go to AI Tools
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-            </Link>
+            <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>No saved results yet</p>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', fontSize: '0.875rem' }}>
+              Start with the Resume Rewriter or Interview Practice — your outputs save here automatically.
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Link
+                href="/dashboard/ai-tools/resume-rewriter"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
+                  borderRadius: '8px', background: 'var(--color-accent)', color: '#fff', textDecoration: 'none',
+                }}
+              >
+                Resume Rewriter
+              </Link>
+              <Link
+                href="/dashboard/ai-tools/interview-practice"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                  padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
+                  borderRadius: '8px', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', textDecoration: 'none',
+                }}
+              >
+                Interview Practice
+              </Link>
+            </div>
           </div>
         ) : (
           <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />

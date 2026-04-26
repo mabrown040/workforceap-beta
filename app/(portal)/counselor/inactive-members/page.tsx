@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import PageHeader from '@/components/portal/PageHeader';
 
 interface InactiveMember {
   id: string;
@@ -67,12 +68,10 @@ export default function InactiveMembersPage() {
 
   return (
     <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Inactive Members</h1>
-        <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.9rem' }}>
-          Members who haven't been active on the platform. Reach out directly by email or phone, then log the outreach here so other staff can see the member was contacted.
-        </p>
-      </div>
+      <PageHeader
+        title="Inactive Members"
+        subtitle="Members who haven't been active on the platform. Reach out directly by email or phone, then log the outreach here so other staff can see the member was contacted."
+      />
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>

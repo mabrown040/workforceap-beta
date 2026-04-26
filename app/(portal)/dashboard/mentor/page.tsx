@@ -47,7 +47,11 @@ export default async function MentorDashboardPage() {
             </div>
           ))}
         </div>
-        <Link href={`/api/mentor/letter?mentorId=${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.9rem', textDecoration: 'none', borderRadius: '0.5rem', padding: '0.6rem 0.8rem', fontWeight: 600, background: 'var(--color-accent)', color: '#fff' }}>
+        <Link
+          href={`/api/mentor/letter?mentorId=${mentor.id}`}
+          className="btn btn-primary"
+          style={{ marginTop: '0.9rem' }}
+        >
           Download Volunteer Letter
         </Link>
         <MobileBottomNav variant="portal" />
@@ -55,7 +59,7 @@ export default async function MentorDashboardPage() {
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem', maxWidth: '64rem' }}>
-        <h2 aria-hidden="true" style={{ fontSize: '2rem', fontWeight: 700 }}>Mentor Dashboard</h2>
+        <h1 style={{ fontSize: '2rem', fontWeight: 700 }}>Mentor Dashboard</h1>
         <div style={{ marginTop: '1rem', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1rem', maxWidth: '16rem' }}>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Total Hours Donated</div>
           <div style={{ fontSize: '2.2rem', fontWeight: 700 }}>{mentor.totalHoursDonated.toFixed(1)}</div>
@@ -69,7 +73,11 @@ export default async function MentorDashboardPage() {
             </div>
           ))}
         </div>
-        <Link href={`/api/mentor/letter?mentorId=${mentor.id}`} style={{ display: 'inline-block', marginTop: '1rem', textDecoration: 'none', borderRadius: '0.5rem', padding: '0.65rem 0.9rem', fontWeight: 600, background: 'var(--color-accent)', color: '#fff' }}>
+        <Link
+          href={`/api/mentor/letter?mentorId=${mentor.id}`}
+          className="btn btn-primary"
+          style={{ marginTop: '1rem' }}
+        >
           Download Volunteer Letter
         </Link>
       </div>

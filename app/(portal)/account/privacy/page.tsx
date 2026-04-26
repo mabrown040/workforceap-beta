@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import PageHeader from '@/components/portal/PageHeader';
 
 export default function PrivacySettingsPage() {
   const [exporting, setExporting] = useState(false);
@@ -80,12 +81,10 @@ export default function PrivacySettingsPage() {
 
   return (
     <div style={{ padding: '1.5rem', maxWidth: 720, margin: '0 auto' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Privacy & Data</h1>
-        <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.9rem' }}>
-          Manage your personal data and privacy preferences.
-        </p>
-      </div>
+      <PageHeader
+        title="Privacy & Data"
+        subtitle="Manage your personal data and privacy preferences."
+      />
 
       {message && (
         <div style={{

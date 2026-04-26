@@ -103,6 +103,8 @@ function SkillAssessmentRenderer({ raw }: { raw: string }) {
   const skills = parsed.skills ?? [];
   const gaps = parsed.gaps ?? [];
 
+  const hasContent = axes.length >= 3 || skills.length > 0 || gaps.length > 0;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {parsed.occupationTitle && (
@@ -113,6 +115,11 @@ function SkillAssessmentRenderer({ raw }: { raw: string }) {
             {parsed.occupationCode && <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginLeft: '0.5rem' }}>({parsed.occupationCode})</span>}
           </p>
         </div>
+      )}
+      {!hasContent && (
+        <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+          No skill data found in this result. Search an occupation in the Occupation Search tab to generate a new map.
+        </p>
       )}
 
       {axes.length >= 3 && (

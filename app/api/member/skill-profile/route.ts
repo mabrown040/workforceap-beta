@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { mapSkillsToRadarAxes } from '@/lib/ai/onetSkills';
 import type { OnetSkill } from '@/lib/ai/onetSkills';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
 /**
  * GET /api/member/skill-profile
@@ -198,7 +199,7 @@ export async function GET() {
   const resumePath = profile?.resumeEnhancedPath ?? profile?.resumeOriginalPath;
   if (resumePath) {
     try {
-      // Load resume text from the last Resume Rewriter result (stored in DB, no storage fetch needed)
+      // Prefer the last Resume Rewriter result (already extracted text, no storage fetch needed)
       const lastRewrite = await prisma.aIToolResult.findFirst({
         where: { userId: user.id, toolType: 'resume_rewriter' },
         orderBy: { createdAt: 'desc' },
@@ -210,6 +211,15 @@ export async function GET() {
         resumeProfile = extracted.profile;
         resumeMatchedKeywords = extracted.matched;
         resumeSkillsAvailable = resumeProfile.some((p) => p.value > 0);
+      } else {
+        // Fallback: read the raw uploaded resume file directly from storage
+        const rawText = await getMemberResumePlainText(user.id, 12000);
+        if (rawText) {
+          const extracted = extractResumeSkillProfile(rawText);
+          resumeProfile = extracted.profile;
+          resumeMatchedKeywords = extracted.matched;
+          resumeSkillsAvailable = resumeProfile.some((p) => p.value > 0);
+        }
       }
     } catch {
       // Resume extraction failure is non-fatal

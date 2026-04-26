@@ -45,7 +45,10 @@ function getResend(): Resend | null {
 }
 
 function getFrom(): string {
-  return process.env.EMAIL_FROM || 'noreply@workforceap.org';
+  // Default avoids "noreply@" — cohort members see their first email from a
+  // human-shaped sender. Override via EMAIL_FROM (e.g.
+  // 'WorkforceAP <hello@workforceap.org>') for full personalization.
+  return process.env.EMAIL_FROM || 'WorkforceAP <hello@workforceap.org>';
 }
 
 export function getVoiceCoachTranscriptRecipients(extra: string[] = []): string[] {
@@ -375,6 +378,7 @@ export async function sendEnrollmentConfirmationEmail(params: {
   fullName: string;
   programName: string;
   counselorContact?: string;
+  counselorName?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -383,12 +387,17 @@ export async function sendEnrollmentConfirmationEmail(params: {
   }
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
   const counselorContact = params.counselorContact?.trim() || 'info@workforceap.org';
+  // Subject names the program per /plan-design-review day-1 storyboard:
+  // "Specific subject" so the cohort member's first inbox impression is
+  // about *their* program, not generic platform onboarding.
+  const subject = `Welcome to ${params.programName} — your WorkforceAP enrollment is confirmed`;
   const html = brandedEmailLayout({
-    title: 'You are approved — next steps inside your member portal',
+    title: subject,
     bodyHtml: enrollmentConfirmationHtml({
       firstName: first,
       programName: params.programName,
       counselorContact,
+      counselorName: params.counselorName,
     }),
     ctaText: 'Open member portal',
     ctaUrl: `${SITE_URL}/dashboard`,
@@ -397,7 +406,7 @@ export async function sendEnrollmentConfirmationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: 'WorkforceAP — you are approved (next steps)',
+      subject,
       html,
     });
     return { ok: true };

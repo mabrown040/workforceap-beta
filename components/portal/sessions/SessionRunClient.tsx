@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink, FileText, Loader2, MessagesSquare, Mic, PenLine, Sparkles, User } from 'lucide-react';
+import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Sparkles, User } from 'lucide-react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
+import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 type ToolKey = 'resume' | 'coverLetter' | 'interview';
+type CardVoiceKey = 'walkthrough' | 'resume' | 'cover' | 'interview';
 
 type Status = 'idle' | 'running' | 'done' | 'error';
 
@@ -76,28 +77,100 @@ export default function SessionRunClient({
   const [packetSent, setPacketSent] = useState(false);
   const [packetError, setPacketError] = useState<string | null>(null);
 
-  // Voice walk-through state — captures the live conversation transcript
-  // so it can pre-fill the typing forms below (counselor reviews, then
-  // runs each tool with voice-captured inputs).
-  const [voiceTranscript, setVoiceTranscript] = useState<string[]>([]);
-  const [voiceComplete, setVoiceComplete] = useState(false);
-  const handleTranscriptChunk = useCallback((chunk: { speaker: 'agent' | 'user'; text: string }) => {
-    setVoiceTranscript((prev) => [...prev, `${chunk.speaker === 'user' ? 'Member' : 'Coach'}: ${chunk.text}`]);
-  }, []);
-  const handleVoicePhaseChange = useCallback((phase: string) => {
-    if (phase === 'done') setVoiceComplete(true);
-  }, []);
-  const transcriptText = voiceTranscript.join('\n');
+  // Per-card voice state. Each card (walkthrough, resume, cover,
+  // interview) can be toggled into voice mode independently. The active
+  // card's transcript routes to its own bucket so transcripts don't bleed
+  // across cards. Walkthrough is the only one open by default — the
+  // others open inline when the counselor clicks "Use voice".
+  const [activeVoiceCard, setActiveVoiceCard] = useState<CardVoiceKey | null>('walkthrough');
+  const [transcripts, setTranscripts] = useState<Record<CardVoiceKey, string[]>>({
+    walkthrough: [],
+    resume: [],
+    cover: [],
+    interview: [],
+  });
+  const [voiceComplete, setVoiceComplete] = useState<Record<CardVoiceKey, boolean>>({
+    walkthrough: false,
+    resume: false,
+    cover: false,
+    interview: false,
+  });
 
-  const useTranscriptAsResume = () => {
-    if (!transcriptText) return;
-    // Filter to just member speech for the resume input.
-    const memberOnly = voiceTranscript
+  const makeTranscriptHandler = (card: CardVoiceKey) =>
+    (chunk: { speaker: 'agent' | 'user'; text: string }) => {
+      setTranscripts((prev) => ({
+        ...prev,
+        [card]: [...prev[card], `${chunk.speaker === 'user' ? 'Member' : 'Coach'}: ${chunk.text}`],
+      }));
+    };
+  const makePhaseHandler = (card: CardVoiceKey) =>
+    (phase: string) => {
+      if (phase === 'done') setVoiceComplete((prev) => ({ ...prev, [card]: true }));
+    };
+
+  const walkthroughTranscript = transcripts.walkthrough;
+  const walkthroughText = walkthroughTranscript.join('\n');
+
+  const useTranscriptAsResume = useCallback((card: CardVoiceKey = 'walkthrough') => {
+    const lines = transcripts[card];
+    if (lines.length === 0) return;
+    const text = lines.join('\n');
+    const memberOnly = lines
       .filter((line) => line.startsWith('Member:'))
       .map((line) => line.replace(/^Member: /, ''))
       .join('\n');
-    setResumeText(memberOnly.length > 50 ? memberOnly : transcriptText);
+    setResumeText(memberOnly.length > 50 ? memberOnly : text);
+  }, [transcripts]);
+
+  const useTranscriptAsCoverContext = useCallback(() => {
+    const lines = transcripts.cover;
+    if (lines.length === 0) return;
+    const memberOnly = lines
+      .filter((line) => line.startsWith('Member:'))
+      .map((line) => line.replace(/^Member: /, ''))
+      .join('\n');
+    setJobDescription((prev) => (prev.trim().length > 0 ? prev : memberOnly || lines.join('\n')));
+  }, [transcripts.cover]);
+
+  const toggleVoice = (card: CardVoiceKey) => {
+    setActiveVoiceCard((prev) => (prev === card ? null : card));
   };
+
+  // Memoized payloads for each card's voice session — threading prior
+  // outputs forward so each agent picks up where the last one left off.
+  const walkthroughPayload = useMemo(() => ({
+    memberId,
+    sessionId,
+    card: 'walkthrough' as const,
+  }), [memberId, sessionId]);
+
+  const resumeVoicePayload = useMemo(() => ({
+    memberId,
+    sessionId,
+    card: 'resume' as const,
+    resumeDraft: resumeText,
+    jobTarget,
+  }), [memberId, sessionId, resumeText, jobTarget]);
+
+  const coverVoicePayload = useMemo(() => ({
+    memberId,
+    sessionId,
+    card: 'cover' as const,
+    resumeDraft: resumeState.output ?? resumeText,
+    jobTarget,
+    jobDescription,
+    companyName,
+  }), [memberId, sessionId, resumeState.output, resumeText, jobTarget, jobDescription, companyName]);
+
+  const interviewVoicePayload = useMemo(() => ({
+    memberId,
+    sessionId,
+    card: 'interview' as const,
+    resumeDraft: resumeState.output ?? resumeText,
+    coverDraft: coverState.output ?? '',
+    jobTarget,
+    interviewLevel,
+  }), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
 
   const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output);
   const allRun = !!(resumeState.output && coverState.output && interviewState.output);
@@ -196,48 +269,69 @@ export default function SessionRunClient({
         </div>
       ) : null}
 
-      {/* ── Voice walk-through (primary path) ──
+      {/* ── Voice walk-through (primary path, optional) ──
           Per user direction (2026-04-26): "we want these to be all voice
-          tools here." Counselor + member talk through profile → resume →
-          cover letter → interview prep in one voice conversation. The live
-          transcript is captured so the typing forms below get pre-filled
-          for review/finalization. */}
+          tools here." Per follow-up (2026-04-27): "each step is separate
+          card. filling out as you go along. and all feeding to each other
+          right." So this top card stays as the optional A→Z walk-through
+          (one big conversation), and each card below also gets its own
+          step-specific voice option. */}
       <SectionCard
         step={0}
-        title="Voice walk-through"
+        title="Voice walk-through (full A→Z)"
         Icon={Mic}
         accent="#2563eb"
-        statusBadge={voiceComplete ? 'Recorded' : voiceTranscript.length > 0 ? 'Live' : 'Ready'}
+        statusBadge={
+          voiceComplete.walkthrough
+            ? 'Recorded'
+            : walkthroughTranscript.length > 0
+            ? 'Live'
+            : activeVoiceCard === 'walkthrough'
+            ? 'Ready'
+            : 'Optional'
+        }
+        headerAction={
+          <button
+            type="button"
+            className="btn btn-secondary btn-small"
+            onClick={() => toggleVoice('walkthrough')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            {activeVoiceCard === 'walkthrough' ? <Keyboard size={14} aria-hidden /> : <Mic size={14} aria-hidden />}
+            {activeVoiceCard === 'walkthrough' ? 'Hide voice' : 'Use voice'}
+          </button>
+        }
       >
         <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-          Talk through {memberFullName.split(' ')[0]}&rsquo;s background out loud — the agent will guide
-          you through profile, work history, target role, and interview prep in one conversation. We&rsquo;ll
-          capture the transcript and pre-fill the tools below so you can review and run each one.
+          One long conversation that walks {memberFullName.split(' ')[0]} through profile, work history,
+          target role, and interview prep — or skip this and use voice on each card below as you go.
         </p>
-        <VoiceAgentSurface {...resumeCoachVoiceSurface}>
-          <PortalVoiceSession
-            sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
-            sessionPayload={{ memberId, sessionId }}
-            title={`Build ${memberFullName.split(' ')[0]}'s session out loud`}
-            titleAs="h3"
-            description="Resume coach + cover letter + interview prep, all in one voice session."
-            accent="#2563eb"
-            accentDark="#1e40af"
-            speakingLabel="Coach is speaking…"
-            listeningLabel="Listening — answer out loud"
-            onTranscriptChunk={handleTranscriptChunk}
-            onPhaseChange={handleVoicePhaseChange}
-            showLiveTranscript
-            liveTranscriptCoachLabel="Coach"
-            liveTranscriptYouLabel={memberFullName.split(' ')[0]}
-            retryWithoutDynamicVariables={false}
-          />
-        </VoiceAgentSurface>
-        {voiceTranscript.length > 0 ? (
+        {activeVoiceCard === 'walkthrough' ? (
+          <VoiceAgentSurface {...resumeCoachVoiceSurface}>
+            <PortalVoiceSession
+              sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
+              sessionPayload={walkthroughPayload}
+              title={`Build ${memberFullName.split(' ')[0]}'s session out loud`}
+              titleAs="h3"
+              description="Resume coach + cover letter + interview prep, all in one voice session."
+              accent="#2563eb"
+              accentDark="#1e40af"
+              speakingLabel="Coach is speaking…"
+              listeningLabel="Listening — answer out loud"
+              onTranscriptChunk={makeTranscriptHandler('walkthrough')}
+              onPhaseChange={makePhaseHandler('walkthrough')}
+              showLiveTranscript
+              liveTranscriptCoachLabel="Coach"
+              liveTranscriptYouLabel={memberFullName.split(' ')[0]}
+              retryWithoutDynamicVariables={false}
+            />
+          </VoiceAgentSurface>
+        ) : null}
+        {walkthroughTranscript.length > 0 ? (
           <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
             <div style={{ minWidth: 0, flex: 1 }}>
               <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-                {voiceTranscript.length} transcript line{voiceTranscript.length === 1 ? '' : 's'} captured
+                {walkthroughTranscript.length} transcript line{walkthroughTranscript.length === 1 ? '' : 's'} captured
               </p>
               <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                 Use as the resume input below, then refine + click &ldquo;Build resume.&rdquo;
@@ -246,8 +340,8 @@ export default function SessionRunClient({
             <button
               type="button"
               className="btn btn-secondary btn-small"
-              onClick={useTranscriptAsResume}
-              disabled={transcriptText.length < 30}
+              onClick={() => useTranscriptAsResume('walkthrough')}
+              disabled={walkthroughText.length < 30}
             >
               Pre-fill resume input &rarr;
             </button>
@@ -297,9 +391,59 @@ export default function SessionRunClient({
           resumeState.status === 'running' ? 'Running' :
           resumeState.output ? 'Done' :
           resumeState.error ? 'Failed' :
+          activeVoiceCard === 'resume' ? 'Voice' :
           'Ready'
         }
+        headerAction={
+          <button
+            type="button"
+            className="btn btn-secondary btn-small"
+            onClick={() => toggleVoice('resume')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            {activeVoiceCard === 'resume' ? <Keyboard size={14} aria-hidden /> : <Mic size={14} aria-hidden />}
+            {activeVoiceCard === 'resume' ? 'Hide voice' : 'Use voice'}
+          </button>
+        }
       >
+        {activeVoiceCard === 'resume' ? (
+          <div style={{ marginBottom: '1rem' }}>
+            <VoiceAgentSurface {...resumeCoachVoiceSurface}>
+              <PortalVoiceSession
+                sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
+                sessionPayload={resumeVoicePayload}
+                title="Resume coach"
+                titleAs="h3"
+                description="Talk through experience, certifications, and framing for the target role."
+                accent="#2563eb"
+                accentDark="#1e40af"
+                speakingLabel="Coach is speaking…"
+                listeningLabel="Listening — answer out loud"
+                onTranscriptChunk={makeTranscriptHandler('resume')}
+                onPhaseChange={makePhaseHandler('resume')}
+                showLiveTranscript
+                liveTranscriptCoachLabel="Coach"
+                liveTranscriptYouLabel={memberFullName.split(' ')[0]}
+                retryWithoutDynamicVariables={false}
+              />
+            </VoiceAgentSurface>
+            {transcripts.resume.length > 0 ? (
+              <div style={{ marginTop: '0.75rem', padding: '0.65rem 0.85rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  {transcripts.resume.length} transcript line{transcripts.resume.length === 1 ? '' : 's'} captured
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-small"
+                  onClick={() => useTranscriptAsResume('resume')}
+                  disabled={transcripts.resume.join('\n').length < 30}
+                >
+                  Pre-fill resume input &darr;
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <div className="form-group" style={{ marginBottom: '0.75rem' }}>
           <label htmlFor="session-job-target">
             Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
@@ -358,9 +502,66 @@ export default function SessionRunClient({
           coverState.status === 'running' ? 'Running' :
           coverState.output ? 'Done' :
           coverState.error ? 'Failed' :
+          activeVoiceCard === 'cover' ? 'Voice' :
           'Ready'
         }
+        contextNote={
+          resumeState.output
+            ? `Using resume from step 2 as context.`
+            : resumeText.trim().length > 50
+            ? 'Will use the resume input from step 2 as context.'
+            : null
+        }
+        headerAction={
+          <button
+            type="button"
+            className="btn btn-secondary btn-small"
+            onClick={() => toggleVoice('cover')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            {activeVoiceCard === 'cover' ? <Keyboard size={14} aria-hidden /> : <Mic size={14} aria-hidden />}
+            {activeVoiceCard === 'cover' ? 'Hide voice' : 'Use voice'}
+          </button>
+        }
       >
+        {activeVoiceCard === 'cover' ? (
+          <div style={{ marginBottom: '1rem' }}>
+            <VoiceAgentSurface {...resumeCoachVoiceSurface}>
+              <PortalVoiceSession
+                sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
+                sessionPayload={coverVoicePayload}
+                title="Cover letter coach"
+                titleAs="h3"
+                description="Read or paraphrase the job posting out loud — coach helps frame the cover."
+                accent="#2563eb"
+                accentDark="#1e40af"
+                speakingLabel="Coach is speaking…"
+                listeningLabel="Listening — describe the role"
+                onTranscriptChunk={makeTranscriptHandler('cover')}
+                onPhaseChange={makePhaseHandler('cover')}
+                showLiveTranscript
+                liveTranscriptCoachLabel="Coach"
+                liveTranscriptYouLabel={memberFullName.split(' ')[0]}
+                retryWithoutDynamicVariables={false}
+              />
+            </VoiceAgentSurface>
+            {transcripts.cover.length > 0 ? (
+              <div style={{ marginTop: '0.75rem', padding: '0.65rem 0.85rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  {transcripts.cover.length} transcript line{transcripts.cover.length === 1 ? '' : 's'} captured
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-small"
+                  onClick={useTranscriptAsCoverContext}
+                  disabled={transcripts.cover.join('\n').length < 30}
+                >
+                  Pre-fill job description &darr;
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <div className="form-group" style={{ marginBottom: '0.75rem' }}>
           <label htmlFor="session-company-name">Company name</label>
           <input
@@ -417,9 +618,51 @@ export default function SessionRunClient({
           interviewState.status === 'running' ? 'Running' :
           interviewState.output ? 'Done' :
           interviewState.error ? 'Failed' :
+          activeVoiceCard === 'interview' ? 'Voice' :
           'Ready'
         }
+        contextNote={
+          resumeState.output && coverState.output
+            ? 'Using resume + cover letter from steps 2 & 3 as context.'
+            : resumeState.output
+            ? 'Using resume from step 2 as context.'
+            : null
+        }
+        headerAction={
+          <button
+            type="button"
+            className="btn btn-secondary btn-small"
+            onClick={() => toggleVoice('interview')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            {activeVoiceCard === 'interview' ? <Keyboard size={14} aria-hidden /> : <Mic size={14} aria-hidden />}
+            {activeVoiceCard === 'interview' ? 'Hide voice' : 'Use voice'}
+          </button>
+        }
       >
+        {activeVoiceCard === 'interview' ? (
+          <div style={{ marginBottom: '1rem' }}>
+            <VoiceAgentSurface {...mockInterviewVoiceSurface}>
+              <PortalVoiceSession
+                sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
+                sessionPayload={interviewVoicePayload}
+                title="Mock interview"
+                titleAs="h3"
+                description={`Practice ${jobTarget || 'role-fit'} questions out loud. Coach references the resume + cover letter.`}
+                accent="#7c3aed"
+                accentDark="#5b21b6"
+                speakingLabel="Interviewer is asking…"
+                listeningLabel="Listening — answer out loud"
+                onTranscriptChunk={makeTranscriptHandler('interview')}
+                onPhaseChange={makePhaseHandler('interview')}
+                showLiveTranscript
+                liveTranscriptCoachLabel="Interviewer"
+                liveTranscriptYouLabel={memberFullName.split(' ')[0]}
+                retryWithoutDynamicVariables={false}
+              />
+            </VoiceAgentSurface>
+          </div>
+        ) : null}
         <div className="form-group" style={{ marginBottom: '0.75rem' }}>
           <label htmlFor="session-interview-level">Experience level</label>
           <select
@@ -505,6 +748,8 @@ function SectionCard({
   Icon,
   accent,
   statusBadge,
+  headerAction,
+  contextNote,
   children,
 }: {
   step: number;
@@ -512,11 +757,13 @@ function SectionCard({
   Icon: React.ComponentType<{ size?: number; 'aria-hidden'?: boolean }>;
   accent: string;
   statusBadge: string;
+  headerAction?: React.ReactNode;
+  contextNote?: string | null;
   children: React.ReactNode;
 }) {
   return (
     <section className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: contextNote ? '0.5rem' : '1rem', flexWrap: 'wrap' }}>
         <span
           aria-hidden
           style={{
@@ -552,7 +799,23 @@ function SectionCard({
         >
           {statusBadge}
         </span>
+        {headerAction ? <div>{headerAction}</div> : null}
       </header>
+      {contextNote ? (
+        <p
+          style={{
+            margin: '0 0 1rem',
+            padding: '0.4rem 0.65rem',
+            background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)',
+            borderLeft: '3px solid var(--color-accent)',
+            borderRadius: '0.35rem',
+            fontSize: '0.8rem',
+            color: 'var(--color-on-surface-variant)',
+          }}
+        >
+          {contextNote}
+        </p>
+      ) : null}
       {children}
     </section>
   );

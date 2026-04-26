@@ -43,16 +43,28 @@ export default function BecomeMentorPage() {
       </section>
 
       {/* Hero */}
-      <section style={{ background: 'var(--color-accent)', color: '#fff', padding: '4rem 2rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>
+      <section style={{ background: 'var(--color-accent)', color: '#fff', padding: 'clamp(3rem, 6vw, 5rem) 2rem', textAlign: 'center' }}>
+        <h1
+          style={{
+            fontSize: 'clamp(2.25rem, 4vw, 3.5rem)',
+            fontWeight: 800,
+            lineHeight: 1.05,
+            letterSpacing: '-0.02em',
+            marginBottom: '1rem',
+            maxWidth: '40rem',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
           Share Your Expertise. Change a Career.
         </h1>
-        <p style={{ fontSize: '1.125rem', maxWidth: 600, margin: '0 auto 2rem', opacity: 0.9 }}>
+        <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', maxWidth: 600, margin: '0 auto 2rem', opacity: 0.9, lineHeight: 1.5 }}>
           WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it&rsquo;s tax-deductible.
         </p>
         <Link
           href="/mentor/apply"
-          style={{ background: '#fff', color: 'var(--color-accent)', fontWeight: 700, padding: '0.875rem 2rem', borderRadius: 8, textDecoration: 'none', fontSize: '1rem' }}
+          className="btn"
+          style={{ background: '#fff', color: 'var(--color-accent)', fontWeight: 700 }}
         >
           Apply to Mentor
         </Link>
@@ -79,11 +91,8 @@ export default function BecomeMentorPage() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-          <Link
-            href="/mentor/apply"
-            style={{ background: 'var(--color-accent)', color: '#fff', fontWeight: 700, padding: '0.875rem 2rem', borderRadius: 8, textDecoration: 'none', fontSize: '1rem' }}
-          >
-            Apply to Mentor →
+          <Link href="/mentor/apply" className="btn btn-primary">
+            Apply to Mentor &rarr;
           </Link>
         </div>
       </section>

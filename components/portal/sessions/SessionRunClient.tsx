@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink, FileText, Loader2, MessagesSquare, PenLine, Sparkles, User } from 'lucide-react';
+import { CheckCircle2, ExternalLink, FileText, Loader2, MessagesSquare, Mic, PenLine, Sparkles, User } from 'lucide-react';
+import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
 type ToolKey = 'resume' | 'coverLetter' | 'interview';
 
@@ -72,6 +75,29 @@ export default function SessionRunClient({
   const [endingSession, setEndingSession] = useState(false);
   const [packetSent, setPacketSent] = useState(false);
   const [packetError, setPacketError] = useState<string | null>(null);
+
+  // Voice walk-through state — captures the live conversation transcript
+  // so it can pre-fill the typing forms below (counselor reviews, then
+  // runs each tool with voice-captured inputs).
+  const [voiceTranscript, setVoiceTranscript] = useState<string[]>([]);
+  const [voiceComplete, setVoiceComplete] = useState(false);
+  const handleTranscriptChunk = useCallback((chunk: { speaker: 'agent' | 'user'; text: string }) => {
+    setVoiceTranscript((prev) => [...prev, `${chunk.speaker === 'user' ? 'Member' : 'Coach'}: ${chunk.text}`]);
+  }, []);
+  const handleVoicePhaseChange = useCallback((phase: string) => {
+    if (phase === 'done') setVoiceComplete(true);
+  }, []);
+  const transcriptText = voiceTranscript.join('\n');
+
+  const useTranscriptAsResume = () => {
+    if (!transcriptText) return;
+    // Filter to just member speech for the resume input.
+    const memberOnly = voiceTranscript
+      .filter((line) => line.startsWith('Member:'))
+      .map((line) => line.replace(/^Member: /, ''))
+      .join('\n');
+    setResumeText(memberOnly.length > 50 ? memberOnly : transcriptText);
+  };
 
   const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output);
   const allRun = !!(resumeState.output && coverState.output && interviewState.output);
@@ -169,6 +195,65 @@ export default function SessionRunClient({
           </p>
         </div>
       ) : null}
+
+      {/* ── Voice walk-through (primary path) ──
+          Per user direction (2026-04-26): "we want these to be all voice
+          tools here." Counselor + member talk through profile → resume →
+          cover letter → interview prep in one voice conversation. The live
+          transcript is captured so the typing forms below get pre-filled
+          for review/finalization. */}
+      <SectionCard
+        step={0}
+        title="Voice walk-through"
+        Icon={Mic}
+        accent="#2563eb"
+        statusBadge={voiceComplete ? 'Recorded' : voiceTranscript.length > 0 ? 'Live' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+          Talk through {memberFullName.split(' ')[0]}&rsquo;s background out loud — the agent will guide
+          you through profile, work history, target role, and interview prep in one conversation. We&rsquo;ll
+          capture the transcript and pre-fill the tools below so you can review and run each one.
+        </p>
+        <VoiceAgentSurface {...resumeCoachVoiceSurface}>
+          <PortalVoiceSession
+            sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
+            sessionPayload={{ memberId, sessionId }}
+            title={`Build ${memberFullName.split(' ')[0]}'s session out loud`}
+            titleAs="h3"
+            description="Resume coach + cover letter + interview prep, all in one voice session."
+            accent="#2563eb"
+            accentDark="#1e40af"
+            speakingLabel="Coach is speaking…"
+            listeningLabel="Listening — answer out loud"
+            onTranscriptChunk={handleTranscriptChunk}
+            onPhaseChange={handleVoicePhaseChange}
+            showLiveTranscript
+            liveTranscriptCoachLabel="Coach"
+            liveTranscriptYouLabel={memberFullName.split(' ')[0]}
+            retryWithoutDynamicVariables={false}
+          />
+        </VoiceAgentSurface>
+        {voiceTranscript.length > 0 ? (
+          <div style={{ marginTop: '1rem', padding: '0.85rem 1rem', background: 'var(--surface-container-low)', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                {voiceTranscript.length} transcript line{voiceTranscript.length === 1 ? '' : 's'} captured
+              </p>
+              <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                Use as the resume input below, then refine + click &ldquo;Build resume.&rdquo;
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary btn-small"
+              onClick={useTranscriptAsResume}
+              disabled={transcriptText.length < 30}
+            >
+              Pre-fill resume input &rarr;
+            </button>
+          </div>
+        ) : null}
+      </SectionCard>
 
       {/* Card 1: Profile snapshot */}
       <SectionCard

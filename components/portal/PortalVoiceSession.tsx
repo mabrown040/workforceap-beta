@@ -87,6 +87,13 @@ export type PortalVoiceSessionProps = {
   /** JSON body for POST (e.g. role + interview type). Omit for empty body. */
   sessionPayload?: Record<string, unknown>;
   title: string;
+  /**
+   * Heading level for the title. Defaults to 'h3' (sub-section under a page-
+   * level h2). Pass 'h2' when this voice session is the page's primary
+   * top-level section (e.g. counselor portal staff voice block where the
+   * page h1 is the only heading above it).
+   */
+  titleAs?: 'h2' | 'h3';
   description: string;
   accent?: string;
   accentDark?: string;
@@ -179,6 +186,7 @@ export default function PortalVoiceSession({
   sessionEndpoint,
   sessionPayload,
   title,
+  titleAs = 'h3',
   description,
   accent = '#8c0f37',
   accentDark = '#6b0c29',
@@ -765,9 +773,15 @@ export default function PortalVoiceSession({
             />
           </div>
         </div>
-        <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
-          {title}
-        </h3>
+        {titleAs === 'h2' ? (
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
+            {title}
+          </h2>
+        ) : (
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
+            {title}
+          </h3>
+        )}
         <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.25rem', lineHeight: 1.55, fontSize: '0.9rem' }}>
           {description}
         </p>

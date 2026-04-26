@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { jobMatchScorerSchema } from '@/lib/validation/jobMatchScorer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { 
   fetchPageText, 
   detectProvider, 
@@ -352,7 +353,7 @@ Analyze the match and output in the format above.`;
 
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'job_match_scorer', summary, output);
+      await saveAIToolResult(onBehalf.subjectUserId, 'job_match_scorer', summary, output, { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId });
     } catch (saveErr) {
       console.error('Job match scorer: failed to save result', saveErr);
     }

@@ -279,6 +279,12 @@ export async function POST(request: Request) {
     } else if (r.toolType === 'linkedin_about') {
       title = 'LinkedIn About Section';
       contextLine = r.inputSummary ? `Role: ${r.inputSummary}` : null;
+    } else if (r.toolType === 'job_match_scorer') {
+      title = 'Job Match Analysis';
+      contextLine = r.inputSummary ? `Matched against: ${r.inputSummary}` : null;
+    } else if (r.toolType === 'salary_negotiation') {
+      title = 'Salary Negotiation Script';
+      contextLine = r.inputSummary ? `Role: ${r.inputSummary}` : null;
     }
 
     sections.push({ title, contextLine, body: bodyText, asList });

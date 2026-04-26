@@ -20,11 +20,24 @@ export async function DELETE(
     return NextResponse.json({ error: 'Cannot delete your own account.' }, { status: 400 });
   }
 
-  const target = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, email: true, deletedAt: true },
+  });
   if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
 
   try {
-    await prisma.user.update({ where: { id }, data: { deletedAt: new Date() } });
+    // See app/api/admin/members/[id]/delete/route.ts — same pattern.
+    // Rewrite the email so the @unique constraint doesn't block re-signup.
+    const now = new Date();
+    const newEmail = target.deletedAt
+      ? target.email
+      : `deleted_${id}_${now.getTime()}_${target.email}@deleted.invalid`.slice(0, 255);
+
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: now, email: newEmail },
+    });
 
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.auth.admin.deleteUser(id);

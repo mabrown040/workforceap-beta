@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 
 type Step = 'form' | 'pitch' | 'rehearse';
 
@@ -13,6 +14,12 @@ export default function ElevatorPitchClient() {
   const [strengths, setStrengths] = useState('');
   const [certifications, setCertifications] = useState('');
   const [industry, setIndustry] = useState('');
+
+  useDraftAutosave('ai-tool:elevator-pitch:name', name, setName);
+  useDraftAutosave('ai-tool:elevator-pitch:targetRole', targetRole, setTargetRole);
+  useDraftAutosave('ai-tool:elevator-pitch:strengths', strengths, setStrengths);
+  useDraftAutosave('ai-tool:elevator-pitch:certifications', certifications, setCertifications);
+  useDraftAutosave('ai-tool:elevator-pitch:industry', industry, setIndustry);
 
   // Generated pitch
   const [pitch, setPitch] = useState('');

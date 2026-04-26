@@ -19,6 +19,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
@@ -138,7 +139,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, sessionEventsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -163,6 +164,21 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     prisma.jobApplication.findMany({
       where: { userId: user.id, status: 'OFFER' },
     }),
+    // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
+    // ai_tool_run_completed event in the last 30 days where a counselor or
+    // admin acted on behalf of this member, so the dashboard can render a
+    // "Your session with {actor} on {date}" card.
+    prisma.memberEvent.findMany({
+      where: {
+        userId: user.id,
+        eventName: 'ai_tool_run_completed',
+        sessionId: { not: null },
+        createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      select: { sessionId: true, entityId: true, createdAt: true, metadata: true },
+    }),
   ]);
 
   const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
@@ -181,6 +197,42 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   }
 
   const jobOffers = jobApplicationsResult.status === 'fulfilled' ? jobApplicationsResult.value : [];
+
+  // Group on-behalf-of session events by sessionId so the dashboard can
+  // render a single "Your session with {actor}" card for the most recent run.
+  const sessionEvents = sessionEventsResult.status === 'fulfilled' ? sessionEventsResult.value : [];
+  if (sessionEventsResult.status === 'rejected') {
+    console.error('[dashboard] session events query failed', sessionEventsResult.reason);
+  }
+  type SessionSummary = {
+    sessionId: string;
+    actorName: string;
+    startedAt: Date;
+    toolCount: number;
+    resultIds: string[];
+  };
+  const sessionMap = new Map<string, SessionSummary>();
+  for (const ev of sessionEvents) {
+    if (!ev.sessionId) continue;
+    const meta = (ev.metadata ?? {}) as { runOnBehalf?: boolean; actorName?: string | null };
+    if (!meta.runOnBehalf) continue;
+    const existing = sessionMap.get(ev.sessionId);
+    if (existing) {
+      existing.toolCount += 1;
+      if (ev.entityId) existing.resultIds.push(ev.entityId);
+      if (ev.createdAt < existing.startedAt) existing.startedAt = ev.createdAt;
+    } else {
+      sessionMap.set(ev.sessionId, {
+        sessionId: ev.sessionId,
+        actorName: meta.actorName ?? 'your counselor',
+        startedAt: ev.createdAt,
+        toolCount: 1,
+        resultIds: ev.entityId ? [ev.entityId] : [],
+      });
+    }
+  }
+  const latestSession =
+    [...sessionMap.values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0] ?? null;
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
@@ -394,6 +446,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   return (
     <>
       <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
+
+      {/* ── Recent in-office session card — shown to both mobile + desktop
+          when a counselor or admin ran tools on the member's behalf in the
+          last 30 days. See lib/auth/actAsSubject.ts. ── */}
+      {latestSession ? (
+        <MemberSessionCard
+          actorName={latestSession.actorName}
+          startedAt={latestSession.startedAt}
+          toolCount={latestSession.toolCount}
+        />
+      ) : null}
 
       {/* ── Mobile-only dashboard (≤767px) ── */}
       <div className="wa-md:wa-hidden portal-mobile-content">

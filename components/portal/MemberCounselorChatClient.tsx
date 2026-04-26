@@ -170,9 +170,9 @@ export default function MemberCounselorChatClient({
   };
 
   const subtitle = useMemo(() => {
-    if (counselorName) return `Chat with ${counselorName}`;
-    if (thread.counselorUserId) return 'Your counselor will reply here.';
-    return 'A counselor will be assigned to you — you can leave a message anytime.';
+    if (counselorName) return `Chat with ${counselorName} — replies within 2 business days`;
+    if (thread.counselorUserId) return 'Your counselor replies within 2 business days.';
+    return 'A counselor will be assigned to you — leave a message anytime, replies within 2 business days.';
   }, [counselorName, thread.counselorUserId]);
 
   return (

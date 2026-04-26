@@ -31,6 +31,7 @@ import {
   Shield,
   Sparkles,
   Target,
+  TrendingUp,
   Upload,
   User,
   Users,
@@ -325,6 +326,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/invites', label: 'Invites', group: 'content', Icon: MessageSquare },
 
   // ── Insights — metrics and reporting ──
+  { href: '/admin/board', label: 'Board outcomes', group: 'insights', Icon: TrendingUp },
   { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
   { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },

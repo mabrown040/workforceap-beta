@@ -1,0 +1,103 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { getBoardOutcomes, type BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
+import { getProgramBySlug } from '@/lib/content/programs';
+import PageHeader from '@/components/portal/PageHeader';
+import BoardOutcomesView from '@/components/admin/BoardOutcomesView';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Board outcomes',
+  description: 'Outcomes view for workforce boards and grant funders. Real-time WIOA-aligned metrics.',
+  path: '/admin/board',
+  robots: { index: false, follow: false },
+});
+
+const VALID_PERIODS: BoardOutcomesPeriod[] = ['all-time', 'ytd', 'q-current', 'q-prev'];
+
+export default async function BoardOutcomesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string; org?: string }>;
+}) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/board');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const sp = await searchParams;
+  const period: BoardOutcomesPeriod = (VALID_PERIODS as string[]).includes(sp.period ?? '')
+    ? (sp.period as BoardOutcomesPeriod)
+    : 'all-time';
+
+  const outcomes = await getBoardOutcomes(period);
+
+  // Resolve program slugs to display titles for the programs breakdown.
+  const programsWithTitles = outcomes.programs.map((p) => ({
+    ...p,
+    title: getProgramBySlug(p.programSlug)?.title ?? p.programSlug,
+  }));
+
+  // White-label slug from URL (e.g. /admin/board?org=workforce-solutions-austin).
+  // For T-5 day demo, no per-board scoping yet — just display name override.
+  const boardName = sp.org ? prettifyOrgSlug(sp.org) : 'Workforce Advancement Project';
+
+  return (
+    <>
+      <PageHeader
+        title="Board outcomes"
+        subtitle={`Live WIOA-aligned outcomes ready to show a workforce board or funder. Switch the timeframe to compare quarter over quarter.`}
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Board outcomes' },
+        ]}
+        action={
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <PeriodLink period="all-time" current={period} label="All time" />
+            <PeriodLink period="ytd" current={period} label="YTD" />
+            <PeriodLink period="q-current" current={period} label="This quarter" />
+            <PeriodLink period="q-prev" current={period} label="Last quarter" />
+            <Link href="/admin/board/print" className="btn btn-primary btn-small">
+              Generate funder report
+            </Link>
+          </div>
+        }
+      />
+      <BoardOutcomesView
+        outcomes={outcomes}
+        programs={programsWithTitles}
+        boardName={boardName}
+      />
+    </>
+  );
+}
+
+function PeriodLink({
+  period,
+  current,
+  label,
+}: {
+  period: BoardOutcomesPeriod;
+  current: BoardOutcomesPeriod;
+  label: string;
+}) {
+  const active = period === current;
+  return (
+    <Link
+      href={`/admin/board?period=${period}`}
+      className={active ? 'btn btn-primary btn-small' : 'btn btn-secondary btn-small'}
+      aria-current={active ? 'page' : undefined}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function prettifyOrgSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(' ');
+}

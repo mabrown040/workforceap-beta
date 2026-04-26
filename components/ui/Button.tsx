@@ -36,7 +36,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ].filter(Boolean).join(' ');
 
     return (
-      <button
+      <button type="button"
         ref={ref}
         className={combinedClasses}
         disabled={disabled || loading}

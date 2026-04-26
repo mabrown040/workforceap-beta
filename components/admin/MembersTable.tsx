@@ -103,7 +103,7 @@ export default function MembersTable({ members }: MembersTableProps) {
           const rawPhone = m.profile?.profilePhone ?? m.phone;
           const phoneDisplay = formatPhone(rawPhone);
           const lastActive = formatMemberDate(m.updatedAt) ?? '—';
-          return (<li key={m.id} className="admin-portal-card" style={{ cursor: 'pointer' }} onClick={() => window.location.assign(`/admin/members/${m.id}`)}>
+          return (<li key={m.id} className="admin-portal-card" style={{ cursor: 'pointer' }} onClick={() => window.location.assign(`/admin/members/${m.id}`)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') window.location.assign(`/admin/members/${m.id}`); }} aria-label={`View details for ${m.fullName}`}>
             <div className="admin-portal-card__header"><Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)' }}>{m.healthStatus && <HealthDot status={m.healthStatus} />}{m.fullName}</Link>{m.healthStatus ? <span className="admin-portal-card__badge" style={{ background: m.healthStatus === 'green' ? 'rgba(22,163,74,0.12)' : m.healthStatus === 'yellow' ? 'rgba(217,119,6,0.12)' : 'rgba(220,38,38,0.12)', color: m.healthStatus === 'green' ? '#166534' : m.healthStatus === 'yellow' ? '#b45309' : '#991b1b' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : null}</div>
             <p className="admin-portal-card__meta">{m.email}</p>
             {rawPhone ? <p className="admin-portal-card__meta">{phoneDisplay}</p> : null}

@@ -73,7 +73,7 @@ export default function SuperAdminViewSwitcher() {
   }[currentView] ?? currentLabel;
 
   return (
-    <div className="super-admin-view-switcher super-admin-view-switcher--with-badge" onClick={(e) => e.stopPropagation()}>
+    <div className="super-admin-view-switcher super-admin-view-switcher--with-badge" onClick={(e) => e.stopPropagation()} role="presentation">
       <span className="super-admin-view-switcher__badge" title="Super Admin access enabled">Admin</span>
       <button
         type="button"

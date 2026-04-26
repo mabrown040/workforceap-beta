@@ -319,6 +319,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/career-mappings', label: 'Career paths', group: 'pipeline', Icon: Target },
   { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
 
+  // ── Workflows — admin-as-counselor force multiplier ──
+  // In-office sessions live under /counselor/* (the page accepts admin
+  // auth). Admins routinely sit with members too; this entry shortcuts
+  // there from the admin sidebar. See PR #743 + /plan-ceo-review (2026-04-26).
+  { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
+
   // ── Content — jobs, blog, invites ──
   { href: '/admin/jobs', label: 'Jobs', group: 'content', Icon: Briefcase },
   { href: '/admin/blog', label: 'Blog', group: 'content', Icon: FileText },

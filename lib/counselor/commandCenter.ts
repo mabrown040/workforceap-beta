@@ -168,14 +168,33 @@ export async function getCounselorCommandCenter(
     },
     select: { id: true, fullName: true, email: true, enrolledProgram: true, enrolledAt: true },
   });
+  // Find each at-risk user's actual last MemberEvent timestamp in a single
+  // grouped query (no N+1) so the "X days inactive" count reflects real
+  // last activity, not just time since enrollment.
+  const atRiskCandidateIds = enrolledRows.filter((u) => !activeIds.has(u.id)).map((u) => u.id);
+  const lastEventByUser = new Map<string, Date>();
+  if (atRiskCandidateIds.length > 0) {
+    const lastEvents = await prisma.$queryRawUnsafe<Array<{ user_id: string; last_at: Date | null }>>(
+      `SELECT user_id, MAX(created_at) AS last_at
+       FROM member_events
+       WHERE user_id = ANY($1::uuid[])
+       GROUP BY user_id`,
+      atRiskCandidateIds,
+    );
+    for (const r of lastEvents) {
+      if (r.last_at) lastEventByUser.set(r.user_id, r.last_at);
+    }
+  }
   const atRisk: AtRiskRow[] = enrolledRows
     .filter((u) => !activeIds.has(u.id))
     .map((u) => {
-      // Find their actual last MemberEvent (could be older than 7 days)
-      // — defer the per-row query and just compute days since enrolledAt as a fallback.
-      // (Cheap: avoid N+1 by approximating.)
-      const refDate = u.enrolledAt ?? sevenDaysAgo;
-      const daysInactive = Math.max(7, Math.floor((now.getTime() - refDate.getTime()) / DAY_MS));
+      // Prefer the last real MemberEvent; fall back to enrolledAt only when
+      // a user has never logged any event at all (e.g. brand-new account
+      // that never signed in).
+      const lastActive = lastEventByUser.get(u.id) ?? u.enrolledAt ?? null;
+      const daysInactive = lastActive
+        ? Math.max(7, Math.floor((now.getTime() - lastActive.getTime()) / DAY_MS))
+        : 7;
       return {
         memberId: u.id,
         memberName: u.fullName ?? u.email,

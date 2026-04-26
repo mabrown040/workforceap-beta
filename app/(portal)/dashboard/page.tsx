@@ -851,10 +851,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
               }}
             >
-              <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
               </div>
-              <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 2rem' }}>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
                 <div style={{ maxWidth: '300px' }}>
                   <LogCertificationModal />
@@ -895,7 +895,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </Suspense>
               )}
               {recentTools.length > 0 && (
-                <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+                <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
                   <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
                     <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
                     <Link href="/dashboard/ai-tools/history" className="portal-section-action">

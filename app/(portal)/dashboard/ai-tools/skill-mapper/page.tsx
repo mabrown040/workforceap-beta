@@ -68,7 +68,7 @@ export default async function SkillMapperPage() {
           </div>
         </div>
 
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '1rem 1.5rem 2rem' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
             <SkillMapperClient />
           </div>

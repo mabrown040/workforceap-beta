@@ -208,7 +208,7 @@ export default function DashboardHomeClient({
   ];
 
   return (
-    <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
 
       {/* ── Page Header ── */}

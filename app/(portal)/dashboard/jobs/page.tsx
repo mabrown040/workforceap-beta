@@ -102,6 +102,37 @@ export default async function JobsPage() {
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
+          {/* Indeed search banner */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            padding: '0.875rem 1.25rem',
+            background: 'var(--surface-container-low)',
+            border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
+            borderRadius: '0.875rem',
+            marginBottom: '1.25rem',
+            flexWrap: 'wrap',
+          }}>
+            <div style={{ flex: 1, minWidth: '12rem' }}>
+              <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
+                Also search Indeed
+              </p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                Browse millions of additional job listings outside our employer network.
+              </p>
+            </div>
+            <a
+              href="https://www.indeed.com/jobs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline"
+              style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', flexShrink: 0 }}
+            >
+              Search on Indeed ↗
+            </a>
+          </div>
+
           {!user ? (
             <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
               <strong>Applying is for members.</strong>{' '}

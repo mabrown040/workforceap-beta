@@ -167,7 +167,7 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
     {/* ── MOBILE SECTION ── */}
-    <div className="wa-block wa-md:wa-hidden portal-mobile-content">
+    <div className="wa-block md:wa-hidden portal-mobile-content">
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
         <p
@@ -347,7 +347,7 @@ export default async function PartnerDashboardPage() {
     </div>
 
     {/* ── DESKTOP SECTION ── */}
-    <div className="wa-hidden wa-md:wa-block">
+    <div className="wa-hidden md:wa-block">
     <div className="partner-impact-console">
 
       {/* ── Header ── */}

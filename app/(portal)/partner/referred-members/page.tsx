@@ -36,7 +36,7 @@ export default async function PartnerReferredMembersPage() {
         subtitle="Search and filter everyone your organization has referred to WorkforceAP."
         action={
           <>
-            <div className="wa-block wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
+            <div className="wa-block md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
               <PartnerInviteMemberButton compact />
               <a
                 href="/partner/exports"
@@ -60,19 +60,19 @@ export default async function PartnerReferredMembersPage() {
                 Export CSV
               </a>
             </div>
-            <div className="wa-hidden wa-md:wa-block">
+            <div className="wa-hidden md:wa-block">
               <PartnerInviteMemberButton />
             </div>
           </>
         }
       />
-      <div className="wa-block wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PartnerReferredMembersMobile rows={rows} />
 
         <MobileBottomNav variant="partner" />
       </div>
 
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PartnerMembersList members={rows} />
       </div>
     </PortalPageFrame>

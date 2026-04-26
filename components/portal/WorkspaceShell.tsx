@@ -299,7 +299,7 @@ export default function WorkspaceShell({
           ) : null}
           {/* Global search — admin only, hidden on mobile */}
           {portalRole === 'admin' && (
-            <div className="wa-hidden wa-md:wa-block">
+            <div className="wa-hidden md:wa-block">
               <GlobalSearch />
             </div>
           )}

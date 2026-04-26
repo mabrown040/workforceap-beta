@@ -187,7 +187,7 @@ export default async function EmployerDashboardPage() {
     >
     <PortalPageFrame>
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
-      <div className="wa-block wa-md:wa-hidden portal-mobile-content">
+      <div className="wa-block md:wa-hidden portal-mobile-content">
         {/* Hero */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
           <p
@@ -337,7 +337,7 @@ export default async function EmployerDashboardPage() {
         </div>
       </div>
       {/* ── Desktop View ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
       {/* ── Header ── */}
       <PageHeader
         title="Employer overview"

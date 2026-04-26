@@ -27,7 +27,7 @@ export default function ReadinessCoachReturnButton({
         document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }}
       aria-label="Jump back to readiness coach"
-      className="wa-md:wa-hidden"
+      className="md:wa-hidden"
       style={{
         position: 'fixed',
         right: '1rem',

@@ -306,7 +306,7 @@ export default async function AdminPage() {
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (
-        <div className="wa-md:wa-hidden portal-alert portal-alert--accent" style={{ margin: '0 1.5rem 1rem' }}>
+        <div className="md:wa-hidden portal-alert portal-alert--accent" style={{ margin: '0 1.5rem 1rem' }}>
           <span className="portal-alert__label">
             {pendingApplications} pending
           </span>
@@ -316,7 +316,7 @@ export default async function AdminPage() {
         </div>
       )}
       {pendingApplications > 0 && (
-        <div className="wa-hidden wa-md:wa-block portal-alert portal-alert--accent" style={{ marginBottom: '1.5rem' }}>
+        <div className="wa-hidden md:wa-block portal-alert portal-alert--accent" style={{ marginBottom: '1.5rem' }}>
           <span className="portal-alert__label">
             {pendingApplications} pending application{pendingApplications === 1 ? '' : 's'} awaiting review
           </span>
@@ -326,7 +326,7 @@ export default async function AdminPage() {
         </div>
       )}
       {pendingPlacements.length > 0 && (
-        <div className="wa-hidden wa-md:wa-block portal-alert" style={{ marginBottom: '1.5rem', borderColor: 'rgba(128,217,159,0.35)' }}>
+        <div className="wa-hidden md:wa-block portal-alert" style={{ marginBottom: '1.5rem', borderColor: 'rgba(128,217,159,0.35)' }}>
           <span className="portal-alert__label">
             {pendingPlacements.length} placement{pendingPlacements.length === 1 ? '' : 's'} waiting for counselor review
           </span>
@@ -414,7 +414,7 @@ export default async function AdminPage() {
       </section>
 
       {/* ── Main Dashboard Layout ── */}
-      <div className="wa-hidden wa-md:wa-block portal-grid-2col" style={{ gap: '2rem' }}>
+      <div className="wa-hidden md:wa-block portal-grid-2col" style={{ gap: '2rem' }}>
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
@@ -663,7 +663,7 @@ export default async function AdminPage() {
       </div>
 
       {/* ── Mobile Recent Signups Section ── */}
-      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+      <section className="md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
           <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recent Signups</h2>
           <Link href="/admin/members" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration: 'none' }}>View all →</Link>
@@ -698,7 +698,7 @@ export default async function AdminPage() {
       </section>
 
       {/* ── Mobile Quick Actions ── */}
-      <section className="wa-md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
+      <section className="md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
         <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>Quick Actions</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
           {[

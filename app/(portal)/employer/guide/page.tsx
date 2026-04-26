@@ -59,7 +59,7 @@ export default async function EmployerGuidePage() {
 
   return (
     <>
-    <div className="wa-pb-24 wa-md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <div className="wa-pb-24 md:wa-pb-0" style={{ maxWidth: '64rem', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <nav style={{ marginBottom: '1.5rem', marginTop: '0.5rem' }}>
         <Link href="/employer" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', fontWeight: 500 }}>

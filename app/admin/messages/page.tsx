@@ -21,7 +21,7 @@ export default async function AdminMessagesPage() {
     <>
       <AdminSuperMessagesClient />
       {/* Mobile bottom nav — only visible ≤md */}
-      <div className="wa-md:wa-hidden">
+      <div className="md:wa-hidden">
         <MobileBottomNav variant="admin" />
       </div>
     </>

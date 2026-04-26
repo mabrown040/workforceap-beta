@@ -83,7 +83,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
 
   return (
     <>
-      <article className="employer-job-edit wa-pb-24 wa-md:wa-pb-0">
+      <article className="employer-job-edit wa-pb-24 md:wa-pb-0">
         <PortalPageFrame>
           <PageHeader
             title="Job Details"

@@ -68,21 +68,21 @@ export default async function EmployerApplicationsPage({
         title={`Applicants (${totalCount})`}
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">Review candidates and update their status.</span>
-            <span className="wa-hidden wa-md:wa-block">Review candidates and update their status as you move them through your hiring process.</span>
+            <span className="wa-block md:wa-hidden">Review candidates and update their status.</span>
+            <span className="wa-hidden md:wa-block">Review candidates and update their status as you move them through your hiring process.</span>
           </>
         }
         breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
       />
       {/* ── Mobile Applications View (≤640px) ── */}
-      <div className="wa-block wa-md:wa-hidden wa-pb-24">
+      <div className="wa-block md:wa-hidden wa-pb-24">
         <MobileApplicationsClient initialRows={initialRows} />
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
         </div>
       </div>
       {/* ── Desktop View ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <EmployerApplicationsClient initialRows={initialRows} />
         <EmployerApplicationsPager page={page} totalPages={totalPages} />
       </div>

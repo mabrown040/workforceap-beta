@@ -37,7 +37,7 @@ export default async function CounselorPage() {
       </div>
 
       {/* Mobile */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1.5rem 1rem' }}>
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />
@@ -47,7 +47,7 @@ export default async function CounselorPage() {
       </div>
 
       {/* Desktop */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '3rem 1.5rem' }}>
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />

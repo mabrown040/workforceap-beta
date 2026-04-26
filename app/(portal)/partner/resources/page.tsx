@@ -42,7 +42,7 @@ export default async function PartnerResourcesPage() {
         subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
       />
       {/* Mobile View */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
       {(partner?.contactEmail || partner?.contactPhone || partner?.contactName) && (
         <section
           style={{
@@ -105,7 +105,7 @@ export default async function PartnerResourcesPage() {
     </div>
 
     {/* Desktop View */}
-    <div className="wa-hidden wa-md:wa-block">
+    <div className="wa-hidden md:wa-block">
       {(partner?.contactEmail || partner?.contactPhone || partner?.contactName) && (
         <section
           style={{

@@ -50,7 +50,7 @@ export default async function AdminEmployersPage() {
       {employers.length > 0 && (
         <>
           {/* Desktop table */}
-          <div className="wa-hidden wa-md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
+          <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
             <table className="admin-table employer-applications-table">
               <thead>
                 <tr>
@@ -99,7 +99,7 @@ export default async function AdminEmployersPage() {
           </div>
 
           {/* Mobile cards */}
-          <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {employers.map((e) => {
               const initials = (e.companyName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
               return (

@@ -100,7 +100,7 @@ export default async function CounselorStudentsPage() {
     <PortalPageFrame>
       <PageHeader title="My members" subtitle="Members assigned to you for coaching and messaging." />
       {/* ── Mobile ─────────────────────────────────────────── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
         <div
           style={{
@@ -350,7 +350,7 @@ export default async function CounselorStudentsPage() {
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         {hotQueue.length > 0 ? (
           <section style={{ marginBottom: '1.5rem' }}>
             <div

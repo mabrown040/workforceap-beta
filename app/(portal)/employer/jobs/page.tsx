@@ -119,7 +119,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
     <>
       <h1 className="wa-sr-only">My Jobs</h1>
       {/* ── Mobile section ── */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
           title="My Jobs"
           subtitle="Manage your job postings and review candidate activity."
@@ -230,7 +230,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       </div>
 
       {/* ── Desktop section ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
             title="My Jobs"

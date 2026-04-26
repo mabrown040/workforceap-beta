@@ -104,7 +104,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   return (
     <PortalPageFrame>
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <Link href="/partner/referred-members" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
           ← Back to referred members
         </Link>
@@ -248,7 +248,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       </div>
 
       {/* ── Desktop layout ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <Link href="/partner/referred-members" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
           ← Back to referred members
         </Link>

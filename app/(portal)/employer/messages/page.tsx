@@ -40,12 +40,12 @@ export default async function EmployerMessagesPage() {
         title="Messages"
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">Candidates and WorkforceAP team</span>
-            <span className="wa-hidden wa-md:wa-block">Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.</span>
+            <span className="wa-block md:wa-hidden">Candidates and WorkforceAP team</span>
+            <span className="wa-hidden md:wa-block">Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.</span>
           </>
         }
       />
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <EmployerMessagesInboxClient
           portalUserId={user.id}
           teamRow={teamRow}
@@ -59,7 +59,7 @@ export default async function EmployerMessagesPage() {
           }}
         />
       </div>
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <EmployerMessagesInboxClient
           portalUserId={user.id}
           teamRow={teamRow}

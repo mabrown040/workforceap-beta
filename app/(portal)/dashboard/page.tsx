@@ -459,7 +459,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       ) : null}
 
       {/* ── Mobile-only dashboard (≤767px) ── */}
-      <div className="wa-md:wa-hidden portal-mobile-content">
+      <div className="md:wa-hidden portal-mobile-content">
 
         {/* ── Hero: greeting + progress ring ── */}
         <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
@@ -831,7 +831,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       </div>
 
       {/* ── Desktop view (hidden on mobile) ── */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
           <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
             <PortalEntryClient

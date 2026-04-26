@@ -52,8 +52,8 @@ export default async function TrainingPage() {
           title="My Training"
           subtitle={
             <>
-              <span className="wa-block wa-md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
-              <span className="wa-hidden wa-md:wa-block">Complete your {program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.</span>
+              <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
+              <span className="wa-hidden md:wa-block">Complete your {program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.</span>
             </>
           }
           breadcrumbs={[
@@ -62,7 +62,7 @@ export default async function TrainingPage() {
           ]}
         />
         {/* Mobile */}
-        <div className="wa-md:wa-hidden" style={{ padding: '0.75rem 1rem 6rem' }}>
+        <div className="md:wa-hidden" style={{ padding: '0.75rem 1rem 6rem' }}>
           {/* Compact KPI strip */}
           <div style={{ display: 'grid', gap: '0.75rem', paddingBottom: '0.25rem' }}>
             <div
@@ -140,7 +140,7 @@ export default async function TrainingPage() {
         </div>
 
         {/* Desktop */}
-        <div className="wa-hidden wa-md:wa-block">
+        <div className="wa-hidden md:wa-block">
           {/* Stats row */}
           <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
             <PortalStatCard

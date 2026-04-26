@@ -388,7 +388,7 @@ export default function JobMatchScorerForm() {
             zIndex: 50,
             display: 'flex',
           }}
-          className="wa-md:wa-hidden"
+          className="md:wa-hidden"
         >
           <button
             type="submit"

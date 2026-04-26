@@ -53,7 +53,7 @@ export default async function CounselorResourcesPage() {
         subtitle="Program context, member-facing pages, and tools you use most often in sessions."
       />
       {/* Mobile View */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <section style={{ marginBottom: '1.75rem' }}>
           <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
             Counseling workflow
@@ -95,7 +95,7 @@ export default async function CounselorResourcesPage() {
       </div>
 
       {/* Desktop View */}
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           <section>
             <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>

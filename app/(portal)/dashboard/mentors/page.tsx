@@ -25,7 +25,7 @@ export default async function MentorsBrowsePage() {
   return (
     <>
       {/* Mobile */}
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>Find a Mentor</h1>
         <div style={{ display: 'grid', gap: '0.75rem' }}>
           {mentors.map((mentor) => (
@@ -43,7 +43,7 @@ export default async function MentorsBrowsePage() {
       </div>
 
       {/* Desktop */}
-      <div className="wa-hidden wa-md:wa-block" style={{ padding: '1.5rem' }}>
+      <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem' }}>
         <h2 aria-hidden="true" style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>Find a Mentor</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
           {mentors.map((mentor) => (

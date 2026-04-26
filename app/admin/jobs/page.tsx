@@ -117,7 +117,7 @@ export default async function AdminJobsPage({
 
       <AdminJobsFilterTabs currentFilter={currentFilter} tabs={tabs} />
 
-      <div className="wa-md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {jobs.map((job) => (
           <div
             key={job.id}
@@ -165,7 +165,7 @@ export default async function AdminJobsPage({
         ))}
       </div>
 
-      <div className="wa-hidden wa-md:wa-block" style={{ overflowX: 'auto' }}>
+      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
         <table className="admin-table admin-jobs-table">
           <thead>
             <tr>

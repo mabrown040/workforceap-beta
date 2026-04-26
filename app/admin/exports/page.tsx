@@ -28,14 +28,14 @@ export default async function AdminExportsPage() {
 
   return (
     <PortalPageFrame>
-      <div className="wa-hidden wa-md:wa-block" style={{ marginBottom: '2rem' }}>
+      <div className="wa-hidden md:wa-block" style={{ marginBottom: '2rem' }}>
         <PageHeader
           title="Export Data"
           subtitle="Download member training data as CSV. Filter by state, program, pipeline stage, and more."
         />
       </div>
 
-      <div className="wa-md:wa-hidden" style={{ padding: '1.5rem 1.5rem 1rem' }}>
+      <div className="md:wa-hidden" style={{ padding: '1.5rem 1.5rem 1rem' }}>
         <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Admin</p>
         <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)' }}>
           Export Data

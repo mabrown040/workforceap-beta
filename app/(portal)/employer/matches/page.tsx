@@ -86,12 +86,12 @@ export default async function EmployerMatchesPage() {
         title="Match History"
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">AI-suggested candidates for your roles</span>
-            <span className="wa-hidden wa-md:wa-block">Track suggested members and update your pipeline status as you move from outreach to hire.</span>
+            <span className="wa-block md:wa-hidden">AI-suggested candidates for your roles</span>
+            <span className="wa-hidden md:wa-block">Track suggested members and update your pipeline status as you move from outreach to hire.</span>
           </>
         }
       />
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {uniqueJobs.length > 1 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
             <span className="stitch-badge stitch-badge--accent">All Roles</span>
@@ -145,7 +145,7 @@ export default async function EmployerMatchesPage() {
           )}
         </div>
       </div>
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         {initialRows.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>auto_awesome</span>

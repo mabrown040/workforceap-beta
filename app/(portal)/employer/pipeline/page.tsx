@@ -79,13 +79,13 @@ export default async function EmployerPipelinePage() {
         title="Candidate Pipeline"
         subtitle={
           <>
-            <span className="wa-block wa-md:wa-hidden">AI-matched candidates across your open roles</span>
-            <span className="wa-hidden wa-md:wa-block">Suggested matches from WorkforceAP. Update status as you progress intros and decisions.</span>
+            <span className="wa-block md:wa-hidden">AI-matched candidates across your open roles</span>
+            <span className="wa-hidden md:wa-block">Suggested matches from WorkforceAP. Update status as you progress intros and decisions.</span>
           </>
         }
         action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Back to jobs</Link>}
       />
-      <div className="wa-md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
           {PIPELINE_STRIP.map((stage) => (
             <div key={stage.label} className="portal-card portal-card--flat" style={{ flexShrink: 0, textAlign: 'center', padding: '0.625rem 1rem', minWidth: '80px' }}>
@@ -148,7 +148,7 @@ export default async function EmployerPipelinePage() {
           )}
         </div>
       </div>
-      <div className="wa-hidden wa-md:wa-block">
+      <div className="wa-hidden md:wa-block">
         {jobs.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>

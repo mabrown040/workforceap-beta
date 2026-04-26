@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Sparkles, User } from 'lucide-react';
+import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Sparkles, Upload, User } from 'lucide-react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
@@ -82,6 +82,10 @@ export default function SessionRunClient({
   const [companyName, setCompanyName] = useState('');
   const [interviewLevel, setInterviewLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
 
+  // Resume upload state
+  const [uploadingResume, setUploadingResume] = useState(false);
+  const [uploadResumeError, setUploadResumeError] = useState<string | null>(null);
+
   // Wrap-up state
   const [endingSession, setEndingSession] = useState(false);
   const [packetSent, setPacketSent] = useState(false);
@@ -124,12 +128,13 @@ export default function SessionRunClient({
   const useTranscriptAsResume = useCallback((card: CardVoiceKey = 'walkthrough') => {
     const lines = transcripts[card];
     if (lines.length === 0) return;
-    const text = lines.join('\n');
     const memberOnly = lines
       .filter((line) => line.startsWith('Member:'))
       .map((line) => line.replace(/^Member: /, ''))
       .join('\n');
-    setResumeText(memberOnly.length > 50 ? memberOnly : text);
+    if (memberOnly.trim().length > 0) {
+      setResumeText(memberOnly);
+    }
   }, [transcripts]);
 
   const useTranscriptAsCoverContext = useCallback(() => {
@@ -141,6 +146,30 @@ export default function SessionRunClient({
       .join('\n');
     setJobDescription((prev) => (prev.trim().length > 0 ? prev : memberOnly || lines.join('\n')));
   }, [transcripts.cover]);
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setUploadingResume(true);
+    setUploadResumeError(null);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('memberId', memberId);
+    try {
+      const res = await fetch('/api/counselor/sessions/upload-resume', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setUploadResumeError(data.error ?? 'Upload failed');
+      } else if (data.text) {
+        setResumeText(data.text);
+      }
+    } catch {
+      setUploadResumeError('Network error uploading file');
+    } finally {
+      setUploadingResume(false);
+    }
+  };
 
   const toggleVoice = (card: CardVoiceKey) => {
     setActiveVoiceCard((prev) => (prev === card ? null : card));
@@ -468,9 +497,38 @@ export default function SessionRunClient({
           />
         </div>
         <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-resume-text">
-            Resume / experience <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
+            <label htmlFor="session-resume-text" style={{ margin: 0 }}>
+              Resume / experience <span style={{ color: 'var(--color-accent)' }}>*</span>
+            </label>
+            <label
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: uploadingResume || resumeState.status === 'running' ? 'not-allowed' : 'pointer',
+                opacity: uploadingResume || resumeState.status === 'running' ? 0.5 : 1,
+                color: 'var(--color-on-surface-variant)',
+              }}
+            >
+              {uploadingResume
+                ? <Loader2 size={14} className="ai-tool-submit-spinner" aria-hidden />
+                : <Upload size={14} aria-hidden />}
+              {uploadingResume ? 'Uploading…' : 'Upload file'}
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.txt"
+                style={{ display: 'none' }}
+                disabled={uploadingResume || resumeState.status === 'running'}
+                onChange={handleResumeUpload}
+              />
+            </label>
+          </div>
+          {uploadResumeError ? (
+            <p role="alert" style={{ margin: '0 0 0.35rem', fontSize: '0.8125rem', color: 'var(--color-accent)' }}>{uploadResumeError}</p>
+          ) : null}
           <textarea
             id="session-resume-text"
             value={resumeText}

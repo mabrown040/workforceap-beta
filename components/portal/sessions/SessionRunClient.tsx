@@ -32,6 +32,10 @@ interface Props {
   sessionId: string;
   existingResume: string;
   isFreshWalkIn: boolean;
+  /** Where "Edit full profile" links to. Differs by actor (counselor vs admin). */
+  memberDetailHref?: string;
+  /** Where "Back to sessions" goes after the packet sends. Differs by actor. */
+  sessionsListHref?: string;
 }
 
 /**
@@ -57,7 +61,13 @@ export default function SessionRunClient({
   sessionId,
   existingResume,
   isFreshWalkIn,
+  memberDetailHref,
+  sessionsListHref,
 }: Props) {
+  // Default to counselor paths so callers that don't pass these (legacy
+  // call sites) keep their existing behavior.
+  const editProfileHref = memberDetailHref ?? `/counselor/students/${memberId}`;
+  const backToSessionsHref = sessionsListHref ?? '/counselor/sessions';
   const router = useRouter();
 
   // Per-tool state
@@ -369,7 +379,7 @@ export default function SessionRunClient({
         </dl>
         <div style={{ marginTop: '1rem' }}>
           <Link
-            href={`/counselor/students/${memberId}`}
+            href={editProfileHref}
             target="_blank"
             rel="noopener"
             className="btn btn-secondary btn-small"
@@ -730,7 +740,7 @@ export default function SessionRunClient({
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => router.push('/counselor/sessions')}
+          onClick={() => router.push(backToSessionsHref)}
           style={{ alignSelf: 'flex-start' }}
         >
           Back to sessions

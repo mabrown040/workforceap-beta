@@ -341,7 +341,7 @@ export default async function AdminPage() {
         <h2 className="portal-section-heading" style={{ marginBottom: '0.75rem' }}>In-office sessions</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1rem' }}>
           <Link
-            href="/counselor/sessions/walk-in"
+            href="/admin/sessions/walk-in"
             className="portal-card portal-card--flat"
             style={{ display: 'block', padding: '1.5rem', textDecoration: 'none', color: 'inherit', border: '2px solid var(--color-accent)', boxShadow: '0 8px 24px rgba(173,44,77,0.12)' }}
           >

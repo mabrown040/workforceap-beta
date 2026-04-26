@@ -1,0 +1,91 @@
+import type { Metadata } from 'next';
+import { notFound, redirect } from 'next/navigation';
+import { randomUUID } from 'node:crypto';
+import { buildPageMetadata } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import PageHeader from '@/components/portal/PageHeader';
+import SessionRunClient from '@/components/portal/sessions/SessionRunClient';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Session run',
+  description: 'Build resume, cover letter, and interview prep with a member in one session.',
+  path: '/admin/sessions',
+});
+
+type SearchParams = { sid?: string; fresh?: string };
+
+/**
+ * Admin mirror of /counselor/sessions/[memberId]/run. Stays in admin
+ * chrome (sidebar, breadcrumbs) when admin opens an in-office session.
+ * Same shared SessionRunClient — only the URL prefixes for
+ * "Edit full profile" and "Back to sessions" differ.
+ */
+export default async function AdminSessionRunPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ memberId: string }>;
+  searchParams: Promise<SearchParams>;
+}) {
+  const { memberId } = await params;
+  const { sid, fresh } = await searchParams;
+
+  const user = await getUser();
+  if (!user) redirect(`/login?redirectTo=/admin/sessions/${memberId}/run`);
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const member = await prisma.user.findUnique({
+    where: { id: memberId, deletedAt: null },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phone: true,
+      enrolledProgram: true,
+      programInterest: true,
+    },
+  });
+  if (!member) notFound();
+
+  const existingResume = await getMemberResumePlainText(memberId, 8000, { preferOriginal: true });
+
+  // Session id: use one passed in URL, otherwise mint a new one and
+  // round-trip so the URL always carries it.
+  const sessionId = sid && /^[0-9a-f-]{36}$/i.test(sid) ? sid : randomUUID();
+  if (sessionId !== sid) {
+    redirect(`/admin/sessions/${memberId}/run?sid=${sessionId}${fresh === '1' ? '&fresh=1' : ''}`);
+  }
+
+  return (
+    <>
+      <PageHeader
+        title={`Session with ${member.fullName ?? member.email}`}
+        subtitle={
+          fresh === '1'
+            ? `Account just created. Walk through profile → resume → cover letter → interview prep, then click End session to email everything to ${member.email}.`
+            : `Continuing in-office session. Outputs save to ${member.fullName?.split(' ')[0] ?? 'their'} portal as you go.`
+        }
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin' },
+          { label: 'Sessions', href: '/admin/sessions' },
+          { label: member.fullName ?? member.email },
+        ]}
+      />
+      <SessionRunClient
+        memberId={member.id}
+        memberFullName={member.fullName ?? member.email}
+        memberEmail={member.email}
+        memberPhone={member.phone}
+        memberTargetRole={member.programInterest ?? null}
+        sessionId={sessionId}
+        existingResume={existingResume}
+        isFreshWalkIn={fresh === '1'}
+        memberDetailHref={`/admin/members/${member.id}`}
+        sessionsListHref="/admin/sessions"
+      />
+    </>
+  );
+}

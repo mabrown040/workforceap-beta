@@ -321,10 +321,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
 
   // ── Workflows — admin-as-counselor force multiplier ──
-  // In-office sessions live under /counselor/* (the page accepts admin
-  // auth). Admins routinely sit with members too; this entry shortcuts
-  // there from the admin sidebar. See PR #743 + /plan-ceo-review (2026-04-26).
-  { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
+  // Admin has its own /admin/sessions mirror so opening "In-office
+  // sessions" from admin chrome stays in admin chrome (per user
+  // direction 2026-04-26). The underlying SessionRunClient and
+  // SessionsIndexBody components are shared with the counselor route
+  // — only the URL prefixes for breadcrumbs / "back" links differ.
+  { href: '/admin/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
 
   // ── Content — jobs, blog, invites ──
   { href: '/admin/jobs', label: 'Jobs', group: 'content', Icon: Briefcase },

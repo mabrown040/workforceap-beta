@@ -186,6 +186,9 @@ export default async function EmployerDashboardPage() {
       }}
     >
     <PortalPageFrame>
+      <h1 className="wa-sr-only">
+        Employer overview — {employerRow.companyName}
+      </h1>
       {/* ── Mobile Employer Dashboard (≤640px) ── */}
       <div className="wa-block md:wa-hidden portal-mobile-content">
         {/* Hero */}
@@ -196,9 +199,9 @@ export default async function EmployerDashboardPage() {
           >
             Employer Portal
           </p>
-          <h1 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
+          <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
-          </h1>
+          </h2>
         </div>
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
@@ -341,6 +344,7 @@ export default async function EmployerDashboardPage() {
       {/* ── Header ── */}
       <PageHeader
         title="Employer overview"
+        titleHeadingLevel={2}
         subtitle="Manage job postings, review applicants, and track your hiring pipeline."
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,50 +20,21 @@ export default async function LinkedInHeadlinePage() {
   return (
     <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-      {/* Header */}
       <div
         style={{
-          padding: '1.5rem 2rem',
+          padding: '1.25rem 2rem 1.5rem',
           borderBottom: '1px solid var(--surface-container-high)',
           background: 'var(--surface-container-low)',
         }}
       >
-        <Link
-          href="/dashboard/ai-tools"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            fontSize: '0.85rem',
-            color: 'var(--color-on-surface-variant)',
-            textDecoration: 'none',
-            marginBottom: '0.75rem',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">arrow_back</span>
-          Back to AI Tools
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div
-            style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: 'var(--surface-container-highest)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">badge</span>
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>LinkedIn Headline Generator</h1>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-              Craft a compelling LinkedIn headline that gets you noticed by recruiters.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="LinkedIn headline generator"
+          subtitle="Craft a compelling LinkedIn headline that gets you noticed by recruiters."
+          breadcrumbs={[
+            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'LinkedIn headline' },
+          ]}
+        />
       </div>
 
       {/* Main content */}

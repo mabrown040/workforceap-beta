@@ -67,16 +67,18 @@ export default function InactiveMembersPage() {
   };
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
       <PageHeader
-        title="Inactive Members"
+        title="Inactive members"
         subtitle="Members who haven't been active on the platform. Reach out directly by email or phone, then log the outreach here so other staff can see the member was contacted."
+        breadcrumbs={[{ label: 'Counselor Portal', href: '/counselor' }, { label: 'Inactive members' }]}
       />
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         {[7, 14, 30].map((d) => (
           <button
+            type="button"
             key={d}
             onClick={() => setDays(d)}
             style={{
@@ -84,7 +86,7 @@ export default function InactiveMembersPage() {
               borderRadius: 'var(--radius-md)',
               border: 'none',
               background: days === d ? 'var(--color-accent)' : 'var(--surface-container-high)',
-              color: days === d ? '#fff' : 'var(--color-on-surface-variant)',
+              color: days === d ? 'var(--color-white, #fff)' : 'var(--color-on-surface-variant)',
               fontWeight: days === d ? 700 : 500,
               cursor: 'pointer',
               fontSize: '0.85rem',
@@ -177,7 +179,7 @@ export default function InactiveMembersPage() {
                             borderRadius: 'var(--radius-md)',
                             border: 'none',
                             background: reminderSent.has(m.id) ? 'var(--color-green)' : 'var(--color-accent)',
-                            color: '#fff',
+                            color: 'var(--color-white, #fff)',
                             fontWeight: 600,
                             fontSize: '0.8rem',
                             cursor: sendingReminder === m.id || reminderSent.has(m.id) ? 'not-allowed' : 'pointer',

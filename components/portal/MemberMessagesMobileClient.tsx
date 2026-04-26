@@ -197,7 +197,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
                 arrow_back
               </span>
             </Link>
-            <h1 className="portal-messages-title">Messages</h1>
+            <h2 className="portal-messages-title">Messages</h2>
           </div>
           <button
             type="button"

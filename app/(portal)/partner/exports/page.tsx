@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -21,10 +22,12 @@ export default async function PartnerExportsPage() {
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   return (
+    <PortalPageFrame>
     <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
       <PageHeader
         title="Exports"
         subtitle="Download a CSV of every referred member, stage, program progress, and last update (partner-scoped)."
+        breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Exports' }]}
       />
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: 560 }}>
         The file includes only members referred by your organization. Open in Excel or Google Sheets.
@@ -41,5 +44,6 @@ export default async function PartnerExportsPage() {
         <MobileBottomNav variant="partner" />
       </div>
     </div>
+    </PortalPageFrame>
   );
 }

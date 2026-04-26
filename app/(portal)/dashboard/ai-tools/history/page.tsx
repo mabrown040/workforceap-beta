@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AIHistoryList from '@/components/portal/AIHistoryList';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Tool History',
@@ -68,50 +69,21 @@ export default async function AIHistoryPage({ searchParams }: Props) {
   return (
     <>
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-      {/* Header */}
       <div
         style={{
-          padding: '1.5rem 2rem',
+          padding: '1.25rem 2rem 1.5rem',
           borderBottom: '1px solid var(--surface-container-high)',
           background: 'var(--surface-container-low)',
         }}
       >
-        <Link
-          href="/dashboard/ai-tools"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            fontSize: '0.85rem',
-            color: 'var(--color-on-surface-variant)',
-            textDecoration: 'none',
-            marginBottom: '0.75rem',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">arrow_back</span>
-          Back to AI Tools
-        </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div
-            style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: 'var(--surface-container-highest)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)' }} aria-hidden="true">history</span>
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>My AI Results</h1>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
-              Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="My AI results"
+          subtitle="Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines."
+          breadcrumbs={[
+            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'History' },
+          ]}
+        />
       </div>
 
       {/* Main content */}
@@ -137,7 +109,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                   padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,
-                  borderRadius: '8px', background: 'var(--color-accent)', color: '#fff', textDecoration: 'none',
+                  borderRadius: '8px', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', textDecoration: 'none',
                 }}
               >
                 Resume Rewriter

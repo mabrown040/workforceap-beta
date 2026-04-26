@@ -225,9 +225,6 @@ export default function SessionRunClient({
     interviewLevel,
   }), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
 
-  const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output);
-  const allRun = !!(resumeState.output && coverState.output && interviewState.output);
-
   const hasAnyOutput = !!(salaryState.output || jobMatchState.output || linkedinHlState.output || linkedinAboutState.output || elevatorState.output || resumeState.output || coverState.output || interviewState.output);
   const allRun = !!(salaryState.output && jobMatchState.output && linkedinHlState.output && linkedinAboutState.output && elevatorState.output && resumeState.output && coverState.output && interviewState.output);
 

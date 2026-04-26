@@ -32,6 +32,8 @@ interface Props {
   sessionId: string;
   existingResume: string;
   isFreshWalkIn: boolean;
+  memberDetailHref?: string;
+  sessionsListHref?: string;
   /** Where "Edit full profile" links to. Differs by actor (counselor vs admin). */
   memberDetailHref?: string;
   /** Where "Back to sessions" goes after the packet sends. Differs by actor. */
@@ -74,6 +76,9 @@ export default function SessionRunClient({
   const [linkedinHlState, setLinkedinHlState] = useState<ToolState>(initialToolState);
   const [linkedinAboutState, setLinkedinAboutState] = useState<ToolState>(initialToolState);
   const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
+  const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
+  const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
+  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
   const [interviewState, setInterviewState] = useState<ToolState>(initialToolState);
@@ -82,6 +87,9 @@ export default function SessionRunClient({
   const [linkedinSkills, setLinkedinSkills] = useState('');
   const [linkedinYears, setLinkedinYears] = useState('');
   const [linkedinBullets, setLinkedinBullets] = useState('');
+  const [salaryOffer, setSalaryOffer] = useState('');
+  const [salaryTarget, setSalaryTarget] = useState('');
+  const [salaryDelivery, setSalaryDelivery] = useState<'email' | 'phone'>('email');
   const [elevatorStrengths, setElevatorStrengths] = useState('');
   const [elevatorIndustry, setElevatorIndustry] = useState('');
   const [resumeText, setResumeText] = useState(existingResume);
@@ -99,7 +107,7 @@ export default function SessionRunClient({
   const [packetSent, setPacketSent] = useState(false);
   const [packetError, setPacketError] = useState<string | null>(null);
 
-<<<<<<< HEAD
+
   // Per-card voice state. Each card (walkthrough, resume, cover,
   // interview) can be toggled into voice mode independently. The active
   // card's transcript routes to its own bucket so transcripts don't bleed
@@ -222,10 +230,10 @@ export default function SessionRunClient({
 
   const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output);
   const allRun = !!(resumeState.output && coverState.output && interviewState.output);
-=======
-  const hasAnyOutput = !!(linkedinHlState.output || linkedinAboutState.output || elevatorState.output || resumeState.output || coverState.output || interviewState.output);
-  const allRun = !!(linkedinHlState.output && linkedinAboutState.output && elevatorState.output && resumeState.output && coverState.output && interviewState.output);
->>>>>>> 4f45461a (feat(sessions): add linkedin tools to walk-in session + profile compile)
+
+  const hasAnyOutput = !!(salaryState.output || jobMatchState.output || linkedinHlState.output || linkedinAboutState.output || elevatorState.output || resumeState.output || coverState.output || interviewState.output);
+  const allRun = !!(salaryState.output && jobMatchState.output && linkedinHlState.output && linkedinAboutState.output && elevatorState.output && resumeState.output && coverState.output && interviewState.output);
+
 
   const runTool = async (
     key: ToolKey,
@@ -266,7 +274,28 @@ export default function SessionRunClient({
 
   
   
-  const runLinkedinHl = () =>
+  
+  const runJobMatch = () =>
+    runTool(
+      'job_match_scorer' as any,
+      setJobMatchState,
+      '/api/ai/job-match-scorer',
+      { resume: resumeText, jobDescription, targetRole: jobTarget },
+      jobTarget || 'Job Match Scorer',
+      (d) => (d as any).analysis || (d as any).output || '',
+    );
+
+  const runSalary = () =>
+    runTool(
+      'salary_negotiation' as any,
+      setSalaryState,
+      '/api/ai/salary-negotiation',
+      { currentOffer: salaryOffer, targetSalary: salaryTarget, jobTitle: jobTarget, companyName: companyName || 'Company', deliveryMethod: salaryDelivery },
+      jobTarget || 'Salary Negotiation',
+      (d) => (d as any).script || (d as any).output || '',
+    );
+
+const runLinkedinHl = () =>
     runTool(
       'linkedin_headline' as any,
       setLinkedinHlState,
@@ -1060,9 +1089,51 @@ function InterviewOutput({ body, savedTo }: { body: string; savedTo: string }) {
     </div>
   );
 }
-      {/* Card 6: LinkedIn Headline */}
+
+      {/* Card 6: Job Match Scorer */}
       <SectionCard
         step={6}
+        title="Job Match Scorer"
+        Icon={FileText}
+        accent="#8b5cf6"
+        statusBadge={jobMatchState.status === 'running' ? 'Running' : jobMatchState.output ? 'Done' : jobMatchState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Compare their resume against the job description to find missing keywords and gaps. Uses the Resume and Job Description fields from above.</p>
+        <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch} disabled={jobMatchState.status === 'running' || !jobDescription.trim() || resumeText.trim().length < 50} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#8b5cf6', borderColor: '#8b5cf6' }}>
+          {jobMatchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run Match' : 'Score Match'}
+        </button>
+        {jobMatchState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p> : null}
+        {jobMatchState.output ? <OutputPanel label="Job Match Analysis" body={jobMatchState.output} savedTo={memberFullName} /> : null}
+      </SectionCard>
+
+      {/* Card 7: Salary Negotiation */}
+      <SectionCard
+        step={7}
+        title="Salary Negotiation Script"
+        Icon={MessagesSquare}
+        accent="#10b981"
+        statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
+      >
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-offer">Current Offer</label><input id="session-salary-offer" type="text" value={salaryOffer} onChange={(e) => setSalaryOffer(e.target.value)} placeholder="e.g. $65,000" disabled={salaryState.status === 'running'} /></div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-target">Target Salary</label><input id="session-salary-target" type="text" value={salaryTarget} onChange={(e) => setSalaryTarget(e.target.value)} placeholder="e.g. $75,000" disabled={salaryState.status === 'running'} /></div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-salary-delivery">Delivery Method</label>
+          <select id="session-salary-delivery" value={salaryDelivery} onChange={(e) => setSalaryDelivery(e.target.value as 'email' | 'phone')} disabled={salaryState.status === 'running'} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
+            <option value="email">Email</option><option value="phone">Phone</option>
+          </select>
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runSalary} disabled={salaryState.status === 'running' || !salaryOffer.trim() || !salaryTarget.trim()} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#10b981', borderColor: '#10b981' }}>
+          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build Script'}
+        </button>
+        {salaryState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p> : null}
+        {salaryState.output ? <OutputPanel label="Negotiation Script" body={salaryState.output} savedTo={memberFullName} /> : null}
+      </SectionCard>
+
+            {/* Card 8: LinkedIn Headline */}
+      <SectionCard
+        step={8}
         title="LinkedIn Headline"
         Icon={MessagesSquare}
         accent="#0077b5"
@@ -1134,7 +1205,7 @@ function InterviewOutput({ body, savedTo }: { body: string; savedTo: string }) {
 
       {/* Card 7: LinkedIn About */}
       <SectionCard
-        step={7}
+        step={9}
         title="LinkedIn About Section"
         Icon={FileText}
         accent="#0077b5"

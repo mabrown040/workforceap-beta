@@ -6,6 +6,7 @@ import { CheckCircle } from 'lucide-react';
 import { buildPageMetadata } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import { getPartnerForUser } from '@/lib/auth/roles';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
@@ -38,7 +39,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   if (!user) redirect('/login?redirectTo=/partner/referred-members');
 
   const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect('/dashboard');
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const { memberId } = await params;
 

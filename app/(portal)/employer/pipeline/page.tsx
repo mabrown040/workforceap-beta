@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -25,7 +26,7 @@ export default async function EmployerPipelinePage() {
   if (!user) redirect('/login?redirectTo=/employer/pipeline');
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId, status: 'live' },

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -19,7 +20,7 @@ export default async function EmployerSettingsPage() {
   if (!user) redirect('/login?redirectTo=/employer/settings');
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const employer = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -35,7 +36,7 @@ export default async function EmployerSettingsPage() {
       logoUrl: true,
     },
   });
-  if (!employer) redirect('/employers');
+  if (!employer) redirect(await unlinkedEmployerHref(user.id));
 
   return (
     <>

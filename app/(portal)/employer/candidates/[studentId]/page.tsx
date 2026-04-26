@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
@@ -53,7 +54,7 @@ export default async function EmployerCandidateProfilePage({
   if (!user) redirect(`/login?redirectTo=/employer/candidates/${studentId}`);
 
   const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect('/employers');
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const sp = (await searchParams) ?? {};
   const highlightJobId = typeof sp.jobId === 'string' ? sp.jobId : null;

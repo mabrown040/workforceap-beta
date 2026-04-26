@@ -52,6 +52,66 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
   return svg;
 }
 
+/** Render a dual-polygon radar SVG string (member vs target) with hardcoded colors. */
+function renderDualRadarSvgString(
+  memberData: { axis: string; value: number }[],
+  targetData: { axis: string; value: number }[],
+  occupationTitle: string,
+  size = 320,
+): string {
+  const cx = size / 2, cy = size / 2, r = size * 0.32;
+  const axes = targetData.length >= memberData.length
+    ? targetData.map(d => d.axis)
+    : memberData.map(d => d.axis);
+  const n = axes.length;
+  if (n < 3) return '';
+  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
+  const pt = (i: number, v: number) => ({
+    x: cx + r * v * Math.cos(angle(i)),
+    y: cy + r * v * Math.sin(angle(i)),
+  });
+  const getValue = (data: { axis: string; value: number }[], axis: string) =>
+    data.find(d => d.axis === axis)?.value ?? 0;
+
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const gridColor = '#333537';
+  const accentColor = '#ad2c4d';
+  const blueColor = '#2b7bb9';
+  const labelColor = '#a3a3a3';
+  const shortTitle = occupationTitle.length > 22 ? occupationTitle.slice(0, 22) + '…' : occupationTitle;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
+  svg += `<rect width="${size}" height="${size}" rx="12" fill="#1e2022"/>`;
+  for (const level of gridLevels) {
+    const pts = axes.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ');
+    svg += `<polygon points="${pts}" fill="none" stroke="${gridColor}" stroke-width="1"/>`;
+  }
+  for (let i = 0; i < n; i++) {
+    const p = pt(i, 1);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="${gridColor}" stroke-width="1"/>`;
+  }
+  // Target (red/solid)
+  const targetPts = axes.map((axis, i) => { const p = pt(i, getValue(targetData, axis)); return `${p.x},${p.y}`; }).join(' ');
+  svg += `<polygon points="${targetPts}" fill="${accentColor}" fill-opacity="0.15" stroke="${accentColor}" stroke-width="2"/>`;
+  // Member (blue/dashed)
+  const memberPts = axes.map((axis, i) => { const p = pt(i, getValue(memberData, axis)); return `${p.x},${p.y}`; }).join(' ');
+  svg += `<polygon points="${memberPts}" fill="${blueColor}" fill-opacity="0.2" stroke="${blueColor}" stroke-width="2" stroke-dasharray="4 2"/>`;
+  // Labels
+  for (let i = 0; i < n; i++) {
+    const p = pt(i, 1.22);
+    svg += `<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-family="Inter,sans-serif" fill="${labelColor}">${axes[i]}</text>`;
+  }
+  // Legend
+  const ly = size - 18;
+  const lx = cx - 60;
+  svg += `<rect x="${lx}" y="${ly - 5}" width="10" height="10" rx="2" fill="${blueColor}" fill-opacity="0.85"/>`;
+  svg += `<text x="${lx + 14}" y="${ly + 0}" dominant-baseline="middle" font-size="10" font-family="Inter,sans-serif" fill="${labelColor}">Your skills</text>`;
+  svg += `<rect x="${lx + 75}" y="${ly - 5}" width="10" height="10" rx="2" fill="${accentColor}"/>`;
+  svg += `<text x="${lx + 89}" y="${ly + 0}" dominant-baseline="middle" font-size="10" font-family="Inter,sans-serif" fill="${labelColor}">${shortTitle}</text>`;
+  svg += '</svg>';
+  return svg;
+}
+
 /** Convert an SVG string to a PNG data URL via canvas. */
 async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -480,6 +540,7 @@ export default function SkillMapperClient() {
   const [loading, setLoading] = useState(false);
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportingComparison, setExportingComparison] = useState(false);
   const [error, setError] = useState('');
   const [usingDemo, setUsingDemo] = useState(false);
   const [demoFallbackReason, setDemoFallbackReason] = useState<string>('');
@@ -555,6 +616,54 @@ export default function SkillMapperClient() {
       URL.revokeObjectURL(url);
     } finally {
       setExportingPdf(false);
+    }
+  };
+
+  const exportComparisonPdf = async () => {
+    if (!memberProfile.length || !radarData.length) return;
+    setExportingComparison(true);
+    try {
+      const lines = [
+        `Skill Comparison: Your Profile vs. ${selectedTitle}`,
+        '',
+        '## Your Skill Profile',
+        ...memberProfile.map(p => `${p.axis}: ${Math.round(p.value * 100)}%`),
+        '',
+        `## ${selectedTitle} Requirements`,
+        ...radarData.map(r => `${r.axis}: ${Math.round(r.value * 100)}%`),
+        ...(gaps.length > 0 ? [
+          '',
+          '## Skill Gaps to Close',
+          ...gaps.map(g => `${g.axis}: ${Math.round(g.member)}% → ${Math.round(g.target)}% (+${Math.round(g.gap)} needed)`),
+        ] : []),
+      ].join('\n');
+
+      let chartImage: string | undefined;
+      try {
+        const svgStr = renderDualRadarSvgString(memberProfile, radarData, selectedTitle, 320);
+        if (svgStr) chartImage = await svgToPngDataUrl(svgStr, 320);
+      } catch { /* non-fatal */ }
+
+      const res = await fetch('/api/ai/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: lines,
+          title: 'Skill Comparison',
+          toolName: 'Skill Mapper',
+          chartImage,
+        }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `workforceap-skill-comparison-${(selectedTitle || 'profile').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingComparison(false);
     }
   };
 
@@ -949,6 +1058,19 @@ export default function SkillMapperClient() {
                       <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--color-accent)' }} />
                       Target occupation
                     </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => void exportComparisonPdf()}
+                      disabled={exportingComparison}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8rem', cursor: exportingComparison ? 'default' : 'pointer', opacity: exportingComparison ? 0.6 : 1 }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
+                        {exportingComparison ? 'hourglass_empty' : 'download'}
+                      </span>
+                      {exportingComparison ? 'Saving…' : 'Export Comparison PDF'}
+                    </button>
                   </div>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                     Your profile reflects what we found in your resume and certifications.

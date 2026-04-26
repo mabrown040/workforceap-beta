@@ -22,7 +22,9 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
   const accentColor = '#ad2c4d';
   const labelColor = '#a3a3a3';
 
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background:#1e2022;border-radius:12px">`;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
+  // Background rect (more reliable than CSS background when drawn to canvas)
+  svg += `<rect width="${size}" height="${size}" rx="12" fill="#1e2022"/>`;
   // Grid polygons
   for (const level of gridLevels) {
     const pts = data.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ');
@@ -53,8 +55,10 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
 /** Convert an SVG string to a PNG data URL via canvas. */
 async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
   return new Promise((resolve, reject) => {
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    // Use base64 inline data URL — more reliable than blob URLs which browsers
+    // may block in canvas toDataURL() due to origin security restrictions.
+    const b64 = btoa(unescape(encodeURIComponent(svgString)));
+    const url = `data:image/svg+xml;base64,${b64}`;
     const img = new Image();
     img.onload = () => {
       const scale = 2; // 2x for crisp export
@@ -64,10 +68,9 @@ async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
       const ctx = canvas.getContext('2d')!;
       ctx.scale(scale, scale);
       ctx.drawImage(img, 0, 0, size, size);
-      URL.revokeObjectURL(url);
       resolve(canvas.toDataURL('image/png'));
     };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG render failed')); };
+    img.onerror = () => reject(new Error('SVG render failed'));
     img.src = url;
   });
 }
@@ -506,6 +509,8 @@ export default function SkillMapperClient() {
   const [extractingResume, setExtractingResume] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const autoExtractAttemptedRef = useRef(false);
+  const [autoExtracting, setAutoExtracting] = useState(false);
 
   const exportSkillMap = async () => {
     if (!selectedTitle || !radarData.length) return;
@@ -565,6 +570,15 @@ export default function SkillMapperClient() {
         if (typeof data.hasInterestProfiler === 'boolean') setHasInterestProfiler(data.hasInterestProfiler);
         if (typeof data.hasAiResumeExtraction === 'boolean') setHasAiResumeExtraction(data.hasAiResumeExtraction);
         setProfileLoaded(true);
+        // Auto-trigger AI extraction on first profile load if not yet done
+        if (!data.hasAiResumeExtraction && !autoExtractAttemptedRef.current) {
+          autoExtractAttemptedRef.current = true;
+          setAutoExtracting(true);
+          fetch('/api/ai/extract-resume-skills', { method: 'POST' })
+            .then(r => { if (r.ok) setProfileLoaded(false); })
+            .catch(() => {})
+            .finally(() => setAutoExtracting(false));
+        }
       })
       .catch(() => setProfileLoaded(true))
       .finally(() => setLoadingProfile(false));
@@ -903,7 +917,21 @@ export default function SkillMapperClient() {
             <p style={{ textAlign: 'center', padding: '2rem' }}><Loader2 size={24} className="ai-tool-submit-spinner" /></p>
           )}
 
-          {!loadingProfile && memberProfile.length > 0 && (
+          {!loadingProfile && autoExtracting && (
+            <div style={{ padding: '1rem 1.25rem', background: 'rgba(43,123,185,0.07)', border: '1px solid rgba(43,123,185,0.18)', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
+              <Loader2 size={20} className="ai-tool-submit-spinner" style={{ flexShrink: 0 }} />
+              <div>
+                <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
+                  Analyzing your resume with AI…
+                </p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.4 }}>
+                  Extracting skills and mapping them to your profile. Takes about 10 seconds.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!loadingProfile && memberProfile.length > 0 && memberProfile.some(p => p.value > 0) && (
             <>
               {/* Dual radar or single radar */}
               {radarData.length > 0 ? (
@@ -931,11 +959,32 @@ export default function SkillMapperClient() {
               ) : (
                 <>
                   <h3 className="ai-tool-section-title">Your Skill Profile</h3>
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <RadarChart data={memberProfile} />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '1.25rem', alignItems: 'flex-start' }}>
+                    <div style={{ flex: '0 0 auto' }}>
+                      <RadarChart data={memberProfile} />
+                    </div>
+                    <div style={{ flex: '1 1 200px', minWidth: 180, paddingTop: '0.25rem' }}>
+                      {memberProfile.map(d => (
+                        <div key={d.axis} style={{ marginBottom: '0.625rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.2rem' }}>
+                            <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{d.axis}</span>
+                            <span style={{ color: 'var(--color-on-surface-variant)' }}>{Math.round(d.value * 100)}%</span>
+                          </div>
+                          <div style={{ height: 7, borderRadius: 4, background: 'var(--surface-container-highest)', overflow: 'hidden' }}>
+                            <div style={{
+                              height: '100%',
+                              width: `${Math.round(d.value * 100)}%`,
+                              borderRadius: 4,
+                              background: d.value >= 0.6 ? 'var(--color-accent)' : d.value >= 0.3 ? 'color-mix(in srgb, var(--color-accent) 65%, var(--color-gold, #a47f38))' : 'var(--color-on-surface-variant)',
+                              transition: 'width 0.5s ease',
+                            }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', textAlign: 'center' }}>
-                    Search an occupation in the <strong>Occupation Search</strong> tab to compare your skills.
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+                    Search an occupation in the <strong>Occupation Search</strong> tab to compare your skills against a target role.
                   </p>
                 </>
               )}
@@ -956,9 +1005,11 @@ export default function SkillMapperClient() {
               )}
 
               {memberCerts.length === 0 && (
-                <div style={{ background: 'var(--surface-container)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  No certifications recorded yet. Add your earned certs in the <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)' }}>Verification Vault</a>.
-                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', marginTop: '-0.25rem' }}>
+                  No certifications on file —{' '}
+                  <a href="/dashboard/certifications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>add certs in Verification Vault</a>
+                  {' '}to strengthen your radar.
+                </p>
               )}
 
               {/* Gap analysis */}
@@ -1041,7 +1092,7 @@ export default function SkillMapperClient() {
             </>
           )}
 
-          {!loadingProfile && profileLoaded && memberProfile.every(p => p.value === 0) && memberCerts.length === 0 && (
+          {!loadingProfile && !autoExtracting && profileLoaded && memberProfile.every(p => p.value === 0) && memberCerts.length === 0 && (
             <div style={{ padding: '1.5rem', color: 'var(--color-on-surface-variant)' }}>
               <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', marginBottom: '0.875rem' }}>Build your skill profile</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>

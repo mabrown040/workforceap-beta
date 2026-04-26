@@ -19,12 +19,17 @@ export default async function InterviewPracticePage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/interview-practice');
 
-  const savedResults = await prisma.aIToolResult.findMany({
-    where: { userId: user.id, toolType: 'interview_practice' },
-    orderBy: { createdAt: 'desc' },
-    take: 10,
-    select: { id: true, inputSummary: true, output: true, createdAt: true },
-  });
+  let savedResults: { id: string; inputSummary: string | null; output: string | null; createdAt: Date }[] = [];
+  try {
+    savedResults = await prisma.aIToolResult.findMany({
+      where: { userId: user.id, toolType: 'interview_practice' },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { id: true, inputSummary: true, output: true, createdAt: true },
+    });
+  } catch {
+    // Non-fatal — page renders with empty saved results
+  }
 
   return (
     <>

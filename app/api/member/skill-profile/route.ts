@@ -83,10 +83,54 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   // Research
   ['research', 'Research', 75], ['writing', 'Research', 70],
   ['technical writing', 'Research', 80], ['documentation', 'Research', 70],
-  ['content', 'Research', 65], ['mba', 'Research', 70],
-  ['degree', 'Research', 60], ['certification', 'Research', 65],
+  ['content', 'Research', 65], ['certification', 'Research', 65],
   ['training', 'Research', 60], ['learning', 'Research', 60],
   ['curriculum', 'Research', 65], ['analysis', 'Research', 65],
+  // Degrees → axis boosts (extrapolate coursework from credential)
+  ['mba', 'Strategy', 75], ['mba', 'Analytics', 65], ['mba', 'Research', 70], ['mba', 'Ethics', 60],
+  ['master', 'Research', 70], ['bachelor', 'Research', 55],
+  ['phd', 'Research', 85], ['phd', 'Analytics', 70],
+  ['degree', 'Research', 58],
+  // Senior titles → Strategy floor
+  ['director', 'Strategy', 78], ['vice president', 'Strategy', 82],
+  [' vp ', 'Strategy', 80], ['chief ', 'Strategy', 85],
+  ['executive director', 'Strategy', 82],
+  // Ethics coursework
+  ['ethics', 'Ethics', 68], ['corporate responsibility', 'Ethics', 65],
+  // Healthcare / clinical
+  ['patient care', 'Ethics', 70], ['clinical', 'Research', 65],
+  ['nursing', 'Ethics', 70], ['cna', 'Ethics', 68],
+  ['medical assistant', 'Ethics', 65], ['phlebotomy', 'Engineering', 60],
+  ['ehr', 'Engineering', 65], ['emr', 'Engineering', 65],
+  ['electronic health', 'Engineering', 65], ['epic', 'Engineering', 65],
+  ['hipaa', 'Ethics', 75], ['patient', 'Ethics', 60],
+  ['vital signs', 'Research', 62], ['medical coding', 'Research', 70],
+  ['icd-10', 'Research', 72], ['billing', 'Strategy', 60],
+  ['insurance verification', 'Strategy', 62], ['prior authorization', 'Research', 65],
+  ['pharmacy', 'Research', 65], ['medication', 'Research', 60],
+  ['home health', 'Ethics', 65], ['long-term care', 'Ethics', 65],
+  ['diagnostic', 'Research', 68], ['laboratory', 'Research', 70],
+  ['radiology', 'Engineering', 65], ['clinical trial', 'Research', 72],
+  ['health informatics', 'Analytics', 70],
+  // Customer service / retail / administrative
+  ['customer satisfaction', 'Ethics', 68], ['call center', 'Ethics', 65],
+  ['customer support', 'Ethics', 68], ['help desk', 'Engineering', 60],
+  ['ticketing', 'Engineering', 60], ['escalation', 'Ethics', 60],
+  ['retail', 'Ethics', 58], ['cashier', 'Ethics', 55],
+  ['point of sale', 'Engineering', 58], ['inventory', 'Strategy', 60],
+  ['merchandising', 'Strategy', 58], ['loss prevention', 'Ethics', 60],
+  ['administrative', 'Strategy', 62], ['office management', 'Strategy', 65],
+  ['scheduling', 'Strategy', 62], ['calendar management', 'Strategy', 60],
+  ['bookkeeping', 'Analytics', 65], ['accounts payable', 'Analytics', 62],
+  ['accounts receivable', 'Analytics', 62], ['payroll', 'Analytics', 65],
+  ['quickbooks', 'Analytics', 65], ['data entry', 'Research', 55],
+  // Education / social services / non-profit
+  ['teaching', 'Research', 65], ['educator', 'Research', 65],
+  ['lesson plan', 'Research', 65], ['early childhood', 'Ethics', 65],
+  ['childcare', 'Ethics', 62], ['social work', 'Ethics', 72],
+  ['case management', 'Ethics', 70], ['counseling', 'Ethics', 70],
+  ['community outreach', 'Ethics', 65], ['grant writing', 'Research', 70],
+  ['volunteer', 'Ethics', 55], ['non-profit', 'Ethics', 60],
 ];
 
 const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'];
@@ -122,18 +166,44 @@ function extractResumeSkillProfile(resumeText: string): ResumeProfileResult {
 
 // Cert name → skill score boosts per axis
 const CERT_AXIS_MAP: Record<string, Partial<Record<string, number>>> = {
+  // IT / Tech
   'CompTIA A+': { Engineering: 75 },
   'CompTIA Security+': { Engineering: 80, Ethics: 70 },
   'CompTIA Network+': { Engineering: 75 },
   'Google IT Support': { Engineering: 70 },
   'IBM AI Professional Practitioner': { Analytics: 80, Engineering: 75 },
-  'Google Data Analytics': { Analytics: 85 },
+  'Google Data Analytics': { Analytics: 85, Research: 70 },
   'Google Project Management': { Strategy: 80 },
   'Salesforce Administrator': { Engineering: 65, Strategy: 65 },
   'AWS Cloud Practitioner': { Engineering: 75 },
   'Microsoft Azure Fundamentals': { Engineering: 70 },
+  'Microsoft Office': { Analytics: 55, Strategy: 55 },
+  'Google Workspace': { Strategy: 58, Research: 55 },
+  // Healthcare
   'Healthcare Administration': { Ethics: 75, Strategy: 70 },
   'Medical Coding': { Research: 70, Ethics: 70 },
+  'CNA': { Ethics: 75 },
+  'Certified Nursing Assistant': { Ethics: 75 },
+  'Medical Assistant': { Ethics: 70, Research: 62 },
+  'Phlebotomy': { Engineering: 62, Research: 65 },
+  'BLS': { Ethics: 65 },
+  'Basic Life Support': { Ethics: 65 },
+  'CPR': { Ethics: 62 },
+  'OSHA 10': { Ethics: 68 },
+  'OSHA 30': { Ethics: 72, Strategy: 60 },
+  'Health Information': { Research: 72, Engineering: 65 },
+  'Medical Billing': { Research: 68, Analytics: 60 },
+  'Pharmacy Technician': { Research: 70, Ethics: 65 },
+  // Business / Finance / Admin
+  'QuickBooks': { Analytics: 68 },
+  'Bookkeeping': { Analytics: 65 },
+  'Human Resources': { Ethics: 70, Strategy: 65 },
+  'SHRM': { Ethics: 72, Strategy: 68 },
+  'Lean Six Sigma': { Strategy: 78, Analytics: 70 },
+  'PMP': { Strategy: 85 },
+  // Customer service
+  'Customer Service': { Ethics: 68 },
+  'HDI': { Ethics: 65, Engineering: 60 },
 };
 
 function buildCertSkillProfile(certNames: string[]): { axis: string; value: number }[] {

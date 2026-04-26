@@ -76,7 +76,6 @@ export default function SessionRunClient({
   const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
   const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
   const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
-  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
   const [interviewState, setInterviewState] = useState<ToolState>(initialToolState);
@@ -225,9 +224,6 @@ export default function SessionRunClient({
     jobTarget,
     interviewLevel,
   }), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
-
-  const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output);
-  const allRun = !!(resumeState.output && coverState.output && interviewState.output);
 
   const hasAnyOutput = !!(salaryState.output || jobMatchState.output || linkedinHlState.output || linkedinAboutState.output || elevatorState.output || resumeState.output || coverState.output || interviewState.output);
   const allRun = !!(salaryState.output && jobMatchState.output && linkedinHlState.output && linkedinAboutState.output && elevatorState.output && resumeState.output && coverState.output && interviewState.output);

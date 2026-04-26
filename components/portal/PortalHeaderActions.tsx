@@ -63,7 +63,7 @@ export default function PortalHeaderActions() {
               aria-hidden
             />
             <div className="portal-header-actions-dropdown" role="menu">
-              <div className="portal-header-actions-dropdown__items" onClick={closeMenu}>
+              <div className="portal-header-actions-dropdown__items" onClick={closeMenu} role="menu" tabIndex={-1}>
                 <ActionItems onItemClick={closeMenu} />
               </div>
             </div>

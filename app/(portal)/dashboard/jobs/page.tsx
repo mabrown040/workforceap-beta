@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHeader from '@/components/portal/PageHeader';
+import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
 import PortalFooter from '@/components/portal/PortalFooter';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
@@ -97,6 +98,7 @@ export default async function JobsPage() {
         title="Job Board"
         subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create your account or log in to apply."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
+        action={user ? <LogExternalApplicationButton /> : undefined}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">

@@ -171,7 +171,7 @@ export default async function AIToolsPage() {
           </PortalCard>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
           {AI_TOOLKIT_EXTRA_SECTIONS.map((section) => (
             <PortalCard key={section.title} className="portal-card--flat">
               <div style={{ marginBottom: '0.875rem' }}>
@@ -179,13 +179,13 @@ export default async function AIToolsPage() {
                   {section.title}
                 </h3>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.625rem' }}>
+              <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
                 {section.tools.map((tool) => (
                   <Link
                     key={tool.href}
                     href={tool.href}
                     className="portal-quick-action-item"
-                    style={{ textDecoration: 'none', padding: '0.75rem 0.875rem' }}
+                    style={{ textDecoration: 'none', padding: '0.75rem 0.875rem', flex: '1 1 160px', maxWidth: '220px' }}
                   >
                     <div className="portal-quick-action-item__icon">
                       <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>

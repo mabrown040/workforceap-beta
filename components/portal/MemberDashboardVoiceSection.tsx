@@ -18,7 +18,7 @@ export default function MemberDashboardVoiceSection() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: '1rem',
-          alignItems: 'start',
+          alignItems: 'stretch',
         }}
       >
         <VoiceCoachLauncherCard

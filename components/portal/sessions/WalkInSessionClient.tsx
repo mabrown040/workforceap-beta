@@ -14,7 +14,14 @@ import { Loader2, UserPlus } from 'lucide-react';
  *
  * Per /plan-ceo-review: this is the "A-to-Z in 30 min" demo flow.
  */
-export default function WalkInSessionClient({ counselorName }: { counselorName: string }) {
+export default function WalkInSessionClient({
+  counselorName,
+  runRedirectBase = '/counselor/sessions',
+}: {
+  counselorName: string;
+  /** Base path for the run-page redirect after account creation. Defaults to counselor; admin passes '/admin/sessions'. */
+  runRedirectBase?: string;
+}) {
   const router = useRouter();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -50,7 +57,7 @@ export default function WalkInSessionClient({ counselorName }: { counselorName: 
         return;
       }
       // Redirect to the run page with the fresh sessionId in the URL.
-      router.push(`/counselor/sessions/${data.memberId}/run?sid=${data.sessionId}&fresh=1`);
+      router.push(`${runRedirectBase}/${data.memberId}/run?sid=${data.sessionId}&fresh=1`);
     } catch (err) {
       console.error('[walk-in] submit failed', err);
       setError('Network error. Check your connection and try again.');

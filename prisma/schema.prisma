@@ -37,6 +37,7 @@ model Organization {
   programCatalog    OrganizationProgramCatalog[]
   preScreenings     PreScreeningResponse[]
   courseEnrollments CourseEnrollment[]
+  courses           Course[]
 
   @@map("organizations")
 }
@@ -1181,6 +1182,27 @@ model OrganizationProgramCatalog {
 }
 
 // One row per member enrollment (mirrors User.enrolledProgram); enrolledByAdminId skips self-serve profile gate.
+model Course {
+  id               String   @id @default(uuid())
+  organizationId   String   @map("organization_id")
+  programSlug      String   @map("program_slug")
+  courseSlug       String   @map("course_slug")
+  name             String
+  estimatedHours   Int?     @map("estimated_hours")
+  courseraCourseId String?  @map("coursera_course_id")
+  courseraSlug     String?  @map("coursera_slug")
+  courseraUrlType  String?  @map("coursera_url_type")
+  displayOrder     Int      @default(0) @map("display_order")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, programSlug, courseSlug])
+  @@index([organizationId, programSlug, displayOrder])
+  @@map("courses")
+}
+
 model CourseEnrollment {
   id                String   @id @default(uuid())
   organizationId    String   @map("organization_id")
@@ -1577,7 +1599,7 @@ model MemberNextBestAction {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  member      User     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member User @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([memberId, status, priority])
   @@map("member_next_best_actions")

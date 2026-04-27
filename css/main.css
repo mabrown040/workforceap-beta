@@ -11224,6 +11224,50 @@ body:has(.dashboard-drawer-overlay.open) {
     font-weight: var(--font-weight-medium);
 }
 
+.super-admin-view-switcher__option--context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.super-admin-view-switcher__back {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.35rem 0.75rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--outline-variant);
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+    text-align: left;
+}
+
+.super-admin-view-switcher__back:hover {
+    color: var(--color-on-surface);
+}
+
+.super-admin-view-switcher__subheader {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem 0.25rem;
+    font-size: 0.7rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.super-admin-view-switcher__loading {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    list-style: none;
+}
+
 /* Portal mobile polish */
 @media (max-width: 768px) {
     .portal-nav-inner {

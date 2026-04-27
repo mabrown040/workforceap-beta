@@ -1,5 +1,8 @@
 ﻿import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
+import { getUser } from '@/lib/auth/server';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { redirect } from 'next/navigation';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -35,6 +38,11 @@ async function loadAdminPartnersData() {
 type PartnersPayload = Awaited<ReturnType<typeof loadAdminPartnersData>>;
 
 export default async function AdminPartnersPage() {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/partners');
+
+  const superAdmin = await isSuperAdmin(user.id);
+
   let partners: PartnersPayload[0];
   let subgroups: PartnersPayload[1];
   let loadError: string | null = null;
@@ -100,7 +108,7 @@ export default async function AdminPartnersPage() {
           </Link>
         </div>
       ) : !loadError ? (
-        <PartnersTableClient partners={partners} subgroups={subgroups} />
+        <PartnersTableClient partners={partners} subgroups={subgroups} superAdmin={superAdmin} />
       ) : null}
     </div>
   );

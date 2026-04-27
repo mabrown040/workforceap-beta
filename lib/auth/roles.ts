@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 
 export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
+export const SUPER_ADMIN_PARTNER_COOKIE = 'wa_super_admin_partner_id';
 
 export const getUserRoles = cache(async function getUserRoles(userId: string): Promise<string[]> {
   const userRoles = await prisma.userRole.findMany({
@@ -93,6 +94,15 @@ export async function getPartnerForUser(
   }
   const superUser = options?.isSuperAdminHint ?? (await isSuperAdmin(userId));
   if (superUser) {
+    const cookieStore = await cookies();
+    const fromCookie = cookieStore.get(SUPER_ADMIN_PARTNER_COOKIE)?.value;
+    if (fromCookie) {
+      const byCookie = await prisma.partner.findFirst({
+        where: { id: fromCookie, active: true },
+        select: { id: true, name: true, slug: true },
+      });
+      if (byCookie) return { partnerId: byCookie.id, partner: byCookie, hasDirectPartnerLink: false };
+    }
     const first = await prisma.partner.findFirst({
       where: { active: true, name: { not: 'Test Students' } },
       select: { id: true, name: true, slug: true },

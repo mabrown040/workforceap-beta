@@ -6,6 +6,7 @@ import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { postProcessAIOutput } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -104,6 +105,8 @@ Reposition this resume toward the career goal above. Remember: only work with wh
       return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
     }
 
+    const processedOutput = postProcessAIOutput(output, { stripMarkdown: true });
+
     try {
       await ensureUserInDb(user);
       const contextLabel = [jobTarget, targetLocation, targetSalary].filter(Boolean).join(' | ');
@@ -113,7 +116,7 @@ Reposition this resume toward the career goal above. Remember: only work with wh
         onBehalf.subjectUserId,
         'resume_rewriter',
         contextLabel,
-        output,
+        processedOutput,
         {
           actorUserId: onBehalf.actorUserId,
           actorName: onBehalf.actorName,
@@ -124,7 +127,7 @@ Reposition this resume toward the career goal above. Remember: only work with wh
       console.error('Resume rewriter: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output: processedOutput });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Resume rewriter error:', err);

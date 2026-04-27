@@ -11,6 +11,7 @@ import {
   sendElevatorSpeechEmail,
   sendVoiceCoachArtifactEmail,
 } from '@/lib/email';
+import { postProcessAIOutput } from '@/lib/ai/postProcess';
 
 /**
  * POST /api/ai/elevator-pitch
@@ -72,7 +73,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     try {
       await ensureUserInDb(user);
-      const trimmedPitch = pitch.trim();
+      const trimmedPitch = postProcessAIOutput(pitch);
 
       await saveAIToolResult(
         onBehalf.subjectUserId,
@@ -128,7 +129,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
           strengths: strengths?.trim() || null,
           certifications: certifications?.trim() || null,
           industry: industry?.trim() || null,
-          pitch: pitch.trim(),
+          pitch: trimmedPitch,
         });
         emailSent = emailResult.ok;
         emailError = emailResult.error;
@@ -140,7 +141,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
       emailError = emailErr instanceof Error ? emailErr.message : 'Failed to send email';
     }
 
-    return NextResponse.json({ pitch: pitch.trim(), emailSent, emailError });
+    return NextResponse.json({ pitch: trimmedPitch, emailSent, emailError });
   } catch (e) {
     console.error('[elevator-pitch] generation failed', e);
     return NextResponse.json({ error: 'We could not generate your pitch just now. Please try again in a moment.' }, { status: 500 });

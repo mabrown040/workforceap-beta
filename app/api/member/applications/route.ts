@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const createSchema = z.object({
   company: z.string().min(1).max(200),
@@ -23,10 +24,11 @@ export async function GET() {
     const applications = await prisma.jobApplication.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
+      take: 200,
     });
     return NextResponse.json({ applications });
   } catch (err) {
-    console.error('[GET /api/member/applications]', err);
+    captureApiError(err, { route: 'member/applications GET' });
     const message = err instanceof Error ? err.message : 'Database error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
@@ -66,7 +68,7 @@ export async function POST(request: Request) {
     await trackEvent({ userId: user.id, eventName: 'application_added', entityType: 'job_application', entityId: app.id });
     return NextResponse.json({ application: app });
   } catch (err) {
-    console.error('[POST /api/member/applications]', err);
+    captureApiError(err, { route: 'member/applications POST' });
     const message = err instanceof Error ? err.message : 'Database error';
     return NextResponse.json({ error: message }, { status: 500 });
   }

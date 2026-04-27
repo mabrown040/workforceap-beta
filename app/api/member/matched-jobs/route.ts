@@ -10,6 +10,7 @@ import {
   scoreCourseCompletion,
   scoreSkillsMatching,
 } from '@/lib/ai/matchWeights';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * GET /api/member/matched-jobs
@@ -76,7 +77,7 @@ export async function GET() {
 
   return NextResponse.json({ jobs: scored.slice(0, 5) });
   } catch (err) {
-    console.error('[member/matched-jobs] error:', err);
+    captureApiError(err, { route: 'member/matched-jobs' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

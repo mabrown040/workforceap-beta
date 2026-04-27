@@ -22,6 +22,7 @@ export async function GET(request: Request) {
 
   const partners = await prisma.partner.findMany({
     where: { active: true, notifyOnEnrollment: true },
+    take: 500,
     select: {
       id: true,
       name: true,
@@ -39,6 +40,7 @@ export async function GET(request: Request) {
 
     const referrals = await prisma.partnerReferral.findMany({
       where: { partnerId: p.id, member: { deletedAt: null } },
+      take: 2000,
       include: {
         member: {
           select: {

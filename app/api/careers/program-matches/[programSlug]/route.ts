@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 type Params = { params: Promise<{ programSlug: string }> };
 
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       })),
     });
   } catch (error) {
-    console.error('[careers/program-matches/[programSlug]] error:', error);
+    captureApiError(error, { route: 'careers/program-matches/[programSlug]' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

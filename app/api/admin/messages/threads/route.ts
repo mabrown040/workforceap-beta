@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import { getSlaStatusForThreads, getThreadIdsBreachingSla } from '@/lib/messages/superAdminMessageQueries';
 import type { MessageThreadKind, Prisma } from '@prisma/client';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 50;
@@ -195,7 +196,7 @@ export async function GET(request: NextRequest) {
     inbox,
   });
   } catch (error) {
-    console.error('[admin/messages/threads GET] error:', error);
+    captureApiError(error, { route: 'admin/messages/threads GET' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

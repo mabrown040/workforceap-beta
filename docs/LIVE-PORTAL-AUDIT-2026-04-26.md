@@ -561,3 +561,94 @@ Hit the items remaining from the "need-to-verify" list: looked at a near-empty m
 *Round-6 tooling additions: tab-order capture on login, `document.activeElement` audit post-load, print stylesheet detection via `CSSRule.cssText`, ymail Michael Brown member-detail inspection, forgot-password flow walkthrough.*
 
 ---
+
+# Round 7 — Email templates / cron jobs (2026-04-26)
+
+Walked `/admin/email-crons` in detail, expanded run history, probed for template-preview surfaces, and cross-checked the `/admin/weekly-recap` analytics page. Numbering continues from #151.
+
+## P1 (round 7) — Email lifecycle is mostly cold
+
+| # | Page / job | Issue |
+|---|---|---|
+| 152 | `/admin/email-crons` | **6 of 7 scheduled jobs report "Never run"**, including every member-facing lifecycle email: `Applicant Day-3 Follow-up`, `Inactive Nudge (All Members)`, `Inactivity Nudge (14-Day)`, `Milestone Celebration`, `Partner Weekly Digest`, `Weekly Recap Email`. The only job with a successful run is **Admin Weekly Recap** (staff-only). **The entire member email lifecycle is dark in production.** Either Vercel cron is not invoking these endpoints, the endpoints are erroring silently, or the recipient queries return zero. |
+| 153 | `/admin/email-crons` Recent Errors | The "2 Recent Errors" KPI traces to two manual triggers of `Admin Weekly Recap` 16 days ago that returned `fetch failed`. Not new errors — old, transient. The KPI bubbles them up to the top of the page indefinitely. Either decay the KPI window or surface only errors from runs in the last N days. |
+| 154 | `/admin/email-crons` schedule labels | Two jobs are labeled **"Manual / unscheduled (suggested ___)"** — `Inactivity Nudge (14-Day)` (suggested Wed 10AM UTC) and `Milestone Celebration` (suggested daily 11AM UTC). They sit in the same list as scheduled jobs. Visually separate "Scheduled" from "Manual / unscheduled" so admins know which fire automatically. |
+| 155 | `/admin/email-crons` template editing | **No template preview, no template editor, no email subject visible** anywhere in the admin UI. Probed `/admin/email-templates`, `/admin/email-preview`, `/admin/templates`, `/admin/communications` — all 404. Templates live in code; admins cannot review or edit copy without a deploy. For an org that sends day-3 follow-ups, milestone celebrations, and partner digests, this is a critical content-ops gap. |
+| 156 | `/admin/email-crons` recipient preview | "Run now" fires a job blind. Admin cannot see the recipient list before triggering. Add a **dry-run mode**: hit the endpoint with `?dryRun=1` and show the would-receive list + a rendered preview of the first email before allowing confirm. |
+| 157 | `/admin/email-crons` per-job send detail | Run history rows show payload (`{"ok":true,"newApplicants":8,"emailSent":true,…}`) but **no per-recipient delivery state**: bounced, opened, clicked, suppressed. Either expose ESP webhook data here or link out to the ESP dashboard. |
+| 158 | `/admin/email-crons` inline alert grouping | "6 Need Attention" KPI at the top, but the cards below all read "Never run" identically — there is no in-card visual that says "this card is one of the six". Add a left-border accent or a chip on the never-run cards to match the KPI semantics. |
+| 159 | `/admin/weekly-recap` vs `/admin/email-crons` | `/admin/weekly-recap` analytics shows "AI Professional Practitioner Certificate / 8 total recaps / 3 in last 7 days". `/admin/email-crons` shows the Weekly Recap **Email** has Never run. Two different metrics ("recap generated" vs "recap emailed") share a name. Pick one term per concept and label the analytics column as **Recaps generated** (visible to member in `/dashboard/weekly-recap`) vs **Recap emails sent**. |
+| 160 | `/admin/weekly-recap` cohort | Largest cohort is **"Not enrolled / 11 members"** (out of 14 total). Most members in the live system have no program. Confirms the funnel is admin-heavy — and combined with the dark email lifecycle (#152), there is no automated nudge moving them toward enrollment. |
+
+## P2 (round 7) — UX
+
+| # | Page | Issue |
+|---|---|---|
+| 161 | `/admin/email-crons` documentation block | "How toggling works: …enabling/disabling a job records a soft flag…The Vercel scheduler still calls the endpoint on schedule — but the job can check this flag before sending. To permanently remove a job from the schedule, edit `vercel.json`." Useful, but the soft-flag/hard-edit split is a footgun. Admins disable a job and assume it stops calling. The endpoint still fires; only sending is gated. Surface this fact more prominently — e.g., a tooltip on the toggle that says "Does not stop the cron — only suppresses sends. Edit vercel.json to fully disable." |
+| 162 | `/admin/email-crons` "Run now" button | No confirm dialog for "Run now". Clicking immediately fires the job for all matching members. For high-fanout jobs (Weekly Recap to all enrolled), accidental click sends real emails. Add a confirm with recipient count: "Send Weekly Recap Email to 3 enrolled members. Continue?" |
+| 163 | `/admin/email-crons` access control | Page is reachable as super-admin. Confirm that a counselor with email-cron access (if such a role exists) cannot disable the partner digest. Role-based UI gate per row would be safer. |
+
+## P3 (round 7) — Microcopy / observability
+
+| # | Item | Note |
+|---|---|---|
+| 164 | `/admin/email-crons` — "emailSent: true" | Run history payload shows `emailSent: true` boolean. With a fanout cron, "true" is too coarse — was every recipient delivered? Some bounced? Replace with `emailsAttempted: N, emailsDelivered: M, emailsBounced: K, emailsSuppressed: L`. |
+| 165 | Email send observability | No mention of which ESP is in use (Resend, Postmark, SendGrid). The admin page shows zero ESP-side state. Surface the ESP and a link to its dashboard so admins can verify delivery without leaving WAP. |
+| 166 | Bounce/unsubscribe handling | Admin UI has no "Suppression list" / "Bounced addresses" / "Members who opted out". With 14 members today this is fine; at scale it will matter — add now while volume is low. |
+
+---
+
+## Cross-cutting themes — round 7 additions
+
+- **The cron flywheel is not turning.** Admin Weekly Recap is the only job that has fired successfully; every member-facing lifecycle email has Never run. Without these emails, members get no day-3 follow-up after applying, no inactivity re-engagement, no milestone celebration, and no weekly recap. Counselors must do all of this manually. Fix priority should match the work the emails save: Day-3 Follow-up + Weekly Recap probably first.
+- **Templates have no admin surface.** Six emails go out (when they go out), and no one can review the copy without checking out the repo. Add a `/admin/email-templates` page that renders each template with sample data, lets admins preview subject + body + CTA, and (eventually) edit copy.
+- **"Sent" vs "received" semantics.** `emailSent: true` is the only delivery signal admins see. Replace with attempted / delivered / bounced / suppressed counts, and integrate ESP webhook data so the admin page shows real outbound state.
+
+---
+
+*Round-7 tooling additions: cron history expansion via DOM-snapshot, route probes for `/admin/email-templates*` and `/admin/communications`, cross-reference against `/admin/weekly-recap` analytics.*
+
+---
+
+# Audit closing notes
+
+**Total: 166 numbered issues across rounds 1–7, plus the Coursera connection plan with embed/OAuth options.**
+
+The audit covers:
+- Logged-out site (homepage, /apply steps 1–3, /login, /forgot-password, marketing pages, blog, programs, /404).
+- Member portal (~25 routes including AI tool subpages).
+- Admin portal (overview + 13 sub-routes including email-crons, coursera, diagnostics, pipeline, programs, members detail, weekly-recap analytics).
+- Counselor portal (8 routes).
+- Partner portal (10 routes incl. referred-member detail).
+- Tablet (768) + mobile (375) breakpoints.
+- Dark mode samples.
+- Coursera integration end-to-end (launch, per-course links, course identification model, Mark Complete, admin manual mapping).
+- AI tool generation (Elevator Speech + Resume Rewriter end-to-end).
+- 404 fallback / auth context loss.
+- Keyboard tab order, autofocus, touch targets, multiple-H1, HTML-entity decoding.
+- Email cron jobs and template surface.
+
+**Highest-leverage fixes (root causes that retire many findings):**
+1. **Layout-shell inheritance** — fixes member 404 falling back to public layout, double `<footer>` on /jobs / /ai-tools / /admin/board, and the marketing-footer leak class.
+2. **Responsive duplication** — fixes duplicate AI coaches block, duplicate course list, duplicate member-detail card, duplicate "Export Data" h1, duplicate Recent Signups list. One CSS gating pass.
+3. **Identity de-duplication** — fixes three Michael Brown records (#23, #102, #135), cross-record PII prefill (#118), and any "lost progress" symptoms member might report. Unique constraint on `lower(email)` + phone-merge admin tool.
+4. **Coursera integration (Step A from the plan)** — fixes #95–#98 (top button target, per-course deep links, no course IDs in DOM). Mostly data + template tweaks.
+5. **Fixture data sweep** — fixes `[ARCHIVED FIXTURE]`, "Test Students", "member.success@", "Test Member <mbrown@hsconglomerates.com>". Single data-layer audit.
+6. **Email cron flywheel** — turn on the 6 dark jobs. Fixes #152 and unblocks the entire member email lifecycle.
+7. **AI output post-processing util** — fixes spell-check (#119), markdown rendering (#121), quote-stripping (#132). One utility wraps every completion.
+8. **State-truth single source** — fixes profile completion drift (#7), application status contradiction (#9), onboarding-vs-progress (#8). One derived state machine.
+
+**Suggested PR slicing (8 PRs, all low-to-medium risk):**
+
+| PR | Scope | Closes |
+|---|---|---|
+| 1 | Layout shell + responsive duplication | #28, #34, #36, #61, #68, #69, #73, #105, #106, #107 |
+| 2 | Coursera Step A: catalog data + per-course links + top button | #95, #96, #97, #98, #99 (partial) |
+| 3 | Fixture / seed data sweep | #1, #72, #86, #87, #103, #104 |
+| 4 | Email cron activation + admin template-preview page | #152, #153, #154, #155, #156 |
+| 5 | State-truth: profile %, application status, onboarding | #7, #8, #9, #50 |
+| 6 | AI output post-processing utility | #119, #121, #132 |
+| 7 | Identity de-duplication: unique constraint + admin merge tool | #23, #102, #118, #135 |
+| 8 | Mobile / a11y polish: nav layering, autofocus, touch targets, multiple H1 | #75, #89, #116, #137, #138, #146 |
+
+After PRs 1–4, the audit's top complaints are resolved and the Coursera flow + member email lifecycle work end-to-end. The rest is polish that can land alongside other feature work.

@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from '@playwright/test';
+import { expect, type BrowserContext, type Page } from '@playwright/test';
 
 /**
  * Cookie-based session hint for local/staging E2E. Requires a valid Supabase session
@@ -45,7 +45,7 @@ async function bootstrapVercelShareCookie(page: Page): Promise<void> {
 /** Real login against deployed site (prod/staging). Never commit values — set in shell or CI secrets. */
 export function hasProdE2ECredentials(): boolean {
   const email = process.env.E2E_MEMBER_EMAIL?.trim();
-  const password = process.env.E2E_MEMBER_PASSWORD;
+  const password = process.env.E2E_MEMBER_PASSWORD?.replace(/\r$/, '')?.trim();
   return Boolean(email && password);
 }
 
@@ -55,7 +55,7 @@ export function hasProdE2ECredentials(): boolean {
  */
 export async function loginMemberPortal(page: Page): Promise<void> {
   const email = process.env.E2E_MEMBER_EMAIL?.trim();
-  const password = process.env.E2E_MEMBER_PASSWORD;
+  const password = process.env.E2E_MEMBER_PASSWORD?.replace(/\r$/, '')?.trim();
   if (!email || !password) {
     throw new Error('Set E2E_MEMBER_EMAIL and E2E_MEMBER_PASSWORD');
   }
@@ -63,8 +63,18 @@ export async function loginMemberPortal(page: Page): Promise<void> {
   // Important: once the cookie is bootstrapped, do NOT keep using `_vercel_share` on app routes.
   // In headless runs this can trigger a redirect to `vercel.com/login` instead of the app.
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
+  // Use #email / #password — getByLabel(/password/i) also matches the "Show password" control.
+  // React-controlled fields: fill email then tab to password to mirror real users.
+  await page.locator('#email').click();
+  await page.locator('#email').fill(email);
+  await page.locator('#password').click();
+  await page.locator('#password').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
-  await page.waitForURL(/\/dashboard/, { timeout: 45_000 });
+  await expect(page).not.toHaveURL(/\/login([?#]|$)/, { timeout: 60_000 });
+  // Multi-role staff often land on /admin; member-targeted specs expect the member home.
+  const path = new URL(page.url()).pathname;
+  if (!path.startsWith('/dashboard')) {
+    await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+  }
+  await expect(page).not.toHaveURL(/\/login(\?|$)/, { timeout: 20_000 });
 }

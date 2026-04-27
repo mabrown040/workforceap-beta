@@ -8,7 +8,9 @@ export const STATIC_PATHS = {
     '/dashboard',
     '/dashboard/account',
     '/dashboard/ai-tools',
+    '/dashboard/ai-tools/career-business-coach',
     '/dashboard/ai-tools/cover-letter',
+    '/dashboard/ai-tools/elevator-pitch',
     '/dashboard/ai-tools/gap-analyzer',
     '/dashboard/ai-tools/history',
     '/dashboard/ai-tools/interview-coach',
@@ -16,7 +18,9 @@ export const STATIC_PATHS = {
     '/dashboard/ai-tools/job-match-scorer',
     '/dashboard/ai-tools/linkedin-about',
     '/dashboard/ai-tools/linkedin-headline',
+    '/dashboard/ai-tools/readiness-coach',
     '/dashboard/ai-tools/resume-analysis',
+    '/dashboard/ai-tools/resume-coach',
     '/dashboard/ai-tools/resume-rewriter',
     '/dashboard/ai-tools/salary-negotiation',
     '/dashboard/ai-tools/skill-mapper',
@@ -77,10 +81,14 @@ export const STATIC_PATHS = {
     '/admin/placements/new',
     '/admin/program-change-requests',
     '/admin/programs',
+    '/admin/sessions',
+    '/admin/sessions/walk-in',
     '/admin/settings',
     '/admin/subgroups',
     '/admin/subgroups/new',
     '/admin/wioa-screening',
+    '/admin/users',
+    '/admin/users/deleted',
     '/admin/weekly-recap',
   ],
 
@@ -112,7 +120,17 @@ export const STATIC_PATHS = {
     '/partner/settings',
   ],
 
-  counselor: ['/counselor', '/counselor/guide', '/counselor/messages', '/counselor/resources', '/counselor/students'],
+  counselor: [
+    '/counselor',
+    '/counselor/guide',
+    '/counselor/messages',
+    '/counselor/placements',
+    '/counselor/resources',
+    '/counselor/sessions',
+    '/counselor/sessions/walk-in',
+    '/counselor/students',
+    '/counselor/inactive-members',
+  ],
 };
 
 /** Dynamic segments — spot-check from list/detail pages; not visited by automation. */
@@ -133,10 +151,11 @@ export const DYNAMIC_PATHS = {
     '/admin/partners/[id]',
     '/admin/subgroups/[id]',
     '/admin/subgroups/[id]/edit',
+    '/admin/sessions/[memberId]/run',
   ],
   employer: ['/employer/jobs/[id]', '/employer/candidates/[studentId]'],
   partner: ['/partner/members/[id]', '/partner/referred-members/[memberId]'],
-  counselor: ['/counselor/students/[memberId]'],
+  counselor: ['/counselor/students/[memberId]', '/counselor/sessions/[memberId]/run'],
 };
 
 export const SECTION_LOGIN_REDIRECT = {

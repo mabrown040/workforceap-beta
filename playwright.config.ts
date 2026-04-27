@@ -1,4 +1,26 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
+
+/** Local-only: load `.env.e2e.local` (gitignored) so E2E_* reach Playwright workers. */
+function loadE2EEnvFile(): void {
+  const f = join(process.cwd(), '.env.e2e.local');
+  if (!existsSync(f)) return;
+  const raw = readFileSync(f, 'utf8');
+  for (const line of raw.split(/\n/)) {
+    const t = line.replace(/^\uFEFF/, '').trim();
+    if (!t || t.startsWith('#')) continue;
+    const eq = t.indexOf('=');
+    if (eq <= 0) continue;
+    const k = t.slice(0, eq).trim();
+    const v = t
+      .slice(eq + 1)
+      .trim()
+      .replace(/\r$/, '');
+    if (k && !process.env[k]) process.env[k] = v;
+  }
+}
+loadE2EEnvFile();
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 /** Staging/prod URL — do not boot `npm run dev`. */

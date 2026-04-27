@@ -22,6 +22,7 @@ export async function GET() {
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const employers = await prisma.employer.findMany({
+      take: 1000,
       orderBy: { companyName: 'asc' },
       include: {
         user: { select: { email: true, fullName: true } },

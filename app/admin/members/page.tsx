@@ -38,6 +38,7 @@ export default async function AdminMembersPage() {
     prisma.user.findMany({
       where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
       orderBy: { createdAt: 'desc' },
+      take: 2000,
       select: {
         id: true,
         fullName: true,
@@ -160,6 +161,11 @@ export default async function AdminMembersPage() {
         action={<Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> Add Member</Link>}
       />
 
+      {members.length >= 2000 && (
+        <p style={{ margin: '0 0 0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(173,44,77,0.07)', borderRadius: '6px', fontSize: '0.875rem', color: 'var(--color-accent)' }}>
+          Showing the 2,000 most recent members. Use the CSV export for a full list.
+        </p>
+      )}
       <MembersTable members={membersWithProgram} />
     </PortalPageFrame>
   );

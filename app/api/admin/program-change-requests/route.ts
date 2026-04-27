@@ -10,6 +10,7 @@ export async function GET() {
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const rows = await prisma.programChangeRequest.findMany({
+      take: 500,
       orderBy: { createdAt: 'desc' },
       include: {
         user: { select: { id: true, email: true, fullName: true, enrolledProgram: true } },

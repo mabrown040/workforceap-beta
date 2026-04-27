@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendApplicantFollowupEmail, sendAdminPendingApplicantsEmail } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
@@ -28,6 +29,7 @@ export async function GET(request: Request) {
       submittedAt: { lte: threeDaysAgo },
       user: { deletedAt: null, notificationsReminders: true },
     },
+    take: 500,
     include: {
       user: {
         select: { id: true, email: true, fullName: true },
@@ -68,7 +70,7 @@ export async function GET(request: Request) {
       });
       if (result.ok) applicantEmailsSent++;
     } catch (err) {
-      console.error(`Applicant followup failed for user ${app.user.id}:`, err);
+      captureApiError(err, { route: 'cron/applicant-followup', extra: { userId: app.user.id } });
     }
   }
 
@@ -81,7 +83,7 @@ export async function GET(request: Request) {
       });
       adminEmailSent = result.ok;
     } catch (err) {
-      console.error('Admin pending applicants email failed:', err);
+      captureApiError(err, { route: 'cron/applicant-followup/admin-alert' });
     }
   }
 

@@ -28,6 +28,7 @@ export async function GET() {
     where: { deletedAt: null },
     select: { id: true, fullName: true, email: true },
     orderBy: { fullName: 'asc' },
+    take: 500,
   });
   return NextResponse.json(users);
 }

@@ -21,6 +21,7 @@ export async function GET() {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const placements = await prisma.placementRecord.findMany({
+    take: 2000,
     orderBy: { placedAt: 'desc' },
     include: {
       user: { select: { id: true, fullName: true, email: true, enrolledProgram: true } },

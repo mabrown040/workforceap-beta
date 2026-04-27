@@ -48,9 +48,11 @@ export async function GET(req: NextRequest) {
     where.createdAt = createdAt;
   }
 
+  const EXPORT_LIMIT = 10_000;
   const users = await prisma.user.findMany({
     where,
     orderBy: { createdAt: 'desc' },
+    take: EXPORT_LIMIT,
     select: {
       id: true,
       fullName: true,
@@ -234,11 +236,15 @@ export async function GET(req: NextRequest) {
   const csv = buildCsv(headers, csvRows, { reportTitle: 'Member Training Export', notes: 'Workforce training qualification reporting — Workforce Advancement Project' });
   const filename = `workforceap-members-export-${new Date().toISOString().slice(0, 10)}.csv`;
 
-  return new NextResponse(csv, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-    },
-  });
+  const headers: Record<string, string> = {
+    'Content-Type': 'text/csv; charset=utf-8',
+    'Content-Disposition': `attachment; filename="${filename}"`,
+    'Cache-Control': 'no-store',
+  };
+  if (users.length >= EXPORT_LIMIT) {
+    headers['X-Export-Truncated'] = `true`;
+    headers['X-Export-Limit'] = `${EXPORT_LIMIT}`;
+  }
+
+  return new NextResponse(csv, { status: 200, headers });
 }

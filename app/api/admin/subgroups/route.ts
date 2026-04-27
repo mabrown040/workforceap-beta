@@ -24,6 +24,7 @@ export async function GET() {
   }
 
   const subgroups = await prisma.subgroup.findMany({
+    take: 500,
     orderBy: { name: 'asc' },
     include: {
       leader: { select: { id: true, fullName: true, email: true } },

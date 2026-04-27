@@ -10,6 +10,7 @@ export async function GET() {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const rows = await prisma.counselor.findMany({
+    take: 500,
     orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
     include: {
       user: { select: { id: true, fullName: true, email: true } },

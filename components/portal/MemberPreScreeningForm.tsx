@@ -342,7 +342,7 @@ export default function MemberPreScreeningForm() {
         </label>
       </fieldset>
       <button type="submit" className="btn btn-primary" disabled={loading || workforceAssistance === ''}>
-        {loading ? 'Submitting…' : 'Submit & become interview eligible'}
+        {loading ? 'Submitting…' : 'Submit pre-screening'}
       </button>
     </form>
   );

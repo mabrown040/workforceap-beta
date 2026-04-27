@@ -7,7 +7,9 @@ type Surface = {
 };
 
 export const readinessVoiceSurface: Surface = {
-  badge: 'Workforce Readiness & career coach',
+  /* Badges normalized to short Title Case across all voice surfaces
+     (audit #55) — was "Workforce Readiness & career coach". */
+  badge: 'Readiness Coach',
   subtext: 'Interviews, certifications, and next steps. Program context is included automatically.',
   icon: '🎯',
   glowColor: '#0d9488',
@@ -15,7 +17,7 @@ export const readinessVoiceSurface: Surface = {
 };
 
 export const resumeCoachVoiceSurface: Surface = {
-  badge: 'Resume coach',
+  badge: 'Resume Coach',
   subtext:
     'Voice feedback on bullets and framing. Pair with your live draft when you use the rewriter.',
   icon: '✨',
@@ -56,7 +58,7 @@ export const partnerVoiceSurface: Surface = {
 };
 
 export const mockInterviewVoiceSurface: Surface = {
-  badge: 'Mock interview',
+  badge: 'Mock Interview',
   subtext: 'Answer out loud — optional camera recording for review.',
   icon: '🎙️',
   glowColor: '#7c3aed',

@@ -32,23 +32,25 @@ export default function VoiceCoachesPromo() {
           marginBottom: '0.75rem',
         }}
       >
+        {/* CTAs unified to "Start [name]" + badges to short Title Case
+            (audit #55, #56). */}
         <VoiceCoachLauncherCard
           {...readinessVoiceSurface}
           title="AI Readiness Coach"
           description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
           href="/dashboard/readiness"
-          ctaLabel="Talk to AI coach"
+          ctaLabel="Start readiness coach"
         />
 
         <VoiceCoachLauncherCard
-          badge="Quick intro"
+          badge="Elevator Speech"
           icon="🎤"
           glowColor="#7c3aed"
           gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
           title="AI Elevator Speech"
           description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
           href="/dashboard/ai-tools/elevator-pitch"
-          ctaLabel="Build elevator speech"
+          ctaLabel="Start elevator speech"
         />
 
         <VoiceCoachLauncherCard
@@ -56,7 +58,7 @@ export default function VoiceCoachesPromo() {
           title="Resume & Experience"
           description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
           href="/dashboard/ai-tools/resume-coach"
-          ctaLabel="Open resume coach"
+          ctaLabel="Start resume coach"
         />
 
         <VoiceCoachLauncherCard
@@ -71,14 +73,14 @@ export default function VoiceCoachesPromo() {
       {/* 1 wider horizontal card below */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
         <VoiceCoachLauncherCard
-          badge="Career & Business"
+          badge="Career Coach"
           icon="💼"
           glowColor="#0d9488"
           gradient="linear-gradient(135deg, #0f766e, #0d9488, #5eead4)"
           title="Career & Business Coach"
           description="Get broader career, project management, sales, marketing, and business guidance in one place."
           href="/dashboard/ai-tools/career-business-coach"
-          ctaLabel="Open career coach"
+          ctaLabel="Start career coach"
         />
       </div>
     </section>

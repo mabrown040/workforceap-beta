@@ -17,13 +17,13 @@ function ResumeCoachRedirectCard() {
         padding: '1rem 1.1rem',
         borderRadius: 16,
         marginBottom: '1rem',
-        border: '1px solid rgba(37, 99, 235, 0.16)',
-        background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.02))',
+        border: '1px solid color-mix(in srgb, var(--color-blue) 16%, transparent)',
+        background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-blue) 8%, transparent), color-mix(in srgb, var(--color-blue) 2%, transparent))',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         <div>
-          <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1d4ed8' }}>
+          <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-blue)' }}>
             Dedicated voice flow
           </p>
           <h2 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-on-surface)' }}>Want voice coaching instead?</h2>
@@ -45,7 +45,7 @@ function ResumeCoachRedirectCard() {
             fontSize: '0.85rem',
             fontWeight: 700,
             color: '#fff',
-            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+            background: 'linear-gradient(135deg, var(--color-blue), var(--color-blue))',
           }}
         >
           Open Resume Coach

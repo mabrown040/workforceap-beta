@@ -95,7 +95,7 @@ Write a tailored cover letter.`;
   } catch (err) {
     console.error('Cover letter error:', err);
     return NextResponse.json(
-      { error: 'Failed to generate cover letter. Please try again.' },
+      { error: 'We could not generate your cover letter just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

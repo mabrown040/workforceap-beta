@@ -788,15 +788,17 @@ export default function PortalVoiceSession({
         {voiceError ? (
           <div
             style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.25)',
+              background: 'var(--surface-container-high)',
+              border: '1px solid var(--outline-variant)',
               borderRadius: 8,
               padding: '0.75rem 1rem',
               marginBottom: '1rem',
               fontSize: '0.85rem',
-              color: '#b91c1c',
+              color: 'var(--color-on-surface)',
+              fontWeight: 600,
             }}
           >
+            <span style={{ color: 'var(--color-accent)', marginRight: '0.5rem' }}>⚠</span>
             {voiceError}
           </div>
         ) : null}

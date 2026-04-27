@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
@@ -24,16 +25,25 @@ export default async function MentorsBrowsePage() {
 
   return (
     <>
+      <div style={{ maxWidth: 'var(--max-width, 72rem)', margin: '0 auto', padding: '0.5rem 1rem 0' }}>
+        <PageHeader
+          title="Find a mentor"
+          subtitle="Browse WorkforceAP mentors and request a session with someone in your field."
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'Mentors' },
+          ]}
+        />
+      </div>
       {/* Mobile */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem', padding: '1rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>Find a Mentor</h1>
         <div style={{ display: 'grid', gap: '0.75rem' }}>
           {mentors.map((mentor) => (
             <div key={mentor.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '0.9rem', background: 'var(--surface-container-lowest)' }}>
               <div style={{ fontWeight: 700 }}>{mentor.fullName}</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{mentor.title}</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{mentor.company} · {mentor.industry}</div>
-              <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.6rem', textDecoration: 'none', background: 'var(--color-accent)', color: '#fff', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+              <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.6rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontWeight: 600 }}>
                 Request Session
               </Link>
             </div>
@@ -44,14 +54,13 @@ export default async function MentorsBrowsePage() {
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem' }}>
-        <h2 aria-hidden="true" style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '1rem' }}>Find a Mentor</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
           {mentors.map((mentor) => (
             <div key={mentor.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1rem', background: 'var(--surface-container-lowest)' }}>
               <div style={{ fontSize: '1.05rem', fontWeight: 700 }}>{mentor.fullName}</div>
               <div style={{ color: 'var(--text-secondary)' }}>{mentor.title}</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{mentor.company} · {mentor.industry}</div>
-              <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.75rem', textDecoration: 'none', background: 'var(--color-accent)', color: '#fff', padding: '0.55rem 0.85rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+              <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.75rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', padding: '0.55rem 0.85rem', borderRadius: '0.5rem', fontWeight: 600 }}>
                 Request Session
               </Link>
             </div>

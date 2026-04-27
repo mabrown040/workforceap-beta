@@ -84,6 +84,11 @@ export default function SessionRunClient({
     setOpenCards(prev => new Set([...prev, key]));
 
   // Per-tool state
+  const [linkedinHlState, setLinkedinHlState] = useState<ToolState>(initialToolState);
+  const [linkedinAboutState, setLinkedinAboutState] = useState<ToolState>(initialToolState);
+  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
+  const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
+  const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
   const [interviewState, setInterviewState] = useState<ToolState>(initialToolState);
@@ -96,6 +101,14 @@ export default function SessionRunClient({
   const [pitchState, setPitchState] = useState<ToolState>(initialToolState);
 
   // Per-tool inputs
+  const [linkedinSkills, setLinkedinSkills] = useState('');
+  const [linkedinYears, setLinkedinYears] = useState('');
+  const [linkedinBullets, setLinkedinBullets] = useState('');
+  const [salaryOffer, setSalaryOffer] = useState('');
+  const [salaryTarget, setSalaryTarget] = useState('');
+  const [salaryDelivery, setSalaryDelivery] = useState<'email' | 'phone'>('email');
+  const [elevatorStrengths, setElevatorStrengths] = useState('');
+  const [elevatorIndustry, setElevatorIndustry] = useState('');
   const [resumeText, setResumeText] = useState(existingResume);
   const [jobTarget, setJobTarget] = useState(memberTargetRole ?? '');
   const [jobDescription, setJobDescription] = useState('');
@@ -120,6 +133,7 @@ export default function SessionRunClient({
   const [endingSession, setEndingSession] = useState(false);
   const [packetSent, setPacketSent] = useState(false);
   const [packetError, setPacketError] = useState<string | null>(null);
+
 
   // Per-card voice state. Each card (walkthrough, resume, cover,
   // interview) can be toggled into voice mode independently. The active
@@ -558,7 +572,8 @@ export default function SessionRunClient({
         </div>
       </SectionCard>
 
-      {/* Card 2: Resume rewriter */}
+      
+      {/* Card 2: Elevator Pitch */}
       <SectionCard
         id="session-card-resume"
         step={2}
@@ -701,7 +716,7 @@ export default function SessionRunClient({
         ) : null}
       </SectionCard>
 
-      {/* Card 3: Cover letter */}
+      {/* Card 4: Cover letter */}
       <SectionCard
         id="session-card-cover"
         step={3}
@@ -820,7 +835,7 @@ export default function SessionRunClient({
         ) : null}
       </SectionCard>
 
-      {/* Card 4: Interview prep */}
+      {/* Card 5: Interview prep */}
       <SectionCard
         id="session-card-interview"
         step={4}
@@ -1310,3 +1325,35 @@ function InterviewOutput({ body, savedTo }: { body: string; savedTo: string }) {
     </div>
   );
 }
+
+function LinkedInHeadlinesOutput({ body, savedTo }: { body: string; savedTo: string }) {
+  let headlines: string[] = [];
+  try {
+    headlines = JSON.parse(body);
+  } catch {
+    return <OutputPanel label="LinkedIn Headlines" body={body} savedTo={savedTo} />;
+  }
+  if (!Array.isArray(headlines)) {
+    return <OutputPanel label="LinkedIn Headlines" body={body} savedTo={savedTo} />;
+  }
+  return (
+    <div style={{ marginTop: '1rem', background: 'var(--surface-container-low)', borderRadius: '0.75rem', padding: '1rem 1.25rem' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>
+          LinkedIn Headlines
+        </strong>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-green, #4a9b4f)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+          <CheckCircle2 size={14} aria-hidden /> Saved to {savedTo.split(' ')[0]}
+        </span>
+      </header>
+      <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {headlines.map((h, i) => (
+          <li key={i} style={{ color: 'var(--color-on-surface)' }}>
+            {h}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+

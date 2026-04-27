@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import SkillAssessmentForm from '@/components/portal/tools/SkillAssessmentForm';
 import AssessmentRetakeButton from '@/components/portal/AssessmentRetakeButton';
-import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -81,29 +81,17 @@ export default async function SkillsAssessmentPage() {
 
   return (
     <>
-      <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
-        {/* Breadcrumb */}
-        <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-          <PortalBreadcrumb
-            items={[
-              { href: '/dashboard', label: 'Member Portal' },
-              { label: 'Skills Assessment' },
+      <div style={{ maxWidth: 'var(--max-width, 72rem)', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
+        <div style={{ marginTop: '1rem', marginBottom: '1.75rem' }}>
+          <PageHeader
+            title="Skills assessment"
+            subtitle="Your skills snapshot helps personalize your learning path and connect you with career support."
+            breadcrumbs={[
+              { label: 'Member Portal', href: '/dashboard' },
+              { label: 'Skills assessment' },
             ]}
           />
-        </nav>
-
-        {/* Header */}
-        <header style={{ marginBottom: '1.75rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-            Skills &amp; Readiness
-          </p>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-            Skills Assessment
-          </h1>
-          <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-            Your skills snapshot helps personalize your learning path and connect you with career support.
-          </p>
-        </header>
+        </div>
 
         {/* ── Assessment Status Card ── */}
         <section style={{ marginBottom: '1.5rem' }}>
@@ -128,7 +116,7 @@ export default async function SkillsAssessmentPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-green)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
                   <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Assessment complete</h2>
-                  <span style={{ marginLeft: 'auto', padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#166534' }}>
+                  <span style={{ marginLeft: 'auto', padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)' }}>
                     Done
                   </span>
                 </div>
@@ -303,7 +291,7 @@ export default async function SkillsAssessmentPage() {
                       Earned {cert.earnedAt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
-                  <span style={{ padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'rgba(74,155,79,0.1)', color: '#166534', flexShrink: 0 }}>
+                  <span style={{ padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)', flexShrink: 0 }}>
                     Verified
                   </span>
                 </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import PageHeader from '@/components/portal/PageHeader';
 
 interface Placement {
   id: string;
@@ -106,30 +107,17 @@ export default function PlacementsPage() {
   };
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Placement Tracking</h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.9rem' }}>
-            Record and track member job placements.
-          </p>
-        </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          style={{
-            padding: '0.75rem 1.25rem',
-            background: 'var(--color-accent)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-md)',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-            cursor: 'pointer',
-          }}
-        >
-          {showAddForm ? 'Cancel' : '+ Record Placement'}
-        </button>
-      </div>
+    <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
+      <PageHeader
+        title="Placement tracking"
+        subtitle="Record and track member job placements."
+        breadcrumbs={[{ label: 'Counselor Portal', href: '/counselor' }, { label: 'Placements' }]}
+        action={
+          <button type="button" className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
+            {showAddForm ? 'Cancel' : 'Record placement'}
+          </button>
+        }
+      />
 
       {message && (
         <div style={{
@@ -188,10 +176,10 @@ export default function PlacementsPage() {
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', resize: 'vertical' }} />
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
-            <button type="submit" disabled={submitting} style={{ padding: '0.75rem 1.25rem', background: 'var(--color-accent)', color: '#fff', border: 'none', borderRadius: 'var(--radius-md)', fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}>
-              {submitting ? 'Recording…' : 'Record Placement'}
+            <button type="submit" disabled={submitting} className="btn btn-primary" style={{ opacity: submitting ? 0.7 : 1 }}>
+              {submitting ? 'Recording…' : 'Record placement'}
             </button>
-            <button type="button" onClick={() => { setShowAddForm(false); resetForm(); }} style={{ padding: '0.75rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', border: 'none', borderRadius: 'var(--radius-md)', fontWeight: 600, cursor: 'pointer' }}>
+            <button type="button" className="btn btn-outline" onClick={() => { setShowAddForm(false); resetForm(); }}>
               Cancel
             </button>
           </div>

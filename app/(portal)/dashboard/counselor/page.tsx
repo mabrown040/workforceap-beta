@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
@@ -21,24 +22,16 @@ export default async function CounselorPage() {
   const firstName = user.user_metadata?.full_name?.split(' ')[0] as string | undefined;
 
   return (
-    <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{
-        padding: '1.25rem 2rem 1.5rem',
-        borderBottom: '1px solid var(--surface-container-high)',
-        background: 'var(--surface-container-low)',
-      }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--color-on-surface)' }}>
-          AI Career Counselor
-        </h1>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-          Your session is private. Speak naturally — I&rsquo;m here to help.
-        </p>
-      </div>
+    <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>
+      <PageHeader
+        title="AI Career Counselor"
+        subtitle="Your session is private. Speak naturally — I'm here to help."
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'AI Career Counselor' }]}
+      />
 
       {/* Mobile */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <div style={{ padding: '1.5rem 1rem' }}>
+        <div style={{ padding: '0 1rem 1.5rem' }}>
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
@@ -48,7 +41,7 @@ export default async function CounselorPage() {
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block">
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '3rem 1.5rem' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 1.5rem 3rem' }}>
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>

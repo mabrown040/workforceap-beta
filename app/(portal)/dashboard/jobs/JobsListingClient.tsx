@@ -106,7 +106,7 @@ function JobCard({
           <h3 className="job-card__title" style={{ margin: 0, flex: 1 }}>{job.title}</h3>
           <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {isApplied && (
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, background: 'rgba(22,163,74,0.12)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.3)', borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 12%, transparent)', color: 'var(--color-green)', border: '1px solid color-mix(in srgb, var(--color-green) 30%, transparent)', borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
                 Applied
               </span>
             )}
@@ -518,8 +518,8 @@ export default function JobsListingClient({
                   <div
                     style={{
                       flexShrink: 0,
-                      background: 'rgba(13,148,136,0.12)',
-                      color: '#0d9488',
+                      background: 'color-mix(in srgb, var(--color-teal, #0d9488) 12%, transparent)',
+                      color: 'var(--color-teal, #0d9488)',
                       borderRadius: '999px',
                       padding: '0.35rem 0.65rem',
                       fontWeight: 700,

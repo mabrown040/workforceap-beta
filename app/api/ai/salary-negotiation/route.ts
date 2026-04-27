@@ -78,7 +78,7 @@ Write a ${isPhone ? 'phone call' : 'email'} script they can use word-for-word.`;
   } catch (err) {
     console.error('Salary negotiation error:', err);
     return NextResponse.json(
-      { error: 'Failed to generate script. Please try again.' },
+      { error: 'We could not generate your script just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

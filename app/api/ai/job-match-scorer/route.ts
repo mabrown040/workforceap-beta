@@ -373,7 +373,7 @@ Analyze the match and output in the format above.`;
   } catch (err) {
     console.error('Job match scorer error:', err);
     return NextResponse.json(
-      { error: 'Failed to analyze match. Please try again.' },
+      { error: 'We could not analyze your match just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

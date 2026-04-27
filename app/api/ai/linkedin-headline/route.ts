@@ -78,7 +78,7 @@ Generate 3 LinkedIn headline options.`;
   } catch (err) {
     console.error('LinkedIn headline error:', err);
     return NextResponse.json(
-      { error: 'Failed to generate headlines. Please try again.' },
+      { error: 'We could not generate headlines just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

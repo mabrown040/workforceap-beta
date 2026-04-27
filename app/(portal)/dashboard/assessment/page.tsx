@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Skills Snapshot',
@@ -44,15 +45,16 @@ export default async function AssessmentPage({
   return (
     <>
     <div className="inner-page">
-      <section className="page-hero">
-        <div className="page-hero-content">
-          <h1>One quick step before your training begins</h1>
-          <p>
-            Before we connect you with your Coursera courses, we need a 10-minute skills snapshot.
-            This helps your counselor personalize your learning path and identify any additional support resources.
-          </p>
-        </div>
-      </section>
+      <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
+        <PageHeader
+          title="Skills snapshot"
+          subtitle="Before we connect you with your Coursera courses, we need a quick skills snapshot. This helps your counselor personalize your learning path and identify any additional support resources."
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'Skills snapshot' },
+          ]}
+        />
+      </div>
 
       <section className="content-section">
         <div className="container" style={{ maxWidth: '720px' }}>

@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Help & Support',
@@ -40,28 +40,17 @@ export default async function DashboardHelpPage() {
 
   return (
     <>
-      <div style={{ maxWidth: '52rem', margin: '0 auto', padding: '0 1rem 4rem' }}>
-        {/* Compact header */}
-        <nav style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
-          <PortalBreadcrumb
-            items={[
-              { href: '/dashboard', label: 'Dashboard' },
-              { label: 'Help & Support' },
+      <div style={{ maxWidth: 'var(--max-width, 52rem)', margin: '0 auto', padding: '0 1rem 4rem' }}>
+        <div style={{ marginTop: '1rem', marginBottom: '2rem' }}>
+          <PageHeader
+            title="Help and support"
+            subtitle="Questions or need access to a benefit? Here&rsquo;s how to get help."
+            breadcrumbs={[
+              { label: 'Member Portal', href: '/dashboard' },
+              { label: 'Help and support' },
             ]}
           />
-        </nav>
-
-        <header style={{ marginBottom: '2rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-            Support
-          </p>
-          <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-            Help & Support
-          </h1>
-          <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-            Questions or need access to a benefit? Here&rsquo;s how to get help.
-          </p>
-        </header>
+        </div>
 
         {/* Request benefit access */}
         <section style={{ marginBottom: '2rem' }}>

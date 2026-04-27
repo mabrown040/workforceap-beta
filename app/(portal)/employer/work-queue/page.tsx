@@ -5,6 +5,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import EmployerWorkQueueClient from '@/components/employer/EmployerWorkQueueClient';
 import EmployerWorkflowTimeline from '@/components/employer/EmployerWorkflowTimeline';
 import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
@@ -55,11 +56,12 @@ export default async function EmployerWorkQueuePage({
   });
 
   return (
-    <>
+    <PortalPageFrame>
     <div className="employer-work-queue-page wa-pb-24 md:wa-pb-0">
       <PageHeader
         title="Work queue"
         subtitle="Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."
+        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Work queue' }]}
       />
 
       <EmployerWorkQueueClient
@@ -77,6 +79,6 @@ export default async function EmployerWorkQueuePage({
 
       <EmployerWorkflowTimeline events={events} />
     </div>
-    </>
+    </PortalPageFrame>
   );
 }

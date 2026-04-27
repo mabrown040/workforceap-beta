@@ -50,6 +50,7 @@ export default async function MemberMessagesPage() {
 
   return (
     <>
+      <h1 className="wa-sr-only">Messages</h1>
       {/* ── Mobile-only messages view (≤md) ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <MemberMessagesMobileClient
@@ -77,6 +78,7 @@ export default async function MemberMessagesPage() {
       <div className="wa-hidden md:wa-block">
         <PageHeader
           title="Messages"
+          titleHeadingLevel={2}
           breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Messages' }]}
         />
         <MemberCounselorChatClient

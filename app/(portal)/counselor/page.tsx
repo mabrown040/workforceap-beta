@@ -12,9 +12,8 @@ import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from 
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import PortalStatCard from '@/components/portal/PortalStatCard';
 import StatusBadge from '@/components/portal/StatusBadge';
-import { getTimeOfDayGreeting } from '@/lib/time/greeting';
+import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
@@ -85,14 +84,20 @@ export default async function CounselorPortalPage() {
   const needsAttentionCount = assignments.filter((a) => !a.member.enrolledProgram && !a.member.programInterest).length;
 
   const firstName = (dbUser.fullName ?? 'Counselor').split(' ')[0];
-  const greeting = getTimeOfDayGreeting();
+  const goodTimePhrase = getGoodTimeOfDayPhrase();
 
   // Today's priorities — needs-reply, at-risk, and interviewing rows.
   const isAdminUser = await isAdmin(user.id);
-  const commandCenter = await getCounselorCommandCenter(user.id, {
-    isAdmin: isAdminUser && !counselor,
-    perSectionLimit: 5,
-  });
+  let commandCenter;
+  try {
+    commandCenter = await getCounselorCommandCenter(user.id, {
+      isAdmin: isAdminUser && !counselor,
+      perSectionLimit: 5,
+    });
+  } catch {
+    // Graceful fallback if the command center query fails (e.g. schema drift)
+    commandCenter = { needsReply: [], atRisk: [], interviewing: [], totals: { needsReplyCount: 0, atRiskCount: 0, interviewingCount: 0, slaBreachCount: 0 } };
+  }
 
   const statCards = [
     { icon: 'groups', label: 'Your Members', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
@@ -103,7 +108,9 @@ export default async function CounselorPortalPage() {
 
   return (
     <PortalPageFrame maxWidth="76rem">
-      <h1 className="wa-sr-only">Counselor Dashboard - Welcome back, {firstName}</h1>
+      <h1 className="wa-sr-only">
+        Counselor dashboard — welcome back, {firstName}
+      </h1>
 
       {/* ── Today's priorities — Counselor Command Center.
           Sits above both mobile + desktop layouts so it shows everywhere.
@@ -118,7 +125,8 @@ export default async function CounselorPortalPage() {
         <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
           <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            {greeting}, <br /><span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
+            {goodTimePhrase},{' '}
+            <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
           </h2>
         </div>
         <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
@@ -244,6 +252,7 @@ export default async function CounselorPortalPage() {
       {/* ── Welcome Header ── */}
       <PageHeader
         title={`Welcome back, ${firstName}.`}
+        titleHeadingLevel={2}
         subtitle="See your assigned members, track their progress, and respond to messages."
       />
 
@@ -376,7 +385,7 @@ export default async function CounselorPortalPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Enrolled in modules</span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{enrolledCount}</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-green)' }}>{enrolledCount}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Awaiting reply</span>
@@ -414,10 +423,6 @@ export default async function CounselorPortalPage() {
                       <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{link.desc}</p>
                     </div>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p className="portal-quick-action-item__label">{link.title}</p>
-                    <p className="portal-quick-action-item__desc">{link.desc}</p>
-                  </div>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', opacity: 0.3, flexShrink: 0 }} aria-hidden="true">chevron_right</span>
                 </Link>
               ))}
@@ -441,7 +446,7 @@ export default async function CounselorPortalPage() {
               )}
               {messagesNeedingReply > 0 && (
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                  <div style={{ width: '8px', height: '8px', marginTop: '0.375rem', borderRadius: '50%', background: '#80d99f', flexShrink: 0 }} />
+                  <div style={{ width: '8px', height: '8px', marginTop: '0.375rem', borderRadius: '50%', background: 'var(--color-green)', flexShrink: 0 }} />
                   <div>
                     <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
                       <strong>{messagesNeedingReply} message thread{messagesNeedingReply === 1 ? '' : 's'}</strong> waiting for your reply

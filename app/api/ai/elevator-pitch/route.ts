@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import {
@@ -78,8 +79,8 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
         onBehalf.subjectUserId,
         'career_counselor',
         `AI elevator speech for ${targetRole.trim()}`,
-        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch: trimmedPitch }),
-        { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId: sessionId ?? undefined },
+        trimmedPitch,
+        { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId }
       );
 
       try {
@@ -143,6 +144,6 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
     return NextResponse.json({ pitch: pitch.trim(), emailSent, emailError });
   } catch (e) {
     console.error('[elevator-pitch] generation failed', e);
-    return NextResponse.json({ error: 'Failed to generate pitch' }, { status: 500 });
+    return NextResponse.json({ error: 'We could not generate your pitch just now. Please try again in a moment.' }, { status: 500 });
   }
 }

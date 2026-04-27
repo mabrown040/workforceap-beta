@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { linkedinAboutSchema } from '@/lib/validation/linkedinAbout';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
@@ -105,7 +106,7 @@ Write a 3-paragraph LinkedIn About section.`;
   } catch (err) {
     console.error('LinkedIn about error:', err);
     return NextResponse.json(
-      { error: 'Failed to generate About section. Please try again.' },
+      { error: 'We could not generate your About section just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

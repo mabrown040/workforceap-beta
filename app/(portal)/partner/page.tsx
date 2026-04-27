@@ -166,6 +166,9 @@ export default async function PartnerDashboardPage() {
       }}
     >
     <PortalPageFrame maxWidth="80rem">
+      <h1 className="wa-sr-only">
+        Partner overview — {ctx.partner.name}
+      </h1>
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block md:wa-hidden portal-mobile-content">
       {/* Header */}
@@ -176,9 +179,9 @@ export default async function PartnerDashboardPage() {
         >
           Partner Dashboard
         </p>
-        <h1 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
+        <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
-        </h1>
+        </h2>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
           {partnerRow.organizationType || 'Partner Organization'}
         </p>
@@ -229,8 +232,8 @@ export default async function PartnerDashboardPage() {
                 sessionEndpoint="/api/partner/voice-session"
                 title="Partner voice assistant"
                 description="Ask about referrals, member progress, or using the partner portal."
-                accent="#ea580c"
-                accentDark="#c2410c"
+                accent="var(--color-amber)"
+                accentDark="var(--color-amber)"
                 speakingLabel="Assistant is speaking…"
                 listeningLabel="Listening — ask your question"
               />
@@ -353,6 +356,7 @@ export default async function PartnerDashboardPage() {
       {/* ── Header ── */}
       <PageHeader
         title="Partner overview"
+        titleHeadingLevel={2}
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -374,8 +378,8 @@ export default async function PartnerDashboardPage() {
             sessionEndpoint="/api/partner/voice-session"
             title="Partner voice assistant"
             description="Ask about referrals, member progress, or using the partner portal."
-            accent="#ea580c"
-            accentDark="#c2410c"
+            accent="var(--color-amber)"
+            accentDark="var(--color-amber)"
             speakingLabel="Assistant is speaking…"
             listeningLabel="Listening — ask your question"
           />
@@ -556,7 +560,7 @@ export default async function PartnerDashboardPage() {
                       <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(226,226,229,0.05)' }}>
                           <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>{p.member.fullName}</span>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#80d99f' }}>{p.progress}%</span>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-green)' }}>{p.progress}%</span>
                         </div>
                       </Link>
                     ))}

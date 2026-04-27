@@ -161,7 +161,7 @@ export default function SetupMfaPage() {
               </p>
             </div>
 
-            <button
+            <button type="button"
               onClick={() => setStep('confirm')}
               style={{
                 width: '100%',

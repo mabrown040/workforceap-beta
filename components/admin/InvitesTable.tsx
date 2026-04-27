@@ -280,7 +280,7 @@ export default function InvitesTable({ invites }: Props) {
       </ul>
 
       {revokeTarget && (
-        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !revoking && setRevokeTarget(null)}>
+        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !revoking && setRevokeTarget(null)} tabIndex={-1} aria-hidden="true">
           <div
             className="admin-confirm-modal"
             role="dialog"

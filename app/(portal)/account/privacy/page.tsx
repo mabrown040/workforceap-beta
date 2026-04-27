@@ -109,7 +109,7 @@ export default function PrivacySettingsPage() {
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
           Get a copy of all your personal data stored on WorkforceAP. This includes your profile, applications, messages, course progress, and more.
         </p>
-        <button
+        <button type="button"
           onClick={handleExport}
           disabled={exporting}
           style={{
@@ -165,7 +165,7 @@ export default function PrivacySettingsPage() {
         </p>
         
         {!showDeleteConfirm ? (
-          <button
+          <button type="button"
             onClick={() => setShowDeleteConfirm(true)}
             style={{
               padding: '0.75rem 1.25rem',
@@ -191,7 +191,7 @@ export default function PrivacySettingsPage() {
               Are you sure? This will permanently delete your account.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
+              <button type="button"
                 onClick={handleDelete}
                 disabled={deleting}
                 style={{
@@ -208,7 +208,7 @@ export default function PrivacySettingsPage() {
               >
                 {deleting ? 'Deleting…' : 'Yes, Delete'}
               </button>
-              <button
+              <button type="button"
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={deleting}
                 style={{

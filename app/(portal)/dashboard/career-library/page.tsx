@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getMemberResources } from '@/lib/content/memberResources';
 import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
-import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import PageHeader from '@/components/portal/PageHeader';
 import ResourcesClient from '@/app/(portal)/resources/ResourcesClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -35,33 +35,28 @@ export default async function DashboardCareerLibraryPage() {
   return (
     <>
       <div className="inner-page wa-pb-24 md:wa-pb-8">
-        <section className="page-hero">
-          <div className="page-hero-content page-hero-content--split">
-            <div>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <PortalBreadcrumb
-                  variant="on-dark"
-                  items={[
-                    { href: '/dashboard', label: 'Dashboard' },
-                    { href: '/dashboard/learning', label: 'Learning hub' },
-                    { label: 'Career library' },
-                  ]}
-                />
+        <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
+          <PageHeader
+            title="Career resource library"
+            subtitle="Practical job-seeker resources by career stage. Filter by category or stage to find what you need."
+            breadcrumbs={[
+              { label: 'Member Portal', href: '/dashboard' },
+              { label: 'Learning hub', href: '/dashboard/learning' },
+              { label: 'Career library' },
+            ]}
+            action={
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <Link href="/dashboard/learning" className="btn btn-outline">
+                  Learning hub
+                </Link>
+                <Link href="/dashboard" className="btn btn-outline">
+                  Dashboard
+                </Link>
+                <SignOutButton className="btn btn-outline" />
               </div>
-              <h1>Career resource library</h1>
-              <p>Practical job-seeker resources by career stage. Filter by category or stage to find what you need.</p>
-            </div>
-            <div className="page-hero-actions">
-              <Link href="/dashboard/learning" className="btn btn-outline">
-                Learning hub
-              </Link>
-              <Link href="/dashboard" className="btn btn-outline">
-                Dashboard
-              </Link>
-              <SignOutButton className="btn btn-outline" />
-            </div>
-          </div>
-        </section>
+            }
+          />
+        </div>
 
         <section className="content-section">
           <div className="container">

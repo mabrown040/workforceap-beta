@@ -70,7 +70,7 @@ export default function CookieConsentBanner() {
         </p>
       </div>
       <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0 }}>
-        <button
+        <button type="button"
           onClick={decline}
           style={{
             padding: '0.5rem 1rem',
@@ -85,7 +85,7 @@ export default function CookieConsentBanner() {
         >
           Decline
         </button>
-        <button
+        <button type="button"
           onClick={accept}
           style={{
             padding: '0.5rem 1rem',

@@ -116,7 +116,7 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
   } catch (err) {
     console.error('Interview practice error:', err);
     return NextResponse.json(
-      { error: 'Failed to generate questions. Please try again.' },
+      { error: 'We could not generate practice questions just now. Please try again in a moment.' },
       { status: 500 }
     );
   }

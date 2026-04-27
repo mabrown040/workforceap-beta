@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { logCronRun } from '@/lib/admin/logCronRun';
 
 /**
  * POST /api/cron/inactivity-nudge
@@ -56,7 +57,9 @@ async function handle(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ sent, failed, total: members.length });
+  const runResult = { sent, failed, total: members.length };
+  await logCronRun('cron_inactivity_nudge', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
+  return NextResponse.json(runResult);
 }
 
 export const GET = handle;

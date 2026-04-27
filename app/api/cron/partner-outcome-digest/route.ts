@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendPartnerWeeklyDigestEmail } from '@/lib/email';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { logCronRun } from '@/lib/admin/logCronRun';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
@@ -132,5 +133,8 @@ export async function GET(request: Request) {
     }
   }
 
+  const sent = results.filter(r => r.emailSent).length;
+  const runResult = { ok: true, checkedAt: now.toISOString(), sent, total: results.length };
+  await logCronRun('cron_partner_digest', runResult, sent === 0 && results.length > 0 ? 'error' : 'ok');
   return NextResponse.json({ ok: true, checkedAt: now.toISOString(), results });
 }

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendWeeklyRecapEmail } from '@/lib/email';
 import { generateWeeklyRecap } from '@/lib/recap/generate';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { logCronRun } from '@/lib/admin/logCronRun';
 
 /**
  * GET /api/cron/weekly-recap
@@ -77,5 +78,7 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ sent, failed, total: members.length });
+  const runResult = { sent, failed, total: members.length };
+  await logCronRun('cron_weekly_recap', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
+  return NextResponse.json(runResult);
 }

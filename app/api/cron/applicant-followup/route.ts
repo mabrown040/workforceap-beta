@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendApplicantFollowupEmail, sendAdminPendingApplicantsEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { logCronRun } from '@/lib/admin/logCronRun';
 
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
@@ -87,12 +88,7 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({
-    ok: true,
-    checkedAt: now.toISOString(),
-    staleApplications: staleApplications.length,
-    uniqueApplicants: seenUsers.size,
-    applicantEmailsSent,
-    adminEmailSent,
-  });
+  const runResult = { ok: true, checkedAt: now.toISOString(), staleApplications: staleApplications.length, uniqueApplicants: seenUsers.size, applicantEmailsSent, adminEmailSent };
+  await logCronRun('cron_applicant_followup', runResult);
+  return NextResponse.json(runResult);
 }

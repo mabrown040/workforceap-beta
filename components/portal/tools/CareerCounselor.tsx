@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { Conversation } from '@elevenlabs/client';
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
@@ -302,7 +302,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
               boxShadow: `0 4px 16px ${ACCENT}33`,
             }}
           >
-            End Session &amp; Get My Action Plan
+            End Session {'&'} Get My Action Plan
           </button>
           <button type="button"
             onClick={reset}

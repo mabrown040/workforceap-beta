@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 
 const languages = [

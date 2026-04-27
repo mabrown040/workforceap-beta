@@ -10,8 +10,9 @@ generator client {
 // To promote a user to admin: INSERT INTO user_roles (user_id, role_id) SELECT '<user_id>', id FROM roles WHERE name = 'admin';
 
 datasource db {
-  provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 // --- Core tables ---
@@ -151,6 +152,9 @@ model User {
   @@index([organizationId])
   @@index([wioaReviewStatus])
   @@index([enrolledProgram])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@index([email])
   @@map("users")
 }
 
@@ -752,6 +756,8 @@ model CounselorAssignment {
   @@unique([counselorId, memberId])
   @@index([counselorId])
   @@index([memberId])
+  @@index([memberId, active])
+  @@index([counselorId, active])
   @@map("counselor_assignments")
 }
 
@@ -818,6 +824,7 @@ model PartnerReferral {
 
   @@unique([partnerId, memberId])
   @@index([partnerId])
+  @@index([memberId])
   @@index([assignedPartnerUserId])
   @@map("partner_referrals")
 }

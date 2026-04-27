@@ -195,6 +195,23 @@ export default async function AdminDiagnosticsPage() {
         </div>
       </div>
 
+      {/* Recent errors triage list — only shown when errors exist (audit #84). */}
+      {errorCount > 0 ? (
+        <section style={{ marginBottom: '1.5rem' }}>
+          <div className="portal-dash-section-header">
+            <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0, color: 'var(--color-accent)' }}>
+              Recent errors <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>({errorCount})</span>
+            </h2>
+          </div>
+          <DiagnosticsCards
+            rows={recentDiagnostics
+              .filter((r) => r.status === 'error' || r.status === 'errored' || r.status === 'failed')
+              .slice(0, 10)}
+            emptyText="No recent errors."
+          />
+        </section>
+      ) : null}
+
       {/* Enrollment drift */}
       <section style={{ marginBottom: '1.5rem' }}>
         <div className="portal-dash-section-header">

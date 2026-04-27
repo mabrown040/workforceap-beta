@@ -263,11 +263,21 @@ export default function EmailCronsClient({
           const triggerResult = triggerResults[cron.id];
           const accentColor = categoryColors[cron.category] ?? 'var(--color-accent)';
 
+          /* Never-run / errored crons get a left accent so the headline
+             "Need Attention" KPI maps visually to specific rows (audit #158). */
+          const needsAttention =
+            !cron.lastRunAt ||
+            cron.lastRunStatus === 'error' ||
+            cron.lastRunStatus === 'errored';
           return (
             <div
               key={cron.id}
               className="portal-card portal-card--flat"
-              style={{ overflow: 'hidden', opacity: cron.enabled ? 1 : 0.65 }}
+              style={{
+                overflow: 'hidden',
+                opacity: cron.enabled ? 1 : 0.65,
+                borderLeft: needsAttention ? '3px solid var(--color-accent)' : undefined,
+              }}
             >
               {/* Header row */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1.125rem 1.25rem' }}>

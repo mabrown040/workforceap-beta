@@ -283,24 +283,27 @@ export default async function AdminPage() {
         }
       />
 
-      {(slaBreaches48h > 0 || recentCronErrors > 0) && (
+      {/* Split into one alert per signal so each has its own action.
+          Closes audit #85: previously both lived in a single alert label
+          and the two CTAs read as equal-weight against a combined headline. */}
+      {slaBreaches48h > 0 && (
+        <div className="portal-alert" style={{ margin: '0 1.5rem 0.75rem', borderColor: 'rgba(173,44,77,0.35)' }}>
+          <span className="portal-alert__label">
+            {`${slaBreaches48h} member thread${slaBreaches48h === 1 ? '' : 's'} over 48h without reply`}
+          </span>
+          <Link href="/admin/messages" className="portal-alert__action">
+            Review messages &rarr;
+          </Link>
+        </div>
+      )}
+      {recentCronErrors > 0 && (
         <div className="portal-alert" style={{ margin: '0 1.5rem 1.25rem', borderColor: 'rgba(173,44,77,0.35)' }}>
           <span className="portal-alert__label">
-            {slaBreaches48h > 0 ? `${slaBreaches48h} member thread${slaBreaches48h === 1 ? '' : 's'} over 48h without reply` : 'No stale member threads'}
-            {recentCronErrors > 0 ? ` · ${recentCronErrors} cron error${recentCronErrors === 1 ? '' : 's'} in the last 7 days` : ''}
+            {`${recentCronErrors} cron error${recentCronErrors === 1 ? '' : 's'} in the last 7 days`}
           </span>
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            {slaBreaches48h > 0 && (
-              <Link href="/admin/messages" className="portal-alert__action">
-                Review messages &rarr;
-              </Link>
-            )}
-            {recentCronErrors > 0 && (
-              <Link href="/admin/email-crons" className="portal-alert__action">
-                Check cron health &rarr;
-              </Link>
-            )}
-          </div>
+          <Link href="/admin/email-crons" className="portal-alert__action">
+            Check cron health &rarr;
+          </Link>
         </div>
       )}
 

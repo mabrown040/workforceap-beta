@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import Footer from '@/components/Footer';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
@@ -210,7 +209,6 @@ export default async function AIToolsPage() {
       <div className="wa-block md:wa-hidden">
         <MobileBottomNav variant="portal" />
       </div>
-      <Footer variant="inner" />
     </div>
   );
 }

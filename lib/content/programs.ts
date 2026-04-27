@@ -17,6 +17,7 @@ export interface ProgramCourse {
   slug: string;
   name: string;
   estimatedHours: number;
+  courseraCourseId?: string;
 }
 
 export interface Program {

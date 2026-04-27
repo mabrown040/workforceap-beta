@@ -76,7 +76,7 @@ export function buildMemberApplicationStatusView(
     active:
       'Your assessment is complete. Follow the next step on your dashboard to keep moving toward training and job support.',
     rejected:
-      'We're unable to move forward with this application at this time. Reach out to us at info@workforceap.org if you have questions or would like to discuss next steps.',
+      "We're unable to move forward with this application at this time. Reach out to us at info@workforceap.org if you have questions or would like to discuss next steps.",
   };
 
   const nextStepHrefs: Record<MemberApplicationStage, string> = {

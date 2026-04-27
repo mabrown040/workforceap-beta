@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
@@ -73,9 +74,12 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     if (!pitch) return NextResponse.json({ error: 'Could not generate pitch. Try again.' }, { status: 500 });
 
+    /* Strip wrapping quotes / smart quotes / common typos before persisting or returning. */
+    const cleanedPitch = cleanSpokenLine(pitch);
+
     try {
       await ensureUserInDb(user);
-      const trimmedPitch = pitch.trim();
+      const trimmedPitch = cleanedPitch;
 
       await saveAIToolResult(
         onBehalf.subjectUserId,
@@ -131,7 +135,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
           strengths: strengths?.trim() || null,
           certifications: certifications?.trim() || null,
           industry: industry?.trim() || null,
-          pitch: pitch.trim(),
+          pitch: cleanedPitch,
         });
         emailSent = emailResult.ok;
         emailError = emailResult.error;
@@ -143,7 +147,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
       emailError = emailErr instanceof Error ? emailErr.message : 'Failed to send email';
     }
 
-    return NextResponse.json({ pitch: pitch.trim(), emailSent, emailError });
+    return NextResponse.json({ pitch: cleanedPitch, emailSent, emailError });
   } catch (e) {
     console.error('[elevator-pitch] generation failed', e);
     return NextResponse.json({ error: 'We could not generate your pitch just now. Please try again in a moment.' }, { status: 500 });

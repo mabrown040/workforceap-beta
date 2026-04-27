@@ -25,10 +25,18 @@ export async function GET(request: Request) {
     ? completedSlugs.filter((slug) => program.courses.some((course) => course.slug === slug)).length
     : 0;
 
-  // Current course = first incomplete course (0-based index)
-  const currentCourseIndex = program && completedCount < program.courses.length
+  /* Optional ?course=<slug> deep-links to a specific course in the enrolled program. */
+  const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
+  const requestedIndex = requestedSlug && program
+    ? program.courses.findIndex((c) => c.slug === requestedSlug)
+    : -1;
+
+  /* Default = first incomplete course in the enrolled program. */
+  const defaultCurrentIndex = program && completedCount < program.courses.length
     ? completedCount
     : undefined;
+
+  const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
   const launchUrl =
     buildCourseraLaunchUrl({

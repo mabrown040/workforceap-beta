@@ -151,7 +151,7 @@ export default async function EmployerGuidePage() {
               )}
               {i === 2 && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic', marginTop: '0.75rem' }}>
-                  Optional but appreciated — it funds the next candidate&rsquo;s training.
+                  Optional but appreciated — it funds the next candidate's training.
                 </p>
               )}
             </div>
@@ -267,7 +267,7 @@ export default async function EmployerGuidePage() {
       }}>
         <div>
           <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-            Have questions? We&rsquo;re here.
+            Have questions? We're here.
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
             Email us at{' '}

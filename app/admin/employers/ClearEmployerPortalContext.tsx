@@ -22,7 +22,13 @@ export default function ClearEmployerPortalContext() {
   }
 
   return (
-    <button type="button" className="btn btn-ghost btn-sm" disabled={loading} onClick={clear}>
+    <button
+      type="button"
+      className="btn btn-outline btn-sm"
+      style={{ color: 'var(--color-on-surface)', borderColor: 'var(--outline-variant)' }}
+      disabled={loading}
+      onClick={clear}
+    >
       {loading ? 'Clearing…' : 'Clear portal cookie'}
     </button>
   );

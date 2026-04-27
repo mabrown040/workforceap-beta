@@ -64,6 +64,7 @@ function ResumeRewriterWithPrefill() {
   const [hasStoredResume, setHasStoredResume] = useState(false);
   const [showLoadedBanner, setShowLoadedBanner] = useState(false);
   const [showUploadBanner, setShowUploadBanner] = useState(false);
+  const loadedTextRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;

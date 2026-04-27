@@ -87,6 +87,8 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
         }
       `}</style>
       <nav
+        id="mobile-bottom-nav"
+        aria-label="Primary mobile navigation"
         className={`marketing-bottom-nav mobile-bottom-nav-root mobile-bottom-nav--${variant}`}
         style={{
           position: 'fixed',

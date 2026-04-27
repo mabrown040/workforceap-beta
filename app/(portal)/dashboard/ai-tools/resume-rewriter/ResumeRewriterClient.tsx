@@ -9,52 +9,37 @@ type ResumeResponse = {
   resumePlainText?: string | null;
 };
 
+/* Compact promo strip — was a heavy primary card competing with the
+   form below. Demoted to a single inline note (audit #130) so the
+   form is the visual focus. */
 function ResumeCoachRedirectCard() {
   return (
-    <div
-      className="portal-card portal-card--flat"
+    <p
       style={{
-        padding: '1rem 1.1rem',
-        borderRadius: 16,
-        marginBottom: '1rem',
-        border: '1px solid color-mix(in srgb, var(--color-blue) 16%, transparent)',
-        background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-blue) 8%, transparent), color-mix(in srgb, var(--color-blue) 2%, transparent))',
+        margin: '0 0 0.75rem',
+        padding: '0.5rem 0.875rem',
+        borderRadius: 10,
+        border: '1px solid color-mix(in srgb, var(--color-blue) 18%, transparent)',
+        background: 'color-mix(in srgb, var(--color-blue) 5%, transparent)',
+        fontSize: '0.8125rem',
+        color: 'var(--color-on-surface-variant)',
+        display: 'flex',
+        gap: '0.5rem',
+        alignItems: 'center',
+        flexWrap: 'wrap',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <div>
-          <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-blue)' }}>
-            Dedicated voice flow
-          </p>
-          <h2 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-on-surface)' }}>Want voice coaching instead?</h2>
-          <p style={{ margin: '0.45rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.88rem', lineHeight: 1.5, maxWidth: 560 }}>
-            Resume Coach now runs in its own full-screen flow so you can talk through your experience, review suggested phrasing, and keep your live draft synced without the text tool crowding it.
-          </p>
-        </div>
-        <Link
-          href="/dashboard/ai-tools/resume-coach"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.45rem',
-            minHeight: '2.7rem',
-            borderRadius: 999,
-            textDecoration: 'none',
-            padding: '0.65rem 1rem',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            color: '#fff',
-            background: 'linear-gradient(135deg, var(--color-blue), var(--color-blue))',
-          }}
-        >
-          Open Resume Coach
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
-            arrow_forward
-          </span>
-        </Link>
-      </div>
-    </div>
+      <span aria-hidden style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-blue)' }}>
+        Tip
+      </span>
+      <span>Prefer talking it through? </span>
+      <Link
+        href="/dashboard/ai-tools/resume-coach"
+        style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'underline' }}
+      >
+        Open Resume Coach for the voice flow →
+      </Link>
+    </p>
   );
 }
 

@@ -113,10 +113,13 @@ export default function AdminMemberDbActions({
           Edit Profile
         </p>
         {!editOpen ? (
+          /* Edit Profile is the most common admin action on this page;
+             give it the primary visual weight so it stands out from
+             the destructive-adjacent Password Reset (audit #148). */
           <button
             type="button"
             onClick={() => setEditOpen(true)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--color-accent)', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>edit</span>
             Edit member profile

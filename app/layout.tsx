@@ -68,6 +68,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
+        {/* Second skip link for keyboard users on portal pages with a fixed
+            mobile bottom nav (audit #146). The nav is far from the
+            top tab order; this lets a tab-only user reach it directly. */}
+        <a href="#mobile-bottom-nav" className="skip-link">
+          Skip to navigation
+        </a>
         {GTM_ID && (
           <>
             <noscript>

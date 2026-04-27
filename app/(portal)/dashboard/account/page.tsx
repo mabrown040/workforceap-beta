@@ -67,7 +67,6 @@ export default async function DashboardAccountPage() {
           </div>
         </section>
 
-        <Footer />
       </div>
       <MobileBottomNav variant="portal" />
     </>

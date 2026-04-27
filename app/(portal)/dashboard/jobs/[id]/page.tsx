@@ -123,7 +123,6 @@ export default async function JobDetailPage({ params }: Props) {
           <JobApplyButton jobId={job.id} authenticated={!!user} />
         </div>
       </section>
-      <Footer />
     </div>
       <MobileBottomNav variant="portal" />
     </>

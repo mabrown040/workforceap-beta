@@ -79,6 +79,7 @@ function ResumeRewriterWithPrefill() {
         const hasOriginal = Boolean(data.hasOriginal);
 
         if (plainText) {
+          loadedTextRef.current = plainText;
           setResumeText((prev) => prev.trim() || plainText);
           setHasStoredResume(true);
           setShowLoadedBanner(true);
@@ -107,7 +108,12 @@ function ResumeRewriterWithPrefill() {
   return (
     <ResumeRewriterForm
       resumeControlled={resumeText}
-      onResumeChange={setResumeText}
+      onResumeChange={(val) => {
+        setResumeText(val);
+        if (showLoadedBanner && loadedTextRef.current !== null && val !== loadedTextRef.current) {
+          setShowLoadedBanner(false);
+        }
+      }}
       resumeBanner={hasHydrated ? (
         <>
           {showLoadedBanner && hasStoredResume ? (

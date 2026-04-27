@@ -106,7 +106,6 @@ export default async function DashboardCareerLibraryDetailPage({ params }: Props
           </div>
         </section>
 
-        <Footer />
       </div>
       <MobileBottomNav variant="portal" />
     </>

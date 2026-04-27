@@ -26,7 +26,7 @@ export async function getSlaStatusForThreads(threadIds: string[]): Promise<Map<s
     },
     include: {
       messages: {
-        orderBy: { createdAt: 'desc' },
+        where: { NOT: { body: { contains: '[ARCHIVED FIXTURE]' } } }, orderBy: { createdAt: 'desc' },
       },
     },
   });
@@ -75,7 +75,7 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
     },
     include: {
       messages: {
-        orderBy: { createdAt: 'desc' },
+        where: { NOT: { body: { contains: '[ARCHIVED FIXTURE]' } } }, orderBy: { createdAt: 'desc' },
       },
     },
   });
@@ -126,7 +126,7 @@ export async function getThreadIdsBreachingSla(threshold: Date, limit: number): 
     },
     include: {
       messages: {
-        orderBy: { createdAt: 'desc' },
+        where: { NOT: { body: { contains: '[ARCHIVED FIXTURE]' } } }, orderBy: { createdAt: 'desc' },
       },
     },
   });

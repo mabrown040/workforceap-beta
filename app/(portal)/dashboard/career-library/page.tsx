@@ -69,7 +69,6 @@ export default async function DashboardCareerLibraryPage() {
           </div>
         </section>
 
-        <Footer />
       </div>
       <MobileBottomNav variant="portal" />
     </>

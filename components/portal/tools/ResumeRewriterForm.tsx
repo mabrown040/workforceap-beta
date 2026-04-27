@@ -45,6 +45,7 @@ export default function ResumeRewriterForm({
   resumeControlledRef.current = resumeControlled;
 
   useEffect(() => {
+    if (isControlled) return;
     let cancelled = false;
     fetch('/api/member/resume?includePlainText=1')
       .then((r) => r.json())
@@ -52,17 +53,13 @@ export default function ResumeRewriterForm({
         if (cancelled) return;
         const t = d.resumePlainText?.trim();
         if (!t) return;
-        if (onResumeChangeRef.current) {
-          if (!(resumeControlledRef.current ?? '').trim()) onResumeChangeRef.current(t);
-        } else {
-          setInternalResume((prev) => (prev.trim() ? prev : t));
-        }
+        setInternalResume((prev) => (prev.trim() ? prev : t));
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isControlled]);
 
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');

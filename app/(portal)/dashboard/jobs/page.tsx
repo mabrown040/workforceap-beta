@@ -168,7 +168,6 @@ export default async function JobsPage() {
           )}
         </div>
       </section>
-      <PortalFooter />
     </div>
       <MobileBottomNav variant="portal" />
     </>

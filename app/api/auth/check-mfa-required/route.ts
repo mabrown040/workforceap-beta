@@ -78,10 +78,8 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({
-    mfaRequired,
-    mfaEnforcement: true,
-    currentAal: aalData.currentLevel,
-    nextAal: aalData.nextLevel,
-  });
+  return NextResponse.json(
+    { mfaRequired, mfaEnforcement: true, currentAal: aalData.currentLevel, nextAal: aalData.nextLevel },
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
 }

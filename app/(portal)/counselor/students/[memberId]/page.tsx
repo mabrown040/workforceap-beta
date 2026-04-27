@@ -135,9 +135,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
     : 0;
 
-  const hasResumeFiles =
-    !!(member.profile?.resumeOriginalPath || member.profile?.resumeEnhancedPath);
-
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
   let wioaReviewerName: string | null = null;
   if (member.wioaReviewedByUserId) {
@@ -318,23 +315,21 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           </div>
         ) : null}
 
-        {hasResumeFiles ? (
-          <div style={{ padding: '0 1rem 1.5rem' }}>
-            <div
-              style={{
-                background: '#fff',
-                borderRadius: '0.75rem',
-                padding: '1.25rem',
-                border: '1px solid var(--outline-variant)',
-              }}
-            >
-              <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
-                Resumes
-              </h3>
-              <StaffMemberResumePanel memberId={member.id} />
-            </div>
+        <div style={{ padding: '0 1rem 1.5rem' }}>
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: '0.75rem',
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 1rem' }}>
+              Resumes
+            </h3>
+            <StaffMemberResumePanel memberId={member.id} />
           </div>
-        ) : null}
+        </div>
 
         {/* Job Pipeline */}
         <div style={{ padding: '0 1rem 1.5rem' }}>
@@ -465,17 +460,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </section>
           ) : null}
 
-          {hasResumeFiles ? (
-            <section style={{ marginTop: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>
-              <div
-                className="portal-card portal-card--flat"
-                style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
-              >
-                <StaffMemberResumePanel memberId={member.id} />
-              </div>
-            </section>
-          ) : null}
+          <section style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>
+            <div
+              className="portal-card portal-card--flat"
+              style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
+            >
+              <StaffMemberResumePanel memberId={member.id} />
+            </div>
+          </section>
 
           <section style={{ marginTop: '1.5rem' }}>
             <AdminMemberCounselorChatClient

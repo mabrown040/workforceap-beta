@@ -24,6 +24,7 @@ let forgotPasswordEmailRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
 let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
+let verifyMfaRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -109,6 +110,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:invite-accept',
+  });
+  verifyMfaRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '15 m'),
+    prefix: 'ratelimit:verify-mfa',
   });
 }
 
@@ -216,5 +222,12 @@ export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ su
 export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!inviteAcceptRateLimiter) return { success: true };
   const result = await inviteAcceptRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** MFA code verification — 10 attempts per 15 min per IP; fail-open without Redis. */
+export async function checkVerifyMfaRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!verifyMfaRateLimiter) return { success: true };
+  const result = await verifyMfaRateLimiter.limit(ip);
   return { success: result.success };
 }

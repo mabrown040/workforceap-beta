@@ -149,14 +149,36 @@ export async function POST(request: Request) {
         };
       }
     }
+    if (r.toolType === 'linkedin_headline') {
+      try {
+        const headlines = JSON.parse(r.output) as string[];
+        return {
+          title: 'LinkedIn headline options',
+          contextLine: r.inputSummary || null,
+          body: Array.isArray(headlines) ? headlines.map((h, i) => `${i + 1}. ${h}`).join('\n\n') : r.output,
+        };
+      } catch {
+        return { title: 'LinkedIn headline options', contextLine: r.inputSummary || null, body: r.output };
+      }
+    }
+    if (r.toolType === 'career_counselor') {
+      try {
+        const parsed = JSON.parse(r.output) as { pitch?: string };
+        return {
+          title: 'Elevator pitch',
+          contextLine: r.inputSummary || null,
+          body: parsed.pitch ?? r.output,
+        };
+      } catch {
+        return { title: 'Elevator pitch', contextLine: r.inputSummary || null, body: r.output };
+      }
+    }
     const titleMap: Record<string, string> = {
       resume_analysis: 'Resume strength analysis',
       gap_analyzer: 'Employment gap analysis',
       job_match_scorer: 'Job match score',
-      linkedin_headline: 'LinkedIn headline options',
       linkedin_about: 'LinkedIn About section',
       salary_negotiation: 'Salary negotiation script',
-      career_counselor: 'Elevator pitch',
     };
     return {
       title: titleMap[r.toolType] ?? r.toolType.replace(/_/g, ' '),

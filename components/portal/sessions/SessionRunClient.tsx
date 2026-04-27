@@ -311,19 +311,19 @@ export default function SessionRunClient({
   };
   const runResumeAnalysis = () => {
     openCard('resumeAnalysis');
-    runTool('resume', setResumeAnalysisState, '/api/ai/resume-strength',
+    runTool('resumeAnalysis', setResumeAnalysisState, '/api/ai/resume-strength',
       { resume: resumeText }, 'Resume strength check',
       (d) => (d as { output?: string }).output ?? '');
   };
   const runGapAnalyzer = () => {
     openCard('gapAnalyzer');
-    runTool('resume', setGapState, '/api/ai/gap-analyzer',
+    runTool('gapAnalyzer', setGapState, '/api/ai/gap-analyzer',
       { resume: resumeText }, 'Gap analysis',
       (d) => (d as { output?: string }).output ?? '');
   };
   const runJobMatch = () => {
     openCard('jobMatch');
-    runTool('resume', setJobMatchState, '/api/ai/job-match-scorer',
+    runTool('jobMatch', setJobMatchState, '/api/ai/job-match-scorer',
       { resume: resumeText, jobDescription }, `Job match — ${companyName || jobTarget}`,
       (d) => {
         const p = (d as { parsed?: { rawText: string } }).parsed;
@@ -332,28 +332,28 @@ export default function SessionRunClient({
   };
   const runHeadline = () => {
     openCard('headline');
-    runTool('resume', setHeadlineState, '/api/ai/linkedin-headline',
+    runTool('headline', setHeadlineState, '/api/ai/linkedin-headline',
       { role: jobTarget, keySkills, yearsExperience: yearsExperience || undefined },
       `LinkedIn headline — ${jobTarget}`,
       (d) => ((d as { headlines?: string[] }).headlines ?? []).join('\n\n'));
   };
   const runAbout = () => {
     openCard('about');
-    runTool('resume', setAboutState, '/api/ai/linkedin-about',
+    runTool('about', setAboutState, '/api/ai/linkedin-about',
       { role: jobTarget, bullets: linkedinBullets || resumeText.slice(0, 1200) },
       `LinkedIn About — ${jobTarget}`,
       (d) => (d as { output?: string }).output ?? '');
   };
   const runSalary = () => {
     openCard('salary');
-    runTool('resume', setSalaryState, '/api/ai/salary-negotiation',
+    runTool('salary', setSalaryState, '/api/ai/salary-negotiation',
       { currentOffer: Number(currentOffer), targetSalary: Number(targetSalary), jobTitle: jobTarget, companyName: companyName || 'the company', deliveryMethod: salaryDelivery },
       `Salary negotiation — ${companyName || jobTarget}`,
       (d) => (d as { output?: string }).output ?? '');
   };
   const runPitch = () => {
     openCard('pitch');
-    runTool('resume', setPitchState, '/api/ai/elevator-pitch',
+    runTool('pitch', setPitchState, '/api/ai/elevator-pitch',
       { name: memberFullName, targetRole: jobTarget, strengths: pitchStrengths || undefined, certifications: pitchCertifications || undefined, industry: pitchIndustry || undefined },
       `Elevator pitch — ${jobTarget}`,
       (d) => (d as { pitch?: string }).pitch ?? '');
@@ -1103,18 +1103,18 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* End session footer */}
-      <div className="portal-card portal-card--flat" style={{ padding: ‘1.25rem 1.5rem’ }}>
-        <div style={{ display: ‘flex’, alignItems: ‘flex-start’, justifyContent: ‘space-between’, gap: ‘1rem’, flexWrap: ‘wrap’, marginBottom: completedTools.length > 0 ? ‘1rem’ : 0 }}>
+      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: completedTools.length > 0 ? '1rem' : 0 }}>
           <div style={{ minWidth: 0, flex: 1 }}>
-            <h3 style={{ fontSize: ‘1rem’, fontWeight: 700, margin: ‘0 0 0.25rem’, color: ‘var(--color-on-surface)’ }}>
-              {packetSent ? `Packet emailed to ${memberEmail}` : ‘End session & email packet’}
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--color-on-surface)' }}>
+              {packetSent ? `Packet emailed to ${memberEmail}` : 'End session & email packet'}
             </h3>
-            <p style={{ margin: 0, fontSize: ‘0.875rem’, color: ‘var(--color-on-surface-variant)’ }}>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
               {packetSent
-                ? `${completedTools.length} tool result${completedTools.length === 1 ? ‘’ : ‘s’} delivered to ${memberFullName.split(‘ ‘)[0]}’s inbox and portal history.`
+                ? `${completedTools.length} tool result${completedTools.length === 1 ? '' : 's'} delivered to ${memberFullName.split(' ')[0]}'s inbox and portal history.`
                 : completedTools.length > 0
-                  ? `${completedTools.length} tool${completedTools.length === 1 ? ‘’ : ‘s’} completed — email everything to ${memberFullName.split(‘ ‘)[0]} now, or keep going.`
-                  : `Run at least one tool above, then send ${memberFullName.split(‘ ‘)[0]} everything in one email.`}
+                  ? `${completedTools.length} tool${completedTools.length === 1 ? '' : 's'} completed — email everything to ${memberFullName.split(' ')[0]} now, or keep going.`
+                  : `Run at least one tool above, then send ${memberFullName.split(' ')[0]} everything in one email.`}
             </p>
           </div>
           <button
@@ -1122,25 +1122,25 @@ export default function SessionRunClient({
             className="btn btn-primary"
             onClick={endSession}
             disabled={endingSession || !hasAnyOutput || packetSent}
-            title={!hasAnyOutput ? ‘Run at least one tool before ending the session’ : undefined}
-            style={{ display: ‘inline-flex’, alignItems: ‘center’, gap: ‘0.5rem’, flexShrink: 0 }}
+            title={!hasAnyOutput ? 'Run at least one tool before ending the session' : undefined}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}
           >
             {endingSession ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={18} aria-hidden />}
-            {packetSent ? ‘Packet sent’ : endingSession ? ‘Sending…’ : ‘End session & email recap’}
+            {packetSent ? 'Packet sent' : endingSession ? 'Sending…' : 'End session & email recap'}
           </button>
         </div>
 
-        {/* Live recap — shows what’s in the email */}
+        {/* Live recap — shows what's in the email */}
         {completedTools.length > 0 && (
-          <div style={{ borderTop: ‘1px solid var(--surface-container-highest)’, paddingTop: ‘0.875rem’ }}>
-            <p style={{ margin: ‘0 0 0.5rem’, fontSize: ‘0.75rem’, fontWeight: 700, textTransform: ‘uppercase’, letterSpacing: ‘0.05em’, color: ‘var(--color-on-surface-variant)’ }}>
-              {packetSent ? ‘Included in recap’ : `In this recap (${completedTools.length} item${completedTools.length === 1 ? ‘’ : ‘s’})`}
+          <div style={{ borderTop: '1px solid var(--surface-container-highest)', paddingTop: '0.875rem' }}>
+            <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
+              {packetSent ? 'Included in recap' : `In this recap (${completedTools.length} item${completedTools.length === 1 ? '' : 's'})`}
             </p>
-            <div style={{ display: ‘flex’, flexWrap: ‘wrap’, gap: ‘0.375rem’ }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
               {completedTools.map(t => (
                 <span key={t.key} style={{
-                  display: ‘inline-flex’, alignItems: ‘center’, gap: ‘0.3rem’,
-                  padding: ‘0.25rem 0.625rem’, borderRadius: ‘999px’, fontSize: ‘0.78rem’, fontWeight: 600,
+                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                  padding: '0.25rem 0.625rem', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600,
                   background: `color-mix(in srgb, ${t.accent} 10%, transparent)`,
                   color: t.accent,
                   border: `1px solid color-mix(in srgb, ${t.accent} 25%, transparent)`,
@@ -1153,7 +1153,7 @@ export default function SessionRunClient({
         )}
       </div>
       {packetError ? (
-        <p role="alert" style={{ color: ‘var(--color-accent)’ }}>{packetError}</p>
+        <p role="alert" style={{ color: 'var(--color-accent)' }}>{packetError}</p>
       ) : null}
 
       {packetSent ? (
@@ -1161,7 +1161,7 @@ export default function SessionRunClient({
           type="button"
           className="btn btn-secondary"
           onClick={() => router.push(backToSessionsHref)}
-          style={{ alignSelf: ‘flex-start’ }}
+          style={{ alignSelf: 'flex-start' }}
         >
           Back to sessions
         </button>

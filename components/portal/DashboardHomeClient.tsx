@@ -706,8 +706,8 @@ export default function DashboardHomeClient({
                   { done: checklist.createAccount, label: 'Create account' },
                   { done: checklist.chooseProgram, label: 'Choose program' },
                   { done: checklist.completeAssessment, label: 'Complete assessment' },
-                  { done: checklist.startFirstCourse, label: 'Start training' },
-                  { done: checklist.completeFirstCourse, label: 'Complete first course' },
+                  { done: checklist.startFirstCourse, label: 'Training unlocked' },
+                  { done: checklist.completeFirstCourse, label: 'Complete your first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: done ? 'var(--color-green)' : 'var(--surface-container-highest)', '--ms-fill': done ? 1 : 0 }}>

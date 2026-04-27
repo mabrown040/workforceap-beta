@@ -130,7 +130,7 @@ export async function POST(request: Request) {
   if (staffMfaEnabled && isStaff && !needsMfa) {
     const { data: factors } = await supabase.auth.mfa.listFactors();
     if (!factors?.totp?.length) {
-      return NextResponse.json({ ok: true, mfaSetupRequired: true, redirectTo: `/setup-mfa?next=${encodeURIComponent(roleAwareRedirect)}` });
+      return NextResponse.json({ ok: true, mfaSetupRequired: true, redirectTo: `/setup-mfa?next=${encodeURIComponent(roleAwareRedirect)}` }, { headers: { 'Cache-Control': 'no-store' } });
     }
   }
 
@@ -144,17 +144,18 @@ export async function POST(request: Request) {
 
     if (trustedDevice) {
       if (request.headers.get('x-wap-login-flow') === 'client') {
-        return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect, mfaTrusted: true });
+        return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect, mfaTrusted: true }, { headers: { 'Cache-Control': 'no-store' } });
       }
 
       return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
     }
 
-    return NextResponse.json({ ok: true, mfaRequired: true, redirectTo: `/verify-mfa?next=${encodeURIComponent(roleAwareRedirect)}` });
+    return NextResponse.json({ ok: true, mfaRequired: true, redirectTo: `/verify-mfa?next=${encodeURIComponent(roleAwareRedirect)}` }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
+  const noStore = { 'Cache-Control': 'no-store' };
   if (request.headers.get('x-wap-login-flow') === 'client') {
-    return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect });
+    return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect }, { headers: noStore });
   }
 
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);

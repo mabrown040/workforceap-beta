@@ -17,8 +17,13 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const job = await prisma.job.findUnique({
-    where: { id },
+  const fallback = buildPageMetadata({ title: 'Edit Job', description: 'Edit job posting.', path: `/employer/jobs/${id}` });
+  const user = await getUser();
+  if (!user) return fallback;
+  const ctx = await getEmployerForUser(user.id);
+  if (!ctx) return fallback;
+  const job = await prisma.job.findFirst({
+    where: { id, employerId: ctx.employerId },
     select: { title: true },
   });
   return buildPageMetadata({

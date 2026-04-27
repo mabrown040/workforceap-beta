@@ -30,7 +30,13 @@ export default function OpenEmployerPortalButton({ employerId }: { employerId: s
 
   return (
     <div className="admin-open-portal-wrap">
-      <button type="button" className="btn btn-ghost btn-sm" disabled={loading} onClick={openPortal}>
+      <button
+        type="button"
+        className="btn btn-outline btn-sm"
+        style={{ color: 'var(--color-on-surface)', borderColor: 'var(--outline-variant)' }}
+        disabled={loading}
+        onClick={openPortal}
+      >
         {loading ? 'Opening…' : 'Open portal'}
       </button>
       {error && (

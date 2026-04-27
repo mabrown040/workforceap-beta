@@ -402,3 +402,60 @@ A super-admin can edit a course's `coursera_slug`, `coursera_url_type`, and `cou
 Step A alone unblocks the member-facing experience and is mostly data + a couple of template tweaks. Step E is the structural one — once it lands, training-progress is trustworthy and counselor outreach can fire on real signals instead of self-reported clicks.
 
 ---
+
+# Round 5 — Mobile counselor / partner + AI tool mid-flow generation (2026-04-26)
+
+Captured mobile screenshots for 10 counselor + partner routes at 375×812 and ran end-to-end generation on the AI Elevator Speech and Resume Rewriter tools. Numbering continues from #115.
+
+## P1 (round 5) — Bugs
+
+| # | Page | Issue |
+|---|---|---|
+| 116 | counselor/partner mobile | **Fixed dark bottom-nav overlaps page content.** On `/counselor` mobile the "Good evening, Michael" greeting is visually clipped under the bottom nav; on `/partner` mobile the "review member progress — track their outcomes" copy is clipped the same way; on `/counselor/messages` the footer's "© 2026" line is hidden behind the bottom nav. Bottom nav has higher z-index than content but page content has no `padding-bottom` to compensate. |
+| 117 | `/counselor/messages` mobile | Empty-state shows "**No matching members. Try a different search term.**" with the search box empty. The user has not searched — the empty state should read "No members assigned yet" / "Roster is empty" until a query is entered. |
+| 118 | `/dashboard/ai-tools/interview-practice` | **Cross-record PII visible in the "Resume context (optional)" textarea.** Logged in as `mabrown040@gmail.com` (super-admin Michael Brown), but the prefilled resume header shows `mabrown4@ymail.com` and a Tulsa, OK address — a different Michael Brown record (#102's ymail account). Pre-fill source is not isolated to the active member's profile. Either real cross-account leak or a side effect of the same super-admin having multiple member records — either way, the pre-fill needs to be sourced from the *current* session's member id, not an ambient lookup. |
+| 119 | `/dashboard/ai-tools/elevator-pitch` output | Generated text contains a typo: **"exceling"** instead of "excelling". Either the prompt template, post-processing, or model output drifts on doubled-letter gerunds. Add a quick spell-check pass on AI output before saving / emailing. |
+| 120 | `/dashboard/ai-tools/elevator-pitch` history | "Previous AI elevator speeches" section lists results that are **not elevator speeches**: "Career readiness voice coach session", "Career and business coach voice session". Either the history query is unfiltered or the section heading is wrong; pick one. |
+| 121 | `/dashboard/ai-tools/resume-rewriter` output | AI response rendered as **raw markdown** (visible `## REPOSITIONED RESUME` heading character) instead of rendered markdown or stripped to plain text. Pick one rendering mode. |
+| 122 | `/dashboard/ai-tools/resume-rewriter` salary ranges | Lowest band is **$40,000 - $60,000**. Members from the Digital Literacy program (program metadata states "$38K-$52K" starting salary) have no in-range option to pick. Add an "Under $40,000" band. |
+| 123 | `/dashboard/ai-tools/resume-rewriter` resume fetch | `GET /api/member/resume?includePlainText=1` fires **twice** on page load (visible in network log). Double effect or duplicate render. |
+| 124 | `/dashboard/ai-tools/resume-rewriter` resume prefill | Notice "Your uploaded resume has been loaded" remains visible after the user replaces the textarea content. State indicator does not reflect the user's edit. |
+| 125 | `/partner/referred-members` | "All 1 / Active 1" filter pills both report 1 with the same set, but the member card shows "Alec Cargin / Enrolled 3/20/2026 / **APPLIED**" — **status APPLIED conflicts with an enrolled date**. Either status is stale or the column label is wrong (likely "Referred date" not "Enrolled date"). |
+
+## P2 (round 5) — UX
+
+| # | Page | Issue |
+|---|---|---|
+| 126 | counselor + partner bottom nav | Counselor has 4 tabs (Overview / Members / Messages / Resources); partner has 5 (Overview / Members / Messages / Milestones / Outcomes). Member portal mobile uses a top-tab strip without a fixed bottom nav. Three different mobile nav patterns across roles — pick one (fixed bottom-nav is good, apply consistently). |
+| 127 | `/counselor` mobile | Two welcome strings stacked: "TODAY / You're caught up — nice work" + (clipped) "COUNSELOR DASHBOARD / Good evening, [Michael]". Same drift as member dashboard #29 / #71. Pick one greeting block per page. |
+| 128 | `/dashboard/ai-tools/elevator-pitch` post-generate | After generation: pitch displayed, "Copy" + "Edit answers" + "We emailed this to you" + "Start Rehearsal Recording". No primary call-to-action hierarchy — Copy and Edit Answers are equal weight; Start Rehearsal Recording is a secondary block. Decide what the next-best action is and weight it. |
+| 129 | `/dashboard/ai-tools/elevator-pitch` email confirmation | "We emailed this AI elevator speech to you so you can review it later." rendered as static text — no toast, no email-status feedback (sent vs. queued vs. failed). Treat as a confirmation event with a state. |
+| 130 | `/dashboard/ai-tools/resume-rewriter` workflow card | Above the form, a "Dedicated voice flow → Open Resume Coach" card promotes the alternate tool. Useful for discovery, but it lives inside the rewriter form and competes with the primary action. Consider moving to a sibling section or a single tab control "Text rewrite | Voice coach". |
+
+## P3 (round 5) — Microcopy
+
+| # | Page | Issue |
+|---|---|---|
+| 131 | `/dashboard/ai-tools/resume-rewriter` | "How this works: Tell us your career goal — we'll reposition your existing experience to match. **We don't invent anything.** Every bullet in the output comes from what you've actually done." Strong copy, but the model can still hallucinate (#119). Either harden the post-processing to enforce the promise or soften the absolute claim. |
+| 132 | `/dashboard/ai-tools/elevator-pitch` | Output begins with `"I am Test User, a skilled..."` — opens with smart quotes embedded in the speech itself. If a member literally reads it, they will say "open quote, I am…". Strip leading/trailing quotes from the spoken copy or render in a quoted card without putting the quote characters into the text the member rehearses. |
+
+## P4 (round 5) — Visual
+
+| # | Page | Issue |
+|---|---|---|
+| 133 | `/counselor` mobile | "TODAY" eyebrow + bold greeting card has rounded pink border that visually competes with the KPI card (Needs reply / At risk of ghosting / Interviewing this week) immediately below. Two outlined cards stacked with no spacing rhythm. |
+| 134 | `/partner` mobile | KPI cards stack vertically, each ~50px tall on a tall column. Could be 2×2 grid or pill row at mobile to reclaim vertical space. |
+
+---
+
+## Cross-cutting themes — round 5 additions
+
+- **Mobile bottom-nav vs main-content layering.** Counselor and partner both deploy a fixed dark bottom nav, and both clip the page content. Add `padding-bottom: var(--mobile-nav-height)` to the content area or position the bottom nav as a flex sibling.
+- **PII fan-out at the prefill layer.** Three Michael Brown records (#102) means any "load my resume / load my profile" prefill that joins by name fan-outs across records. The Interview Practice prefill (#118) is the canary. Audit every prefill source to ensure it scopes by the current session's member id, not a fuzzier match.
+- **AI output post-processing is missing.** Spell-check (#119), markdown rendering (#121), quote-stripping (#132) — three different cosmetic issues from one missing post-process layer. Build a small utility that wraps every AI completion before it hits the UI.
+
+---
+
+*Round-5 tooling additions: end-to-end generation for AI Elevator Speech (`POST /api/ai/elevator-pitch → 200`) and Resume Rewriter (`POST /api/ai/resume-rewriter → 200`); mobile screenshot capture for 10 counselor + partner routes; cross-portal mobile-nav comparison.*
+
+---

@@ -20,6 +20,7 @@ let confirmationEmailRateLimiter: Ratelimit | null = null;
 let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
 let forgotPasswordRateLimiter: Ratelimit | null = null;
+let forgotPasswordEmailRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
 let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
@@ -88,6 +89,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:forgot-password',
+  });
+  forgotPasswordEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(3, '24 h'),
+    prefix: 'ratelimit:forgot-password-email',
   });
   publicCareersGetRateLimiter = new Ratelimit({
     redis,
@@ -182,6 +188,13 @@ export async function checkInterestProfilerRateLimit(userId: string): Promise<{ 
 export async function checkForgotPasswordRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!forgotPasswordRateLimiter) return { success: true };
   const result = await forgotPasswordRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Forgot-password per-email cap — 3 requests per email per 24 h; fail-open without Redis. */
+export async function checkForgotPasswordEmailRateLimit(email: string): Promise<{ success: boolean }> {
+  if (!forgotPasswordEmailRateLimiter) return { success: true };
+  const result = await forgotPasswordEmailRateLimiter.limit(email.toLowerCase());
   return { success: result.success };
 }
 

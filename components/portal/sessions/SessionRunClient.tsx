@@ -70,6 +70,19 @@ export default function SessionRunClient({
   const backToSessionsHref = sessionsListHref ?? '/counselor/sessions';
   const router = useRouter();
 
+  // Collapsible card state — core cards open by default, extras closed
+  const [openCards, setOpenCards] = useState<Set<string>>(
+    new Set(['voice', 'profile', 'resume', 'cover', 'interview'])
+  );
+  const toggleCard = (key: string) =>
+    setOpenCards(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  const openCard = (key: string) =>
+    setOpenCards(prev => new Set([...prev, key]));
+
   // Per-tool state
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
@@ -233,6 +246,22 @@ export default function SessionRunClient({
     headlineState.output || aboutState.output || salaryState.output || pitchState.output);
   const allRun = !!(resumeState.output && coverState.output && interviewState.output);
 
+  // Tool grid: all runnable tools (excludes voice walkthrough + profile which aren't AI outputs)
+  const TOOL_GRID: Array<{ key: string; label: string; state: ToolState; accent: string }> = [
+    { key: 'resume', label: 'Resume Rewriter', state: resumeState, accent: 'var(--color-accent)' },
+    { key: 'cover', label: 'Cover Letter', state: coverState, accent: '#a47f38' },
+    { key: 'interview', label: 'Interview Prep', state: interviewState, accent: '#2b7bb9' },
+    { key: 'resumeAnalysis', label: 'Resume Analysis', state: resumeAnalysisState, accent: '#7c3aed' },
+    { key: 'gapAnalyzer', label: 'Gap Analyzer', state: gapState, accent: '#0891b2' },
+    { key: 'jobMatch', label: 'Job Match', state: jobMatchState, accent: '#059669' },
+    { key: 'headline', label: 'LinkedIn Headline', state: headlineState, accent: '#0077b5' },
+    { key: 'about', label: 'LinkedIn About', state: aboutState, accent: '#0077b5' },
+    { key: 'salary', label: 'Salary Script', state: salaryState, accent: '#d97706' },
+    { key: 'pitch', label: 'Elevator Pitch', state: pitchState, accent: '#7c3aed' },
+  ];
+
+  const completedTools = TOOL_GRID.filter(t => t.state.output);
+
   const runTool = async (
     key: ToolKey,
     setState: (next: ToolState) => void,
@@ -260,80 +289,75 @@ export default function SessionRunClient({
     }
   };
 
-  const runResume = () =>
-    runTool(
-      'resume',
-      setResumeState,
-      '/api/ai/resume-rewriter',
+  const runResume = () => {
+    openCard('resume');
+    runTool('resume', setResumeState, '/api/ai/resume-rewriter',
       { resume: resumeText, jobTarget, targetLocation: '', targetSalary: '' },
-      jobTarget,
-      (d) => (d as { output?: string }).output ?? '',
-    );
-
-  const runCover = () =>
-    runTool(
-      'coverLetter',
-      setCoverState,
-      '/api/ai/cover-letter',
+      jobTarget, (d) => (d as { output?: string }).output ?? '');
+  };
+  const runCover = () => {
+    openCard('cover');
+    runTool('coverLetter', setCoverState, '/api/ai/cover-letter',
       { resume: resumeText, jobDescription, companyName: companyName || 'the company', tone: 'confident' },
       `${companyName || 'cover letter'} — ${jobTarget || 'role'}`,
-      (d) => (d as { output?: string }).output ?? '',
-    );
-
-  const runInterview = () =>
-    runTool(
-      'interview',
-      setInterviewState,
-      '/api/ai/interview-practice',
+      (d) => (d as { output?: string }).output ?? '');
+  };
+  const runInterview = () => {
+    openCard('interview');
+    runTool('interview', setInterviewState, '/api/ai/interview-practice',
       { role: jobTarget, experienceLevel: interviewLevel, count: 6, resumeContext: resumeText },
       `${jobTarget} (${interviewLevel})`,
-      (d) => JSON.stringify((d as { questions?: unknown }).questions ?? []),
-    );
-
-  const runResumeAnalysis = () =>
+      (d) => JSON.stringify((d as { questions?: unknown }).questions ?? []));
+  };
+  const runResumeAnalysis = () => {
+    openCard('resumeAnalysis');
     runTool('resume', setResumeAnalysisState, '/api/ai/resume-strength',
       { resume: resumeText }, 'Resume strength check',
       (d) => (d as { output?: string }).output ?? '');
-
-  const runGapAnalyzer = () =>
+  };
+  const runGapAnalyzer = () => {
+    openCard('gapAnalyzer');
     runTool('resume', setGapState, '/api/ai/gap-analyzer',
       { resume: resumeText }, 'Gap analysis',
       (d) => (d as { output?: string }).output ?? '');
-
-  const runJobMatch = () =>
+  };
+  const runJobMatch = () => {
+    openCard('jobMatch');
     runTool('resume', setJobMatchState, '/api/ai/job-match-scorer',
       { resume: resumeText, jobDescription }, `Job match — ${companyName || jobTarget}`,
       (d) => {
-        const p = (d as { parsed?: { matchScore: number; strengths: string[]; gaps: string[]; quickWins: string[]; rawText: string } }).parsed;
+        const p = (d as { parsed?: { rawText: string } }).parsed;
         return p?.rawText ?? '';
       });
-
-  const runHeadline = () =>
+  };
+  const runHeadline = () => {
+    openCard('headline');
     runTool('resume', setHeadlineState, '/api/ai/linkedin-headline',
       { role: jobTarget, keySkills, yearsExperience: yearsExperience || undefined },
       `LinkedIn headline — ${jobTarget}`,
-      (d) => {
-        const h = (d as { headlines?: string[] }).headlines ?? [];
-        return h.join('\n\n');
-      });
-
-  const runAbout = () =>
+      (d) => ((d as { headlines?: string[] }).headlines ?? []).join('\n\n'));
+  };
+  const runAbout = () => {
+    openCard('about');
     runTool('resume', setAboutState, '/api/ai/linkedin-about',
       { role: jobTarget, bullets: linkedinBullets || resumeText.slice(0, 1200) },
       `LinkedIn About — ${jobTarget}`,
       (d) => (d as { output?: string }).output ?? '');
-
-  const runSalary = () =>
+  };
+  const runSalary = () => {
+    openCard('salary');
     runTool('resume', setSalaryState, '/api/ai/salary-negotiation',
       { currentOffer: Number(currentOffer), targetSalary: Number(targetSalary), jobTitle: jobTarget, companyName: companyName || 'the company', deliveryMethod: salaryDelivery },
       `Salary negotiation — ${companyName || jobTarget}`,
       (d) => (d as { output?: string }).output ?? '');
-
-  const runPitch = () =>
+  };
+  const runPitch = () => {
+    openCard('pitch');
     runTool('resume', setPitchState, '/api/ai/elevator-pitch',
       { name: memberFullName, targetRole: jobTarget, strengths: pitchStrengths || undefined, certifications: pitchCertifications || undefined, industry: pitchIndustry || undefined },
       `Elevator pitch — ${jobTarget}`,
       (d) => (d as { pitch?: string }).pitch ?? '');
+  };
 
   const endSession = async () => {
     setEndingSession(true);
@@ -372,6 +396,50 @@ export default function SessionRunClient({
         </div>
       ) : null}
 
+      {/* Tool picker grid */}
+      <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.25rem' }}>
+        <p style={{ margin: '0 0 0.75rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Session tools — pick what this member needs
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '0.5rem' }}>
+          {TOOL_GRID.map(t => {
+            const isDone = !!t.state.output;
+            const isRunning = t.state.status === 'running';
+            const isError = t.state.status === 'error';
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => {
+                  openCard(t.key);
+                  const el = document.getElementById(`session-card-${t.key}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.45rem 0.65rem', borderRadius: '0.5rem',
+                  background: isDone
+                    ? `color-mix(in srgb, ${t.accent} 10%, transparent)`
+                    : 'var(--surface-container)',
+                  border: `1px solid ${isDone ? t.accent : 'var(--surface-container-highest)'}`,
+                  cursor: 'pointer', textAlign: 'left',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                  background: isDone ? '#4a9b4f' : isRunning ? t.accent : isError ? 'var(--color-error, #d32f2f)' : 'var(--surface-container-highest)',
+                }} />
+                <span style={{ fontSize: '0.78rem', fontWeight: isDone ? 700 : 500, color: isDone ? t.accent : 'var(--color-on-surface)', lineHeight: 1.3 }}>
+                  {t.label}
+                </span>
+                {isDone && <CheckCircle2 size={12} style={{ color: '#4a9b4f', flexShrink: 0, marginLeft: 'auto' }} aria-hidden />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* ── Voice walk-through (primary path, optional) ──
           Per user direction (2026-04-26): "we want these to be all voice
           tools here." Per follow-up (2026-04-27): "each step is separate
@@ -380,7 +448,10 @@ export default function SessionRunClient({
           (one big conversation), and each card below also gets its own
           step-specific voice option. */}
       <SectionCard
+        id="session-card-voice"
         step={0}
+        isOpen={openCards.has('voice')}
+        onToggle={() => toggleCard('voice')}
         title="Voice walk-through (full A→Z)"
         Icon={Mic}
         accent="#2563eb"
@@ -454,7 +525,10 @@ export default function SessionRunClient({
 
       {/* Card 1: Profile snapshot */}
       <SectionCard
+        id="session-card-profile"
         step={1}
+        isOpen={openCards.has('profile')}
+        onToggle={() => toggleCard('profile')}
         title="Profile"
         Icon={User}
         accent="#2b7bb9"
@@ -486,7 +560,10 @@ export default function SessionRunClient({
 
       {/* Card 2: Resume rewriter */}
       <SectionCard
+        id="session-card-resume"
         step={2}
+        isOpen={openCards.has('resume')}
+        onToggle={() => toggleCard('resume')}
         title="Resume rewriter"
         Icon={FileText}
         accent="var(--color-accent)"
@@ -626,7 +703,10 @@ export default function SessionRunClient({
 
       {/* Card 3: Cover letter */}
       <SectionCard
+        id="session-card-cover"
         step={3}
+        isOpen={openCards.has('cover')}
+        onToggle={() => toggleCard('cover')}
         title="Cover letter"
         Icon={MessagesSquare}
         accent="var(--color-gold, #a47f38)"
@@ -742,7 +822,10 @@ export default function SessionRunClient({
 
       {/* Card 4: Interview prep */}
       <SectionCard
+        id="session-card-interview"
         step={4}
+        isOpen={openCards.has('interview')}
+        onToggle={() => toggleCard('interview')}
         title="Interview prep"
         Icon={MessagesSquare}
         accent="#2b7bb9"
@@ -831,9 +914,10 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 5: Resume strength analysis */}
-      <SectionCard step={5} title="Resume Analysis" Icon={FileText} accent="#7c3aed"
+      <SectionCard id="session-card-resumeAnalysis" title="Resume Analysis" Icon={FileText} accent="#7c3aed"
+        isOpen={openCards.has('resumeAnalysis')} onToggle={() => toggleCard('resumeAnalysis')}
         statusBadge={resumeAnalysisState.status === 'running' ? 'Running' : resumeAnalysisState.output ? 'Done' : resumeAnalysisState.error ? 'Failed' : 'Ready'}
-        contextNote={resumeText.trim().length > 50 ? 'Using resume from step 2.' : null}
+        contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
       >
         <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
           Score the resume for clarity, impact, keywords, and ATS scannability. Surfaces strengths and priority improvements.
@@ -849,9 +933,10 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 6: Gap analyzer */}
-      <SectionCard step={6} title="Gap Analyzer" Icon={FileText} accent="#0891b2"
+      <SectionCard id="session-card-gapAnalyzer" title="Gap Analyzer" Icon={FileText} accent="#0891b2"
+        isOpen={openCards.has('gapAnalyzer')} onToggle={() => toggleCard('gapAnalyzer')}
         statusBadge={gapState.status === 'running' ? 'Running' : gapState.output ? 'Done' : gapState.error ? 'Failed' : 'Ready'}
-        contextNote={resumeText.trim().length > 50 ? 'Using resume from step 2.' : null}
+        contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
       >
         <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
           Detect employment gaps and generate framing language for cover letters and interviews.
@@ -867,9 +952,10 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 7: Job match scorer */}
-      <SectionCard step={7} title="Job Match Scorer" Icon={Search} accent="#059669"
+      <SectionCard id="session-card-jobMatch" title="Job Match Scorer" Icon={Search} accent="#059669"
+        isOpen={openCards.has('jobMatch')} onToggle={() => toggleCard('jobMatch')}
         statusBadge={jobMatchState.status === 'running' ? 'Running' : jobMatchState.output ? 'Done' : jobMatchState.error ? 'Failed' : 'Ready'}
-        contextNote={resumeText.trim().length > 50 ? 'Using resume from step 2.' : null}
+        contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
       >
         <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
           Score how well the resume matches a specific job posting and surface quick wins.
@@ -891,7 +977,8 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 8: LinkedIn headline */}
-      <SectionCard step={8} title="LinkedIn Headline" Icon={PenLine} accent="#0077b5"
+      <SectionCard id="session-card-headline" title="LinkedIn Headline" Icon={PenLine} accent="#0077b5"
+        isOpen={openCards.has('headline')} onToggle={() => toggleCard('headline')}
         statusBadge={headlineState.status === 'running' ? 'Running' : headlineState.output ? 'Done' : headlineState.error ? 'Failed' : 'Ready'}
       >
         <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
@@ -918,7 +1005,8 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 9: LinkedIn About */}
-      <SectionCard step={9} title="LinkedIn About" Icon={PenLine} accent="#0077b5"
+      <SectionCard id="session-card-about" title="LinkedIn About" Icon={PenLine} accent="#0077b5"
+        isOpen={openCards.has('about')} onToggle={() => toggleCard('about')}
         statusBadge={aboutState.status === 'running' ? 'Running' : aboutState.output ? 'Done' : aboutState.error ? 'Failed' : 'Ready'}
         contextNote="Resume auto-loaded as context if on file."
       >
@@ -942,7 +1030,8 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 10: Salary negotiation */}
-      <SectionCard step={10} title="Salary Negotiation" Icon={MessagesSquare} accent="#d97706"
+      <SectionCard id="session-card-salary" title="Salary Negotiation" Icon={MessagesSquare} accent="#d97706"
+        isOpen={openCards.has('salary')} onToggle={() => toggleCard('salary')}
         statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
       >
         <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
@@ -979,7 +1068,8 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* Card 11: Elevator pitch */}
-      <SectionCard step={11} title="Elevator Pitch" Icon={Sparkles} accent="#7c3aed"
+      <SectionCard id="session-card-pitch" title="Elevator Pitch" Icon={Sparkles} accent="#7c3aed"
+        isOpen={openCards.has('pitch')} onToggle={() => toggleCard('pitch')}
         statusBadge={pitchState.status === 'running' ? 'Running' : pitchState.output ? 'Done' : pitchState.error ? 'Failed' : 'Ready'}
       >
         <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
@@ -1013,31 +1103,57 @@ export default function SessionRunClient({
       </SectionCard>
 
       {/* End session footer */}
-      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--color-on-surface)' }}>
-            {packetSent ? `Packet emailed to ${memberEmail}` : 'End session & email packet'}
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-            {packetSent
-              ? 'They’ll get a welcome email and the resume / cover letter / interview prep packet shortly.'
-              : `Send ${memberFullName.split(' ')[0]} an email with everything you built today. They can sign in to see it later, too.`}
-          </p>
+      <div className="portal-card portal-card--flat" style={{ padding: ‘1.25rem 1.5rem’ }}>
+        <div style={{ display: ‘flex’, alignItems: ‘flex-start’, justifyContent: ‘space-between’, gap: ‘1rem’, flexWrap: ‘wrap’, marginBottom: completedTools.length > 0 ? ‘1rem’ : 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h3 style={{ fontSize: ‘1rem’, fontWeight: 700, margin: ‘0 0 0.25rem’, color: ‘var(--color-on-surface)’ }}>
+              {packetSent ? `Packet emailed to ${memberEmail}` : ‘End session & email packet’}
+            </h3>
+            <p style={{ margin: 0, fontSize: ‘0.875rem’, color: ‘var(--color-on-surface-variant)’ }}>
+              {packetSent
+                ? `${completedTools.length} tool result${completedTools.length === 1 ? ‘’ : ‘s’} delivered to ${memberFullName.split(‘ ‘)[0]}’s inbox and portal history.`
+                : completedTools.length > 0
+                  ? `${completedTools.length} tool${completedTools.length === 1 ? ‘’ : ‘s’} completed — email everything to ${memberFullName.split(‘ ‘)[0]} now, or keep going.`
+                  : `Run at least one tool above, then send ${memberFullName.split(‘ ‘)[0]} everything in one email.`}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={endSession}
+            disabled={endingSession || !hasAnyOutput || packetSent}
+            title={!hasAnyOutput ? ‘Run at least one tool before ending the session’ : undefined}
+            style={{ display: ‘inline-flex’, alignItems: ‘center’, gap: ‘0.5rem’, flexShrink: 0 }}
+          >
+            {endingSession ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={18} aria-hidden />}
+            {packetSent ? ‘Packet sent’ : endingSession ? ‘Sending…’ : ‘End session & email recap’}
+          </button>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={endSession}
-          disabled={endingSession || !hasAnyOutput || packetSent}
-          title={!hasAnyOutput ? 'Run at least one tool before ending the session' : undefined}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          {endingSession ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={18} aria-hidden />}
-          {packetSent ? 'Packet sent' : endingSession ? 'Sending…' : allRun ? 'End session & email packet' : 'End early & email what we built'}
-        </button>
+
+        {/* Live recap — shows what’s in the email */}
+        {completedTools.length > 0 && (
+          <div style={{ borderTop: ‘1px solid var(--surface-container-highest)’, paddingTop: ‘0.875rem’ }}>
+            <p style={{ margin: ‘0 0 0.5rem’, fontSize: ‘0.75rem’, fontWeight: 700, textTransform: ‘uppercase’, letterSpacing: ‘0.05em’, color: ‘var(--color-on-surface-variant)’ }}>
+              {packetSent ? ‘Included in recap’ : `In this recap (${completedTools.length} item${completedTools.length === 1 ? ‘’ : ‘s’})`}
+            </p>
+            <div style={{ display: ‘flex’, flexWrap: ‘wrap’, gap: ‘0.375rem’ }}>
+              {completedTools.map(t => (
+                <span key={t.key} style={{
+                  display: ‘inline-flex’, alignItems: ‘center’, gap: ‘0.3rem’,
+                  padding: ‘0.25rem 0.625rem’, borderRadius: ‘999px’, fontSize: ‘0.78rem’, fontWeight: 600,
+                  background: `color-mix(in srgb, ${t.accent} 10%, transparent)`,
+                  color: t.accent,
+                  border: `1px solid color-mix(in srgb, ${t.accent} 25%, transparent)`,
+                }}>
+                  <CheckCircle2 size={11} aria-hidden /> {t.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {packetError ? (
-        <p role="alert" style={{ color: 'var(--color-accent)' }}>{packetError}</p>
+        <p role="alert" style={{ color: ‘var(--color-accent)’ }}>{packetError}</p>
       ) : null}
 
       {packetSent ? (
@@ -1045,7 +1161,7 @@ export default function SessionRunClient({
           type="button"
           className="btn btn-secondary"
           onClick={() => router.push(backToSessionsHref)}
-          style={{ alignSelf: 'flex-start' }}
+          style={{ alignSelf: ‘flex-start’ }}
         >
           Back to sessions
         </button>
@@ -1057,6 +1173,7 @@ export default function SessionRunClient({
 // ── Sub-components ───────────────────────────────────────────────
 
 function SectionCard({
+  id,
   step,
   title,
   Icon,
@@ -1064,73 +1181,73 @@ function SectionCard({
   statusBadge,
   headerAction,
   contextNote,
+  isOpen = true,
+  onToggle,
   children,
 }: {
-  step: number;
+  id?: string;
+  step?: number;
   title: string;
   Icon: React.ComponentType<{ size?: number; 'aria-hidden'?: boolean }>;
   accent: string;
   statusBadge: string;
   headerAction?: React.ReactNode;
   contextNote?: string | null;
+  isOpen?: boolean;
+  onToggle?: () => void;
   children: React.ReactNode;
 }) {
+  const isDone = statusBadge === 'Done' || statusBadge === 'Recorded';
   return (
-    <section className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: contextNote ? '0.5rem' : '1rem', flexWrap: 'wrap' }}>
+    <section id={id} className="portal-card portal-card--flat" style={{ padding: isOpen ? '1.25rem 1.5rem' : '0.75rem 1.5rem' }}>
+      <header
+        onClick={onToggle}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          marginBottom: isOpen ? (contextNote ? '0.5rem' : '1rem') : 0,
+          flexWrap: 'wrap',
+          cursor: onToggle ? 'pointer' : undefined,
+          userSelect: 'none',
+        }}
+      >
         <span
           aria-hidden
           style={{
             background: `color-mix(in srgb, ${accent} 14%, transparent)`,
             color: accent,
-            width: '2.25rem',
-            height: '2.25rem',
-            borderRadius: '999px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '0.95rem',
+            width: '2.25rem', height: '2.25rem', borderRadius: '999px',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 700, fontSize: '0.95rem', flexShrink: 0,
           }}
         >
-          {step}
+          {isDone ? <CheckCircle2 size={16} aria-hidden /> : step !== undefined ? step : <Icon size={16} aria-hidden />}
         </span>
         <Icon size={20} aria-hidden />
         <h2 style={{ flex: 1, margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
           {title}
         </h2>
-        <span
-          style={{
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            padding: '0.25rem 0.5rem',
-            borderRadius: '999px',
-            background: 'var(--surface-container)',
-            color: 'var(--color-on-surface-variant)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-          }}
-        >
+        <span style={{
+          fontSize: '0.75rem', fontWeight: 600, padding: '0.25rem 0.5rem',
+          borderRadius: '999px',
+          background: isDone ? 'color-mix(in srgb, #4a9b4f 12%, transparent)' : 'var(--surface-container)',
+          color: isDone ? '#4a9b4f' : 'var(--color-on-surface-variant)',
+          textTransform: 'uppercase', letterSpacing: '0.04em',
+        }}>
           {statusBadge}
         </span>
-        {headerAction ? <div>{headerAction}</div> : null}
+        {headerAction ? <div onClick={e => e.stopPropagation()}>{headerAction}</div> : null}
+        {onToggle && (
+          <span aria-hidden style={{ color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none', display: 'flex' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4"/></svg>
+          </span>
+        )}
       </header>
-      {contextNote ? (
-        <p
-          style={{
-            margin: '0 0 1rem',
-            padding: '0.4rem 0.65rem',
-            background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)',
-            borderLeft: '3px solid var(--color-accent)',
-            borderRadius: '0.35rem',
-            fontSize: '0.8rem',
-            color: 'var(--color-on-surface-variant)',
-          }}
-        >
+      {isOpen && contextNote ? (
+        <p style={{ margin: '0 0 1rem', padding: '0.4rem 0.65rem', background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)', borderLeft: '3px solid var(--color-accent)', borderRadius: '0.35rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
           {contextNote}
         </p>
       ) : null}
-      {children}
+      {isOpen ? children : null}
     </section>
   );
 }

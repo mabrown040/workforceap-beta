@@ -170,7 +170,9 @@ export default function MemberCounselorChatClient({
   };
 
   const subtitle = useMemo(() => {
-    if (counselorName) return `Chat with ${counselorName} — replies within 2 business days`;
+    /* Always include "your counselor" so the line reads correctly even when
+       the member and the counselor share a name (audit #11). */
+    if (counselorName) return `Chat with your counselor, ${counselorName} — replies within 2 business days`;
     if (thread.counselorUserId) return 'Your counselor replies within 2 business days.';
     return 'A counselor will be assigned to you — leave a message anytime, replies within 2 business days.';
   }, [counselorName, thread.counselorUserId]);

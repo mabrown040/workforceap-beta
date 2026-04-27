@@ -70,6 +70,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
           <div
             key={c.slug}
             data-course-slug={c.slug}
+            data-course-id={c.courseraCourseId ?? undefined}
             className={`training-course-card${isUpNext ? ' training-course-card--up-next' : ''}`}
             style={{
               padding: '1.25rem',

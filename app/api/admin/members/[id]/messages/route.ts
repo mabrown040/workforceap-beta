@@ -32,6 +32,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
   const messages = await prisma.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
+    take: 500,
   });
 
   const names = await prisma.user.findMany({

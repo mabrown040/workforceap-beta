@@ -8,6 +8,7 @@ export async function GET() {
 
   const progress = await prisma.pathwayStepProgress.findMany({
     where: { userId: user.id },
+    take: 500,
   });
   const byPathway = progress.reduce((acc, p) => {
     if (!acc[p.pathwayId]) acc[p.pathwayId] = [];

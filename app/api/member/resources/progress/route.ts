@@ -8,6 +8,7 @@ export async function GET() {
 
   const progress = await prisma.resourceProgress.findMany({
     where: { userId: user.id },
+    take: 500,
   });
   const byResource = Object.fromEntries(progress.map((p) => [p.resourceId, p]));
   return NextResponse.json({ progress: byResource });

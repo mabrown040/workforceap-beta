@@ -4,6 +4,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import { getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 type Props = { params: Promise<{ threadId: string }> };
 
@@ -39,6 +40,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
   const [counselorRows, activeCounselorAssignment] = await Promise.all([
     prisma.counselor.findMany({
       where: { active: true },
+      take: 500,
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
       select: {
         userId: true,
@@ -57,6 +59,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
   const messages = await prisma.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
+    take: 500,
   });
 
   const authorIds = [...new Set(messages.map((m) => m.authorId))];
@@ -163,7 +166,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
 
   return NextResponse.json({ error: 'Invalid thread' }, { status: 400 });
   } catch (error) {
-    console.error('[admin/messages/thread/[threadId] GET] error:', error);
+    captureApiError(error, { route: 'admin/messages/thread/[threadId] GET' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

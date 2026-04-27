@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
           })
         );
       } catch (saveErr) {
-        console.error('Skill mapper: failed to save result', saveErr);
+        captureApiError(saveErr, { route: 'ai/skill-mapper save result' });
       }
 
       await trackEvent({

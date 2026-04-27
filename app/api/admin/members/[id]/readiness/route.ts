@@ -18,6 +18,7 @@ export async function GET(
   const items = await prisma.readinessChecklist.findMany({
     where: { userId },
     orderBy: { updatedAt: 'desc' },
+    take: 200,
   });
 
   const map = new Map(items.map((i) => [i.itemKey, i]));

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const STATUSES: JobPostingApplicationStatus[] = [
   'pending',
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
     });
     return NextResponse.json(applications);
   } catch (err) {
-    console.error('[employer/applications] error:', err);
+    captureApiError(err, { route: 'employer/applications' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

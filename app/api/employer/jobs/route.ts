@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendJobSubmittedEmail } from '@/lib/email';
 import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer/jobCreate';
 import { z } from 'zod';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import { trackEvent } from '@/lib/events/track';
 
 const jobCreateSchema = z.object({
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(job, { status: 201 });
   } catch (error) {
     const detail = getRouteErrorDetails(error);
-    console.error('Employer job create failed', detail);
+    captureApiError(error, { route: 'employer/jobs POST', extra: detail });
     return NextResponse.json(
       { error: 'Failed to create job draft.', detail: detail.message, code: detail.code },
       { status: 500 }

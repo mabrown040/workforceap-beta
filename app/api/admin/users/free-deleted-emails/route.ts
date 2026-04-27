@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * Batch-rewrite every soft-deleted user's email to the sentinel form
@@ -35,7 +36,7 @@ export async function POST() {
       });
       freed += 1;
     } catch (err) {
-      console.error(`[free-deleted-emails] failed for user ${u.id}:`, err);
+      captureApiError(err, { route: 'admin/users/free-deleted-emails', extra: { userId: u.id } });
     }
   }
 

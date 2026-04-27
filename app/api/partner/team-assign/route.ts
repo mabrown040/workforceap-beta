@@ -13,6 +13,7 @@ export async function GET() {
 
   const rows = await prisma.partnerUser.findMany({
     where: { partnerId: ctx.partnerId },
+    take: 200,
     include: { user: { select: { id: true, fullName: true, email: true } } },
     orderBy: { createdAt: 'asc' },
   });

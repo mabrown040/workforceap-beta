@@ -5,6 +5,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { chatCompletion } from '@/lib/ai/groq';
 import { prisma } from '@/lib/db/prisma';
 import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const ALLOWED_TYPES = ['technical', 'behavioral', 'general'] as const;
 type InterviewType = (typeof ALLOWED_TYPES)[number];
@@ -234,12 +235,12 @@ export async function POST(req: NextRequest) {
         });
       }
     } catch (emailErr) {
-      console.error('Interview transcript email error:', emailErr);
+      captureApiError(emailErr, { route: 'interview/history transcript email' });
     }
 
     return NextResponse.json({ feedback });
   } catch (error) {
-    console.error('Interview history error:', error);
+    captureApiError(error, { route: 'interview/history' });
     return NextResponse.json({ error: 'Failed to generate feedback' }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /** Public job detail - only live jobs */
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     return NextResponse.json(job);
   } catch (err) {
-    console.error('[jobs/[id]] error:', err);
+    captureApiError(err, { route: 'dashboard/jobs/[id]' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

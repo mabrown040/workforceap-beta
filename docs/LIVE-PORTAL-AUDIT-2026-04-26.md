@@ -401,6 +401,37 @@ A super-admin can edit a course's `coursera_slug`, `coursera_url_type`, and `cou
 
 Step A alone unblocks the member-facing experience and is mostly data + a couple of template tweaks. Step E is the structural one — once it lands, training-progress is trustworthy and counselor outreach can fire on real signals instead of self-reported clicks.
 
+### Can we embed Coursera inside WAP?
+
+Short answer: **no for course content, yes for everything around it.** What's actually possible:
+
+| Option | What it is | Verdict |
+|---|---|---|
+| **iframe-embed Coursera courses inside WAP** | Render `coursera.org/learn/<slug>` in an iframe on `/dashboard/training`. | **Not possible.** Coursera ships `X-Frame-Options: DENY` / `Content-Security-Policy: frame-ancestors 'none'` on course pages. Their player also depends on top-level navigation for video DRM and grading. Browsers will refuse to render. |
+| **Reverse-proxy / scrape Coursera under a WAP URL** | Fetch Coursera HTML server-side and re-serve under `workforceap.org/learn/<slug>`. | **Don't do it.** Violates Coursera ToS, breaks SSO, breaks DRM, breaks every time their UI changes, exposes WAP to liability. Off the table. |
+| **Embed individual lecture videos** | Some Coursera lectures expose video URLs that can be embedded per-asset. | Possible per-lecture, but Coursera doesn't grant this by default for org content; you'd need licensing. Not the way to go for course-level "built-in" feel. |
+| **OAuth 2.0 / OpenID Connect SSO** | Member clicks "Open in Coursera" → OIDC redirect → back to WAP with auth code → exchange for token → land on the right Coursera URL **already signed in**. | **Yes, this is the right answer for "built-in feel."** Coursera for Business supports OIDC SSO. Cleaner than SAML for a Next.js app — works with NextAuth/Auth.js out of the box, JSON tokens, refresh tokens, scopes. From the member's view: no Coursera login screen, no separate password. |
+| **Coursera Admin API (OAuth client credentials)** | Server-to-server OAuth2 with a client_id / client_secret. WAP fetches list of courses in the program, list of learners, learner progress, and per-course slugs / activity IDs. | **Yes, do this.** This is how you backfill `coursera_slug` and `coursera_xapi_activity_id` (Step A in the plan above) without hand-mapping. Also lets `/admin/coursera` list 14 members instead of 1, and lets the admin page show real-time progress without waiting for xAPI to fire. |
+| **Coursera Data Export (daily snapshot)** | Enterprise customers can pull a daily CSV / scheduled export of all learner progress. | **Yes, as a fallback.** If xAPI streaming has gaps, a nightly reconciliation job using the data export catches anything that fell through. Cheaper than xAPI for non-real-time needs. |
+
+**Recommended hybrid (this is what "built-in" actually means in practice):**
+
+1. **OIDC SSO** for every "Open Coursera / Open in Coursera" link. Members never see a Coursera login screen. They click → land on the right course/specialization/program landing as themselves.
+2. **Admin API (OAuth client credentials)** to backfill the catalog (`coursera_slug`, `coursera_url_type`, `coursera_xapi_activity_id`) without hand-mapping, and to power the admin manual-mapping page (#99 — show all 14 members, suggest matches, list real Coursera courses).
+3. **xAPI ingest** for real-time completion events (already partially wired).
+4. **Data Export reconciliation** as a nightly job to catch xAPI gaps.
+
+The member experience reads as "built-in":
+- One click from `/dashboard/training` → in Coursera, signed in, on the right course.
+- Completion in Coursera → xAPI fires → WAP shows progress immediately.
+- Counselor outreach fires on real Coursera signals via the same pipeline.
+
+The hard part is OIDC SSO setup — it's a Coursera-side configuration request (their enterprise team provisions the IdP/SP relationship), then NextAuth provider config on WAP's side. Once it's wired, the rest is data layer + template tweaks.
+
+**On Auth.js / NextAuth in particular:** Next.js codebases often already use NextAuth for member auth — adding Coursera as an OIDC provider is a 10-line config change once Coursera grants the client credentials. The `signIn('coursera')` flow then becomes the single launch primitive that wraps every Coursera link in the app.
+
+---
+
 ---
 
 # Round 5 — Mobile counselor / partner + AI tool mid-flow generation (2026-04-26)
@@ -457,5 +488,76 @@ Captured mobile screenshots for 10 counselor + partner routes at 375×812 and ra
 ---
 
 *Round-5 tooling additions: end-to-end generation for AI Elevator Speech (`POST /api/ai/elevator-pitch → 200`) and Resume Rewriter (`POST /api/ai/resume-rewriter → 200`); mobile screenshot capture for 10 counselor + partner routes; cross-portal mobile-nav comparison.*
+
+---
+
+# Round 6 — Zero-state, keyboard / autofocus, print, loaner-laptop, password reset (2026-04-26)
+
+Hit the items remaining from the "need-to-verify" list: looked at a near-empty member record (`mabrown4@ymail.com`, Pending enrollment) as a stand-in for true zero-state, audited keyboard tab order on `/login` and the AI tool pages, checked print stylesheet coverage, traced the loaner-laptop affordance, and walked the forgot-password flow. Numbering continues from #134.
+
+## P1 (round 6) — Bugs
+
+| # | Page | Issue |
+|---|---|---|
+| 135 | `/admin/members/<ymail Michael>` (Pending enrollment) | **Phone number `(512) 629-1505` is identical** to the gmail Michael Brown's phone. Two distinct member records, three emails (gmail / ymail / sbcglobal), one phone. Auth/identity layer is not de-duplicating on phone either. Combined with #102 (three Michael Brown records) and #118 (cross-record PII prefill), the identity model is the root cause of multiple bugs in the audit. |
+| 136 | `/dashboard/resources` | **"Loaner Laptop: Earned upon program completion. Learn more"** is plain text — `Learn more` looks like a link but is not (`a[href*=loaner]` returns 0 matches). Misleading affordance. Either link "Learn more" to a real benefits page or remove the suffix. |
+| 137 | `/login` keyboard flow | **No `autofocus` on the email input.** Tab order on first load passes through "Skip to main content / Workforce Advancement Project / About Us / What We Do / How It Works / Leadership / FAQ / Programs / Check Eligibility / Find Your Path / Partners / Employers / Blog / Contact Us / Account / Apply Now / Switch to dark mode / Get started / Member / Staff login" before reaching the email input. Twenty-plus tabs to start signing in. Add `autofocus` on `input[type=email]`. |
+| 138 | `/forgot-password` and AI tool pages | Same missing-autofocus pattern. `document.activeElement` is `BODY` on page load — user must click into the first input. |
+| 139 | `/dashboard/training` Mark Complete (round-trip) | Tested earlier in round 4 — `POST /api/member/courses/complete → 200` updates state silently. **No undo, no toast, no aria-live announcement** for screen readers. A blind member would not hear that the action succeeded. Add a `role="status"` live region for completion confirmations. |
+| 140 | `/dashboard/profile` print | A single stylesheet has `@media print` rules. Other dashboard pages don't carry print-specific styles. **Resume export and certificates print** likely render with full app chrome (sidebar, header, footer) instead of a clean print layout. Test by printing each surface a member is likely to print and add per-page print rules. |
+
+## P2 (round 6) — UX
+
+| # | Page | Issue |
+|---|---|---|
+| 141 | `/admin/members/<id>` Pending enrollment view | "Profile incomplete for self-serve training enrollment — admin program changes still apply and set an admin enrollment bypass." Useful copy, but the **"Change program (admin only)" dropdown lists 18 programs** including some not in the public catalog. Confirm dropdown source matches `/admin/programs` and `/programs` to avoid drift (e.g. `AI Professional Developer Certificate (IBM)` from #24 still showing here). |
+| 142 | `/admin/members/<id>` "Send password reset email" | Single-button trigger labeled "Send password reset email" with helper "Sends to: mabrown4@ymail.com". **No confirmation dialog, no rate-limit affordance.** Admin can spam-click. Add a confirm dialog or 60-second debounce. |
+| 143 | `/forgot-password` | After clicking "Send reset link" with a non-existent email, behavior not audited (didn't fire to avoid spam). Confirm the response is intentionally vague ("If we have an account for this email, we sent a reset link") to avoid email-enumeration. |
+| 144 | `/dashboard/resources` Support card | "A counselor will be assigned as you move through enrollment" copy persists for already-enrolled members (round 1 #46). Same card on a near-empty Pending member would be the *correct* state — so the issue is the rendering condition, not the copy itself. Branch on `member.enrolledAt`. |
+| 145 | `/admin/members/<id>` tabs | "timeline / Lifecycle / Readiness" tab strip on member detail. Not exercised in earlier rounds — Lifecycle and Readiness tabs may carry their own duplicate-render or fixture issues. Worth a deep pass. |
+| 146 | global keyboard navigation | Skip-link exists ("Skip to main content") and works. But many fixed bottom-nav surfaces (#116) have no skip-to-bottom-nav landmark for keyboard users — they have to traverse the page to reach the nav. Add a second skip-link or move the bottom nav into the natural tab order. |
+
+## P3 (round 6) — Microcopy / state
+
+| # | Page | Issue |
+|---|---|---|
+| 147 | Pending member view | "Course progress: **0 of 0** complete" — when a program isn't enrolled, the fraction reads as zero-of-zero. Either hide the metric until a program is selected or show "No program selected yet". |
+| 148 | `/admin/members/<id>` "Edit Profile" link | Singular CTA in a sidebar of admin actions; not visually weighted vs Password Reset. Decide a primary action (Edit Profile is most common) and weight it. |
+| 149 | `/forgot-password` page | Footer lists "Support · No-cost to members · Funded by grants and partnerships" — same footer as login. Useful trust marks, but the password-reset path is post-account; the marks make more sense on the marketing page than mid-recovery. Consider a leaner page chrome for recovery flows. |
+
+## P4 (round 6) — Visual
+
+| # | Page | Issue |
+|---|---|---|
+| 150 | `/forgot-password` | Single email field + button + back link — clean. No issues flagged. |
+| 151 | Pending member admin detail | Long change-program dropdown (18 programs) on a page with sparse data — visually dominates the page. Could be a button "Change program" that opens a modal, freeing vertical space. |
+
+---
+
+## Cross-cutting themes — round 6 additions
+
+- **Identity de-duplication is the highest-leverage backend fix.** The duplicate Michael Browns (#23, #102, #135) explain #118 (cross-record PII prefill) and would also explain any "lost progress" symptoms a member might report. A unique-on-`(lower(email))` constraint plus a phone-merge admin tool retires this whole class.
+- **Autofocus + skip-link patterns.** Two missing autofocus locations (#137, #138) and one missing landmark (#146) — together they make keyboard-only flow on the most important page (login) and the most-used page (dashboard) painful. One sweeping fix per page type covers it.
+- **Print = blind spot.** Only one stylesheet with `@media print` rules across the entire app. Resume export and certificate print are core member outputs — they need their own print stylesheet to render without app chrome.
+- **Pending-state copy needs a branch.** "Course progress 0 of 0" (#147), "A counselor will be assigned" on enrolled accounts (#144), "Profile incomplete" notice on members who *are* fully profiled (round 1 #7's drift): all branch-on-state issues. One state machine instead of conditionally rendered strings.
+
+---
+
+## Need-to-verify (still / new)
+
+- True brand-new account creation via `/apply` step 3 (still requires a throwaway email).
+- Email templates — every event-fired email (signup welcome, message reply, course completion, counselor assigned, password reset). Audit by triggering each event in a sandbox.
+- Coursera xAPI live event ingest with a real completion (would need a Coursera-side test action).
+- Loaner-laptop flow detail (no UI surface beyond the misleading "Learn more" copy in #136).
+- `/admin/members/<id>` Lifecycle and Readiness tabs (#145).
+- Print stylesheet detail per page — resume export, certificate, weekly recap.
+- Cross-portal search (the `⌘K` global search button visible in admin chrome).
+- File upload paths — resume PDF/DOCX upload on `/dashboard/profile` and `/dashboard/ai-tools/resume-rewriter`. Validation, size limits, malware scanning.
+- Real-device testing on iOS Safari and Android Chrome (audit was Chromium-only).
+- Permission model for super-admin "preview as counselor / partner" — what happens if a counselor without super-admin access tries the same nav?
+
+---
+
+*Round-6 tooling additions: tab-order capture on login, `document.activeElement` audit post-load, print stylesheet detection via `CSSRule.cssText`, ymail Michael Brown member-detail inspection, forgot-password flow walkthrough.*
 
 ---

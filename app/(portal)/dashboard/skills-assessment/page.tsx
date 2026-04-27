@@ -130,7 +130,7 @@ export default async function SkillsAssessmentPage() {
                         {dbUser.assessmentScorePct}<span style={{ fontSize: '1rem' }}>%</span>
                       </p>
                       {dbUser.assessmentScore != null && (
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0' }}>{dbUser.assessmentScore}/90 points</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0' }}>{dbUser.assessmentScore}/100 points</p>
                       )}
                     </div>
                   )}

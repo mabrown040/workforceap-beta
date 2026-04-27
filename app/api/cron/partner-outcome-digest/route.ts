@@ -103,20 +103,29 @@ export async function GET(request: Request) {
       stageLines = ['No active referrals on file'];
     }
 
-    const sendResult = await sendPartnerWeeklyDigestEmail({
-      to: p.contactEmail.trim(),
-      partnerName: p.name,
-      weekLabel,
-      stageLines,
-      successLines,
-    });
+    try {
+      const sendResult = await sendPartnerWeeklyDigestEmail({
+        to: p.contactEmail.trim(),
+        partnerName: p.name,
+        weekLabel,
+        stageLines,
+        successLines,
+      });
 
-    results.push({
-      partnerId: p.id,
-      name: p.name,
-      emailSent: sendResult.ok,
-      error: sendResult.ok ? undefined : sendResult.error,
-    });
+      results.push({
+        partnerId: p.id,
+        name: p.name,
+        emailSent: sendResult.ok,
+        error: sendResult.ok ? undefined : sendResult.error,
+      });
+    } catch (error) {
+      results.push({
+        partnerId: p.id,
+        name: p.name,
+        emailSent: false,
+        error: error instanceof Error ? error.message : 'send_failed',
+      });
+    }
   }
 
   return NextResponse.json({ ok: true, checkedAt: now.toISOString(), results });

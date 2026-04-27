@@ -134,14 +134,14 @@ export default async function EmployersPage() {
       <section
         aria-label="Hiring partner waitlist"
         style={{
-          background: 'color-mix(in srgb, var(--color-accent) 6%, white)',
-          borderBottom: '1px solid color-mix(in srgb, var(--color-accent) 18%, var(--outline-variant))',
+          background: 'var(--surface-container-high)',
+          borderBottom: '1px solid var(--outline-variant)',
           padding: '1.5rem clamp(1rem, 4vw, 2rem)',
         }}
       >
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '260px' }}>
-            <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+            <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
               Hiring partner waitlist &middot; Pre-launch
             </p>
             <p style={{ margin: '0.4rem 0 0', fontSize: '0.95rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
@@ -767,7 +767,7 @@ export default async function EmployersPage() {
               >
                 Ready to Hire Certified Talent?
               </h2>
-              <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.125rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
                 Tell us what roles you need, how many you are hiring, and when you need them filled.
                 We will route you into the right employer intake path and follow up with matched talent options.
               </p>

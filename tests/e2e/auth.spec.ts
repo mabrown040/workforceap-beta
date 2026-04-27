@@ -3,9 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('Auth flows', () => {
   test('login page loads and has form', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: /welcome back/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /sign in to your account/i })).toBeVisible();
     await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.locator('#password')).toBeVisible();
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
   });
 
@@ -36,9 +36,10 @@ test.describe('Auth flows', () => {
 
   test('login page links to signup', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByRole('link', { name: /sign up/i })).toBeVisible();
-    await page.getByRole('link', { name: /sign up/i }).click();
-    await expect(page).toHaveURL('/signup');
+    const signupLink = page.getByRole('link', { name: /get started/i });
+    await expect(signupLink).toBeVisible();
+    await signupLink.click();
+    await expect(page).toHaveURL(/\/signup(\?|$)/);
   });
 
   test('login page links to forgot password', async ({ page }) => {

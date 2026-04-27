@@ -31,6 +31,7 @@ async function handle(req: NextRequest) {
     where: {
       deletedAt: null,
       enrolledProgram: { not: null },
+      notificationsReminders: true,
       id: { notIn: [...activeSet] },
     },
     select: { id: true, email: true, fullName: true, enrolledProgram: true, enrolledAt: true },

@@ -35,19 +35,14 @@ function getHomepageProgramCardImage(
   program: { slug: string; category?: string | null; name?: string | null; static?: { categoryLabel?: string | null; title?: string | null } | null },
   index: number,
 ) {
-  const haystack = `${program.slug} ${program.category ?? ''} ${program.name ?? ''} ${program.static?.categoryLabel ?? ''} ${program.static?.title ?? ''}`.toLowerCase();
-
-  if (/(health|medical|patient|construction|manufact|logistics|trade|production)/.test(haystack)) {
-    return HOMEPAGE_PROGRAM_CARD_IMAGES.handsOn;
-  }
-  if (/(digital literacy|project|business|marketing|leadership|ux)/.test(haystack)) {
-    return HOMEPAGE_PROGRAM_CARD_IMAGES.community;
-  }
-  if (/(data|cloud|cyber|security|\bit\b|aws|google|ibm|software|developer|ai)/.test(haystack)) {
-    return HOMEPAGE_PROGRAM_CARD_IMAGES.technology;
-  }
-
-  return Object.values(HOMEPAGE_PROGRAM_CARD_IMAGES)[index % Object.values(HOMEPAGE_PROGRAM_CARD_IMAGES).length];
+  // Ensure we don't repeat the same image 4 times on the homepage
+  const images = [
+    '/images/AdobeStock_78118914.jpeg',
+    '/images/austin-skyline.jpg',
+    '/images/hero-people.jpg',
+    '/images/image-asset.jpeg'
+  ];
+  return images[index % images.length];
 }
 
 const HERO_TRUST_SIGNALS = [
@@ -152,8 +147,8 @@ export default async function HomePage() {
         {/* Gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
-          /* Brighter overlay — more uplifting while keeping text readable */
-          background: 'linear-gradient(180deg, rgba(28,31,36,0.42) 0%, rgba(28,31,36,0.58) 55%, var(--color-background-dark) 100%)',
+          /* Hardcode bottom to #121416 to ensure contrast against white text */
+          background: 'linear-gradient(180deg, rgba(28,31,36,0.52) 0%, rgba(28,31,36,0.78) 55%, #121416 100%)',
           zIndex: 1,
         }} />
 

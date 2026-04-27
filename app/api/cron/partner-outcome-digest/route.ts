@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendPartnerWeeklyDigestEmail } from '@/lib/email';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
@@ -119,6 +120,7 @@ export async function GET(request: Request) {
         error: sendResult.ok ? undefined : sendResult.error,
       });
     } catch (error) {
+      captureApiError(error, { route: 'cron/partner-outcome-digest', extra: { partnerId: p.id } });
       results.push({
         partnerId: p.id,
         name: p.name,

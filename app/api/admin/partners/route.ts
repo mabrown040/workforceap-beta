@@ -27,6 +27,7 @@ export async function GET() {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const partners = await prisma.partner.findMany({
+    take: 500,
     orderBy: { name: 'asc' },
     include: { _count: { select: { counselors: true, referrals: true } } },
   });

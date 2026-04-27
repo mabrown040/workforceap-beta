@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendWeeklyRecapEmail } from '@/lib/email';
 import { generateWeeklyRecap } from '@/lib/recap/generate';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * GET /api/cron/weekly-recap
@@ -71,7 +72,7 @@ export async function GET(request: Request) {
       }
       sent++;
     } catch (e) {
-      console.error('[cron/weekly-recap] failed for', member.email, e);
+      captureApiError(e, { route: 'cron/weekly-recap', extra: { userId: member.id } });
       failed++;
     }
   }

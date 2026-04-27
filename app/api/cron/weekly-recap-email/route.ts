@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendAdminWeeklyRecapEmail } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * Cron endpoint to send weekly admin recap email.
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  try {
   const now = new Date();
   const sevenDaysAgo = new Date(now);
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -75,4 +77,8 @@ export async function GET(request: Request) {
     pendingApplications,
     emailSent: result.ok,
   });
+  } catch (err) {
+    captureApiError(err, { route: 'cron/weekly-recap-email' });
+    return NextResponse.json({ error: 'Cron job failed' }, { status: 500 });
+  }
 }

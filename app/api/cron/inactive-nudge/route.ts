@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   });
   const activeUserIds = new Set(recentlyActive.map((r) => r.userId));
 
-  // Find eligible members who are NOT in the active set.
+  // Find eligible members who are NOT in the active set (capped to 1000 per run).
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
@@ -38,6 +39,7 @@ export async function GET(request: Request) {
       id: { notIn: [...activeUserIds] },
     },
     select: { id: true, email: true, fullName: true },
+    take: 1000,
   });
 
   let sent = 0;
@@ -49,7 +51,7 @@ export async function GET(request: Request) {
       });
       if (result.ok) sent++;
     } catch (err) {
-      console.error(`Inactive nudge failed for user ${member.id}:`, err);
+      captureApiError(err, { route: 'cron/inactive-nudge', extra: { userId: member.id } });
     }
   }
 

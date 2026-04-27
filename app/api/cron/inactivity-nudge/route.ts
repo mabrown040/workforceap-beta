@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
  * POST /api/cron/inactivity-nudge
@@ -50,7 +51,7 @@ async function handle(req: NextRequest) {
       });
       sent++;
     } catch (e) {
-      console.error('[cron/inactivity-nudge] failed for', member.email, e);
+      captureApiError(e, { route: 'cron/inactivity-nudge', extra: { userId: member.id } });
       failed++;
     }
   }

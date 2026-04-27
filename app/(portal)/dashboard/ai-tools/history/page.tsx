@@ -34,7 +34,7 @@ function getHistoryToolLabel(toolType: string, output: string): string {
   if (toolType === 'career_counselor') {
     try {
       const parsed = JSON.parse(output) as { type?: string };
-      if (parsed?.type === 'elevator_pitch') return 'AI Elevator Speech';
+      if (parsed?.type === 'elevator_pitch') return 'AI Elevator Introduction';
     } catch {
       // ignore
     }

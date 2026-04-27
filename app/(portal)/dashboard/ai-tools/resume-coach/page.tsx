@@ -7,7 +7,7 @@ import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Resume Coach',
+  title: 'Resume & Experience Enhancer',
   description: 'Practice your story out loud and refine your resume in a dedicated voice coaching flow.',
   path: '/dashboard/ai-tools/resume-coach',
 });
@@ -27,11 +27,11 @@ export default async function ResumeCoachPage() {
           }}
         >
           <PageHeader
-            title="Resume Coach"
+            title="Resume & Experience Enhancer"
             subtitle="Work through your background out loud, keep your live draft synced as you go, and review suggested rewrites during or after the session."
             breadcrumbs={[
               { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-              { label: 'Resume Coach' },
+              { label: 'Resume & Experience Enhancer' },
             ]}
           />
         </div>

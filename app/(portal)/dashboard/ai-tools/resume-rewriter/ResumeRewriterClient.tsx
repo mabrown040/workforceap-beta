@@ -37,7 +37,7 @@ function ResumeCoachRedirectCard() {
         href="/dashboard/ai-tools/resume-coach"
         style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'underline' }}
       >
-        Open Resume Coach for the voice flow →
+        Open Resume & Experience Enhancer for the voice flow →
       </Link>
     </p>
   );

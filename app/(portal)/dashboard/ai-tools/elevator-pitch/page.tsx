@@ -8,8 +8,8 @@ import ElevatorPitchClient from '@/components/portal/tools/ElevatorPitchClient';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Elevator Speech',
-  description: 'AI-crafted 10-20 second elevator speech with saved history, email delivery, and voice rehearsal recording.',
+  title: 'AI Elevator Introduction',
+  description: 'AI-crafted 10-20 second elevator introduction with saved history, email delivery, and voice rehearsal recording.',
   path: '/dashboard/ai-tools/elevator-pitch',
 });
 
@@ -21,11 +21,11 @@ export default async function ElevatorPitchPage() {
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div style={{ padding: '1.25rem 2rem 1.5rem', borderBottom: '1px solid var(--surface-container-high)', background: 'var(--surface-container-low)' }}>
         <PageHeader
-          title="AI Elevator Speech"
+          title="AI Elevator Introduction"
           subtitle="Answer a few quick questions. AI writes your 10–20 second intro, saves it, emails it to you, then lets you rehearse it with your voice."
           breadcrumbs={[
             { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'AI Elevator Speech' },
+            { label: 'AI Elevator Introduction' },
           ]}
         />
       </div>
@@ -35,8 +35,8 @@ export default async function ElevatorPitchPage() {
           <ToolHistoryPanel
             userId={user.id}
             toolTypes={['career_counselor']}
-            title="Previous AI elevator speeches"
-            emptyMessage="No saved elevator speeches yet. Generate your first one above."
+            title="Previous AI elevator introductions"
+            emptyMessage="No saved elevator introductions yet. Generate your first one above."
           />
         </div>
         <MobileBottomNav variant="portal" />

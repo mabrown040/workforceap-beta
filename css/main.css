@@ -15778,6 +15778,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     }
 }
 
+
 /* Global Focus-Visible Outline */
 *:focus-visible {
     outline: 2px solid var(--color-accent);
@@ -15798,3 +15799,95 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
         gap: 1rem;
     }
 }
+
+/* =============================================================
+   Dark-mode contrast fixes — audit #18 #63 #65 #17
+   ============================================================= */
+
+/* ── Message chat bubbles — light-mode uses color-mix(…,#fff) which
+   produces near-white backgrounds; in dark mode that stays pale on
+   a dark surface making text invisible. Override with dark-appropriate
+   surface tokens. ── */
+html.dark .member-counselor-chat__bubble {
+    background: var(--surface-container-high);
+    border-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-on-surface);
+}
+html.dark .member-counselor-chat__bubble--mine {
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--color-accent) 28%, var(--surface-container-high)),
+        color-mix(in srgb, var(--color-accent) 18%, var(--surface-container-highest))
+    );
+    border-color: rgba(173, 44, 77, 0.35);
+    color: #fff;
+}
+html.dark .member-counselor-chat__bubble-body,
+html.dark .member-counselor-chat__bubble-meta {
+    color: inherit;
+}
+html.dark .member-counselor-chat__scroll {
+    background: var(--surface-container-lowest);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
+}
+
+/* ── Portal messages (mobile client) ── */
+html.dark .portal-messages-bubble--them {
+    background: var(--surface-container-high);
+    color: var(--color-on-surface);
+}
+html.dark .portal-messages-bubble--mine {
+    /* already a dark gradient; ensure text is white */
+    color: #fff;
+}
+
+/* ── Training "Your training is ready" banner and general rose-tinted chips.
+   In dark mode, rose-100/accent-light backgrounds stay light while surrounding
+   text uses dark-mode colors — causing pink-on-dark illegibility.
+   Re-bind to deep accent-tinted dark surfaces. ── */
+html.dark [class*="wa-bg-rose"],
+html.dark [style*="background: #fce7f3"],
+html.dark [style*="background:#fce7f3"],
+html.dark [style*="background: rgb(252, 231, 243)"],
+html.dark [style*="background-color: #fce7f3"],
+html.dark [style*="background-color:#fce7f3"] {
+    background: rgba(173, 44, 77, 0.15) !important;
+    color: var(--color-on-surface) !important;
+}
+
+/* Dashboard "Your training is ready" accent-tinted card (inline style uses accent light) */
+html.dark [style*="var(--color-accent-light)"],
+html.dark [style*="var(--color-accent-light, #ffb2bc)"] {
+    background: rgba(173, 44, 77, 0.15) !important;
+    color: var(--color-on-surface) !important;
+    border-color: rgba(173, 44, 77, 0.25) !important;
+}
+
+/* ── Status chips that use rose-100 / rose-200 Tailwind classes ── */
+html.dark .wa-bg-rose-100 { background-color: rgba(173, 44, 77, 0.18) !important; color: var(--color-accent-light, #ffb2bc) !important; }
+html.dark .wa-bg-rose-200 { background-color: rgba(173, 44, 77, 0.24) !important; color: var(--color-accent-light, #ffb2bc) !important; }
+html.dark .wa-text-rose-700,
+html.dark .wa-text-rose-800 { color: var(--color-accent-light, #ffb2bc) !important; }
+
+/* ── Counselor dashboard stuck-opacity (#17) — the portal-voice-session
+   wrapper renders with opacity:0.4 when no session is active, which
+   makes the entire page content appear dimmed in the counselor portal.
+   Only apply low opacity to the session-active state toggle element,
+   not the page wrapper. ── */
+html[data-portal-role="member"] .portal-voice-session__idle-overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* ── Nav pill active-state flash (#65) — prevents FOUC by locking the
+   transition so the pill doesn't briefly lose its active colour mid-nav. ── */
+.member-portal-top-nav__item {
+    transition: color 0.1s, background-color 0.1s;
+}
+.member-portal-top-nav__item.active,
+.member-portal-top-nav__item[aria-current="page"] {
+    /* Lock paint order — prevents flash of unstyled state on route change */
+    will-change: auto;
+}
+

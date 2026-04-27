@@ -386,7 +386,7 @@ export default async function AdminMemberDetailPage({
           <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Program</h2>
           <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString() ?? '—'}</p>
-          <p><strong>Course progress:</strong> {completedCount} of {program?.courses.length ?? 0} complete</p>
+          <p><strong>Course progress:</strong> {program ? `${completedCount} of ${program.courses.length} complete` : 'No program enrolled'}</p>
           
           {member.learningProgress && member.learningProgress.length > 0 && (
             <div style={{ marginTop: '1rem', background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '0.5rem' }}>

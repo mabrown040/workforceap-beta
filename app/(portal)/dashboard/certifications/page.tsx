@@ -395,7 +395,7 @@ export default async function DashboardCertificationsPage() {
                 >
                   route
                 </span>
-                <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Active Pathway</h2>
+                <h2 className="portal-section-heading" style={{ margin: 0 }}>Active Pathway</h2>
               </div>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', fontSize: 'var(--font-size-sm)' }}>
                 Your current certification journey. Complete each milestone to move to the next.
@@ -550,7 +550,7 @@ export default async function DashboardCertificationsPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                 timeline
               </span>
-              <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certificate Roadmap</h2>
+              <h2 className="portal-section-heading" style={{ margin: 0 }}>Certificate Roadmap</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', maxWidth: '640px' }}>
               Industry-recognized credentials across IT, healthcare, and skilled trades. Check off certificates as you earn them.

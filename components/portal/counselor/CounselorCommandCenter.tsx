@@ -35,7 +35,7 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
           <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
             Today
           </p>
-          <h2 style={{ margin: '0.15rem 0 0', fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+          <h2 className="portal-section-heading" style={{ margin: '0.15rem 0 0' }}>
             {totalToday === 0
               ? "You're caught up — nice work."
               : `${totalToday} ${totalToday === 1 ? 'thing' : 'things'} that need you`}

@@ -21,7 +21,7 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
 
   return (
     <section
-      aria-label="Today&rsquo;s priorities"
+      aria-label="Today's priorities"
       style={{
         background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 7%, white), white 75%)',
         border: '1px solid color-mix(in srgb, var(--color-accent) 18%, var(--outline-variant))',
@@ -37,7 +37,7 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
           </p>
           <h2 style={{ margin: '0.15rem 0 0', fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
             {totalToday === 0
-              ? 'You&rsquo;re caught up &mdash; nice work.'
+              ? "You're caught up — nice work."
               : `${totalToday} ${totalToday === 1 ? 'thing' : 'things'} that need you`}
           </h2>
         </div>
@@ -87,7 +87,7 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
           accent="var(--color-gold, #a47f38)"
           title="At risk of ghosting"
           count={data.totals.atRiskCount}
-          empty="Everyone&rsquo;s been active in the last week."
+          empty="Everyone's been active in the last week."
         >
           {data.atRisk.map((row) => (
             <PriorityRow

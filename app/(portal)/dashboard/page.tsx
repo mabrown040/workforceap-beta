@@ -380,6 +380,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const interviewCompleted = !!intakeExtra?.interviewCompletedAt;
   const interviewRequested = !!intakeExtra?.interviewRequestedAt;
   const interviewEligibleFlag = intakeExtra?.interviewEligible ?? false;
+  const preScreeningDone = !!intakeExtra?.preScreeningResponse;
 
   const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
 
@@ -418,7 +419,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           ? 'Scheduled — watch your email'
           : interviewEligibleFlag
             ? 'Request or attend your interview'
-            : 'Awaiting counselor',
+            : preScreeningDone
+              ? 'Awaiting counselor'
+              : 'Submit pre-screening below',
     },
     {
       label: 'Enrollment confirmed',

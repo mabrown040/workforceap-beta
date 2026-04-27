@@ -545,11 +545,14 @@ export default function JobsListingClient({
           <SlidersHorizontal size={18} />
           Filters{hasActiveFilters ? ` (${[q && 'search', locationType && 'location', jobType && 'type', program && 'program', (salaryMin || salaryMax) && 'salary', sort !== 'newest' && 'sort'].filter(Boolean).length})` : ''}
         </button>
-
-        <div className="job-filters-desktop">{filterPanel}</div>
       </div>
 
-      <div
+      {/* Single filter panel — CSS in main.css promotes .job-filters-drawer
+          to a static sidebar at md+ (always visible, drawer behavior
+          ignored) and keeps it as a fixed drawer below md (controlled by
+          .is-open). Closes audit #34: previously rendered twice in the
+          DOM with duplicate input ids breaking <label htmlFor> a11y. */}
+      <aside
         id="job-filters-drawer"
         className={`job-filters-drawer ${filtersOpen ? 'is-open' : ''}`}
         aria-hidden={!filtersOpen}
@@ -574,7 +577,7 @@ export default function JobsListingClient({
           onClick={() => setFiltersOpen(false)}
           aria-label="Close filters"
         />
-      </div>
+      </aside>
 
       {loading ? (
         <div className="jobs-grid" aria-busy="true" aria-live="polite">

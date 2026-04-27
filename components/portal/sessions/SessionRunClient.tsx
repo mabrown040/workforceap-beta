@@ -8,7 +8,17 @@ import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
-type ToolKey = 'resume' | 'coverLetter' | 'interview';
+type ToolKey =
+  | 'resume'
+  | 'coverLetter'
+  | 'interview'
+  | 'resumeAnalysis'
+  | 'gapAnalyzer'
+  | 'jobMatch'
+  | 'headline'
+  | 'about'
+  | 'salary'
+  | 'pitch';
 type CardVoiceKey = 'walkthrough' | 'resume' | 'cover' | 'interview';
 
 type Status = 'idle' | 'running' | 'done' | 'error';

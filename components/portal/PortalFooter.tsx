@@ -10,9 +10,10 @@ export default function PortalFooter() {
         <span className="portal-minimal-footer__sep" aria-hidden>
           |
         </span>
-        <Link href="/privacy">Privacy</Link>
-        <Link href="/terms">Terms</Link>
-        <Link href="/contact">Contact</Link>
+        {/* Padded to >=44x44 tap target on mobile (audit #89). */}
+        <Link href="/privacy" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0.75rem', justifyContent: 'center' }}>Privacy</Link>
+        <Link href="/terms" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0.75rem', justifyContent: 'center' }}>Terms</Link>
+        <Link href="/contact" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0.75rem', justifyContent: 'center' }}>Contact</Link>
       </p>
     </footer>
   );

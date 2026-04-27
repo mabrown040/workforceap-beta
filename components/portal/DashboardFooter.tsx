@@ -28,10 +28,11 @@ export default function DashboardFooter() {
         }}
       >
         <p style={{ margin: 0 }}>© {year} Workforce Advancement Project</p>
-        <nav aria-label="Footer" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-          <Link href="/contact">Contact</Link>
+        {/* Footer links padded to >=44px tap targets on mobile (audit #89). */}
+        <nav aria-label="Footer" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+          <Link href="/privacy" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0.75rem', justifyContent: 'center' }}>Privacy</Link>
+          <Link href="/terms" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0.75rem', justifyContent: 'center' }}>Terms</Link>
+          <Link href="/contact" style={{ display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0.75rem', justifyContent: 'center' }}>Contact</Link>
         </nav>
       </div>
     </footer>

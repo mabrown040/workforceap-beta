@@ -15,6 +15,24 @@ test.describe('Auth flows', () => {
     await expect(page.getByLabel(/email/i)).toBeVisible();
   });
 
+  test('forgot password request shows non-enumerating success message', async ({ page }) => {
+    await page.goto('/forgot-password');
+    await page.getByLabel(/email/i).fill('nonexistent-member@example.com');
+    await page.getByRole('button', { name: /send reset link/i }).click();
+
+    await expect(page.getByRole('heading', { name: /check your email/i })).toBeVisible();
+    await expect(
+      page.getByText(/if an account exists for that email, you will receive reset instructions shortly\./i)
+    ).toBeVisible();
+  });
+
+  test('reset password page handles missing token gracefully', async ({ page }) => {
+    await page.goto('/reset-password');
+
+    await expect(page.getByRole('heading', { name: /link invalid or expired/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /request a new reset link/i })).toBeVisible();
+  });
+
   test('protected route redirects to login when unauthenticated', async ({ page }) => {
     await page.goto('/dashboard');
     await expect(page).toHaveURL(/\/login/);

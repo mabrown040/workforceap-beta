@@ -1,5 +1,58 @@
 # Live Portal Audit — workforceap.org (2026-04-26)
 
+> **Status as of 2026-04-27:** Code-side fixes for PRs 1, 2, 6, and 8 have
+> landed on this branch. PR 3 (fixture/seed data) is database-side and
+> deferred to Cursor's backend pass. PRs 4 (cron activation), 5 (state-truth
+> single source), and 7 (identity de-duplication) are in Cursor's lane —
+> they need DB migrations, ESP wiring, and API contract changes that
+> overlap with the auth/cron/integrity work in flight.
+>
+> **Closed by code on this branch:**
+> - **#36, #68, #69, #106** — duplicate `<footer>` on `/jobs` and
+>   `/ai-tools`, the dashboard 404 falling back to public marketing
+>   layout, and the `<footer>` element in `BoardOutcomesView`.
+> - **#96, #97, #98 (partial)** — per-course "Open in Coursera" buttons
+>   now hit `/api/member/coursera/launch?course=<slug>`; the launch
+>   endpoint resolves to that course's index. Each course card carries
+>   `data-course-slug` so Mark Complete handlers can identify by stable
+>   id instead of DOM order. Top-level "Open Coursera" buttons now use
+>   `target="_blank"` consistently.
+> - **#119, #121, #132** — new `lib/ai/postProcess.ts` util wrapped into
+>   `/api/ai/elevator-pitch` and `/api/ai/resume-rewriter`. Strips smart
+>   quotes / wrapping quotes, fixes `exceling` → `excelling`, strips
+>   markdown markers (`##`, `**`) before they hit the `<pre>` render.
+> - **#105** — `/admin/exports` mobile-only `<h1>` demoted to
+>   `<p role="heading" aria-level={2}>` so the page has one h1.
+> - **#116** — `MobileBottomNav` injects
+>   `body:has(.mobile-bottom-nav-root) #main-content { padding-bottom }`
+>   on mobile so the fixed nav stops overlapping page content on every
+>   surface that mounts it.
+> - **#137, #138** — `autoFocus` added to `/login` and `/forgot-password`
+>   email inputs.
+>
+> **Remaining (need Coursera/Cursor or follow-up):**
+> - **#95** — Coursera launch redirect target: env config
+>   `COURSERA_PROGRAM_HOME_URL` should point at the learner-facing
+>   program URL, not the org admin page. Code paths are ready; ops
+>   change is the unblocker.
+> - **#99** — admin coursera member dropdown shows only the fixture.
+>   Either the dropdown filter is broken or only one mapping is wired —
+>   needs a pass on `/admin/coursera`.
+> - **#1, #72, #86, #87, #103, #104** — fixture rows (`[ARCHIVED FIXTURE]`,
+>   `Test Students`, `member.success@…`) are in the DB. Cursor's seed-cleanup.
+> - **#7, #8, #9, #50** — state-truth drift across profile %, app status,
+>   onboarding. Needs API contract decisions.
+> - **#23, #102, #135** — three Michael Brown records. DB-side identity
+>   merge.
+> - **#152–#156** — 6 of 7 cron jobs Never run; no template preview UI.
+>   ESP + Vercel cron + admin template page.
+> - **DOM-only responsive duplicates** (#28, #34, #61, #73, #107) — pages
+>   render mobile and desktop variants both into the DOM with CSS
+>   visibility hiding one. Not user-visible bugs, but bloat. Defer to
+>   a dedicated responsive-consolidation PR.
+
+
+
 Headless audit of the live production site, logged in as super-admin (`mabrown040@gmail.com`) acting as both member (mabrown040 / Michael Brown — gmail account) and admin. Captured at 1280×800 desktop, 768×1024 tablet, 375×812 mobile, plus dark mode samples and DOM/network probes.
 
 **Scope covered:** logged-out site (homepage, /apply step 1–3, /login), member portal (~20 routes incl. AI tool subpages), admin portal (overview, coursera, diagnostics, member detail). Coursera flow, Mark Complete, role-toggle, notifications panel, footer/landmark counts.

@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Build CSV
-  const headers = [
+  const csvColumns = [
     'Full Name',
     'Email',
     'Phone',
@@ -233,7 +233,7 @@ export async function GET(req: NextRequest) {
     ];
   });
 
-  const csv = buildCsv(headers, csvRows, { reportTitle: 'Member Training Export', notes: 'Workforce training qualification reporting — Workforce Advancement Project' });
+  const csv = buildCsv(csvColumns, csvRows, { reportTitle: 'Member Training Export', notes: 'Workforce training qualification reporting — Workforce Advancement Project' });
   const filename = `workforceap-members-export-${new Date().toISOString().slice(0, 10)}.csv`;
 
   const headers: Record<string, string> = {

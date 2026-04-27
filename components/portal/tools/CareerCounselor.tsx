@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'next-i18next';
 import { Conversation } from '@elevenlabs/client';
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
@@ -27,6 +28,7 @@ const PULSE_STYLE = `
 `;
 
 export default function CareerCounselor({ firstName }: { firstName?: string }) {
+  const { t, i18n } = useTranslation('common');
   const [phase, setPhase] = useState<Phase>('pre');
   const [voiceError, setVoiceError] = useState('');
   const [steps, setSteps] = useState<string[]>([]);

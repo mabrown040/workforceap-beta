@@ -55,7 +55,7 @@ export function envKeyForPortalAgent(key: ElevenLabsPortalAgentKey): string {
 
 export async function startElevenLabsPortalSession(
   key: ElevenLabsPortalAgentKey,
-  options?: { dynamicVariables?: Record<string, string | number | boolean> }
+  options?: { dynamicVariables?: Record<string, string | number | boolean>; locale?: string }
 ): Promise<{
   signedUrl: string;
   expiresAt?: string;
@@ -67,8 +67,11 @@ export async function startElevenLabsPortalSession(
   }
   const session = await createConversationalSession(agentId);
   const dynamicVariables = options?.dynamicVariables
-    ? clampElevenLabsDynamicVariables(options.dynamicVariables)
-    : undefined;
+    ? clampElevenLabsDynamicVariables({
+        ...options.dynamicVariables,
+        locale: options.locale ?? 'en',
+      })
+    : { locale: options?.locale ?? 'en' };
   return {
     ...session,
     ...(dynamicVariables ? { dynamicVariables } : {}),

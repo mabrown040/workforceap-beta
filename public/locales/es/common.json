@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "dashboard": "Inicio",
+    "programs": "Programas",
+    "apply": "Solicitar",
+    "certifications": "Certificaciones",
+    "profile": "Perfil",
+    "publicSite": "Volver al sitio público",
+    "signOut": "Cerrar sesión",
+    "training": "Mis Clases",
+    "careerPlan": "Mi Plan de Carrera",
+    "fundingEligibility": "Elegibilidad de Financiamiento",
+    "jobBoard": "Bolsa de Trabajo",
+    "jobApplications": "Solicitudes de Empleo",
+    "resume": "Currículum",
+    "myProgress": "Mi Progreso",
+    "aiToolkit": "Kit de Herramientas de IA",
+    "learningHub": "Centro de Aprendizaje",
+    "findYourCareer": "Encuentra tu carrera",
+    "skillsAssessment": "Evaluación de Habilidades",
+    "weeklyRecap": "Resumen Semanal",
+    "myCounselor": "Mi Consejero",
+    "resources": "Recursos",
+    "helpSupport": "Ayuda y Soporte",
+    "memberGuide": "Guía del Miembro",
+    "myAccount": "Mi Cuenta"
+  },
+  "languageToggle": {
+    "label": "Idioma",
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "portuguese": "Português"
+  }
+}

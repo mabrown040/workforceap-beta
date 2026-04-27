@@ -94,7 +94,7 @@ export async function getPartnerForUser(
   const superUser = options?.isSuperAdminHint ?? (await isSuperAdmin(userId));
   if (superUser) {
     const first = await prisma.partner.findFirst({
-      where: { active: true },
+      where: { active: true, name: { not: 'Test Students' } },
       select: { id: true, name: true, slug: true },
     });
     if (first) return { partnerId: first.id, partner: first, hasDirectPartnerLink: false };

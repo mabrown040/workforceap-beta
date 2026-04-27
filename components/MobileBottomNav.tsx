@@ -68,6 +68,9 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
   return (
     <>
       {/* Mobile-only visibility: hidden on desktop (≥768px) */}
+      {/* On mobile, the fixed bottom nav otherwise overlaps page footer copy
+          and trailing content. Add bottom padding to #main-content equal to
+          the nav height + safe-area inset so all content is reachable. */}
       <style>{`
         @media (min-width: ${MOBILE_NAV_BREAKPOINT}px) {
           .mobile-bottom-nav-root {
@@ -77,6 +80,9 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
         @media (max-width: ${MOBILE_NAV_BREAKPOINT - 1}px) {
           .mobile-bottom-nav-root {
             display: flex !important;
+          }
+          body:has(.mobile-bottom-nav-root) #main-content {
+            padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)) !important;
           }
         }
       `}</style>

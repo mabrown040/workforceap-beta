@@ -149,8 +149,17 @@ export async function POST(request: Request) {
         };
       }
     }
+    const titleMap: Record<string, string> = {
+      resume_analysis: 'Resume strength analysis',
+      gap_analyzer: 'Employment gap analysis',
+      job_match_scorer: 'Job match score',
+      linkedin_headline: 'LinkedIn headline options',
+      linkedin_about: 'LinkedIn About section',
+      salary_negotiation: 'Salary negotiation script',
+      career_counselor: 'Elevator pitch',
+    };
     return {
-      title: r.toolType.replace(/_/g, ' '),
+      title: titleMap[r.toolType] ?? r.toolType.replace(/_/g, ' '),
       contextLine: r.inputSummary || null,
       body: r.output,
     };

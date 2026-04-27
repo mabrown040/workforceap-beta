@@ -502,7 +502,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                     Member dashboard
                   </p>
                   <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    Hi, {firstName}
+                    Welcome back, {firstName}
                   </h2>
                 </div>
                 {program && (
@@ -800,9 +800,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Recent AI Activity ── */}
+        {/* ── Recent AI Activity — mobile ── */}
         {recentTools.length > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
             <div className="portal-dash-section-header">
               <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
               <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
@@ -811,7 +811,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               {recentTools.map((r) => (
                 <div key={r.id} className="portal-activity-item">
                   <div className="portal-activity-item__icon">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">smart_toy</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
@@ -897,35 +897,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <MatchedRoles />
                 </Suspense>
               )}
-              {recentTools.length > 0 && (
-                <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
-                  <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
-                    <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
-                    <Link href="/dashboard/ai-tools/history" className="portal-section-action">
-                      View all
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
-                    </Link>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {recentTools.map((r) => (
-                      <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
-                        <div style={{ flex:1, minWidth:0 }}>
-                          <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                          {r.inputSummary && (
-                            <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {stripMarkdownForPreview(r.inputSummary)}
-                            </p>
-                          )}
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
-                          {formatPortalDate(r.createdAt)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
+              {/* Recent AI Activity is rendered in the mobile view above —
+                  suppressed here so the same data doesn't appear twice in the DOM
+                  on wider viewports. DashboardHomeClient surfaces activity inline. */}
             </PortalEntryClient>
           </Suspense>
         </PortalEntryErrorBoundary>

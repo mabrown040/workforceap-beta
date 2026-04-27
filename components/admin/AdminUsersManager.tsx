@@ -264,7 +264,18 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                   </td>
                   <td>
                     {isEditing && canManageRoles ? (
-                      <select value={draft.role} onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))} style={{ width: '100%', padding: '0.45rem 0.6rem' }}>
+                      <select
+                        value={draft.role}
+                        onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          padding: '0.45rem 0.6rem',
+                          borderRadius: '0.4rem',
+                          border: '1px solid var(--outline-variant)',
+                          background: 'var(--surface-container-lowest)',
+                          color: 'var(--color-on-surface)',
+                        }}
+                      >
                         {ROLE_OPTIONS.map((role) => <option key={role} value={role}>{role}</option>)}
                       </select>
                     ) : user.role}
@@ -329,7 +340,18 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
                   <input value={draft.fullName} onChange={(e) => setDraft((prev) => ({ ...prev, fullName: e.target.value }))} style={{ width: '100%', padding: '0.55rem 0.65rem' }} />
                   <input value={draft.email} onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))} style={{ width: '100%', padding: '0.55rem 0.65rem' }} />
                   {canManageRoles ? (
-                    <select value={draft.role} onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))} style={{ width: '100%', padding: '0.55rem 0.65rem' }}>
+                    <select
+                      value={draft.role}
+                      onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))}
+                      style={{
+                        width: '100%',
+                        padding: '0.55rem 0.65rem',
+                        borderRadius: '0.4rem',
+                        border: '1px solid var(--outline-variant)',
+                        background: 'var(--surface-container-lowest)',
+                        color: 'var(--color-on-surface)',
+                      }}
+                    >
                       {ROLE_OPTIONS.map((role) => <option key={role} value={role}>{role}</option>)}
                     </select>
                   ) : null}

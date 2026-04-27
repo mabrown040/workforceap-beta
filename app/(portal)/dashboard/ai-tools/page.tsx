@@ -209,7 +209,6 @@ export default async function AIToolsPage() {
       <div className="wa-block md:wa-hidden">
         <MobileBottomNav variant="portal" />
       </div>
-      <Footer variant="inner" />
     </div>
   );
 }

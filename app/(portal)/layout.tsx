@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
-import PortalShell from '@/components/portal/PortalShell';
-import TourProviderWrapper from '@/components/onboarding/TourProviderWrapper';
+import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
 
 export const metadata: Metadata = {
   title: 'Portal',
@@ -11,13 +9,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PortalLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <PartnerExclusiveServerGate />
-      <PortalShell>
-        <TourProviderWrapper>{children}</TourProviderWrapper>
-      </PortalShell>
-    </>
-  );
+export default function PortalLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <PortalLayoutClient>{children}</PortalLayoutClient>;
 }

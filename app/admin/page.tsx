@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
@@ -81,6 +81,7 @@ export default async function AdminPage() {
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
+  const superAdmin = await isSuperAdmin(user.id);
 
   let totalMembers: number;
   let assessmentsCompleted: number;
@@ -282,6 +283,52 @@ export default async function AdminPage() {
           </div>
         }
       />
+
+      {superAdmin && (
+        <section
+          className="portal-card portal-card--flat"
+          style={{ margin: '0 1.5rem 1.25rem', padding: '0.9rem 1rem' }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-on-surface-variant)',
+                  margin: 0,
+                }}
+              >
+                Super Admin Portal Previews
+              </p>
+              <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
+                Open employer, counselor, and partner views for demos.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <Link href="/admin/employers" className="btn btn-outline btn-sm">
+                Employer preview
+              </Link>
+              <Link href="/counselor" className="btn btn-outline btn-sm">
+                Counselor preview
+              </Link>
+              <Link href="/partner" className="btn btn-outline btn-sm">
+                Partner preview
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Split into one alert per signal so each has its own action.
           Closes audit #85: previously both lived in a single alert label

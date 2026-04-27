@@ -42,7 +42,13 @@ export default function AdminEmployerTierSelect({
     <div>
       <select
         className="form-control"
-        style={{ minWidth: '7rem', fontSize: '0.9rem' }}
+        style={{
+          minWidth: '7rem',
+          fontSize: '0.9rem',
+          color: 'var(--color-on-surface)',
+          background: 'var(--surface-container-low)',
+          borderColor: 'var(--outline-variant)',
+        }}
         value={tier}
         disabled={busy}
         onChange={(e) => void onChange(e.target.value)}

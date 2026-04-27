@@ -139,9 +139,13 @@ export function buildCourseraLaunchUrl(args: {
   email: string;
   /** 0-based index of the current course the member should start */
   currentCourseIndex?: number;
+  /** Optional locale for localized Coursera URLs */
+  locale?: string;
 }): string | null {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(args.programSlug);
+  const locale = args.locale ?? 'en';
+  const localizedBaseUrl = locale === 'en' ? config.platformUrl : `${config.platformUrl}/${locale}`;
 
   // If we have a course ID map and a current course index, deep-link to that specific course
   const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;

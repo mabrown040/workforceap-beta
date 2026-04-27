@@ -23,7 +23,7 @@ export default async function MemberMessagesPage() {
 
   const [messages, counselor] = await Promise.all([
     prisma.message.findMany({
-      where: { threadId: thread.id },
+      where: { threadId: thread.id, NOT: { body: { contains: '[ARCHIVED FIXTURE]' } } },
       orderBy: { createdAt: 'asc' },
     }),
     thread.counselorUserId

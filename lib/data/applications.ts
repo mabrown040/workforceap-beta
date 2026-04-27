@@ -7,6 +7,7 @@ export async function getStaleApplications(daysOld: number = 3) {
   return prisma.application.findMany({
     where: {
       status: 'PENDING',
+      user: { email: { notIn: ['member.success@workforceap.org', 'mbrown@hsconglomerates.com'] } },
       createdAt: {
         lt: cutoffDate,
       },

@@ -2923,7 +2923,9 @@ a.btn-accent:hover {
     font-size: 0.9rem;
     color: var(--color-on-surface-variant);
 }
-/* Mobile filter drawer */
+/* Mobile filter drawer (single instance — at md+ promotes to a static
+   inline filter strip; below md remains a slide-in drawer). Closes audit
+   #34: panel previously rendered twice in DOM with duplicate input ids. */
 .job-filters-drawer {
     position: fixed;
     inset: 0;
@@ -2935,6 +2937,33 @@ a.btn-accent:hover {
 .job-filters-drawer.is-open {
     pointer-events: auto;
     visibility: visible;
+}
+@media (min-width: 768px) {
+    .job-filters-drawer {
+        position: static;
+        inset: auto;
+        z-index: auto;
+        pointer-events: auto;
+        visibility: visible;
+        margin-bottom: 1rem;
+    }
+    .job-filters-drawer-backdrop,
+    .job-filters-drawer-header,
+    .job-filters-drawer-close {
+        display: none;
+    }
+    .job-filters-drawer-inner {
+        position: static;
+        inset: auto;
+        width: 100%;
+        max-width: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+        padding: 0;
+        transform: none;
+        transition: none;
+    }
 }
 .job-filters-drawer-backdrop {
     position: absolute;

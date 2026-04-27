@@ -293,3 +293,112 @@ Focused audit of the Coursera integration (top-level launch endpoint, per-course
 ---
 
 *Round-4 tooling additions: HEAD/redirect inspection on `/api/member/coursera/launch`, DOM dataset audit on Mark Complete buttons, `name` attribute audit on admin coursera form, admin pipeline + notifications panel content extraction.*
+
+---
+
+## How we'd connect Coursera properly
+
+The current integration is the worst of both worlds: a launch endpoint that doesn't go where it should, per-course buttons that don't deep-link, and a Mark Complete API with no course identifier in the DOM. Below is the approach to fix it once.
+
+### What Coursera actually offers
+
+- **Coursera for Business / Coursera for Government** — the org tier WAP is on. Already provisioned: org slug `workforce-advancement`, program slug `workforce-advancement-project-8a3f0`.
+- **Learner-facing program URL** (the right destination for "Open Coursera"): `https://www.coursera.org/programs/<program-slug>`.
+- **Stable course URLs** for deep-linking:
+  - Single courses: `https://www.coursera.org/learn/<course-slug>` (e.g. `learn/ai-for-everyone`).
+  - Professional certificates: `https://www.coursera.org/professional-certificates/<cert-slug>`.
+  - Specializations: `https://www.coursera.org/specializations/<spec-slug>`.
+- **SAML 2.0 SSO** — single-sign-on so members go from "Open Coursera" → already-authenticated Coursera dashboard. Coursera supports IdP-initiated and SP-initiated flows.
+- **xAPI / LRS export** — Coursera enterprise can POST xAPI statements to an external LRS endpoint on every completion. Identity uses Mbox (mailto) + actor object. The admin page confirms WAP is already set up to receive these.
+- **Coursera Admin API** — list members, list completions, list courses in a program. Useful for periodic reconciliation and the admin manual-mapping page.
+
+### Target architecture (one cycle to land)
+
+**1. Course catalog as source of truth.**
+Every WAP course row needs three Coursera identifiers stored at the data layer:
+
+```
+courses table
+  - id (uuid)
+  - program_id (fk)
+  - title (string)
+  - coursera_slug (string)             ← e.g. "ai-for-everyone"
+  - coursera_url_type (enum)           ← "learn" | "professional-certificates" | "specializations"
+  - coursera_xapi_activity_id (string) ← matches xAPI statement.object.id
+```
+
+The third field is the bridge between xAPI events and rows — Coursera includes a stable activity URI in every completion statement; storing it lets us update completion without fuzzy matching. For courses already in the DB, backfill via the Coursera Admin API.
+
+**2. Member-facing links.**
+
+- Per-course "Open in Coursera" link (currently `coursera.org/`):
+  `https://www.coursera.org/{coursera_url_type}/{coursera_slug}` — opens the specific course.
+- Top "Open Coursera" button (currently the org admin page):
+  `https://www.coursera.org/programs/workforce-advancement-project-8a3f0` — learner-facing program landing.
+- Both should use `target="_blank"` + `rel="noopener noreferrer"` consistently.
+- If SSO is wired (next step), wrap each link in the SAML SP-initiated entry so the member lands authenticated.
+
+**3. SSO via SAML.**
+WAP issues a SAML assertion → Coursera consumes it → member is logged into Coursera as themselves. Replace the current `/api/member/coursera/launch` redirect with a SAML SP-initiated launch carrying a `RelayState` of the target Coursera URL (program landing, course page, or specialization). One launch endpoint serves every "Open Coursera / Open in Coursera" click.
+
+```
+GET /api/member/coursera/launch?target=program
+GET /api/member/coursera/launch?target=course&slug=ai-for-everyone&type=learn
+GET /api/member/coursera/launch?target=specialization&slug=ibm-ai-engineer
+```
+
+Server validates the member's session, builds the SAML AuthnRequest, sends them off with `RelayState=<final coursera url>`. Coursera lands them on the right page logged in.
+
+**4. xAPI ingest at `/api/coursera/xapi`.**
+Coursera POSTs statements to a WAP endpoint. For each statement:
+
+```
+1. Resolve actor → member:
+   a. Manual actor-id mapping (admin coursera page #99/#111)
+   b. Manual Coursera-email mapping
+   c. Direct email match (statement.actor.mbox → member.email)
+   d. Fuzzy match (suggest in admin UI, do not auto-bind)
+2. Resolve activity → course:
+   a. Match statement.object.id against courses.coursera_xapi_activity_id
+   b. If unmatched, surface in /admin/coursera "Unmatched events" with course
+      auto-suggestion based on activity title.
+3. If both resolved and verb is `completed`:
+   - Insert/update course_completions(member_id, course_id, completed_at, source='coursera_xapi')
+   - Trigger downstream: certificate eligibility check, weekly recap recompute, counselor notification.
+4. Always log the raw statement to xapi_events (idempotent on statement_id).
+```
+
+This is the work the admin Coursera page is hinting at — finish wiring it.
+
+**5. Mark Complete becomes the secondary path.**
+Once xAPI is reliable, the member-side "Mark Complete" button changes role:
+
+- Default state: hidden / disabled with hover text "Coursera completion will sync automatically within ~1 hour. If it doesn't, click here."
+- Click flow: opens a confirmation dialog: "Mark this course complete manually? This is for the rare case where Coursera didn't sync. A counselor will review."
+- On confirm: POST `/api/member/courses/complete` with `{ course_id, source: 'self_attestation', reason }`. Insert with `source='self_attestation'` and a `pending_review` flag. Counselor approves or queries the member.
+- Show an undo affordance for 30 seconds after click (#4) regardless of source.
+
+This is also where #98 dies: course rows carry `data-course-id` so the click handler doesn't depend on DOM order or innerText.
+
+**6. Admin Coursera page upgrades** (closes #99, #100, #103, #111).
+
+- Member dropdown: list all members not yet mapped (currently lists 1 fixture; should list 14).
+- Form inputs: add `name` attributes (`memberId`, `courseraEmail`, `actorId`, `actorHomePage`, `notes`).
+- Unmatched events queue: each row shows the raw actor + a "best match" auto-suggestion based on email fuzzy match; click to bind in one step.
+- Drop the "Member Success / member.success@workforceap.org" prefill (it leaks into pipeline as a real applicant — #103).
+
+**7. Course catalog admin** (new page or extend `/admin/programs`).
+A super-admin can edit a course's `coursera_slug`, `coursera_url_type`, and `coursera_xapi_activity_id` without a code deploy. Backfill the existing catalog using the Coursera Admin API as a one-shot script.
+
+### Sequencing
+
+- **Step A (1 PR, low-risk):** Add `coursera_slug` + `coursera_url_type` columns. Backfill the existing 16-course AI Practitioner catalog by hand or via Coursera Admin API. Update the per-course "Open in Coursera" link to use them. Update the top button to point at the learner program URL. Add `data-course-id` to course rows. Closes #95, #96, #97, #98 (member-side immediately better).
+- **Step B (1 PR):** Drop fixture seeds from production data. Closes the leak class (#1, #72, #86, #87, #103, #104).
+- **Step C (1 PR):** Admin Coursera page upgrades — full member dropdown, named inputs, unmatched-event auto-suggest. Closes #99, #100, #111.
+- **Step D (1 PR):** SAML SSO via the unified `/api/member/coursera/launch?target=…` endpoint. Wraps all the Open-in-Coursera buttons.
+- **Step E (1 PR):** xAPI ingest at `/api/coursera/xapi` with the resolution chain above; Mark Complete demoted to self-attestation with counselor review.
+- **Step F (1 PR):** Course catalog admin UI for editing slugs without a deploy.
+
+Step A alone unblocks the member-facing experience and is mostly data + a couple of template tweaks. Step E is the structural one — once it lands, training-progress is trustworthy and counselor outreach can fire on real signals instead of self-reported clicks.
+
+---

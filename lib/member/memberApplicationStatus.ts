@@ -61,7 +61,7 @@ export function buildMemberApplicationStatusView(
     accepted: 'Approved',
     enrolled: 'Program selected',
     active: 'Assessment complete',
-    rejected: 'Application closed',
+    rejected: 'Not accepted',
   };
 
   const nextSteps: Record<MemberApplicationStage, string> = {
@@ -76,7 +76,7 @@ export function buildMemberApplicationStatusView(
     active:
       'Your assessment is complete. Follow the next step on your dashboard to keep moving toward training and job support.',
     rejected:
-      'We're unable to move forward with this application at this time. Reach out to us at info@workforceap.org if you have questions or would like to discuss next steps.',
+      'If you have questions about this decision, contact us at info@workforceap.org.',
   };
 
   const nextStepHrefs: Record<MemberApplicationStage, string> = {

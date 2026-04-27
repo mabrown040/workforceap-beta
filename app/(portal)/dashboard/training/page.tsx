@@ -47,7 +47,7 @@ export default async function TrainingPage() {
 
   return (
     <>
-      <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
+      <div className="portal-main-content">
         <PageHeader
           title="My Training"
           subtitle={

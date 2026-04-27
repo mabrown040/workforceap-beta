@@ -127,6 +127,7 @@ export default async function DashboardProfilePage() {
 
   return (
     <>
+      <h1 className="wa-sr-only">My Profile</h1>
       {/* ── Mobile profile view (≤640px) ── */}
       <div className="md:wa-hidden wa-pb-24">
         {/* Profile hero section */}

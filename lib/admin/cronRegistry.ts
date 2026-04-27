@@ -49,9 +49,9 @@ export const CRON_REGISTRY: CronDef[] = [
   {
     id: 'inactivity-nudge',
     name: 'Inactivity Nudge (14-Day)',
-    description: 'Sends re-engagement email to enrolled members with 14+ days of inactivity. Visible in admin, not currently scheduled in Vercel.',
+    description: 'Sends re-engagement email to enrolled members with 14+ days of inactivity.',
     schedule: '0 10 * * 3',
-    scheduleLabel: 'Manual / unscheduled (suggested Wed 10AM UTC)',
+    scheduleLabel: 'Wednesday 10AM UTC',
     apiPath: '/api/cron/inactivity-nudge',
     method: 'POST',
     icon: 'schedule_send',
@@ -101,9 +101,9 @@ export const CRON_REGISTRY: CronDef[] = [
   {
     id: 'milestone-celebration',
     name: 'Milestone Celebration',
-    description: 'Sends celebration emails for newly completed programs. Visible in admin, not currently scheduled in Vercel.',
+    description: 'Sends celebration emails for newly completed programs.',
     schedule: '0 11 * * *',
-    scheduleLabel: 'Manual / unscheduled (suggested daily 11AM UTC)',
+    scheduleLabel: 'Daily 11AM UTC',
     apiPath: '/api/cron/milestone-celebration',
     method: 'GET',
     icon: 'celebration',

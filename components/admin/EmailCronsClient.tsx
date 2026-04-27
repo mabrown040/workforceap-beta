@@ -72,6 +72,7 @@ export default function EmailCronsClient({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [triggerResults, setTriggerResults] = useState<Record<string, { ok: boolean; result: unknown; error?: string }>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [activatingAll, setActivatingAll] = useState(false);
 
   const handleTrigger = async (cron: CronWithStatus) => {
     setTriggeringIds(prev => new Set(prev).add(cron.id));
@@ -177,6 +178,44 @@ export default function EmailCronsClient({
       return a.name.localeCompare(b.name);
     });
 
+  const handleActivateAll = async () => {
+    setActivatingAll(true);
+    try {
+      const res = await fetch('/api/admin/email-crons/activate-all', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({} as { activated?: number }));
+      if (!res.ok) return;
+
+      const now = new Date().toISOString();
+      const activatedCount = typeof data.activated === 'number' ? data.activated : crons.length;
+      setCrons((prev) =>
+        prev.map((c) => ({
+          ...c,
+          enabled: true,
+          lastRunAt: now,
+          lastRunStatus: 'inspection',
+          lastRunSummary: 'Cron enabled by launch activation',
+          recentRuns: [
+            {
+              id: `local-activate-all-${Date.now()}-${c.id}`,
+              status: 'inspection',
+              summary: 'Cron enabled by launch activation',
+              createdAt: now,
+              meta: { enabled: true, manual: false, launchActivation: true },
+            },
+            ...c.recentRuns.slice(0, 7),
+          ],
+        }))
+      );
+      setEnabledCount(activatedCount);
+      setTotalRuns((prev) => prev + activatedCount);
+    } finally {
+      setActivatingAll(false);
+    }
+  };
+
   return (
     <div>
       <div className="portal-metric-strip" style={{ marginBottom: '1.5rem' }}>
@@ -232,6 +271,24 @@ export default function EmailCronsClient({
 
       {/* Category filter */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        <button
+          type="button"
+          onClick={() => void handleActivateAll()}
+          disabled={activatingAll}
+          style={{
+            padding: '0.375rem 0.875rem',
+            borderRadius: '9999px',
+            border: '1px solid var(--color-accent)',
+            background: 'rgba(173,44,77,0.1)',
+            color: 'var(--color-accent)',
+            fontWeight: 700,
+            fontSize: '0.8125rem',
+            cursor: activatingAll ? 'default' : 'pointer',
+            opacity: activatingAll ? 0.7 : 1,
+          }}
+        >
+          {activatingAll ? 'Activating…' : 'Activate all cron jobs'}
+        </button>
         {categories.map(cat => (
           <button
             key={cat}

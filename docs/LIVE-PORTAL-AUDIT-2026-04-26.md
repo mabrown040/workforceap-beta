@@ -148,3 +148,89 @@ Headless audit of the live production site, logged in as super-admin (`mabrown04
 ---
 
 *Tooling: gstack `browse` (headless Chromium), DOM JS probes for footer/landmark counts, network capture for Mark Complete + apply step transitions. Screenshots not committed; raw captures live under `C:/Users/mabro/AppData/Local/Temp/wfap-audit/` for the duration of the audit session.*
+
+---
+
+# Round 3 — Counselor / Partner / Admin sub-routes + edge cases (2026-04-26)
+
+Continued audit. Covered: counselor portal (8 routes), partner portal (10 routes incl. referred-member detail), admin sub-routes (members / jobs / employers / programs / assessments / wioa-screening / audit-logs / email-crons / metrics), 404 edge cases, AI tool subpage validation parity, marketing pages H1 sweep, mobile touch-target audit, login error path. Numbering continues from #67.
+
+## P1 (round 3) — Bugs / data integrity
+
+| # | Page | Issue |
+|---|---|---|
+| 68 | `/dashboard/<nonexistent>` (member 404) | Authenticated member hitting an unknown dashboard route gets the **public marketing 404** with the **logged-out top nav** ("Login / Counselor sign in / Partner sign in / Employer sign in / Apply Now") instead of the portal shell. Auth context appears lost in the 404 fallback layout. Members see sign-in prompts as if they were logged out. |
+| 69 | `/dashboard/jobs` and `/dashboard/ai-tools` | Both `<footer>` elements on these routes have `display: block` and are visible to the user — confirmed via `offsetParent !== null` and `getComputedStyle().display`. Not a hidden DOM duplicate; the second footer renders on screen. Closes the loop on round-2 #36. |
+| 70 | `/counselor` overview | **Un-decoded HTML entities rendered as literal text** in the dashboard copy: "You&rsquo;re caught up &mdash; nice work." Other counselor sub-routes do not have this issue — only `/counselor`. |
+| 71 | `/counselor` dashboard | Three different welcome strings on the same page: "Counselor dashboard — welcome back, Michael" + "Counselor Dashboard / Good evening, Michael" + the page title. Same drift pattern as member `/dashboard` (round 1 #29). |
+| 72 | `/partner` portal | Partner-org context label reads literally "Test Students". If this is fixture/demo data leaking into the live portal it is the same fixture-leak class as `[ARCHIVED FIXTURE]` (#1). Confirm whether "Test Students" is a real partner org or test data showing in production. |
+| 73 | `/partner/referred-members/<id>` | Member detail page (Alec Cargin) renders **the entire detail card twice** — breadcrumb, member snapshot, partner outreach all duplicated. Same class of responsive duplicate-render bug as `/dashboard` and `/dashboard/training`. |
+| 74 | `/apply/create-account` (step 3) vs `/dashboard/ai-tools/elevator-pitch` and `/dashboard/ai-tools/resume-rewriter` | Required-field semantics drift across forms in the same project. Apply step 3: First/Last/Email visibly `*` but `required=false`. Elevator-pitch: starred fields correctly `required=true`. Resume rewriter: starred fields correctly `required=true`. Apply form is the outlier — and it is the highest-stakes form in the funnel. |
+| 75 | `/admin/programs`, `/admin/employers`, `/admin/metrics` | **Multiple `<h1>` per page** — heading hierarchy violation. `/admin/programs` has 3 h1s ("Programs" + "Enrollment stats" + "Program catalog settings"); `/admin/employers` has 2 ("Employers" + "Create employer portal account"); `/admin/metrics` has 3 ("Analytics" + "Activity — Last 14 Days" + "Enrollment by Program"). One h1 per page; everything else h2/h3. |
+
+## P2 (round 3) — IA / consistency
+
+| # | Page | Issue |
+|---|---|---|
+| 76 | `/employer` redirect | Hitting `/employer` while signed in as super-admin redirects to `/admin/employers` instead of an employer portal preview. There is no documented employer-portal landing surface to dogfood without "open a company's portal as a super-admin". Add a `/employer/preview` or first-class employer dashboard. |
+| 77 | counselor + partner sidebar IA | Both portals expose Messages, Resources, and Settings/Guide as separate sub-nav items (good), but counselor adds an "In-office sessions" workflow that doesn't exist in partner, and partner has "Attention queue / Milestones / Outcomes snapshot" that don't exist in counselor. The two roles likely *do* need different inventories — but rationalize the shared concepts (Messages, Resources, Guide, Settings) so they sit in the same sidebar group across roles for predictable mental model. |
+| 78 | `/admin/employers` H1 + form | "Create employer portal account" appears as a sibling H1 below "Employers" — consider promoting to its own page (`/admin/employers/new`) so the index page is one job and creation is another. |
+| 79 | admin H1 capitalization | Inconsistent across the admin section: "Members" / "Jobs" / "Programs" / "Employers" / "Skills assessments" (sentence) / "WIOA screening queue" (sentence with caps abbr) / "Audit Logs" (Title Case) / "Email & Cron Management" (Title Case) / "Analytics". Pick a convention (sentence case is the safer default) and apply globally. |
+| 80 | AI tool h1 capitalization | "Resume Rewriter" / "Resume Coach" / "Interview Practice" / "AI Elevator Speech" all Title Case, but **"Voice interview"** is sentence case. Outlier. |
+| 81 | global header role pill | Sign-in/role pill shows as "Admin" + dropdown labelled "Member" (or "Counselor" / "Partner") next to each other in the top-right. The literal string "Super admin preview" in counselor and partner portals reinforces that this is a preview-as-role mode for super-admins. Worth surfacing the active *acting role* more prominently — e.g., banner at the top of each non-default portal, not just a tiny pill. |
+| 82 | global header — two Sign Out buttons | Two `<button>` elements with text "Sign out" on the same page (one in expanded sidebar, one in user/account section). Either consolidate or label one as "Sign out (sidebar)" via aria-label so screen-reader users don't hear "Sign out, Sign out". |
+
+## P3 (round 3) — Microcopy / state
+
+| # | Page | Issue |
+|---|---|---|
+| 83 | `/counselor` overview | "Inbox zero. Members get back to you and you'll see them here." Reads as if member action is a precondition for visibility. Probably means "when members reply, you'll see them here." Tighten. |
+| 84 | `/admin/diagnostics` | "3 Errors / 0 Warnings / 1 Success" with a vague "Drift Issues 0" — no triage list visible from the headline KPIs. The 3 errors should be reachable from the KPI card or surfaced below. |
+| 85 | `/admin` overview | KPI text: "1 member thread over 48h without reply · 1 cron error in the last 7 days" — useful, but the "Review messages →" + "Check cron health →" CTAs sit in the same card without visual hierarchy. Either split into two cards or order the alerts by recency. |
+| 86 | `/admin/coursera` | The manual mapping form pre-populates `member.success@workforceap.org` as the demo recipient. If left in production it acts as a default footgun — admin saving without changing it would route the mapping to a generic alias. Either remove the prefill or use a placeholder that disables submit. |
+| 87 | partner portal | "Test Students" appears in the org-context label, breadcrumbs, exports labels, and outcomes copy ("Quick counts for Test Students."). If real, partner names like that should be sanity-checked at onboarding. |
+| 88 | login error | "Invalid login credentials" — generic and security-correct. But the error appears in red below the form with no proximity to the failed field. Move to inline near the password field or to a single status region with `role="status"`. |
+
+## P4 (round 3) — Visual / responsive
+
+| # | Page | Issue |
+|---|---|---|
+| 89 | mobile dashboard touch targets | Six interactive elements measure smaller than the 44×44 minimum recommended target: "Training" link (46×16), "View all" (44×19), "Privacy" (40×44), "Terms" (34×44), "WorkforceAP site" (267×22), "Skip to main content" (174×40). Footer links and inline text-link CTAs are the offenders. Pad the hit area without changing the visual size. |
+| 90 | `/blog/<slug>` post detail | No `<time>` element with publication date detected; only one share button. Either add a published-on date and full social/email share row, or remove the lone share affordance for a cleaner read. |
+| 91 | `/programs` index | `[class*=program]` selectors match 273 nodes for 18 programs — heavy nesting. Either consolidate component class naming or audit for redundant wrapper layers. |
+
+## P5 (round 3) — Observations / lower priority
+
+| # | Page | Issue |
+|---|---|---|
+| 92 | `/login` | After failed sign-in, the password field is **not cleared**. Some teams clear it on failure to discourage retry-spam; others leave it for usability. Decide and document. |
+| 93 | `/apply` step 1 | Radio inputs use parent-wrapped `<label>` (valid a11y) — *not a bug*. Documenting here so future audits don't re-flag it. |
+| 94 | `/admin/jobs`, `/admin/blog`, `/admin/invites`, `/admin/sessions`, `/admin/board`, `/admin/exports`, `/admin/career-mappings` | Loaded cleanly with single footer, single H1, no entity bugs in this pass. Spot-check passes — not a deep audit yet. |
+
+---
+
+## Cross-cutting themes — round 3 additions
+
+- **Layout shell inheritance is the #1 bug class.** Member dashboard 404 falls back to public marketing layout; `/dashboard/jobs` and `/dashboard/ai-tools` leak the marketing footer; counselor and partner portals are mostly clean — so the bug is specifically **member-portal-specific routes** that don't wrap the dashboard layout. Audit the route group structure (likely a `(dashboard)` group is missing a layout file or has a misplaced `not-found`).
+- **Form validation parity.** Apply step 3 is the *only* form in the audit with starred labels but no `required` attribute. Run a one-shot lint/codemod across all forms: any input with a label containing `*` should have `required`.
+- **Heading hierarchy in admin.** Multiple H1s on `/admin/programs`, `/admin/employers`, `/admin/metrics`. Cheap to fix; helps screen-reader users and SEO.
+- **Fixture / demo data leaks.** `[ARCHIVED FIXTURE]` (member messages), "Test Students" (partner org label), "member.success@workforceap.org" (admin coursera prefill). Pattern is consistent — there is at least one demo seed running in production. A grep for fixture/demo/test/sample/sandbox prefixes across queries and prefilled values would clear several findings.
+- **H1 / role label / breadcrumb drift.** Three different parent labels for the same page (#28). `/admin` and AI-tools pages mix Title Case and sentence case. One copy convention applied via a lint rule fixes a long tail.
+
+---
+
+## Need-to-verify (still / new)
+
+- Counselor and partner portals at mobile + tablet breakpoints (only audited desktop in this round).
+- Counselor portal "In-office sessions" flow end-to-end.
+- Partner portal "Exports" CSV download — no permission prompt or filename pattern audited.
+- Admin "Pause project" / destructive actions in `/admin/diagnostics` — not exercised.
+- Coursera xAPI live event ingest — admin page is wired but no real event captured.
+- Email & Cron Management page — listed routes, didn't open detail.
+- Member-portal layout for staff/admin users who do NOT have a member record (this account has both — dual-role coverage may mask single-role bugs).
+- Notifications panel item shapes (only confirmed empty state "All caught up" while bell badge said "1").
+- Brand-new member zero-state (Dashboard / Program / Training / Readiness without any prior data).
+
+---
+
+*Round-3 tooling additions: JS DOM probes for `<footer>.offsetParent`, `getComputedStyle().display`, `<h1>` count per page, `tabindex`/`role` audit on apply step 2 program cards, touch-target geometry sweep at 375px, marketing-page H1 sweep across 13 pages.*

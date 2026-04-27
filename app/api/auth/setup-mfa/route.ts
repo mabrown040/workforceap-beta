@@ -51,12 +51,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error?.message ?? 'Failed to start MFA enrollment.' }, { status: 500 });
   }
 
-  return NextResponse.json({
-    factorId: data.id,
-    qr: data.totp.qr_code, // base64 QR image
-    secret: data.totp.secret, // manual entry secret
-    uri: data.totp.uri, // otpauth:// URI
-  });
+  return NextResponse.json(
+    { factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret, uri: data.totp.uri },
+    { headers: { 'Cache-Control': 'no-store' } }
+  );
 }
 
 export async function PATCH(request: Request) {
@@ -106,5 +104,5 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Invalid code. Please try again.' }, { status: 401 });
   }
 
-  return NextResponse.json({ ok: true, message: 'MFA enabled successfully.' });
+  return NextResponse.json({ ok: true, message: 'MFA enabled successfully.' }, { headers: { 'Cache-Control': 'no-store' } });
 }

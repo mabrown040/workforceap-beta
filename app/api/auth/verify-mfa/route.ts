@@ -8,6 +8,7 @@ import {
   issueAdminMfaTrustToken,
 } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
 
 /**
  * POST /api/auth/verify-mfa
@@ -20,12 +21,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'MFA verification is currently disabled.' }, { status: 404 });
   }
 
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const { success: withinLimit } = await checkVerifyMfaRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many verification attempts. Please wait before trying again.' }, { status: 429, headers: { 'Cache-Control': 'no-store', 'Retry-After': '900' } });
+  }
+
   const body: { code?: string; trustDevice?: boolean } = await request.json().catch(() => ({}));
   const code = typeof body.code === 'string' ? body.code.trim() : '';
   const trustDevice = body.trustDevice !== false;
 
   if (!code || code.length < 6) {
-    return NextResponse.json({ error: 'Please enter your 6-digit verification code.' }, { status: 400 });
+    return NextResponse.json({ error: 'Please enter your 6-digit verification code.' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   }
 
   const cookieStore = await cookies();
@@ -98,5 +105,5 @@ export async function POST(request: Request) {
   }
 
   // Success — session now has aal2
-  return NextResponse.json({ ok: true, aal: 'aal2' });
+  return NextResponse.json({ ok: true, aal: 'aal2' }, { headers: { 'Cache-Control': 'no-store' } });
 }

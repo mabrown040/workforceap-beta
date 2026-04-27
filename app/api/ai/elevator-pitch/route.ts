@@ -6,7 +6,6 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
-import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import {
   getVoiceCoachTranscriptRecipients,
   sendElevatorSpeechEmail,

@@ -84,11 +84,6 @@ export default function SessionRunClient({
     setOpenCards(prev => new Set([...prev, key]));
 
   // Per-tool state
-  const [linkedinHlState, setLinkedinHlState] = useState<ToolState>(initialToolState);
-  const [linkedinAboutState, setLinkedinAboutState] = useState<ToolState>(initialToolState);
-  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
-  const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
-  const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
   const [interviewState, setInterviewState] = useState<ToolState>(initialToolState);
@@ -101,20 +96,11 @@ export default function SessionRunClient({
   const [pitchState, setPitchState] = useState<ToolState>(initialToolState);
 
   // Per-tool inputs
-  const [linkedinSkills, setLinkedinSkills] = useState('');
-  const [linkedinYears, setLinkedinYears] = useState('');
-  const [linkedinBullets, setLinkedinBullets] = useState('');
-  const [salaryOffer, setSalaryOffer] = useState('');
-  const [salaryTarget, setSalaryTarget] = useState('');
-  const [salaryDelivery, setSalaryDelivery] = useState<'email' | 'phone'>('email');
-  const [elevatorStrengths, setElevatorStrengths] = useState('');
-  const [elevatorIndustry, setElevatorIndustry] = useState('');
   const [resumeText, setResumeText] = useState(existingResume);
   const [jobTarget, setJobTarget] = useState(memberTargetRole ?? '');
   const [jobDescription, setJobDescription] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [interviewLevel, setInterviewLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
-  // Extended tool inputs
   const [keySkills, setKeySkills] = useState('');
   const [yearsExperience, setYearsExperience] = useState('');
   const [linkedinBullets, setLinkedinBullets] = useState('');

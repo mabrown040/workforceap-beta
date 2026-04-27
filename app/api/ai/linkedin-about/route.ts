@@ -7,7 +7,6 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
-import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();

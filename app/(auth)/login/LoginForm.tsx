@@ -292,7 +292,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
     redirectTo.startsWith('/employer/');
 
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  /* Default unchecked — members may sign in on shared/library/lab
+     devices. Opt-in is the safer default for a workforce-development
+     portal where not every user has a personal laptop (audit #57). */
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);

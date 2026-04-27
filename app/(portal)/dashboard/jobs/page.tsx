@@ -7,7 +7,6 @@ import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jo
 import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHeader from '@/components/portal/PageHeader';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
-import PortalFooter from '@/components/portal/PortalFooter';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -201,7 +200,6 @@ export default async function JobsPage() {
           )}
         </div>
       </section>
-      <PortalFooter />
     </div>
       <MobileBottomNav variant="portal" />
     </>

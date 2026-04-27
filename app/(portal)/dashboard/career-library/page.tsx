@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getMemberResources } from '@/lib/content/memberResources';
-import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import PageHeader from '@/components/portal/PageHeader';
 import ResourcesClient from '@/app/(portal)/resources/ResourcesClient';
@@ -64,7 +63,6 @@ export default async function DashboardCareerLibraryPage() {
           </div>
         </section>
 
-        <Footer />
       </div>
       <MobileBottomNav variant="portal" />
     </>

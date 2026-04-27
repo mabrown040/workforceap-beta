@@ -10,6 +10,7 @@ import ExportPdfButton from './ExportPdfButton';
 
 const SALARY_RANGES = [
   '',
+  'Under $40,000',
   '$40,000 - $60,000',
   '$60,000 - $80,000',
   '$80,000 - $100,000',

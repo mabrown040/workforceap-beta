@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
-import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ExportPdfButton from './ExportPdfButton';
 
 const SALARY_RANGES = [
@@ -46,6 +45,7 @@ export default function ResumeRewriterForm({
   resumeControlledRef.current = resumeControlled;
 
   useEffect(() => {
+    if (isControlled) return;
     let cancelled = false;
     fetch('/api/member/resume?includePlainText=1')
       .then((r) => r.json())
@@ -53,17 +53,13 @@ export default function ResumeRewriterForm({
         if (cancelled) return;
         const t = d.resumePlainText?.trim();
         if (!t) return;
-        if (onResumeChangeRef.current) {
-          if (!(resumeControlledRef.current ?? '').trim()) onResumeChangeRef.current(t);
-        } else {
-          setInternalResume((prev) => (prev.trim() ? prev : t));
-        }
+        setInternalResume((prev) => (prev.trim() ? prev : t));
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isControlled]);
 
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');
@@ -76,12 +72,6 @@ export default function ResumeRewriterForm({
   const [atsOptimize, setAtsOptimize] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
-
-  // Persist the most expensive-to-retype field (job target) so a refresh or
-  // accidental nav doesn't lose what the member typed. The resume body is
-  // already hydrated server-side, so we only autosave the free-text fields.
-  useDraftAutosave('ai-tool:resume-rewriter:jobTarget', jobTarget, setJobTarget);
-  useDraftAutosave('ai-tool:resume-rewriter:targetLocation', targetLocation, setTargetLocation);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

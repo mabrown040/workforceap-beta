@@ -50,15 +50,20 @@ export default async function TrainingPage() {
       <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
         <PageHeader
           title="My Training"
-          subtitle={`Complete your ${program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.`}
+          subtitle={
+            <>
+              <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
+              <span className="wa-hidden md:wa-block">Complete your {program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.</span>
+            </>
+          }
           breadcrumbs={[
             { label: 'Member Portal', href: '/dashboard' },
             { label: 'My Training' },
           ]}
         />
 
-        {/* Mobile-only KPI strip — compact summary above the actions */}
-        <div className="md:wa-hidden" style={{ padding: '0.75rem 1rem 0' }}>
+        {/* Mobile */}
+        <div className="md:wa-hidden" style={{ padding: '0.75rem 1rem 6rem' }}>
           <div style={{ display: 'grid', gap: '0.75rem', paddingBottom: '0.25rem' }}>
             <div
               className="portal-kpi-card"
@@ -85,9 +90,40 @@ export default async function TrainingPage() {
               <PortalKpiCard accent="accent" label="Progress" value={`${progressPct}%`} hint="Overall" />
             </div>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', marginTop: '0.75rem', marginBottom: '1rem' }}>
+            <a
+              href="/api/member/coursera/launch"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.65rem 1rem' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
+              Open Coursera
+            </a>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+              <a
+                href="/dashboard/certifications"
+                className="btn btn-outline"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.65rem 0.75rem' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>workspace_premium</span>
+                Certificates
+              </a>
+              <a
+                href="/dashboard/readiness"
+                className="btn btn-outline"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.65rem 0.75rem' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>work</span>
+                Readiness
+              </a>
+            </div>
+          </div>
+          <MobileBottomNav variant="portal" />
         </div>
 
-        {/* Desktop-only stats row — same data, richer layout */}
+        {/* Desktop */}
         <div className="wa-hidden md:wa-block">
           <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
             <PortalStatCard
@@ -118,86 +154,78 @@ export default async function TrainingPage() {
               </div>
             </PortalStatCard>
           </div>
-        </div>
 
-        {/* Quick actions — single render, responsive layout via flex-wrap */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 'var(--space-3)',
-            marginBottom: 'var(--space-6)',
-            flexWrap: 'wrap',
-            padding: '0 1rem',
-          }}
-        >
-          <a
-            href="/api/member/coursera/launch"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary"
+          <div
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-              padding: '0.7rem 1.5rem',
-              flex: '1 1 auto',
-              justifyContent: 'center',
+              display: 'flex',
+              gap: 'var(--space-3)',
+              marginBottom: 'var(--space-8)',
+              flexWrap: 'wrap',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
-            Open Coursera
-          </a>
-          <a
-            href="/dashboard/certifications"
-            className="btn btn-outline"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-              padding: '0.7rem 1.5rem',
-              flex: '1 1 auto',
-              justifyContent: 'center',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>workspace_premium</span>
-            <span className="md:wa-hidden">Certificates</span>
-            <span className="wa-hidden md:wa-inline">View Certificates</span>
-          </a>
-          <a
-            href="/dashboard/readiness"
-            className="btn btn-outline"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-              padding: '0.7rem 1.5rem',
-              flex: '1 1 auto',
-              justifyContent: 'center',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>work</span>
-            <span className="md:wa-hidden">Readiness</span>
-            <span className="wa-hidden md:wa-inline">Job Readiness</span>
-          </a>
-        </div>
-
-        {/* Course list — single render. Closes audit #28 / #34 / #61 / #107 family
-            (TrainingCourseList previously rendered twice in DOM with CSS hiding
-            one variant, producing 32 H3s for a 16-course program). */}
-        <section style={{ padding: '0 1rem 1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }}>
-              menu_book
-            </span>
-            <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Courses</h2>
+            <a
+              href="/api/member/coursera/launch"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: '0.7rem 1.5rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
+              Open Coursera
+            </a>
+            <a
+              href="/dashboard/certifications"
+              className="btn btn-outline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: '0.7rem 1.5rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>workspace_premium</span>
+              View Certificates
+            </a>
+            <a
+              href="/dashboard/readiness"
+              className="btn btn-outline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: '0.7rem 1.5rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>work</span>
+              Job Readiness
+            </a>
           </div>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-            Complete courses in order and mark each one done.
-          </p>
-          <TrainingCourseList courses={program.courses} completedSlugs={coursesCompleted} />
-        </section>
+        </div>
 
-        <MobileBottomNav variant="portal" />
+        {/* Shared course list - rendered once to avoid duplication */}
+        <div style={{ padding: '0 1rem' }}>
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
+                menu_book
+              </span>
+              <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Courses</h2>
+            </div>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
+              {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
+            </p>
+            <TrainingCourseList
+              courses={program.courses}
+              completedSlugs={coursesCompleted}
+              programSlug={dbUser.enrolledProgram}
+            />
+          </section>
+        </div>
       </div>
     </>
   );

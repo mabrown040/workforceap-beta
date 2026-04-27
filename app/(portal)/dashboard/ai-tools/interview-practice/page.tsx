@@ -85,7 +85,7 @@ export default async function InterviewPracticePage() {
           </div>
 
           <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12, marginBottom: '1.5rem' }}>
-            <InterviewPracticeForm />
+            <InterviewPracticeForm memberId={user.id} />
           </div>
 
           <InterviewPracticeSaved results={savedResults} />

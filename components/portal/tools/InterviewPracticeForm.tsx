@@ -20,7 +20,7 @@ type StarWorksheet = { situation: string; task: string; action: string; result: 
 
 const emptyStar = (): StarWorksheet => ({ situation: '', task: '', action: '', result: '' });
 
-export default function InterviewPracticeForm() {
+export default function InterviewPracticeForm({ memberId }: { memberId?: string }) {
   const [role, setRole] = useState('');
   const [resumeContext, setResumeContext] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('mid');
@@ -65,6 +65,7 @@ export default function InterviewPracticeForm() {
           difficulty,
           count: 8,
           resumeContext: resumeContext.trim() || undefined,
+          ...(memberId ? { subjectMemberId: memberId } : {}),
         }),
       });
 

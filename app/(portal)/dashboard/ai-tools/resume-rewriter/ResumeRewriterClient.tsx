@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ResumeRewriterForm from '@/components/portal/tools/ResumeRewriterForm';
 
 type ResumeResponse = {
@@ -49,6 +49,7 @@ function ResumeRewriterWithPrefill() {
   const [hasStoredResume, setHasStoredResume] = useState(false);
   const [showLoadedBanner, setShowLoadedBanner] = useState(false);
   const [showUploadBanner, setShowUploadBanner] = useState(false);
+  const loadedTextRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +65,7 @@ function ResumeRewriterWithPrefill() {
         const hasOriginal = Boolean(data.hasOriginal);
 
         if (plainText) {
+          loadedTextRef.current = plainText;
           setResumeText((prev) => prev.trim() || plainText);
           setHasStoredResume(true);
           setShowLoadedBanner(true);
@@ -92,7 +94,12 @@ function ResumeRewriterWithPrefill() {
   return (
     <ResumeRewriterForm
       resumeControlled={resumeText}
-      onResumeChange={setResumeText}
+      onResumeChange={(val) => {
+        setResumeText(val);
+        if (showLoadedBanner && loadedTextRef.current !== null && val !== loadedTextRef.current) {
+          setShowLoadedBanner(false);
+        }
+      }}
       resumeBanner={hasHydrated ? (
         <>
           {showLoadedBanner && hasStoredResume ? (

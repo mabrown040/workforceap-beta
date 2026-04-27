@@ -123,20 +123,7 @@ export default async function TrainingPage() {
             </div>
           </div>
 
-          <section>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
-                menu_book
-              </span>
-              <h2 className="wa-text-lg wa-font-extrabold wa-tracking-tight" style={{ margin: 0, color: 'var(--color-on-surface)' }}>
-                Your Courses
-              </h2>
-            </div>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
-              Complete courses in order and mark each one done.
-            </p>
-            <TrainingCourseList courses={program.courses} completedSlugs={coursesCompleted} />
-          </section>
+
 
           <MobileBottomNav variant="portal" />
         </div>
@@ -226,7 +213,11 @@ export default async function TrainingPage() {
             </a>
           </div>
 
-          {/* Course list section */}
+          </div>
+        </div>
+
+        {/* Shared course list - rendered once to avoid duplication */}
+        <div style={{ padding: '0 1rem' }}>
           <section>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
@@ -241,6 +232,7 @@ export default async function TrainingPage() {
             <TrainingCourseList
               courses={program.courses}
               completedSlugs={coursesCompleted}
+              programSlug={dbUser.enrolledProgram}
             />
           </section>
         </div>

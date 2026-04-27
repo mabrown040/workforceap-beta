@@ -48,8 +48,14 @@ export const PATHWAYS: LearningPathway[] = [
  */
 const CATEGORY_TO_PATHWAY: Record<string, string> = {
   'IT & Cybersecurity': 'Technology',
+  'AI & Software Dev': 'Data & AI',
+  'Cloud & Data': 'Data & AI',
   'Data & AI': 'Data & AI',
   'Business': 'Business',
+  'Healthcare': 'Business',
+  'Manufacturing': 'Technology',
+  'Construction & Trades': 'Technology',
+  'Digital Literacy': 'Technology',
   'Technology': 'Technology',
 };
 

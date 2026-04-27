@@ -172,8 +172,8 @@ export default function CreateEmployerAccountClient() {
             Selected: <strong>{selected.fullName}</strong> ({selected.email})
             <button
               type="button"
-              className="btn btn-ghost btn-sm"
-              style={{ marginLeft: '0.5rem' }}
+              className="btn btn-outline btn-sm"
+              style={{ marginLeft: '0.5rem', color: 'var(--color-on-surface)', borderColor: 'var(--outline-variant)' }}
               onClick={() => setSelected(null)}
             >
               Clear

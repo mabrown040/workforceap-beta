@@ -27,7 +27,7 @@ export default async function WalkInSessionPage() {
     <>
       <PageHeader
         title="Walk-in session"
-        subtitle="Brand new member sitting with you. Start with their basics — we&rsquo;ll create their account and walk through resume, cover letter, and interview prep together."
+        subtitle="Brand new member sitting with you. Start with their basics — we'll create their account and walk through resume, cover letter, and interview prep together."
         breadcrumbs={[
           { label: 'Counselor', href: '/counselor' },
           { label: 'In-office sessions', href: '/counselor/sessions' },

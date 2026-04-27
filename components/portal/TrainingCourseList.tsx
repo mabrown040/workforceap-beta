@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ProgramCourse } from '@/lib/content/programs';
+import { getDiscoveredProgram } from '@/lib/content/programs';
 
 type TrainingCourseListProps = {
   courses: ProgramCourse[];
   completedSlugs: string[];
+  programSlug?: string;
 };
 
-export default function TrainingCourseList({ courses, completedSlugs }: TrainingCourseListProps) {
+export default function TrainingCourseList({ courses, completedSlugs, programSlug }: TrainingCourseListProps) {
   const router = useRouter();
   const [marking, setMarking] = useState<string | null>(null);
   const completedSet = new Set(completedSlugs);
@@ -17,6 +19,19 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
   const getStatus = (slug: string): 'complete' | 'in_progress' | 'not_started' => {
     if (completedSet.has(slug)) return 'complete';
     return 'not_started';
+  };
+
+  const getCourseraCourseUrl = (courseSlug: string): string => {
+    if (!programSlug) return 'https://coursera.org';
+    
+    const discoveredProgram = getDiscoveredProgram(programSlug);
+    if (!discoveredProgram) return 'https://coursera.org';
+    
+    const discoveredCourse = discoveredProgram.courses.find(c => c.slug === courseSlug);
+    if (!discoveredCourse) return 'https://coursera.org';
+    
+    // Use the course's public URL if available, otherwise construct from course ID
+    return `https://www.coursera.org/learn/${discoveredCourse.slug}`;
   };
 
   const handleMarkComplete = async (slug: string) => {
@@ -87,7 +102,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                 {isComplete ? 'Complete' : 'Not Started'}
               </span>
               <a
-                href="https://coursera.org"
+                href={getCourseraCourseUrl(c.slug)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

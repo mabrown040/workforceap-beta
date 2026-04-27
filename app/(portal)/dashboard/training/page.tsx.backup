@@ -61,9 +61,9 @@ export default async function TrainingPage() {
             { label: 'My Training' },
           ]}
         />
-        {/* Responsive layout - single TrainingCourseList renders once */}
-        <div style={{ padding: '0.75rem 1rem 6rem' }} className="wa-md:wa-hidden">
-          {/* Mobile: Compact KPI strip */}
+        {/* Mobile */}
+        <div className="wa-md:wa-hidden" style={{ padding: '0.75rem 1rem 6rem' }}>
+          {/* Compact KPI strip */}
           <div style={{ display: 'grid', gap: '0.75rem', paddingBottom: '0.25rem' }}>
             <div
               className="portal-kpi-card"
@@ -133,12 +133,15 @@ export default async function TrainingPage() {
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
               Complete courses in order and mark each one done.
             </p>
+            <TrainingCourseList courses={program.courses} completedSlugs={coursesCompleted} />
           </section>
+
+          <MobileBottomNav variant="portal" />
         </div>
 
-        {/* Desktop layout */}
-        <div className="wa-hidden wa-md:wa-block" style={{ marginBottom: '2rem' }}>
-          {/* Desktop: Stats row */}
+        {/* Desktop */}
+        <div className="wa-hidden wa-md:wa-block">
+          {/* Stats row */}
           <div className="portal-grid-metrics" style={{ marginBottom: 'var(--space-8)' }}>
             <PortalStatCard
               icon="school"
@@ -219,6 +222,7 @@ export default async function TrainingPage() {
             </a>
           </div>
 
+          {/* Course list section */}
           <section>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
@@ -229,16 +233,12 @@ export default async function TrainingPage() {
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
               {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
             </p>
-          </section>
-        </div>
 
-        {/* Shared course list - rendered once to avoid duplication */}
-        <div style={{ padding: '0 1rem' }}>
-          <TrainingCourseList
-            courses={program.courses}
-            completedSlugs={coursesCompleted}
-            programSlug={dbUser.enrolledProgram}
-          />
+            <TrainingCourseList
+              courses={program.courses}
+              completedSlugs={coursesCompleted}
+            />
+          </section>
         </div>
       </div>
     </>

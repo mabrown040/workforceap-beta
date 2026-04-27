@@ -152,7 +152,7 @@ export default async function SessionsIndexBody({
     }));
 
   return (
-    <>
+    <div className="wa-pb-24 md:wa-pb-0">
       <PageHeader
         title="In-office sessions"
         subtitle="Sit with a member for 30 minutes. Walk out with a polished resume, tailored cover letter, and interview prep — emailed to them automatically."
@@ -206,6 +206,6 @@ export default async function SessionsIndexBody({
         emptyTitle={paths.recentEmptyTitle}
         emptyBody={paths.recentEmptyBody}
       />
-    </>
+    </div>
   );
 }

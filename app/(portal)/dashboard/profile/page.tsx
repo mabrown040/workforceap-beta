@@ -106,20 +106,14 @@ export default async function DashboardProfilePage() {
     ? dbUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : '??';
 
-  /* Profile completion: count non-empty fields */
-  const profileFields = [
-    dbUser.fullName,
-    dbUser.email,
-    dbUser.profile?.profilePhone ?? dbUser.phone,
-    dbUser.profile?.profileAddress,
-    dbUser.profile?.profileLinkedin,
-    dbUser.profile?.profileBio,
-    dbUser.enrolledProgram,
-    dbUser.assessmentCompleted ? 'done' : '',
-  ];
-  const filledFields = profileFields.filter(Boolean).length;
-  const profilePct = Math.round((filledFields / profileFields.length) * 100);
-  const completeness = getProfileCompleteness(dbUser.profile, dbUser);
+  /* Single source of truth for profile completion percentage —
+     getProfileCompleteness(profile, user) in lib/resume/profileCompleteness.
+     Closes audit #7: profile/page used to compute its own percentage from a
+     local 8-field array while dashboard/page used getProfileCompleteness from
+     the same lib, so members saw 50% on the dashboard "Strengthen your
+     profile" card and 75% on the profile page hero for the same data. */
+  const profilePct = getProfileCompleteness(dbUser.profile, dbUser);
+  const completeness = profilePct;
   const witData = {
     name: dbUser.fullName ?? '',
     email: dbUser.email,

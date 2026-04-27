@@ -73,6 +73,7 @@ export default function SessionRunClient({
   // Per-tool state
   const [linkedinHlState, setLinkedinHlState] = useState<ToolState>(initialToolState);
   const [linkedinAboutState, setLinkedinAboutState] = useState<ToolState>(initialToolState);
+  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
   const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
   const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
@@ -901,6 +902,180 @@ const runCover = () =>
         ) : null}
       </SectionCard>
 
+      {/* Card 6: Job Match Scorer */}
+      <SectionCard
+        step={6}
+        title="Job Match Scorer"
+        Icon={FileText}
+        accent="#8b5cf6"
+        statusBadge={jobMatchState.status === 'running' ? 'Running' : jobMatchState.output ? 'Done' : jobMatchState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Compare their resume against the job description to find missing keywords and gaps. Uses the Resume and Job Description fields from above.</p>
+        <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch} disabled={jobMatchState.status === 'running' || !jobDescription.trim() || resumeText.trim().length < 50} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#8b5cf6', borderColor: '#8b5cf6' }}>
+          {jobMatchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run Match' : 'Score Match'}
+        </button>
+        {jobMatchState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p> : null}
+        {jobMatchState.output ? <OutputPanel label="Job Match Analysis" body={jobMatchState.output} savedTo={memberFullName} /> : null}
+      </SectionCard>
+
+      {/* Card 7: Salary Negotiation */}
+      <SectionCard
+        step={7}
+        title="Salary Negotiation Script"
+        Icon={MessagesSquare}
+        accent="#10b981"
+        statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
+      >
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-offer">Current Offer</label><input id="session-salary-offer" type="text" value={salaryOffer} onChange={(e) => setSalaryOffer(e.target.value)} placeholder="e.g. $65,000" disabled={salaryState.status === 'running'} /></div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-target">Target Salary</label><input id="session-salary-target" type="text" value={salaryTarget} onChange={(e) => setSalaryTarget(e.target.value)} placeholder="e.g. $75,000" disabled={salaryState.status === 'running'} /></div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-salary-delivery">Delivery Method</label>
+          <select id="session-salary-delivery" value={salaryDelivery} onChange={(e) => setSalaryDelivery(e.target.value as 'email' | 'phone')} disabled={salaryState.status === 'running'} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
+            <option value="email">Email</option><option value="phone">Phone</option>
+          </select>
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runSalary} disabled={salaryState.status === 'running' || !salaryOffer.trim() || !salaryTarget.trim()} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#10b981', borderColor: '#10b981' }}>
+          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build Script'}
+        </button>
+        {salaryState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p> : null}
+        {salaryState.output ? <OutputPanel label="Negotiation Script" body={salaryState.output} savedTo={memberFullName} /> : null}
+      </SectionCard>
+
+      {/* Card 8: LinkedIn Headline */}
+      <SectionCard
+        step={8}
+        title="LinkedIn Headline"
+        Icon={MessagesSquare}
+        accent="#0077b5"
+        statusBadge={
+          linkedinHlState.status === 'running' ? 'Running' :
+          linkedinHlState.output ? 'Done' :
+          linkedinHlState.error ? 'Failed' :
+          'Ready'
+        }
+      >
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-job-target-lnh">
+            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
+          </label>
+          <input
+            id="session-job-target-lnh"
+            type="text"
+            value={jobTarget}
+            onChange={(e) => setJobTarget(e.target.value)}
+            placeholder="IT Support Specialist"
+            disabled={linkedinHlState.status === 'running'}
+          />
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-linkedin-skills">
+            Key Skills <span style={{ color: 'var(--color-accent)' }}>*</span>
+          </label>
+          <input
+            id="session-linkedin-skills"
+            type="text"
+            value={linkedinSkills}
+            onChange={(e) => setLinkedinSkills(e.target.value)}
+            placeholder="Networking, Windows Server, Active Directory"
+            disabled={linkedinHlState.status === 'running'}
+          />
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-linkedin-years">Years of Experience</label>
+          <input
+            id="session-linkedin-years"
+            type="text"
+            value={linkedinYears}
+            onChange={(e) => setLinkedinYears(e.target.value)}
+            placeholder="e.g. 3 years"
+            disabled={linkedinHlState.status === 'running'}
+          />
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary btn-small"
+          onClick={runLinkedinHl}
+          disabled={linkedinHlState.status === 'running' || !jobTarget.trim() || !linkedinSkills.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0077b5', borderColor: '#0077b5' }}
+        >
+          {linkedinHlState.status === 'running' ? (
+            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
+          ) : (
+            <Sparkles size={16} aria-hidden />
+          )}
+          {linkedinHlState.status === 'running' ? 'Generating…' : linkedinHlState.output ? 'Re-run' : 'Build Headlines'}
+        </button>
+        {linkedinHlState.error ? (
+          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{linkedinHlState.error}</p>
+        ) : null}
+        {linkedinHlState.output ? (
+          <LinkedInHeadlinesOutput body={linkedinHlState.output} savedTo={memberFullName} />
+        ) : null}
+      </SectionCard>
+
+      {/* Card 9: LinkedIn About */}
+      <SectionCard
+        step={9}
+        title="LinkedIn About Section"
+        Icon={FileText}
+        accent="#0077b5"
+        statusBadge={
+          linkedinAboutState.status === 'running' ? 'Running' :
+          linkedinAboutState.output ? 'Done' :
+          linkedinAboutState.error ? 'Failed' :
+          'Ready'
+        }
+      >
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-job-target-lna">
+            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
+          </label>
+          <input
+            id="session-job-target-lna"
+            type="text"
+            value={jobTarget}
+            onChange={(e) => setJobTarget(e.target.value)}
+            placeholder="IT Support Specialist"
+            disabled={linkedinAboutState.status === 'running'}
+          />
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-linkedin-bullets">
+            Key details & highlights <span style={{ color: 'var(--color-accent)' }}>*</span>
+          </label>
+          <textarea
+            id="session-linkedin-bullets"
+            value={linkedinBullets}
+            onChange={(e) => setLinkedinBullets(e.target.value)}
+            rows={4}
+            placeholder="Provide a few bullet points about what they do best and their main career objective..."
+            disabled={linkedinAboutState.status === 'running'}
+          />
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary btn-small"
+          onClick={runLinkedinAbout}
+          disabled={linkedinAboutState.status === 'running' || !jobTarget.trim() || !linkedinBullets.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0077b5', borderColor: '#0077b5' }}
+        >
+          {linkedinAboutState.status === 'running' ? (
+            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
+          ) : (
+            <Sparkles size={16} aria-hidden />
+          )}
+          {linkedinAboutState.status === 'running' ? 'Generating…' : linkedinAboutState.output ? 'Re-run' : 'Build About Section'}
+        </button>
+        {linkedinAboutState.error ? (
+          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{linkedinAboutState.error}</p>
+        ) : null}
+        {linkedinAboutState.output ? (
+          <OutputPanel label="LinkedIn About Section" body={linkedinAboutState.output} savedTo={memberFullName} />
+        ) : null}
+      </SectionCard>
+
       {/* End session footer */}
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div style={{ minWidth: 0, flex: 1 }}>
@@ -1083,177 +1258,34 @@ function InterviewOutput({ body, savedTo }: { body: string; savedTo: string }) {
   );
 }
 
-      {/* Card 6: Job Match Scorer */}
-      <SectionCard
-        step={6}
-        title="Job Match Scorer"
-        Icon={FileText}
-        accent="#8b5cf6"
-        statusBadge={jobMatchState.status === 'running' ? 'Running' : jobMatchState.output ? 'Done' : jobMatchState.error ? 'Failed' : 'Ready'}
-      >
-        <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Compare their resume against the job description to find missing keywords and gaps. Uses the Resume and Job Description fields from above.</p>
-        <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch} disabled={jobMatchState.status === 'running' || !jobDescription.trim() || resumeText.trim().length < 50} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#8b5cf6', borderColor: '#8b5cf6' }}>
-          {jobMatchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
-          {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run Match' : 'Score Match'}
-        </button>
-        {jobMatchState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p> : null}
-        {jobMatchState.output ? <OutputPanel label="Job Match Analysis" body={jobMatchState.output} savedTo={memberFullName} /> : null}
-      </SectionCard>
-
-      {/* Card 7: Salary Negotiation */}
-      <SectionCard
-        step={7}
-        title="Salary Negotiation Script"
-        Icon={MessagesSquare}
-        accent="#10b981"
-        statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
-      >
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-offer">Current Offer</label><input id="session-salary-offer" type="text" value={salaryOffer} onChange={(e) => setSalaryOffer(e.target.value)} placeholder="e.g. $65,000" disabled={salaryState.status === 'running'} /></div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-target">Target Salary</label><input id="session-salary-target" type="text" value={salaryTarget} onChange={(e) => setSalaryTarget(e.target.value)} placeholder="e.g. $75,000" disabled={salaryState.status === 'running'} /></div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-salary-delivery">Delivery Method</label>
-          <select id="session-salary-delivery" value={salaryDelivery} onChange={(e) => setSalaryDelivery(e.target.value as 'email' | 'phone')} disabled={salaryState.status === 'running'} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
-            <option value="email">Email</option><option value="phone">Phone</option>
-          </select>
-        </div>
-        <button type="button" className="btn btn-primary btn-small" onClick={runSalary} disabled={salaryState.status === 'running' || !salaryOffer.trim() || !salaryTarget.trim()} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#10b981', borderColor: '#10b981' }}>
-          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
-          {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build Script'}
-        </button>
-        {salaryState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p> : null}
-        {salaryState.output ? <OutputPanel label="Negotiation Script" body={salaryState.output} savedTo={memberFullName} /> : null}
-      </SectionCard>
-
-            {/* Card 8: LinkedIn Headline */}
-      <SectionCard
-        step={8}
-        title="LinkedIn Headline"
-        Icon={MessagesSquare}
-        accent="#0077b5"
-        statusBadge={
-          linkedinHlState.status === 'running' ? 'Running' :
-          linkedinHlState.output ? 'Done' :
-          linkedinHlState.error ? 'Failed' :
-          'Ready'
-        }
-      >
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-job-target-lnh">
-            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-job-target-lnh"
-            type="text"
-            value={jobTarget}
-            onChange={(e) => setJobTarget(e.target.value)}
-            placeholder="IT Support Specialist"
-            disabled={linkedinHlState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-linkedin-skills">
-            Key Skills <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-linkedin-skills"
-            type="text"
-            value={linkedinSkills}
-            onChange={(e) => setLinkedinSkills(e.target.value)}
-            placeholder="Networking, Windows Server, Active Directory"
-            disabled={linkedinHlState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-linkedin-years">Years of Experience</label>
-          <input
-            id="session-linkedin-years"
-            type="text"
-            value={linkedinYears}
-            onChange={(e) => setLinkedinYears(e.target.value)}
-            placeholder="e.g. 3 years"
-            disabled={linkedinHlState.status === 'running'}
-          />
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-small"
-          onClick={runLinkedinHl}
-          disabled={linkedinHlState.status === 'running' || !jobTarget.trim() || !linkedinSkills.trim()}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0077b5', borderColor: '#0077b5' }}
-        >
-          {linkedinHlState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
-          ) : (
-            <Sparkles size={16} aria-hidden />
-          )}
-          {linkedinHlState.status === 'running' ? 'Generating…' : linkedinHlState.output ? 'Re-run' : 'Build Headlines'}
-        </button>
-        {linkedinHlState.error ? (
-          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{linkedinHlState.error}</p>
-        ) : null}
-        {linkedinHlState.output ? (
-          <OutputPanel label="LinkedIn Headlines" body={JSON.parse(linkedinHlState.output).map((h: string, i: number) => `${i+1}. ${h}`).join('\n\n')} savedTo={memberFullName} />
-        ) : null}
-      </SectionCard>
-
-      {/* Card 7: LinkedIn About */}
-      <SectionCard
-        step={9}
-        title="LinkedIn About Section"
-        Icon={FileText}
-        accent="#0077b5"
-        statusBadge={
-          linkedinAboutState.status === 'running' ? 'Running' :
-          linkedinAboutState.output ? 'Done' :
-          linkedinAboutState.error ? 'Failed' :
-          'Ready'
-        }
-      >
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-job-target-lna">
-            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-job-target-lna"
-            type="text"
-            value={jobTarget}
-            onChange={(e) => setJobTarget(e.target.value)}
-            placeholder="IT Support Specialist"
-            disabled={linkedinAboutState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-linkedin-bullets">
-            Key details & highlights <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <textarea
-            id="session-linkedin-bullets"
-            value={linkedinBullets}
-            onChange={(e) => setLinkedinBullets(e.target.value)}
-            rows={4}
-            placeholder="Provide a few bullet points about what they do best and their main career objective..."
-            disabled={linkedinAboutState.status === 'running'}
-          />
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-small"
-          onClick={runLinkedinAbout}
-          disabled={linkedinAboutState.status === 'running' || !jobTarget.trim() || !linkedinBullets.trim()}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0077b5', borderColor: '#0077b5' }}
-        >
-          {linkedinAboutState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
-          ) : (
-            <Sparkles size={16} aria-hidden />
-          )}
-          {linkedinAboutState.status === 'running' ? 'Generating…' : linkedinAboutState.output ? 'Re-run' : 'Build About Section'}
-        </button>
-        {linkedinAboutState.error ? (
-          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{linkedinAboutState.error}</p>
-        ) : null}
-        {linkedinAboutState.output ? (
-          <OutputPanel label="LinkedIn About Section" body={linkedinAboutState.output} savedTo={memberFullName} />
-        ) : null}
-      </SectionCard>
+function LinkedInHeadlinesOutput({ body, savedTo }: { body: string; savedTo: string }) {
+  let headlines: string[] = [];
+  try {
+    headlines = JSON.parse(body);
+  } catch {
+    return <OutputPanel label="LinkedIn Headlines" body={body} savedTo={savedTo} />;
+  }
+  if (!Array.isArray(headlines)) {
+    return <OutputPanel label="LinkedIn Headlines" body={body} savedTo={savedTo} />;
+  }
+  return (
+    <div style={{ marginTop: '1rem', background: 'var(--surface-container-low)', borderRadius: '0.75rem', padding: '1rem 1.25rem' }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>
+          LinkedIn Headlines
+        </strong>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-green, #4a9b4f)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+          <CheckCircle2 size={14} aria-hidden /> Saved to {savedTo.split(' ')[0]}
+        </span>
+      </header>
+      <ol style={{ margin: 0, paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {headlines.map((h, i) => (
+          <li key={i} style={{ color: 'var(--color-on-surface)' }}>
+            {h}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
 

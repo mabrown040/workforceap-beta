@@ -201,7 +201,7 @@ export default async function JobsPage() {
         </div>
       </section>
     </div>
-      <MobileBottomNav variant="portal" />
+    <MobileBottomNav variant="portal" />
     </>
   );
 }

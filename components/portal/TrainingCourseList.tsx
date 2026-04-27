@@ -46,6 +46,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
         return (
           <div
             key={c.slug}
+            data-course-slug={c.slug}
             className={`training-course-card${isUpNext ? ' training-course-card--up-next' : ''}`}
             style={{
               padding: '1.25rem',
@@ -87,7 +88,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                 {isComplete ? 'Complete' : 'Not Started'}
               </span>
               <a
-                href="https://coursera.org"
+                href={`/api/member/coursera/launch?course=${encodeURIComponent(c.slug)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

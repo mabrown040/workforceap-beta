@@ -223,9 +223,9 @@ export default function BoardOutcomesView({
         </section>
       ) : null}
 
-      <footer style={{ padding: '0.75rem 0', fontSize: '0.825rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+      <p style={{ padding: '0.75rem 0', fontSize: '0.825rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', margin: 0 }}>
         Generated {new Date().toLocaleString()} &middot; Powered by WorkforceAP
-      </footer>
+      </p>
     </div>
   );
 }

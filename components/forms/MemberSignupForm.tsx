@@ -296,7 +296,7 @@ export default function MemberSignupForm() {
         style={{ width: '100%', padding: '1rem', fontSize: '1.05rem' }}
         disabled={submitStatus === 'loading'}
       >
-        {submitStatus === 'loading' ? 'Creating account�' : 'Create account'}
+        {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
       </button>
 
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.9rem' }}>

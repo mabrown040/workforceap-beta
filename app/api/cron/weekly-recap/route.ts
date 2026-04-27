@@ -9,7 +9,7 @@ import { generateWeeklyRecap } from '@/lib/recap/generate';
  * Sends weekly recap emails to all active members who have not
  * received one this week. Secured by CRON_SECRET header.
  *
- * Deploy with Vercel Cron: schedule "0 9 * * 1" (Monday 9AM UTC)
+ * Deploy with Vercel Cron: schedule "0 18 * * 0" (Sunday 6PM UTC)
  *
  * Or trigger manually from admin at /admin/weekly-recap.
  */

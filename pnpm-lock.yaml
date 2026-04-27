@@ -56,6 +56,15 @@ importers:
       groq-sdk:
         specifier: ^1.1.1
         version: 1.1.2
+      i18next:
+        specifier: ^26.0.8
+        version: 26.0.8(typescript@5.9.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.1
+        version: 8.2.1
+      i18next-resources-to-backend:
+        specifier: ^1.2.1
+        version: 1.2.1
       lucide-react:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.4)
@@ -65,6 +74,9 @@ importers:
       next:
         specifier: ^15
         version: 15.5.14(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      next-i18next:
+        specifier: ^16.0.5
+        version: 16.0.5(@types/react@19.2.14)(i18next@26.0.8(typescript@5.9.3))(next@15.5.14(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-i18next@17.0.4(i18next@26.0.8(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(react@19.2.4)
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -80,6 +92,9 @@ importers:
       react-hook-form:
         specifier: ^7.54.2
         version: 7.72.0(react@19.2.4)
+      react-i18next:
+        specifier: ^17.0.4
+        version: 17.0.4(i18next@26.0.8(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.14)(react@19.2.4)
@@ -1788,6 +1803,11 @@ packages:
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
 
+  '@types/hoist-non-react-statics@3.3.7':
+    resolution: {integrity: sha512-PQTyIulDkIDro8P+IHbKCsw7U2xxBYflVzW/FgWdCAePD9xGSidgA76/GeJ6lBKoblyhf9pBY763gbrN+1dI8g==}
+    peerDependencies:
+      '@types/react': '*'
+
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -2827,6 +2847,12 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
+  hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
+
+  html-parse-stringify@3.0.1:
+    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
+
   html-to-text@9.0.5:
     resolution: {integrity: sha512-qY60FjREgVZL03vJU6IfMV4GDjGBIoOyvuFdpBDIX9yTlDw0TjxVBQp+P8NvpdIXNJvfWBTNul7fsAQJq2FNpg==}
     engines: {node: '>=14'}
@@ -2840,6 +2866,20 @@ packages:
   https-proxy-agent@5.0.1:
     resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
     engines: {node: '>= 6'}
+
+  i18next-browser-languagedetector@8.2.1:
+    resolution: {integrity: sha512-bZg8+4bdmaOiApD7N7BPT9W8MLZG+nPTOFlLiJiT8uzKXFjhxw4v2ierCXOwB5sFDMtuA5G4kgYZ0AznZxQ/cw==}
+
+  i18next-resources-to-backend@1.2.1:
+    resolution: {integrity: sha512-okHbVA+HZ7n1/76MsfhPqDou0fptl2dAlhRDu2ideXloRRduzHsqDOznJBef+R3DFZnbvWoBW+KxJ7fnFjd6Yw==}
+
+  i18next@26.0.8:
+    resolution: {integrity: sha512-BRzLom0mhDhV9v0QhgUUHWQJuwFmnr1194xEcNLYD6ym8y8s542n4jXUvRLnhNTbh9PmpU6kGZamyuGHQMsGjw==}
+    peerDependencies:
+      typescript: ^5 || ^6
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   iceberg-js@0.8.1:
     resolution: {integrity: sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==}
@@ -3391,6 +3431,15 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
+  next-i18next@16.0.5:
+    resolution: {integrity: sha512-f9+WycNPxG5ruto1jacLZxlTJGsHGy312x4FpiE3ZUgE5K5peEJedQNBR/TSzkYqmvQ3kCqc94JKbjU88iP+LA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      i18next: '>= 23.7.13'
+      next: '>= 14.1.0'
+      react: '>= 18.0.0'
+      react-i18next: '>= 14.0.0'
+
   next@15.5.14:
     resolution: {integrity: sha512-M6S+4JyRjmKic2Ssm7jHUPkE6YUJ6lv4507jprsSZLulubz0ihO2E+S4zmQK3JZ2ov81JrugukKU4Tz0ivgqqQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -3728,6 +3777,25 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
+
+  react-i18next@17.0.4:
+    resolution: {integrity: sha512-hQipmK4EF0y6RO6tt6WuqnmWpWYEXmQUUzecmMBuNsIgYd3smXcG4GtYPWhvgxn0pqMOItKlEO8H24HCs5hc3g==}
+    peerDependencies:
+      i18next: '>= 26.0.1'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+      typescript: ^5 || ^6
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+      typescript:
+        optional: true
+
+  react-is@16.13.1:
+    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
   react-is@19.2.5:
     resolution: {integrity: sha512-Dn0t8IQhCmeIT3wu+Apm1/YVsJXsGWi6k4sPdnBIdqMVtHtv0IGi6dcpNpNkNac0zB2uUAqNX3MHzN8c+z2rwQ==}
@@ -4274,6 +4342,10 @@ packages:
 
   victory-vendor@37.3.6:
     resolution: {integrity: sha512-SbPDPdDBYp+5MJHhBCAyI7wKM3d5ivekigc2Dk2s7pgbZ9wIgIBYGVw4zGHBml/qTFbexrofXW6Gu4noGxrOwQ==}
+
+  void-elements@3.1.0:
+    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
+    engines: {node: '>=0.10.0'}
 
   watchpack@2.5.1:
     resolution: {integrity: sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg==}
@@ -5849,6 +5921,11 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
+  '@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14)':
+    dependencies:
+      '@types/react': 19.2.14
+      hoist-non-react-statics: 3.3.2
+
   '@types/json-schema@7.0.15': {}
 
   '@types/mdast@4.0.4':
@@ -7019,6 +7096,14 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.4
 
+  hoist-non-react-statics@3.3.2:
+    dependencies:
+      react-is: 16.13.1
+
+  html-parse-stringify@3.0.1:
+    dependencies:
+      void-elements: 3.1.0
+
   html-to-text@9.0.5:
     dependencies:
       '@selderee/plugin-htmlparser2': 0.11.0
@@ -7042,6 +7127,18 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
+
+  i18next-browser-languagedetector@8.2.1:
+    dependencies:
+      '@babel/runtime': 7.29.2
+
+  i18next-resources-to-backend@1.2.1:
+    dependencies:
+      '@babel/runtime': 7.29.2
+
+  i18next@26.0.8(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
 
   iceberg-js@0.8.1: {}
 
@@ -7780,6 +7877,18 @@ snapshots:
 
   neo-async@2.6.2: {}
 
+  next-i18next@16.0.5(@types/react@19.2.14)(i18next@26.0.8(typescript@5.9.3))(next@15.5.14(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-i18next@17.0.4(i18next@26.0.8(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(react@19.2.4):
+    dependencies:
+      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.14)
+      hoist-non-react-statics: 3.3.2
+      i18next: 26.0.8(typescript@5.9.3)
+      i18next-resources-to-backend: 1.2.1
+      next: 15.5.14(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
+      react-i18next: 17.0.4(i18next@26.0.8(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
+    transitivePeerDependencies:
+      - '@types/react'
+
   next@15.5.14(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@next/env': 15.5.14
@@ -8123,6 +8232,19 @@ snapshots:
   react-hook-form@7.72.0(react@19.2.4):
     dependencies:
       react: 19.2.4
+
+  react-i18next@17.0.4(i18next@26.0.8(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      html-parse-stringify: 3.0.1
+      i18next: 26.0.8(typescript@5.9.3)
+      react: 19.2.4
+      use-sync-external-store: 1.6.0(react@19.2.4)
+    optionalDependencies:
+      react-dom: 19.2.4(react@19.2.4)
+      typescript: 5.9.3
+
+  react-is@16.13.1: {}
 
   react-is@19.2.5: {}
 
@@ -8874,6 +8996,8 @@ snapshots:
       d3-shape: 3.2.0
       d3-time: 3.1.0
       d3-timer: 3.0.1
+
+  void-elements@3.1.0: {}
 
   watchpack@2.5.1:
     dependencies:

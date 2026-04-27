@@ -27,7 +27,7 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
     const discoveredProgram = getDiscoveredProgram(programSlug);
     if (!discoveredProgram) return 'https://coursera.org';
     
-    const discoveredCourse = discoveredProgram.courses.find(c => c.slug === courseSlug);
+    const discoveredCourse = discoveredProgram.courses.find((c: { slug: string }) => c.slug === courseSlug);
     if (!discoveredCourse) return 'https://coursera.org';
     
     // Use the course's public URL if available, otherwise construct from course ID
@@ -78,7 +78,11 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
               <h3 className="training-course-card__title" style={{ fontSize: '1rem', marginBottom: '0.25rem' }}>
                 {c.name}
               </h3>
-              <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>~{c.estimatedHours} hrs</span>
+              {/* "est. X hrs" — these are program-level defaults, not real
+                  per-course Coursera data (audit #67). The prefix sets
+                  honest expectations until per-course hours come from the
+                  Coursera Admin API. */}
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>est. {c.estimatedHours} hrs</span>
               {isUpNext ? (
                 <span className="training-course-up-next" style={{ display: 'block', marginTop: '0.35rem' }}>
                   Up next →

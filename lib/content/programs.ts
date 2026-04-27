@@ -39,7 +39,7 @@ function normalizeDiscoveredProgramTitle(title: string): string {
   return title.replace('Heath Information', 'Health Information').trim();
 }
 
-function getDiscoveredProgram(program: Program | string) {
+export function getDiscoveredProgram(program: Program | string) {
   const slug = typeof program === 'string' ? program : program.slug;
   return DISCOVERED_COURSERA_PROGRAMS[slug];
 }

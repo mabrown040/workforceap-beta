@@ -356,6 +356,8 @@ export default function ApplyCreateAccountForm() {
             if (fieldErrors.firstName) setFieldErrors((f) => ({ ...f, firstName: undefined }));
           }}
           autoComplete="given-name"
+          required
+          aria-required="true"
           aria-invalid={!!fieldErrors.firstName}
         />
         {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
@@ -371,6 +373,8 @@ export default function ApplyCreateAccountForm() {
             if (fieldErrors.lastName) setFieldErrors((f) => ({ ...f, lastName: undefined }));
           }}
           autoComplete="family-name"
+          required
+          aria-required="true"
           aria-invalid={!!fieldErrors.lastName}
         />
         {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
@@ -386,6 +390,8 @@ export default function ApplyCreateAccountForm() {
             if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
           }}
           autoComplete="email"
+          required
+          aria-required="true"
           aria-invalid={!!fieldErrors.email}
         />
         {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}

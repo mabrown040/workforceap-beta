@@ -97,9 +97,9 @@ export default function ReadinessMemberClient({
         <div className="readiness-progress-track">
           <div className="readiness-progress-fill" style={{ width: `${pct}%` }} />
         </div>
-        <p className="readiness-progress-text">Progress: {pct}%</p>
+        <p className="readiness-progress-text">Counselor checklist: {pct}%</p>
         <p className="readiness-progress-desc">
-          {completedItems} of {totalItems} items complete. Your counselor updates this as you progress.
+          {completedItems} of {totalItems} milestones counselor-verified. Your auto-calculated readiness score is shown above and updates from your activity.
         </p>
       </div>
 

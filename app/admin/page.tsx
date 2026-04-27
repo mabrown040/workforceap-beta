@@ -643,31 +643,48 @@ export default async function AdminPage() {
             </div>
           </div>
 
-          {/* Recent Activity */}
-          <div className="portal-card portal-card--elevated" style={{ padding: '1.5rem' }}>
-            <h3 className="portal-section-heading" style={{ marginBottom: '1.5rem' }}>Recent Activity</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative', paddingLeft: '2.5rem' }}>
-              <div style={{ position: 'absolute', left: '0.75rem', top: '2.5rem', bottom: 0, width: '1px', background: 'rgba(226,226,229,0.1)' }} />
-              {recentUsers.slice(0, 4).map((u, i) => (
-                <div key={u.id} style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', left: '-2.5rem', top: '0.125rem', width: '1.5rem', height: '1.5rem', borderRadius: '50%', background: 'var(--surface-container)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${i === 0 ? 'rgba(173,44,77,0.2)' : 'rgba(226,226,229,0.1)'}` }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem', color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">
-                      {i === 0 ? 'person_add' : 'verified'}
-                    </span>
-                  </div>
-                  <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                    {u.fullName ?? 'New user'} signed up
-                  </span>
-                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                    {timeAgo(u.createdAt)}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <Link href="/admin/members" className="portal-section-action">
-                View all members
+          {/* Quick Stats — replaces the previous "Recent Activity" timeline
+              which duplicated the left-column Recent Signups table data. */}
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
+              Quick Stats
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <Link href="/admin/members" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden>groups</span>
+                  Total Members
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)' }}>{totalMembers}</span>
               </Link>
+              <Link href="/admin/pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#80d99f' }} aria-hidden>model_training</span>
+                  Active in Training
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{activeInTraining}</span>
+              </Link>
+              <Link href="/admin/assessments" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#3b82f6' }} aria-hidden>task_alt</span>
+                  Assessments Done
+                </span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#3b82f6' }}>{assessmentsCompleted}</span>
+              </Link>
+              {pendingApplications > 0 && (
+                <Link href="/admin/members" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#fbbf24' }} aria-hidden>pending_actions</span>
+                    Pending Review
+                  </span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fbbf24' }}>{pendingApplications}</span>
+                </Link>
+              )}
+              <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
+                <Link href="/admin/members" className="portal-section-action">
+                  View all members
+                </Link>
+              </div>
             </div>
           </div>
         </div>

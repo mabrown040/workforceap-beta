@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Sparkles, Upload, User } from 'lucide-react';
+import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Search, Sparkles, Upload, User } from 'lucide-react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
@@ -70,30 +70,46 @@ export default function SessionRunClient({
   const backToSessionsHref = sessionsListHref ?? '/counselor/sessions';
   const router = useRouter();
 
+  // Collapsible card state — core cards open by default, extras closed
+  const [openCards, setOpenCards] = useState<Set<string>>(
+    new Set(['voice', 'profile', 'resume', 'cover', 'interview'])
+  );
+  const toggleCard = (key: string) =>
+    setOpenCards(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  const openCard = (key: string) =>
+    setOpenCards(prev => new Set([...prev, key]));
+
   // Per-tool state
-  const [linkedinHlState, setLinkedinHlState] = useState<ToolState>(initialToolState);
-  const [linkedinAboutState, setLinkedinAboutState] = useState<ToolState>(initialToolState);
-  const [elevatorState, setElevatorState] = useState<ToolState>(initialToolState);
-  const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
-  const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
   const [interviewState, setInterviewState] = useState<ToolState>(initialToolState);
+  const [resumeAnalysisState, setResumeAnalysisState] = useState<ToolState>(initialToolState);
+  const [gapState, setGapState] = useState<ToolState>(initialToolState);
+  const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
+  const [headlineState, setHeadlineState] = useState<ToolState>(initialToolState);
+  const [aboutState, setAboutState] = useState<ToolState>(initialToolState);
+  const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
+  const [pitchState, setPitchState] = useState<ToolState>(initialToolState);
 
   // Per-tool inputs
-  const [linkedinSkills, setLinkedinSkills] = useState('');
-  const [linkedinYears, setLinkedinYears] = useState('');
-  const [linkedinBullets, setLinkedinBullets] = useState('');
-  const [salaryOffer, setSalaryOffer] = useState('');
-  const [salaryTarget, setSalaryTarget] = useState('');
-  const [salaryDelivery, setSalaryDelivery] = useState<'email' | 'phone'>('email');
-  const [elevatorStrengths, setElevatorStrengths] = useState('');
-  const [elevatorIndustry, setElevatorIndustry] = useState('');
   const [resumeText, setResumeText] = useState(existingResume);
   const [jobTarget, setJobTarget] = useState(memberTargetRole ?? '');
   const [jobDescription, setJobDescription] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [interviewLevel, setInterviewLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
+  const [keySkills, setKeySkills] = useState('');
+  const [yearsExperience, setYearsExperience] = useState('');
+  const [linkedinBullets, setLinkedinBullets] = useState('');
+  const [currentOffer, setCurrentOffer] = useState('');
+  const [targetSalary, setTargetSalary] = useState('');
+  const [salaryDelivery, setSalaryDelivery] = useState<'phone' | 'email'>('email');
+  const [pitchStrengths, setPitchStrengths] = useState('');
+  const [pitchCertifications, setPitchCertifications] = useState('');
+  const [pitchIndustry, setPitchIndustry] = useState('');
 
   // Resume upload state
   const [uploadingResume, setUploadingResume] = useState(false);
@@ -225,9 +241,26 @@ export default function SessionRunClient({
     interviewLevel,
   }), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
 
-  const hasAnyOutput = !!(salaryState.output || jobMatchState.output || linkedinHlState.output || linkedinAboutState.output || elevatorState.output || resumeState.output || coverState.output || interviewState.output);
-  const allRun = !!(salaryState.output && jobMatchState.output && linkedinHlState.output && linkedinAboutState.output && elevatorState.output && resumeState.output && coverState.output && interviewState.output);
+  const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output ||
+    resumeAnalysisState.output || gapState.output || jobMatchState.output ||
+    headlineState.output || aboutState.output || salaryState.output || pitchState.output);
+  const allRun = !!(resumeState.output && coverState.output && interviewState.output);
 
+  // Tool grid: all runnable tools (excludes voice walkthrough + profile which aren't AI outputs)
+  const TOOL_GRID: Array<{ key: string; label: string; state: ToolState; accent: string }> = [
+    { key: 'resume', label: 'Resume Rewriter', state: resumeState, accent: 'var(--color-accent)' },
+    { key: 'cover', label: 'Cover Letter', state: coverState, accent: '#a47f38' },
+    { key: 'interview', label: 'Interview Prep', state: interviewState, accent: '#2b7bb9' },
+    { key: 'resumeAnalysis', label: 'Resume Analysis', state: resumeAnalysisState, accent: '#7c3aed' },
+    { key: 'gapAnalyzer', label: 'Gap Analyzer', state: gapState, accent: '#0891b2' },
+    { key: 'jobMatch', label: 'Job Match', state: jobMatchState, accent: '#059669' },
+    { key: 'headline', label: 'LinkedIn Headline', state: headlineState, accent: '#0077b5' },
+    { key: 'about', label: 'LinkedIn About', state: aboutState, accent: '#0077b5' },
+    { key: 'salary', label: 'Salary Script', state: salaryState, accent: '#d97706' },
+    { key: 'pitch', label: 'Elevator Pitch', state: pitchState, accent: '#7c3aed' },
+  ];
+
+  const completedTools = TOOL_GRID.filter(t => t.state.output);
 
   const runTool = async (
     key: ToolKey,
@@ -256,86 +289,75 @@ export default function SessionRunClient({
     }
   };
 
-  const runResume = () =>
-    runTool(
-      'resume',
-      setResumeState,
-      '/api/ai/resume-rewriter',
+  const runResume = () => {
+    openCard('resume');
+    runTool('resume', setResumeState, '/api/ai/resume-rewriter',
       { resume: resumeText, jobTarget, targetLocation: '', targetSalary: '' },
-      jobTarget,
-      (d) => (d as { output?: string }).output ?? '',
-    );
-
-  
-  
-  
-  const runJobMatch = () =>
-    runTool(
-      'job_match_scorer' as any,
-      setJobMatchState,
-      '/api/ai/job-match-scorer',
-      { resume: resumeText, jobDescription, targetRole: jobTarget },
-      jobTarget || 'Job Match Scorer',
-      (d) => (d as any).analysis || (d as any).output || '',
-    );
-
-  const runSalary = () =>
-    runTool(
-      'salary_negotiation' as any,
-      setSalaryState,
-      '/api/ai/salary-negotiation',
-      { currentOffer: salaryOffer, targetSalary: salaryTarget, jobTitle: jobTarget, companyName: companyName || 'Company', deliveryMethod: salaryDelivery },
-      jobTarget || 'Salary Negotiation',
-      (d) => (d as any).script || (d as any).output || '',
-    );
-
-const runLinkedinHl = () =>
-    runTool(
-      'linkedin_headline' as any,
-      setLinkedinHlState,
-      '/api/ai/linkedin-headline',
-      { role: jobTarget, keySkills: linkedinSkills, yearsExperience: linkedinYears },
-      jobTarget || 'LinkedIn Headline',
-      (d) => JSON.stringify((d as any).headlines || []),
-    );
-
-  const runLinkedinAbout = () =>
-    runTool(
-      'linkedin_about' as any,
-      setLinkedinAboutState,
-      '/api/ai/linkedin-about',
-      { role: jobTarget, bullets: linkedinBullets },
-      jobTarget || 'LinkedIn About',
-      (d) => (d as any).about || (d as any).output || '',
-    );
-const runElevator = () =>
-    runTool(
-      'elevator_pitch' as any,
-      setElevatorState,
-      '/api/ai/elevator-pitch',
-      { name: memberFullName.split(' ')[0], targetRole: jobTarget, strengths: elevatorStrengths, industry: elevatorIndustry },
-      jobTarget || 'Elevator Pitch',
-      (d) => (d as any).pitch || (d as any).output || '',
-    );
-const runCover = () =>
-    runTool(
-      'coverLetter',
-      setCoverState,
-      '/api/ai/cover-letter',
+      jobTarget, (d) => (d as { output?: string }).output ?? '');
+  };
+  const runCover = () => {
+    openCard('cover');
+    runTool('coverLetter', setCoverState, '/api/ai/cover-letter',
       { resume: resumeText, jobDescription, companyName: companyName || 'the company', tone: 'confident' },
       `${companyName || 'cover letter'} — ${jobTarget || 'role'}`,
-      (d) => (d as { output?: string }).output ?? '',
-    );
-
-  const runInterview = () =>
-    runTool(
-      'interview',
-      setInterviewState,
-      '/api/ai/interview-practice',
+      (d) => (d as { output?: string }).output ?? '');
+  };
+  const runInterview = () => {
+    openCard('interview');
+    runTool('interview', setInterviewState, '/api/ai/interview-practice',
       { role: jobTarget, experienceLevel: interviewLevel, count: 6, resumeContext: resumeText },
       `${jobTarget} (${interviewLevel})`,
-      (d) => JSON.stringify((d as { questions?: unknown }).questions ?? []),
-    );
+      (d) => JSON.stringify((d as { questions?: unknown }).questions ?? []));
+  };
+  const runResumeAnalysis = () => {
+    openCard('resumeAnalysis');
+    runTool('resumeAnalysis', setResumeAnalysisState, '/api/ai/resume-strength',
+      { resume: resumeText }, 'Resume strength check',
+      (d) => (d as { output?: string }).output ?? '');
+  };
+  const runGapAnalyzer = () => {
+    openCard('gapAnalyzer');
+    runTool('gapAnalyzer', setGapState, '/api/ai/gap-analyzer',
+      { resume: resumeText }, 'Gap analysis',
+      (d) => (d as { output?: string }).output ?? '');
+  };
+  const runJobMatch = () => {
+    openCard('jobMatch');
+    runTool('jobMatch', setJobMatchState, '/api/ai/job-match-scorer',
+      { resume: resumeText, jobDescription }, `Job match — ${companyName || jobTarget}`,
+      (d) => {
+        const p = (d as { parsed?: { rawText: string } }).parsed;
+        return p?.rawText ?? '';
+      });
+  };
+  const runHeadline = () => {
+    openCard('headline');
+    runTool('headline', setHeadlineState, '/api/ai/linkedin-headline',
+      { role: jobTarget, keySkills, yearsExperience: yearsExperience || undefined },
+      `LinkedIn headline — ${jobTarget}`,
+      (d) => ((d as { headlines?: string[] }).headlines ?? []).join('\n\n'));
+  };
+  const runAbout = () => {
+    openCard('about');
+    runTool('about', setAboutState, '/api/ai/linkedin-about',
+      { role: jobTarget, bullets: linkedinBullets || resumeText.slice(0, 1200) },
+      `LinkedIn About — ${jobTarget}`,
+      (d) => (d as { output?: string }).output ?? '');
+  };
+  const runSalary = () => {
+    openCard('salary');
+    runTool('salary', setSalaryState, '/api/ai/salary-negotiation',
+      { currentOffer: Number(currentOffer), targetSalary: Number(targetSalary), jobTitle: jobTarget, companyName: companyName || 'the company', deliveryMethod: salaryDelivery },
+      `Salary negotiation — ${companyName || jobTarget}`,
+      (d) => (d as { output?: string }).output ?? '');
+  };
+  const runPitch = () => {
+    openCard('pitch');
+    runTool('pitch', setPitchState, '/api/ai/elevator-pitch',
+      { name: memberFullName, targetRole: jobTarget, strengths: pitchStrengths || undefined, certifications: pitchCertifications || undefined, industry: pitchIndustry || undefined },
+      `Elevator pitch — ${jobTarget}`,
+      (d) => (d as { pitch?: string }).pitch ?? '');
+  };
 
   const endSession = async () => {
     setEndingSession(true);
@@ -374,6 +396,50 @@ const runCover = () =>
         </div>
       ) : null}
 
+      {/* Tool picker grid */}
+      <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.25rem' }}>
+        <p style={{ margin: '0 0 0.75rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Session tools — pick what this member needs
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: '0.5rem' }}>
+          {TOOL_GRID.map(t => {
+            const isDone = !!t.state.output;
+            const isRunning = t.state.status === 'running';
+            const isError = t.state.status === 'error';
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => {
+                  openCard(t.key);
+                  const el = document.getElementById(`session-card-${t.key}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.45rem 0.65rem', borderRadius: '0.5rem',
+                  background: isDone
+                    ? `color-mix(in srgb, ${t.accent} 10%, transparent)`
+                    : 'var(--surface-container)',
+                  border: `1px solid ${isDone ? t.accent : 'var(--surface-container-highest)'}`,
+                  cursor: 'pointer', textAlign: 'left',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                  background: isDone ? '#4a9b4f' : isRunning ? t.accent : isError ? 'var(--color-error, #d32f2f)' : 'var(--surface-container-highest)',
+                }} />
+                <span style={{ fontSize: '0.78rem', fontWeight: isDone ? 700 : 500, color: isDone ? t.accent : 'var(--color-on-surface)', lineHeight: 1.3 }}>
+                  {t.label}
+                </span>
+                {isDone && <CheckCircle2 size={12} style={{ color: '#4a9b4f', flexShrink: 0, marginLeft: 'auto' }} aria-hidden />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* ── Voice walk-through (primary path, optional) ──
           Per user direction (2026-04-26): "we want these to be all voice
           tools here." Per follow-up (2026-04-27): "each step is separate
@@ -382,7 +448,10 @@ const runCover = () =>
           (one big conversation), and each card below also gets its own
           step-specific voice option. */}
       <SectionCard
+        id="session-card-voice"
         step={0}
+        isOpen={openCards.has('voice')}
+        onToggle={() => toggleCard('voice')}
         title="Voice walk-through (full A→Z)"
         Icon={Mic}
         accent="#2563eb"
@@ -456,7 +525,10 @@ const runCover = () =>
 
       {/* Card 1: Profile snapshot */}
       <SectionCard
+        id="session-card-profile"
         step={1}
+        isOpen={openCards.has('profile')}
+        onToggle={() => toggleCard('profile')}
         title="Profile"
         Icon={User}
         accent="#2b7bb9"
@@ -489,76 +561,10 @@ const runCover = () =>
       
       {/* Card 2: Elevator Pitch */}
       <SectionCard
+        id="session-card-resume"
         step={2}
-        title="Elevator Pitch"
-        Icon={MessagesSquare}
-        accent="var(--color-gold, #a47f38)"
-        statusBadge={
-          elevatorState.status === 'running' ? 'Running' :
-          elevatorState.output ? 'Done' :
-          elevatorState.error ? 'Failed' :
-          'Ready'
-        }
-      >
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-job-target-ep">
-            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-job-target-ep"
-            type="text"
-            value={jobTarget}
-            onChange={(e) => setJobTarget(e.target.value)}
-            placeholder="IT Support Specialist"
-            disabled={elevatorState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-elevator-strengths">Key strengths / traits</label>
-          <input
-            id="session-elevator-strengths"
-            type="text"
-            value={elevatorStrengths}
-            onChange={(e) => setElevatorStrengths(e.target.value)}
-            placeholder="Problem solver, calm under pressure, quick learner"
-            disabled={elevatorState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-elevator-industry">Target Industry</label>
-          <input
-            id="session-elevator-industry"
-            type="text"
-            value={elevatorIndustry}
-            onChange={(e) => setElevatorIndustry(e.target.value)}
-            placeholder="Healthcare IT, Enterprise SaaS, etc."
-            disabled={elevatorState.status === 'running'}
-          />
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-small"
-          onClick={runElevator}
-          disabled={elevatorState.status === 'running' || !jobTarget.trim()}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-        >
-          {elevatorState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
-          ) : (
-            <Sparkles size={16} aria-hidden />
-          )}
-          {elevatorState.status === 'running' ? 'Generating…' : elevatorState.output ? 'Re-run' : 'Build pitch'}
-        </button>
-        {elevatorState.error ? (
-          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{elevatorState.error}</p>
-        ) : null}
-        {elevatorState.output ? (
-          <OutputPanel label="Elevator Pitch" body={elevatorState.output} savedTo={memberFullName} />
-        ) : null}
-      </SectionCard>
-{/* Card 3: Resume rewriter */}
-      <SectionCard
-        step={3}
+        isOpen={openCards.has('resume')}
+        onToggle={() => toggleCard('resume')}
         title="Resume rewriter"
         Icon={FileText}
         accent="var(--color-accent)"
@@ -698,7 +704,10 @@ const runCover = () =>
 
       {/* Card 4: Cover letter */}
       <SectionCard
-        step={4}
+        id="session-card-cover"
+        step={3}
+        isOpen={openCards.has('cover')}
+        onToggle={() => toggleCard('cover')}
         title="Cover letter"
         Icon={MessagesSquare}
         accent="var(--color-gold, #a47f38)"
@@ -814,7 +823,10 @@ const runCover = () =>
 
       {/* Card 5: Interview prep */}
       <SectionCard
-        step={5}
+        id="session-card-interview"
+        step={4}
+        isOpen={openCards.has('interview')}
+        onToggle={() => toggleCard('interview')}
         title="Interview prep"
         Icon={MessagesSquare}
         accent="#2b7bb9"
@@ -902,203 +914,244 @@ const runCover = () =>
         ) : null}
       </SectionCard>
 
-      {/* Card 6: Job Match Scorer */}
-      <SectionCard
-        step={6}
-        title="Job Match Scorer"
-        Icon={FileText}
-        accent="#8b5cf6"
+      {/* Card 5: Resume strength analysis */}
+      <SectionCard id="session-card-resumeAnalysis" title="Resume Analysis" Icon={FileText} accent="#7c3aed"
+        isOpen={openCards.has('resumeAnalysis')} onToggle={() => toggleCard('resumeAnalysis')}
+        statusBadge={resumeAnalysisState.status === 'running' ? 'Running' : resumeAnalysisState.output ? 'Done' : resumeAnalysisState.error ? 'Failed' : 'Ready'}
+        contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Score the resume for clarity, impact, keywords, and ATS scannability. Surfaces strengths and priority improvements.
+        </p>
+        <button type="button" className="btn btn-primary btn-small" onClick={runResumeAnalysis}
+          disabled={resumeAnalysisState.status === 'running' || resumeText.trim().length < 100}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {resumeAnalysisState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {resumeAnalysisState.status === 'running' ? 'Analyzing…' : resumeAnalysisState.output ? 'Re-run' : 'Analyze resume'}
+        </button>
+        {resumeAnalysisState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{resumeAnalysisState.error}</p>}
+        {resumeAnalysisState.output && <OutputPanel label="Resume analysis" body={resumeAnalysisState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 6: Gap analyzer */}
+      <SectionCard id="session-card-gapAnalyzer" title="Gap Analyzer" Icon={FileText} accent="#0891b2"
+        isOpen={openCards.has('gapAnalyzer')} onToggle={() => toggleCard('gapAnalyzer')}
+        statusBadge={gapState.status === 'running' ? 'Running' : gapState.output ? 'Done' : gapState.error ? 'Failed' : 'Ready'}
+        contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Detect employment gaps and generate framing language for cover letters and interviews.
+        </p>
+        <button type="button" className="btn btn-primary btn-small" onClick={runGapAnalyzer}
+          disabled={gapState.status === 'running' || resumeText.trim().length < 100}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {gapState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {gapState.status === 'running' ? 'Analyzing…' : gapState.output ? 'Re-run' : 'Analyze gaps'}
+        </button>
+        {gapState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{gapState.error}</p>}
+        {gapState.output && <OutputPanel label="Gap analysis" body={gapState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 7: Job match scorer */}
+      <SectionCard id="session-card-jobMatch" title="Job Match Scorer" Icon={Search} accent="#059669"
+        isOpen={openCards.has('jobMatch')} onToggle={() => toggleCard('jobMatch')}
         statusBadge={jobMatchState.status === 'running' ? 'Running' : jobMatchState.output ? 'Done' : jobMatchState.error ? 'Failed' : 'Ready'}
+        contextNote={resumeText.trim().length > 50 ? 'Uses resume from step 2.' : null}
       >
-        <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>Compare their resume against the job description to find missing keywords and gaps. Uses the Resume and Job Description fields from above.</p>
-        <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch} disabled={jobMatchState.status === 'running' || !jobDescription.trim() || resumeText.trim().length < 50} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#8b5cf6', borderColor: '#8b5cf6' }}>
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Score how well the resume matches a specific job posting and surface quick wins.
+        </p>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-jms-desc">Job description <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+          <textarea id="session-jms-desc" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)}
+            rows={4} placeholder="Paste the job posting here (reuses input from cover letter card)."
+            disabled={jobMatchState.status === 'running'} />
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch}
+          disabled={jobMatchState.status === 'running' || resumeText.trim().length < 100 || jobDescription.trim().length < 50}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
           {jobMatchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
-          {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run Match' : 'Score Match'}
+          {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run' : 'Score match'}
         </button>
-        {jobMatchState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p> : null}
-        {jobMatchState.output ? <OutputPanel label="Job Match Analysis" body={jobMatchState.output} savedTo={memberFullName} /> : null}
+        {jobMatchState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p>}
+        {jobMatchState.output && <OutputPanel label="Job match analysis" body={jobMatchState.output} savedTo={memberFullName} />}
       </SectionCard>
 
-      {/* Card 7: Salary Negotiation */}
-      <SectionCard
-        step={7}
-        title="Salary Negotiation Script"
-        Icon={MessagesSquare}
-        accent="#10b981"
-        statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
+      {/* Card 8: LinkedIn headline */}
+      <SectionCard id="session-card-headline" title="LinkedIn Headline" Icon={PenLine} accent="#0077b5"
+        isOpen={openCards.has('headline')} onToggle={() => toggleCard('headline')}
+        statusBadge={headlineState.status === 'running' ? 'Running' : headlineState.output ? 'Done' : headlineState.error ? 'Failed' : 'Ready'}
       >
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-offer">Current Offer</label><input id="session-salary-offer" type="text" value={salaryOffer} onChange={(e) => setSalaryOffer(e.target.value)} placeholder="e.g. $65,000" disabled={salaryState.status === 'running'} /></div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}><label htmlFor="session-salary-target">Target Salary</label><input id="session-salary-target" type="text" value={salaryTarget} onChange={(e) => setSalaryTarget(e.target.value)} placeholder="e.g. $75,000" disabled={salaryState.status === 'running'} /></div>
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Generate 3–5 LinkedIn headline options under 120 characters. Uses target role from step 2.
+        </p>
         <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-salary-delivery">Delivery Method</label>
-          <select id="session-salary-delivery" value={salaryDelivery} onChange={(e) => setSalaryDelivery(e.target.value as 'email' | 'phone')} disabled={salaryState.status === 'running'} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
-            <option value="email">Email</option><option value="phone">Phone</option>
-          </select>
+          <label htmlFor="session-headline-skills">Key skills <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+          <input id="session-headline-skills" type="text" value={keySkills} onChange={(e) => setKeySkills(e.target.value)}
+            placeholder="e.g. Sales, CRM, Salesforce, B2B SaaS" disabled={headlineState.status === 'running'} />
         </div>
-        <button type="button" className="btn btn-primary btn-small" onClick={runSalary} disabled={salaryState.status === 'running' || !salaryOffer.trim() || !salaryTarget.trim()} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#10b981', borderColor: '#10b981' }}>
-          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
-          {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build Script'}
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-headline-exp">Years of experience (optional)</label>
+          <input id="session-headline-exp" type="text" value={yearsExperience} onChange={(e) => setYearsExperience(e.target.value)}
+            placeholder="e.g. 6+ years" disabled={headlineState.status === 'running'} />
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runHeadline}
+          disabled={headlineState.status === 'running' || !jobTarget.trim() || keySkills.trim().length < 2}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {headlineState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {headlineState.status === 'running' ? 'Generating…' : headlineState.output ? 'Re-run' : 'Generate headlines'}
         </button>
-        {salaryState.error ? <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p> : null}
-        {salaryState.output ? <OutputPanel label="Negotiation Script" body={salaryState.output} savedTo={memberFullName} /> : null}
-      </SectionCard>
-
-      {/* Card 8: LinkedIn Headline */}
-      <SectionCard
-        step={8}
-        title="LinkedIn Headline"
-        Icon={MessagesSquare}
-        accent="#0077b5"
-        statusBadge={
-          linkedinHlState.status === 'running' ? 'Running' :
-          linkedinHlState.output ? 'Done' :
-          linkedinHlState.error ? 'Failed' :
-          'Ready'
-        }
-      >
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-job-target-lnh">
-            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-job-target-lnh"
-            type="text"
-            value={jobTarget}
-            onChange={(e) => setJobTarget(e.target.value)}
-            placeholder="IT Support Specialist"
-            disabled={linkedinHlState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-linkedin-skills">
-            Key Skills <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-linkedin-skills"
-            type="text"
-            value={linkedinSkills}
-            onChange={(e) => setLinkedinSkills(e.target.value)}
-            placeholder="Networking, Windows Server, Active Directory"
-            disabled={linkedinHlState.status === 'running'}
-          />
-        </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-linkedin-years">Years of Experience</label>
-          <input
-            id="session-linkedin-years"
-            type="text"
-            value={linkedinYears}
-            onChange={(e) => setLinkedinYears(e.target.value)}
-            placeholder="e.g. 3 years"
-            disabled={linkedinHlState.status === 'running'}
-          />
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-small"
-          onClick={runLinkedinHl}
-          disabled={linkedinHlState.status === 'running' || !jobTarget.trim() || !linkedinSkills.trim()}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0077b5', borderColor: '#0077b5' }}
-        >
-          {linkedinHlState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
-          ) : (
-            <Sparkles size={16} aria-hidden />
-          )}
-          {linkedinHlState.status === 'running' ? 'Generating…' : linkedinHlState.output ? 'Re-run' : 'Build Headlines'}
-        </button>
-        {linkedinHlState.error ? (
-          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{linkedinHlState.error}</p>
-        ) : null}
-        {linkedinHlState.output ? (
-          <LinkedInHeadlinesOutput body={linkedinHlState.output} savedTo={memberFullName} />
-        ) : null}
+        {headlineState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{headlineState.error}</p>}
+        {headlineState.output && <OutputPanel label="LinkedIn headline options" body={headlineState.output} savedTo={memberFullName} />}
       </SectionCard>
 
       {/* Card 9: LinkedIn About */}
-      <SectionCard
-        step={9}
-        title="LinkedIn About Section"
-        Icon={FileText}
-        accent="#0077b5"
-        statusBadge={
-          linkedinAboutState.status === 'running' ? 'Running' :
-          linkedinAboutState.output ? 'Done' :
-          linkedinAboutState.error ? 'Failed' :
-          'Ready'
-        }
+      <SectionCard id="session-card-about" title="LinkedIn About" Icon={PenLine} accent="#0077b5"
+        isOpen={openCards.has('about')} onToggle={() => toggleCard('about')}
+        statusBadge={aboutState.status === 'running' ? 'Running' : aboutState.output ? 'Done' : aboutState.error ? 'Failed' : 'Ready'}
+        contextNote="Resume auto-loaded as context if on file."
       >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Write a polished 3-paragraph LinkedIn About section. Add highlights below or leave blank to use the resume.
+        </p>
         <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-job-target-lna">
-            Target role <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <input
-            id="session-job-target-lna"
-            type="text"
-            value={jobTarget}
-            onChange={(e) => setJobTarget(e.target.value)}
-            placeholder="IT Support Specialist"
-            disabled={linkedinAboutState.status === 'running'}
-          />
+          <label htmlFor="session-about-bullets">Key highlights (optional)</label>
+          <textarea id="session-about-bullets" value={linkedinBullets} onChange={(e) => setLinkedinBullets(e.target.value)}
+            rows={4} placeholder="List achievements, skills, and what they're looking for — or leave blank to use the resume above."
+            disabled={aboutState.status === 'running'} />
         </div>
-        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-          <label htmlFor="session-linkedin-bullets">
-            Key details & highlights <span style={{ color: 'var(--color-accent)' }}>*</span>
-          </label>
-          <textarea
-            id="session-linkedin-bullets"
-            value={linkedinBullets}
-            onChange={(e) => setLinkedinBullets(e.target.value)}
-            rows={4}
-            placeholder="Provide a few bullet points about what they do best and their main career objective..."
-            disabled={linkedinAboutState.status === 'running'}
-          />
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-small"
-          onClick={runLinkedinAbout}
-          disabled={linkedinAboutState.status === 'running' || !jobTarget.trim() || !linkedinBullets.trim()}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#0077b5', borderColor: '#0077b5' }}
-        >
-          {linkedinAboutState.status === 'running' ? (
-            <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden />
-          ) : (
-            <Sparkles size={16} aria-hidden />
-          )}
-          {linkedinAboutState.status === 'running' ? 'Generating…' : linkedinAboutState.output ? 'Re-run' : 'Build About Section'}
+        <button type="button" className="btn btn-primary btn-small" onClick={runAbout}
+          disabled={aboutState.status === 'running' || !jobTarget.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {aboutState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {aboutState.status === 'running' ? 'Generating…' : aboutState.output ? 'Re-run' : 'Write About section'}
         </button>
-        {linkedinAboutState.error ? (
-          <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{linkedinAboutState.error}</p>
-        ) : null}
-        {linkedinAboutState.output ? (
-          <OutputPanel label="LinkedIn About Section" body={linkedinAboutState.output} savedTo={memberFullName} />
-        ) : null}
+        {aboutState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{aboutState.error}</p>}
+        {aboutState.output && <OutputPanel label="LinkedIn About section" body={aboutState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 10: Salary negotiation */}
+      <SectionCard id="session-card-salary" title="Salary Negotiation" Icon={MessagesSquare} accent="#d97706"
+        isOpen={openCards.has('salary')} onToggle={() => toggleCard('salary')}
+        statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Generate a word-for-word negotiation script — phone or email format.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-sal-offer">Current offer ($) <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+            <input id="session-sal-offer" type="number" value={currentOffer} onChange={(e) => setCurrentOffer(e.target.value)}
+              placeholder="65000" disabled={salaryState.status === 'running'} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-sal-target">Target salary ($) <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+            <input id="session-sal-target" type="number" value={targetSalary} onChange={(e) => setTargetSalary(e.target.value)}
+              placeholder="75000" disabled={salaryState.status === 'running'} />
+          </div>
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-sal-method">Delivery method</label>
+          <select id="session-sal-method" value={salaryDelivery} onChange={(e) => setSalaryDelivery(e.target.value as 'phone' | 'email')}
+            disabled={salaryState.status === 'running'}>
+            <option value="email">Email script</option>
+            <option value="phone">Phone call script</option>
+          </select>
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runSalary}
+          disabled={salaryState.status === 'running' || !currentOffer || !targetSalary || !jobTarget.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build script'}
+        </button>
+        {salaryState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p>}
+        {salaryState.output && <OutputPanel label="Negotiation script" body={salaryState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 11: Elevator pitch */}
+      <SectionCard id="session-card-pitch" title="Elevator Pitch" Icon={Sparkles} accent="#7c3aed"
+        isOpen={openCards.has('pitch')} onToggle={() => toggleCard('pitch')}
+        statusBadge={pitchState.status === 'running' ? 'Running' : pitchState.output ? 'Done' : pitchState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Generate a 10–20 second elevator pitch. Uses name and target role already on file. Emails the pitch to {memberFullName.split(' ')[0]}.
+        </p>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-pitch-strengths">Key strengths (optional)</label>
+          <input id="session-pitch-strengths" type="text" value={pitchStrengths} onChange={(e) => setPitchStrengths(e.target.value)}
+            placeholder="e.g. relationship building, closing deals, CRM expertise" disabled={pitchState.status === 'running'} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-pitch-certs">Certifications (optional)</label>
+            <input id="session-pitch-certs" type="text" value={pitchCertifications} onChange={(e) => setPitchCertifications(e.target.value)}
+              placeholder="e.g. CompTIA A+, PMP" disabled={pitchState.status === 'running'} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-pitch-industry">Target industry (optional)</label>
+            <input id="session-pitch-industry" type="text" value={pitchIndustry} onChange={(e) => setPitchIndustry(e.target.value)}
+              placeholder="e.g. Healthcare IT" disabled={pitchState.status === 'running'} />
+          </div>
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runPitch}
+          disabled={pitchState.status === 'running' || !jobTarget.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {pitchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {pitchState.status === 'running' ? 'Generating…' : pitchState.output ? 'Re-run' : 'Build pitch'}
+        </button>
+        {pitchState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{pitchState.error}</p>}
+        {pitchState.output && <OutputPanel label="Elevator pitch" body={pitchState.output} savedTo={memberFullName} />}
       </SectionCard>
 
       {/* End session footer */}
-      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--color-on-surface)' }}>
-            {packetSent ? `Packet emailed to ${memberEmail}` : 'End session & email packet'}
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-            {packetSent
-              ? 'They’ll get a welcome email and the resume / cover letter / interview prep packet shortly.'
-              : `Send ${memberFullName.split(' ')[0]} an email with everything you built today. They can sign in to see it later, too.`}
-          </p>
+      <div className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: completedTools.length > 0 ? '1rem' : 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.25rem', color: 'var(--color-on-surface)' }}>
+              {packetSent ? `Packet emailed to ${memberEmail}` : 'End session & email packet'}
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+              {packetSent
+                ? `${completedTools.length} tool result${completedTools.length === 1 ? '' : 's'} delivered to ${memberFullName.split(' ')[0]}'s inbox and portal history.`
+                : completedTools.length > 0
+                  ? `${completedTools.length} tool${completedTools.length === 1 ? '' : 's'} completed — email everything to ${memberFullName.split(' ')[0]} now, or keep going.`
+                  : `Run at least one tool above, then send ${memberFullName.split(' ')[0]} everything in one email.`}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={endSession}
+            disabled={endingSession || !hasAnyOutput || packetSent}
+            title={!hasAnyOutput ? 'Run at least one tool before ending the session' : undefined}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}
+          >
+            {endingSession ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={18} aria-hidden />}
+            {packetSent ? 'Packet sent' : endingSession ? 'Sending…' : 'End session & email recap'}
+          </button>
         </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={endSession}
-          disabled={endingSession || !hasAnyOutput || packetSent}
-          title={!hasAnyOutput ? 'Run at least one tool before ending the session' : undefined}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          {endingSession ? <Loader2 size={18} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={18} aria-hidden />}
-          {packetSent ? 'Packet sent' : endingSession ? 'Sending…' : allRun ? 'End session & email packet' : 'End early & email what we built'}
-        </button>
+
+        {/* Live recap — shows what's in the email */}
+        {completedTools.length > 0 && (
+          <div style={{ borderTop: '1px solid var(--surface-container-highest)', paddingTop: '0.875rem' }}>
+            <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
+              {packetSent ? 'Included in recap' : `In this recap (${completedTools.length} item${completedTools.length === 1 ? '' : 's'})`}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+              {completedTools.map(t => (
+                <span key={t.key} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                  padding: '0.25rem 0.625rem', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600,
+                  background: `color-mix(in srgb, ${t.accent} 10%, transparent)`,
+                  color: t.accent,
+                  border: `1px solid color-mix(in srgb, ${t.accent} 25%, transparent)`,
+                }}>
+                  <CheckCircle2 size={11} aria-hidden /> {t.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {packetError ? (
         <p role="alert" style={{ color: 'var(--color-accent)' }}>{packetError}</p>
@@ -1121,6 +1174,7 @@ const runCover = () =>
 // ── Sub-components ───────────────────────────────────────────────
 
 function SectionCard({
+  id,
   step,
   title,
   Icon,
@@ -1128,73 +1182,73 @@ function SectionCard({
   statusBadge,
   headerAction,
   contextNote,
+  isOpen = true,
+  onToggle,
   children,
 }: {
-  step: number;
+  id?: string;
+  step?: number;
   title: string;
   Icon: React.ComponentType<{ size?: number; 'aria-hidden'?: boolean }>;
   accent: string;
   statusBadge: string;
   headerAction?: React.ReactNode;
   contextNote?: string | null;
+  isOpen?: boolean;
+  onToggle?: () => void;
   children: React.ReactNode;
 }) {
+  const isDone = statusBadge === 'Done' || statusBadge === 'Recorded';
   return (
-    <section className="portal-card portal-card--flat" style={{ padding: '1.25rem 1.5rem' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: contextNote ? '0.5rem' : '1rem', flexWrap: 'wrap' }}>
+    <section id={id} className="portal-card portal-card--flat" style={{ padding: isOpen ? '1.25rem 1.5rem' : '0.75rem 1.5rem' }}>
+      <header
+        onClick={onToggle}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          marginBottom: isOpen ? (contextNote ? '0.5rem' : '1rem') : 0,
+          flexWrap: 'wrap',
+          cursor: onToggle ? 'pointer' : undefined,
+          userSelect: 'none',
+        }}
+      >
         <span
           aria-hidden
           style={{
             background: `color-mix(in srgb, ${accent} 14%, transparent)`,
             color: accent,
-            width: '2.25rem',
-            height: '2.25rem',
-            borderRadius: '999px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '0.95rem',
+            width: '2.25rem', height: '2.25rem', borderRadius: '999px',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 700, fontSize: '0.95rem', flexShrink: 0,
           }}
         >
-          {step}
+          {isDone ? <CheckCircle2 size={16} aria-hidden /> : step !== undefined ? step : <Icon size={16} aria-hidden />}
         </span>
         <Icon size={20} aria-hidden />
         <h2 style={{ flex: 1, margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
           {title}
         </h2>
-        <span
-          style={{
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            padding: '0.25rem 0.5rem',
-            borderRadius: '999px',
-            background: 'var(--surface-container)',
-            color: 'var(--color-on-surface-variant)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-          }}
-        >
+        <span style={{
+          fontSize: '0.75rem', fontWeight: 600, padding: '0.25rem 0.5rem',
+          borderRadius: '999px',
+          background: isDone ? 'color-mix(in srgb, #4a9b4f 12%, transparent)' : 'var(--surface-container)',
+          color: isDone ? '#4a9b4f' : 'var(--color-on-surface-variant)',
+          textTransform: 'uppercase', letterSpacing: '0.04em',
+        }}>
           {statusBadge}
         </span>
-        {headerAction ? <div>{headerAction}</div> : null}
+        {headerAction ? <div onClick={e => e.stopPropagation()}>{headerAction}</div> : null}
+        {onToggle && (
+          <span aria-hidden style={{ color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'none', display: 'flex' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4"/></svg>
+          </span>
+        )}
       </header>
-      {contextNote ? (
-        <p
-          style={{
-            margin: '0 0 1rem',
-            padding: '0.4rem 0.65rem',
-            background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)',
-            borderLeft: '3px solid var(--color-accent)',
-            borderRadius: '0.35rem',
-            fontSize: '0.8rem',
-            color: 'var(--color-on-surface-variant)',
-          }}
-        >
+      {isOpen && contextNote ? (
+        <p style={{ margin: '0 0 1rem', padding: '0.4rem 0.65rem', background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)', borderLeft: '3px solid var(--color-accent)', borderRadius: '0.35rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
           {contextNote}
         </p>
       ) : null}
-      {children}
+      {isOpen ? children : null}
     </section>
   );
 }

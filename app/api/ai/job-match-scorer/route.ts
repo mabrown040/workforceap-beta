@@ -5,15 +5,15 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { jobMatchScorerSchema } from '@/lib/validation/jobMatchScorer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
-import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
-import { 
-  fetchPageText, 
-  detectProvider, 
+import {
+  fetchPageText,
+  detectProvider,
   isKnownStructuredApiProvider,
   importJobsFromUrl,
   type ATSParseResult,
 } from '@/lib/ai/atsProviders';
 import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 /**
  * Extract job description from URL using provider-aware logic.
@@ -210,7 +210,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobDescription, jobUrl } = parsed.data;
+  const { resume, jobDescription, jobUrl, subjectMemberId, sessionId } = parsed.data;
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   // Validate that at least one job source is provided
   if (!jobDescription?.trim() && !jobUrl?.trim()) {
@@ -353,7 +355,11 @@ Analyze the match and output in the format above.`;
 
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(onBehalf.subjectUserId, 'job_match_scorer', summary, output, { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId });
+      await saveAIToolResult(onBehalf.subjectUserId, 'job_match_scorer', summary, output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('Job match scorer: failed to save result', saveErr);
     }

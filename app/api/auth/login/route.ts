@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';
-  const rememberMe = body?.rememberMe !== false; // defaults to true
+  const rememberMe = body?.rememberMe === true; // defaults to false
   const redirectTo = sanitizeRedirectPath(
     typeof body?.redirectTo === 'string' ? body.redirectTo : undefined,
     '/dashboard'

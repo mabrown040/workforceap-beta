@@ -6,6 +6,7 @@ import { linkedinAboutSchema } from '@/lib/validation/linkedinAbout';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -30,11 +31,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const { role, bullets } = parsed.data;
+  const { role, bullets, subjectMemberId, sessionId } = parsed.data;
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   let resumeContext = '';
   try {
-    const text = await getMemberResumePlainText(user.id, 4500);
+    const text = await getMemberResumePlainText(onBehalf.subjectUserId, 4500);
     if (text.trim().length > 80) {
       resumeContext = text.trim();
     }
@@ -89,7 +92,11 @@ Write a 3-paragraph LinkedIn About section.`;
     const summary = `${role} — ${bullets.slice(0, 50)}${bullets.length > 50 ? '...' : ''}${resumeContext ? ' [+resume]' : ''}`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'linkedin_about', summary, output);
+      await saveAIToolResult(onBehalf.subjectUserId, 'linkedin_about', summary, output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('LinkedIn about: failed to save result', saveErr);
     }

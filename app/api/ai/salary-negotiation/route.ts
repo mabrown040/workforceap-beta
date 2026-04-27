@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { salaryNegotiationSchema } from '@/lib/validation/salaryNegotiation';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +30,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { currentOffer, targetSalary, jobTitle, companyName, deliveryMethod } = parsed.data;
+  const { currentOffer, targetSalary, jobTitle, companyName, deliveryMethod, subjectMemberId, sessionId } = parsed.data;
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   const isPhone = deliveryMethod === 'phone';
 
   const systemPrompt = `You are a salary negotiation coach. Create a word-for-word script for a candidate to use when negotiating.
@@ -62,7 +65,11 @@ Write a ${isPhone ? 'phone call' : 'email'} script they can use word-for-word.`;
     const summary = `${companyName} — ${jobTitle} — $${currentOffer} → $${targetSalary}`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'salary_negotiation', summary, output);
+      await saveAIToolResult(onBehalf.subjectUserId, 'salary_negotiation', summary, output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('Salary negotiation: failed to save result', saveErr);
     }

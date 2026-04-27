@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Sparkles, Upload, User } from 'lucide-react';
+import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Search, Sparkles, Upload, User } from 'lucide-react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
@@ -74,6 +74,13 @@ export default function SessionRunClient({
   const [resumeState, setResumeState] = useState<ToolState>(initialToolState);
   const [coverState, setCoverState] = useState<ToolState>(initialToolState);
   const [interviewState, setInterviewState] = useState<ToolState>(initialToolState);
+  const [resumeAnalysisState, setResumeAnalysisState] = useState<ToolState>(initialToolState);
+  const [gapState, setGapState] = useState<ToolState>(initialToolState);
+  const [jobMatchState, setJobMatchState] = useState<ToolState>(initialToolState);
+  const [headlineState, setHeadlineState] = useState<ToolState>(initialToolState);
+  const [aboutState, setAboutState] = useState<ToolState>(initialToolState);
+  const [salaryState, setSalaryState] = useState<ToolState>(initialToolState);
+  const [pitchState, setPitchState] = useState<ToolState>(initialToolState);
 
   // Per-tool inputs
   const [resumeText, setResumeText] = useState(existingResume);
@@ -81,6 +88,16 @@ export default function SessionRunClient({
   const [jobDescription, setJobDescription] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [interviewLevel, setInterviewLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
+  // Extended tool inputs
+  const [keySkills, setKeySkills] = useState('');
+  const [yearsExperience, setYearsExperience] = useState('');
+  const [linkedinBullets, setLinkedinBullets] = useState('');
+  const [currentOffer, setCurrentOffer] = useState('');
+  const [targetSalary, setTargetSalary] = useState('');
+  const [salaryDelivery, setSalaryDelivery] = useState<'phone' | 'email'>('email');
+  const [pitchStrengths, setPitchStrengths] = useState('');
+  const [pitchCertifications, setPitchCertifications] = useState('');
+  const [pitchIndustry, setPitchIndustry] = useState('');
 
   // Resume upload state
   const [uploadingResume, setUploadingResume] = useState(false);
@@ -211,7 +228,9 @@ export default function SessionRunClient({
     interviewLevel,
   }), [memberId, sessionId, resumeState.output, coverState.output, resumeText, jobTarget, interviewLevel]);
 
-  const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output);
+  const hasAnyOutput = !!(resumeState.output || coverState.output || interviewState.output ||
+    resumeAnalysisState.output || gapState.output || jobMatchState.output ||
+    headlineState.output || aboutState.output || salaryState.output || pitchState.output);
   const allRun = !!(resumeState.output && coverState.output && interviewState.output);
 
   const runTool = async (
@@ -270,6 +289,51 @@ export default function SessionRunClient({
       `${jobTarget} (${interviewLevel})`,
       (d) => JSON.stringify((d as { questions?: unknown }).questions ?? []),
     );
+
+  const runResumeAnalysis = () =>
+    runTool('resume', setResumeAnalysisState, '/api/ai/resume-strength',
+      { resume: resumeText }, 'Resume strength check',
+      (d) => (d as { output?: string }).output ?? '');
+
+  const runGapAnalyzer = () =>
+    runTool('resume', setGapState, '/api/ai/gap-analyzer',
+      { resume: resumeText }, 'Gap analysis',
+      (d) => (d as { output?: string }).output ?? '');
+
+  const runJobMatch = () =>
+    runTool('resume', setJobMatchState, '/api/ai/job-match-scorer',
+      { resume: resumeText, jobDescription }, `Job match — ${companyName || jobTarget}`,
+      (d) => {
+        const p = (d as { parsed?: { matchScore: number; strengths: string[]; gaps: string[]; quickWins: string[]; rawText: string } }).parsed;
+        return p?.rawText ?? '';
+      });
+
+  const runHeadline = () =>
+    runTool('resume', setHeadlineState, '/api/ai/linkedin-headline',
+      { role: jobTarget, keySkills, yearsExperience: yearsExperience || undefined },
+      `LinkedIn headline — ${jobTarget}`,
+      (d) => {
+        const h = (d as { headlines?: string[] }).headlines ?? [];
+        return h.join('\n\n');
+      });
+
+  const runAbout = () =>
+    runTool('resume', setAboutState, '/api/ai/linkedin-about',
+      { role: jobTarget, bullets: linkedinBullets || resumeText.slice(0, 1200) },
+      `LinkedIn About — ${jobTarget}`,
+      (d) => (d as { output?: string }).output ?? '');
+
+  const runSalary = () =>
+    runTool('resume', setSalaryState, '/api/ai/salary-negotiation',
+      { currentOffer: Number(currentOffer), targetSalary: Number(targetSalary), jobTitle: jobTarget, companyName: companyName || 'the company', deliveryMethod: salaryDelivery },
+      `Salary negotiation — ${companyName || jobTarget}`,
+      (d) => (d as { output?: string }).output ?? '');
+
+  const runPitch = () =>
+    runTool('resume', setPitchState, '/api/ai/elevator-pitch',
+      { name: memberFullName, targetRole: jobTarget, strengths: pitchStrengths || undefined, certifications: pitchCertifications || undefined, industry: pitchIndustry || undefined },
+      `Elevator pitch — ${jobTarget}`,
+      (d) => (d as { pitch?: string }).pitch ?? '');
 
   const endSession = async () => {
     setEndingSession(true);
@@ -764,6 +828,188 @@ export default function SessionRunClient({
         {interviewState.output ? (
           <InterviewOutput body={interviewState.output} savedTo={memberFullName} />
         ) : null}
+      </SectionCard>
+
+      {/* Card 5: Resume strength analysis */}
+      <SectionCard step={5} title="Resume Analysis" Icon={FileText} accent="#7c3aed"
+        statusBadge={resumeAnalysisState.status === 'running' ? 'Running' : resumeAnalysisState.output ? 'Done' : resumeAnalysisState.error ? 'Failed' : 'Ready'}
+        contextNote={resumeText.trim().length > 50 ? 'Using resume from step 2.' : null}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Score the resume for clarity, impact, keywords, and ATS scannability. Surfaces strengths and priority improvements.
+        </p>
+        <button type="button" className="btn btn-primary btn-small" onClick={runResumeAnalysis}
+          disabled={resumeAnalysisState.status === 'running' || resumeText.trim().length < 100}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {resumeAnalysisState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {resumeAnalysisState.status === 'running' ? 'Analyzing…' : resumeAnalysisState.output ? 'Re-run' : 'Analyze resume'}
+        </button>
+        {resumeAnalysisState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{resumeAnalysisState.error}</p>}
+        {resumeAnalysisState.output && <OutputPanel label="Resume analysis" body={resumeAnalysisState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 6: Gap analyzer */}
+      <SectionCard step={6} title="Gap Analyzer" Icon={FileText} accent="#0891b2"
+        statusBadge={gapState.status === 'running' ? 'Running' : gapState.output ? 'Done' : gapState.error ? 'Failed' : 'Ready'}
+        contextNote={resumeText.trim().length > 50 ? 'Using resume from step 2.' : null}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Detect employment gaps and generate framing language for cover letters and interviews.
+        </p>
+        <button type="button" className="btn btn-primary btn-small" onClick={runGapAnalyzer}
+          disabled={gapState.status === 'running' || resumeText.trim().length < 100}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {gapState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {gapState.status === 'running' ? 'Analyzing…' : gapState.output ? 'Re-run' : 'Analyze gaps'}
+        </button>
+        {gapState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{gapState.error}</p>}
+        {gapState.output && <OutputPanel label="Gap analysis" body={gapState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 7: Job match scorer */}
+      <SectionCard step={7} title="Job Match Scorer" Icon={Search} accent="#059669"
+        statusBadge={jobMatchState.status === 'running' ? 'Running' : jobMatchState.output ? 'Done' : jobMatchState.error ? 'Failed' : 'Ready'}
+        contextNote={resumeText.trim().length > 50 ? 'Using resume from step 2.' : null}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Score how well the resume matches a specific job posting and surface quick wins.
+        </p>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-jms-desc">Job description <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+          <textarea id="session-jms-desc" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)}
+            rows={4} placeholder="Paste the job posting here (reuses input from cover letter card)."
+            disabled={jobMatchState.status === 'running'} />
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runJobMatch}
+          disabled={jobMatchState.status === 'running' || resumeText.trim().length < 100 || jobDescription.trim().length < 50}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {jobMatchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {jobMatchState.status === 'running' ? 'Scoring…' : jobMatchState.output ? 'Re-run' : 'Score match'}
+        </button>
+        {jobMatchState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{jobMatchState.error}</p>}
+        {jobMatchState.output && <OutputPanel label="Job match analysis" body={jobMatchState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 8: LinkedIn headline */}
+      <SectionCard step={8} title="LinkedIn Headline" Icon={PenLine} accent="#0077b5"
+        statusBadge={headlineState.status === 'running' ? 'Running' : headlineState.output ? 'Done' : headlineState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Generate 3–5 LinkedIn headline options under 120 characters. Uses target role from step 2.
+        </p>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-headline-skills">Key skills <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+          <input id="session-headline-skills" type="text" value={keySkills} onChange={(e) => setKeySkills(e.target.value)}
+            placeholder="e.g. Sales, CRM, Salesforce, B2B SaaS" disabled={headlineState.status === 'running'} />
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-headline-exp">Years of experience (optional)</label>
+          <input id="session-headline-exp" type="text" value={yearsExperience} onChange={(e) => setYearsExperience(e.target.value)}
+            placeholder="e.g. 6+ years" disabled={headlineState.status === 'running'} />
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runHeadline}
+          disabled={headlineState.status === 'running' || !jobTarget.trim() || keySkills.trim().length < 2}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {headlineState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {headlineState.status === 'running' ? 'Generating…' : headlineState.output ? 'Re-run' : 'Generate headlines'}
+        </button>
+        {headlineState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{headlineState.error}</p>}
+        {headlineState.output && <OutputPanel label="LinkedIn headline options" body={headlineState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 9: LinkedIn About */}
+      <SectionCard step={9} title="LinkedIn About" Icon={PenLine} accent="#0077b5"
+        statusBadge={aboutState.status === 'running' ? 'Running' : aboutState.output ? 'Done' : aboutState.error ? 'Failed' : 'Ready'}
+        contextNote="Resume auto-loaded as context if on file."
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Write a polished 3-paragraph LinkedIn About section. Add highlights below or leave blank to use the resume.
+        </p>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-about-bullets">Key highlights (optional)</label>
+          <textarea id="session-about-bullets" value={linkedinBullets} onChange={(e) => setLinkedinBullets(e.target.value)}
+            rows={4} placeholder="List achievements, skills, and what they're looking for — or leave blank to use the resume above."
+            disabled={aboutState.status === 'running'} />
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runAbout}
+          disabled={aboutState.status === 'running' || !jobTarget.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {aboutState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {aboutState.status === 'running' ? 'Generating…' : aboutState.output ? 'Re-run' : 'Write About section'}
+        </button>
+        {aboutState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{aboutState.error}</p>}
+        {aboutState.output && <OutputPanel label="LinkedIn About section" body={aboutState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 10: Salary negotiation */}
+      <SectionCard step={10} title="Salary Negotiation" Icon={MessagesSquare} accent="#d97706"
+        statusBadge={salaryState.status === 'running' ? 'Running' : salaryState.output ? 'Done' : salaryState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Generate a word-for-word negotiation script — phone or email format.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-sal-offer">Current offer ($) <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+            <input id="session-sal-offer" type="number" value={currentOffer} onChange={(e) => setCurrentOffer(e.target.value)}
+              placeholder="65000" disabled={salaryState.status === 'running'} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-sal-target">Target salary ($) <span style={{ color: 'var(--color-accent)' }}>*</span></label>
+            <input id="session-sal-target" type="number" value={targetSalary} onChange={(e) => setTargetSalary(e.target.value)}
+              placeholder="75000" disabled={salaryState.status === 'running'} />
+          </div>
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-sal-method">Delivery method</label>
+          <select id="session-sal-method" value={salaryDelivery} onChange={(e) => setSalaryDelivery(e.target.value as 'phone' | 'email')}
+            disabled={salaryState.status === 'running'}>
+            <option value="email">Email script</option>
+            <option value="phone">Phone call script</option>
+          </select>
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runSalary}
+          disabled={salaryState.status === 'running' || !currentOffer || !targetSalary || !jobTarget.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {salaryState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {salaryState.status === 'running' ? 'Generating…' : salaryState.output ? 'Re-run' : 'Build script'}
+        </button>
+        {salaryState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{salaryState.error}</p>}
+        {salaryState.output && <OutputPanel label="Negotiation script" body={salaryState.output} savedTo={memberFullName} />}
+      </SectionCard>
+
+      {/* Card 11: Elevator pitch */}
+      <SectionCard step={11} title="Elevator Pitch" Icon={Sparkles} accent="#7c3aed"
+        statusBadge={pitchState.status === 'running' ? 'Running' : pitchState.output ? 'Done' : pitchState.error ? 'Failed' : 'Ready'}
+      >
+        <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+          Generate a 10–20 second elevator pitch. Uses name and target role already on file. Emails the pitch to {memberFullName.split(' ')[0]}.
+        </p>
+        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+          <label htmlFor="session-pitch-strengths">Key strengths (optional)</label>
+          <input id="session-pitch-strengths" type="text" value={pitchStrengths} onChange={(e) => setPitchStrengths(e.target.value)}
+            placeholder="e.g. relationship building, closing deals, CRM expertise" disabled={pitchState.status === 'running'} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-pitch-certs">Certifications (optional)</label>
+            <input id="session-pitch-certs" type="text" value={pitchCertifications} onChange={(e) => setPitchCertifications(e.target.value)}
+              placeholder="e.g. CompTIA A+, PMP" disabled={pitchState.status === 'running'} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label htmlFor="session-pitch-industry">Target industry (optional)</label>
+            <input id="session-pitch-industry" type="text" value={pitchIndustry} onChange={(e) => setPitchIndustry(e.target.value)}
+              placeholder="e.g. Healthcare IT" disabled={pitchState.status === 'running'} />
+          </div>
+        </div>
+        <button type="button" className="btn btn-primary btn-small" onClick={runPitch}
+          disabled={pitchState.status === 'running' || !jobTarget.trim()}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          {pitchState.status === 'running' ? <Loader2 size={16} className="ai-tool-submit-spinner" aria-hidden /> : <Sparkles size={16} aria-hidden />}
+          {pitchState.status === 'running' ? 'Generating…' : pitchState.output ? 'Re-run' : 'Build pitch'}
+        </button>
+        {pitchState.error && <p role="alert" style={{ color: 'var(--color-accent)', marginTop: '0.5rem' }}>{pitchState.error}</p>}
+        {pitchState.output && <OutputPanel label="Elevator pitch" body={pitchState.output} savedTo={memberFullName} />}
       </SectionCard>
 
       {/* End session footer */}

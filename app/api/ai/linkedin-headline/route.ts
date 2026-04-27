@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { linkedinHeadlineSchema } from '@/lib/validation/linkedinHeadline';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +30,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { role, keySkills, yearsExperience } = parsed.data;
+  const { role, keySkills, yearsExperience, subjectMemberId, sessionId } = parsed.data;
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   const systemPrompt = `You are a LinkedIn profile expert. Generate 3 compelling LinkedIn headline options. Each must be under 120 characters. Include the target role and key value props. Format as a JSON array of strings: ["headline1", "headline2", "headline3"]. Return ONLY the JSON array.`;
 
@@ -62,7 +65,11 @@ Generate 3 LinkedIn headline options.`;
     const summary = `${role} — ${keySkills.slice(0, 40)}${keySkills.length > 40 ? '...' : ''}`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'linkedin_headline', summary, output);
+      await saveAIToolResult(onBehalf.subjectUserId, 'linkedin_headline', summary, output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('LinkedIn headline: failed to save result', saveErr);
     }

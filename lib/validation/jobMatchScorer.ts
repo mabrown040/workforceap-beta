@@ -65,6 +65,8 @@ export const jobMatchScorerSchema = z.object({
   jobUrl: optionalNonEmptyString(
     z.string().url('Please enter a valid URL')
   ),
+  subjectMemberId: z.string().uuid().optional(),
+  sessionId: z.string().uuid().optional(),
 }).refine((data) => isSafePublicHttpUrl(data.jobUrl ?? ''), {
   message: 'Please enter a public HTTP(S) job posting URL',
   path: ['jobUrl'],

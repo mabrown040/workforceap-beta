@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prisma } from '@/lib/db/prisma';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import {
   getVoiceCoachTranscriptRecipients,
   sendElevatorSpeechEmail,
@@ -31,11 +32,14 @@ export async function POST(request: Request) {
   try { body = await request.json() as Record<string, string>; }
   catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
 
-  const { name, targetRole, strengths, certifications, industry } = body;
+  const { name, targetRole, strengths, certifications, industry, subjectMemberId, sessionId } = body;
 
   if (!name?.trim() || !targetRole?.trim()) {
     return NextResponse.json({ error: 'Name and target role are required.' }, { status: 400 });
   }
+
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId ?? undefined);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   const prompt = `Write a powerful, natural-sounding 10-20 second elevator pitch (spoken out loud) for someone with these details:
 
@@ -71,10 +75,11 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
       const trimmedPitch = pitch.trim();
 
       await saveAIToolResult(
-        user.id,
+        onBehalf.subjectUserId,
         'career_counselor',
         `AI elevator speech for ${targetRole.trim()}`,
-        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch: trimmedPitch })
+        JSON.stringify({ type: 'elevator_pitch', name: name.trim(), targetRole: targetRole.trim(), strengths, certifications, industry, pitch: trimmedPitch }),
+        { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId: sessionId ?? undefined },
       );
 
       try {
@@ -110,11 +115,11 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     try {
       const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
+        where: { id: onBehalf.subjectUserId },
         select: { fullName: true, email: true },
       });
 
-      const recipient = dbUser?.email?.trim() || user.email || '';
+      const recipient = dbUser?.email?.trim() || (onBehalf.subjectUserId === user.id ? user.email : null) || '';
       if (recipient) {
         const emailResult = await sendElevatorSpeechEmail({
           to: recipient,

@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeStrengthSchema } from '@/lib/validation/resumeStrength';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +30,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume } = parsed.data;
+  const { resume, subjectMemberId, sessionId } = parsed.data;
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   const systemPrompt = `You are an ATS-savvy career coach. Analyze the candidate's resume on its own (no job description).
 
@@ -64,7 +67,11 @@ Keep it concise and actionable. No fluff.`;
 
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'resume_analysis', 'Resume strength', output);
+      await saveAIToolResult(onBehalf.subjectUserId, 'resume_analysis', 'Resume strength', output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('Resume strength: failed to save result', saveErr);
     }

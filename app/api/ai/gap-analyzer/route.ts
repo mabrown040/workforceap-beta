@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { gapAnalyzerSchema } from '@/lib/validation/gapAnalyzer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +30,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume } = parsed.data;
+  const { resume, subjectMemberId, sessionId } = parsed.data;
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   const systemPrompt = `You are a career coach specializing in resume gaps. Analyze a resume for employment gaps and provide actionable framing.
 
@@ -73,7 +76,11 @@ Identify any employment gaps and provide framing language for each.`;
     const summary = resume.slice(0, 80) + (resume.length > 80 ? '...' : '');
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(user.id, 'gap_analyzer', summary, output);
+      await saveAIToolResult(onBehalf.subjectUserId, 'gap_analyzer', summary, output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('Gap analyzer: failed to save result', saveErr);
     }

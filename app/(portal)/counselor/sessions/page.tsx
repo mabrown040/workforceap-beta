@@ -23,7 +23,11 @@ export default async function CounselorSessionsPage() {
   if (!user) redirect('/login?redirectTo=/counselor/sessions');
 
   const [counselorRole, adminRole] = await Promise.all([isCounselor(user.id), isAdmin(user.id)]);
-  if (!counselorRole && !adminRole) redirect('/dashboard');
+  // Admins who aren't counselors belong in admin chrome, not counselor chrome
+  if (!counselorRole) {
+    if (adminRole) redirect('/admin/sessions');
+    redirect('/dashboard');
+  }
 
   return <SessionsIndexBody actor="counselor" actorUserId={user.id} />;
 }

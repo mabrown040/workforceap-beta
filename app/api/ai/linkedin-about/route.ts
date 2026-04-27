@@ -32,11 +32,8 @@ export async function POST(request: Request) {
   }
 
   const { role, bullets, subjectMemberId, sessionId } = parsed.data;
-
   const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
-  if (!onBehalf.ok) {
-    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
-  }
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   let resumeContext = '';
   try {
@@ -95,7 +92,11 @@ Write a 3-paragraph LinkedIn About section.`;
     const summary = `${role} — ${bullets.slice(0, 50)}${bullets.length > 50 ? '...' : ''}${resumeContext ? ' [+resume]' : ''}`;
     try {
       await ensureUserInDb(user);
-      await saveAIToolResult(onBehalf.subjectUserId, 'linkedin_about', summary, output, { actorUserId: onBehalf.actorUserId, actorName: onBehalf.actorName, sessionId });
+      await saveAIToolResult(onBehalf.subjectUserId, 'linkedin_about', summary, output, {
+        actorUserId: onBehalf.actorUserId,
+        actorName: onBehalf.actorName,
+        sessionId,
+      });
     } catch (saveErr) {
       console.error('LinkedIn about: failed to save result', saveErr);
     }

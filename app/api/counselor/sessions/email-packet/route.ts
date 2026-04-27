@@ -263,17 +263,15 @@ export async function POST(request: Request) {
         update: { completed: true, completedAt: new Date(), completedBy: user.id, valueText: r.output },
       });
       profileBioAppends.push(r.output);
-    }
-
-    else if (r.toolType === 'linkedin_headline') {
-      title = 'LinkedIn Headlines';
+    } else if (r.toolType === 'linkedin_headline') {
+      title = 'LinkedIn Headline Options';
       contextLine = r.inputSummary ? `Role: ${r.inputSummary}` : null;
       try {
-        const headlines = JSON.parse(r.output);
+        const headlines = JSON.parse(r.output) as string[];
         if (Array.isArray(headlines)) {
-          bodyText = '';
-          asList = { items: headlines.map((h, i) => ({ heading: `Option ${i+1}`, exampleAnswer: h })) };
-          pdfTextContent = headlines.map((h, i) => `Option ${i+1}:\n${h}`).join('\n\n');
+          bodyText = headlines.map((h, i) => `${i + 1}. ${h}`).join('\n\n');
+          asList = { items: headlines.map((h, i) => ({ heading: `Option ${i + 1}`, exampleAnswer: h })) };
+          pdfTextContent = bodyText;
         }
       } catch { /* keep raw */ }
     } else if (r.toolType === 'linkedin_about') {
@@ -285,11 +283,15 @@ export async function POST(request: Request) {
     } else if (r.toolType === 'salary_negotiation') {
       title = 'Salary Negotiation Script';
       contextLine = r.inputSummary ? `Role: ${r.inputSummary}` : null;
+    } else if (r.toolType === 'resume_analysis') {
+      title = 'Resume Strength Analysis';
+    } else if (r.toolType === 'gap_analyzer') {
+      title = 'Employment Gap Analysis';
     }
 
     sections.push({ title, contextLine, body: bodyText, asList });
-    
-    // Generate individual PDF
+
+    // Generate individual PDF attachment
     const pdfBuf = await generatePdfBuffer(title, `${contextLine ? contextLine + '\n\n' : ''}${pdfTextContent}`);
     const safeFilename = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-') + '.pdf';
     attachments.push({ filename: safeFilename, content: pdfBuf });
@@ -302,7 +304,7 @@ export async function POST(request: Request) {
     await prisma.profile.upsert({
       where: { userId: memberId },
       create: { userId: memberId, profileBio: newBio },
-      update: { profileBio: newBio }
+      update: { profileBio: newBio },
     });
   }
 

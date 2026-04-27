@@ -6,6 +6,8 @@ export const salaryNegotiationSchema = z.object({
   jobTitle: z.string().min(2, 'Job title is required').max(200),
   companyName: z.string().min(1, 'Company name is required').max(200),
   deliveryMethod: z.enum(['phone', 'email']),
+  subjectMemberId: z.string().uuid().optional(),
+  sessionId: z.string().uuid().optional(),
 });
 
 export type SalaryNegotiationInput = z.infer<typeof salaryNegotiationSchema>;

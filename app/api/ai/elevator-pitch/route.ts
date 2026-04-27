@@ -34,15 +34,12 @@ export async function POST(request: Request) {
 
   const { name, targetRole, strengths, certifications, industry, subjectMemberId, sessionId } = body;
 
-  
-  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
-  if (!onBehalf.ok) {
-    return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
-  }
-
   if (!name?.trim() || !targetRole?.trim()) {
     return NextResponse.json({ error: 'Name and target role are required.' }, { status: 400 });
   }
+
+  const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId ?? undefined);
+  if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
   const prompt = `Write a powerful, natural-sounding 10-20 second elevator pitch (spoken out loud) for someone with these details:
 
@@ -118,11 +115,11 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
     try {
       const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
+        where: { id: onBehalf.subjectUserId },
         select: { fullName: true, email: true },
       });
 
-      const recipient = dbUser?.email?.trim() || user.email || '';
+      const recipient = dbUser?.email?.trim() || (onBehalf.subjectUserId === user.id ? user.email : null) || '';
       if (recipient) {
         const emailResult = await sendElevatorSpeechEmail({
           to: recipient,

@@ -27,7 +27,7 @@ export async function POST() {
       httpOnly: true,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('[auth/logout] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

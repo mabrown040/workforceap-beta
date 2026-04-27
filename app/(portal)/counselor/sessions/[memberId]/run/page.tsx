@@ -35,7 +35,17 @@ export default async function SessionRunPage({
     isAdmin(user.id),
     isSuperAdmin(user.id),
   ]);
-  if (!counselorRole && !adminRole && !superAdminRole) redirect('/dashboard');
+  // Admins who aren't counselors belong in admin chrome — redirect with params intact
+  if (!counselorRole) {
+    if (adminRole || superAdminRole) {
+      const qs = new URLSearchParams();
+      if (sid) qs.set('sid', sid);
+      if (fresh === '1') qs.set('fresh', '1');
+      const qsStr = qs.toString();
+      redirect(`/admin/sessions/${memberId}/run${qsStr ? `?${qsStr}` : ''}`);
+    }
+    redirect('/dashboard');
+  }
 
   const member = await prisma.user.findUnique({
     where: { id: memberId, deletedAt: null },

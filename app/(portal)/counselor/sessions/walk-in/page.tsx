@@ -17,7 +17,11 @@ export default async function WalkInSessionPage() {
   if (!user) redirect('/login?redirectTo=/counselor/sessions/walk-in');
 
   const [counselorRole, adminRole] = await Promise.all([isCounselor(user.id), isAdmin(user.id)]);
-  if (!counselorRole && !adminRole) redirect('/dashboard');
+  // Admins who aren't counselors belong in admin chrome, not counselor chrome
+  if (!counselorRole) {
+    if (adminRole) redirect('/admin/sessions/walk-in');
+    redirect('/dashboard');
+  }
 
   return (
     <>

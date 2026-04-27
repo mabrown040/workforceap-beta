@@ -234,3 +234,62 @@ Continued audit. Covered: counselor portal (8 routes), partner portal (10 routes
 ---
 
 *Round-3 tooling additions: JS DOM probes for `<footer>.offsetParent`, `getComputedStyle().display`, `<h1>` count per page, `tabindex`/`role` audit on apply step 2 program cards, touch-target geometry sweep at 375px, marketing-page H1 sweep across 13 pages.*
+
+---
+
+# Round 4 — Coursera connection deep dive + admin pipeline / fixtures (2026-04-26)
+
+Focused audit of the Coursera integration (top-level launch endpoint, per-course links, course identification model, Mark Complete API, admin manual mapping page) plus admin pipeline, notifications panel, and remaining admin sub-routes. Numbering continues from #94.
+
+## P1 (round 4) — Coursera integration
+
+| # | Page / endpoint | Issue |
+|---|---|---|
+| 95 | `GET /api/member/coursera/launch` | The top-level "Open Coursera" button on `/dashboard/training` redirects to `https://www.coursera.org/o/workforce-advancement/admin/programs/workforce-advancement-project-8a3f0/main` — the **Coursera admin program-management page for the org**, not a learner-facing entry point. Members are routed into a Coursera admin surface they can't act on as learners. The launch endpoint redirect target is wrong. |
+| 96 | `/dashboard/training` per-course links | Confirmed: every per-course "Open in Coursera" link is the literal string `https://coursera.org/` (homepage). No course-specific deep link. Combined with #95, **no path from the WAP training page actually opens the right Coursera course** — top button lands at admin/main, per-course buttons land at coursera.org root. |
+| 97 | `/dashboard/training` link target inconsistency | Top "Open Coursera" link uses `target=""` (same tab, no `rel="noopener"`); per-course "Open in Coursera" links use `target="_blank"` with `rel="noopener noreferrer"`. Same affordance, different navigation behavior. Pick one — opening Coursera in a new tab is the standard pattern. |
+| 98 | `/dashboard/training` course identification | Course rows carry **no `data-course-id`, `data-course-slug`, or any other Coursera identifier** in the DOM. Mark Complete buttons have no per-course data attribute on the button or its parent. The click handler appears to identify the course by DOM order or innerText — fragile, breaks under reorder/filter, and prevents Coursera deep-linking from being added cheaply. |
+| 99 | `/admin/coursera` member dropdown | The "Bind a Coursera learner" member dropdown contains **only one option: "Member Success · member.success@workforceap.org"**. The system has 14 members and `0 mappings / 0 unmatched events`, so 13 unmapped members should be selectable. Either the dropdown is filtered to a fixture/seed only, or member loading is broken. |
+| 100 | `/admin/coursera` form fields | None of the four input fields (member select, learner email, actor id, actor home page, notes) have `name` attributes — only placeholders. Form serialization, screen-reader announcement, and any HTML-only fallback all break without `name`. |
+| 101 | `/dashboard/training` Mark Complete | Earlier confirmed the API call is `POST /api/member/courses/complete → 200`, but the request body cannot be inspected without DevTools-level network capture. Given #98 (no course IDs in DOM), verify how the server identifies which course to mark — if it's by index in the rendered list, reordering the catalog will silently mis-attribute completions. |
+
+## P1 (round 4) — Other
+
+| # | Page | Issue |
+|---|---|---|
+| 102 | `/admin` Recent Signups | **Three Michael Brown accounts** in the system, not two as round 1 suggested: `mabrown040@gmail.com` (super-admin / member), `mabrown4@ymail.com` (Pending enrollment), and `mbrowncsn@sbcglobal.net` (AI Professional Practitioner Certificate). All show name "Michael Brown" — admin needs an identity-merge action and the auth flow needs to prevent this fan-out. |
+| 103 | `/admin/pipeline` | "Stale Applications" section shows two real entries: "Alec Cargin" + **"Member Success (member.success@workforceap.org) - Applied 4/18/2026"**. The fixture seed used as the prefill in `/admin/coursera` is also a real applicant in the live pipeline. |
+| 104 | `/admin/pipeline` Applied column | Includes "Test Member <mbrown@hsconglomerates.com>" alongside real-looking applicants. Explicit test fixture in production pipeline. |
+| 105 | `/admin/exports` | **Two `<h1>` "Export Data" elements** on the same page — almost certainly the same desktop/mobile dual-render bug as `/dashboard/training`. |
+| 106 | `/admin/board` | **Two `<footer>` elements** on this route (third admin/portal route confirmed leaking the marketing footer; joins `/dashboard/jobs`, `/dashboard/ai-tools`). |
+| 107 | `/admin` overview | Recent Signups list rendered **twice**: once as a table with email column, once as a tile list without email. Same content, two layouts, both visible. |
+| 108 | header `<button>` semantics | Six buttons in the dashboard chrome have empty `textContent` on the admin page (icon-only). Need `aria-label` audit — visible to screen readers only via aria-label or icon tooltip. |
+| 109 | member notification badge label | Member-side bell carries `aria-label`/text "notifications" with no count even when admin shows "1 message SLA breach". The badge value displayed ("1") in the visible corner is not the same source as the panel content ("All caught up"). Two state pipes, no agreement. |
+
+## P2 (round 4) — UX
+
+| # | Page | Issue |
+|---|---|---|
+| 110 | counselor + partner mobile | Same touch-target compression as member portal at 375px — counselor pages have 5 sub-44px targets, partner has 6. Pattern is global, not per-portal. |
+| 111 | `/admin/coursera` workflow | The "Manual identity mapping" form is the *only* mitigation for unmatched xAPI events, but it requires admin to know the Coursera learner email before binding. Add a "match suggested" flow: when an unmatched event lands, show the Coursera email + the closest WAP member by fuzzy email/name match; click-to-bind. |
+| 112 | `/dashboard/training` member affordance | After completing a course, no notice / toast / confirmation. State just changes silently. A success toast or animated checkmark would close the loop. |
+| 113 | `/dashboard/training` member messaging | Title strip says "Complete your AI Professional Practitioner Certificate courses on Coursera (our online learning partner)." but the integration drops users at coursera.org root or the org admin page. The copy promises a working partner experience the link path doesn't deliver. |
+
+## P3 (round 4) — Documentation / observation
+
+| # | Item | Note |
+|---|---|---|
+| 114 | xAPI flow | Admin Coursera page describes the matching order: "Manual actor mapping, then manual Coursera email mapping, then direct email match from xAPI Mbox." This is a useful sequence — should be documented in `/admin/coursera` UI alongside an example payload to help admins reason about which step caught a given event. |
+| 115 | Coursera org slug | Org slug `workforce-advancement` and program slug `workforce-advancement-project-8a3f0` visible in the launch redirect URL. If these are environment-dependent (staging vs prod), confirm they are in env config and not hard-coded. |
+
+---
+
+## Cross-cutting themes — round 4 additions
+
+- **Coursera integration is half-wired.** The auth/SSO half exists (`/api/member/coursera/launch` returns 302 to a Coursera URL), but: the redirect target is wrong (admin program page, not learner home), per-course links are not deep-linked, course rows carry no Coursera identifier in the DOM, and the admin manual-mapping page only lists one member. Until these are fixed, the "Mark Complete" workflow is the only meaningful surface — and it has no IDs, no toast, and no undo.
+- **Fixture data has fully infiltrated production.** `[ARCHIVED FIXTURE]` (member messages), "Test Students" (partner org), "member.success@workforceap.org" (admin coursera + admin pipeline), "Test Member <mbrown@hsconglomerates.com>" (pipeline). One sweep at the data layer — by prefix, by seed flag, or by deletion — removes a class of P1/P2 issues at once.
+- **Identity fan-out.** Three Michael Brown member records prove the auth flow does not de-duplicate by name/email. Could affect any admin counselor trying to "find member X" — they'll see multiple options.
+
+---
+
+*Round-4 tooling additions: HEAD/redirect inspection on `/api/member/coursera/launch`, DOM dataset audit on Mark Complete buttons, `name` attribute audit on admin coursera form, admin pipeline + notifications panel content extraction.*

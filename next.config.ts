@@ -143,6 +143,12 @@ const nextConfig: NextConfig = {
       { source: '/portal', destination: '/login', permanent: false },
       { source: '/portal/', destination: '/login', permanent: false },
 
+      // Sign-in aliases (avoids 404 for users typing /signin or /sign-in)
+      { source: '/signin', destination: '/login', permanent: true },
+      { source: '/signin/:path*', destination: '/login', permanent: true },
+      { source: '/sign-in', destination: '/login', permanent: true },
+      { source: '/sign-in/:path*', destination: '/login', permanent: true },
+
       // Supabase default sign-in path → actual login page (avoids 404 on magic-link redirects)
       { source: '/auth/sign-in', destination: '/login', permanent: false },
       { source: '/auth/sign-in/:path*', destination: '/login', permanent: false },

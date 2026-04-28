@@ -57,10 +57,10 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
   if (ctx.state === 'B') {
     out.push({
       id: 'skills_assessment',
-      title: 'Complete your skills assessment',
-      body: 'Start your training path and job matching with a short assessment.',
+      title: 'Complete your Training Preassessment',
+      body: 'After you choose a program, this short preassessment helps personalize your training plan and job matching.',
       href: '/dashboard/assessment',
-      cta: 'Take assessment',
+      cta: 'Start preassessment',
       variant: 'urgent',
       weight: 90,
     });

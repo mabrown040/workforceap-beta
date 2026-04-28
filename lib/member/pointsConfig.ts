@@ -33,7 +33,7 @@ export function getNextLevel(current: LevelName) {
 }
 
 export const EVENT_LABELS: Record<string, string> = {
-  assessment_completed:   'Completed skills assessment',
+  assessment_completed:   'Completed Training Preassessment',
   program_enrolled:       'Enrolled in program',
   resume_uploaded:        'Uploaded resume',
   course_completed:       'Completed a course',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { prisma } from '@/lib/db/prisma';
 import CounselorPortalShell from '@/components/portal/CounselorPortalShell';
@@ -18,9 +18,10 @@ export default async function CounselorLayout({ children }: { children: React.Re
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor');
 
-  const [allowedCounselor, allowedAdmin, portalRoles] = await Promise.all([
+  const [allowedCounselor, allowedAdmin, superAdmin, portalRoles] = await Promise.all([
     isCounselor(user.id),
     isAdmin(user.id),
+    isSuperAdmin(user.id),
     getPortalSwitcherRoles(user.id),
   ]);
   if (!allowedCounselor && !allowedAdmin) redirect('/dashboard');
@@ -40,5 +41,5 @@ export default async function CounselorLayout({ children }: { children: React.Re
     console.error('[counselor/layout] affiliation query failed', e);
   }
 
-  return <CounselorPortalShell subtitle={subtitle} portalRoles={portalRoles}>{children}</CounselorPortalShell>;
+  return <CounselorPortalShell subtitle={subtitle} superAdmin={superAdmin} portalRoles={portalRoles}>{children}</CounselorPortalShell>;
 }

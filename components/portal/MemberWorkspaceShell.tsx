@@ -9,11 +9,13 @@ import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 
 export default function MemberWorkspaceShell({
   hasResume = true,
+  superAdmin,
   portalRoles,
   children,
 }: {
   /** Member has an original or enhanced resume on file */
   hasResume?: boolean;
+  superAdmin?: boolean;
   portalRoles?: PortalSwitcherRole[];
   children: React.ReactNode;
 }) {
@@ -27,6 +29,7 @@ export default function MemberWorkspaceShell({
       marketingSiteHref="https://www.workforceap.org/"
       marketingSiteLabel="WorkforceAP.org"
       showResumeUploadHint={hasResume === false}
+      superAdmin={superAdmin}
       portalRoles={portalRoles}
       footer={<DashboardFooter />}
     >

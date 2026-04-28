@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getMemberResources } from '@/lib/content/memberResources';
-import Footer from '@/components/Footer';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import ResourceViewTracker from '@/components/portal/ResourceViewTracker';
@@ -106,7 +105,6 @@ export default async function DashboardCareerLibraryDetailPage({ params }: Props
           </div>
         </section>
 
-        <Footer />
       </div>
       <MobileBottomNav variant="portal" />
     </>

@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import Footer from '@/components/Footer';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -67,7 +66,6 @@ export default async function DashboardAccountPage() {
           </div>
         </section>
 
-        <Footer />
       </div>
       <MobileBottomNav variant="portal" />
     </>

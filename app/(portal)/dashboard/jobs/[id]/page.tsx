@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
-import Footer from '@/components/Footer';
 import JobApplyButton from './JobApplyButton';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 import PageHeader from '@/components/portal/PageHeader';
@@ -123,7 +122,6 @@ export default async function JobDetailPage({ params }: Props) {
           <JobApplyButton jobId={job.id} authenticated={!!user} />
         </div>
       </section>
-      <Footer />
     </div>
       <MobileBottomNav variant="portal" />
     </>

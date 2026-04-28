@@ -81,24 +81,34 @@ export async function GET(request: Request) {
 
   const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
-  // Prefer (1) configured launch URL → (2) the discovered learner program
-  // URL for the member's enrolled program → (3) the platform root. The learner
-  // program URL drops members into their actual enrollment, not the public
-  // Coursera homepage where they have to hunt for it (#95).
+  // Prefer (1) a configured deep link when it is clearly program/course-specific,
+  // then (2) the discovered learner program URL for the member's actual
+  // enrollment, then (3) the generic Coursera platform root. This avoids
+  // dropping members on a broad homepage or admin landing when we know their
+  // enrolled learner program URL (#95).
   const discoveredProgramUrl = enrolledProgram
     ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.publicProgramUrl ?? null
     : null;
 
+  const configuredLaunchUrl = buildCourseraLaunchUrl({
+    programSlug: enrolledProgram,
+    userId: user.id,
+    email: user.email ?? '',
+    currentCourseIndex,
+    locale,
+  });
+
+  const readiness = getCourseraReadiness(enrolledProgram);
+  const isProgramSpecificLaunchUrl = (url: string | null | undefined) => {
+    if (!url) return false;
+    return /\/programs\//.test(url) || /\/learn\//.test(url) || /\/professional-certificates\//.test(url);
+  };
+
   const launchUrl =
-    buildCourseraLaunchUrl({
-      programSlug: enrolledProgram,
-      userId: user.id,
-      email: user.email ?? '',
-      currentCourseIndex,
-      locale,
-    }) ??
+    (isProgramSpecificLaunchUrl(configuredLaunchUrl) ? configuredLaunchUrl : null) ??
     discoveredProgramUrl ??
-    getCourseraReadiness(enrolledProgram).platformUrl;
+    configuredLaunchUrl ??
+    readiness.platformUrl;
 
   return NextResponse.redirect(launchUrl);
 }

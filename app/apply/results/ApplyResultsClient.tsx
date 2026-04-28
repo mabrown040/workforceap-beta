@@ -132,15 +132,7 @@ export default function ApplyResultsClient() {
   };
 
   const programsOrdered = useMemo(() => {
-    const base =
-      qualifies === true
-        ? [...PROGRAMS]
-        : [...PROGRAMS].sort((a, b) => {
-            const dig = 'digital-literacy-empowerment-class';
-            if (a.slug === dig) return -1;
-            if (b.slug === dig) return 1;
-            return 0;
-          });
+    const base = [...PROGRAMS];
     if (quizRecommendedSlugs.length === 0) return base;
     return [...base].sort((a, b) => {
       const ai = quizRecommendedSlugs.indexOf(a.slug);
@@ -150,7 +142,7 @@ export default function ApplyResultsClient() {
       if (bi >= 0) return 1;
       return 0;
     });
-  }, [qualifies, quizRecommendedSlugs]);
+  }, [quizRecommendedSlugs]);
 
   const rankLabel = (slug: string) => {
     const i = selectedSlugs.indexOf(slug);
@@ -243,10 +235,6 @@ export default function ApplyResultsClient() {
                 Start with support
               </h2>
               <ul className="apply-foundational-support__list">
-                <li>
-                  <strong>Digital foundations:</strong> Uncomfortable with computers or online forms? Our{' '}
-                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is listed first below.
-                </li>
                 <li>
                   <strong>Not sure what fits?</strong> Take the <Link href="/find-your-path">2-minute pathfinder</Link> for ranked ideas.
                 </li>

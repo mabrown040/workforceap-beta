@@ -45,13 +45,16 @@ export default async function LearningPage() {
   ]);
   const isEnrolled = !!dbUser?.enrolledProgram;
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  // Use the member's enrolled program to determine their pathway.
-  // Previously hardcoded to PATHWAYS[0] — all members saw IT Support.
+  // Resolve the member's pathway from their enrolled program. Returns null
+  // when the member has no enrolled program — we render an enroll-prompt
+  // empty state instead of a default IT Support / Digital Literacy pathway.
   const ACTIVE_PATHWAY = getPathwayForProgram(enrolledProgram);
   const programMeta = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const coursesForMember = programMeta?.courses ?? [];
   const coursesCompletedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const pathwayMilestones = buildPathwayMilestones(ACTIVE_PATHWAY, allProgress);
+  const pathwayMilestones = ACTIVE_PATHWAY
+    ? buildPathwayMilestones(ACTIVE_PATHWAY, allProgress)
+    : [];
 
   const totalStepsAllPathways = PATHWAYS.reduce((sum, p) => sum + p.steps.length, 0);
   const completedAll = allProgress.filter((r) => r.status === 'completed').length;
@@ -70,6 +73,7 @@ export default async function LearningPage() {
       </div>
 
       {/* Progress overview card */}
+      {ACTIVE_PATHWAY && (
       <section className="wa-bg-[var(--surface-container-low)]" style={{ margin: '0 1.5rem 1.5rem', padding: '1.25rem', borderRadius: '0.75rem', position: 'relative', overflow: 'hidden', border: '1px solid color-mix(in srgb, var(--outline-variant) 35%, transparent)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ zIndex: 10, width: '60%' }}>
@@ -98,6 +102,7 @@ export default async function LearningPage() {
           <div className="wa-bg-[var(--color-accent)]" style={{ width: `${Math.min(100, overallPct)}%`, height: '100%', borderRadius: '9999px' }} />
         </div>
       </section>
+      )}
 
       <LearningHubEnrolledCourses
         variant="mobile"
@@ -110,6 +115,7 @@ export default async function LearningPage() {
       <FindYourCareerSection compact />
 
       {/* Current module card */}
+      {ACTIVE_PATHWAY && (
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
         <div className="wa-bg-gradient-to-br from-[var(--color-accent-dark)] to-[var(--color-accent)] wa-text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
@@ -138,8 +144,10 @@ export default async function LearningPage() {
           </Link>
         </div>
       </section>
+      )}
 
       {/* Pathway steps — synced from your pathway progress */}
+      {ACTIVE_PATHWAY && (
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
         <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '1rem' }}>Pathway steps</h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -193,8 +201,9 @@ export default async function LearningPage() {
           })}
         </div>
       </section>
+      )}
 
-      {pathwayMilestones.some((m) => m.status === 'complete') && (
+      {ACTIVE_PATHWAY && pathwayMilestones.some((m) => m.status === 'complete') && (
         <section style={{ margin: '0 1.5rem 1.5rem' }}>
           <h5 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>Completed</h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -264,6 +273,7 @@ export default async function LearningPage() {
       <FindYourCareerSection />
 
       {/* Hero card + Course Milestones sidebar */}
+      {ACTIVE_PATHWAY && (
       <div
         style={{
           display: 'grid',
@@ -416,11 +426,13 @@ export default async function LearningPage() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Destination cards (existing component — career library, program resources) */}
       <LearningHubDestinationCards />
 
       {/* Your learning pathway — enrolled pathway only, with real DB-backed progress */}
+      {ACTIVE_PATHWAY && (
       <section style={{ marginBottom: 'var(--space-8)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
@@ -435,6 +447,7 @@ export default async function LearningPage() {
           <LearningPathCard pathway={ACTIVE_PATHWAY} />
         </div>
       </section>
+      )}
 
       <LearningCivicBotPanel />
     </div>

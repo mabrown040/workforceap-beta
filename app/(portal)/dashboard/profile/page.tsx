@@ -6,7 +6,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
+import { ASSESSMENT_QUESTIONS, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import DashboardProfileForm from '@/components/portal/DashboardProfileForm';
 import SettingsForm from '@/components/portal/SettingsForm';
 import DeleteAccountButton from '@/components/portal/DeleteAccountButton';
@@ -330,7 +330,7 @@ export default async function DashboardProfilePage() {
           <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
             <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-3">Assessment</h3>
             <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
-              Score: {dbUser.assessmentScore ?? 0}/100 ({dbUser.assessmentScorePct ?? 0}%)
+              Score: {dbUser.assessmentScore ?? 0}/{TOTAL_POINTS} ({dbUser.assessmentScorePct ?? 0}%)
             </p>
             {dbUser.assessmentCompletedAt && (
               <p className="wa-text-xs wa-text-[#584144] wa-mt-1">
@@ -456,7 +456,7 @@ export default async function DashboardProfilePage() {
                     {dbUser.assessmentScorePct ?? 0}<span style={{ fontSize: '1rem' }}>%</span>
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-                    {dbUser.assessmentScore ?? 0}/100 points
+                    {dbUser.assessmentScore ?? 0}/{TOTAL_POINTS} points
                   </p>
                 </div>
                 {dbUser.assessmentCompletedAt && (

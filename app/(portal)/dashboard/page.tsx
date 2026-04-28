@@ -324,7 +324,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    startFirstCourse: !!enrolledProgram && assessmentCompleted, // training unlocked
+    // Audit #8: previously checked "training unlocked" (program enrolled +
+    // assessment done), so "Start training ✓" appeared while 0/16 courses
+    // were complete. Now ties to actual course completion progress.
+    startFirstCourse: completedCount >= 1,
     completeFirstCourse: completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);

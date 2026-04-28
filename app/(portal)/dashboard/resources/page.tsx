@@ -33,7 +33,7 @@ export default async function DashboardResourcesPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true },
+    select: { enrolledProgram: true, enrolledAt: true },
   });
 
   const counselorAssignment = await prisma.counselorAssignment.findFirst({
@@ -164,7 +164,9 @@ export default async function DashboardResourcesPage() {
                 </>
               ) : (
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.55 }}>
-                  A counselor will be assigned as you move through enrollment.
+                  {dbUser?.enrolledAt
+                    ? 'Your counselor will reach out shortly — leave a message anytime.'
+                    : 'A counselor will be assigned as you move through enrollment.'}
                 </p>
               )}
               <Link href="/dashboard/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>

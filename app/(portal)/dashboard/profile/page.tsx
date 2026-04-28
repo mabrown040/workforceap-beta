@@ -48,6 +48,8 @@ export default async function DashboardProfilePage() {
         profileAddress: true,
         profileLinkedin: true,
         profileBio: true,
+        employmentStatus: true,
+        educationLevel: true,
         financialAidInterest: true,
         resumeEnhancedPath: true,
         resumeOriginalPath: true,
@@ -106,12 +108,10 @@ export default async function DashboardProfilePage() {
     ? dbUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : '??';
 
-  /* Single source of truth for profile completion percentage —
-     getProfileCompleteness(profile, user) in lib/resume/profileCompleteness.
-     Closes audit #7: profile/page used to compute its own percentage from a
-     local 8-field array while dashboard/page used getProfileCompleteness from
-     the same lib, so members saw 50% on the dashboard "Strengthen your
-     profile" card and 75% on the profile page hero for the same data. */
+  // Single source of truth: getProfileCompleteness in lib/resume/profileCompleteness.
+  // Both this page and dashboard/page must select the same set of profile fields
+  // (phone, address, linkedin, bio, employmentStatus, educationLevel) for the
+  // computed % to agree.
   const profilePct = getProfileCompleteness(dbUser.profile, dbUser);
   const completeness = profilePct;
   const witData = {
@@ -304,7 +304,7 @@ export default async function DashboardProfilePage() {
           <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
             <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-3">Assessment</h3>
             <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
-              Score: {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%)
+              Score: {dbUser.assessmentScore ?? 0}/100 ({dbUser.assessmentScorePct ?? 0}%)
             </p>
             {dbUser.assessmentCompletedAt && (
               <p className="wa-text-xs wa-text-[#584144] wa-mt-1">
@@ -424,7 +424,7 @@ export default async function DashboardProfilePage() {
                     {dbUser.assessmentScorePct ?? 0}<span style={{ fontSize: '1rem' }}>%</span>
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-                    {dbUser.assessmentScore ?? 0}/90 points
+                    {dbUser.assessmentScore ?? 0}/100 points
                   </p>
                 </div>
                 {dbUser.assessmentCompletedAt && (

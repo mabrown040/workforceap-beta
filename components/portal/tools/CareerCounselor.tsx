@@ -172,7 +172,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   // ── Pre-session ────────────────────────────────────────────────────────────
   if (phase === 'pre') {
     return (
-      <div style={{ maxWidth: 560 }}>
+      <div style={{ maxWidth: 560, animation: 'cc-fade-in 0.4s ease forwards' }}>
         {/* Ambient orb */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
           <div style={{ position: 'relative', width: 96, height: 96 }}>
@@ -256,7 +256,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   // ── Active session ─────────────────────────────────────────────────────────
   if (phase === 'active') {
     return (
-      <div style={{ maxWidth: 560 }}>
+      <div style={{ maxWidth: 560, animation: 'cc-fade-in 0.4s ease forwards' }}>
         {/* Orb with pulse ring */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.75rem' }}>
           <div style={{ position: 'relative', width: 96, height: 96 }}>

@@ -21,12 +21,8 @@ export async function saveAIToolResult(
   actor?: { actorUserId: string; actorName: string | null; sessionId?: string | null }
 ) {
   const result = await prisma.aIToolResult.create({
-    data: {
-      userId,
-      toolType,
-      inputSummary,
-      output,
-    },
+    data: { userId, toolType, inputSummary, output },
+    select: { id: true },
   });
   const onBehalf = actor && actor.actorUserId !== userId;
   const baseMetadata: Record<string, unknown> = { toolType };
@@ -51,4 +47,5 @@ export async function saveAIToolResult(
     metadata: { ...baseMetadata, outputLength: output.length },
     sessionId: actor?.sessionId ?? undefined,
   }).catch(() => {});
+  return result.id;
 }

@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
-import { PATHWAYS } from '@/lib/content/learningPathways';
+import { findPathwayById } from '@/lib/content/learningPathways';
 
 export async function POST(
   _request: Request,
@@ -18,7 +18,7 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid step index' }, { status: 400 });
   }
 
-  const pathway = PATHWAYS.find((p) => p.id === pathwayId);
+  const pathway = findPathwayById(pathwayId);
   if (!pathway || stepIdx >= pathway.steps.length) {
     return NextResponse.json({ error: 'Pathway or step not found' }, { status: 404 });
   }

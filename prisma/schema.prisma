@@ -149,6 +149,10 @@ model User {
   mentorSessions      MentorSession[] @relation("MentorSessionMember")
   membersWioaReviewed User[]          @relation("WioaReviewStaff")
 
+  memberPoints       MemberPoints?
+  pointsTransactions PointsTransaction[]
+  pointsAwarded      PointsTransaction[] @relation("PointsAwarder")
+
   @@index([organizationId])
   @@index([wioaReviewStatus])
   @@index([enrolledProgram])
@@ -1610,4 +1614,38 @@ model MemberNextBestAction {
 
   @@index([memberId, status, priority])
   @@map("member_next_best_actions")
+}
+
+// --- Rewards & Points ---
+
+model MemberPoints {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  totalPoints Int      @default(0) @map("total_points")
+  level       String   @default("starter")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("member_points")
+}
+
+model PointsTransaction {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  event     String
+  entityId  String   @default("") @map("entity_id")
+  points    Int
+  note      String?  @db.Text
+  awardedBy String?  @map("awarded_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  awarder User? @relation("PointsAwarder", fields: [awardedBy], references: [id], onDelete: SetNull)
+
+  @@unique([userId, event, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("points_transactions")
 }

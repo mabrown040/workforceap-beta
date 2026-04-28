@@ -116,7 +116,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                 {isComplete ? 'Complete' : 'Not Started'}
               </span>
               <a
-                href={`/api/member/coursera/launch?course=${encodeURIComponent(c.slug)}`}
+                href={`https://www.coursera.org/learn/${encodeURIComponent(c.slug)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

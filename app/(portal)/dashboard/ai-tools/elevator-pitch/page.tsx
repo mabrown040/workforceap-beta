@@ -35,6 +35,7 @@ export default async function ElevatorPitchPage() {
           <ToolHistoryPanel
             userId={user.id}
             toolTypes={['career_counselor']}
+            inputSummaryStartsWith="AI elevator speech for"
             title="Previous AI elevator introductions"
             emptyMessage="No saved elevator introductions yet. Generate your first one above."
           />

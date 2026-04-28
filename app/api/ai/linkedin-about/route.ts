@@ -7,6 +7,7 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -101,7 +102,7 @@ Write a 3-paragraph LinkedIn About section.`;
       console.error('LinkedIn about: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output: cleanLongFormPlainText(output) });
   } catch (err) {
     console.error('LinkedIn about error:', err);
     return NextResponse.json(

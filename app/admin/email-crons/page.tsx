@@ -64,9 +64,14 @@ export default async function AdminEmailCronsPage() {
     };
   });
 
-  // Quick stats
+  // Quick stats — error count scoped to last 7 days so stale old errors don't surface indefinitely (#153)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const totalRuns = recentDiags.length;
-  const errorRuns = recentDiags.filter(d => d.status === 'error' || d.status === 'errored').length;
+  const errorRuns = recentDiags.filter(d =>
+    (d.status === 'error' || d.status === 'errored') &&
+    new Date(d.createdAt) >= sevenDaysAgo
+  ).length;
   const enabledCount = cronData.filter(c => c.enabled).length;
 
   return (

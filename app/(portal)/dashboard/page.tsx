@@ -29,6 +29,8 @@ import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
+import PointsWidget from '@/components/portal/PointsWidget';
+import { getMemberPoints } from '@/lib/member/points';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Your Dashboard',
@@ -139,7 +141,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, sessionEventsResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -163,6 +165,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     }),
     prisma.jobApplication.findMany({
       where: { userId: user.id, status: 'OFFER' },
+    }),
+    getMemberPoints(user.id),
+    prisma.pointsTransaction.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+      select: { id: true, event: true, points: true, note: true, createdAt: true },
     }),
     // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
     // ai_tool_run_completed event in the last 30 days where a counselor or
@@ -197,6 +206,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   }
 
   const jobOffers = jobApplicationsResult.status === 'fulfilled' ? jobApplicationsResult.value : [];
+
+  const memberPoints = pointsResult.status === 'fulfilled' ? pointsResult.value : null;
+  const recentTx = recentTxResult.status === 'fulfilled' ? recentTxResult.value : [];
 
   // Group on-behalf-of session events by sessionId so the dashboard can
   // render a single "Your session with {actor}" card for the most recent run.
@@ -324,7 +336,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    startFirstCourse: !!enrolledProgram && assessmentCompleted, // training unlocked
+    // Audit #8: previously checked "training unlocked" (program enrolled +
+    // assessment done), so "Start training ✓" appeared while 0/16 courses
+    // were complete. Now ties to actual course completion progress.
+    startFirstCourse: completedCount >= 1,
     completeFirstCourse: completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
@@ -682,6 +697,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
+        {/* ── Points widget ── */}
+        {memberPoints && memberPoints.total > 0 && (
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+            <PointsWidget
+              total={memberPoints.total}
+              level={memberPoints.level}
+              recent={recentTx}
+            />
+          </section>
+        )}
+
         {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
         {!enrolledProgram ? (
           <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
@@ -859,8 +885,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-                <div style={{ maxWidth: '300px' }}>
-                  <LogCertificationModal />
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
+                  <div style={{ maxWidth: '300px' }}>
+                    <LogCertificationModal />
+                  </div>
+                  {memberPoints && memberPoints.total > 0 && (
+                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
+                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
+                    </div>
+                  )}
                 </div>
               </div>
               <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>

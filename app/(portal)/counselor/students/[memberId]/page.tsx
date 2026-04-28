@@ -24,6 +24,9 @@ import {
   employerMatchPipelineLabel,
 } from '@/lib/employer/aiMatchPipelineLabels';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import PointsWidget from '@/components/portal/PointsWidget';
+import AwardPointsButton from '@/components/portal/AwardPointsButton';
+import { getMemberPoints } from '@/lib/member/points';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -87,7 +90,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     notFound();
   }
 
-  const [applications, aiMatches] = await Promise.all([
+  const [applications, aiMatches, memberPts, recentTx] = await Promise.all([
     prisma.jobPostingApplication.findMany({
       where: { studentId: memberId },
       orderBy: { appliedAt: 'desc' },
@@ -102,6 +105,13 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         job: { select: { id: true, title: true, employer: { select: { companyName: true } } } },
       },
     }),
+    getMemberPoints(memberId).catch(() => null),
+    prisma.pointsTransaction.findMany({
+      where: { userId: memberId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, event: true, points: true, note: true, createdAt: true },
+    }).catch(() => []),
   ]);
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
@@ -223,16 +233,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">chat</span>
                 Message
               </Link>
-              <button type="button"
-                disabled
+              <Link
+                href={`/counselor/sessions/${memberId}/run`}
                 className="btn btn-primary"
-                style={{ flex: 1, fontSize: '0.8rem', opacity: 0.5, cursor: 'not-allowed' }}
+                style={{ flex: 1, fontSize: '0.8rem' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
                   event
                 </span>
-                Schedule
-              </button>
+                Session
+              </Link>
             </div>
           </div>
         </div>
@@ -297,6 +307,20 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             )}
           </div>
         </div>
+
+        {/* Points */}
+        {memberPts && (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <PointsWidget total={memberPts.total} level={memberPts.level} recent={recentTx} />
+            <div style={{ marginTop: '0.75rem' }}>
+              <AwardPointsButton
+                memberId={member.id}
+                memberName={member.fullName ?? 'this member'}
+                apiHref={`/api/counselor/members/${member.id}/award-points`}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Counselor Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
@@ -459,6 +483,20 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               />
             </section>
           ) : null}
+
+          {memberPts && (
+            <section style={{ marginTop: '1.5rem', maxWidth: 480 }}>
+              <h2 className="portal-section-heading" style={{ marginBottom: '0.75rem' }}>Member Points</h2>
+              <PointsWidget total={memberPts.total} level={memberPts.level} recent={recentTx} />
+              <div style={{ marginTop: '0.75rem' }}>
+                <AwardPointsButton
+                  memberId={member.id}
+                  memberName={member.fullName ?? 'this member'}
+                  apiHref={`/api/counselor/members/${member.id}/award-points`}
+                />
+              </div>
+            </section>
+          )}
 
           <section style={{ marginTop: '1.5rem' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>

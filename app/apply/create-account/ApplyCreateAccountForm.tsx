@@ -10,6 +10,7 @@ import {
   APPLY_PROGRAM_SLUG_KEY,
   getCareerQuizPayloadFromStorage,
 } from '@/lib/apply/applyProgramStorage';
+import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' }, { abbr: 'AK', name: 'Alaska' }, { abbr: 'AZ', name: 'Arizona' },
@@ -124,6 +125,8 @@ export default function ApplyCreateAccountForm() {
     };
   }, [init]);
 
+  const rankedProgramLabels = (programRankedSlugs ?? []).map((slug) => getProgramDisplayTitle(getProgramBySlug(slug) ?? slug));
+
   const emailLooksValid = (value: string) => {
     const v = value.trim();
     if (!v.includes('@')) return false;
@@ -194,7 +197,7 @@ export default function ApplyCreateAccountForm() {
     }
 
     if (!programRankedSlugs?.length) {
-      setError('Your program selection wasn\'t saved — please go back to step 2 and choose at least one program.');
+      setError('Your program selections weren\'t saved — please go back to step 2 and choose at least one program.');
       return;
     }
 
@@ -310,12 +313,12 @@ export default function ApplyCreateAccountForm() {
     return (
       <div className="apply-form-missing-session">
         <p role="alert" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-          We couldn&rsquo;t find your saved program choice. This usually happens if you skipped step 2, opened this page in a new tab or device,
+          We couldn&rsquo;t find your saved program choices. This usually happens if you skipped step 2, opened this page in a new tab or device,
           or your browser cleared site data.
         </p>
         <p style={{ marginBottom: '0.75rem' }}>
           <Link href="/apply/results" className="btn btn-primary">
-            Back to step 2 — choose a program
+            Back to step 2 — choose your programs
           </Link>
         </p>
         <p>
@@ -337,8 +340,15 @@ export default function ApplyCreateAccountForm() {
 
       <div className="apply-transition-card" role="note" aria-label="Why account creation matters">
         <strong>Why we ask for this now:</strong>
-        <span> your account saves the program you selected, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
+        <span> your account saves the program choices you ranked, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
       </div>
+
+      {rankedProgramLabels.length > 0 ? (
+        <div className="apply-transition-card" role="note" aria-label="Saved program choices" style={{ marginTop: '0.75rem' }}>
+          <strong>Your saved choices:</strong>
+          <span> {rankedProgramLabels.join(' • ')}</span>
+        </div>
+      ) : null}
 
       <p className="apply-step-desc" style={{ marginTop: '1rem' }}>
         After you create your account, you can view your dashboard and next steps. Some applicants are asked to verify their email first — check your inbox if so.

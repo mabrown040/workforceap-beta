@@ -212,7 +212,7 @@ export default function ApplyEligibilityClient() {
           onClick={handleContinue}
           aria-describedby={!canContinue || attemptedContinue ? 'apply-eligibility-continue-hint' : undefined}
         >
-          Continue to step 2 — choose a program →
+          Continue to step 2 — choose your programs →
         </button>
         {(!canContinue || attemptedContinue) && (
           <p id="apply-eligibility-continue-hint" className="apply-continue-hint" role={attemptedContinue ? 'status' : undefined}>

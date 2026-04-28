@@ -50,5 +50,5 @@ export const PROGRAM_RESOURCES: Record<string, ProgramResource[]> = {
 };
 
 export function getResourcesForCategory(category: string): ProgramResource[] {
-  return PROGRAM_RESOURCES[category] ?? PROGRAM_RESOURCES['ai-software'];
+  return PROGRAM_RESOURCES[category] ?? PROGRAM_RESOURCES['digital-literacy'];
 }

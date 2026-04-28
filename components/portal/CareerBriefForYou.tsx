@@ -59,9 +59,30 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
               {location ? `Search jobs near ${location} →` : 'Search Austin-area jobs →'}
             </a>
             {bestBoardsForProgram.length > 0 ? (
-              <p style={{ margin: '0.4rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
-                Best boards for your path: {bestBoardsForProgram.join(' · ')}
-              </p>
+              <div style={{ marginTop: '0.45rem' }}>
+                <p style={{ margin: '0 0 0.35rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
+                  Best boards for your path
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                  {bestBoardsForProgram.map((board) => (
+                    <span
+                      key={board}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.22rem 0.5rem',
+                        borderRadius: '999px',
+                        background: 'rgba(173,44,77,0.08)',
+                        color: 'var(--color-on-surface)',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {board}
+                    </span>
+                  ))}
+                </div>
+              </div>
             ) : null}
             {jobSearchEngines.length > 1 ? (
               <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
@@ -76,16 +97,32 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
               </p>
             ) : null}
             {suburbPresets.length > 0 ? (
-              <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
-                Quick area searches: {suburbPresets.map((preset, index) => (
-                  <span key={preset.label}>
-                    {index > 0 ? ' · ' : ''}
-                    <a href={preset.href} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
+              <div style={{ marginTop: '0.45rem' }}>
+                <p style={{ margin: '0 0 0.35rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
+                  Quick area searches
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  {suburbPresets.map((preset) => (
+                    <a
+                      key={preset.label}
+                      href={preset.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="career-brief-for-you-link"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.22rem 0.5rem',
+                        borderRadius: '999px',
+                        background: 'rgba(0,0,0,0.04)',
+                        textDecoration: 'none',
+                      }}
+                    >
                       {preset.label}
                     </a>
-                  </span>
-                ))}
-              </p>
+                  ))}
+                </div>
+              </div>
             ) : null}
           </div>
         )}

@@ -35,11 +35,16 @@ export function useIsSuperAdmin() {
   return isSuperAdmin;
 }
 
-export default function SuperAdminViewSwitcher() {
+export default function SuperAdminViewSwitcher({
+  initialIsSuperAdmin = false,
+}: {
+  initialIsSuperAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const isSuperAdmin = useIsSuperAdmin();
+  const fetchedIsSuperAdmin = useIsSuperAdmin();
+  const isSuperAdmin = initialIsSuperAdmin || fetchedIsSuperAdmin;
   const currentView = getCurrentView(pathname ?? '');
   const panelRef = useRef<HTMLDivElement>(null);
 

@@ -9,10 +9,12 @@ import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 export default function CounselorPortalShell({
   children,
   subtitle,
+  superAdmin,
   portalRoles,
 }: {
   children: React.ReactNode;
   subtitle: string;
+  superAdmin?: boolean;
   portalRoles?: PortalSwitcherRole[];
 }) {
   return (
@@ -21,6 +23,7 @@ export default function CounselorPortalShell({
       navItems={COUNSELOR_PORTAL_NAV_ITEMS}
       workspaceLabel={PRODUCT_COPY.counselorWorkspace ?? 'Counselor'}
       contextLabel={subtitle}
+      superAdmin={superAdmin}
       portalRoles={portalRoles}
       footer={<DashboardFooter />}
     >

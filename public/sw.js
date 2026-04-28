@@ -9,7 +9,7 @@
 const CACHE_NAME = 'workforceap-v4';
 const FONT_CACHE = 'workforceap-fonts-v2';
 const STATIC_ASSETS = [
-  '/images/logo-tight.png',
+  '/images/wap_logo.png',
 ];
 
 // Google Fonts origins that should be cached for offline icon support
@@ -97,8 +97,8 @@ self.addEventListener('push', (event) => {
   const title = data.title ?? 'Workforce Advancement Project';
   const options = {
     body: data.body ?? 'You have a new update.',
-    icon: '/images/logo-tight.png',
-    badge: '/images/logo-tight.png',
+    icon: '/images/wap_logo.png',
+    badge: '/images/wap_logo.png',
     tag: data.tag ?? 'workforceap',
     data: { url: data.url ?? '/dashboard' },
     actions: data.actions ?? [{ action: 'open', title: 'Open Portal' }],

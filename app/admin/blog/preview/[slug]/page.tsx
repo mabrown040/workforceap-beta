@@ -87,7 +87,7 @@ export default async function AdminBlogPreviewPage({ params }: Props) {
             }}
           >
             <Image
-              src="/images/logo-tight.svg"
+              src="/images/wap_logo.png"
               alt=""
               width={272}
               height={153}

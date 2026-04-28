@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import ExportPdfButton from './ExportPdfButton';
+import AiToolLanguageSelector from './AiToolLanguageSelector';
 
 const SALARY_RANGES = [
   '',
@@ -135,6 +136,7 @@ export default function ResumeRewriterForm({
 
   return (
     <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+      <AiToolLanguageSelector />
       <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
         <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
           <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.

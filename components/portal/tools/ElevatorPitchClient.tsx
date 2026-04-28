@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
+import AiToolLanguageSelector from './AiToolLanguageSelector';
 
 type Step = 'form' | 'pitch' | 'rehearse';
 
@@ -135,6 +136,7 @@ export default function ElevatorPitchClient() {
   if (step === 'form') {
     return (
       <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <AiToolLanguageSelector />
         <div className="portal-card portal-card--gradient-accent" style={{ padding: '1.125rem', borderRadius: '0.875rem', marginBottom: '0.25rem' }}>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.55 }}>
             <strong>Answer 5 quick questions</strong> and we&rsquo;ll write a 10–20 second elevator statement you can rehearse and record.

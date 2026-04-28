@@ -7,6 +7,7 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ExportPdfButton from './ExportPdfButton';
+import AiToolLanguageSelector from './AiToolLanguageSelector';
 
 type Question = {
   question: string;
@@ -151,6 +152,7 @@ export default function InterviewPracticeForm({ memberId }: { memberId?: string 
 
   return (
     <form onSubmit={handleSubmit} className="interview-practice-form">
+      <AiToolLanguageSelector />
       <div className="form-group">
         <label htmlFor="role">Target role</label>
         <input

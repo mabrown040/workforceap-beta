@@ -1,13 +1,20 @@
 'use client';
 
+export type AiToolLanguage = 'en' | 'es';
+
 const OPTIONS = [
   { code: 'en', label: 'English', status: 'Available now', disabled: false },
-  { code: 'es', label: 'Español', status: 'Coming next', disabled: true },
+  { code: 'es', label: 'Español', status: 'Available now', disabled: false },
   { code: 'fr', label: 'Français', status: 'Coming later', disabled: true },
   { code: 'pt', label: 'Português', status: 'Coming later', disabled: true },
 ] as const;
 
-export default function AiToolLanguageSelector() {
+type AiToolLanguageSelectorProps = {
+  value: AiToolLanguage;
+  onChange: (language: AiToolLanguage) => void;
+};
+
+export default function AiToolLanguageSelector({ value, onChange }: AiToolLanguageSelectorProps) {
   return (
     <section
       aria-label="AI tool response language"
@@ -30,7 +37,7 @@ export default function AiToolLanguageSelector() {
           Response language
         </p>
         <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
-          English today · Spanish next
+          English · Spanish
         </span>
       </div>
       <div role="group" aria-label="AI tool response language options" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -39,13 +46,16 @@ export default function AiToolLanguageSelector() {
             key={option.code}
             type="button"
             disabled={option.disabled}
-            aria-pressed={option.code === 'en'}
-            title={option.disabled ? `${option.label} support is not live yet` : `${option.label} is available now`}
-            className={option.code === 'en' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}
+            aria-pressed={option.code === value}
+            title={option.disabled ? `${option.label} support is not live yet` : `Generate responses in ${option.label}`}
+            onClick={() => {
+              if (!option.disabled && (option.code === 'en' || option.code === 'es')) onChange(option.code);
+            }}
+            className={option.code === value ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}
             style={{
               minHeight: '36px',
               opacity: option.disabled ? 0.68 : 1,
-              cursor: option.disabled ? 'not-allowed' : 'default',
+              cursor: option.disabled ? 'not-allowed' : 'pointer',
             }}
           >
             {option.label}
@@ -54,7 +64,7 @@ export default function AiToolLanguageSelector() {
         ))}
       </div>
       <p style={{ margin: 0, fontSize: '0.78rem', lineHeight: 1.45, color: 'var(--color-on-surface-variant)' }}>
-        This tool still generates English responses. We will turn on Spanish before French and Portuguese.
+        Choose English or Spanish for generated AI responses. French and Portuguese are still coming later.
       </p>
     </section>
   );

@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 
 /** POST — signed URL for voice mock interview with role / style context. */
 export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: { role?: string; interviewType?: string; experienceLevel?: string } = {};
+  let body: { role?: string; interviewType?: string; experienceLevel?: string; language?: string } = {};
   try {
-    body = (await req.json()) as { role?: string; interviewType?: string; experienceLevel?: string };
+    body = (await req.json()) as { role?: string; interviewType?: string; experienceLevel?: string; language?: string };
   } catch {
     /* empty body */
   }
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
   const role = body.role?.trim() || 'the candidate';
   const interviewType = body.interviewType?.trim() || 'Behavioral';
   const experienceLevel = body.experienceLevel?.trim() || 'entry';
+  const language = normalizeAIResponseLanguage(body.language);
 
   const member = await fetchMemberPortalDynamicVariables(user.id);
   const dynamicVariables = {
@@ -25,6 +27,8 @@ export async function POST(req: NextRequest) {
     target_role: role,
     interview_type: interviewType,
     experience_level: experienceLevel,
+    response_language: language,
+    response_language_instruction: aiResponseLanguageInstruction(language),
   };
 
   try {

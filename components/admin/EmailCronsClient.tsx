@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { CronDef } from '@/lib/admin/cronRegistry';
+import type { CronPreviewRecipient, CronPreviewResponse } from '@/lib/admin/cronPreviewTypes';
 
 type RunRecord = {
   id: string;
@@ -69,7 +70,10 @@ export default function EmailCronsClient({
   const [enabledCount, setEnabledCount] = useState(initialEnabledCount);
   const [triggeringIds, setTriggeringIds] = useState<Set<string>>(() => new Set());
   const [togglingIds, setTogglingIds] = useState<Set<string>>(() => new Set());
+  const [previewingIds, setPreviewingIds] = useState<Set<string>>(() => new Set());
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [previewPanelId, setPreviewPanelId] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<Record<string, CronPreviewResponse>>({});
   const [triggerResults, setTriggerResults] = useState<Record<string, { ok: boolean; result: unknown; error?: string }>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [activatingAll, setActivatingAll] = useState(false);
@@ -162,6 +166,25 @@ export default function EmailCronsClient({
         next.delete(cron.id);
         return next;
       });
+    }
+  };
+
+  const handlePreview = async (cron: CronWithStatus) => {
+    if (previewPanelId === cron.id) {
+      setPreviewPanelId(null);
+      return;
+    }
+    setPreviewPanelId(cron.id);
+    if (previewData[cron.id]) return; // already loaded
+    setPreviewingIds(prev => new Set(prev).add(cron.id));
+    try {
+      const res = await fetch(`/api/admin/email-crons/${cron.id}/preview`, { credentials: 'include' });
+      const data = await res.json() as CronPreviewResponse;
+      setPreviewData(prev => ({ ...prev, [cron.id]: data }));
+    } catch {
+      setPreviewData(prev => ({ ...prev, [cron.id]: { cronId: cron.id, cronName: cron.name, recipients: [], count: 0, truncated: false, note: 'Failed to load preview.' } }));
+    } finally {
+      setPreviewingIds(prev => { const n = new Set(prev); n.delete(cron.id); return n; });
     }
   };
 
@@ -317,6 +340,9 @@ export default function EmailCronsClient({
           const isExpanded = expandedId === cron.id;
           const isTriggeringThis = triggeringIds.has(cron.id);
           const isTogglingThis = togglingIds.has(cron.id);
+          const isPreviewingThis = previewingIds.has(cron.id);
+          const isPreviewOpen = previewPanelId === cron.id;
+          const previewResult = previewData[cron.id];
           const triggerResult = triggerResults[cron.id];
           const accentColor = categoryColors[cron.category] ?? 'var(--color-accent)';
 
@@ -438,6 +464,28 @@ export default function EmailCronsClient({
                     {isTriggeringThis ? 'Running…' : 'Run now'}
                   </button>
 
+                  {/* Preview recipients */}
+                  <button
+                    type="button"
+                    onClick={() => void handlePreview(cron)}
+                    disabled={isPreviewingThis}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                      padding: '0.4rem 0.875rem', borderRadius: '0.5rem',
+                      border: isPreviewOpen ? '1px solid var(--color-accent)' : '1px solid var(--outline-variant)',
+                      background: isPreviewOpen ? 'rgba(173,44,77,0.08)' : 'var(--surface-container)',
+                      color: isPreviewOpen ? 'var(--color-accent)' : 'var(--color-on-surface)',
+                      fontWeight: 700, fontSize: '0.8125rem',
+                      cursor: isPreviewingThis ? 'default' : 'pointer',
+                      opacity: isPreviewingThis ? 0.7 : 1, whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', animation: isPreviewingThis ? 'spin 1s linear infinite' : 'none' }}>
+                      {isPreviewingThis ? 'progress_activity' : 'group'}
+                    </span>
+                    {isPreviewingThis ? 'Loading…' : isPreviewOpen ? 'Hide recipients' : 'Preview'}
+                  </button>
+
                   {/* Expand/collapse */}
                   <button
                     type="button"
@@ -465,6 +513,43 @@ export default function EmailCronsClient({
                     <pre style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'pre-wrap', lineHeight: 1.4 }}>
                       {JSON.stringify(triggerResult.result as Record<string, unknown>, null, 2)}
                     </pre>
+                  )}
+                </div>
+              )}
+
+              {/* Preview recipients panel */}
+              {isPreviewOpen && (
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '1rem 1.25rem' }}>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+                    Would-receive recipients
+                  </p>
+                  {!previewResult ? (
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>Loading…</p>
+                  ) : previewResult.count === 0 ? (
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                      No recipients match today's criteria.{previewResult.note ? ` ${previewResult.note}` : ''}
+                    </p>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.625rem' }}>
+                        <strong style={{ color: 'var(--color-on-surface)' }}>{previewResult.count}</strong> recipient{previewResult.count !== 1 ? 's' : ''}
+                        {previewResult.truncated ? ` (showing first 50)` : ''}
+                        {previewResult.note ? ` — ${previewResult.note}` : ''}
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxHeight: '14rem', overflowY: 'auto' }}>
+                        {previewResult.recipients.map((r: CronPreviewRecipient, i: number) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.375rem 0.5rem', borderRadius: '0.375rem', background: 'var(--surface-container-low)', fontSize: '0.8125rem' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>person</span>
+                            <span style={{ color: 'var(--color-on-surface)', fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {r.name ?? r.email}
+                            </span>
+                            {r.name && (
+                              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', marginLeft: 'auto', flexShrink: 0 }}>{r.email}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               )}

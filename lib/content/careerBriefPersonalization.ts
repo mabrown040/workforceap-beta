@@ -11,6 +11,12 @@ const memberCareerBriefInclude = {
 
 export type MemberCareerBriefUser = Prisma.UserGetPayload<{ include: typeof memberCareerBriefInclude }>;
 
+export type CareerSearchEngine = {
+  label: string;
+  href: string;
+  note: string;
+};
+
 export type CareerBriefContext = {
   location: string | null;
   programInterest: string | null;
@@ -19,6 +25,7 @@ export type CareerBriefContext = {
   toolsUsed: string[];
   recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl: string | null;
+  jobSearchEngines: CareerSearchEngine[];
 };
 
 /** Map program interest to a short label for display */
@@ -55,16 +62,40 @@ function getProgramShortLabel(programInterest: string | null): string | null {
   return programInterest.length > 30 ? programInterest.slice(0, 30) + '…' : programInterest;
 }
 
-/** Build Indeed job search URL for location + role */
-function buildJobSearchUrl(programShortLabel: string | null, city: string | null, state: string | null): string | null {
-  const loc = [city, state].filter(Boolean).join(', ');
-  if (!loc.trim()) return null;
-  const query = programShortLabel?.replace(/&/g, ' ') ?? 'jobs';
-  const params = new URLSearchParams({
-    q: query,
-    l: loc,
-  });
-  return `https://www.indeed.com/jobs?${params.toString()}`;
+function buildCareerSearchEngines(programShortLabel: string | null, city: string | null, state: string | null): CareerSearchEngine[] {
+  const loc = [city, state].filter(Boolean).join(', ').trim();
+  if (!loc) return [];
+
+  const query = (programShortLabel?.replace(/&/g, ' ') ?? 'jobs').trim();
+  const queryPlusLocation = `${query} ${loc}`.trim();
+
+  return [
+    {
+      label: 'Indeed',
+      href: `https://www.indeed.com/jobs?${new URLSearchParams({ q: query, l: loc }).toString()}`,
+      note: 'Largest Austin-area job search coverage across industries.',
+    },
+    {
+      label: 'LinkedIn',
+      href: `https://www.linkedin.com/jobs/search/?${new URLSearchParams({ keywords: query, location: loc }).toString()}`,
+      note: 'Strong for tech, professional, and corporate roles.',
+    },
+    {
+      label: 'Glassdoor',
+      href: `https://www.google.com/search?${new URLSearchParams({ q: `site:glassdoor.com/Job ${queryPlusLocation}` }).toString()}`,
+      note: 'Useful when members want salary data and company reviews too.',
+    },
+    {
+      label: 'ZipRecruiter',
+      href: `https://www.ziprecruiter.com/jobs-search?${new URLSearchParams({ search: query, location: loc }).toString()}`,
+      note: 'Broad search with solid Austin + suburb coverage.',
+    },
+    {
+      label: 'WorkInTexas / AustinJobs',
+      href: 'https://www.workintexas.com/vosnet/Default.aspx',
+      note: 'Texas workforce portal for statewide, public-sector, and local openings.',
+    },
+  ];
 }
 
 export async function fetchCareerBriefRelations(userId: string, options?: { activeMemberOnly?: boolean }) {
@@ -135,7 +166,8 @@ export function assembleCareerBriefContext(
     recommendedActions.push({ label: 'Add another application', href: '/dashboard/job-applications' });
   }
 
-  const jobSearchUrl = buildJobSearchUrl(programShortLabel, city, state);
+  const jobSearchEngines = buildCareerSearchEngines(programShortLabel, city, state);
+  const jobSearchUrl = jobSearchEngines[0]?.href ?? null;
 
   return {
     location,
@@ -145,6 +177,7 @@ export function assembleCareerBriefContext(
     toolsUsed,
     recommendedActions: recommendedActions.slice(0, 3),
     jobSearchUrl,
+    jobSearchEngines,
   };
 }
 

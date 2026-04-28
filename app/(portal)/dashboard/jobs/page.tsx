@@ -126,35 +126,68 @@ export default async function JobsPage() {
             </div>
           ) : null}
 
-          {/* Indeed search banner */}
+          {/* External search engines */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
             padding: '0.875rem 1.25rem',
             background: 'var(--surface-container-low)',
             border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
             borderRadius: '0.875rem',
             marginBottom: '1.25rem',
-            flexWrap: 'wrap',
           }}>
-            <div style={{ flex: 1, minWidth: '12rem' }}>
+            <div style={{ marginBottom: '0.75rem' }}>
               <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
-                Also search Indeed
+                Search beyond the WorkforceAP job board
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Browse millions of additional job listings outside our employer network.
+                For Austin-area members, these are the best outside boards to check alongside our employer network.
               </p>
             </div>
-            <a
-              href="https://www.indeed.com/jobs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-outline"
-              style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-            >
-              Search on Indeed ↗
-            </a>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.75rem' }}>
+              {[
+                {
+                  label: 'Indeed',
+                  href: 'https://www.indeed.com/jobs?l=Austin%2C+TX',
+                  note: 'Largest Austin coverage across industries.',
+                },
+                {
+                  label: 'LinkedIn',
+                  href: 'https://www.linkedin.com/jobs/search/?location=Austin%2C%20Texas%2C%20United%20States',
+                  note: 'Strong for professional, tech, and corporate roles.',
+                },
+                {
+                  label: 'Glassdoor',
+                  href: 'https://www.google.com/search?q=site%3Aglassdoor.com%2FJob+Austin+TX+jobs',
+                  note: 'Job listings plus salary and company review context.',
+                },
+                {
+                  label: 'ZipRecruiter',
+                  href: 'https://www.ziprecruiter.com/jobs-search?search=&location=Austin%2C%20TX',
+                  note: 'Good Austin + Round Rock + Cedar Park coverage.',
+                },
+                {
+                  label: 'WorkInTexas / AustinJobs',
+                  href: 'https://www.workintexas.com/vosnet/Default.aspx',
+                  note: 'Texas Workforce Commission portal for local and public-sector roles.',
+                },
+              ].map((engine) => (
+                <a
+                  key={engine.label}
+                  href={engine.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div className="portal-card portal-card--flat" style={{ padding: '0.875rem', height: '100%' }}>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+                      {engine.label} ↗
+                    </p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
+                      {engine.note}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
 
           {!user ? (

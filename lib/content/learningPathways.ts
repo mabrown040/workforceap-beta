@@ -76,16 +76,14 @@ function buildProgramPathway(program: Program): LearningPathway {
 
 /**
  * Resolve the active pathway for a member based on their actual enrolled
- * program (audit #50). Builds a per-program pathway from the program catalog
- * so an AI Practitioner member sees AI courses, not the IT Support fallback.
- *
- * Falls back to PATHWAYS[0] only when there is no enrolled program or the
- * stored slug does not resolve to a catalog entry.
+ * program. Returns null when no enrolled program or unresolved slug — callers
+ * must render an empty/enroll-prompt state rather than a default pathway,
+ * since a default would mislead members into a path they did not choose.
  */
-export function getPathwayForProgram(programSlug: string | null): LearningPathway {
-  if (!programSlug) return PATHWAYS[0];
+export function getPathwayForProgram(programSlug: string | null): LearningPathway | null {
+  if (!programSlug) return null;
   const program = getProgramBySlug(programSlug);
-  if (!program || program.courses.length === 0) return PATHWAYS[0];
+  if (!program || program.courses.length === 0) return null;
   return buildProgramPathway(program);
 }
 

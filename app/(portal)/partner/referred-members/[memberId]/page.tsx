@@ -5,13 +5,13 @@ import { CheckCircle } from 'lucide-react';
 
 import { buildPageMetadata } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
-import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 type Props = {
   params: Promise<{ memberId: string }>;
@@ -32,6 +32,10 @@ function formatDate(value: Date | null | undefined) {
 
 function formatDateTime(value: Date | null | undefined) {
   return value ? value.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+}
+
+function sectionHeading(title: string) {
+  return <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{title}</h2>;
 }
 
 export default async function PartnerReferredMemberDetailPage({ params }: Props) {
@@ -94,6 +98,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const outreachCount = outreachLogs.length;
   const placed = !!member.placementRecord;
   const recentEvent = recentEvents[0] ?? null;
+  const memberStatus = placed ? 'Placed' : progressPct >= 80 ? 'Course-complete' : 'In training';
 
   function formatEventLabel(event: (typeof recentEvents)[number]) {
     if (event.metadata && typeof event.metadata === 'object' && event.metadata !== null && 'label' in event.metadata) {
@@ -104,7 +109,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   return (
     <PortalPageFrame>
-      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+      <div style={{ paddingBottom: '6rem' }}>
         <Link href="/partner/referred-members" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
           ← Back to referred members
         </Link>
@@ -117,201 +122,70 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
           ]}
         />
 
-        <div style={{ display: 'grid', gap: '0.875rem', padding: '0 0 1rem' }}>
-          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
-              Member snapshot
-            </p>
-            <p style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.25rem', fontWeight: 800 }}>{member.fullName}</p>
-            <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>{program?.title ?? 'No program selected'}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.5rem', marginTop: '0.85rem' }}>
-              {[
-                { label: 'Progress', value: `${progressPct}%` },
-                { label: 'Certificates', value: certificateCount },
-                { label: 'Outreach', value: outreachCount },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
-                  <div style={{ fontSize: '1rem', fontWeight: 800 }}>{item.value}</div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{item.label}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Program</h2>
-            <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.75rem' }}>
-              <div>
-                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Enrolled</p>
-                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{program?.title ?? '—'}</p>
-              </div>
-              <div>
-                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Enrolled date</p>
-                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{formatDate(member.enrolledAt)}</p>
-              </div>
-              <div>
-                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Overall progress</p>
-                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{progressPct}%</p>
-              </div>
-            </div>
-          </section>
-
-          {program ? (
+        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] wa-gap-4 md:wa-gap-6">
+          <div className="wa-grid wa-grid-cols-1 wa-gap-4">
             <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Course completions</h2>
-              <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
-                {program.courses.map((course) => (
-                  <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
-                    {coursesDone.includes(course.slug) ? (
-                      <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
-                    ) : (
-                      <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />
-                    )}
-                    <span>{course.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Placement</h2>
-            {member.placementRecord ? (
-              <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.75rem' }}>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Employer</p>
-                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{member.placementRecord.employerName}</p>
-                </div>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Role</p>
-                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{member.placementRecord.jobTitle}</p>
-                </div>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Placed</p>
-                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{formatDate(member.placementRecord.placedAt)}</p>
-                </div>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Salary</p>
-                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
-                    {member.placementRecord.salaryOffered != null ? `$${member.placementRecord.salaryOffered.toLocaleString()}` : '—'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0' }}>Not placed yet.</p>
-            )}
-          </section>
-
-          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Recent activity</h2>
-            {recentEvents.length === 0 ? (
-              <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0' }}>No recent member activity recorded yet.</p>
-            ) : (
-              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
-                {recentEvents.map((event) => (
-                  <div key={event.id} style={{ padding: '0.8rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
-                    <p style={{ margin: 0, fontWeight: 700 }}>{formatEventLabel(event)}</p>
-                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>{formatDateTime(event.createdAt)}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Partner outreach</h2>
-            {outreachLogs.length === 0 ? (
-              <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0' }}>No outreach logged yet for this member.</p>
-            ) : (
-              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
-                {outreachLogs.map((log) => (
-                  <div key={log.id} style={{ padding: '0.8rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
-                    <p style={{ margin: 0, fontWeight: 700, textTransform: 'capitalize' }}>{log.channel}</p>
-                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                      {log.createdBy.fullName} · {formatDateTime(log.createdAt)}
-                    </p>
-                    <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.45rem 0 0', lineHeight: 1.5 }}>{log.note}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {recentEvent ? (
-            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Latest activity</h2>
-              <p style={{ margin: '0.75rem 0 0', fontWeight: 700 }}>{formatEventLabel(recentEvent)}</p>
-              <p style={{ margin: '0.25rem 0 0', color: 'var(--color-on-surface-variant)' }}>{formatDateTime(recentEvent.createdAt)}</p>
-            </section>
-          ) : null}
-        </div>
-      </div>
-
-      {/* ── Desktop layout ── */}
-      <div className="wa-hidden md:wa-block">
-        <Link href="/partner/referred-members" style={{ color: 'var(--color-accent)', display: 'inline-block', marginBottom: '1rem' }}>
-          ← Back to referred members
-        </Link>
-        <PageHeader
-          title={member.fullName}
-          subtitle="Read-only overview. Contact information, assessments, and benefit requests are not shown in the partner portal."
-          breadcrumbs={[
-            { label: 'Referred Members', href: '/partner/referred-members' },
-            { label: 'Member Details' },
-          ]}
-          titleHeadingLevel={2}
-        />
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(320px, 0.7fr)', gap: '1rem', alignItems: 'start' }}>
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+              <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                 Member snapshot
               </p>
-              <h2 aria-hidden="true" style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.5rem', fontWeight: 800 }}>{member.fullName}</h2>
+              <p style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.25rem', fontWeight: 800 }}>{member.fullName}</p>
               <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>{program?.title ?? 'No program selected'}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+              <div className="wa-grid wa-grid-cols-3 wa-gap-2" style={{ marginTop: '0.85rem' }}>
                 {[
                   { label: 'Progress', value: `${progressPct}%` },
-                  { label: 'Certificates', value: certificateCount },
-                  { label: 'Outreach', value: outreachCount },
+                  { label: 'Certificates', value: String(certificateCount) },
+                  { label: 'Outreach', value: String(outreachCount) },
                 ].map((item) => (
-                  <div key={item.label} style={{ padding: '0.9rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>{item.value}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{item.label}</div>
+                  <div
+                    key={item.label}
+                    style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}
+                  >
+                    <div style={{ fontSize: '1rem', fontWeight: 800 }}>{item.value}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {item.label}
+                    </div>
                   </div>
                 ))}
               </div>
             </section>
 
-            <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Program</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.85rem', marginTop: '0.9rem' }}>
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('Program')}
+              <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.75rem' }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Enrolled</p>
-                  <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{program?.title ?? '—'}</p>
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Enrolled</p>
+                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{program?.title ?? '—'}</p>
                 </div>
                 <div>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Enrolled date</p>
-                  <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{formatDate(member.enrolledAt)}</p>
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Enrolled date</p>
+                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{formatDate(member.enrolledAt)}</p>
                 </div>
                 <div>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Overall progress</p>
-                  <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{progressPct}%</p>
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Overall progress</p>
+                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{progressPct}%</p>
                 </div>
               </div>
             </section>
 
             {program ? (
-              <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Course completions</h2>
-                <ul style={{ margin: '0.9rem 0 0', padding: 0, listStyle: 'none' }}>
+              <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+                {sectionHeading('Course completions')}
+                <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
                   {program.courses.map((course) => (
-                    <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
                       {coursesDone.includes(course.slug) ? (
                         <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
                       ) : (
-                        <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            width: 18,
+                            height: 18,
+                            border: '2px solid var(--outline-variant)',
+                            borderRadius: 4,
+                            flexShrink: 0,
+                          }}
+                        />
                       )}
                       <span>{course.name}</span>
                     </li>
@@ -320,60 +194,60 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
               </section>
             ) : null}
 
-            <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Placement</h2>
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('Placement')}
               {member.placementRecord ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem', marginTop: '0.9rem' }}>
+                <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.75rem' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Employer</p>
-                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{member.placementRecord.employerName}</p>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Employer</p>
+                    <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{member.placementRecord.employerName}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Role</p>
-                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{member.placementRecord.jobTitle}</p>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Role</p>
+                    <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{member.placementRecord.jobTitle}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Placed</p>
-                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{formatDate(member.placementRecord.placedAt)}</p>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Placed</p>
+                    <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{formatDate(member.placementRecord.placedAt)}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Salary</p>
-                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Salary</p>
+                    <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
                       {member.placementRecord.salaryOffered != null ? `$${member.placementRecord.salaryOffered.toLocaleString()}` : '—'}
                     </p>
                   </div>
                 </div>
               ) : (
-                <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.9rem 0 0' }}>Not placed yet.</p>
+                <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0' }}>Not placed yet.</p>
               )}
             </section>
 
-            <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Recent activity</h2>
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('Recent activity')}
               {recentEvents.length === 0 ? (
-                <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.9rem 0 0' }}>No recent member activity recorded yet.</p>
+                <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0' }}>No recent member activity recorded yet.</p>
               ) : (
-                <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.9rem' }}>
+                <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
                   {recentEvents.map((event) => (
-                    <div key={event.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                    <div key={event.id} style={{ padding: '0.8rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
                       <p style={{ margin: 0, fontWeight: 700 }}>{formatEventLabel(event)}</p>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{formatDateTime(event.createdAt)}</p>
+                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>{formatDateTime(event.createdAt)}</p>
                     </div>
                   ))}
                 </div>
               )}
             </section>
 
-            <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Partner outreach</h2>
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('Partner outreach')}
               {outreachLogs.length === 0 ? (
-                <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.9rem 0 0' }}>No outreach logged yet for this member.</p>
+                <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0' }}>No outreach logged yet for this member.</p>
               ) : (
-                <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.9rem' }}>
+                <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
                   {outreachLogs.map((log) => (
-                    <div key={log.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
+                    <div key={log.id} style={{ padding: '0.8rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
                       <p style={{ margin: 0, fontWeight: 700, textTransform: 'capitalize' }}>{log.channel}</p>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
                         {log.createdBy.fullName} · {formatDateTime(log.createdAt)}
                       </p>
                       <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.45rem 0 0', lineHeight: 1.5 }}>{log.note}</p>
@@ -384,13 +258,13 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
             </section>
           </div>
 
-          <aside style={{ display: 'grid', gap: '1rem' }}>
-            <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-              <h2 style={{ fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>At a glance</h2>
+          <aside style={{ display: 'grid', gap: '1rem', alignContent: 'start' }}>
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('At a glance')}
               <div style={{ display: 'grid', gap: '0.85rem', marginTop: '0.9rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Status</p>
-                  <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{placed ? 'Placed' : progressPct >= 80 ? 'Course-complete' : 'In training'}</p>
+                  <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{memberStatus}</p>
                 </div>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Latest activity</p>

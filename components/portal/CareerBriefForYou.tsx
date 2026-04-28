@@ -12,6 +12,7 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
     applicationsCount,
     recommendedActions,
     jobSearchUrl,
+    jobSearchEngines,
   } = context;
 
   const hasContext = location || programShortLabel || applicationsCount > 0 || jobSearchUrl;
@@ -51,11 +52,23 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
           </p>
         )}
         {jobSearchUrl && (
-          <p className="career-brief-for-you-line">
+          <div className="career-brief-for-you-line">
             <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
               Search jobs in your area →
             </a>
-          </p>
+            {jobSearchEngines.length > 1 ? (
+              <p style={{ margin: '0.4rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
+                Also useful: {jobSearchEngines.slice(1).map((engine, index) => (
+                  <span key={engine.label}>
+                    {index > 0 ? ' · ' : ''}
+                    <a href={engine.href} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
+                      {engine.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+          </div>
         )}
         {recommendedActions.length > 0 && (
           <div className="career-brief-for-you-actions">

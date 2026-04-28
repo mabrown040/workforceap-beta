@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { cookies } from 'next/headers';
 import { i18n } from '@/next-i18next.config.js';
 
@@ -61,7 +62,14 @@ export async function GET(request: Request) {
 
   const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
-  // Learner program URL fix (#95) - typically appended with /auth or similar, but for now we just make sure it's not admin root if we have a template
+  // Prefer (1) configured launch URL → (2) the discovered learner program
+  // URL for the member's enrolled program → (3) the platform root. The learner
+  // program URL drops members into their actual enrollment, not the public
+  // Coursera homepage where they have to hunt for it (#95).
+  const discoveredProgramUrl = enrolledProgram
+    ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.publicProgramUrl ?? null
+    : null;
+
   const launchUrl =
     buildCourseraLaunchUrl({
       programSlug: enrolledProgram,
@@ -69,7 +77,9 @@ export async function GET(request: Request) {
       email: user.email ?? '',
       currentCourseIndex,
       locale,
-    }) ?? getCourseraReadiness(enrolledProgram).platformUrl;
+    }) ??
+    discoveredProgramUrl ??
+    getCourseraReadiness(enrolledProgram).platformUrl;
 
   return NextResponse.redirect(launchUrl);
 }

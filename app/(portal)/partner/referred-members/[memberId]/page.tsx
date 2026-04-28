@@ -122,7 +122,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
             <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
               Member snapshot
             </p>
-            <h1 style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.25rem', fontWeight: 800 }}>{member.fullName}</h1>
+            <p style={{ margin: '0.35rem 0 0.2rem', fontSize: '1.25rem', fontWeight: 800 }}>{member.fullName}</p>
             <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>{program?.title ?? 'No program selected'}</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.5rem', marginTop: '0.85rem' }}>
               {[
@@ -259,6 +259,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
             { label: 'Referred Members', href: '/partner/referred-members' },
             { label: 'Member Details' },
           ]}
+          titleHeadingLevel={2}
         />
 
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(320px, 0.7fr)', gap: '1rem', alignItems: 'start' }}>

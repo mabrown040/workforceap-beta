@@ -424,63 +424,73 @@ export default async function AdminPage() {
         </div>
       </section>
 
+      <section style={{ marginBottom: '1.5rem' }}>
+        <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', background: 'var(--surface-container)' }}>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h2>
+            <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              View all &rarr;
+            </Link>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {recentUsers.slice(0, 6).map((u, index) => {
+              const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+              const track = u.enrolledProgram
+                ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
+                : 'Pending enrollment';
+
+              return (
+                <Link
+                  key={u.id}
+                  href={`/admin/members/${u.id}`}
+                  style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    borderTop: index === 0 ? 'none' : '1px solid rgba(226,226,229,0.05)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', padding: '1rem 1.5rem' }}>
+                    <div style={{
+                      width: '2.25rem',
+                      height: '2.25rem',
+                      borderRadius: '50%',
+                      background: 'var(--surface-container-highest)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      color: 'var(--color-accent)',
+                      flexShrink: 0,
+                    }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>
+                        {u.fullName ?? 'Unknown'}
+                      </p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.2rem 0 0' }}>
+                        {u.email}
+                      </p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface)', margin: '0.45rem 0 0' }}>
+                        {track}
+                      </p>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap', paddingTop: '0.15rem' }}>
+                      {timeAgo(u.createdAt)}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* ── Main Dashboard Layout ── */}
       <div className="wa-hidden md:wa-block portal-grid-2col" style={{ gap: '2rem' }}>
         {/* ── Left Column ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-
-          {/* Recent Signups Table with initials avatars */}
-          <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.75rem', overflow: 'hidden', boxShadow: '0 4px 32px rgba(0,0,0,0.2)' }}>
-            <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container)' }}>
-              <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent Signups</h2>
-              <Link href="/admin/members" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>
-                View all &rarr;
-              </Link>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    {['Member', 'Track', 'Joined'].map((h) => (
-                      <th key={h}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentUsers.slice(0, 6).map((u) => {
-                    const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
-                    const track = u.enrolledProgram
-                      ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
-                      : 'Pending enrollment';
-                    return (
-                      <tr key={u.id}>
-                        <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <div style={{
-                              width: '2.25rem', height: '2.25rem', borderRadius: '50%',
-                              background: 'var(--surface-container-highest)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)',
-                            }}>
-                              {initials}
-                            </div>
-                            <div>
-                              <Link href={`/admin/members/${u.id}`} style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
-                                {u.fullName ?? 'Unknown'}
-                              </Link>
-                              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{u.email}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td>{track}</td>
-                        <td style={{ fontSize: '0.75rem' }}>{timeAgo(u.createdAt)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
 
           {/* Recent Placements */}
           {recentPlacements.length > 0 && (
@@ -644,7 +654,7 @@ export default async function AdminPage() {
           </div>
 
           {/* Quick Stats — replaces the previous "Recent Activity" timeline
-              which duplicated the left-column Recent Signups table data. */}
+              which duplicated the Recent Signups data. */}
           <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
             <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
               Quick Stats
@@ -689,41 +699,6 @@ export default async function AdminPage() {
           </div>
         </div>
       </div>
-
-      {/* ── Mobile Recent Signups Section ── */}
-      <section className="md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recent Signups</h2>
-          <Link href="/admin/members" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration: 'none' }}>View all →</Link>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {recentUsers.slice(0, 5).map((u) => {
-            const initials = (u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
-            const track = u.enrolledProgram
-              ? (getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram)
-              : 'Pending enrollment';
-            return (
-              <Link key={u.id} href={`/admin/members/${u.id}`} style={{ textDecoration: 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'var(--surface-container)', borderRadius: '0.75rem' }}>
-                  <div style={{
-                    width: '2.25rem', height: '2.25rem', borderRadius: '50%',
-                    background: 'var(--surface-container-highest)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)', flexShrink: 0,
-                  }}>
-                    {initials}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p className="wa-text-sm wa-font-bold wa-text-[var(--color-on-surface)] wa-leading-tight">{u.fullName ?? 'Unknown'}</p>
-                    <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)] wa-truncate">{track}</p>
-                  </div>
-                  <span className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{timeAgo(u.createdAt)}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
 
       {/* ── Mobile Quick Actions ── */}
       <section className="md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>

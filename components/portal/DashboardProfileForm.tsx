@@ -10,7 +10,7 @@ type DashboardProfileFormProps = {
   defaultAddress: string;
   defaultLinkedin: string;
   defaultBio: string;
-  defaultFinancialAidInterest: boolean | null;
+  defaultFinancialAidInterest?: boolean | null;
 };
 
 export default function DashboardProfileForm({
@@ -20,7 +20,6 @@ export default function DashboardProfileForm({
   defaultAddress,
   defaultLinkedin,
   defaultBio,
-  defaultFinancialAidInterest,
 }: DashboardProfileFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -31,9 +30,6 @@ export default function DashboardProfileForm({
   const [address, setAddress] = useState(defaultAddress);
   const [linkedin, setLinkedin] = useState(defaultLinkedin);
   const [bio, setBio] = useState(defaultBio);
-  const [financialAid, setFinancialAid] = useState<'yes' | 'no' | 'unset'>(
-    defaultFinancialAidInterest === true ? 'yes' : defaultFinancialAidInterest === false ? 'no' : 'unset'
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,9 +46,6 @@ export default function DashboardProfileForm({
           address: address.trim() || null,
           linkedin: linkedin.trim() || null,
           bio: bio.trim() || null,
-          ...(financialAid === 'yes' || financialAid === 'no'
-            ? { financialAidInterest: financialAid === 'yes' }
-            : {}),
         }),
       });
       const data = await res.json();
@@ -112,30 +105,9 @@ export default function DashboardProfileForm({
             minLength={5}
           />
         </div>
-        <fieldset className="form-group">
-          <legend style={{ fontWeight: 600, marginBottom: '0.35rem' }}>Interested in financial aid or funding support?</legend>
-          <label style={{ display: 'inline-flex', gap: '0.35rem', marginRight: '1rem' }}>
-            <input
-              type="radio"
-              name="finaid"
-              checked={financialAid === 'yes'}
-              onChange={() => setFinancialAid('yes')}
-            />
-            Yes
-          </label>
-          <label style={{ display: 'inline-flex', gap: '0.35rem' }}>
-            <input
-              type="radio"
-              name="finaid"
-              checked={financialAid === 'no'}
-              onChange={() => setFinancialAid('no')}
-            />
-            No
-          </label>
-          <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.35rem 0 0' }}>
-            Required before you can enroll in a training program from the portal.
-          </p>
-        </fieldset>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+          WorkforceAP programs are no cost to members. Keep your phone and address current so our team can confirm eligibility and next steps.
+        </p>
         <div className="form-group">
           <label htmlFor="linkedin">LinkedIn URL (optional)</label>
           <input

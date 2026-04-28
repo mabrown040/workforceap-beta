@@ -1,17 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { FALLBACK_REFERRAL_SOURCES } from '@/lib/referralSources';
+import { FALLBACK_REFERRAL_SOURCES, PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { isExcludedPublicPartnerName } from '@/lib/public/publicDataFilters';
 
-const STATIC_SOURCES = [
-  'Google / Web Search',
-  'Social Media (Facebook, Instagram, LinkedIn)',
-  'Friend or Family',
-  'Flyer or Brochure',
-  'WorkforceAP Counselor',
-  'Other',
-];
-
+const STATIC_SOURCES = [...PUBLIC_REFERRAL_SOURCE_OPTIONS];
 export async function GET() {
   try {
     const partners = await prisma.partner.findMany({

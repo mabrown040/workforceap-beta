@@ -15,7 +15,7 @@ function getPrefilledTopic(topicParam: string | null): string {
     sponsorship: 'Partnership or sponsorship',
     sponsor: 'Partnership or sponsorship',
     program: 'Program information',
-    eligibility: 'Eligibility questions',
+    eligibility: 'Eligibility or no-cost member training',
     application: 'Application help',
     tour: 'Schedule a tour',
     media: 'Media or press inquiry',
@@ -156,7 +156,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
           Message sent successfully
         </p>
         <p style={{ color: 'var(--color-on-surface-variant)' }}>
-          We&rsquo;ll get back to you within 1–2 business days.
+          A WorkforceAP team member will get back to you within 1–2 business days.
         </p>
       </div>
     );
@@ -312,7 +312,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
         >
           <option value="">Select a topic&hellip;</option>
           <option>Program information</option>
-          <option>Eligibility questions</option>
+          <option>Eligibility or no-cost member training</option>
           <option>Application help</option>
           <option>Schedule a tour</option>
           <option>Partnership or sponsorship</option>
@@ -355,7 +355,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
       >
         {status === 'sending' ? 'Sending…' : 'Send Message'}
       </button>
-      <p className="contact-form-footnote">We respond within 1–2 business days.</p>
+      <p className="contact-form-footnote">A WorkforceAP team member responds within 1–2 business days.</p>
     </form>
   );
 }

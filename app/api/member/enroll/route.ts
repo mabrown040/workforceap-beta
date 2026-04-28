@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     select: {
       enrolledProgram: true,
       phone: true,
-      profile: { select: { profilePhone: true, profileAddress: true, financialAidInterest: true } },
+      profile: { select: { profilePhone: true, profileAddress: true } },
       courseEnrollment: { select: { enrolledByAdminId: true } },
     },
   });
@@ -49,7 +49,6 @@ export async function POST(request: Request) {
     phone: existing?.phone,
     profilePhone: existing?.profile?.profilePhone,
     profileAddress: existing?.profile?.profileAddress,
-    financialAidInterest: existing?.profile?.financialAidInterest,
   });
   if (!adminBypass && !gate.ok) {
     return NextResponse.json(

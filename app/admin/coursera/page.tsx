@@ -8,7 +8,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { listCourseraIdentityMappings, listRecentUnmatchedXapiEvents } from '@/lib/xapi/mappings';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -24,8 +23,18 @@ export default async function AdminCourseraPage() {
   if (!user) redirect('/login?redirectTo=/admin/coursera');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  // Include every active user who is a member — those with profile.role === 'member'
+  // and those without a profile row (the role helper defaults to 'member' there).
+  // Coursera mapping needs to surface real members even before they enroll, and must
+  // not be narrowed to fixture/demo accounts.
   const members = await prisma.user.findMany({
-    where: { deletedAt: null, enrolledProgram: { not: null }, ...MEMBER_ONLY_WHERE },
+    where: {
+      deletedAt: null,
+      OR: [
+        { profile: { is: null } },
+        { profile: { role: 'member' } },
+      ],
+    },
     orderBy: [{ fullName: 'asc' }],
     select: {
       id: true,

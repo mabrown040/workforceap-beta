@@ -165,7 +165,12 @@ export default async function CourseraIntegrationPage() {
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-                <a href="/api/member/coursera/launch" className="btn btn-primary coursera-btn-external">
+                <a
+                  href="/api/member/coursera/launch"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary coursera-btn-external"
+                >
                   {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
                   <ExternalLink size={16} aria-hidden />
                 </a>

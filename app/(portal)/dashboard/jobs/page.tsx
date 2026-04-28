@@ -19,21 +19,61 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function JobsPage() {
   const user = await getUser();
-  
+
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
+  let profileCity: string | null = null;
+  let profileState: string | null = null;
   if (user) {
     try {
       const profile = await prisma.profile.findUnique({
         where: { userId: user.id },
-        select: { dob: true, isMinor: true },
+        select: { dob: true, isMinor: true, city: true, state: true },
       });
       if (profile?.dob) {
         ageGroup = getAgeGroup(profile.dob);
       }
+      profileCity = profile?.city?.trim() || null;
+      profileState = profile?.state?.trim() || null;
     } catch {
       ageGroup = 'adult18plus';
     }
   }
+
+  const primaryLocation = [profileCity, profileState].filter(Boolean).join(', ') || 'Austin, TX';
+  const quickLocations = [
+    primaryLocation,
+    'Austin, TX',
+    'Round Rock, TX',
+    'Cedar Park, TX',
+    'Pflugerville, TX',
+  ].filter((location, index, arr) => arr.indexOf(location) === index);
+  const externalBoards = [
+    {
+      label: 'Indeed',
+      href: `https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: primaryLocation }).toString()}`,
+      note: 'Largest local coverage across industries.',
+    },
+    {
+      label: 'LinkedIn',
+      href: `https://www.linkedin.com/jobs/search/?${new URLSearchParams({ keywords: 'jobs', location: primaryLocation }).toString()}`,
+      note: 'Strong for professional, tech, and corporate roles.',
+    },
+    {
+      label: 'Glassdoor',
+      href: `https://www.google.com/search?${new URLSearchParams({ q: `site:glassdoor.com/Job jobs ${primaryLocation}` }).toString()}`,
+      note: 'Job listings plus salary and company review context.',
+    },
+    {
+      label: 'ZipRecruiter',
+      href: `https://www.ziprecruiter.com/jobs-search?${new URLSearchParams({ search: 'jobs', location: primaryLocation }).toString()}`,
+      note: 'Good metro and suburb coverage.',
+    },
+    {
+      label: 'WorkInTexas / AustinJobs',
+      href: 'https://www.workintexas.com/vosnet/Default.aspx',
+      note: 'Texas Workforce Commission portal for local and public-sector roles.',
+    },
+  ];
 
   // SSR: fetch applied job IDs so job cards can show "Applied" badge
   let appliedJobIds: string[] = [];
@@ -139,37 +179,13 @@ export default async function JobsPage() {
                 Search beyond the WorkforceAP job board
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                For Austin-area members, these are the best outside boards to check alongside our employer network.
+                {user && profileCity
+                  ? `Using your profile location: ${primaryLocation}.`
+                  : 'If no city is saved yet, start with Austin metro and nearby suburbs.'}
               </p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.75rem' }}>
-              {[
-                {
-                  label: 'Indeed',
-                  href: 'https://www.indeed.com/jobs?l=Austin%2C+TX',
-                  note: 'Largest Austin coverage across industries.',
-                },
-                {
-                  label: 'LinkedIn',
-                  href: 'https://www.linkedin.com/jobs/search/?location=Austin%2C%20Texas%2C%20United%20States',
-                  note: 'Strong for professional, tech, and corporate roles.',
-                },
-                {
-                  label: 'Glassdoor',
-                  href: 'https://www.google.com/search?q=site%3Aglassdoor.com%2FJob+Austin+TX+jobs',
-                  note: 'Job listings plus salary and company review context.',
-                },
-                {
-                  label: 'ZipRecruiter',
-                  href: 'https://www.ziprecruiter.com/jobs-search?search=&location=Austin%2C%20TX',
-                  note: 'Good Austin + Round Rock + Cedar Park coverage.',
-                },
-                {
-                  label: 'WorkInTexas / AustinJobs',
-                  href: 'https://www.workintexas.com/vosnet/Default.aspx',
-                  note: 'Texas Workforce Commission portal for local and public-sector roles.',
-                },
-              ].map((engine) => (
+              {externalBoards.map((engine) => (
                 <a
                   key={engine.label}
                   href={engine.href}
@@ -189,6 +205,23 @@ export default async function JobsPage() {
               ))}
             </div>
             <div style={{ marginTop: '0.875rem', paddingTop: '0.875rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
+                Quick Austin-area presets
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                {quickLocations.map((location) => (
+                  <a
+                    key={location}
+                    href={`https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: location }).toString()}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline"
+                    style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}
+                  >
+                    {location.replace(', TX', '')} ↗
+                  </a>
+                ))}
+              </div>
               <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
                 Best routine for members
               </p>

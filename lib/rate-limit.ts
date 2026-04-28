@@ -47,7 +47,8 @@ if (redisUrl && redisToken) {
   });
   aiToolRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(10, '1 h'),
+    // Launch softening: members can hit several AI tools in one session.
+    limiter: Ratelimit.slidingWindow(25, '1 h'),
     prefix: 'ratelimit:ai-tool',
   });
   contactRateLimiter = new Ratelimit({
@@ -78,12 +79,13 @@ if (redisUrl && redisToken) {
   });
   careersRecommendRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(30, '1 h'),
+    // Quiz retries and slow devices can create extra submissions during exploration.
+    limiter: Ratelimit.slidingWindow(60, '1 h'),
     prefix: 'ratelimit:careers-recommend',
   });
   interestProfilerRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(40, '1 h'),
+    limiter: Ratelimit.slidingWindow(100, '1 h'),
     prefix: 'ratelimit:interest-profiler',
   });
   forgotPasswordRateLimiter = new Ratelimit({
@@ -103,7 +105,8 @@ if (redisUrl && redisToken) {
   });
   publicVoiceSessionRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(6, '10 m'),
+    // Public voice flows may retry on mic permission / network hiccups.
+    limiter: Ratelimit.slidingWindow(20, '10 m'),
     prefix: 'ratelimit:public-voice-session',
   });
   inviteAcceptRateLimiter = new Ratelimit({

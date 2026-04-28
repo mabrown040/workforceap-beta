@@ -329,7 +329,6 @@ export default function ApplyCreateAccountForm() {
     <form onSubmit={handleSubmit} className="apply-form" noValidate>
       <div className="apply-progress-bar" style={{ marginBottom: '1.25rem' }}>
         <div className="apply-progress-fill" style={{ width: '100%' }} />
-        <p className="apply-progress-label">Step 3 of 3 — create your account</p>
       </div>
 
       <p className="apply-step-back-nav" style={{ marginBottom: '1rem' }}>

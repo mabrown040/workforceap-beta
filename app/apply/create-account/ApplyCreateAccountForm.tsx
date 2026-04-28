@@ -514,6 +514,8 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
             }}
             autoComplete="new-password"
+            required
+            aria-required="true"
             aria-invalid={!!fieldErrors.password}
             style={{ paddingRight: '2.5rem' }}
           />
@@ -543,6 +545,8 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
             }}
             autoComplete="new-password"
+            required
+            aria-required="true"
             aria-invalid={!!fieldErrors.confirmPassword}
             style={{ paddingRight: '2.5rem' }}
           />

@@ -77,8 +77,31 @@ export default function EmailCronsClient({
   const [triggerResults, setTriggerResults] = useState<Record<string, { ok: boolean; result: unknown; error?: string }>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [activatingAll, setActivatingAll] = useState(false);
+  const [pendingTrigger, setPendingTrigger] = useState<{ cron: CronWithStatus; recipientCount: number | null } | null>(null);
+
+  const handleRunNowClick = async (cron: CronWithStatus) => {
+    // Fetch recipient count for the confirm dialog (#162)
+    let count: number | null = null;
+    try {
+      const existing = previewData[cron.id];
+      if (existing) {
+        count = existing.count;
+      } else {
+        const res = await fetch(`/api/admin/email-crons/${cron.id}/preview`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json() as CronPreviewResponse;
+          setPreviewData(prev => ({ ...prev, [cron.id]: data }));
+          count = data.count;
+        }
+      }
+    } catch {
+      /* non-fatal — still allow confirm without count */
+    }
+    setPendingTrigger({ cron, recipientCount: count });
+  };
 
   const handleTrigger = async (cron: CronWithStatus) => {
+    setPendingTrigger(null);
     setTriggeringIds(prev => new Set(prev).add(cron.id));
     setTriggerResults(prev => ({ ...prev, [cron.id]: undefined as unknown as { ok: boolean; result: unknown } }));
     try {
@@ -446,7 +469,7 @@ export default function EmailCronsClient({
                   {/* Manual trigger */}
                   <button
                     type="button"
-                    onClick={() => !isTriggeringThis && void handleTrigger(cron)}
+                    onClick={() => !isTriggeringThis && void handleRunNowClick(cron)}
                     disabled={isTriggeringThis}
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
@@ -595,6 +618,58 @@ export default function EmailCronsClient({
           );
         })}
       </div>
+
+      {/* Run-now confirm dialog (#162) */}
+      {pendingTrigger && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
+          onClick={() => setPendingTrigger(null)}
+        >
+          <div
+            style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.75rem 1.5rem', maxWidth: '24rem', width: '90vw', boxShadow: '0 12px 40px rgba(0,0,0,0.32)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>send</span>
+              </div>
+              <div>
+                <p style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>Run {pendingTrigger.cron.name}?</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>This will send real emails immediately.</p>
+              </div>
+            </div>
+
+            {pendingTrigger.recipientCount !== null && (
+              <div style={{ padding: '0.75rem 1rem', background: 'var(--surface-container)', borderRadius: '0.625rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', color: pendingTrigger.recipientCount === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  {pendingTrigger.recipientCount === 0 ? 'check_circle' : 'group'}
+                </span>
+                {pendingTrigger.recipientCount === 0
+                  ? 'No recipients match today\'s criteria. Safe to run.'
+                  : <><strong style={{ color: 'var(--color-on-surface)' }}>{pendingTrigger.recipientCount}</strong> recipient{pendingTrigger.recipientCount !== 1 ? 's' : ''} will receive email.</>
+                }
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setPendingTrigger(null)}
+                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'transparent', color: 'var(--color-on-surface)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleTrigger(pendingTrigger.cron)}
+                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: 'none', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
+              >
+                Run now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

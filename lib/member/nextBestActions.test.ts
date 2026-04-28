@@ -8,6 +8,7 @@ test('buildNextBestActions prioritizes new application on file', () => {
     noApplicationOnFile: true,
     enrolledProgram: null,
     assessmentCompleted: false,
+    starterProfileReviewRequired: false,
     hasResume: false,
     profileCompletenessPct: 20,
     jobApplicationCount: 0,
@@ -23,6 +24,7 @@ test('buildNextBestActions prioritizes counselor unread when application exists'
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    starterProfileReviewRequired: false,
     hasResume: true,
     profileCompletenessPct: 80,
     jobApplicationCount: 2,
@@ -38,6 +40,7 @@ test('buildNextBestActions suggests tracker when eligible and no applications', 
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    starterProfileReviewRequired: false,
     hasResume: true,
     profileCompletenessPct: 90,
     jobApplicationCount: 0,
@@ -53,6 +56,7 @@ test('buildNextBestActions adds state-D readiness actions', () => {
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    starterProfileReviewRequired: false,
     hasResume: true,
     profileCompletenessPct: 90,
     jobApplicationCount: 1,
@@ -70,6 +74,7 @@ test('buildNextBestActions routes missing resume to resume rewriter', () => {
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    starterProfileReviewRequired: false,
     hasResume: false,
     profileCompletenessPct: 90,
     jobApplicationCount: 1,
@@ -79,4 +84,23 @@ test('buildNextBestActions routes missing resume to resume rewriter', () => {
 
   const resumeAction = actions.find((a) => a.id === 'upload_resume');
   assert.equal(resumeAction?.href, '/dashboard/ai-tools/resume-rewriter');
+});
+
+test('buildNextBestActions prioritizes starter profile review for counselor-created members', () => {
+  const actions = buildNextBestActions({
+    state: 'B',
+    noApplicationOnFile: false,
+    enrolledProgram: 'it-support',
+    assessmentCompleted: false,
+    starterProfileReviewRequired: true,
+    starterProfileMissingFields: ['ZIP code', 'referral source'],
+    hasResume: false,
+    profileCompletenessPct: 40,
+    jobApplicationCount: 0,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+  });
+
+  assert.equal(actions[0]?.id, 'review_starter_profile');
+  assert.equal(actions[0]?.href, '/dashboard/profile');
 });

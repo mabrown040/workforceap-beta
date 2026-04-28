@@ -7,6 +7,7 @@ import type { QuestionChoice } from '@/lib/assessment/answer-key';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { trackEvent } from '@/lib/events/track';
 import { awardPoints } from '@/lib/member/points';
+import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';
 
@@ -39,7 +40,22 @@ export async function POST(request: Request) {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { assessmentCompleted: true, email: true },
+    select: {
+      assessmentCompleted: true,
+      email: true,
+      phone: true,
+      courseEnrollment: { select: { enrolledByAdminId: true } },
+      profile: {
+        select: {
+          profilePhone: true,
+          profileAddress: true,
+          city: true,
+          state: true,
+          zip: true,
+          referralSource: true,
+        },
+      },
+    },
   });
 
   if (!dbUser) {
@@ -47,6 +63,27 @@ export async function POST(request: Request) {
   }
   if (dbUser.assessmentCompleted) {
     return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
+  }
+
+  const starterProfileReview = getCounselorStarterProfileReview({
+    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    phone: dbUser.phone,
+    profilePhone: dbUser.profile?.profilePhone,
+    profileAddress: dbUser.profile?.profileAddress,
+    city: dbUser.profile?.city,
+    state: dbUser.profile?.state,
+    zip: dbUser.profile?.zip,
+    referralSource: dbUser.profile?.referralSource,
+  });
+  if (starterProfileReview.required) {
+    return NextResponse.json(
+      {
+        error: 'Review your profile details before starting the assessment.',
+        code: 'STARTER_PROFILE_REVIEW_REQUIRED',
+        missing: getStarterProfileFieldLabels(starterProfileReview.missing),
+      },
+      { status: 400 }
+    );
   }
 
   await prisma.user.update({

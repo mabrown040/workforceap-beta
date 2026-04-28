@@ -19,6 +19,8 @@ export type NextBestActionsContext = {
   noApplicationOnFile: boolean;
   enrolledProgram: string | null;
   assessmentCompleted: boolean;
+  starterProfileReviewRequired?: boolean;
+  starterProfileMissingFields?: string[];
   hasResume: boolean;
   profileCompletenessPct: number;
   profileMissingFields?: string[];
@@ -55,15 +57,29 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
   }
 
   if (ctx.state === 'B') {
-    out.push({
-      id: 'skills_assessment',
-      title: 'Complete your Training Preassessment',
-      body: 'After you choose a program, this short preassessment helps personalize your training plan and job matching.',
-      href: '/dashboard/assessment',
-      cta: 'Start preassessment',
-      variant: 'urgent',
-      weight: 90,
-    });
+    if (ctx.starterProfileReviewRequired) {
+      const missing = ctx.starterProfileMissingFields?.slice(0, 3) ?? [];
+      const missingNote = missing.length > 0 ? ` Missing: ${missing.join(', ')}.` : '';
+      out.push({
+        id: 'review_starter_profile',
+        title: 'Review your starter profile details',
+        body: `Before WorkforceAP unlocks your Training Preassessment, confirm the contact and referral details your counselor entered.${missingNote}`,
+        href: '/dashboard/profile',
+        cta: 'Review profile',
+        variant: 'urgent',
+        weight: 92,
+      });
+    } else {
+      out.push({
+        id: 'skills_assessment',
+        title: 'Complete your Training Preassessment',
+        body: 'After you choose a program, this short preassessment helps personalize your training plan and job matching.',
+        href: '/dashboard/assessment',
+        cta: 'Start preassessment',
+        variant: 'urgent',
+        weight: 90,
+      });
+    }
   }
 
   if (ctx.counselorUnreadCount > 0) {

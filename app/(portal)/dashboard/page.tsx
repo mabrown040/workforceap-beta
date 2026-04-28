@@ -31,6 +31,7 @@ import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
+import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Your Dashboard',
@@ -90,11 +91,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           state: true,
           zip: true,
           profilePhone: true,
+          profileAddress: true,
           referralSource: true,
           dob: true,
           isMinor: true,
         },
       },
+      courseEnrollment: { select: { enrolledByAdminId: true } },
     },
   });
   const profilePromise = prisma.profile.findUnique({
@@ -305,12 +308,25 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     fullName: dbUser.fullName,
     email: dbUser.email,
   });
+  const starterProfileReview = getCounselorStarterProfileReview({
+    wasCounselorCreated: !!intakeExtra?.courseEnrollment?.enrolledByAdminId,
+    phone: intakeExtra?.phone,
+    profilePhone: intakeExtra?.profile?.profilePhone,
+    profileAddress: intakeExtra?.profile?.profileAddress,
+    city: intakeExtra?.profile?.city,
+    state: intakeExtra?.profile?.state,
+    zip: intakeExtra?.profile?.zip,
+    referralSource: intakeExtra?.profile?.referralSource,
+  });
+  const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
 
   let nextBestActions = buildNextBestActions({
     state: dashboardState,
     noApplicationOnFile,
     enrolledProgram,
     assessmentCompleted,
+    starterProfileReviewRequired: starterProfileReview.required,
+    starterProfileMissingFields: starterProfileMissingLabels,
     hasResume: engagementSignals.hasResume,
     profileCompletenessPct,
     profileMissingFields,
@@ -873,6 +889,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               wizardProps={{
                 initialFullName: intakeExtra?.fullName ?? '',
                 initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+                initialAddress: intakeExtra?.profile?.profileAddress ?? '',
                 initialCity: intakeExtra?.profile?.city ?? '',
                 initialState: intakeExtra?.profile?.state ?? '',
                 initialZip: intakeExtra?.profile?.zip ?? '',
@@ -908,6 +925,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   interviewEligible={intakeExtra?.interviewEligible ?? false}
                   interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
                   interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+                  starterProfileReviewRequired={starterProfileReview.required}
+                  starterProfileMissingFields={starterProfileMissingLabels}
                   state={dashboardState}
                   programTitle={program?.title}
                   enrolledAt={dbUser.enrolledAt}

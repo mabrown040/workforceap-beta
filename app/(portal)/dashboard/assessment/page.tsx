@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
+import Link from 'next/link';
+import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Skills Snapshot',
@@ -25,7 +27,7 @@ export default async function AssessmentPage({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    include: { profile: true },
+    include: { profile: true, courseEnrollment: { select: { enrolledByAdminId: true } } },
   });
 
   if (!dbUser) redirect('/login');
@@ -41,6 +43,17 @@ export default async function AssessmentPage({
   const nameParts = dbUser.fullName?.split(' ') ?? [];
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') ?? '';
+  const starterProfileReview = getCounselorStarterProfileReview({
+    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    phone: dbUser.phone,
+    profilePhone: dbUser.profile?.profilePhone,
+    profileAddress: dbUser.profile?.profileAddress,
+    city: dbUser.profile?.city,
+    state: dbUser.profile?.state,
+    zip: dbUser.profile?.zip,
+    referralSource: dbUser.profile?.referralSource,
+  });
+  const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
 
   return (
     <>
@@ -58,12 +71,27 @@ export default async function AssessmentPage({
 
       <section className="content-section">
         <div className="container" style={{ maxWidth: '720px' }}>
-          <AssessmentForm
-            defaultFirstName={firstName}
-            defaultLastName={lastName}
-            defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
-            defaultRedirectTo={redirectTo || undefined}
-          />
+          {starterProfileReview.required ? (
+            <div
+              className="portal-card portal-card--flat portal-card--padded"
+              style={{ border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)' }}
+            >
+              <h2 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.125rem' }}>Review your starter details first</h2>
+              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                Your counselor started this account for you. Before WorkforceAP unlocks your Training Preassessment,
+                confirm your contact and referral details on your profile.
+                {starterProfileMissingLabels.length ? ` Missing now: ${starterProfileMissingLabels.join(', ')}.` : ''}
+              </p>
+              <Link href="/dashboard/profile" className="btn btn-primary">Review profile</Link>
+            </div>
+          ) : (
+            <AssessmentForm
+              defaultFirstName={firstName}
+              defaultLastName={lastName}
+              defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
+              defaultRedirectTo={redirectTo || undefined}
+            />
+          )}
         </div>
       </section>
 

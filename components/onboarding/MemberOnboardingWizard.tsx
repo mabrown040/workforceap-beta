@@ -293,7 +293,7 @@ export default function MemberOnboardingWizard({
       subtitle: 'Help us tailor support and funding options.',
       content: (
         <div className="wa-space-y-4">
-          <fieldset>
+          <fieldset className="wa-m-0 wa-min-w-0 wa-border-0 wa-p-0">
             <legend className="wa-mb-2 wa-text-xs wa-font-medium wa-text-slate-600">
               Interested in financial aid?
             </legend>

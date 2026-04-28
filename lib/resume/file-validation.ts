@@ -35,7 +35,20 @@ export function validateFileType(buffer: Buffer, mimeType: string, fileName: str
 
   return MAGIC_BYTES.some((m) => {
     if (m.ext !== ext) return false;
-    const searchBytes = Buffer.from(m.bytes);
-    return Buffer.from(searchArea).indexOf(searchBytes) !== -1;
+
+    // Custom indexOfBytes implementation to avoid reliance on Buffer.prototype.indexOf
+    // which may fail in Edge environments when binary arrays are strictly Uint8Arrays.
+    if (m.bytes.length === 0) return true;
+    for (let i = 0; i <= searchArea.length - m.bytes.length; i++) {
+      let match = true;
+      for (let j = 0; j < m.bytes.length; j++) {
+        if (searchArea[i + j] !== m.bytes[j]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) return true;
+    }
+    return false;
   });
 }

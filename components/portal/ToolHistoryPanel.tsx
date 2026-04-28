@@ -8,6 +8,7 @@ export default async function ToolHistoryPanel({
   userId,
   toolType,
   toolTypes,
+  inputSummaryStartsWith,
   title = 'Recent saved runs',
   limit = 5,
   emptyMessage = 'No saved runs yet for this tool.',
@@ -15,6 +16,7 @@ export default async function ToolHistoryPanel({
   userId: string;
   toolType?: AIToolType;
   toolTypes?: AIToolType[];
+  inputSummaryStartsWith?: string;
   title?: string;
   limit?: number;
   emptyMessage?: string;
@@ -31,6 +33,7 @@ export default async function ToolHistoryPanel({
       where: {
         userId,
         toolType: resolvedToolTypes.length === 1 ? resolvedToolTypes[0] : { in: resolvedToolTypes },
+        ...(inputSummaryStartsWith ? { inputSummary: { startsWith: inputSummaryStartsWith } } : {}),
       },
       orderBy: { createdAt: 'desc' },
       take: limit,

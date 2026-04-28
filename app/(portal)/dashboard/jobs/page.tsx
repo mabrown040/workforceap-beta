@@ -188,6 +188,16 @@ export default async function JobsPage() {
                 </a>
               ))}
             </div>
+            <div style={{ marginTop: '0.875rem', paddingTop: '0.875rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
+                Best routine for members
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                <li>Check Indeed and LinkedIn daily for fresh listings.</li>
+                <li>Use WorkInTexas for workforce-system and public-sector openings.</li>
+                <li>Log every outside application here so your counselor can help with follow-up.</li>
+              </ul>
+            </div>
           </div>
 
           {!user ? (

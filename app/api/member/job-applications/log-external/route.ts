@@ -31,9 +31,25 @@ const bodySchema = z.object({
   company: z.string().min(1, 'Company is required').max(200),
   role: z.string().min(1, 'Role is required').max(200),
   url: z.string().url().max(2000).optional().or(z.literal('')),
-  source: z.enum(['INDEED', 'LINKEDIN', 'DIRECT', 'OTHER']).default('OTHER'),
+  source: z.enum(['INDEED', 'LINKEDIN', 'GLASSDOOR', 'ZIPRECRUITER', 'WORKINTEXAS', 'AUSTINJOBS', 'DIRECT', 'OTHER']).default('OTHER'),
   notes: z.string().max(2000).optional(),
 });
+
+const SOURCE_DETAIL_LABELS = {
+  INDEED: 'Indeed',
+  LINKEDIN: 'LinkedIn',
+  GLASSDOOR: 'Glassdoor',
+  ZIPRECRUITER: 'ZipRecruiter',
+  WORKINTEXAS: 'WorkInTexas',
+  AUSTINJOBS: 'AustinJobs.com',
+  DIRECT: 'company site',
+  OTHER: 'external board',
+} as const;
+
+function toCanonicalSource(source: keyof typeof SOURCE_DETAIL_LABELS): 'INDEED' | 'LINKEDIN' | 'DIRECT' | 'OTHER' {
+  if (source === 'INDEED' || source === 'LINKEDIN' || source === 'DIRECT') return source;
+  return 'OTHER';
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,6 +66,12 @@ export async function POST(req: NextRequest) {
       );
     }
     const { company, role, url, source, notes } = parsed.data;
+    const canonicalSource = toCanonicalSource(source);
+    const sourceLabel = SOURCE_DETAIL_LABELS[source];
+    const normalizedNotes = [
+      sourceLabel && canonicalSource === 'OTHER' ? `Source board: ${sourceLabel}` : null,
+      notes?.trim() || null,
+    ].filter(Boolean).join('\n');
 
     const application = await prisma.jobApplication.create({
       data: {
@@ -58,9 +80,9 @@ export async function POST(req: NextRequest) {
         role: role.trim(),
         status: 'APPLIED',
         appliedAt: new Date(),
-        source,
+        source: canonicalSource,
         url: url?.trim() || null,
-        notes: notes?.trim() || null,
+        notes: normalizedNotes || null,
       },
     });
 
@@ -71,7 +93,9 @@ export async function POST(req: NextRequest) {
       entityId: application.id,
       metadata: {
         via: 'external-log',
-        source,
+        source: canonicalSource,
+        source_detail: source,
+        source_label: sourceLabel,
         company: company.trim(),
         role: role.trim(),
       },
@@ -83,9 +107,6 @@ export async function POST(req: NextRequest) {
     // center (Apply Loop integrates with /plan-ceo-review Task 2).
     try {
       const thread = await getOrCreateMemberCounselorThread(user.id);
-      const sourceLabel = (
-        { INDEED: 'Indeed', LINKEDIN: 'LinkedIn', DIRECT: 'company site', OTHER: 'externally' } as const
-      )[source];
       const link = url ? ` (${url})` : '';
       await prisma.message.create({
         data: {

@@ -25,6 +25,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   business: 'Business',
   healthcare: 'Healthcare',
   manufacturing: 'Manufacturing',
+  construction: 'Construction & Trades',
 };
 
 export default async function DashboardResourcesPage() {
@@ -50,7 +51,7 @@ export default async function DashboardResourcesPage() {
   const counselorContact = counselorAssignment?.counselor.user ?? null;
 
   const program = dbUser?.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
-  const category = program?.category ?? 'ai-software';
+  const category = program?.category ?? 'digital-literacy';
   const categoryLabel = CATEGORY_LABELS[category] ?? category;
 
   let suggestedAiTools: Array<{ label: string; href: string }> = [];

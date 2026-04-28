@@ -176,7 +176,7 @@ export default function ApplyResultsClient() {
       <div className="apply-flow">
         <div className="apply-progress-bar">
           <div className="apply-progress-fill" style={{ width: '66%' }} />
-          <p className="apply-progress-label">Step 2 of 3 — choose a program</p>
+          <p className="apply-progress-label">Step 2 of 3 — choose your programs</p>
         </div>
         <div className="apply-step-content apply-missing-session">
           <h2 className="apply-step-title">We need your answers from step 1 first</h2>
@@ -201,7 +201,7 @@ export default function ApplyResultsClient() {
     <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '66%' }} />
-        <p className="apply-progress-label">Step 2 of 3 — choose your program(s)</p>
+        <p className="apply-progress-label">Step 2 of 3 — choose your programs</p>
       </div>
 
       <div className="apply-step-content">

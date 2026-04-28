@@ -8989,8 +8989,8 @@ html:not(.dark) .workspace-shell-header {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
-/* On mobile, the MobileBottomNav is primary — hide the top tab bar to avoid duplication */
-@media (max-width: 767px) {
+/* On mobile, MemberPortalTopNav is primary — hide the workspace tab bar at the same breakpoint */
+@media (max-width: 768px) {
     .workspace-tab-bar {
         display: none !important;
     }
@@ -9573,6 +9573,7 @@ html.dark .workspace-sidebar-signout:hover {
         box-shadow: none;
         border-right: 1px solid var(--color-border);
         border-left: 3px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+        z-index: 1;
     }
     .workspace-sidebar.open {
         box-shadow: none;

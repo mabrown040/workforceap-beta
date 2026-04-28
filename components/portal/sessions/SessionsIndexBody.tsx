@@ -169,7 +169,7 @@ export default async function SessionsIndexBody({
             <span style={{ background: 'rgba(173,44,77,0.12)', color: 'var(--color-accent)', borderRadius: 'var(--radius-md)', padding: '0.5rem', display: 'inline-flex' }}>
               <UserPlus size={22} />
             </span>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Walk-in</h2>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>Walk-in</h2>
           </div>
           <p style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Someone new sat down. Create their account, build their profile, and ship them resume + cover letter + interview prep in one session.
@@ -188,7 +188,7 @@ export default async function SessionsIndexBody({
             <span style={{ background: 'rgba(43,123,185,0.12)', color: 'var(--color-blue, #2b7bb9)', borderRadius: 'var(--radius-md)', padding: '0.5rem', display: 'inline-flex' }}>
               <Users size={22} />
             </span>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Existing member</h2>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>Existing member</h2>
           </div>
           <p style={{ fontSize: '0.95rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)', margin: 0 }}>
             Pick someone from your roster. Update their profile, then run the same 4-step build &mdash; outputs save to their portal and email.

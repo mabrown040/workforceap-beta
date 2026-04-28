@@ -253,7 +253,7 @@ export default async function MemberGuidePage() {
 
       {/* Benefits */}
       <section style={{ marginBottom: '3rem' }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+        <h2 className="portal-section-heading">
           Everything included with your membership
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
@@ -281,7 +281,7 @@ export default async function MemberGuidePage() {
 
       {/* FAQ */}
       <section>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+        <h2 className="portal-section-heading" style={{ marginBottom: '1.25rem' }}>
           Common questions
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

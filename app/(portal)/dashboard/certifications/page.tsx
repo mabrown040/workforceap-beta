@@ -71,15 +71,11 @@ export default async function DashboardCertificationsPage() {
       <h1 className="wa-sr-only">Certificates &amp; achievements</h1>
       {/* ── MOBILE ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Header */}
-        <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
-          <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
-            My Certificates
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Certificates and credentials you&rsquo;ve earned.
-          </p>
-        </div>
+        <PageHeader
+          title="My Certificates"
+          subtitle="Certificates and credentials you've earned."
+          titleHeadingLevel={2}
+        />
 
         {/* Stats chips */}
         <div style={{ display: 'flex', gap: '0.625rem', padding: '0.75rem 1rem', overflowX: 'auto' }}>
@@ -399,7 +395,7 @@ export default async function DashboardCertificationsPage() {
                 >
                   route
                 </span>
-                <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Active Pathway</h2>
+                <h2 className="portal-section-heading" style={{ margin: 0 }}>Active Pathway</h2>
               </div>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', fontSize: 'var(--font-size-sm)' }}>
                 Your current certification journey. Complete each milestone to move to the next.
@@ -554,7 +550,7 @@ export default async function DashboardCertificationsPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                 timeline
               </span>
-              <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certificate Roadmap</h2>
+              <h2 className="portal-section-heading" style={{ margin: 0 }}>Certificate Roadmap</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', maxWidth: '640px' }}>
               Industry-recognized credentials across IT, healthcare, and skilled trades. Check off certificates as you earn them.

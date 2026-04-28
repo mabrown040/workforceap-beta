@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,47 +25,35 @@ export default async function DashboardAccountPage() {
 
   return (
     <>
-      <div className="inner-page wa-pb-24 md:wa-pb-8">
-        <section className="page-hero">
-          <div className="page-hero-content">
-            <div style={{ marginBottom: '0.75rem' }}>
-              <PortalBreadcrumb
-                variant="on-dark"
-                items={[
-                  { href: '/dashboard', label: 'Dashboard' },
-                  { label: 'Account settings' },
-                ]}
-              />
-            </div>
-            <h1>Account settings</h1>
-            <p>Manage your account and security.</p>
-          </div>
-        </section>
+      <div className="portal-main-content">
+        <PageHeader
+          title="Account settings"
+          subtitle="Manage your account and security."
+          breadcrumbs={[
+            { href: '/dashboard', label: 'Member Portal' },
+            { label: 'Account settings' },
+          ]}
+        />
 
-        <section className="content-section">
-          <div className="container">
-            <div style={{ maxWidth: '560px' }} className="help-request-card">
-              <h2>Email</h2>
-              <p>{email}</p>
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-                To change your email, please contact support.
-              </p>
+        <div style={{ maxWidth: '560px' }} className="content-card">
+          <h2 className="portal-section-title">Email</h2>
+          <p>{email}</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+            To change your email, please contact support.
+          </p>
 
-              <h2 style={{ marginTop: '1.5rem' }}>Password</h2>
-              <p style={{ marginBottom: '0.5rem' }}>
-                Use the link below to reset your password. You&rsquo;ll receive an email with instructions.
-              </p>
-              <Link href={`/forgot-password?email=${encodeURIComponent(email)}`} className="btn btn-outline">
-                Reset password
-              </Link>
+          <h2 className="portal-section-title" style={{ marginTop: '1.5rem' }}>Password</h2>
+          <p style={{ marginBottom: '0.5rem' }}>
+            Use the link below to reset your password. You&rsquo;ll receive an email with instructions.
+          </p>
+          <Link href={`/forgot-password?email=${encodeURIComponent(email)}`} className="btn btn-outline">
+            Reset password
+          </Link>
 
-              <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-                <Link href="/dashboard/profile">Back to profile</Link>
-              </p>
-            </div>
-          </div>
-        </section>
-
+          <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+            <Link href="/dashboard/profile">Back to profile</Link>
+          </p>
+        </div>
       </div>
       <MobileBottomNav variant="portal" />
     </>

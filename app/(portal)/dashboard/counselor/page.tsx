@@ -7,6 +7,23 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+
+function parseActionPlan(output: string | null): string[] {
+  if (!output) return [];
+  const lines = output.split('\n');
+  const steps: string[] = [];
+  let inPlan = false;
+  for (const line of lines) {
+    if (line === 'Action plan') { inPlan = true; continue; }
+    if (inPlan && line.startsWith('Transcript')) break;
+    if (inPlan) {
+      const m = line.match(/^\d+\.\s+(.+)/);
+      if (m) steps.push(m[1]);
+    }
+  }
+  return steps;
+}
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Career Counselor',
@@ -20,6 +37,38 @@ export default async function CounselorPage() {
   if (!user) redirect('/login?redirectTo=/dashboard/counselor');
 
   const firstName = user.user_metadata?.full_name?.split(' ')[0] as string | undefined;
+
+  const pastSessions = await prisma.aIToolResult.findMany({
+    where: { userId: user.id, toolType: 'career_counselor' },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+    select: { id: true, output: true, createdAt: true },
+  });
+
+  const historySection = pastSessions.length > 0 ? (
+    <section style={{ padding: '1.5rem 1rem 2rem' }}>
+      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>Past sessions</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {pastSessions.map((session) => {
+          const steps = parseActionPlan(session.output as string | null);
+          return (
+            <div key={session.id} className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: steps.length > 0 ? '0.5rem' : 0 }}>
+                {new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </p>
+              {steps.length > 0 && (
+                <ul style={{ margin: 0, padding: '0 0 0 1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  {steps.map((step, i) => (
+                    <li key={i} style={{ fontSize: '0.875rem' }}>{step}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  ) : null;
 
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>
@@ -36,6 +85,7 @@ export default async function CounselorPage() {
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
         </div>
+        {historySection}
         <MobileBottomNav variant="portal" />
       </div>
 
@@ -45,6 +95,7 @@ export default async function CounselorPage() {
           <VoiceAgentSurface {...studentCounselorVoiceSurface}>
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
+          {historySection}
         </div>
       </div>
     </div>

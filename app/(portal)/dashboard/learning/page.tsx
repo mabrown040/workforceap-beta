@@ -426,7 +426,7 @@ export default async function LearningPage() {
           <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
             school
           </span>
-          <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Learning Pathway</h2>
+          <h2 className="portal-section-heading" style={{ margin: 0 }}>Your Learning Pathway</h2>
         </div>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
           Track and mark each step as you complete it. Progress saves to your profile.

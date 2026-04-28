@@ -9,7 +9,7 @@ import { getUser } from '@/lib/auth/server';
  * Body: { text: string, title?: string, toolName?: string, chartImage?: string }
  * Returns: PDF with WorkforceAP logo header on each page.
  *
- * Embeds the actual /public/images/logo-tight.png in the header bar.
+ * Embeds the actual /public/images/wap_logo.png in the header bar.
  * Falls back to vector text if the image cannot be loaded.
  * When chartImage (base64 data-URL PNG) is provided, it is embedded below the title.
  */
@@ -29,7 +29,7 @@ type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
 
 async function loadLogo(pdfDoc: PDFDocument): Promise<EmbeddedLogo> {
   try {
-    const logoPath = join(process.cwd(), 'public', 'images', 'logo-tight.png');
+    const logoPath = join(process.cwd(), 'public', 'images', 'wap_logo.png');
     const logoBytes = await readFile(logoPath);
     return await pdfDoc.embedPng(logoBytes);
   } catch {

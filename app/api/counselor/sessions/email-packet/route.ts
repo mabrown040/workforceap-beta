@@ -45,7 +45,7 @@ async function generatePdfBuffer(title: string, text: string): Promise<Buffer> {
 
   let logo: Awaited<ReturnType<typeof PDFDocument.prototype.embedPng>> | null = null;
   try {
-    const logoPath = join(process.cwd(), 'public', 'images', 'logo-tight.png');
+    const logoPath = join(process.cwd(), 'public', 'images', 'wap_logo.png');
     const logoBytes = await readFile(logoPath);
     logo = await pdfDoc.embedPng(logoBytes);
   } catch { /* skip */ }

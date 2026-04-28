@@ -18,7 +18,7 @@ interface LayoutProps {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.workforceap.org";
-const logoUrl = 'https://www.workforceap.org/images/logo-tight.png';
+const logoUrl = 'https://www.workforceap.org/images/wap_logo.png';
 
 export default function Layout({ previewText, children }: LayoutProps) {
   return (

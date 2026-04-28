@@ -29,20 +29,39 @@ export async function GET(request: Request) {
   /* Optional ?course=<slug> deep-links to a specific course in the enrolled program. */
   const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
 
-  if (requestedSlug && enrolledProgram && dbUser?.organizationId) {
-    const course = await prisma.course.findUnique({
-      where: {
-        organizationId_programSlug_courseSlug: {
-          organizationId: dbUser.organizationId,
-          programSlug: enrolledProgram,
-          courseSlug: requestedSlug,
+  if (requestedSlug && enrolledProgram) {
+    // Prefer DB override first (org-configured course URL type / slug)
+    if (dbUser?.organizationId) {
+      const course = await prisma.course.findUnique({
+        where: {
+          organizationId_programSlug_courseSlug: {
+            organizationId: dbUser.organizationId,
+            programSlug: enrolledProgram,
+            courseSlug: requestedSlug,
+          }
         }
-      }
-    });
+      });
 
-    if (course && course.courseraSlug) {
-      const urlType = course.courseraUrlType || 'learn';
-      return NextResponse.redirect(`https://www.coursera.org/${urlType}/${course.courseraSlug}`);
+      if (course && course.courseraSlug) {
+        const urlType = course.courseraUrlType || 'learn';
+        return NextResponse.redirect(`https://www.coursera.org/${urlType}/${course.courseraSlug}`);
+      }
+    }
+
+    // Fallback: construct enterprise deep link from discovered catalog
+    const discoveredProg = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
+    if (discoveredProg) {
+      const discoveredCourse = discoveredProg.courses.find((c) => c.slug === requestedSlug);
+      if (discoveredCourse) {
+        const programSlugFromUrl = discoveredProg.publicProgramUrl.match(/\/programs\/([^/?#]+)/)?.[1];
+        if (programSlugFromUrl) {
+          return NextResponse.redirect(
+            `https://www.coursera.org/programs/${programSlugFromUrl}/learn/${discoveredCourse.slug}`
+          );
+        }
+        // If URL parse fails, fall through to public learn URL
+        return NextResponse.redirect(`https://www.coursera.org/learn/${discoveredCourse.slug}`);
+      }
     }
   }
 

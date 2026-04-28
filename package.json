@@ -15,6 +15,7 @@
     "db:migrate": "node scripts/prisma-env.js prisma migrate dev",
     "db:migrate:deploy": "node scripts/prisma-env.js prisma migrate deploy",
     "db:cleanup-fixtures": "node scripts/prisma-env.js npx tsx scripts/cleanup-fixtures.ts",
+    "db:backfill:courses": "node scripts/prisma-env.js npx tsx scripts/backfill-courses.ts",
     "db:push": "node scripts/prisma-env.js prisma db push",
     "db:studio": "node scripts/prisma-env.js prisma studio",
     "db:seed": "node scripts/prisma-env.js npx tsx prisma/seed.ts",

@@ -73,6 +73,16 @@ export function getProgramDisplayPartner(program: Program | string): string {
   return inferDiscoveredPartnerLabel(program) ?? program.partner;
 }
 
+export const PROGRAM_CATEGORY_COLORS: Record<string, string> = {
+  'digital-literacy': '#666',
+  'it-cyber': '#ad2c4d',
+  'ai-software': '#8b4a9b',
+  business: '#a47f38',
+  'cloud-data': '#2b7bb9',
+  healthcare: '#4a9b4f',
+  manufacturing: '#1a1a1a',
+};
+
 function mkProgram(
   title: string,
   category: string,
@@ -89,6 +99,7 @@ function mkProgram(
   slugOverride?: string
 ): Program {
   const slug = slugOverride ?? slugify(title);
+  const canonicalCategoryColor = PROGRAM_CATEGORY_COLORS[category] ?? categoryColor;
   const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
   const courses: ProgramCourse[] = discoveredCourses?.length
     ? discoveredCourses.map((course) => ({
@@ -106,8 +117,8 @@ function mkProgram(
     title,
     category,
     categoryLabel,
-    categoryColor,
-    borderColor: categoryColor,
+    categoryColor: canonicalCategoryColor,
+    borderColor: canonicalCategoryColor,
     icon,
     duration,
     salary,

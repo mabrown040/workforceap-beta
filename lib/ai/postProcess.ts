@@ -6,9 +6,10 @@
  * spoken-aloud copy).
  *
  * Use cleanSpokenLine for short single-sentence outputs that a member will
- * read aloud (elevator pitch, voice rehearsals). Use stripMarkdownHeading
+ * read aloud (elevator pitch, voice rehearsals). Use cleanLongFormPlainText
  * for long-form outputs that we render as plain text but the model emits
- * with `## HEADING` markers.
+ * with `## HEADING` markers. sanitizeAIOutput is the shared default for
+ * generic member-visible AI text.
  */
 
 const COMMON_TYPOS: Array<[RegExp, string]> = [
@@ -101,4 +102,13 @@ export function cleanSpokenLine(text: string): string {
  */
 export function cleanLongFormPlainText(text: string): string {
   return stripMarkdown(fixCommonTypos(text)).trim();
+}
+
+/**
+ * Shared default sanitizer for member-visible AI output. This keeps a single
+ * safe pipeline available for new AI tools: fix known typos, normalize/strip
+ * quote artifacts, strip raw markdown markers, and trim the result.
+ */
+export function sanitizeAIOutput(text: string): string {
+  return stripMarkdown(stripWrappingQuotes(normalizeSmartQuotes(fixCommonTypos(text)))).trim();
 }

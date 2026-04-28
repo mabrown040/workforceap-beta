@@ -99,7 +99,7 @@ export const LEADERS: Leader[] = [
     ],
     heroBadge: 'Founder & Executive Leadership',
     heroQuote:
-      'Committed to bridging the gap between potential and opportunity through workforce innovation.',
+      'Committed to bridging the gap between potential and opportunity through practical workforce pathways.',
     spotlightCards: [
       {
         icon: 'account_balance',
@@ -109,26 +109,21 @@ export const LEADERS: Leader[] = [
       {
         icon: 'groups',
         title: "Founder's Lens",
-        body: 'A visionary who translates workforce needs into scalable training programs that create lasting community impact.',
+        body: 'A practical workforce builder who translates community needs into clear training pathways and partner-backed support.',
         variant: 'accent',
       },
     ],
     partnerTiles: [
       { icon: 'handshake', name: 'Goodwill Central Texas', desc: 'Career & Technical Academy' },
       { icon: 'account_balance', name: 'Texas Workforce Commission', desc: 'State Career Schools' },
-      { icon: 'school', name: 'Austin Community College', desc: 'Continuing Education' },
-      { icon: 'location_city', name: 'City of Austin', desc: 'Workforce Solutions' },
+      { icon: 'location_city', name: 'Workforce Solutions', desc: 'Capital Area workforce board partner' },
+      { icon: 'public', name: 'ReWork America Alliance', desc: 'National workforce coalition partner' },
     ],
     achievementTiles: [
       {
-        icon: 'emoji_events',
-        title: 'Equity Innovation Award',
-        desc: 'Recognized for transformative workforce equity programs across Central Texas.',
-      },
-      {
         icon: 'payments',
-        title: '$20M+ Funding Secured',
-        desc: 'Raised and directed grants, contracts, and partnerships for workforce development.',
+        title: '$15M+ Funding Directed',
+        desc: 'Raised and directed grants, contracts, and partnerships for workforce development across multiple organizations.',
       },
     ],
   },

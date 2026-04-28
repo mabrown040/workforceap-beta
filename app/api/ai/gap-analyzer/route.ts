@@ -6,6 +6,7 @@ import { gapAnalyzerSchema } from '@/lib/validation/gapAnalyzer';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -85,7 +86,7 @@ Identify any employment gaps and provide framing language for each.`;
       console.error('Gap analyzer: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output: cleanLongFormPlainText(output) });
   } catch (err) {
     console.error('Gap analyzer error:', err);
     return NextResponse.json(

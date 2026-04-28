@@ -6,6 +6,7 @@ import { coverLetterSchema } from '@/lib/validation/coverLetter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -91,7 +92,7 @@ Write a tailored cover letter.`;
       console.error('Cover letter: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output: cleanLongFormPlainText(output) });
   } catch (err) {
     console.error('Cover letter error:', err);
     return NextResponse.json(

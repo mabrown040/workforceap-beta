@@ -12,9 +12,23 @@
  */
 
 const COMMON_TYPOS: Array<[RegExp, string]> = [
-  /* AI completions periodically drop a letter on doubled-consonant gerunds. */
+  /* AI completions periodically drop a letter on doubled-consonant gerunds/nouns. */
   [/\bexceling\b/g, 'excelling'],
   [/\bExceling\b/g, 'Excelling'],
+  [/\boccuring\b/g, 'occurring'],
+  [/\bOccuring\b/g, 'Occurring'],
+  [/\bbegining\b/g, 'beginning'],
+  [/\bBegining\b/g, 'Beginning'],
+  [/\bsubmiting\b/g, 'submitting'],
+  [/\bSubmiting\b/g, 'Submitting'],
+  [/\bprograming\b/g, 'programming'],
+  [/\bPrograming\b/g, 'Programming'],
+  [/\brecomending\b/g, 'recommending'],
+  [/\bRecomending\b/g, 'Recommending'],
+  [/\baccomodating\b/g, 'accommodating'],
+  [/\bAccomodating\b/g, 'Accommodating'],
+  [/\bcancelation\b/g, 'cancellation'],
+  [/\bCancelation\b/g, 'Cancellation'],
   [/\btraveling\b/g, 'traveling'], /* US spelling, no-op — placeholder so we can flip locale later */
 ];
 

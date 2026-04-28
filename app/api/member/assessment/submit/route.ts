@@ -6,6 +6,7 @@ import { scoreAssessment, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import type { QuestionChoice } from '@/lib/assessment/answer-key';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { trackEvent } from '@/lib/events/track';
+import { awardPoints } from '@/lib/member/points';
 
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';
 
@@ -59,6 +60,8 @@ export async function POST(request: Request) {
       assessmentAnswers: answersTyped as unknown as object,
     },
   });
+
+  awardPoints(user.id, 'assessment_completed').catch(() => {});
 
   // Track assessment completion for funnel analytics
   await trackEvent({

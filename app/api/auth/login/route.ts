@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
-import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE, SESSION_ONLY_MAX_AGE } from '@/lib/supabaseCookieOptions';
+import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
+import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';
   const rememberMe = body?.rememberMe === true; // defaults to false
-  const redirectTo = sanitizeRedirectPath(
+  const redirectTo = normalizePostLoginRedirect(
     typeof body?.redirectTo === 'string' ? body.redirectTo : undefined,
     '/dashboard'
   );

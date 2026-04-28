@@ -44,7 +44,7 @@ export function getMemberStateSummary(
   });
 
   // 3. Program & Training
-  const program = user.enrolledProgram ? getProgramBySlug(user.enrolledProgram) : null;
+  const program = user.enrolledProgram ? getProgramBySlug(user.enrolledProgram) ?? null : null;
   const coursesCompleted = parseCourseSlugList(user.coursesCompleted);
   const totalCourses = program?.courses.length ?? 0;
   const completedCount = program

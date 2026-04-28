@@ -96,7 +96,7 @@ export default async function AdminProgramsPage() {
           </div>
 
           {/* Mobile cards — portal-metric style */}
-          <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>
             {PROGRAMS.map((p) => {
               const stats = byProgram.get(p.slug) ?? { count: 0, scores: [], completed: 0 };
               const avgScore = stats.scores.length > 0

@@ -23,11 +23,6 @@ export default async function LoginPage({
   const [user, sp] = await Promise.all([getUser(), searchParams]);
   const rawRedirect = typeof sp?.redirectTo === 'string' ? sp.redirectTo : undefined;
   const normalizedRedirect = sanitizeRedirectPath(rawRedirect, '/dashboard');
-  const user = await getUser();
-
-  if (user) {
-    redirect(normalizedRedirect);
-  }
 
   if (user) {
     redirect(normalizedRedirect);

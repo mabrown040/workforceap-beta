@@ -6,7 +6,7 @@ import ApplyCreateAccountForm from './ApplyCreateAccountForm';
 
 export const metadata: Metadata = {
   ...buildPageMetadata({
-    title: 'Set Up Your Member Path',
+    title: 'Save Your Spot and Create Your Login',
     description: 'Create your account to save your ranked program choices and connect with your next steps.',
     path: '/apply/create-account',
   }),
@@ -18,8 +18,8 @@ export default function ApplyCreateAccountPage() {
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Step 3 of 3 — set up your member path</h1>
-          <p>Create your account to save your ranked program choices, track your progress, and connect with counselor support. Our team will follow up within 1–2 business days with your next step.</p>
+          <h1>Step 3 of 3 — save your spot and create your login</h1>
+          <p>Create your account to save your ranked program choices, track your progress, and connect with counselor support. Start with the basics now. You can add more profile details later if we need them. Our team will follow up within 1–2 business days with your next step.</p>
         </div>
       </section>
 

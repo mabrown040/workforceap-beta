@@ -24,11 +24,11 @@ const applySignupSchema = z.object({
   lastName: z.string().trim().min(1, 'Please enter your last name.').max(100),
   email: z.string().trim().email('Please enter a valid email address.'),
   phone: z.string().trim().min(10, 'Please enter a valid phone number with area code.').max(50),
-  addressLine1: z.string().trim().min(1, 'Enter your street address.').max(200),
+  addressLine1: z.string().trim().max(200).optional().nullable(),
   addressLine2: z.string().trim().max(200).optional().nullable(),
-  city: z.string().trim().min(1, 'Enter your city.').max(100),
-  state: z.string().trim().min(1, 'Enter your state.').max(50),
-  zip: z.string().trim().min(1, 'Enter your ZIP code.').max(20),
+  city: z.string().trim().max(100).optional().nullable(),
+  state: z.string().trim().max(50).optional().nullable(),
+  zip: z.string().trim().max(20).optional().nullable(),
   smsOptIn: z.boolean().optional().default(false),
   password: z.string().min(8, 'Create a password with at least 8 characters.'),
   /** Primary = [0]; up to 3 preferences in order */
@@ -82,7 +82,8 @@ export async function POST(request: NextRequest) {
     needsComputerSupportFollowUp,
   } = parsed.data;
 
-  const profileAddress = [addressLine1, addressLine2?.trim()].filter(Boolean).join(', ');
+  const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];
+  const profileAddress = profileAddressParts.length > 0 ? profileAddressParts.join(', ') : null;
 
   const programSlug = programRankedSlugs[0];
   const program = getProgramBySlug(programSlug);
@@ -147,7 +148,7 @@ export async function POST(request: NextRequest) {
   if (authError) {
     if (authError.message.includes('already registered') || authError.code === 'user_already_exists') {
       return NextResponse.json(
-        { error: 'An account with this email already exists. Try logging in, or use password reset if you are returning.' },
+        { error: 'An account with this email already exists. Log in to continue, or use password reset if you are returning.' },
         { status: 400 }
       );
     }
@@ -217,17 +218,17 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           profilePhone: phone,
           profileAddress,
-          city: city.trim(),
-          state: state.trim(),
-          zip: zip.trim(),
+          city: city?.trim() || null,
+          state: state?.trim() || null,
+          zip: zip?.trim() || null,
           smsOptIn: smsOptIn ?? false,
         },
         update: {
           profilePhone: phone,
           profileAddress,
-          city: city.trim(),
-          state: state.trim(),
-          zip: zip.trim(),
+          city: city?.trim() || null,
+          state: state?.trim() || null,
+          zip: zip?.trim() || null,
           smsOptIn: smsOptIn ?? false,
         },
       });
@@ -256,7 +257,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (dbError) {
     captureApiError(dbError, { route: 'POST /api/apply/signup' });
-    return NextResponse.json({ error: 'Your account was started, but we could not finish saving it. Please try again, or contact us if this keeps happening.' }, { status: 500 });
+    return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
   }
 
   if (authData.session) {

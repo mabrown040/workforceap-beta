@@ -159,18 +159,7 @@ export default function ApplyCreateAccountForm() {
     } else if (phoneDigits.length < 10) {
       nextFieldErrors.phone = 'Use a phone number with at least 10 digits.';
     }
-    if (!addressLine1.trim()) {
-      nextFieldErrors.addressLine1 = 'Enter your street address.';
-    }
-    if (!city.trim()) {
-      nextFieldErrors.city = 'Enter your city.';
-    }
-    if (!stateVal.trim()) {
-      nextFieldErrors.state = 'Enter your state.';
-    }
-    if (!zip.trim()) {
-      nextFieldErrors.zip = 'Enter your ZIP code.';
-    } else if (!/^\d{5}(-\d{4})?$/.test(zip.trim())) {
+    if (zip.trim() && !/^\d{5}(-\d{4})?$/.test(zip.trim())) {
       nextFieldErrors.zip = 'Please enter a valid 5-digit ZIP code';
     }
     if (password.length < 8) {
@@ -182,15 +171,10 @@ export default function ApplyCreateAccountForm() {
 
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
-      const needsContact =
-        nextFieldErrors.phone ||
-        nextFieldErrors.addressLine1 ||
-        nextFieldErrors.city ||
-        nextFieldErrors.state ||
-        nextFieldErrors.zip;
+      const needsContact = nextFieldErrors.phone;
       setError(
         needsContact
-          ? 'Please add a phone number and home address to continue.'
+          ? 'Please add a phone number to continue.'
           : 'Please fix the highlighted fields and try again.'
       );
       return;
@@ -225,11 +209,11 @@ export default function ApplyCreateAccountForm() {
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phoneDigits,
-          addressLine1: addressLine1.trim(),
+          addressLine1: addressLine1.trim() || undefined,
           addressLine2: addressLine2.trim() || undefined,
-          city: city.trim(),
-          state: stateVal.trim(),
-          zip: zip.trim(),
+          city: city.trim() || undefined,
+          state: stateVal.trim() || undefined,
+          zip: zip.trim() || undefined,
           smsOptIn,
           password,
           programRankedSlugs,
@@ -343,6 +327,11 @@ export default function ApplyCreateAccountForm() {
         <span> your account saves the program choices you ranked, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
       </div>
 
+      <div className="apply-transition-card" role="note" aria-label="What you can finish later" style={{ marginTop: '0.75rem' }}>
+        <strong>Keep this part light:</strong>
+        <span> only your name, email, phone, and password are required to start. Mailing address details can be added later from your profile if we need them.</span>
+      </div>
+
       {rankedProgramLabels.length > 0 ? (
         <div className="apply-transition-card" role="note" aria-label="Saved program choices" style={{ marginTop: '0.75rem' }}>
           <strong>Your saved choices:</strong>
@@ -422,7 +411,7 @@ export default function ApplyCreateAccountForm() {
         {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
       </div>
       <div className="form-group">
-        <label htmlFor="addressLine1">Street address *</label>
+        <label htmlFor="addressLine1">Street address (optional)</label>
         <input
           id="addressLine1"
           type="text"
@@ -432,7 +421,6 @@ export default function ApplyCreateAccountForm() {
             if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
           }}
           autoComplete="address-line1"
-          required
           aria-invalid={!!fieldErrors.addressLine1}
         />
         {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
@@ -448,7 +436,7 @@ export default function ApplyCreateAccountForm() {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="city">City *</label>
+        <label htmlFor="city">City (optional)</label>
         <input
           id="city"
           type="text"
@@ -458,7 +446,6 @@ export default function ApplyCreateAccountForm() {
             if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
           }}
           autoComplete="address-level2"
-          required
           aria-invalid={!!fieldErrors.city}
         />
         {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
@@ -468,7 +455,7 @@ export default function ApplyCreateAccountForm() {
         style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.75rem' }}
       >
         <div>
-          <label htmlFor="state">State *</label>
+          <label htmlFor="state">State (optional)</label>
           <select
             id="state"
             value={stateVal}
@@ -477,7 +464,6 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
             }}
             autoComplete="address-level1"
-            required
             aria-invalid={!!fieldErrors.state}
           >
             <option value="">Select…</option>
@@ -488,7 +474,7 @@ export default function ApplyCreateAccountForm() {
           {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
         </div>
         <div>
-          <label htmlFor="zip">ZIP *</label>
+          <label htmlFor="zip">ZIP (optional)</label>
           <input
             id="zip"
             type="text"
@@ -498,7 +484,6 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
             }}
             autoComplete="postal-code"
-            required
             aria-invalid={!!fieldErrors.zip}
           />
           {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}

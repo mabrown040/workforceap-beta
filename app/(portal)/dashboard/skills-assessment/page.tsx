@@ -12,8 +12,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Skills Assessment',
-  description: 'View your assessment status, skill portfolio, and career readiness.',
+  title: 'Training Preassessment',
+  description: 'View your Training Preassessment status, skill portfolio, and career readiness.',
   path: '/dashboard/skills-assessment',
 });
 
@@ -84,11 +84,11 @@ export default async function SkillsAssessmentPage() {
       <div style={{ maxWidth: 'var(--max-width, 72rem)', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
         <div style={{ marginTop: '1rem', marginBottom: '1.75rem' }}>
           <PageHeader
-            title="Skills assessment"
-            subtitle="Your skills snapshot helps personalize your learning path and connect you with career support."
+            title="Training Preassessment"
+            subtitle="After you choose a program, this short preassessment helps personalize your training path and career support."
             breadcrumbs={[
               { label: 'Member Portal', href: '/dashboard' },
-              { label: 'Skills assessment' },
+              { label: 'Training Preassessment' },
             ]}
           />
         </div>
@@ -101,10 +101,10 @@ export default async function SkillsAssessmentPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, marginTop: '0.125rem' }} aria-hidden="true">lock</span>
                 <div>
                   <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
-                    Assessment opens after your intake interview
+                    Training Preassessment opens after your intake interview
                   </h2>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: '0 0 1rem' }}>
-                    Your counselor uses the interview to confirm fit and next steps. After that conversation is complete, you can take the skills snapshot here.
+                    Your counselor uses the interview to confirm fit and next steps. After that conversation is complete, you can take the Training Preassessment here.
                   </p>
                   <Link href="/dashboard" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>
                     Back to overview
@@ -115,7 +115,7 @@ export default async function SkillsAssessmentPage() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-green)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
-                  <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Assessment complete</h2>
+                  <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Training Preassessment complete</h2>
                   <span style={{ marginLeft: 'auto', padding: '0.2rem 0.625rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)' }}>
                     Done
                   </span>
@@ -167,13 +167,13 @@ export default async function SkillsAssessmentPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, marginTop: '0.125rem' }} aria-hidden="true">help_outline</span>
                 <div>
                   <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
-                    Take your skills snapshot
+                    Take your Training Preassessment
                   </h2>
                   <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: '0 0 1rem' }}>
-                    A quick 10-minute assessment — finishing this starts your training courses and personalizes your learning plan.
+                    A quick 10-minute preassessment — finishing this starts your training courses and personalizes your learning plan.
                   </p>
                   <Link href="/dashboard/assessment" className="btn btn-primary" style={{ fontSize: '0.875rem' }}>
-                    Start assessment
+                    Start preassessment
                   </Link>
                 </div>
               </div>

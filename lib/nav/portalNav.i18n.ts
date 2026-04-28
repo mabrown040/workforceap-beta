@@ -95,7 +95,7 @@ export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
   },
   {
     href: '/dashboard/skills-assessment',
-    label: 'nav:skillsAssessment',
+    label: 'nav:trainingPreassessment',
     group: 'insights',
     tab: 'me',
     Icon: ClipboardCheck,

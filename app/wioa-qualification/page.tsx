@@ -4,9 +4,9 @@ import { buildPageMetadata } from '@/app/seo';
 import WioaQualificationClient from '@/components/portal/WioaQualificationClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'WIOA eligibility screening',
+  title: 'WIOA Qualification Assessment',
   description:
-    'See whether WIOA-funded training may be a fit. Complete a quick public pre-screen and WorkforceAP can follow up with next steps.',
+    'See whether WIOA-funded training may be a fit. Complete a quick public qualification assessment and WorkforceAP can follow up with next steps.',
   path: '/wioa-qualification',
 });
 

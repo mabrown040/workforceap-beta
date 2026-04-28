@@ -112,7 +112,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     ? [
         {
           href: '/dashboard/learning/wioa-qualification',
-          label: 'Funding Eligibility',
+          label: 'WIOA Qualification',
           group: 'insights',
           tab: 'program',
           Icon: Shield,
@@ -161,7 +161,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   {
     href: '/dashboard/skills-assessment',
-    label: 'Skills Assessment',
+    label: 'Training Preassessment',
     group: 'insights',
     tab: 'me',
     Icon: ClipboardCheck,

@@ -318,7 +318,7 @@ export default function MemberOnboardingWizard({
           <p>What happens next:</p>
           <ul className="wa-list-disc wa-space-y-1 wa-pl-5 wa-text-slate-600">
             <li>We review your application and follow up in 1 to 2 business days</li>
-            <li>Overview call with a counselor, then a brief skills assessment</li>
+            <li>WIOA Qualification Assessment first, then a Training Preassessment for your chosen program</li>
             <li>Interview to confirm mutual fit, then start your program at no cost to members</li>
           </ul>
         </div>

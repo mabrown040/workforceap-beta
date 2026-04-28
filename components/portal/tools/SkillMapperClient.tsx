@@ -1315,12 +1315,27 @@ export default function SkillMapperClient() {
                     {extractingResume ? 'Analyzing…' : 'Enhance with AI'}
                   </button>
                 )}
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                  {hasAiResumeExtraction
-                    ? <><button type="button" onClick={handleAiExtract} disabled={extractingResume} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: '0.75rem' }}>{extractingResume ? 'Re-analyzing…' : 'Re-analyze'}</button> · </>
-                    : null}
-                  <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Update resume</a>
-                </span>
+                {hasAiResumeExtraction && (
+                  <button
+                    type="button"
+                    onClick={handleAiExtract}
+                    disabled={extractingResume}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                      padding: '0.45rem 0.9rem', borderRadius: '0.5rem',
+                      background: 'var(--color-accent)', color: '#fff',
+                      fontWeight: 800, fontSize: '0.78rem', border: 'none',
+                      cursor: extractingResume ? 'default' : 'pointer',
+                      opacity: extractingResume ? 0.6 : 1,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
+                      {extractingResume ? 'progress_activity' : 'refresh'}
+                    </span>
+                    {extractingResume ? 'Re-analyzing…' : 'Reanalyze resume skills'}
+                  </button>
+                )}
+                <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.78rem' }}>Update resume</a>
               </div>
             </div>
           )}

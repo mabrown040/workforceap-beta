@@ -97,10 +97,35 @@ export default async function JobsPage() {
         title="Job Board"
         subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create your account or log in to apply."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
-        action={user ? <LogExternalApplicationButton /> : undefined}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
+          {user ? (
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '1rem 1.25rem',
+                border: '2px solid color-mix(in srgb, var(--color-accent) 35%, transparent)',
+                background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-low))',
+                marginBottom: '1.25rem',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: '14rem' }}>
+                <p style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
+                  Already applied on Indeed, LinkedIn, or a company site?
+                </p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
+                  Log it here so WorkforceAP can track your progress and your counselor can help with follow-up.
+                </p>
+              </div>
+              <LogExternalApplicationButton variant="primary" />
+            </div>
+          ) : null}
+
           {/* Indeed search banner */}
           <div style={{
             display: 'flex',

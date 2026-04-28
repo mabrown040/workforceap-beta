@@ -64,8 +64,9 @@ export default async function LearningPage() {
   return (
     <>
     <h1 className="wa-sr-only">The Learning Hub</h1>
+    <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', paddingBottom: '6rem' }}>
     {/* ── Mobile learning view (≤640px) ── */}
-    <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+    <div className="md:wa-hidden">
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0', marginBottom: '1.5rem' }}>
         <p className="wa-text-[11px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[var(--color-accent)]" style={{ display: 'block', marginBottom: '0.5rem' }}>Your Learning</p>
@@ -229,7 +230,6 @@ export default async function LearningPage() {
 
     {/* ── Desktop view ── */}
     <div className="wa-hidden md:wa-block">
-    <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
       {/* Top bar: label + heading + progress */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
         <div>
@@ -450,8 +450,8 @@ export default async function LearningPage() {
       )}
 
       <LearningCivicBotPanel />
-    </div>
     </div> {/* end hidden md:block */}
+    </div>
 
     <MobileBottomNav variant="portal" />
     </>

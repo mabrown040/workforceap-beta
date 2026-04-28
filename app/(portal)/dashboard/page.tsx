@@ -27,6 +27,7 @@ import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import { getMemberStateSummary } from '@/lib/member/memberStateSummary';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Your Dashboard',

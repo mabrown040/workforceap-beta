@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
+import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobTarget, targetSalary, targetLocation, subjectMemberId, sessionId } = parsed.data;
+  const { resume, jobTarget, targetSalary, targetLocation, language, subjectMemberId, sessionId } = parsed.data;
 
   // Resolve subject (In-Office Session: counselor/admin on behalf of member).
   // Default: actor IS subject (legacy member self-serve path).
@@ -54,6 +55,8 @@ export async function POST(request: Request) {
   ].filter(Boolean).join('\n');
 
   const systemPrompt = `You are a career positioning coach and professional resume writer. Your job is to help job seekers frame and position their existing experience toward a specific goal — without inventing, fabricating, or exaggerating anything.
+
+${aiResponseLanguageInstruction(language)}
 
 CORE PRINCIPLE: You are a FRAMING tool, not a fabrication tool. Every accomplishment, role, and skill in the output must be traceable to something in their original resume. Do not add jobs, degrees, certifications, or achievements that are not in the original.
 

@@ -6,6 +6,7 @@ export const interviewPracticeSchema = z.object({
   count: z.number().min(3).max(15).optional().default(8),
   /** Optional resume text so questions can reference real experience */
   resumeContext: z.string().max(15000).optional(),
+  language: z.enum(['en', 'es']).optional().default('en'),
   /** Counselor/admin In-Office Session: run on behalf of this member. */
   subjectMemberId: z.string().uuid().optional(),
   /** Group multiple tool runs into one session. */

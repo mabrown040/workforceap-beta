@@ -34,7 +34,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
       if (!res.ok) {
         if (data.code === 'PROFILE_INCOMPLETE') {
           setError(
-            `${data.error ?? 'Complete your profile first.'} Update phone, address, and financial aid interest on your profile, then try again.`
+            `${data.error ?? 'Complete your profile first.'} Update your phone and address on your profile, then try again.`
           );
         } else {
           setError(data.error ?? 'Failed to enroll');

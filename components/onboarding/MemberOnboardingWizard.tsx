@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import OnboardingWizard, { type OnboardingStep } from '@/components/onboarding/OnboardingWizard';
 import { PROGRAMS } from '@/lib/content/programs';
-
-const HEAR_OPTIONS = ['Google', 'Referral', 'Social Media', 'Workforce Center', 'Other'] as const;
+import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 
 export type MemberOnboardingWizardProps = {
   initialFullName: string;
@@ -45,12 +44,11 @@ export default function MemberOnboardingWizard({
   const [programInterest, setProgramInterest] = useState(
     () => initialProgramInterest.trim() || topPrograms[0]?.title || ''
   );
-  const [financialAid, setFinancialAid] = useState<'yes' | 'no' | 'unsure' | ''>('');
   const [referralSource, setReferralSource] = useState(
-    HEAR_OPTIONS.includes(initialReferralSource as (typeof HEAR_OPTIONS)[number])
+    PUBLIC_REFERRAL_SOURCE_OPTIONS.includes(initialReferralSource as (typeof PUBLIC_REFERRAL_SOURCE_OPTIONS)[number])
       ? initialReferralSource
       : initialReferralSource
-        ? 'Other'
+        ? 'Other / write in'
         : ''
   );
 
@@ -107,8 +105,6 @@ export default function MemberOnboardingWizard({
   };
 
   const saveQuestionsStep = async () => {
-    const aid =
-      financialAid === 'yes' ? true : financialAid === 'no' ? false : undefined;
     try {
       await fetch('/api/member/dashboard-profile', {
         method: 'PATCH',
@@ -123,7 +119,6 @@ export default function MemberOnboardingWizard({
           zip: zip.trim() || null,
           linkedin: null,
           bio: null,
-          ...(aid !== undefined ? { financialAidInterest: aid } : {}),
           referralSource: referralSource || null,
         }),
       });
@@ -290,28 +285,12 @@ export default function MemberOnboardingWizard({
     },
     {
       title: 'Quick questions',
-      subtitle: 'Help us tailor support and funding options.',
+      subtitle: 'Help us understand who connected you with WorkforceAP.',
       content: (
         <div className="wa-space-y-4">
-          <fieldset className="wa-m-0 wa-min-w-0 wa-border-0 wa-p-0">
-            <legend className="wa-mb-2 wa-text-xs wa-font-medium wa-text-slate-600">
-              Interested in financial aid?
-            </legend>
-            <div className="wa-flex wa-flex-wrap wa-gap-3">
-              {(['yes', 'no', 'unsure'] as const).map((v) => (
-                <label key={v} htmlFor={`member-aid-${v}`} className="wa-flex wa-items-center wa-gap-1.5 wa-text-sm">
-                  <input
-                    id={`member-aid-${v}`}
-                    type="radio"
-                    name="aid"
-                    checked={financialAid === v}
-                    onChange={() => setFinancialAid(v)}
-                  />
-                  {v === 'yes' ? 'Yes' : v === 'no' ? 'No' : 'Not sure'}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <div className="wa-rounded-lg wa-border wa-border-blue-100 wa-bg-blue-50 wa-p-3 wa-text-sm wa-text-slate-700">
+            WorkforceAP programs are no cost to members. We only ask where you heard about us so we can route referrals correctly.
+          </div>
           <label htmlFor="member-referral-source" className="wa-block wa-text-xs wa-font-medium wa-text-slate-600">
             How did you hear about WorkforceAP?
             <select
@@ -321,7 +300,7 @@ export default function MemberOnboardingWizard({
               className="wa-mt-1 wa-w-full wa-rounded-lg wa-border wa-border-slate-200 wa-px-3 wa-py-2 wa-text-sm"
             >
               <option value="">Select…</option>
-              {HEAR_OPTIONS.map((o) => (
+              {PUBLIC_REFERRAL_SOURCE_OPTIONS.map((o) => (
                 <option key={o} value={o}>
                   {o}
                 </option>

@@ -16,7 +16,7 @@ function getPrefilledTopic(topicParam?: string | string[]): string {
     sponsorship: 'Partnership or sponsorship',
     sponsor: 'Partnership or sponsorship',
     program: 'Program information',
-    eligibility: 'Eligibility questions',
+    eligibility: 'Eligibility or no-cost member training',
     application: 'Application help',
     tour: 'Schedule a tour',
     media: 'Media or press inquiry',
@@ -111,8 +111,8 @@ export default async function ContactPage({
             </h1>
             <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '46rem', lineHeight: 1.7, margin: 0 }}>
               Whether you&rsquo;re a current or prospective member with program questions, an employer looking to hire or build a pipeline,
-              a community partner exploring a referral relationship, or a donor interested in supporting our work, reach out and a
-              member of our team will respond within 1–2 business days.
+              a community partner exploring a referral relationship, or a donor interested in supporting no-cost member training, reach out and a
+              WorkforceAP team member will respond within 1–2 business days.
             </p>
           </div>
 
@@ -153,7 +153,8 @@ export default async function ContactPage({
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>Built in Austin, supporting members nationwide</h3>
                 <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   We work from Austin, Texas and support members, partners, and employers across the country. Use the form,
-                  email, or phone to reach the right team and we&rsquo;ll follow up within 1–2 business days.
+                  email, or phone to reach the right WorkforceAP team member. We coordinate with partner organizations, but counselors
+                  and partner organizations are not the same thing.
                 </p>
               </div>
             </div>

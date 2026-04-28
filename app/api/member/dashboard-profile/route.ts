@@ -6,11 +6,20 @@ import { z } from 'zod';
 const updateSchema = z.object({
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1, 'Last name is required.').max(100),
-  phone: z.string().max(50).nullable(),
-  address: z.string().max(500).nullable(),
+  phone: z
+    .string()
+    .max(50)
+    .nullable()
+    .refine((value) => !value || value.replace(/\D/g, '').length >= 10, 'Use a phone number with at least 10 digits.'),
+  address: z.string().max(500).nullable().refine((value) => !value || value.trim().length >= 5, 'Enter a street address.'),
   city: z.string().max(100).optional().nullable(),
   state: z.string().max(50).optional().nullable(),
-  zip: z.string().max(20).optional().nullable(),
+  zip: z
+    .string()
+    .max(20)
+    .optional()
+    .nullable()
+    .refine((value) => !value || /^\d{5}(-\d{4})?$/.test(value.trim()), 'Enter a valid ZIP code.'),
   linkedin: z.string().max(500).nullable(),
   bio: z.string().max(2000).nullable(),
   financialAidInterest: z.boolean().optional(),

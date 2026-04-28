@@ -10,6 +10,7 @@ import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 export type MemberOnboardingWizardProps = {
   initialFullName: string;
   initialPhone: string;
+  initialAddress: string;
   initialCity: string;
   initialState: string;
   initialZip: string;
@@ -21,6 +22,7 @@ export type MemberOnboardingWizardProps = {
 export default function MemberOnboardingWizard({
   initialFullName,
   initialPhone,
+  initialAddress,
   initialCity,
   initialState,
   initialZip,
@@ -34,7 +36,7 @@ export default function MemberOnboardingWizard({
   const [firstName, setFirstName] = useState(nameParts[0] ?? '');
   const [lastName, setLastName] = useState(nameParts.slice(1).join(' ') ?? '');
   const [phone, setPhone] = useState(initialPhone);
-  const [addressLine1, setAddressLine1] = useState('');
+  const [addressLine1, setAddressLine1] = useState(initialAddress);
   const [city, setCity] = useState(initialCity);
   const [stateVal, setStateVal] = useState(initialState);
   const [zip, setZip] = useState(initialZip);

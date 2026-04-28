@@ -16,6 +16,7 @@ import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Profile',
@@ -46,6 +47,10 @@ export default async function DashboardProfilePage() {
       select: {
         profilePhone: true,
         profileAddress: true,
+        city: true,
+        state: true,
+        zip: true,
+        referralSource: true,
         profileLinkedin: true,
         profileBio: true,
         employmentStatus: true,
@@ -53,6 +58,11 @@ export default async function DashboardProfilePage() {
         financialAidInterest: true,
         resumeEnhancedPath: true,
         resumeOriginalPath: true,
+      },
+    },
+    courseEnrollment: {
+      select: {
+        enrolledByAdminId: true,
       },
     },
   } satisfies Prisma.UserSelect;
@@ -86,6 +96,11 @@ export default async function DashboardProfilePage() {
         assessmentAnswers: true,
         notificationsUpdates: true,
         notificationsReminders: true,
+        courseEnrollment: {
+          select: {
+            enrolledByAdminId: true,
+          },
+        },
       },
     });
     dbUser = fallbackUser ? { ...fallbackUser, profile: null } : null;
@@ -124,6 +139,17 @@ export default async function DashboardProfilePage() {
   };
   const hasEnhanced = !!dbUser.profile?.resumeEnhancedPath;
   const hasOriginal = !!dbUser.profile?.resumeOriginalPath;
+  const starterProfileReview = getCounselorStarterProfileReview({
+    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    phone: dbUser.phone,
+    profilePhone: dbUser.profile?.profilePhone,
+    profileAddress: dbUser.profile?.profileAddress,
+    city: dbUser.profile?.city,
+    state: dbUser.profile?.state,
+    zip: dbUser.profile?.zip,
+    referralSource: dbUser.profile?.referralSource,
+  });
+  const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
 
   return (
     <>
@@ -365,9 +391,15 @@ export default async function DashboardProfilePage() {
               defaultLastName={lastName}
               defaultPhone={dbUser.profile?.profilePhone ?? dbUser.phone ?? ''}
               defaultAddress={dbUser.profile?.profileAddress ?? ''}
+              defaultCity={dbUser.profile?.city ?? ''}
+              defaultState={dbUser.profile?.state ?? ''}
+              defaultZip={dbUser.profile?.zip ?? ''}
+              defaultReferralSource={dbUser.profile?.referralSource ?? ''}
               defaultLinkedin={dbUser.profile?.profileLinkedin ?? ''}
               defaultBio={dbUser.profile?.profileBio ?? ''}
               defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
+              starterProfileReviewRequired={starterProfileReview.required}
+              starterProfileMissingFields={starterProfileMissingLabels}
             />
           </div>
         </div>

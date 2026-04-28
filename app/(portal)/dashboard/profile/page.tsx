@@ -48,6 +48,8 @@ export default async function DashboardProfilePage() {
         profileAddress: true,
         profileLinkedin: true,
         profileBio: true,
+        employmentStatus: true,
+        educationLevel: true,
         financialAidInterest: true,
         resumeEnhancedPath: true,
         resumeOriginalPath: true,
@@ -106,12 +108,10 @@ export default async function DashboardProfilePage() {
     ? dbUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : '??';
 
-  /* Single source of truth for profile completion percentage —
-     getProfileCompleteness(profile, user) in lib/resume/profileCompleteness.
-     Closes audit #7: profile/page used to compute its own percentage from a
-     local 8-field array while dashboard/page used getProfileCompleteness from
-     the same lib, so members saw 50% on the dashboard "Strengthen your
-     profile" card and 75% on the profile page hero for the same data. */
+  // Single source of truth: getProfileCompleteness in lib/resume/profileCompleteness.
+  // Both this page and dashboard/page must select the same set of profile fields
+  // (phone, address, linkedin, bio, employmentStatus, educationLevel) for the
+  // computed % to agree.
   const profilePct = getProfileCompleteness(dbUser.profile, dbUser);
   const completeness = profilePct;
   const witData = {

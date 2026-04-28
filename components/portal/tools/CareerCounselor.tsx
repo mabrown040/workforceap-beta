@@ -21,10 +21,6 @@ const PULSE_STYLE = `
   70% { transform: scale(1.15); opacity: 0; }
   100% { transform: scale(1.15); opacity: 0; }
 }
-@keyframes cc-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 `;
 
 export default function CareerCounselor({ firstName }: { firstName?: string }) {
@@ -176,7 +172,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   // ── Pre-session ────────────────────────────────────────────────────────────
   if (phase === 'pre') {
     return (
-      <div style={{ maxWidth: 560, animation: 'cc-fade-in 0.4s ease both' }}>
+      <div style={{ maxWidth: 560 }}>
         {/* Ambient orb */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
           <div style={{ position: 'relative', width: 96, height: 96 }}>
@@ -240,7 +236,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   // ── Connecting ─────────────────────────────────────────────────────────────
   if (phase === 'connecting') {
     return (
-      <div style={{ maxWidth: 560, textAlign: 'center', animation: 'cc-fade-in 0.3s ease both' }}>
+      <div style={{ maxWidth: 560, textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
           <div style={{ position: 'relative', width: 80, height: 80 }}>
             <div style={{
@@ -260,7 +256,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   // ── Active session ─────────────────────────────────────────────────────────
   if (phase === 'active') {
     return (
-      <div style={{ maxWidth: 560, animation: 'cc-fade-in 0.4s ease both' }}>
+      <div style={{ maxWidth: 560 }}>
         {/* Orb with pulse ring */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.75rem' }}>
           <div style={{ position: 'relative', width: 96, height: 96 }}>
@@ -326,7 +322,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
   // ── Ending / loading plan ─────────────────────────────────────────────────
   if (phase === 'ending') {
     return (
-      <div style={{ maxWidth: 560, textAlign: 'center', animation: 'cc-fade-in 0.3s ease both' }}>
+      <div style={{ maxWidth: 560, textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
           <div style={{
             width: 64, height: 64, borderRadius: '50%',
@@ -344,7 +340,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
 
   // ── Action plan ────────────────────────────────────────────────────────────
   return (
-    <div style={{ maxWidth: 560, animation: 'cc-fade-in 0.5s ease both' }}>
+    <div style={{ maxWidth: 560 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
         <div style={{
           width: 36, height: 36, borderRadius: '50%', flexShrink: 0,

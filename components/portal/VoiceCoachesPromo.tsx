@@ -1,7 +1,7 @@
 'use client';
 
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
-import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
+import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface, studentCounselorVoiceSurface } from '@/lib/portal/voice';
 
 const AI_COACHES_BAND_STYLE = {
   padding: '1.25rem clamp(0.75rem, 3vw, 1.25rem) 1.5rem',
@@ -41,6 +41,14 @@ export default function VoiceCoachesPromo() {
             marginBottom: '0.75rem',
           }}
         >
+          <VoiceCoachLauncherCard
+            {...studentCounselorVoiceSurface}
+            title="AI Career Counselor"
+            description="Private voice session that ends with a personalized 3-step action plan."
+            href="/dashboard/counselor"
+            ctaLabel="Start counselor session"
+          />
+
           <VoiceCoachLauncherCard
             badge="Introduction"
             icon="🎤"

@@ -13,7 +13,7 @@ import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
  */
 type Source = 'INDEED' | 'LINKEDIN' | 'DIRECT' | 'OTHER';
 
-export default function LogExternalApplicationButton() {
+export default function LogExternalApplicationButton({ variant = 'secondary' }: { variant?: 'primary' | 'secondary' } = {}) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -94,8 +94,8 @@ export default function LogExternalApplicationButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="btn btn-secondary btn-small"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+        className={`btn ${variant === 'primary' ? 'btn-primary' : 'btn-secondary'} btn-small`}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
       >
         <ExternalLink size={16} aria-hidden />
         I applied somewhere else &mdash; log it

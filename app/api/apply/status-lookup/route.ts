@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       applied: 'Applied — we received your application.',
       under_review: 'Under review — our team is evaluating your application.',
       accepted: 'Accepted — check your email and member portal for next steps.',
-      rejected: 'Not accepted — see your email for details or contact info@workforceap.org.',
+      rejected: 'Application closed — see your email for details or contact info@workforceap.org.',
     };
 
     return NextResponse.json({

@@ -24,12 +24,12 @@ export default async function LoginPage({
   const rawRedirect = typeof sp?.redirectTo === 'string' ? sp.redirectTo : undefined;
   const normalizedRedirect = normalizePostLoginRedirect(rawRedirect, '/dashboard');
 
-  if (rawRedirect && rawRedirect !== normalizedRedirect) {
-    redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
-  }
-
   if (user) {
     redirect(normalizedRedirect);
+  }
+
+  if (rawRedirect && rawRedirect !== normalizedRedirect) {
+    redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
   return <LoginForm initialRedirectTo={normalizedRedirect} />;

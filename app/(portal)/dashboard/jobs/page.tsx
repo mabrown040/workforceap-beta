@@ -52,26 +52,31 @@ export default async function JobsPage() {
       label: 'Indeed',
       href: `https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: primaryLocation }).toString()}`,
       note: 'Largest local coverage across industries.',
+      bestFor: 'fastest broad search',
     },
     {
       label: 'LinkedIn',
       href: `https://www.linkedin.com/jobs/search/?${new URLSearchParams({ keywords: 'jobs', location: primaryLocation }).toString()}`,
       note: 'Strong for professional, tech, and corporate roles.',
+      bestFor: 'office, tech, and employer networking',
     },
     {
       label: 'Glassdoor',
       href: `https://www.google.com/search?${new URLSearchParams({ q: `site:glassdoor.com/Job jobs ${primaryLocation}` }).toString()}`,
       note: 'Job listings plus salary and company review context.',
+      bestFor: 'salary checks before you apply',
     },
     {
       label: 'ZipRecruiter',
       href: `https://www.ziprecruiter.com/jobs-search?${new URLSearchParams({ search: 'jobs', location: primaryLocation }).toString()}`,
       note: 'Good metro and suburb coverage.',
+      bestFor: 'wider Austin-metro reach',
     },
     {
       label: 'WorkInTexas / AustinJobs',
       href: 'https://www.workintexas.com/vosnet/Default.aspx',
       note: 'Texas Workforce Commission portal for local and public-sector roles.',
+      bestFor: 'public-sector and workforce-system jobs',
     },
   ];
 
@@ -183,6 +188,13 @@ export default async function JobsPage() {
                   ? `Using your profile location: ${primaryLocation}.`
                   : 'If no city is saved yet, start with Austin metro and nearby suburbs.'}
               </p>
+              {user ? (
+                <p style={{ fontSize: '0.75rem', margin: '0.35rem 0 0' }}>
+                  <a href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                    Update your profile location →
+                  </a>
+                </p>
+              ) : null}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.75rem' }}>
               {externalBoards.map((engine) => (
@@ -194,8 +206,11 @@ export default async function JobsPage() {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <div className="portal-card portal-card--flat" style={{ padding: '0.875rem', height: '100%' }}>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
                       {engine.label} ↗
+                    </p>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-accent)', margin: '0 0 0.25rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Best for: {engine.bestFor}
                     </p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
                       {engine.note}
@@ -222,8 +237,11 @@ export default async function JobsPage() {
                   </a>
                 ))}
               </div>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.35rem' }}>
                 Best routine for members
+              </p>
+              <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
+                Most members do best when they check 2–3 boards daily instead of bouncing across everything at once.
               </p>
               <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', lineHeight: 1.5 }}>
                 <li>Check Indeed and LinkedIn daily for fresh listings.</li>

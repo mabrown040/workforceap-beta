@@ -40,6 +40,7 @@ export default function ApplyCreateAccountForm() {
   const [error, setError] = useState('');
   const [verifyEmailMode, setVerifyEmailMode] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState('');
+  const [optionalAddressOpen, setOptionalAddressOpen] = useState(false);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -335,7 +336,27 @@ export default function ApplyCreateAccountForm() {
       {rankedProgramLabels.length > 0 ? (
         <div className="apply-transition-card" role="note" aria-label="Saved program choices" style={{ marginTop: '0.75rem' }}>
           <strong>Your saved choices:</strong>
-          <span> {rankedProgramLabels.join(' • ')}</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+            {rankedProgramLabels.map((label, index) => (
+              <span
+                key={`${label}-${index}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  padding: '0.35rem 0.6rem',
+                  borderRadius: '999px',
+                  background: 'rgba(173,44,77,0.08)',
+                  color: 'var(--color-on-surface)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                }}
+              >
+                <span style={{ color: 'var(--color-accent)', fontWeight: 800 }}>#{index + 1}</span>
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
       ) : null}
 
@@ -343,152 +364,173 @@ export default function ApplyCreateAccountForm() {
         After you create your account, you can view your dashboard and next steps. Some applicants are asked to verify their email first — check your inbox if so.
       </p>
 
-      <div className="form-group">
-        <label htmlFor="firstName">First Name *</label>
-        <input
-          id="firstName"
-          type="text"
-          value={firstName}
-          onChange={(e) => {
-            setFirstName(e.target.value);
-            if (fieldErrors.firstName) setFieldErrors((f) => ({ ...f, firstName: undefined }));
-          }}
-          autoComplete="given-name"
-          required
-          aria-required="true"
-          aria-invalid={!!fieldErrors.firstName}
-        />
-        {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="lastName">Last Name *</label>
-        <input
-          id="lastName"
-          type="text"
-          value={lastName}
-          onChange={(e) => {
-            setLastName(e.target.value);
-            if (fieldErrors.lastName) setFieldErrors((f) => ({ ...f, lastName: undefined }));
-          }}
-          autoComplete="family-name"
-          required
-          aria-required="true"
-          aria-invalid={!!fieldErrors.lastName}
-        />
-        {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="email">Email *</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
-          }}
-          autoComplete="email"
-          required
-          aria-required="true"
-          aria-invalid={!!fieldErrors.email}
-        />
-        {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="phone">Phone *</label>
-        <input
-          id="phone"
-          type="tel"
-          value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value);
-            if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
-          }}
-          autoComplete="tel"
-          required
-          aria-invalid={!!fieldErrors.phone}
-        />
-        {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="addressLine1">Street address (optional)</label>
-        <input
-          id="addressLine1"
-          type="text"
-          value={addressLine1}
-          onChange={(e) => {
-            setAddressLine1(e.target.value);
-            if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
-          }}
-          autoComplete="address-line1"
-          aria-invalid={!!fieldErrors.addressLine1}
-        />
-        {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="addressLine2">Apt / suite (optional)</label>
-        <input
-          id="addressLine2"
-          type="text"
-          value={addressLine2}
-          onChange={(e) => setAddressLine2(e.target.value)}
-          autoComplete="address-line2"
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="city">City (optional)</label>
-        <input
-          id="city"
-          type="text"
-          value={city}
-          onChange={(e) => {
-            setCity(e.target.value);
-            if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
-          }}
-          autoComplete="address-level2"
-          aria-invalid={!!fieldErrors.city}
-        />
-        {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
-      </div>
-      <div
-        className="form-group apply-create-account-state-zip"
-        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.75rem' }}
-      >
-        <div>
-          <label htmlFor="state">State (optional)</label>
-          <select
-            id="state"
-            value={stateVal}
-            onChange={(e) => {
-              setStateVal(e.target.value);
-              if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
-            }}
-            autoComplete="address-level1"
-            aria-invalid={!!fieldErrors.state}
-          >
-            <option value="">Select…</option>
-            {US_STATES.map((s) => (
-              <option key={s.abbr} value={s.abbr}>{s.name}</option>
-            ))}
-          </select>
-          {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
-        </div>
-        <div>
-          <label htmlFor="zip">ZIP (optional)</label>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="firstName">First Name *</label>
           <input
-            id="zip"
+            id="firstName"
             type="text"
-            value={zip}
+            value={firstName}
             onChange={(e) => {
-              setZip(e.target.value);
-              if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
+              setFirstName(e.target.value);
+              if (fieldErrors.firstName) setFieldErrors((f) => ({ ...f, firstName: undefined }));
             }}
-            autoComplete="postal-code"
-            aria-invalid={!!fieldErrors.zip}
+            autoComplete="given-name"
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.firstName}
           />
-          {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}
+          {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="lastName">Last Name *</label>
+          <input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={(e) => {
+              setLastName(e.target.value);
+              if (fieldErrors.lastName) setFieldErrors((f) => ({ ...f, lastName: undefined }));
+            }}
+            autoComplete="family-name"
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.lastName}
+          />
+          {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
         </div>
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="email">Email *</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
+            }}
+            autoComplete="email"
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.email}
+          />
+          <p className="apply-field-hint">Use an email you can check today in case we need verification.</p>
+          {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="phone">Phone *</label>
+          <input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
+            }}
+            autoComplete="tel"
+            required
+            aria-invalid={!!fieldErrors.phone}
+          />
+          <p className="apply-field-hint">We use this for counselor follow-up and application updates.</p>
+          {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
+        </div>
+      </div>
+      <details
+        open={optionalAddressOpen}
+        onToggle={(e) => setOptionalAddressOpen((e.currentTarget as HTMLDetailsElement).open)}
+        style={{
+          marginBottom: '1rem',
+          border: '1px solid rgba(0,0,0,0.08)',
+          borderRadius: '0.875rem',
+          padding: '0.9rem 1rem',
+          background: 'var(--surface-container-low)',
+        }}
+      >
+        <summary style={{ cursor: 'pointer', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+          Add mailing address now (optional)
+        </summary>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0.9rem' }}>
+          Skip this if you want to move faster. You can add it later from your profile.
+        </p>
+        <div className="form-group">
+          <label htmlFor="addressLine1">Street address (optional)</label>
+          <input
+            id="addressLine1"
+            type="text"
+            value={addressLine1}
+            onChange={(e) => {
+              setAddressLine1(e.target.value);
+              if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
+            }}
+            autoComplete="address-line1"
+            aria-invalid={!!fieldErrors.addressLine1}
+          />
+          {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
+        </div>
+        <div className="form-group">
+          <label htmlFor="addressLine2">Apt / suite (optional)</label>
+          <input
+            id="addressLine2"
+            type="text"
+            value={addressLine2}
+            onChange={(e) => setAddressLine2(e.target.value)}
+            autoComplete="address-line2"
+          />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="city">City (optional)</label>
+            <input
+              id="city"
+              type="text"
+              value={city}
+              onChange={(e) => {
+                setCity(e.target.value);
+                if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
+              }}
+              autoComplete="address-level2"
+              aria-invalid={!!fieldErrors.city}
+            />
+            {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="state">State (optional)</label>
+            <select
+              id="state"
+              value={stateVal}
+              onChange={(e) => {
+                setStateVal(e.target.value);
+                if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
+              }}
+              autoComplete="address-level1"
+              aria-invalid={!!fieldErrors.state}
+            >
+              <option value="">Select…</option>
+              {US_STATES.map((s) => (
+                <option key={s.abbr} value={s.abbr}>{s.name}</option>
+              ))}
+            </select>
+            {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="zip">ZIP (optional)</label>
+            <input
+              id="zip"
+              type="text"
+              value={zip}
+              onChange={(e) => {
+                setZip(e.target.value);
+                if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
+              }}
+              autoComplete="postal-code"
+              aria-invalid={!!fieldErrors.zip}
+            />
+            {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}
+          </div>
+        </div>
+      </details>
       <div className="form-group">
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
           <input type="checkbox" checked={smsOptIn} onChange={(e) => setSmsOptIn(e.target.checked)} />
@@ -559,8 +601,11 @@ export default function ApplyCreateAccountForm() {
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>
-        {loading ? 'Creating your account…' : 'Create account and enter your path'}
+        {loading ? 'Creating your account…' : 'Save my spot and create login'}
       </button>
+      <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
+        No payment is due today. You can come back later to finish your profile.
+      </p>
     </form>
   );
 }

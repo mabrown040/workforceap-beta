@@ -19,7 +19,10 @@ export default function ApplyCreateAccountPage() {
       <section className="page-hero">
         <div className="page-hero-content">
           <h1>Step 3 of 3 — save your spot and create your login</h1>
-          <p>Create your account to save your ranked program choices, track your progress, and connect with counselor support. Start with the basics now. You can add more profile details later if we need them. Our team will follow up within 1–2 business days with your next step.</p>
+          <p>Create your account to save your ranked program choices, track your progress, and connect with counselor support.</p>
+          <p style={{ marginTop: '0.75rem' }}>
+            Start with the basics now: name, email, phone, and password. You can add mailing address details later if we need them. Our team will follow up within 1–2 business days with your next step.
+          </p>
         </div>
       </section>
 

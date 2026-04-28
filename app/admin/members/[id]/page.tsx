@@ -537,7 +537,7 @@ export default async function AdminMemberDetailPage({
         {member.assessmentCompleted && (
           <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Assessment</h2>
-            <p><strong>Score:</strong> {member.assessmentScore ?? 0}/90 ({member.assessmentScorePct ?? 0}%)</p>
+            <p><strong>Score:</strong> {member.assessmentScore ?? 0}/100 ({member.assessmentScorePct ?? 0}%)</p>
             <p><strong>Date:</strong> {member.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</p>
             <p><strong>Program interest:</strong> {member.programInterest ?? '—'}</p>
             <details style={{ marginTop: '0.75rem' }}>

@@ -303,7 +303,7 @@ export default function WorkspaceShell({
               <GlobalSearch />
             </div>
           )}
-          <PortalHeaderActions />
+          <PortalHeaderActions badges={badges} />
         </div>
       </header>
 

@@ -171,7 +171,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {
     href: '/dashboard/messages',
-    label: 'My Counselor',
+    label: 'Counselor Chat',
     group: 'primary',
     tab: 'journey',
     Icon: MessageSquare,

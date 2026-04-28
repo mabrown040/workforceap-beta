@@ -8,11 +8,12 @@ import ThemeToggle from '@/components/theme/ThemeToggle';
 import NotificationBell from './NotificationBell';
 import { SignOutButton } from './SignOutButton';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
-function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
+function ActionItems({ onItemClick, badges }: { onItemClick?: () => void; badges?: Partial<Record<NavBadgeKey, number>> }) {
   return (
     <>
-      <NotificationBell />
+      <NotificationBell badges={badges} />
       <ThemeToggle variant="portal" />
       <DevViewToggle />
       <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
@@ -23,7 +24,7 @@ function ActionItems({ onItemClick }: { onItemClick?: () => void }) {
   );
 }
 
-export default function PortalHeaderActions() {
+export default function PortalHeaderActions({ badges }: { badges?: Partial<Record<NavBadgeKey, number>> }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -39,7 +40,7 @@ export default function PortalHeaderActions() {
     <>
       {/* Desktop: inline actions (hidden on mobile via CSS) */}
       <div className="portal-shell-header__actions portal-header-actions-desktop">
-        <ActionItems />
+        <ActionItems badges={badges} />
       </div>
       {/* Mobile: hamburger + dropdown (hidden on desktop via CSS) */}
       <div className="portal-header-actions-mobile">
@@ -64,7 +65,7 @@ export default function PortalHeaderActions() {
             />
             <div className="portal-header-actions-dropdown" role="menu">
               <div className="portal-header-actions-dropdown__items" onClick={closeMenu} role="menu" tabIndex={-1}>
-                <ActionItems onItemClick={closeMenu} />
+                <ActionItems onItemClick={closeMenu} badges={badges} />
               </div>
             </div>
           </>

@@ -25,7 +25,7 @@ export default function Error({
       <div className="app-system-page__inner container">
         <Link href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
-            src="/images/logo-tight.png"
+            src="/images/wap_logo.png"
             alt=""
             width={1930}
             height={985}

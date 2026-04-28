@@ -324,7 +324,7 @@ export default async function CounselorPortalPage() {
                               {assignment.member.fullName}
                             </h4>
                             <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {assignment.member.programInterest || 'No program'} · {assignment.member.email}
+                              {assignment.member.enrolledProgram ?? assignment.member.programInterest ?? 'No program'} · {assignment.member.email}
                             </p>
                           </div>
                         </div>

@@ -36,7 +36,9 @@ export default async function CounselorPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/counselor');
 
-  const firstName = user.user_metadata?.full_name?.split(' ')[0] as string | undefined;
+  const dbProfile = await prisma.user.findUnique({ where: { id: user.id }, select: { fullName: true } });
+  const metaName = user.user_metadata?.full_name as string | undefined;
+  const firstName = (dbProfile?.fullName ?? metaName)?.split(' ')[0];
 
   const pastSessions = await prisma.aIToolResult.findMany({
     where: { userId: user.id, toolType: 'career_counselor' },

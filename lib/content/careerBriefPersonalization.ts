@@ -17,6 +17,11 @@ export type CareerSearchEngine = {
   note: string;
 };
 
+export type CareerSearchPreset = {
+  label: string;
+  href: string;
+};
+
 export type CareerBriefContext = {
   location: string | null;
   programInterest: string | null;
@@ -26,6 +31,8 @@ export type CareerBriefContext = {
   recommendedActions: Array<{ label: string; href: string }>;
   jobSearchUrl: string | null;
   jobSearchEngines: CareerSearchEngine[];
+  bestBoardsForProgram: string[];
+  suburbPresets: CareerSearchPreset[];
 };
 
 /** Map program interest to a short label for display */
@@ -62,14 +69,26 @@ function getProgramShortLabel(programInterest: string | null): string | null {
   return programInterest.length > 30 ? programInterest.slice(0, 30) + '…' : programInterest;
 }
 
-function buildCareerSearchEngines(programShortLabel: string | null, city: string | null, state: string | null): CareerSearchEngine[] {
-  const loc = [city, state].filter(Boolean).join(', ').trim();
-  if (!loc) return [];
+function getProgramBoardPriority(programShortLabel: string | null): string[] {
+  switch (programShortLabel) {
+    case 'IT & Tech':
+    case 'Data & Design':
+      return ['LinkedIn', 'Indeed', 'Glassdoor', 'ZipRecruiter', 'WorkInTexas / AustinJobs'];
+    case 'Healthcare':
+      return ['Indeed', 'LinkedIn', 'ZipRecruiter', 'Glassdoor', 'WorkInTexas / AustinJobs'];
+    case 'Trades & Logistics':
+      return ['Indeed', 'ZipRecruiter', 'WorkInTexas / AustinJobs', 'LinkedIn', 'Glassdoor'];
+    default:
+      return ['Indeed', 'LinkedIn', 'Glassdoor', 'ZipRecruiter', 'WorkInTexas / AustinJobs'];
+  }
+}
 
+function buildCareerSearchEngines(programShortLabel: string | null, city: string | null, state: string | null): CareerSearchEngine[] {
+  const loc = [city, state].filter(Boolean).join(', ').trim() || 'Austin, TX';
   const query = (programShortLabel?.replace(/&/g, ' ') ?? 'jobs').trim();
   const queryPlusLocation = `${query} ${loc}`.trim();
 
-  return [
+  const engines: CareerSearchEngine[] = [
     {
       label: 'Indeed',
       href: `https://www.indeed.com/jobs?${new URLSearchParams({ q: query, l: loc }).toString()}`,
@@ -96,6 +115,18 @@ function buildCareerSearchEngines(programShortLabel: string | null, city: string
       note: 'Texas workforce portal for statewide, public-sector, and local openings.',
     },
   ];
+
+  const order = getProgramBoardPriority(programShortLabel);
+  return engines.sort((a, b) => order.indexOf(a.label) - order.indexOf(b.label));
+}
+
+function buildSuburbPresets(programShortLabel: string | null): CareerSearchPreset[] {
+  const query = (programShortLabel?.replace(/&/g, ' ') ?? 'jobs').trim();
+  const suburbs = ['Austin, TX', 'Round Rock, TX', 'Cedar Park, TX', 'Pflugerville, TX'];
+  return suburbs.map((location) => ({
+    label: location.replace(', TX', ''),
+    href: `https://www.indeed.com/jobs?${new URLSearchParams({ q: query, l: location }).toString()}`,
+  }));
 }
 
 export async function fetchCareerBriefRelations(userId: string, options?: { activeMemberOnly?: boolean }) {
@@ -168,6 +199,8 @@ export function assembleCareerBriefContext(
 
   const jobSearchEngines = buildCareerSearchEngines(programShortLabel, city, state);
   const jobSearchUrl = jobSearchEngines[0]?.href ?? null;
+  const bestBoardsForProgram = getProgramBoardPriority(programShortLabel).slice(0, 3);
+  const suburbPresets = buildSuburbPresets(programShortLabel);
 
   return {
     location,
@@ -178,6 +211,8 @@ export function assembleCareerBriefContext(
     recommendedActions: recommendedActions.slice(0, 3),
     jobSearchUrl,
     jobSearchEngines,
+    bestBoardsForProgram,
+    suburbPresets,
   };
 }
 

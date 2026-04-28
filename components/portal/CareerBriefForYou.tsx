@@ -13,6 +13,8 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
     recommendedActions,
     jobSearchUrl,
     jobSearchEngines,
+    bestBoardsForProgram,
+    suburbPresets,
   } = context;
 
   const hasContext = location || programShortLabel || applicationsCount > 0 || jobSearchUrl;
@@ -54,15 +56,32 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
         {jobSearchUrl && (
           <div className="career-brief-for-you-line">
             <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
-              Search jobs in your area →
+              {location ? `Search jobs near ${location} →` : 'Search Austin-area jobs →'}
             </a>
-            {jobSearchEngines.length > 1 ? (
+            {bestBoardsForProgram.length > 0 ? (
               <p style={{ margin: '0.4rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
+                Best boards for your path: {bestBoardsForProgram.join(' · ')}
+              </p>
+            ) : null}
+            {jobSearchEngines.length > 1 ? (
+              <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
                 Also useful: {jobSearchEngines.slice(1).map((engine, index) => (
                   <span key={engine.label}>
                     {index > 0 ? ' · ' : ''}
                     <a href={engine.href} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
                       {engine.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+            {suburbPresets.length > 0 ? (
+              <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
+                Quick area searches: {suburbPresets.map((preset, index) => (
+                  <span key={preset.label}>
+                    {index > 0 ? ' · ' : ''}
+                    <a href={preset.href} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
+                      {preset.label}
                     </a>
                   </span>
                 ))}

@@ -234,16 +234,14 @@ export default async function CareerBriefPage() {
               <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>search</span>
               </div>
-              <p className="portal-metric-card__value" style={{ fontSize: '1.375rem' }}>Top Austin boards</p>
+              <p className="portal-metric-card__value" style={{ fontSize: '1.375rem' }}>{context.location ?? 'Austin metro'}</p>
               <p className="portal-metric-card__label">Live Job Search</p>
               <a href={context.jobSearchUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none', marginTop: '0.375rem', display: 'block' }}>
-                {context.location ? `Start with Indeed in ${context.location} →` : 'Search now →'}
+                {context.location ? `Start with ${context.jobSearchEngines[0]?.label ?? 'Indeed'} near ${context.location} →` : 'Start with Austin-area searches →'}
               </a>
-              {context.jobSearchEngines.length > 1 ? (
-                <p style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                  Also check {context.jobSearchEngines.slice(1).map((engine) => engine.label).join(' · ')}.
-                </p>
-              ) : null}
+              <p style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
+                Best boards for your path: {context.bestBoardsForProgram.join(' · ')}.
+              </p>
             </div>
           )}
 

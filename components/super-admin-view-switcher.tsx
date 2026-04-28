@@ -33,11 +33,12 @@ export function useIsSuperAdmin() {
   return isSuperAdmin;
 }
 
-export default function SuperAdminViewSwitcher() {
+export default function SuperAdminViewSwitcher({ initialIsSuperAdmin = false }: { initialIsSuperAdmin?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const isSuperAdmin = useIsSuperAdmin();
+  const fetchedSuperAdmin = useIsSuperAdmin();
+  const isSuperAdmin = initialIsSuperAdmin || fetchedSuperAdmin;
   const currentView = getCurrentView(pathname ?? '');
 
   const closeMenu = useCallback(() => setOpen(false), []);
@@ -45,7 +46,11 @@ export default function SuperAdminViewSwitcher() {
   useEffect(() => {
     if (!open) return;
     const onEscape = (e: KeyboardEvent) => e.key === 'Escape' && closeMenu();
-    const onClick = () => closeMenu();
+    const onClick = (e: MouseEvent) => {
+      if (open && !(e.target as HTMLElement).closest('.super-admin-view-switcher')) {
+        closeMenu();
+      }
+    };
     document.addEventListener('keydown', onEscape);
     document.addEventListener('click', onClick);
     return () => {

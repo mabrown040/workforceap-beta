@@ -46,10 +46,10 @@ export function buildPortalSwitcherRoles(input: {
     explicitRoles.has('super_admin') ||
     explicitRoles.has('case_manager');
 
-  // Do not invent member access for employer/admin/counselor-only users.
-  // Member remains available when explicitly granted, or as the safe default for users
-  // with no other portal role yet.
-  if (explicitRoles.has('member') || !hasNonMemberPortalAccess) available.add('member');
+  // Member remains available when explicitly granted, as the safe default for users
+  // with no other portal role yet, OR for any staff user with non-member access
+  // so they can switch to the member dashboard for testing/utility.
+  if (explicitRoles.has('member') || !hasNonMemberPortalAccess || hasNonMemberPortalAccess) available.add('member');
   if (input.hasEmployer || explicitRoles.has('employer')) available.add('employer');
   if (input.hasPartner || explicitRoles.has('partner')) available.add('partner');
   if (input.hasCounselor) available.add('counselor');

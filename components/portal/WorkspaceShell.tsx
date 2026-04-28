@@ -94,7 +94,7 @@ export default function WorkspaceShell({
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
-  const isSuperAdmin = useIsSuperAdmin();
+  const isSuperAdminResolved = !!superAdmin;
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);
@@ -285,11 +285,11 @@ export default function WorkspaceShell({
             </span>
           ) : null}
           {/* Role switcher: show PortalRoleSwitcher for multi-role non-super-admins, OR for super-admins when impersonating (so they can switch within context) */}
-          {!isSuperAdmin && portalRoles && portalRoles.length > 1 ? (
+          {!isSuperAdminResolved && portalRoles && portalRoles.length > 1 ? (
             <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
           ) : null}
           {/* SuperAdminViewSwitcher: primary navigation for super admins; shown in all portal contexts */}
-          <SuperAdminViewSwitcher />
+          <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdminResolved} />
           {/* When super admin is impersonating, show an inline impersonation chip for clarity */}
           {superAdmin && superAdminImpersonating ? (
             <span className="workspace-shell-impersonating-chip" title="You are viewing this workspace as an administrator">

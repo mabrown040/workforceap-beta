@@ -55,39 +55,10 @@ export default async function DashboardProfilePage() {
     },
   } satisfies Prisma.UserSelect;
 
-  type DashboardProfileUser = Prisma.UserGetPayload<{ select: typeof userSelect }>;
-  type DashboardProfileUserFallback = Omit<DashboardProfileUser, 'profile'> & { profile: null };
-
-  let dbUser: DashboardProfileUser | DashboardProfileUserFallback | null = null;
-
-  try {
-    dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: userSelect,
-    });
-  } catch (error) {
-    console.error('[dashboard/profile] user+profile query failed, retrying without profile relation:', error);
-    const fallbackUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        createdAt: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        assessmentCompleted: true,
-        assessmentCompletedAt: true,
-        assessmentScore: true,
-        assessmentScorePct: true,
-        assessmentAnswers: true,
-        notificationsUpdates: true,
-        notificationsReminders: true,
-      },
-    });
-    dbUser = fallbackUser ? { ...fallbackUser, profile: null } : null;
-  }
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: userSelect,
+  });
 
   if (!dbUser) redirect('/login');
 
@@ -96,24 +67,11 @@ export default async function DashboardProfilePage() {
   const lastName = nameParts.slice(1).join(' ') ?? '';
 
   const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
-  const rawAnswers = dbUser.assessmentAnswers;
-  const assessmentAnswers =
-    rawAnswers && typeof rawAnswers === 'object' && !Array.isArray(rawAnswers)
-      ? (rawAnswers as Record<string, unknown>)
-      : null;
-
   const initials = dbUser.fullName
     ? dbUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : '??';
 
-  /* Single source of truth for profile completion percentage —
-     getProfileCompleteness(profile, user) in lib/resume/profileCompleteness.
-     Closes audit #7: profile/page used to compute its own percentage from a
-     local 8-field array while dashboard/page used getProfileCompleteness from
-     the same lib, so members saw 50% on the dashboard "Strengthen your
-     profile" card and 75% on the profile page hero for the same data. */
   const profilePct = getProfileCompleteness(dbUser.profile, dbUser);
-  const completeness = profilePct;
   const witData = {
     name: dbUser.fullName ?? '',
     email: dbUser.email,
@@ -122,243 +80,68 @@ export default async function DashboardProfilePage() {
     targetJob: program?.title ?? dbUser.enrolledProgram ?? 'Target role',
     skills: program?.skills?.join(', ') ?? '—',
   };
-  const hasEnhanced = !!dbUser.profile?.resumeEnhancedPath;
-  const hasOriginal = !!dbUser.profile?.resumeOriginalPath;
+
+  const rawAnswers = dbUser.assessmentAnswers;
+  const assessmentAnswers =
+    rawAnswers && typeof rawAnswers === 'object' && !Array.isArray(rawAnswers)
+      ? (rawAnswers as Record<string, unknown>)
+      : null;
 
   return (
-    <>
-      {/* ── Mobile profile view (≤640px) ── */}
-      <div className="md:wa-hidden wa-pb-24">
-        {/* Profile hero section */}
-        <section className="wa-pt-6 wa-pb-4 wa-text-center wa-px-6">
-          <div className="wa-flex wa-flex-col wa-items-center">
-            {/* Avatar */}
-            <div
-              className="wa-w-24 wa-h-24 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-text-3xl wa-font-bold wa-mb-4 wa-shadow-sm"
-              style={{ background: 'var(--color-accent)', color: 'var(--color-white)' }}
-            >
-              {initials}
-            </div>
-            {/* Identity */}
-            <h2
-              className="wa-text-2xl wa-font-extrabold wa-tracking-tight wa-mb-1"
-              style={{ color: 'var(--color-on-surface)' }}
-            >
-              {dbUser.fullName ?? 'Your Name'}
-            </h2>
-            <div
-              className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-mb-2"
-              style={{
-                background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
-                color: 'var(--color-accent)',
-              }}
-            >
-              {program?.title ?? 'WorkforceAP Member'}
-            </div>
-            <p className="wa-text-sm wa-font-medium" style={{ color: 'var(--color-on-surface-variant)' }}>
-              {dbUser.createdAt
-                ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
-                : 'WorkforceAP Member'}
-            </p>
+    <div className="wa-max-w-[var(--max-width)] wa-mx-auto wa-px-4 md:wa-px-8 wa-pb-24">
+      
+      {/* ── Profile Hero (Responsive) ── */}
+      <section className="wa-py-8 wa-flex wa-flex-col md:wa-flex-row wa-items-center md:wa-items-start wa-gap-6">
+        <div
+          className="wa-w-24 wa-h-24 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-text-3xl wa-font-bold wa-shadow-sm wa-flex-shrink-0"
+          style={{ background: 'var(--color-accent)', color: 'var(--color-white)' }}
+        >
+          {initials}
+        </div>
+        <div className="wa-text-center md:wa-text-left wa-flex-1">
+          <h1 className="wa-text-2xl md:wa-text-3xl wa-font-extrabold wa-tracking-tight wa-mb-1">
+            {dbUser.fullName ?? 'Your Profile'}
+          </h1>
+          <div className="wa-flex wa-flex-wrap wa-justify-center md:wa-justify-start wa-items-center wa-gap-3 wa-mb-3">
+            {program && (
+              <span className="wa-inline-flex wa-items-center wa-px-3 wa-py-1 wa-rounded-full wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-wider wa-bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] wa-text-[var(--color-accent)]">
+                {program.title}
+              </span>
+            )}
+            <span className="wa-text-sm wa-text-[var(--color-on-surface-variant)]">
+              {dbUser.createdAt ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}` : 'WorkforceAP Member'}
+            </span>
           </div>
-        </section>
 
-        {/* Completion meter */}
-        <div className="wa-mx-6 wa-mb-5">
-          <PortalCard
-            className="portal-card--flat"
-            title={`Profile ${profilePct}% complete`}
-            action={<span className="wa-text-xs wa-font-bold" style={{ color: 'var(--color-accent)' }}>Fill in missing info</span>}
-          >
-            <div
-              className="wa-h-1.5 wa-w-full wa-rounded-full wa-overflow-hidden"
-              style={{ background: 'color-mix(in srgb, var(--outline-variant) 55%, transparent)' }}
-            >
+          {/* Completeness Meter */}
+          <div className="wa-max-w-md wa-mx-auto md:wa-mx-0">
+            <div className="wa-flex wa-justify-between wa-items-end wa-mb-2">
+              <span className="wa-text-xs wa-font-bold">Profile {profilePct}% complete</span>
+              <a href="#profile-form" className="wa-text-[10px] wa-font-bold wa-text-[var(--color-accent)] wa-uppercase">Fill missing info</a>
+            </div>
+            <div className="wa-h-1.5 wa-w-full wa-bg-[var(--surface-container-high)] wa-rounded-full wa-overflow-hidden">
               <div
-                className="wa-h-full wa-rounded-full wa-transition-all"
-                style={{ width: `${profilePct}%`, background: 'var(--color-accent-dark)' }}
+                className="wa-h-full wa-bg-[var(--color-accent-dark)] wa-rounded-full wa-transition-all"
+                style={{ width: `${profilePct}%` }}
               />
             </div>
-          </PortalCard>
-        </div>
-
-        {/* Personal info card */}
-        <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-          <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
-            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Personal Info</h3>
-            <Link href="/dashboard/settings" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit personal info">
-              <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
-            </Link>
-          </div>
-          <div className="wa-space-y-3">
-            <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Full Name</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{dbUser.fullName ?? '—'}</p>
-            </div>
-            <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Email</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{dbUser.email}</p>
-            </div>
-            <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Phone</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{dbUser.profile?.profilePhone ?? dbUser.phone ?? '—'}</p>
-            </div>
-            <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-0.5">Location</p>
-              <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
-                {dbUser.profile?.profileAddress ?? '—'}
-              </p>
-            </div>
           </div>
         </div>
-
-        {/* Program info card */}
-        {program && (
-          <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-3">Program</h3>
-            <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">{program.title}</p>
-            {dbUser.enrolledAt && (
-              <p className="wa-text-xs wa-text-[#584144] wa-mt-1">Enrolled {dbUser.enrolledAt.toLocaleDateString()}</p>
-            )}
-          </div>
-        )}
-
-        {/* Skills card */}
-        {program && program.skills && program.skills.length > 0 && (
-          <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-            <div className="wa-flex wa-justify-between wa-items-start wa-mb-4">
-              <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144]">Skills</h3>
-              <Link href="/dashboard/skills-assessment" className="wa-text-[#8c0f37] wa-p-1 active:wa-scale-90 wa-duration-200" aria-label="Edit skills">
-                <span className="material-symbols-outlined wa-text-[20px]" aria-hidden="true">edit</span>
-              </Link>
-            </div>
-            <div className="wa-flex wa-flex-wrap wa-gap-2">
-              {program.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="wa-px-3 wa-py-1.5 wa-text-[11px] wa-font-bold wa-rounded-full"
-                  style={{ background: 'var(--outline-variant)', color: 'var(--color-on-surface)' }}
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Resume — link to dedicated page */}
-        <div id="resume" className="wa-mx-6 wa-mb-4">
-          <a
-            href="/dashboard/resume"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem 1rem',
-              background: 'var(--surface-container-low)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--outline-variant)',
-              color: 'var(--color-accent)',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-              textDecoration: 'none',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">description</span>
-            Manage My Resume →
-          </a>
+        <div className="wa-hidden md:wa-flex wa-gap-2">
+          <a href="#profile-form" className="btn btn-outline btn-sm">Edit info</a>
+          <a href="#settings" className="btn btn-outline btn-sm">Settings</a>
         </div>
+      </section>
 
-        {/* Voice coach + rewriter (Accept pushes into editor — same as desktop) */}
-        <div className="wa-mx-6 wa-mb-4">
-          <ResumeCoachWorkspace />
-        </div>
-
-        {/* Account + settings card */}
-        <div id="settings" className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-          <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-4">Account & Settings</h3>
-          <div className="wa-space-y-4">
-            <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Notifications</p>
-              <SettingsForm
-                defaultUpdates={dbUser.notificationsUpdates ?? true}
-                defaultReminders={dbUser.notificationsReminders ?? true}
-              />
-            </div>
-            <div className="wa-flex wa-flex-wrap wa-gap-2 wa-pt-1">
-              <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
-                Reset password
-              </Link>
-              <StartTourButton />
-            </div>
-            <div>
-              <p className="wa-text-[10px] wa-text-[#584144] wa-font-medium wa-uppercase wa-tracking-wider wa-mb-1">Danger Zone</p>
-              <DeleteAccountButton />
-            </div>
-          </div>
-        </div>
-
-        {/* Assessment card */}
-        {dbUser.assessmentCompleted && (
-          <div className="wa-mx-6 wa-mb-4 wa-bg-[#fcf9f8] wa-p-5 wa-rounded-xl wa-border border-[#debfc2]/30">
-            <h3 className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[#584144] wa-mb-3">Assessment</h3>
-            <p className="wa-text-sm wa-font-semibold wa-text-[#1c1b1b]">
-              Score: {dbUser.assessmentScore ?? 0}/90 ({dbUser.assessmentScorePct ?? 0}%)
-            </p>
-            {dbUser.assessmentCompletedAt && (
-              <p className="wa-text-xs wa-text-[#584144] wa-mt-1">
-                Completed {dbUser.assessmentCompletedAt.toLocaleDateString()}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* ── Desktop profile view ── */}
-      <div className="wa-hidden md:wa-block" style={{ paddingBottom: '2rem' }}>
-
-        {/* Profile hero banner */}
-        <div className="portal-profile-hero">
-          <div className="portal-profile-avatar">{initials}</div>
-          <div style={{ minWidth: 0 }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>
-              {dbUser.fullName ?? 'Your Profile'}
-            </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              {program && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)', color: 'var(--color-accent)' }}>
-                  {program.title}
-                </span>
-              )}
-              <span style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-                {dbUser.createdAt
-                  ? `Member since ${new Date(dbUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
-                  : 'WorkforceAP Member'}
-              </span>
-            </div>
-            {/* Profile completeness bar */}
-            <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div className="portal-progress-bar" style={{ width: '180px' }}>
-                <div className="portal-progress-bar__fill" style={{ width: `${profilePct}%` }} />
-              </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                {profilePct}% complete
-              </span>
-            </div>
-          </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', flexShrink: 0, alignSelf: 'flex-start' }}>
-            <a href="#profile" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Edit Profile</a>
-            <a href="#resume" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Resume</a>
-            <a href="#settings" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>Settings</a>
-          </div>
-        </div>
-
-        {/* Contact info card */}
-        <div id="profile" className="portal-profile-section-card">
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Contact Information</h2>
-          </div>
-          <div className="portal-profile-section-card__body">
+      {/* ── Content Grid ── */}
+      <div className="wa-grid wa-gap-8 md:wa-grid-cols-[1fr_320px]">
+        
+        {/* Main Column */}
+        <div className="wa-flex wa-flex-col wa-gap-8">
+          
+          {/* Personal Information */}
+          <section id="profile-form" className="portal-card wa-p-6">
+            <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-6">Contact Information</h2>
             <DashboardProfileForm
               defaultFirstName={firstName}
               defaultLastName={lastName}
@@ -368,145 +151,100 @@ export default async function DashboardProfilePage() {
               defaultBio={dbUser.profile?.profileBio ?? ''}
               defaultFinancialAidInterest={dbUser.profile?.financialAidInterest ?? null}
             />
-          </div>
-        </div>
+          </section>
 
-        {/* Account + Program cards side by side */}
-        <div style={{ display: 'grid', gridTemplateColumns: program ? '1fr 1fr' : '1fr', gap: '1rem', marginBottom: '1rem' }}>
-          <div className="portal-profile-section-card">
-            <div className="portal-profile-section-card__header">
-              <h2 className="portal-profile-section-card__title">Account</h2>
+          {/* Resume & AI Toolkit */}
+          <section id="resume" className="portal-card wa-p-6">
+            <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-6">Resume & AI Toolkit</h2>
+            <ResumeClient
+              completeness={profilePct}
+              witData={witData}
+              hasOriginal={!!dbUser.profile?.resumeOriginalPath}
+              hasEnhanced={!!dbUser.profile?.resumeEnhancedPath}
+            />
+            <div className="wa-mt-6">
+              <ResumeCoachWorkspace />
             </div>
-            <div className="portal-profile-section-card__body">
-              <div style={{ display: 'grid', gap: '0.75rem' }}>
+          </section>
+
+          {/* Assessment Details */}
+          {dbUser.assessmentCompleted && (
+            <section className="portal-card wa-p-6">
+              <div className="wa-flex wa-items-center wa-justify-between wa-mb-6">
+                <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]">Skills Assessment</h2>
+                <span className="wa-bg-green-100 wa-text-green-700 wa-px-3 wa-py-1 wa-rounded-full wa-text-[10px] wa-font-bold wa-uppercase">Complete</span>
+              </div>
+              <div className="wa-flex wa-gap-8 wa-mb-6">
                 <div>
-                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>Email</p>
-                  <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>{dbUser.email}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>Cannot be changed here</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {program && (
-            <div className="portal-profile-section-card">
-              <div className="portal-profile-section-card__header">
-                <h2 className="portal-profile-section-card__title">Enrolled Program</h2>
-                <Link href="/dashboard/program" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}>View →</Link>
-              </div>
-              <div className="portal-profile-section-card__body">
-                <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.375rem' }}>{program.title}</p>
-                {dbUser.enrolledAt && (
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                    Enrolled {dbUser.enrolledAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Assessment card */}
-        {dbUser.assessmentCompleted && (
-          <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
-            <div className="portal-profile-section-card__header">
-              <h2 className="portal-profile-section-card__title">Skills Assessment</h2>
-              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.7rem', fontWeight: 700, background: 'color-mix(in srgb, var(--color-green) 10%, transparent)', color: 'var(--color-green)' }}>
-                Complete
-              </span>
-            </div>
-            <div className="portal-profile-section-card__body">
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem', flexWrap: 'wrap' }}>
-                <div>
-                  <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>Score</p>
-                  <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)', letterSpacing: '-0.04em', margin: 0, lineHeight: 1 }}>
-                    {dbUser.assessmentScorePct ?? 0}<span style={{ fontSize: '1rem' }}>%</span>
-                  </p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-                    {dbUser.assessmentScore ?? 0}/90 points
-                  </p>
+                  <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-1">Score</p>
+                  <p className="wa-text-3xl wa-font-black wa-text-[var(--color-accent)]">{dbUser.assessmentScorePct}%</p>
+                  <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{dbUser.assessmentScore}/90 pts</p>
                 </div>
                 {dbUser.assessmentCompletedAt && (
                   <div>
-                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem' }}>Completed</p>
-                    <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>
-                      {dbUser.assessmentCompletedAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    </p>
+                    <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-1">Completed</p>
+                    <p className="wa-text-lg wa-font-bold">{new Date(dbUser.assessmentCompletedAt).toLocaleDateString()}</p>
                   </div>
                 )}
               </div>
-              <details style={{ marginTop: '1rem' }}>
-                <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>View Assessment Answers</summary>
-                {assessmentAnswers && (
-                  <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
-                    {ASSESSMENT_QUESTIONS.map((q) => {
-                      const v = assessmentAnswers[String(q.id)] ?? assessmentAnswers[q.id as unknown as string];
-                      const text = v == null ? '—' : typeof v === 'string' ? v : JSON.stringify(v);
-                      return (
-                        <li key={q.id} style={{ marginBottom: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
-                          <strong style={{ color: 'var(--color-on-surface)' }}>Q{q.id}:</strong> {q.question} → {text}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+              <details className="wa-group">
+                <summary className="wa-cursor-pointer wa-text-xs wa-font-bold wa-text-[var(--color-on-surface-variant)] hover:wa-text-[var(--color-on-surface)] wa-transition-colors">View Assessment Answers</summary>
+                <div className="wa-mt-4 wa-space-y-4 wa-max-h-64 wa-overflow-y-auto wa-pr-4">
+                  {ASSESSMENT_QUESTIONS.map((q) => {
+                    const v = assessmentAnswers?.[String(q.id)];
+                    return (
+                      <div key={q.id} className="wa-border-b wa-border-[var(--outline-variant)] wa-pb-2">
+                        <p className="wa-text-xs wa-font-bold wa-mb-1">Q{q.id}: {q.question}</p>
+                        <p className="wa-text-sm wa-text-[var(--color-accent)] wa-font-medium">{v ? String(v) : '—'}</p>
+                      </div>
+                    );
+                  })}
+                </div>
               </details>
-            </div>
-          </div>
-        )}
-
-        {/* Resume tools card */}
-        <div id="resume" className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Resume &amp; AI Toolkit</h2>
-          </div>
-          <div className="portal-profile-section-card__body">
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-              Upload, generate, and improve your resume without leaving your profile.
-            </p>
-            <ResumeClient
-              completeness={completeness}
-              witData={witData}
-              hasOriginal={hasOriginal}
-              hasEnhanced={hasEnhanced}
-            />
-            <ResumeCoachWorkspace />
-          </div>
+            </section>
+          )}
         </div>
 
-        {/* Settings card */}
-        <div id="settings" className="portal-profile-section-card">
-          <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Account Settings</h2>
-          </div>
-          <div className="portal-profile-section-card__body">
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
-              <section>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Email Notifications</h3>
+        {/* Sidebar Column */}
+        <div className="wa-flex wa-flex-col wa-gap-8">
+          
+          {/* Settings Section */}
+          <section id="settings" className="portal-card wa-p-6">
+            <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-6">Account Settings</h2>
+            <div className="wa-space-y-6">
+              <div>
+                <h3 className="wa-text-xs wa-font-bold wa-mb-3">Notifications</h3>
                 <SettingsForm
                   defaultUpdates={dbUser.notificationsUpdates ?? true}
                   defaultReminders={dbUser.notificationsReminders ?? true}
                 />
-              </section>
-              <section>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Password &amp; Security</h3>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline">
-                    Reset password
-                  </Link>
+              </div>
+              <div className="wa-pt-4 wa-border-t wa-border-[var(--outline-variant)]">
+                <h3 className="wa-text-xs wa-font-bold wa-mb-3">Security</h3>
+                <div className="wa-flex wa-flex-col wa-gap-2">
+                  <Link href={`/forgot-password?email=${encodeURIComponent(dbUser.email)}`} className="btn btn-outline btn-sm wa-w-full">Reset Password</Link>
                   <StartTourButton />
                 </div>
-              </section>
-              <section>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-error, #c00)', marginBottom: '0.75rem' }}>Danger Zone</h3>
+              </div>
+              <div className="wa-pt-4 wa-border-t wa-border-[var(--outline-variant)]">
+                <h3 className="wa-text-xs wa-font-bold wa-text-red-600 wa-mb-3">Danger Zone</h3>
                 <DeleteAccountButton />
-              </section>
+              </div>
             </div>
-          </div>
+          </section>
+
+          {/* Program Quick View */}
+          {program && (
+            <section className="portal-card wa-p-6">
+              <h2 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-4">Enrolled Program</h2>
+              <p className="wa-text-sm wa-font-bold wa-mb-1">{program.title}</p>
+              <Link href="/dashboard/program" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent)]">View details →</Link>
+            </section>
+          )}
         </div>
-      </div> {/* end hidden md:block */}
+      </div>
 
       <MobileBottomNav variant="portal" />
-    </>
+    </div>
   );
 }

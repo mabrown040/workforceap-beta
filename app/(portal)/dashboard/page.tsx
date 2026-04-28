@@ -4,10 +4,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
-import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection';
 import type { CareerMatchResult } from '@/lib/onet/types';
@@ -23,12 +22,11 @@ import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
-import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
+import { getMemberStateSummary } from '@/lib/member/memberStateSummary';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Your Dashboard',
@@ -66,7 +64,7 @@ export default async function DashboardPage() {
 
 async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
-  if (!dbUser) redirect('/login');
+  if (!dbUser) redirect('/login?redirectTo=/dashboard');
 
   const intakePromise = prisma.user.findUnique({
     where: { id: user.id },
@@ -95,35 +93,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       },
     },
   });
-  const profilePromise = prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: {
-      profilePhone: true,
-      profileAddress: true,
-      profileLinkedin: true,
-      profileBio: true,
-      employmentStatus: true,
-      educationLevel: true,
-    },
-  });
+
   const engagementPromise = getMemberEngagementSignals(user.id);
 
-  const [intakeResult, profileResult, engagementResult] = await Promise.allSettled([
+  const [intakeResult, engagementResult] = await Promise.allSettled([
     intakePromise,
-    profilePromise,
     engagementPromise,
   ]);
 
   const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
-  if (intakeResult.status === 'rejected') {
-    console.error('[dashboard] intake query failed', intakeResult.reason);
-  }
-
-  const profileForCompleteness = profileResult.status === 'fulfilled' ? profileResult.value : null;
-  if (profileResult.status === 'rejected') {
-    console.error('[dashboard] profile completeness query failed', profileResult.reason);
-  }
-
   const engagementSignals =
     engagementResult.status === 'fulfilled'
       ? engagementResult.value
@@ -133,11 +111,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           counselorUnreadCount: 0,
           weeklyRecapUnopened: false,
         };
-  if (engagementResult.status === 'rejected') {
-    console.error('[dashboard] engagement signals failed', engagementResult.reason);
-  }
-
-  const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
   const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, sessionEventsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
@@ -149,12 +122,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     prisma.application.findFirst({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
-      select: {
-        status: true,
-        programInterest: true,
-        submittedAt: true,
-        createdAt: true,
-      },
     }),
     prisma.memberNextBestAction.findMany({
       where: { memberId: user.id, status: 'PENDING' },
@@ -164,10 +131,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     prisma.jobApplication.findMany({
       where: { userId: user.id, status: 'OFFER' },
     }),
-    // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
-    // ai_tool_run_completed event in the last 30 days where a counselor or
-    // admin acted on behalf of this member, so the dashboard can render a
-    // "Your session with {actor} on {date}" card.
     prisma.memberEvent.findMany({
       where: {
         userId: user.id,
@@ -182,36 +145,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   ]);
 
   const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
-  if (toolsResult.status === 'rejected') {
-    console.error('[dashboard] recent AI tools query failed', toolsResult.reason);
-  }
-
   const latestApplication = applicationResult.status === 'fulfilled' ? applicationResult.value : null;
-  if (applicationResult.status === 'rejected') {
-    console.error('[dashboard] latest application query failed', applicationResult.reason);
-  }
-
   const dynamicNextActions = dynamicActionsResult.status === 'fulfilled' ? dynamicActionsResult.value : [];
-  if (dynamicActionsResult.status === 'rejected') {
-    console.error('[dashboard] dynamic actions query failed', dynamicActionsResult.reason);
-  }
-
   const jobOffers = jobApplicationsResult.status === 'fulfilled' ? jobApplicationsResult.value : [];
-
-  // Group on-behalf-of session events by sessionId so the dashboard can
-  // render a single "Your session with {actor}" card for the most recent run.
   const sessionEvents = sessionEventsResult.status === 'fulfilled' ? sessionEventsResult.value : [];
-  if (sessionEventsResult.status === 'rejected') {
-    console.error('[dashboard] session events query failed', sessionEventsResult.reason);
-  }
-  type SessionSummary = {
-    sessionId: string;
-    actorName: string;
-    startedAt: Date;
-    toolCount: number;
-    resultIds: string[];
-  };
-  const sessionMap = new Map<string, SessionSummary>();
+
+  // Unified state summary
+  const state = getMemberStateSummary({ ...dbUser, profile: dbUser.profile ?? null } as any, latestApplication);
+
+  // Group on-behalf-of session events
+  const sessionMap = new Map<string, any>();
   for (const ev of sessionEvents) {
     if (!ev.sessionId) continue;
     const meta = (ev.metadata ?? {}) as { runOnBehalf?: boolean; actorName?: string | null };
@@ -231,77 +174,20 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       });
     }
   }
-  const latestSession =
-    [...sessionMap.values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0] ?? null;
+  const latestSession = [...sessionMap.values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0] ?? null;
 
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
-  const showMemberTour =
-    intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
-  const wizardProgramInterest =
-    latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
-
-  const applicationStatusView = buildMemberApplicationStatusView(latestApplication, {
-    enrolledProgram: dbUser.enrolledProgram ?? null,
-    enrolledAt: dbUser.enrolledAt ?? null,
-    assessmentCompleted: dbUser.assessmentCompleted ?? false,
-  });
-
-  const applicationStatus = applicationStatusView
-    ? {
-        label: applicationStatusView.label,
-        submittedAt: applicationStatusView.submittedAt?.toISOString() ?? null,
-        programInterest: applicationStatusView.programInterest,
-        nextStep: applicationStatusView.nextStep,
-        nextStepHref: applicationStatusView.nextStepHref,
-        showResponseEstimate: applicationStatusView.showResponseEstimate,
-        progressIndex: applicationStatusView.progressIndex,
-        stage: applicationStatusView.stage,
-      }
-    : null;
-  const noApplicationOnFile = !latestApplication;
-
-  const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
-  const enrolledProgram = dbUser.enrolledProgram ?? null;
-  const assessmentCompleted = dbUser.assessmentCompleted ?? false;
-  const coursesCompleted = parseCourseSlugList(dbUser.coursesCompleted);
-  
-  const userAge = intakeExtra?.profile?.dob 
-    ? Math.floor((Date.now() - new Date(intakeExtra.profile.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-    : null;
-  const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
-
-  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const totalCourses = program?.courses.length ?? 0;
-  const completedCount = program
-    ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
-    : 0;
-  const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
-
-  const dashboardState: 'A' | 'B' | 'C' | 'D' = !enrolledProgram
-    ? 'A'
-    : !assessmentCompleted
-      ? 'B'
-      : allCoursesComplete
-        ? 'D'
-        : 'C';
-
-  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, {
-    fullName: dbUser.fullName,
-    email: dbUser.email,
-  });
-  const profileMissingFields = getProfileMissingFields(profileForCompleteness, {
-    fullName: dbUser.fullName,
-    email: dbUser.email,
-  });
+  const showMemberTour = intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
+  const wizardProgramInterest = latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
 
   let nextBestActions = buildNextBestActions({
-    state: dashboardState,
-    noApplicationOnFile,
-    enrolledProgram,
-    assessmentCompleted,
+    state: state.dashboardState,
+    noApplicationOnFile: !latestApplication,
+    enrolledProgram: dbUser.enrolledProgram,
+    assessmentCompleted: dbUser.assessmentCompleted,
     hasResume: engagementSignals.hasResume,
-    profileCompletenessPct,
-    profileMissingFields,
+    profileCompletenessPct: state.profilePct,
+    profileMissingFields: state.profileMissingFields,
     jobApplicationCount: engagementSignals.jobApplicationCount,
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
@@ -320,48 +206,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   }
   nextBestActions = nextBestActions.slice(0, 4);
 
-  const checklist = {
-    createAccount: true,
-    chooseProgram: !!enrolledProgram,
-    completeAssessment: assessmentCompleted,
-    startFirstCourse: !!enrolledProgram && assessmentCompleted, // training unlocked
-    completeFirstCourse: completedCount >= 1,
-  };
-  const checklistAllDone = Object.values(checklist).every(Boolean);
+  const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
+  const program = state.enrolledProgram;
+  const nextIncompleteCourse = program ? program.courses.find((c) => !parseCourseSlugList(dbUser.coursesCompleted).includes(c.slug)) : null;
 
-  const recentActivity: Array<{ label: string; timestamp: Date }> = [];
-  if (dbUser.enrolledAt) {
-    recentActivity.push({ label: 'Enrolled in program', timestamp: dbUser.enrolledAt });
-  }
-  if (dbUser.assessmentCompletedAt) {
-    recentActivity.push({ label: 'Completed skills assessment', timestamp: dbUser.assessmentCompletedAt });
-  }
-  recentActivity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  const lastThree = recentActivity.slice(0, 3);
-
-  const nextIncompleteCourse = program
-    ? program.courses.find((c) => !coursesCompleted.includes(c.slug))
-    : null;
-
-  const recommendedActions = careerBrief.recommendedActions;
-  const jobSearchUrl = careerBrief.jobSearchUrl;
-
-  const showMatchedRoles = assessmentCompleted;
   let superAdmin = false;
   try {
     superAdmin = await isSuperAdmin(user.id);
-  } catch (e) {
-    console.error('[dashboard] isSuperAdmin failed', e);
-  }
-
-  /* Mobile progress percentage for orb */
-  const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
-  const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
-  const mobileProgressSummary = totalCourses > 0
-    ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
-    : 'Courses will appear once your program is set';
-  const orbCircumference = 251.2;
-  const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
+  } catch (e) {}
 
   const AI_TOOL_LABELS: Record<string, string> = {
     job_match_scorer: 'Job Match Scorer',
@@ -377,535 +229,230 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     career_counselor: 'Career Counselor',
   };
 
-  const interviewCompleted = !!intakeExtra?.interviewCompletedAt;
-  const interviewRequested = !!intakeExtra?.interviewRequestedAt;
-  const interviewEligibleFlag = intakeExtra?.interviewEligible ?? false;
-  const preScreeningDone = !!intakeExtra?.preScreeningResponse;
+  const orbCircumference = 251.2;
+  const orbDashoffset = orbCircumference - (orbCircumference * state.trainingProgressPct) / 100;
+  const mobileProgressTone = state.allCoursesComplete ? 'Completed' : state.coursesCompletedCount > 0 ? 'In progress' : 'Getting started';
+
+  const journeySteps = [
+    { label: 'Profile verified', done: state.checklist.chooseProgram, active: !state.checklist.chooseProgram, detail: state.checklist.chooseProgram ? 'Program on file' : 'Choose a program' },
+    { label: 'Skills assessment', done: state.checklist.completeAssessment, active: state.checklist.chooseProgram && !state.checklist.completeAssessment, detail: state.checklist.completeAssessment ? 'Completed' : state.checklist.chooseProgram ? 'Complete to start training' : 'Waiting for enrollment' },
+    { label: 'Interview', done: !!intakeExtra?.interviewCompletedAt, active: state.checklist.completeAssessment && !intakeExtra?.interviewCompletedAt && (intakeExtra?.interviewRequestedAt || intakeExtra?.interviewEligible), detail: intakeExtra?.interviewCompletedAt ? 'Complete' : intakeExtra?.interviewRequestedAt ? 'Scheduled' : intakeExtra?.interviewEligible ? 'Request interview' : 'Awaiting review' },
+    { label: 'Enrollment confirmed', done: state.coursesCompletedCount > 0, active: state.checklist.completeAssessment && state.coursesCompletedCount === 0 && (!intakeExtra?.interviewEligible || !!intakeExtra?.interviewCompletedAt), detail: state.coursesCompletedCount > 0 ? 'Training in progress' : 'Start your first course' },
+  ];
 
   const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
 
-  /* Journey timeline — complete / active (next) / locked (future) */
-  const journeySteps = [
-    {
-      label: 'Profile verified',
-      done: !!enrolledProgram,
-      active: !enrolledProgram,
-      locked: false,
-      detail: enrolledProgram ? 'Program on file' : 'Choose a program',
-    },
-    {
-      label: 'Skills assessment',
-      done: assessmentCompleted,
-      active: !!enrolledProgram && !assessmentCompleted,
-      locked: !enrolledProgram,
-      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to start training' : 'Waiting for enrollment',
-    },
-    {
-      label: 'Interview',
-      done: interviewCompleted,
-      active:
-        assessmentCompleted &&
-        !interviewCompleted &&
-        (interviewRequested || interviewEligibleFlag),
-      locked:
-        !assessmentCompleted ||
-        (assessmentCompleted &&
-          !interviewCompleted &&
-          !interviewRequested &&
-          !interviewEligibleFlag),
-      detail: interviewCompleted
-        ? 'Complete'
-        : interviewRequested
-          ? 'Scheduled — watch your email'
-          : interviewEligibleFlag
-            ? 'Request or attend your interview'
-            : preScreeningDone
-              ? 'Awaiting counselor review'
-              : 'Submit pre-screening below',
-    },
-    {
-      label: 'Enrollment confirmed',
-      done: completedCount > 0,
-      active:
-        !!enrolledProgram &&
-        assessmentCompleted &&
-        completedCount === 0 &&
-        (!interviewEligibleFlag || interviewCompleted),
-      locked:
-        !enrolledProgram ||
-        !assessmentCompleted ||
-        (interviewEligibleFlag && !interviewCompleted),
-      detail:
-        completedCount > 0
-          ? 'Training in progress'
-          : enrolledProgram && assessmentCompleted
-            ? interviewEligibleFlag && !interviewCompleted
-              ? 'Complete interview first'
-              : 'Start your first course'
-            : 'Complete prior steps first',
-    },
-  ];
-
   return (
     <>
-      <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
+      <h1 className="wa-sr-only">Welcome back, {state.firstName}</h1>
 
-      {/* ── Recent in-office session card — shown to both mobile + desktop
-          when a counselor or admin ran tools on the member's behalf in the
-          last 30 days. See lib/auth/actAsSubject.ts. ── */}
-      {latestSession ? (
-        <MemberSessionCard
-          actorName={latestSession.actorName}
-          startedAt={latestSession.startedAt}
-          toolCount={latestSession.toolCount}
-        />
-      ) : null}
+      {latestSession && (
+        <div className="wa-px-4 md:wa-px-8 wa-mb-6">
+          <MemberSessionCard actorName={latestSession.actorName} startedAt={latestSession.startedAt} toolCount={latestSession.toolCount} />
+        </div>
+      )}
 
-      {/* ── Mobile-only dashboard (≤767px) ── */}
-      <div className="md:wa-hidden portal-mobile-content">
-
-        {/* ── Hero: greeting + progress ring ── */}
-        <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
-          <div
-            style={{
-              borderRadius: '1.5rem',
-              padding: '1rem',
-              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, white) 0%, white 52%)',
-              border: '1px solid color-mix(in srgb, var(--color-accent) 14%, var(--outline-variant))',
-              boxShadow: '0 16px 40px rgba(17, 24, 39, 0.08)',
-              overflow: 'hidden',
-              position: 'relative',
+      {/* ── Responsive Shell ── */}
+      <PortalEntryErrorBoundary>
+        <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
+          <PortalEntryClient
+            portal="member"
+            tourStorageUserId={user.id}
+            showOnboardingWizard={showMemberOnboarding}
+            showTour={showMemberTour}
+            isSuperAdmin={superAdmin}
+            tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+            wizardProps={{
+              initialFullName: intakeExtra?.fullName ?? '',
+              initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+              initialCity: intakeExtra?.profile?.city ?? '',
+              initialState: intakeExtra?.profile?.state ?? '',
+              initialZip: intakeExtra?.profile?.zip ?? '',
+              initialProgramInterest: wizardProgramInterest,
+              initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
             }}
           >
-            <div
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: '-2.5rem',
-                right: '-2rem',
-                width: '8rem',
-                height: '8rem',
-                borderRadius: '999px',
-                background: 'radial-gradient(circle, color-mix(in srgb, var(--color-accent) 18%, transparent) 0%, transparent 68%)',
-                pointerEvents: 'none',
-              }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.9rem', position: 'relative' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start', padding: '0.35rem 0.55rem', borderRadius: '999px', background: 'rgba(255,255,255,0.8)', border: '1px solid var(--outline-variant)' }}>
-                  <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>
-                    {formatPortalDate(new Date())}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-                    Member dashboard
-                  </p>
-                  <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    Welcome back, {firstName}
-                  </h2>
-                </div>
-                {program && (
-                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'rgba(255,255,255,0.9)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
-                    <p style={{ fontSize: '0.76rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.35, fontWeight: 600 }}>
-                      {program.title}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
-              {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
-                <div
-                  className="portal-progress-ring"
-                  style={{
-                    width: '6rem',
-                    height: '6rem',
-                    flexShrink: 0,
-                    borderRadius: '999px',
-                    background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
-                    boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
-                  }}
-                >
-                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
-                    <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
-                    <circle
-                      cx="48" cy="48" r="40" fill="transparent"
-                      stroke="var(--color-accent)" strokeWidth="7"
-                      strokeDasharray={orbCircumference}
-                      strokeDashoffset={orbDashoffset}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
-                    <span className="wa-text-xl wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
-                    <span className="wa-text-[9px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
-                      {mobileProgressTone}
-                    </span>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    padding: '0.38rem 0.72rem',
-                    borderRadius: '999px',
-                    background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, white)',
-                  }}
-                >
-                  <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
-                    Training progress
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
-                  {mobileProgressSummary}
-                </p>
-              </div>}
-            </div>
-
-            {dashboardState !== 'A' && (
-            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
-              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                Training progress is based on completed courses. Your application steps are shown below.
-              </p>
-            </div>
-            )}
-          </div>
-        </section>
-
-        {/* ── State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ── */}
-        {dashboardState === 'A' && (
-          <section style={{ padding: '0 1.25rem 1.25rem' }}>
-            <Link
-              href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
-              style={{
-                display: 'block',
-                borderRadius: '1rem',
-                overflow: 'hidden',
-                background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 28%, transparent)',
-                padding: '1.25rem',
-                textDecoration: 'none',
-              }}
-            >
-              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.78)', margin: '0 0 0.4rem' }}>
-                Your next step
-              </p>
-              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
-                {noApplicationOnFile
-                  ? 'Apply now — 10 minutes'
-                  : 'Choose your program'}
-              </p>
-              <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
-                {noApplicationOnFile
-                  ? 'Career training at no cost to members, funded by grants and partnerships. A counselor will help you pick the right program and next steps.'
-                  : 'Pick the career track that fits your goals. Programs are available at no cost to members, funded by grants and partnerships.'}
-              </p>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
-                <span>{noApplicationOnFile ? 'Start Application' : 'Choose Program'}</span>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-              </div>
-            </Link>
-          </section>
-        )}
-
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberDashboardVoiceSectionLazy />
-        </section>
-
-        {dashboardState !== 'A' && nextBestActions.length > 0 && (
-          <section style={{ padding: '0 1.25rem 1rem' }}>
-            <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
-          </section>
-        )}
-
-        {/* ── Priority next-step card ── */}
-        <PlacementConfirmationStrip offers={jobOffers} />
-        {applicationStatus?.nextStep && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
-              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <p style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.82)', margin: '0 0 0.35rem' }}>Priority Action</p>
-                    <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.3 }}>
-                      {applicationStatus.nextStep}
-                    </h2>
-                  </div>
-                  <span className="material-symbols-outlined wa-text-xl" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }} aria-hidden>bolt</span>
-                </div>
-                <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-                  For {program?.title ?? applicationStatus.programInterest ?? 'your program'}.
-                </p>
-                <Link
-                  href={applicationStatus.nextStepHref}
-                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box' }}
-                >
-                  Take action
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── Career path ── */}
-        <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
-          <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-          <LogCertificationModal />
-        </div>
-
-        {/* ── Application journey timeline ── */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Application Journey</h3>
-          </div>
-          <div className="portal-journey-timeline">
-            {journeySteps.map((step, i) => {
-              const locked = 'locked' in step && step.locked;
-              return (
-                <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
-                  <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
-                    {step.done && (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
-                    )}
-                    {step.active && !step.done && <div className="portal-dot-pulse" />}
-                  </div>
-                  <div className="portal-journey-step__content">
-                    <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
-                      {step.label}
-                    </p>
-                    {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
-        {!enrolledProgram ? (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
-              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
-            </div>
-            <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-              {PROGRAMS.slice(0, 3).map((prog, i) => (
-                <div
-                  key={i}
-                  className="portal-card portal-card--flat"
-                  style={{
-                    width: mobileCarouselCardWidth,
-                    minWidth: mobileCarouselCardWidth,
-                    overflow:"hidden",
-                    flexShrink:0,
-                    background:"var(--surface-container-lowest)",
-                    borderRadius:"0.75rem",
-                  }}
-                >
-                  <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
-                  <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
-                    <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
-                Next milestones
-              </h3>
-              <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
-                Training
-              </a>
-            </div>
-            <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-              {[
-                {
-                  eyebrow: program?.title ?? 'Your program',
-                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue your training',
-                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track and keep progressing.',
-                  href: '/dashboard/training',
-                  icon: 'school',
-                },
-                {
-                  eyebrow: 'Job search tools',
-                  title: 'Practice interview answers',
-                  desc: 'Build confidence for recruiter screens and counselor interviews.',
-                  href: '/dashboard/ai-tools/interview-practice',
-                  icon: 'record_voice_over',
-                },
-                {
-                  eyebrow: 'Connect',
-                  title: 'Browse job board',
-                  desc: 'Explore roles that fit your program and interests.',
-                  href: '/dashboard/jobs',
-                  icon: 'work',
-                },
-              ].map((card) => (
-                <a
-                  key={card.href}
-                  href={card.href}
-                  className="wa-no-underline active:scale-[0.98] wa-transition-transform"
-                  style={{ width: mobileCarouselCardWidth, minWidth: mobileCarouselCardWidth, flexShrink:0 }}
-                >
-                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
-                    <div className="portal-card__body" style={{ padding:"1rem" }}>
-                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
-                        <div style={{ minWidth:0 }}>
-                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0 }}>
-                            {card.eyebrow}
-                          </p>
-                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0" }}>
-                            {card.title}
-                          </p>
-                        </div>
-                        <span className="material-symbols-outlined" style={{ color:'var(--color-accent)', fontSize:"1.1rem", flexShrink:0 }}>
-                          {card.icon}
-                        </span>
-                      </div>
-                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4 }}>
-                        {card.desc}
-                      </p>
+            {/* ── Layout Wrapper ── */}
+            <div className="wa-max-w-[1200px] wa-mx-auto wa-px-4 md:wa-px-8">
+              
+              {/* ── Hero / Intro (Responsive Split) ── */}
+              <div className="wa-grid wa-gap-6 md:wa-grid-cols-[1fr_320px] wa-mb-8">
+                
+                {/* Greeting & Voice section */}
+                <div className="wa-flex wa-flex-col wa-gap-6">
+                  <div className="md:wa-hidden">
+                    {/* Mobile Greeting Card */}
+                    <div className="wa-bg-gradient-to-b wa-from-[color-mix(in_srgb,var(--color-accent)_7%,white)] wa-to-white wa-p-6 wa-rounded-[1.5rem] wa-border wa-border-[color-mix(in_srgb,var(--color-accent)_14%,var(--outline-variant))] wa-shadow-lg">
+                      <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-accent-dark)] wa-mb-1">Member dashboard</p>
+                      <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight">Welcome back, {state.firstName}</h2>
+                      {program && <p className="wa-text-sm wa-font-semibold wa-text-[var(--color-on-surface-variant)] wa-mt-1">{program.title}</p>}
                     </div>
                   </div>
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── Quick Actions 2x2 ── */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Quick Actions</h3>
-          </div>
-          <div className="portal-quick-grid-2x2">
-            {([
-              { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'support_agent', label: 'My Progress', href: '/dashboard/readiness' },
-              { icon: 'forum', label: 'Interview Prep', href: '/dashboard/ai-tools/interview-practice' },
-              { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
-            ] as const).map((action) => (
-              <a key={action.label} href={action.href} className="portal-quick-grid-item">
-                <div className="portal-quick-grid-item__icon">
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
-                </div>
-                <span className="portal-quick-grid-item__label">{action.label}</span>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Recent AI Activity — mobile ── */}
-        {recentTools.length > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
-            <div className="portal-dash-section-header">
-              <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
-              <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {recentTools.map((r) => (
-                <div key={r.id} className="portal-activity-item">
-                  <div className="portal-activity-item__icon">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">smart_toy</span>
+                  <div className="wa-hidden md:wa-block wa-pt-4">
+                    <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight wa-mb-2">Welcome back, {state.firstName}</h2>
+                    <p className="wa-text-[var(--color-on-surface-variant)]">Your WorkforceAP member dashboard — training progress, next steps, and career tools.</p>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
-                      {AI_TOOL_LABELS[r.toolType] ?? r.toolType}
-                    </p>
-                    {r.inputSummary && (
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {stripMarkdownForPreview(r.inputSummary)}
-                      </p>
+                  <MemberDashboardVoiceSectionLazy />
+                </div>
+
+                {/* Training Progress (Desktop Sidebar / Mobile Hero Integration) */}
+                <div className="wa-flex wa-flex-col wa-gap-4">
+                  {state.dashboardState !== 'A' && (
+                    <div className="wa-bg-white wa-p-6 wa-rounded-[1.5rem] wa-border wa-border-[var(--outline-variant)] wa-shadow-sm wa-flex wa-flex-col wa-items-center wa-text-center">
+                      <div className="wa-relative wa-w-24 wa-h-24 wa-mb-4">
+                        <svg className="wa-w-full wa-h-full wa-rotate-[-90deg]" viewBox="0 0 96 96">
+                          <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
+                          <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--color-accent)" strokeWidth="7" strokeDasharray={orbCircumference} strokeDashoffset={orbDashoffset} strokeLinecap="round" />
+                        </svg>
+                        <div className="wa-absolute wa-inset-0 wa-flex wa-flex-col wa-items-center wa-justify-center">
+                          <span className="wa-text-xl wa-font-extrabold">{state.trainingProgressPct}%</span>
+                        </div>
+                      </div>
+                      <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-accent-dark)] wa-mb-1">Training Progress</p>
+                      <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{state.coursesCompletedCount} of {state.totalCoursesCount} courses</p>
+                      <Link href="/dashboard/training" className="btn btn-ghost wa-text-xs wa-mt-3">View training track</Link>
+                    </div>
+                  )}
+                  {state.dashboardState === 'A' && (
+                    <Link href={!latestApplication ? '/apply' : '/dashboard/program'} className="wa-block wa-bg-gradient-to-br wa-from-[var(--color-accent-dark)] wa-to-[var(--color-accent)] wa-p-6 wa-rounded-[1.5rem] wa-text-white wa-no-underline wa-shadow-md">
+                      <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-opacity-80 wa-mb-1">Next Step</p>
+                      <h3 className="wa-text-lg wa-font-bold wa-mb-2">{!latestApplication ? 'Start Application' : 'Choose Program'}</h3>
+                      <p className="wa-text-xs wa-opacity-90 wa-leading-relaxed wa-mb-4">Complete your setup to unlock training and job support.</p>
+                      <div className="wa-bg-white wa-text-[var(--color-accent)] wa-px-4 wa-py-2 wa-rounded-lg wa-font-bold wa-text-sm wa-inline-flex wa-items-center wa-gap-2">
+                        Get Started <span className="material-symbols-outlined wa-text-sm">arrow_forward</span>
+                      </div>
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* ── Priority Actions ── */}
+              <PlacementConfirmationStrip offers={jobOffers} />
+              {state.applicationStatus?.nextStep && (
+                <div className="wa-mb-8">
+                  <div className="wa-bg-gradient-to-r wa-from-[var(--color-accent-dark)] wa-to-[var(--color-accent)] wa-p-6 wa-rounded-[1.5rem] wa-text-white wa-flex wa-flex-col md:wa-flex-row md:wa-items-center wa-gap-4">
+                    <div className="wa-flex-1">
+                      <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-opacity-80 wa-mb-1">Priority Action</p>
+                      <h3 className="wa-text-xl wa-font-bold">{state.applicationStatus.nextStep}</h3>
+                    </div>
+                    <Link href={state.applicationStatus.nextStepHref} className="wa-bg-white wa-text-[var(--color-accent)] wa-px-6 wa-py-3 wa-rounded-xl wa-font-bold wa-text-center wa-no-underline">Take Action</Link>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Next Steps Strip ── */}
+              {nextBestActions.length > 0 && (
+                <div className="wa-mb-8">
+                  <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
+                </div>
+              )}
+
+              {/* ── Core Content Grid ── */}
+              <div className="wa-grid wa-gap-8 md:wa-grid-cols-[1fr_320px]">
+                
+                {/* Main Column */}
+                <div className="wa-flex wa-flex-col wa-gap-8">
+                  
+                  {/* Career Path Section */}
+                  <section>
+                    <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={state.coursesCompletedCount} />
+                    <LogCertificationModal />
+                  </section>
+
+                  {/* Desktop Only: Matched Roles */}
+                  <div className="wa-hidden md:wa-block">
+                    {state.dashboardState !== 'A' && (
+                      <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
+                        <MatchedRoles />
+                      </Suspense>
                     )}
                   </div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, marginLeft: '0.5rem' }}>
-                    {formatPortalDate(r.createdAt)}
-                  </span>
+
+                  {/* Recent Activity / AI History (Responsive) */}
+                  <div className="wa-grid wa-gap-8 md:wa-grid-cols-2">
+                    {/* Activity Timeline */}
+                    <section>
+                      <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-4">Application Journey</h3>
+                      <div className="wa-flex wa-flex-col wa-gap-4">
+                        {journeySteps.map((step, i) => (
+                          <div key={i} className={`wa-flex wa-gap-4 ${step.active ? 'wa-opacity-100' : 'wa-opacity-50'}`}>
+                            <div className={`wa-w-6 wa-h-6 wa-rounded-full wa-flex wa-items-center wa-justify-center wa-flex-shrink-0 ${step.done ? 'wa-bg-green-500 wa-text-white' : step.active ? 'wa-bg-[var(--color-accent)] wa-text-white' : 'wa-bg-[var(--outline-variant)]'}`}>
+                              {step.done ? <span className="material-symbols-outlined wa-text-xs">check</span> : <span className="wa-text-[10px]">{i+1}</span>}
+                            </div>
+                            <div>
+                              <p className="wa-text-sm wa-font-bold">{step.label}</p>
+                              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{step.detail}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* Recent AI Tools */}
+                    {recentTools.length > 0 && (
+                      <section>
+                        <div className="wa-flex wa-items-center wa-justify-between wa-mb-4">
+                          <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]">Recent AI Activity</h3>
+                          <Link href="/dashboard/ai-tools/history" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent)]">View all</Link>
+                        </div>
+                        <div className="wa-flex wa-flex-col wa-gap-3">
+                          {recentTools.map((r) => (
+                            <div key={r.id} className="wa-p-3 wa-bg-white wa-rounded-xl wa-border wa-border-[var(--outline-variant)] wa-flex wa-items-center wa-gap-3">
+                              <span className="material-symbols-outlined wa-text-[var(--color-accent)]">smart_toy</span>
+                              <div className="wa-flex-1 wa-min-w-0">
+                                <p className="wa-text-sm wa-font-bold wa-truncate">{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
+                                <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]">{formatPortalDate(r.createdAt)}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+                  </div>
                 </div>
-              ))}
+
+                {/* Sidebar Column */}
+                <div className="wa-flex wa-flex-col wa-gap-8">
+                  {/* Quick Actions */}
+                  <section>
+                    <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-4">Quick Actions</h3>
+                    <div className="wa-grid wa-grid-cols-2 wa-gap-2">
+                      {[
+                        { icon: 'upload_file', label: 'Resume', href: '/dashboard/ai-tools/resume-rewriter' },
+                        { icon: 'support_agent', label: 'Progress', href: '/dashboard/readiness' },
+                        { icon: 'forum', label: 'Interviews', href: '/dashboard/ai-tools/interview-practice' },
+                        { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
+                      ].map((action) => (
+                        <Link key={action.label} href={action.href} className="wa-p-4 wa-bg-white wa-rounded-xl wa-border wa-border-[var(--outline-variant)] wa-flex wa-flex-col wa-items-center wa-text-center wa-gap-2 wa-no-underline hover:wa-bg-[var(--surface-container-lowest)] wa-transition-colors">
+                          <span className="material-symbols-outlined wa-text-[var(--color-accent)]">{action.icon}</span>
+                          <span className="wa-text-[10px] wa-font-bold wa-uppercase">{action.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Milestones / Next Up */}
+                  {state.dashboardState !== 'A' && (
+                    <section>
+                      <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)] wa-mb-4">Next Milestones</h3>
+                      <div className="wa-flex wa-flex-col wa-gap-3">
+                        <Link href="/dashboard/training" className="wa-p-4 wa-bg-white wa-rounded-xl wa-border wa-border-[var(--outline-variant)] wa-flex wa-gap-3 wa-no-underline">
+                          <span className="material-symbols-outlined wa-text-[var(--color-accent)]">school</span>
+                          <div>
+                            <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest wa-text-[var(--color-on-surface-variant)]">Training</p>
+                            <p className="wa-text-sm wa-font-bold">{nextIncompleteCourse?.name ?? 'Continue Training'}</p>
+                          </div>
+                        </Link>
+                      </div>
+                    </section>
+                  )}
+                </div>
+              </div>
             </div>
-          </section>
-        )}
-      </div>
+          </PortalEntryClient>
+        </Suspense>
+      </PortalEntryErrorBoundary>
 
-      {/* ── Desktop view (hidden on mobile) ── */}
-      <div className="wa-hidden md:wa-block">
-        <PortalEntryErrorBoundary>
-          <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
-            <PortalEntryClient
-              portal="member"
-              tourStorageUserId={user.id}
-              showOnboardingWizard={showMemberOnboarding}
-              showTour={showMemberTour}
-              isSuperAdmin={superAdmin}
-              tourSteps={MEMBER_PORTAL_TOUR_STEPS}
-              wizardProps={{
-                initialFullName: intakeExtra?.fullName ?? '',
-                initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
-                initialCity: intakeExtra?.profile?.city ?? '',
-                initialState: intakeExtra?.profile?.state ?? '',
-                initialZip: intakeExtra?.profile?.zip ?? '',
-                initialProgramInterest: wizardProgramInterest,
-                initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
-              }}
-            >
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-                <MemberDashboardVoiceSectionLazy />
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
-                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-                <div style={{ maxWidth: '300px' }}>
-                  <LogCertificationModal />
-                </div>
-              </div>
-              <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
-                <DashboardHomeClient
-                  recommendedActions={recommendedActions}
-                  jobSearchUrl={jobSearchUrl}
-                  aiToolsUsedCount={recentTools.length}
-                  firstName={firstName}
-                  nextBestActions={nextBestActions}
-                  assessmentDone={assessmentCompleted}
-                  preScreeningDone={!!intakeExtra?.preScreeningResponse}
-                  interviewEligible={intakeExtra?.interviewEligible ?? false}
-                  interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-                  interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-                  state={dashboardState}
-                  programTitle={program?.title}
-                  enrolledAt={dbUser.enrolledAt}
-                  assessmentScorePct={dbUser.assessmentScorePct}
-                  completedCount={completedCount}
-                  totalCourses={totalCourses}
-                  nextMilestone={nextIncompleteCourse?.name}
-                  recentActivity={lastThree}
-                  checklist={checklist}
-                  checklistAllDone={checklistAllDone}
-                  applicationStatus={applicationStatus}
-                  noApplicationOnFile={noApplicationOnFile}
-                  age={userAge}
-                  isMinor={isMinor}
-                />
-              </Suspense>
-              <PlacementConfirmationStrip offers={jobOffers} />
-              {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
-                  <MatchedRoles />
-                </Suspense>
-              )}
-              {/* Recent AI Activity is rendered in the mobile view above —
-                  suppressed here so the same data doesn't appear twice in the DOM
-                  on wider viewports. DashboardHomeClient surfaces activity inline. */}
-            </PortalEntryClient>
-          </Suspense>
-        </PortalEntryErrorBoundary>
-      </div>
-
-      {/* Bottom nav — mobile only */}
       <MobileBottomNav variant="portal" />
     </>
   );

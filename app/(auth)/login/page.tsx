@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+import { getUser } from '@/lib/auth/server';
 import LoginForm from './LoginForm';
 
 export const metadata: Metadata = {
@@ -25,6 +26,12 @@ export default async function LoginPage({
 
   if (rawRedirect && rawRedirect !== normalizedRedirect) {
     redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
+  }
+
+  // If already logged in, redirect immediately to target portal or dashboard
+  const user = await getUser();
+  if (user) {
+    redirect(normalizedRedirect);
   }
 
   return <LoginForm initialRedirectTo={normalizedRedirect} />;

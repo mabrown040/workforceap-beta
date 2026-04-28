@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { checkContactRateLimit } from '@/lib/rate-limit';
 import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
+import { brandedEmailLayout } from '@/lib/email/template';
+import { escapeHtml } from '@/lib/email/escapeHtml';
 
 const CONTACT_EMAIL_TO = 'info@workforceap.org';
 
@@ -82,6 +84,21 @@ export async function POST(request: NextRequest) {
     `Submitted: ${new Date().toISOString()}`,
   ].join('\n');
 
+  const html = brandedEmailLayout({
+    title: `Contact: ${topic}`,
+    bodyHtml: `
+      <p><strong>From:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+      <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+      <p><strong>Phone:</strong> ${escapeHtml(phone || 'Not provided')}</p>
+      <p><strong>Prefer SMS:</strong> ${smsPreferred ? 'Yes' : 'No'}</p>
+      <p><strong>Topic:</strong> ${escapeHtml(topic)}</p>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 1rem 0;" />
+      <p><strong>Message:</strong></p>
+      <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
+      <p style="color: #888; font-size: 0.85rem; margin-top: 1.5rem;">Submitted: ${new Date().toISOString()}</p>
+    `,
+  });
+
   try {
     const resend = new Resend(resendKey);
     await resend.emails.send({
@@ -90,6 +107,7 @@ export async function POST(request: NextRequest) {
       replyTo: email,
       subject,
       text,
+      html,
     });
   } catch (err) {
     console.error('Contact form email failed:', err);

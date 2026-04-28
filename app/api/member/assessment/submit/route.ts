@@ -82,10 +82,9 @@ export async function POST(request: Request) {
 
   let memberEmailSent = false;
   if (resendKey) {
-    try {
-      const resend = new Resend(resendKey);
+    const resend = new Resend(resendKey);
 
-      // Admin notification (plain text)
+    try {
       await resend.emails.send({
         from: emailFrom,
         to: ASSESSMENT_EMAIL_TO,
@@ -101,8 +100,11 @@ export async function POST(request: Request) {
           `View full results: ${adminLink}`,
         ].join('\n'),
       });
+    } catch (err) {
+      console.error('Assessment admin email failed:', err);
+    }
 
-      // Member: branded assessment complete notification
+    try {
       const memberHtml = brandedEmailLayout({
         title: 'Assessment Complete',
         bodyHtml: `
@@ -121,7 +123,7 @@ export async function POST(request: Request) {
       });
       memberEmailSent = true;
     } catch (err) {
-      console.error('Assessment email failed:', err);
+      console.error('Assessment member email failed:', err);
     }
   }
 

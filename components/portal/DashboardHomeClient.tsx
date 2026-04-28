@@ -217,7 +217,7 @@ export default function DashboardHomeClient({
           {weekEyebrow}{programTitle ? ` · ${programTitle}` : ''}
         </p>
         <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
-          Welcome back, {firstName}.
+          Your next steps, {firstName}.
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
           {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path. Programs are available at no cost to members.")}

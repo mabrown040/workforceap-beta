@@ -247,7 +247,7 @@ export default function ApplyResultsClient() {
               <ul className="apply-foundational-support__list">
                 <li>
                   <strong>Digital foundations:</strong> Uncomfortable with computers or online forms? Our{' '}
-                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is listed first below.
+                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is one of the options below.
                 </li>
                 <li>
                   <strong>Not sure what fits?</strong> Take the <Link href="/find-your-path">2-minute pathfinder</Link> for ranked ideas.

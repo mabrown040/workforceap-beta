@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { logCronRun } from '@/lib/admin/logCronRun';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
@@ -55,10 +56,7 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({
-    ok: true,
-    checkedAt: new Date().toISOString(),
-    recentlyActiveCount: activeUserIds.size,
-    inactiveEmailsSent: sent,
-  });
+  const runResult = { ok: true, checkedAt: new Date().toISOString(), recentlyActiveCount: activeUserIds.size, inactiveEmailsSent: sent };
+  await logCronRun('cron_inactive_nudge', runResult);
+  return NextResponse.json(runResult);
 }

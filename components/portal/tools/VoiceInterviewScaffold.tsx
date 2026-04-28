@@ -6,6 +6,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
+import AiToolLanguageSelector from '@/components/portal/tools/AiToolLanguageSelector';
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
 const EXPERIENCE_LEVELS = [
@@ -68,6 +69,7 @@ export default function VoiceInterviewScaffold() {
     <div>
       {!ready ? (
         <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
+          <AiToolLanguageSelector />
           <div className="form-group">
             <label htmlFor="vi-role">Target role</label>
             <input

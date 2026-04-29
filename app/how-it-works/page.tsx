@@ -284,7 +284,7 @@ export default async function HowItWorksPage() {
                   {[
                     { icon: 'school', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
                     { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
-                    { icon: 'work', title: 'Direct Pipeline', desc: 'Immediate consideration for openings within our 50+ employer partner network.' },
+                    { icon: 'work', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
                     { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
                   ].map((b) => (
                     <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

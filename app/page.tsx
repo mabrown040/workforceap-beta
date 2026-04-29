@@ -429,8 +429,8 @@ export default async function HomePage() {
               background: 'var(--color-accent)', color: 'white', padding: '1.5rem',
               textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>Can be $0</span>
-              <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>Qualifying member cost</span>
+              <span style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>$0</span>
+              <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>Member Cost</span>
             </div>
           </div>
         </div>

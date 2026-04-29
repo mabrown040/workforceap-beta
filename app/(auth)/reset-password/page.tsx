@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from '@/lib/auth/client';
+import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 
 type Stage = 'verifying' | 'ready' | 'submitting' | 'success' | 'error';
 
@@ -127,7 +128,8 @@ function ResetPasswordForm() {
     }
 
     setStage('success');
-    setTimeout(() => router.push('/dashboard'), 2000);
+    const target = normalizePostLoginRedirect(searchParams.get('redirectTo'));
+    setTimeout(() => router.push(target), 2000);
   }
 
   if (stage === 'verifying') {

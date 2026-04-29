@@ -75,7 +75,9 @@ export default function VoiceCoachesPromo() {
             href="/dashboard/ai-tools/resume-coach"
             ctaLabel="Start resume enhancer"
           />
+        </div>
 
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
           <VoiceCoachLauncherCard
             {...mockInterviewVoiceSurface}
             badge="Job / role interview"
@@ -84,9 +86,6 @@ export default function VoiceCoachesPromo() {
             href="/dashboard/ai-tools/voice-interview"
             ctaLabel="Start voice interviewer"
           />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
           <VoiceCoachLauncherCard
             badge="Career Coach"
             icon="💼"

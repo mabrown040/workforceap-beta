@@ -30,7 +30,7 @@ export default function TermsPage() {
             <ul>
               <li>Provide accurate and truthful information during registration and throughout your participation</li>
               <li>Maintain the confidentiality of your account credentials</li>
-              <li>Commit to 100% program completion to the best of your ability</li>
+              <li>Make a good-faith effort to complete the program you enroll in</li>
               <li>Participate in job placement assistance services as outlined in your program</li>
               <li>Notify WorkforceAP of any changes to your eligibility status</li>
               <li>Use the member portal and resources only for their intended educational and career development purposes</li>

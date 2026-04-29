@@ -10,7 +10,7 @@ export default function JsonLd() {
     '@type': 'Organization',
     name: 'Workforce Advancement Project',
     url: SITE_URL,
-    logo: `${SITE_URL}/images/logo.svg`,
+    logo: `${SITE_URL}/images/wap_logo.png`,
     description:
       'Occupational and career training, industry certifications, and support in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
     email: 'info@workforceap.org',
@@ -35,7 +35,7 @@ export default function JsonLd() {
       name: 'Workforce Advancement Project',
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/images/logo.svg`,
+        url: `${SITE_URL}/images/wap_logo.png`,
       },
     },
     potentialAction: {

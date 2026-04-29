@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { chatCompletion } from '@/lib/ai/groq';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
@@ -23,8 +24,10 @@ export async function POST(req: NextRequest) {
     transcript?: { question: string; answer: string }[];
     nextQuestion?: boolean;
     forceText?: boolean;
+    language?: string;
   };
   const { role, interviewType, transcript, nextQuestion, forceText } = body;
+  const language = normalizeAIResponseLanguage(body.language);
 
   if (!role || !interviewType) {
     return NextResponse.json({ error: 'role and interviewType are required' }, { status: 400 });
@@ -38,6 +41,8 @@ export async function POST(req: NextRequest) {
         ...member,
         target_role: role,
         interview_type: interviewType,
+        response_language: language,
+        response_language_instruction: aiResponseLanguageInstruction(language),
       };
       const { signedUrl, dynamicVariables: returnedVars } = await startElevenLabsPortalSession('interview', {
         dynamicVariables,
@@ -59,7 +64,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Mode 2: Groq text fallback ────────────────────────────────────────────
-  const systemPrompt = `You are a professional job interviewer conducting a ${interviewType} interview for a ${role} position. Ask one realistic interview question at a time. Be concise and direct. Do not add preamble or commentary — just the question.`;
+  const systemPrompt = `You are a professional job interviewer conducting a ${interviewType} interview for a ${role} position. ${aiResponseLanguageInstruction(language)} Ask one realistic interview question at a time. Be concise and direct. Do not add preamble or commentary — just the question.`;
 
   const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
     { role: 'system', content: systemPrompt },
@@ -70,9 +75,9 @@ export async function POST(req: NextRequest) {
       messages.push({ role: 'assistant', content: entry.question });
       messages.push({ role: 'user', content: entry.answer });
     }
-    messages.push({ role: 'user', content: 'Next question please.' });
+    messages.push({ role: 'user', content: language === 'es' ? 'Siguiente pregunta, por favor.' : 'Next question please.' });
   } else {
-    messages.push({ role: 'user', content: 'Please ask your first interview question.' });
+    messages.push({ role: 'user', content: language === 'es' ? 'Haz la primera pregunta de entrevista, por favor.' : 'Please ask your first interview question.' });
   }
 
   const question = await chatCompletion(messages, { maxTokens: 200 });

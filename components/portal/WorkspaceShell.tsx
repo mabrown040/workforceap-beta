@@ -94,7 +94,8 @@ export default function WorkspaceShell({
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
-  const isSuperAdmin = useIsSuperAdmin();
+  const fetchedIsSuperAdmin = useIsSuperAdmin();
+  const isSuperAdmin = superAdmin ?? fetchedIsSuperAdmin;
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);
@@ -289,7 +290,7 @@ export default function WorkspaceShell({
             <PortalRoleSwitcher userRoles={portalRoles} currentRole={portalRole} />
           ) : null}
           {/* SuperAdminViewSwitcher: primary navigation for super admins; shown in all portal contexts */}
-          <SuperAdminViewSwitcher />
+          <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
           {/* When super admin is impersonating, show an inline impersonation chip for clarity */}
           {superAdmin && superAdminImpersonating ? (
             <span className="workspace-shell-impersonating-chip" title="You are viewing this workspace as an administrator">
@@ -303,7 +304,7 @@ export default function WorkspaceShell({
               <GlobalSearch />
             </div>
           )}
-          <PortalHeaderActions />
+          <PortalHeaderActions badges={badges} />
         </div>
       </header>
 
@@ -437,7 +438,7 @@ export default function WorkspaceShell({
                 >
                   {contextLabel}
                 </span>
-                <SuperAdminViewSwitcher />
+                <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
               </div>
               <Link href="/" className="workspace-sidebar-home-link" onClick={closeDrawer}>
                 {PRODUCT_COPY.publicSiteLabel}

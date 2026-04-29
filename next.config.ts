@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: https: blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "frame-src https://www.googletagmanager.com https://challenges.cloudflare.com",
+              "frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com",
               "form-action 'self' https://formspree.io",
             ].join('; '),
           },
@@ -142,6 +142,12 @@ const nextConfig: NextConfig = {
       // Short portal entry → sign-in + destination chooser (avoids 404 on shared links)
       { source: '/portal', destination: '/login', permanent: false },
       { source: '/portal/', destination: '/login', permanent: false },
+
+      // Sign-in aliases (avoids 404 for users typing /signin or /sign-in)
+      { source: '/signin', destination: '/login', permanent: true },
+      { source: '/signin/:path*', destination: '/login', permanent: true },
+      { source: '/sign-in', destination: '/login', permanent: true },
+      { source: '/sign-in/:path*', destination: '/login', permanent: true },
 
       // Supabase default sign-in path → actual login page (avoids 404 on magic-link redirects)
       { source: '/auth/sign-in', destination: '/login', permanent: false },

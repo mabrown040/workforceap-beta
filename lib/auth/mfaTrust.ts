@@ -12,17 +12,10 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 function getTrustSecret() {
-  const secret =
-    process.env.AUTH_TRUST_COOKIE_SECRET?.trim() ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
-    process.env.XAPI_CLIENT_SECRET?.trim() ||
-    process.env.COURSERA_APP_SECRET?.trim() ||
-    '';
-
+  const secret = process.env.AUTH_TRUST_COOKIE_SECRET?.trim();
   if (!secret) {
-    throw new Error('Missing secret for admin MFA trust cookie');
+    throw new Error('AUTH_TRUST_COOKIE_SECRET env var is required for admin MFA trust cookies');
   }
-
   return secret;
 }
 

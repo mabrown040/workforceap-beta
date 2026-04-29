@@ -1984,7 +1984,8 @@ html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger.active 
     height: 12px;
 }
 .dropdown:hover .dropdown-menu,
-.dropdown:focus-within .dropdown-menu {
+.dropdown:focus-within .dropdown-menu,
+.dropdown.active .dropdown-menu {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
@@ -8988,8 +8989,8 @@ html:not(.dark) .workspace-shell-header {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
-/* On mobile, the MobileBottomNav is primary — hide the top tab bar to avoid duplication */
-@media (max-width: 767px) {
+/* On mobile, MemberPortalTopNav is primary — hide the workspace tab bar at the same breakpoint */
+@media (max-width: 768px) {
     .workspace-tab-bar {
         display: none !important;
     }
@@ -9540,7 +9541,7 @@ html.dark .workspace-sidebar-signout:hover {
     top: calc(100% + 0.25rem);
     right: 0;
     min-width: 200px;
-    background: var(--color-white);
+    background: var(--surface-container-high);
     border: 1px solid var(--outline-variant);
     border-radius: 0.5rem;
     box-shadow: var(--shadow-lg);
@@ -9572,6 +9573,7 @@ html.dark .workspace-sidebar-signout:hover {
         box-shadow: none;
         border-right: 1px solid var(--color-border);
         border-left: 3px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+        z-index: 1;
     }
     .workspace-sidebar.open {
         box-shadow: none;
@@ -11176,10 +11178,10 @@ body:has(.dashboard-drawer-overlay.open) {
     gap: 0.35rem;
     padding: 0.35rem 0.6rem;
     font-size: 0.8rem;
-    border: 1px solid var(--color-gray-300);
+    border: 1px solid var(--outline-variant);
     border-radius: var(--radius-sm);
-    background: var(--color-white);
-    color: var(--color-primary);
+    background: var(--surface-container-low);
+    color: var(--color-on-surface);
     cursor: pointer;
     transition: border-color var(--transition-fast), background var(--transition-fast);
 }
@@ -11210,7 +11212,7 @@ body:has(.dashboard-drawer-overlay.open) {
     border: none;
     border-radius: var(--radius-sm);
     background: none;
-    color: var(--color-primary);
+    color: var(--color-on-surface);
     cursor: pointer;
     transition: background var(--transition-fast);
 }
@@ -11221,6 +11223,50 @@ body:has(.dashboard-drawer-overlay.open) {
     background: rgba(74, 155, 79, 0.12);
     color: var(--color-green);
     font-weight: var(--font-weight-medium);
+}
+
+.super-admin-view-switcher__option--context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.super-admin-view-switcher__back {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.35rem 0.75rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--outline-variant);
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant);
+    text-align: left;
+}
+
+.super-admin-view-switcher__back:hover {
+    color: var(--color-on-surface);
+}
+
+.super-admin-view-switcher__subheader {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem 0.25rem;
+    font-size: 0.7rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.super-admin-view-switcher__loading {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--color-on-surface-variant);
+    list-style: none;
 }
 
 /* Portal mobile polish */
@@ -15778,6 +15824,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     }
 }
 
+
 /* Global Focus-Visible Outline */
 *:focus-visible {
     outline: 2px solid var(--color-accent);
@@ -15798,3 +15845,95 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
         gap: 1rem;
     }
 }
+
+/* =============================================================
+   Dark-mode contrast fixes — audit #18 #63 #65 #17
+   ============================================================= */
+
+/* ── Message chat bubbles — light-mode uses color-mix(…,#fff) which
+   produces near-white backgrounds; in dark mode that stays pale on
+   a dark surface making text invisible. Override with dark-appropriate
+   surface tokens. ── */
+html.dark .member-counselor-chat__bubble {
+    background: var(--surface-container-high);
+    border-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-on-surface);
+}
+html.dark .member-counselor-chat__bubble--mine {
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--color-accent) 28%, var(--surface-container-high)),
+        color-mix(in srgb, var(--color-accent) 18%, var(--surface-container-highest))
+    );
+    border-color: rgba(173, 44, 77, 0.35);
+    color: #fff;
+}
+html.dark .member-counselor-chat__bubble-body,
+html.dark .member-counselor-chat__bubble-meta {
+    color: inherit;
+}
+html.dark .member-counselor-chat__scroll {
+    background: var(--surface-container-lowest);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
+}
+
+/* ── Portal messages (mobile client) ── */
+html.dark .portal-messages-bubble--them {
+    background: var(--surface-container-high);
+    color: var(--color-on-surface);
+}
+html.dark .portal-messages-bubble--mine {
+    /* already a dark gradient; ensure text is white */
+    color: #fff;
+}
+
+/* ── Training "Your training is ready" banner and general rose-tinted chips.
+   In dark mode, rose-100/accent-light backgrounds stay light while surrounding
+   text uses dark-mode colors — causing pink-on-dark illegibility.
+   Re-bind to deep accent-tinted dark surfaces. ── */
+html.dark [class*="wa-bg-rose"],
+html.dark [style*="background: #fce7f3"],
+html.dark [style*="background:#fce7f3"],
+html.dark [style*="background: rgb(252, 231, 243)"],
+html.dark [style*="background-color: #fce7f3"],
+html.dark [style*="background-color:#fce7f3"] {
+    background: rgba(173, 44, 77, 0.15) !important;
+    color: var(--color-on-surface) !important;
+}
+
+/* Dashboard "Your training is ready" accent-tinted card (inline style uses accent light) */
+html.dark [style*="var(--color-accent-light)"],
+html.dark [style*="var(--color-accent-light, #ffb2bc)"] {
+    background: rgba(173, 44, 77, 0.15) !important;
+    color: var(--color-on-surface) !important;
+    border-color: rgba(173, 44, 77, 0.25) !important;
+}
+
+/* ── Status chips that use rose-100 / rose-200 Tailwind classes ── */
+html.dark .wa-bg-rose-100 { background-color: rgba(173, 44, 77, 0.18) !important; color: var(--color-accent-light, #ffb2bc) !important; }
+html.dark .wa-bg-rose-200 { background-color: rgba(173, 44, 77, 0.24) !important; color: var(--color-accent-light, #ffb2bc) !important; }
+html.dark .wa-text-rose-700,
+html.dark .wa-text-rose-800 { color: var(--color-accent-light, #ffb2bc) !important; }
+
+/* ── Counselor dashboard stuck-opacity (#17) — the portal-voice-session
+   wrapper renders with opacity:0.4 when no session is active, which
+   makes the entire page content appear dimmed in the counselor portal.
+   Only apply low opacity to the session-active state toggle element,
+   not the page wrapper. ── */
+html[data-portal-role="member"] .portal-voice-session__idle-overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* ── Nav pill active-state flash (#65) — prevents FOUC by locking the
+   transition so the pill doesn't briefly lose its active colour mid-nav. ── */
+.member-portal-top-nav__item {
+    transition: color 0.1s, background-color 0.1s;
+}
+.member-portal-top-nav__item.active,
+.member-portal-top-nav__item[aria-current="page"] {
+    /* Lock paint order — prevents flash of unstyled state on route change */
+    will-change: auto;
+}
+

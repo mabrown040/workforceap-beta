@@ -8,8 +8,8 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Voice Interview',
-  description: 'Practice a live voice mock interview with optional camera recording and real-time coaching feedback.',
+  title: 'Voice Job/Role Interviewer',
+  description: 'Practice a live voice mock interview for a specific job or role, with optional camera recording and real-time coaching feedback.',
   path: '/dashboard/ai-tools/voice-interview',
 });
 
@@ -27,11 +27,11 @@ export default async function VoiceInterviewPage() {
         }}
       >
         <PageHeader
-          title="Voice interview"
+          title="Voice Job/Role Interviewer"
           subtitle="Open a dedicated mock interview flow, answer questions out loud, and get live coaching feedback in a setup built specifically for practice."
           breadcrumbs={[
             { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'Voice interview' },
+            { label: 'Voice Job/Role Interviewer' },
           ]}
         />
       </div>

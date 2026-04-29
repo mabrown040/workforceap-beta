@@ -70,7 +70,7 @@ describe('buildMemberApplicationStatusView', () => {
     const view = buildMemberApplicationStatusView({ ...baseApp, status: 'DENIED' }, baseMember);
     assert.ok(view);
     assert.equal(view.stage, 'rejected');
-    assert.equal(view.label, 'Not accepted');
+    assert.equal(view.label, 'Application closed');
   });
 
   it('falls back to createdAt when submittedAt is null', () => {

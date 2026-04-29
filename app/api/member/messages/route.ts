@@ -19,6 +19,7 @@ export async function GET() {
     prisma.message.findMany({
       where: { threadId: thread.id },
       orderBy: { createdAt: 'asc' },
+      take: 500,
     }),
     thread.counselorUserId
       ? prisma.user.findUnique({

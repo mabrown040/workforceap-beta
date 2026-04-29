@@ -49,14 +49,13 @@ export default function ApplyResultsClient() {
       const data = JSON.parse(stored) as { qualifies?: boolean };
       setQualifies(data.qualifies === true);
 
-      let initial: string[] = [];
-      if (programParam && getProgramBySlug(programParam)) {
-        initial = [programParam];
-      }
+      const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
+      let initial: string[] = explicitSlug ? [explicitSlug] : [];
       try {
         const fyp = localStorage.getItem(FYP_RESULTS_KEY);
         if (fyp) {
           const parsed = JSON.parse(fyp) as CareerMatchPayload | string[] | unknown;
+          let fromQuiz: string[] = [];
           if (
             parsed &&
             typeof parsed === 'object' &&
@@ -65,20 +64,26 @@ export default function ApplyResultsClient() {
             Array.isArray((parsed as CareerMatchPayload).programSlugs)
           ) {
             const v1 = parsed as CareerMatchPayload;
-            const fromQuiz = v1.programSlugs!
+            fromQuiz = v1.programSlugs!
               .map((s) => (typeof s === 'string' ? s : null))
               .filter((s): s is string => !!s && !!getProgramBySlug(s))
               .slice(0, 3);
-            if (fromQuiz.length) {
-              initial = fromQuiz;
-              setQuizRecommendedSlugs(fromQuiz);
-            }
+            if (fromQuiz.length) setQuizRecommendedSlugs(fromQuiz);
           } else if (Array.isArray(parsed)) {
-            const fromQuiz = parsed
+            fromQuiz = parsed
               .map((s) => (typeof s === 'string' ? s : null))
               .filter((s): s is string => !!s && !!getProgramBySlug(s))
               .slice(0, 3);
-            if (fromQuiz.length) initial = fromQuiz;
+          }
+          if (fromQuiz.length) {
+            // Explicit ?program= must stay as the 1st choice. Quiz recs only
+            // fill remaining slots (up to 3 total) without overriding it.
+            if (explicitSlug) {
+              const rest = fromQuiz.filter((s) => s !== explicitSlug);
+              initial = [explicitSlug, ...rest].slice(0, 3);
+            } else {
+              initial = fromQuiz;
+            }
           }
         }
       } catch {
@@ -132,25 +137,25 @@ export default function ApplyResultsClient() {
   };
 
   const programsOrdered = useMemo(() => {
-    const base =
-      qualifies === true
-        ? [...PROGRAMS]
-        : [...PROGRAMS].sort((a, b) => {
-            const dig = 'digital-literacy-empowerment-class';
-            if (a.slug === dig) return -1;
-            if (b.slug === dig) return 1;
-            return 0;
-          });
-    if (quizRecommendedSlugs.length === 0) return base;
+    const base = [...PROGRAMS];
+    // Priority: explicit ?program= first, then quiz recs (deduped). Mirrors
+    // selection precedence so the card user clicked from is ranked first.
+    const explicitSlug = programParam && getProgramBySlug(programParam) ? programParam : null;
+    const priority: string[] = [];
+    if (explicitSlug) priority.push(explicitSlug);
+    for (const s of quizRecommendedSlugs) {
+      if (!priority.includes(s)) priority.push(s);
+    }
+    if (priority.length === 0) return base;
     return [...base].sort((a, b) => {
-      const ai = quizRecommendedSlugs.indexOf(a.slug);
-      const bi = quizRecommendedSlugs.indexOf(b.slug);
+      const ai = priority.indexOf(a.slug);
+      const bi = priority.indexOf(b.slug);
       if (ai >= 0 && bi >= 0) return ai - bi;
       if (ai >= 0) return -1;
       if (bi >= 0) return 1;
       return 0;
     });
-  }, [qualifies, quizRecommendedSlugs]);
+  }, [quizRecommendedSlugs, programParam]);
 
   const rankLabel = (slug: string) => {
     const i = selectedSlugs.indexOf(slug);
@@ -176,7 +181,7 @@ export default function ApplyResultsClient() {
       <div className="apply-flow">
         <div className="apply-progress-bar">
           <div className="apply-progress-fill" style={{ width: '66%' }} />
-          <p className="apply-progress-label">Step 2 of 3 — choose a program</p>
+          <p className="apply-progress-label">Step 2 of 3 — choose your programs</p>
         </div>
         <div className="apply-step-content apply-missing-session">
           <h2 className="apply-step-title">We need your answers from step 1 first</h2>
@@ -201,7 +206,7 @@ export default function ApplyResultsClient() {
     <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '66%' }} />
-        <p className="apply-progress-label">Step 2 of 3 — choose your program(s)</p>
+        <p className="apply-progress-label">Step 2 of 3 — choose your programs</p>
       </div>
 
       <div className="apply-step-content">
@@ -245,10 +250,6 @@ export default function ApplyResultsClient() {
                 Start with support
               </h2>
               <ul className="apply-foundational-support__list">
-                <li>
-                  <strong>Digital foundations:</strong> Uncomfortable with computers or online forms? Our{' '}
-                  <Link href="/programs/digital-literacy-empowerment-class">Digital Literacy Empowerment Class</Link> is listed first below.
-                </li>
                 <li>
                   <strong>Not sure what fits?</strong> Take the <Link href="/find-your-path">2-minute pathfinder</Link> for ranked ideas.
                 </li>

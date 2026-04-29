@@ -6,6 +6,8 @@ import { scoreAssessment, TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import type { QuestionChoice } from '@/lib/assessment/answer-key';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { trackEvent } from '@/lib/events/track';
+import { awardPoints } from '@/lib/member/points';
+import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';
 
@@ -38,7 +40,22 @@ export async function POST(request: Request) {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { assessmentCompleted: true, email: true },
+    select: {
+      assessmentCompleted: true,
+      email: true,
+      phone: true,
+      courseEnrollment: { select: { enrolledByAdminId: true } },
+      profile: {
+        select: {
+          profilePhone: true,
+          profileAddress: true,
+          city: true,
+          state: true,
+          zip: true,
+          referralSource: true,
+        },
+      },
+    },
   });
 
   if (!dbUser) {
@@ -46,6 +63,27 @@ export async function POST(request: Request) {
   }
   if (dbUser.assessmentCompleted) {
     return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
+  }
+
+  const starterProfileReview = getCounselorStarterProfileReview({
+    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    phone: dbUser.phone,
+    profilePhone: dbUser.profile?.profilePhone,
+    profileAddress: dbUser.profile?.profileAddress,
+    city: dbUser.profile?.city,
+    state: dbUser.profile?.state,
+    zip: dbUser.profile?.zip,
+    referralSource: dbUser.profile?.referralSource,
+  });
+  if (starterProfileReview.required) {
+    return NextResponse.json(
+      {
+        error: 'Review your profile details before starting the assessment.',
+        code: 'STARTER_PROFILE_REVIEW_REQUIRED',
+        missing: getStarterProfileFieldLabels(starterProfileReview.missing),
+      },
+      { status: 400 }
+    );
   }
 
   await prisma.user.update({
@@ -59,6 +97,8 @@ export async function POST(request: Request) {
       assessmentAnswers: answersTyped as unknown as object,
     },
   });
+
+  awardPoints(user.id, 'assessment_completed').catch(() => {});
 
   // Track assessment completion for funnel analytics
   await trackEvent({
@@ -79,10 +119,9 @@ export async function POST(request: Request) {
 
   let memberEmailSent = false;
   if (resendKey) {
-    try {
-      const resend = new Resend(resendKey);
+    const resend = new Resend(resendKey);
 
-      // Admin notification (plain text)
+    try {
       await resend.emails.send({
         from: emailFrom,
         to: ASSESSMENT_EMAIL_TO,
@@ -98,8 +137,11 @@ export async function POST(request: Request) {
           `View full results: ${adminLink}`,
         ].join('\n'),
       });
+    } catch (err) {
+      console.error('Assessment admin email failed:', err);
+    }
 
-      // Member: branded assessment complete notification
+    try {
       const memberHtml = brandedEmailLayout({
         title: 'Assessment Complete',
         bodyHtml: `
@@ -118,7 +160,7 @@ export async function POST(request: Request) {
       });
       memberEmailSent = true;
     } catch (err) {
-      console.error('Assessment email failed:', err);
+      console.error('Assessment member email failed:', err);
     }
   }
 

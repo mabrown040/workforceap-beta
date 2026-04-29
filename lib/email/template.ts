@@ -6,7 +6,7 @@
 import { escapeHtml } from '@/lib/email/escapeHtml';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-const LOGO_URL = `${SITE_URL}/images/logo-tight.svg`;
+const LOGO_URL = `${SITE_URL}/images/wap_logo.png`;
 
 /** Restrict mail CTA links to same origin as SITE_URL to avoid open redirects in href. */
 export function safeEmailCtaHref(url: string): string {

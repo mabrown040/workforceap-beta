@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 const referralMemberSelect = {
   id: true,
@@ -48,7 +49,7 @@ export type PipelineRow = {
 
 export async function loadPartnerReferralBundle(partnerId: string) {
   const referrals = await prisma.partnerReferral.findMany({
-    where: { partnerId, member: { deletedAt: null } },
+    where: { partnerId, member: { deletedAt: null, ...MEMBER_ONLY_WHERE } },
     include: {
       member: { select: referralMemberSelect },
     },

@@ -258,16 +258,16 @@ export default function SessionRunClient({
 
   // Tool grid: all runnable tools (excludes voice walkthrough + profile which aren't AI outputs)
   const TOOL_GRID: Array<{ key: string; label: string; state: ToolState; accent: string }> = [
+    { key: 'pitch', label: 'Elevator Pitch', state: pitchState, accent: '#7c3aed' },
     { key: 'resume', label: 'Resume Rewriter', state: resumeState, accent: 'var(--color-accent)' },
-    { key: 'cover', label: 'Cover Letter', state: coverState, accent: '#a47f38' },
-    { key: 'interview', label: 'Interview Prep', state: interviewState, accent: '#2b7bb9' },
+    { key: 'gapAnalyzer', label: 'Gap Analysis', state: gapState, accent: '#0891b2' },
     { key: 'resumeAnalysis', label: 'Resume Analysis', state: resumeAnalysisState, accent: '#7c3aed' },
-    { key: 'gapAnalyzer', label: 'Gap Analyzer', state: gapState, accent: '#0891b2' },
-    { key: 'jobMatch', label: 'Job Match', state: jobMatchState, accent: '#059669' },
+    { key: 'jobMatch', label: 'Job Match Score', state: jobMatchState, accent: '#059669' },
     { key: 'headline', label: 'LinkedIn Headline', state: headlineState, accent: '#0077b5' },
     { key: 'about', label: 'LinkedIn About', state: aboutState, accent: '#0077b5' },
+    { key: 'cover', label: 'Cover Letter', state: coverState, accent: '#a47f38' },
+    { key: 'interview', label: 'Interview Prep', state: interviewState, accent: '#2b7bb9' },
     { key: 'salary', label: 'Salary Script', state: salaryState, accent: '#d97706' },
-    { key: 'pitch', label: 'Elevator Pitch', state: pitchState, accent: '#7c3aed' },
   ];
 
   const completedTools = TOOL_GRID.filter(t => t.state.output);

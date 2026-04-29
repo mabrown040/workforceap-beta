@@ -2,18 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 
 const EMPLOYMENT = ['Employed', 'Unemployed', 'Underemployed', 'Student'] as const;
 const GOALS = ['New career', 'Promotion', 'Certification', 'Exploring options'] as const;
 const HOURS = ['<5 hrs', '5-10 hrs', '10-20 hrs', '20+ hrs'] as const;
-const HEAR = [
-  'Partner / community org',
-  'Social media',
-  'Search engine',
-  'Friend or family',
-  'Employer',
-  'Other',
-] as const;
+const HEAR = PUBLIC_REFERRAL_SOURCE_OPTIONS;
 
 type DraftPayload = {
   employmentStatus: string;
@@ -342,7 +336,7 @@ export default function MemberPreScreeningForm() {
         </label>
       </fieldset>
       <button type="submit" className="btn btn-primary" disabled={loading || workforceAssistance === ''}>
-        {loading ? 'Submitting…' : 'Submit & become interview eligible'}
+        {loading ? 'Submitting…' : 'Submit pre-screening'}
       </button>
     </form>
   );

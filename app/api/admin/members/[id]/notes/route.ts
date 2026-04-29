@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const noteSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -20,12 +21,13 @@ export async function GET(
     const { id } = await params;
     const notes = await prisma.counselorNote.findMany({
       where: { memberId: id },
+      take: 500,
       orderBy: { createdAt: 'desc' },
       include: { author: { select: { fullName: true, email: true } } },
     });
     return NextResponse.json(notes);
   } catch (error) {
-    console.error('[admin/members/[id]/notes GET] error:', error);
+    captureApiError(error, { route: 'admin/members/[id]/notes GET' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -53,7 +55,7 @@ export async function POST(
     });
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
-    console.error('[admin/members/[id]/notes POST] error:', error);
+    captureApiError(error, { route: 'admin/members/[id]/notes POST' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

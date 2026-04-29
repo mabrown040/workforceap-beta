@@ -6,9 +6,11 @@ import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import ExportPdfButton from './ExportPdfButton';
+import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
 
 const SALARY_RANGES = [
   '',
+  'Under $40,000',
   '$40,000 - $60,000',
   '$60,000 - $80,000',
   '$80,000 - $100,000',
@@ -64,6 +66,7 @@ export default function ResumeRewriterForm({
   const [jobTarget, setJobTarget] = useState('');
   const [targetSalary, setTargetSalary] = useState('');
   const [targetLocation, setTargetLocation] = useState('');
+  const [language, setLanguage] = useState<AiToolLanguage>('en');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -84,7 +87,7 @@ export default function ResumeRewriterForm({
       const res = await fetch('/api/ai/resume-rewriter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined, tone, atsOptimize }),
+        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined, tone, atsOptimize, language }),
       });
 
       const data = await res.json();
@@ -134,6 +137,7 @@ export default function ResumeRewriterForm({
 
   return (
     <form onSubmit={handleSubmit} className="portal-ai-tool-form">
+      <AiToolLanguageSelector value={language} onChange={setLanguage} />
       <div style={{ background: 'rgba(74,155,79,0.06)', border: '1px solid rgba(74,155,79,0.2)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
         <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
           <strong>How this works:</strong> Tell us your career goal — we&rsquo;ll reposition your existing experience to match. We don&rsquo;t invent anything. Every bullet in the output comes from what you&rsquo;ve actually done.

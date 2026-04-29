@@ -1,3 +1,5 @@
+import { getProgramBySlug, type Program } from '@/lib/content/programs';
+
 export type LearningPathway = {
   id: string;
   title: string;
@@ -7,6 +9,11 @@ export type LearningPathway = {
   estimatedWeeks: number;
 };
 
+/**
+ * Generic category-level pathways. Used as a fallback when no enrolled program
+ * is on file (e.g. a member browsing the learning hub before enrollment) and
+ * for the "all pathways" overview on /dashboard/learning.
+ */
 export const PATHWAYS: LearningPathway[] = [
   {
     id: 'it-support',
@@ -42,40 +49,47 @@ export const PATHWAYS: LearningPathway[] = [
   },
 ];
 
-/**
- * Map a program's categoryLabel to the matching pathway category.
- * Programs use labels like 'IT & Cybersecurity'; pathways use 'Technology'.
- */
-const CATEGORY_TO_PATHWAY: Record<string, string> = {
-  'IT & Cybersecurity': 'Technology',
-  'AI & Software Dev': 'Data & AI',
-  'Cloud & Data': 'Data & AI',
-  'Data & AI': 'Data & AI',
-  'Business': 'Business',
-  'Healthcare': 'Business',
-  'Manufacturing': 'Technology',
-  'Construction & Trades': 'Technology',
-  'Digital Literacy': 'Technology',
-  'Technology': 'Technology',
-};
+/** Parse a duration string like "3-5 months, 10 hrs/week" into approximate weeks. */
+function deriveEstimatedWeeks(duration: string): number {
+  const monthMatch = duration.match(/(\d+)\s*(?:-\s*(\d+))?\s*months?/i);
+  if (monthMatch) {
+    const lo = parseInt(monthMatch[1], 10);
+    const hi = monthMatch[2] ? parseInt(monthMatch[2], 10) : lo;
+    return Math.round(((lo + hi) / 2) * 4.3);
+  }
+  const weekMatch = duration.match(/(\d+)\s*weeks?/i);
+  if (weekMatch) return parseInt(weekMatch[1], 10);
+  return 0;
+}
+
+/** Build a pathway directly from a program's metadata — id is the program slug. */
+function buildProgramPathway(program: Program): LearningPathway {
+  return {
+    id: program.slug,
+    title: program.title,
+    description: `${program.categoryLabel} pathway · ${program.partner}`,
+    category: program.categoryLabel,
+    steps: program.courses.map((c) => c.name),
+    estimatedWeeks: deriveEstimatedWeeks(program.duration),
+  };
+}
 
 /**
- * Look up the learning pathway that matches a member's enrolled program.
- *
- * INVARIANT: Every member should see the pathway that matches their actual
- * program, not a hardcoded PATHWAYS[0]. Falls back to PATHWAYS[0] when
- * the program is null, not found, or has no matching pathway category.
+ * Resolve the active pathway for a member based on their actual enrolled
+ * program. Returns null when no enrolled program or unresolved slug — callers
+ * must render an empty/enroll-prompt state rather than a default pathway,
+ * since a default would mislead members into a path they did not choose.
  */
-export function getPathwayForProgram(programSlug: string | null): LearningPathway {
-  if (!programSlug) return PATHWAYS[0];
-
-  // Inline require to avoid circular dependency (programs imports from other content modules)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { getProgramBySlug } = require('@/lib/content/programs');
+export function getPathwayForProgram(programSlug: string | null): LearningPathway | null {
+  if (!programSlug) return null;
   const program = getProgramBySlug(programSlug);
-  if (!program) return PATHWAYS[0];
+  if (!program || program.courses.length === 0) return null;
+  return buildProgramPathway(program);
+}
 
-  const targetCategory = CATEGORY_TO_PATHWAY[program.categoryLabel] ?? program.categoryLabel;
-  const match = PATHWAYS.find((p) => p.category === targetCategory);
-  return match ?? PATHWAYS[0];
+/** Look up a pathway by id — checks both program-derived and category pathways. */
+export function findPathwayById(pathwayId: string): LearningPathway | null {
+  const program = getProgramBySlug(pathwayId);
+  if (program && program.courses.length > 0) return buildProgramPathway(program);
+  return PATHWAYS.find((p) => p.id === pathwayId) ?? null;
 }

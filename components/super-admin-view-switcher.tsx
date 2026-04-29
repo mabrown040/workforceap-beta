@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 
@@ -12,7 +12,9 @@ const VIEWS = [
   { id: 'counselor', label: 'Counselor Portal', path: '/counselor' },
 ] as const;
 
-function getCurrentView(pathname: string): (typeof VIEWS)[number]['id'] {
+type ViewId = (typeof VIEWS)[number]['id'];
+
+function getCurrentView(pathname: string): ViewId {
   if (pathname?.startsWith('/admin')) return 'admin';
   if (pathname?.startsWith('/partner')) return 'partner';
   if (pathname?.startsWith('/employer')) return 'employer';
@@ -33,48 +35,61 @@ export function useIsSuperAdmin() {
   return isSuperAdmin;
 }
 
-export default function SuperAdminViewSwitcher() {
+export default function SuperAdminViewSwitcher({
+  initialIsSuperAdmin = false,
+}: {
+  initialIsSuperAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const isSuperAdmin = useIsSuperAdmin();
+  const fetchedIsSuperAdmin = useIsSuperAdmin();
+  const isSuperAdmin = initialIsSuperAdmin || fetchedIsSuperAdmin;
   const currentView = getCurrentView(pathname ?? '');
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  const closeMenu = useCallback(() => setOpen(false), []);
+  const closeAll = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     if (!open) return;
-    const onEscape = (e: KeyboardEvent) => e.key === 'Escape' && closeMenu();
-    const onClick = () => closeMenu();
+    const onEscape = (e: KeyboardEvent) => e.key === 'Escape' && closeAll();
+    const onClick = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) closeAll();
+    };
     document.addEventListener('keydown', onEscape);
     document.addEventListener('click', onClick);
     return () => {
       document.removeEventListener('keydown', onEscape);
       document.removeEventListener('click', onClick);
     };
-  }, [open, closeMenu]);
+  }, [open, closeAll]);
 
-  const handleSelect = (view: (typeof VIEWS)[number]) => {
-    closeMenu();
-    if (view.path !== pathname && !pathname?.startsWith(view.path)) {
-      router.push(view.path);
-    }
+  const handleSelect = (path: string) => {
+    closeAll();
+    if (!pathname?.startsWith(path)) router.push(path);
   };
 
   if (!isSuperAdmin) return null;
 
   const currentLabel = VIEWS.find((v) => v.id === currentView)?.label ?? 'Member Portal';
-  const shortLabel = {
+  const shortLabel: Record<ViewId, string> = {
     admin: 'Admin',
     partner: 'Partner',
     student: 'Member',
     employer: 'Employer',
     counselor: 'Counselor',
-  }[currentView] ?? currentLabel;
+  };
 
   return (
-    <div className="super-admin-view-switcher super-admin-view-switcher--with-badge" onClick={(e) => e.stopPropagation()} role="presentation">
-      <span className="super-admin-view-switcher__badge" title="Super Admin access enabled">Admin</span>
+    <div
+      ref={panelRef}
+      className="super-admin-view-switcher super-admin-view-switcher--with-badge"
+      onClick={(e) => e.stopPropagation()}
+      role="presentation"
+    >
+      <span className="super-admin-view-switcher__badge" title="Super Admin access enabled">
+        Admin
+      </span>
       <button
         type="button"
         className="super-admin-view-switcher__trigger"
@@ -83,30 +98,34 @@ export default function SuperAdminViewSwitcher() {
         aria-haspopup="listbox"
         aria-label={`View: ${currentLabel}. Switch portal view`}
       >
-        <span className="super-admin-view-switcher__label" title={currentLabel}>{shortLabel}</span>
+        <span className="super-admin-view-switcher__label" title={currentLabel}>
+          {shortLabel[currentView]}
+        </span>
         <ChevronDown size={14} aria-hidden />
       </button>
+
       {open && (
         <div className="super-admin-view-switcher__panel">
-          <div className="super-admin-view-switcher__header">
-            Switch portal view
-          </div>
+          <div className="super-admin-view-switcher__header">Switch portal view</div>
           <ul
             className="super-admin-view-switcher__dropdown"
             role="listbox"
             aria-label="Portal view options"
           >
-            {VIEWS.map((view) => (
-              <li key={view.id} role="option" aria-selected={currentView === view.id}>
-                <button
-                  type="button"
-                  className={`super-admin-view-switcher__option${currentView === view.id ? ' active' : ''}`}
-                  onClick={() => handleSelect(view)}
-                >
-                  {view.label}
-                </button>
-              </li>
-            ))}
+            {VIEWS.map((view) => {
+              const isActive = currentView === view.id;
+              return (
+                <li key={view.id} role="option" aria-selected={isActive}>
+                  <button
+                    type="button"
+                    className={`super-admin-view-switcher__option${isActive ? ' active' : ''}`}
+                    onClick={() => handleSelect(view.path)}
+                  >
+                    {view.label}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

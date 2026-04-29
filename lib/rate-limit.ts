@@ -20,9 +20,11 @@ let confirmationEmailRateLimiter: Ratelimit | null = null;
 let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
 let forgotPasswordRateLimiter: Ratelimit | null = null;
+let forgotPasswordEmailRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
 let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
+let verifyMfaRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -45,7 +47,8 @@ if (redisUrl && redisToken) {
   });
   aiToolRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(10, '1 h'),
+    // Launch softening: members can hit several AI tools in one session.
+    limiter: Ratelimit.slidingWindow(25, '1 h'),
     prefix: 'ratelimit:ai-tool',
   });
   contactRateLimiter = new Ratelimit({
@@ -76,18 +79,24 @@ if (redisUrl && redisToken) {
   });
   careersRecommendRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(30, '1 h'),
+    // Quiz retries and slow devices can create extra submissions during exploration.
+    limiter: Ratelimit.slidingWindow(60, '1 h'),
     prefix: 'ratelimit:careers-recommend',
   });
   interestProfilerRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(40, '1 h'),
+    limiter: Ratelimit.slidingWindow(100, '1 h'),
     prefix: 'ratelimit:interest-profiler',
   });
   forgotPasswordRateLimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:forgot-password',
+  });
+  forgotPasswordEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(3, '24 h'),
+    prefix: 'ratelimit:forgot-password-email',
   });
   publicCareersGetRateLimiter = new Ratelimit({
     redis,
@@ -96,13 +105,19 @@ if (redisUrl && redisToken) {
   });
   publicVoiceSessionRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(6, '10 m'),
+    // Public voice flows may retry on mic permission / network hiccups.
+    limiter: Ratelimit.slidingWindow(20, '10 m'),
     prefix: 'ratelimit:public-voice-session',
   });
   inviteAcceptRateLimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:invite-accept',
+  });
+  verifyMfaRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '15 m'),
+    prefix: 'ratelimit:verify-mfa',
   });
 }
 
@@ -185,6 +200,13 @@ export async function checkForgotPasswordRateLimit(ip: string): Promise<{ succes
   return { success: result.success };
 }
 
+/** Forgot-password per-email cap — 3 requests per email per 24 h; fail-open without Redis. */
+export async function checkForgotPasswordEmailRateLimit(email: string): Promise<{ success: boolean }> {
+  if (!forgotPasswordEmailRateLimiter) return { success: true };
+  const result = await forgotPasswordEmailRateLimiter.limit(email.toLowerCase());
+  return { success: result.success };
+}
+
 /** Public GET /api/careers/* (occupation detail, program matches) — per IP; fail-open without Redis. */
 export async function checkPublicCareersGetRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!publicCareersGetRateLimiter) return { success: true };
@@ -203,5 +225,12 @@ export async function checkPublicVoiceSessionRateLimit(ip: string): Promise<{ su
 export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!inviteAcceptRateLimiter) return { success: true };
   const result = await inviteAcceptRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** MFA code verification — 10 attempts per 15 min per IP; fail-open without Redis. */
+export async function checkVerifyMfaRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!verifyMfaRateLimiter) return { success: true };
+  const result = await verifyMfaRateLimiter.limit(ip);
   return { success: result.success };
 }

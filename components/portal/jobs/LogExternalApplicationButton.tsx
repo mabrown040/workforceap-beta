@@ -11,9 +11,20 @@ import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
  * WorkforceAP and logs the apply in 30 seconds without leaving the Job
  * Board page. Counselor gets notified automatically.
  */
-type Source = 'INDEED' | 'LINKEDIN' | 'DIRECT' | 'OTHER';
+type Source = 'INDEED' | 'LINKEDIN' | 'GLASSDOOR' | 'ZIPRECRUITER' | 'WORKINTEXAS' | 'AUSTINJOBS' | 'DIRECT' | 'OTHER';
 
-export default function LogExternalApplicationButton() {
+const SOURCE_OPTIONS: Array<{ value: Source; label: string }> = [
+  { value: 'OTHER', label: 'Somewhere else' },
+  { value: 'INDEED', label: 'Indeed' },
+  { value: 'LINKEDIN', label: 'LinkedIn' },
+  { value: 'GLASSDOOR', label: 'Glassdoor' },
+  { value: 'ZIPRECRUITER', label: 'ZipRecruiter' },
+  { value: 'WORKINTEXAS', label: 'WorkInTexas' },
+  { value: 'AUSTINJOBS', label: 'AustinJobs.com' },
+  { value: 'DIRECT', label: 'Company site' },
+];
+
+export default function LogExternalApplicationButton({ variant = 'secondary' }: { variant?: 'primary' | 'secondary' } = {}) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -94,8 +105,8 @@ export default function LogExternalApplicationButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="btn btn-secondary btn-small"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+        className={`btn ${variant === 'primary' ? 'btn-primary' : 'btn-secondary'} btn-small`}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
       >
         <ExternalLink size={16} aria-hidden />
         I applied somewhere else &mdash; log it
@@ -188,10 +199,9 @@ export default function LogExternalApplicationButton() {
                     onChange={(e) => setSource(e.target.value as Source)}
                     disabled={submitting}
                   >
-                    <option value="OTHER">Somewhere else</option>
-                    <option value="INDEED">Indeed</option>
-                    <option value="LINKEDIN">LinkedIn</option>
-                    <option value="DIRECT">Company site</option>
+                    {SOURCE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="form-group" style={{ marginBottom: 0 }}>

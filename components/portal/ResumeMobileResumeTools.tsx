@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import '@/css/counselor.css';
 import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
@@ -34,6 +34,7 @@ export default function ResumeMobileResumeTools({
   const [uploadError, setUploadError] = useState('');
   const [generateError, setGenerateError] = useState('');
   const [dragover, setDragover] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch('/api/member/resume')
@@ -144,18 +145,18 @@ export default function ResumeMobileResumeTools({
           }}
           onDragLeave={() => setDragover(false)}
           onDrop={handleDrop}
-          onClick={() => document.getElementById('resume-mobile-file-input')?.click()}
+          onClick={() => fileInputRef.current?.click()}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              document.getElementById('resume-mobile-file-input')?.click();
+              fileInputRef.current?.click();
             }
           }}
         >
           <input
-            id="resume-mobile-file-input"
+            ref={fileInputRef}
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             onChange={handleFileInput}

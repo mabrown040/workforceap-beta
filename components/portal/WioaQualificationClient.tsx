@@ -26,7 +26,7 @@ const SIGNAL_COPY: Record<WioaEligibilitySignal, { title: string; body: string }
   likely: {
     title: 'Strong next step, talk with staff',
     body:
-      'Several of your answers line up with common WIOA pathways. This is still a pre-check, not a final eligibility decision.',
+      'Several of your answers line up with common WIOA pathways. This is still an initial qualification signal, not a final eligibility decision.',
   },
   possible: {
     title: 'You may be a fit',
@@ -142,23 +142,23 @@ export default function WioaQualificationClient({
         <nav className="portal-breadcrumb" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
           <Link href="/dashboard/learning">Learning Hub</Link>
           <span style={{ margin: '0 0.35rem' }}>/</span>
-          <span>WIOA screening</span>
+          <span>WIOA Qualification Assessment</span>
         </nav>
       ) : null}
 
       <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>
-        WIOA eligibility screening
+        WIOA Qualification Assessment
       </h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.55 }}>
         {isPublic
-          ? 'Use this quick pre-screen to see whether Workforce Innovation and Opportunity Act (WIOA) funding may be worth exploring. It is fast, public, and built to help WorkforceAP staff follow up with the right next step.'
-          : 'This short questionnaire helps you prepare for a conversation about Workforce Innovation and Opportunity Act (WIOA) services.'}{' '}
+          ? 'Use this quick qualification assessment to see whether Workforce Innovation and Opportunity Act (WIOA) funding may be worth exploring. It is fast, public, and built to help WorkforceAP staff follow up with the right next step.'
+          : 'This short qualification assessment helps you prepare for a conversation about Workforce Innovation and Opportunity Act (WIOA) services.'}{' '}
         <strong>It is not a final eligibility determination.</strong> WorkforceAP staff and American Job Centers confirm eligibility with documentation.
       </p>
 
       {snapshot ? (
         <PortalCard
-          title={isPublic ? 'Your screening result' : 'Last saved'}
+          title={isPublic ? 'Your qualification result' : 'Last saved qualification'}
           subtitle={new Date(snapshot.submittedAt).toLocaleString()}
           className="wa-mb-6"
         >
@@ -199,13 +199,13 @@ export default function WioaQualificationClient({
         title="Choose how to complete it"
         subtitle={
           isPublic
-            ? 'Use voice for a quick walkthrough, or switch to the form to send your pre-screen to WorkforceAP.'
-            : 'Use voice for a guided pre-check, or switch to the form any time.'
+            ? 'Use voice for a quick walkthrough, or switch to the form to send your qualification assessment to WorkforceAP.'
+            : 'Use voice for a guided qualification check, or switch to the form any time.'
         }
       >
         <div
           role="tablist"
-          aria-label="WIOA screening mode"
+          aria-label="WIOA Qualification Assessment mode"
           style={{
             display: 'inline-flex',
             padding: '0.25rem',
@@ -222,7 +222,7 @@ export default function WioaQualificationClient({
             onClick={() => setEntryMode('voice')}
             className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-secondary'}
           >
-            Voice pre-check
+            Voice qualification check
           </button>
           <button
             type="button"
@@ -231,14 +231,14 @@ export default function WioaQualificationClient({
             onClick={() => setEntryMode('form')}
             className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-secondary'}
           >
-            Fill out the form instead
+            Fill out the assessment form
           </button>
         </div>
 
         <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, fontSize: '0.93rem' }}>
           {isPublic
-            ? 'The voice option is a quick guided conversation. The form is what sends a structured screening to WorkforceAP for follow-up.'
-            : 'The voice option is meant to feel like a quick guided intake. If you would rather type, switch to the form and we will save the same pre-screening details for staff review.'}
+            ? 'The voice option is a quick guided conversation. The form is what sends a structured qualification assessment to WorkforceAP for follow-up.'
+            : 'The voice option is meant to feel like a quick guided intake. If you would rather type, switch to the form and we will save the same qualification details for staff review.'}
         </p>
 
         {entryMode === 'voice' ? (
@@ -275,12 +275,12 @@ export default function WioaQualificationClient({
               </div>
             ) : null}
             <VoiceAgentSurface
-              badge="Voice pre-check"
-              headline="WIOA pre-qualification guide"
+              badge="Voice qualification check"
+              headline="WIOA Qualification guide"
               subtext={
                 isPublic
-                  ? 'Talk through a quick walkthrough, then use the form to send the structured screening to our team.'
-                  : 'Talk through your goals, barriers, and likely eligibility before staff reviews the details.'
+                  ? 'Talk through a quick walkthrough, then use the form to send the structured qualification assessment to our team.'
+                  : 'Talk through your goals, barriers, and likely qualification before staff reviews the details.'
               }
               icon="🎙️"
               glowColor="#0d9488"
@@ -289,8 +289,8 @@ export default function WioaQualificationClient({
               <PortalVoiceSession
                 sessionEndpoint={voiceSessionEndpoint}
                 sessionPayload={voicePayload}
-                title="WIOA pre-check"
-                description="Talk through your work goals, barriers, and likely eligibility before the formal review."
+                title="WIOA Qualification Assessment"
+                description="Talk through your work goals, barriers, and likely qualification before the formal review."
                 accent="#0d9488"
                 accentDark="#0f766e"
                 speakingLabel="Guide is speaking…"

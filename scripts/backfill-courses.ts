@@ -5,57 +5,72 @@ import { PROGRAMS } from '../lib/content/programs';
 const prisma = new PrismaClient();
 
 async function main() {
-  const org = await prisma.organization.findFirst({
-    where: { name: 'Workforce Advancement Project' },
+  const orgs = await prisma.organization.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+    },
+    orderBy: { createdAt: 'asc' },
   });
 
-  if (!org) {
-    console.error('Workforce Advancement Project org not found.');
+  if (orgs.length === 0) {
+    console.error('No organizations found.');
     process.exit(1);
   }
 
-  for (const program of PROGRAMS) {
-    const discovered = DISCOVERED_COURSERA_PROGRAMS[program.slug];
-    if (!discovered) continue;
+  let totalCoursesBackfilled = 0;
 
-    for (let i = 0; i < program.courses.length; i++) {
-      const pCourse = program.courses[i];
-      const dCourse = discovered.courses.find(c => c.slug === pCourse.slug || c.name === pCourse.name);
-      
-      let urlType = 'learn';
-      
-      await prisma.course.upsert({
-        where: {
-          organizationId_programSlug_courseSlug: {
+  for (const org of orgs) {
+    let orgCoursesBackfilled = 0;
+
+    for (const program of PROGRAMS) {
+      const discovered = DISCOVERED_COURSERA_PROGRAMS[program.slug];
+      if (!discovered) continue;
+
+      for (let i = 0; i < program.courses.length; i++) {
+        const pCourse = program.courses[i];
+        const dCourse = discovered.courses.find((c) => c.slug === pCourse.slug || c.name === pCourse.name);
+        const urlType = 'learn';
+
+        await prisma.course.upsert({
+          where: {
+            organizationId_programSlug_courseSlug: {
+              organizationId: org.id,
+              programSlug: program.slug,
+              courseSlug: pCourse.slug,
+            },
+          },
+          update: {
+            name: pCourse.name,
+            estimatedHours: pCourse.estimatedHours,
+            courseraCourseId: dCourse?.courseId,
+            courseraSlug: dCourse?.slug,
+            courseraUrlType: urlType,
+            displayOrder: i,
+          },
+          create: {
             organizationId: org.id,
             programSlug: program.slug,
             courseSlug: pCourse.slug,
-          }
-        },
-        update: {
-          name: pCourse.name,
-          estimatedHours: pCourse.estimatedHours,
-          courseraCourseId: dCourse?.courseId,
-          courseraSlug: dCourse?.slug,
-          courseraUrlType: urlType,
-          displayOrder: i,
-        },
-        create: {
-          organizationId: org.id,
-          programSlug: program.slug,
-          courseSlug: pCourse.slug,
-          name: pCourse.name,
-          estimatedHours: pCourse.estimatedHours,
-          courseraCourseId: dCourse?.courseId,
-          courseraSlug: dCourse?.slug,
-          courseraUrlType: urlType,
-          displayOrder: i,
-        }
-      });
+            name: pCourse.name,
+            estimatedHours: pCourse.estimatedHours,
+            courseraCourseId: dCourse?.courseId,
+            courseraSlug: dCourse?.slug,
+            courseraUrlType: urlType,
+            displayOrder: i,
+          },
+        });
+
+        orgCoursesBackfilled += 1;
+        totalCoursesBackfilled += 1;
+      }
     }
+
+    console.log(`Backfilled ${orgCoursesBackfilled} courses for ${org.slug} (${org.name}).`);
   }
 
-  console.log('Courses backfilled.');
+  console.log(`Courses backfilled across ${orgs.length} org(s): ${totalCoursesBackfilled}.`);
 }
 
 main()

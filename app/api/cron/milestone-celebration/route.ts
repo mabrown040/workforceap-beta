@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
+import { logCronRun } from '@/lib/admin/logCronRun';
 
 /**
  * GET /api/cron/milestone-celebration
@@ -48,5 +49,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ sent, total: completed.length });
+  const runResult = { sent, total: completed.length };
+  await logCronRun('cron_milestone_celebration', runResult);
+  return NextResponse.json(runResult);
 }

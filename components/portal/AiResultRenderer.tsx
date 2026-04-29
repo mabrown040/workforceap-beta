@@ -358,7 +358,7 @@ function ProseSectionRenderer({ raw, toolLabel }: { raw: string; toolLabel?: str
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div>
           <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-            AI Elevator Speech
+            AI Elevator Introduction
           </p>
           <p style={{ fontSize: '1rem', lineHeight: 1.7, color: 'var(--color-on-surface)', margin: 0 }}>
             {parsed.pitch}

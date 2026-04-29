@@ -19,21 +19,66 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function JobsPage() {
   const user = await getUser();
-  
+
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
+  let profileCity: string | null = null;
+  let profileState: string | null = null;
   if (user) {
     try {
       const profile = await prisma.profile.findUnique({
         where: { userId: user.id },
-        select: { dob: true, isMinor: true },
+        select: { dob: true, isMinor: true, city: true, state: true },
       });
       if (profile?.dob) {
         ageGroup = getAgeGroup(profile.dob);
       }
+      profileCity = profile?.city?.trim() || null;
+      profileState = profile?.state?.trim() || null;
     } catch {
       ageGroup = 'adult18plus';
     }
   }
+
+  const primaryLocation = [profileCity, profileState].filter(Boolean).join(', ') || 'Austin, TX';
+  const quickLocations = [
+    primaryLocation,
+    'Austin, TX',
+    'Round Rock, TX',
+    'Cedar Park, TX',
+    'Pflugerville, TX',
+  ].filter((location, index, arr) => arr.indexOf(location) === index);
+  const externalBoards = [
+    {
+      label: 'Indeed',
+      href: `https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: primaryLocation }).toString()}`,
+      note: 'Largest local coverage across industries.',
+      bestFor: 'fastest broad search',
+    },
+    {
+      label: 'LinkedIn',
+      href: `https://www.linkedin.com/jobs/search/?${new URLSearchParams({ keywords: 'jobs', location: primaryLocation }).toString()}`,
+      note: 'Strong for professional, tech, and corporate roles.',
+      bestFor: 'office, tech, and employer networking',
+    },
+    {
+      label: 'Glassdoor',
+      href: `https://www.google.com/search?${new URLSearchParams({ q: `site:glassdoor.com/Job jobs ${primaryLocation}` }).toString()}`,
+      note: 'Job listings plus salary and company review context.',
+      bestFor: 'salary checks before you apply',
+    },
+    {
+      label: 'ZipRecruiter',
+      href: `https://www.ziprecruiter.com/jobs-search?${new URLSearchParams({ search: 'jobs', location: primaryLocation }).toString()}`,
+      note: 'Good metro and suburb coverage.',
+      bestFor: 'wider Austin-metro reach',
+    },
+    {
+      label: 'WorkInTexas / AustinJobs',
+      href: 'https://www.workintexas.com/vosnet/Default.aspx',
+      note: 'Texas Workforce Commission portal for local and public-sector roles.',
+      bestFor: 'public-sector and workforce-system jobs',
+    },
+  ];
 
   // SSR: fetch applied job IDs so job cards can show "Applied" badge
   let appliedJobIds: string[] = [];
@@ -97,39 +142,113 @@ export default async function JobsPage() {
         title="Job Board"
         subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create your account or log in to apply."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
-        action={user ? <LogExternalApplicationButton /> : undefined}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
-          {/* Indeed search banner */}
+          {user ? (
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '1rem 1.25rem',
+                border: '2px solid color-mix(in srgb, var(--color-accent) 35%, transparent)',
+                background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-low))',
+                marginBottom: '1.25rem',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: '14rem' }}>
+                <p style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
+                  Already applied on Indeed, LinkedIn, or a company site?
+                </p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
+                  Log it here so WorkforceAP can track your progress and your counselor can help with follow-up.
+                </p>
+              </div>
+              <LogExternalApplicationButton variant="primary" />
+            </div>
+          ) : null}
+
+          {/* External search engines */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
             padding: '0.875rem 1.25rem',
             background: 'var(--surface-container-low)',
             border: '1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent)',
             borderRadius: '0.875rem',
             marginBottom: '1.25rem',
-            flexWrap: 'wrap',
           }}>
-            <div style={{ flex: 1, minWidth: '12rem' }}>
+            <div style={{ marginBottom: '0.75rem' }}>
               <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
-                Also search Indeed
+                Search beyond the WorkforceAP job board
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Browse millions of additional job listings outside our employer network.
+                {user && profileCity
+                  ? `Using your profile location: ${primaryLocation}.`
+                  : 'If no city is saved yet, start with Austin metro and nearby suburbs.'}
               </p>
+              {user ? (
+                <p style={{ fontSize: '0.75rem', margin: '0.35rem 0 0' }}>
+                  <a href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                    Update your profile location →
+                  </a>
+                </p>
+              ) : null}
             </div>
-            <a
-              href="https://www.indeed.com/jobs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-outline"
-              style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-            >
-              Search on Indeed ↗
-            </a>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.75rem' }}>
+              {externalBoards.map((engine) => (
+                <a
+                  key={engine.label}
+                  href={engine.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div className="portal-card portal-card--flat" style={{ padding: '0.875rem', height: '100%' }}>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
+                      {engine.label} ↗
+                    </p>
+                    <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-accent)', margin: '0 0 0.25rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Best for: {engine.bestFor}
+                    </p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
+                      {engine.note}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <div style={{ marginTop: '0.875rem', paddingTop: '0.875rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
+                Quick Austin-area presets
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.875rem' }}>
+                {quickLocations.map((location) => (
+                  <a
+                    key={location}
+                    href={`https://www.indeed.com/jobs?${new URLSearchParams({ q: 'jobs', l: location }).toString()}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline"
+                    style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}
+                  >
+                    {location.replace(', TX', '')} ↗
+                  </a>
+                ))}
+              </div>
+              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.35rem' }}>
+                Best routine for members
+              </p>
+              <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
+                Most members do best when they check 2–3 boards daily instead of bouncing across everything at once.
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                <li>Check Indeed and LinkedIn daily for fresh listings.</li>
+                <li>Use WorkInTexas for workforce-system and public-sector openings.</li>
+                <li>Log every outside application here so your counselor can help with follow-up.</li>
+              </ul>
+            </div>
           </div>
 
           {!user ? (

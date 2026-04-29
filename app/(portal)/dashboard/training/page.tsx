@@ -47,7 +47,7 @@ export default async function TrainingPage() {
 
   return (
     <>
-      <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto' }}>
+      <div className="portal-main-content">
         <PageHeader
           title="My Training"
           subtitle={
@@ -214,7 +214,7 @@ export default async function TrainingPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                 menu_book
               </span>
-              <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Your Courses</h2>
+              <h2 className="portal-section-heading" style={{ margin: 0 }}>Your Courses</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
               {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.

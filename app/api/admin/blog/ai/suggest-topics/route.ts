@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { PROGRAMS } from '@/lib/content/programs';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 export async function POST() {
   const user = await getUser();
@@ -82,7 +83,7 @@ Suggest 3 new blog post topics.`;
 
     return NextResponse.json({ suggestions: parsed.slice(0, 3) });
   } catch (err) {
-    console.error('Blog AI suggest-topics error:', err);
+    captureApiError(err, { route: 'admin/blog/ai/suggest-topics' });
     return NextResponse.json(
       { error: 'Failed to generate suggestions. Please try again.' },
       { status: 500 }

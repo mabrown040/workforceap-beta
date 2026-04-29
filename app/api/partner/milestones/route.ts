@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 export async function GET(request: NextRequest) {
   const user = await getUser();
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ milestones: rows.slice(0, 150) });
   } catch (err) {
-    console.error('[partner/milestones] error:', err);
+    captureApiError(err, { route: 'partner/milestones' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

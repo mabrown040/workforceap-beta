@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
 
     const jobs = await prisma.job.findMany({
       where,
+      take: 1000,
       orderBy: { updatedAt: 'desc' },
       include: {
         employer: { select: { id: true, companyName: true, contactEmail: true } },
@@ -36,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(items);
   } catch (error) {
-    console.error('[admin/jobs GET] error:', error);
+    captureApiError(error, { route: 'admin/jobs GET' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

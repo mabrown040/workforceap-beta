@@ -12,6 +12,9 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
     applicationsCount,
     recommendedActions,
     jobSearchUrl,
+    jobSearchEngines,
+    bestBoardsForProgram,
+    suburbPresets,
   } = context;
 
   const hasContext = location || programShortLabel || applicationsCount > 0 || jobSearchUrl;
@@ -51,11 +54,77 @@ export default function CareerBriefForYou({ context }: CareerBriefForYouProps) {
           </p>
         )}
         {jobSearchUrl && (
-          <p className="career-brief-for-you-line">
+          <div className="career-brief-for-you-line">
             <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
-              Search jobs in your area →
+              {location ? `Search jobs near ${location} →` : 'Search Austin-area jobs →'}
             </a>
-          </p>
+            {bestBoardsForProgram.length > 0 ? (
+              <div style={{ marginTop: '0.45rem' }}>
+                <p style={{ margin: '0 0 0.35rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
+                  Best boards for your path
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                  {bestBoardsForProgram.map((board) => (
+                    <span
+                      key={board}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.22rem 0.5rem',
+                        borderRadius: '999px',
+                        background: 'rgba(173,44,77,0.08)',
+                        color: 'var(--color-on-surface)',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {board}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {jobSearchEngines.length > 1 ? (
+              <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>
+                Also useful: {jobSearchEngines.slice(1).map((engine, index) => (
+                  <span key={engine.label}>
+                    {index > 0 ? ' · ' : ''}
+                    <a href={engine.href} target="_blank" rel="noopener noreferrer" className="career-brief-for-you-link">
+                      {engine.label}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
+            {suburbPresets.length > 0 ? (
+              <div style={{ marginTop: '0.45rem' }}>
+                <p style={{ margin: '0 0 0.35rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
+                  Quick area searches
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  {suburbPresets.map((preset) => (
+                    <a
+                      key={preset.label}
+                      href={preset.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="career-brief-for-you-link"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '0.22rem 0.5rem',
+                        borderRadius: '999px',
+                        background: 'rgba(0,0,0,0.04)',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      {preset.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
         )}
         {recommendedActions.length > 0 && (
           <div className="career-brief-for-you-actions">

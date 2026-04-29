@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
 
   const invites = await prisma.invitation.findMany({
     where,
+    take: 1000,
     orderBy: { createdAt: 'desc' },
     include: {
       invitedBy: { select: { id: true, fullName: true, email: true } },

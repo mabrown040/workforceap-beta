@@ -1,7 +1,16 @@
 'use client';
 
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
-import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
+import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface, studentCounselorVoiceSurface } from '@/lib/portal/voice';
+
+const AI_COACHES_BAND_STYLE = {
+  padding: '1.25rem clamp(0.75rem, 3vw, 1.25rem) 1.5rem',
+  borderRadius: '1rem',
+  background:
+    'linear-gradient(180deg, color-mix(in srgb, #2563eb 16%, var(--surface-container-low)) 0%, color-mix(in srgb, #60a5fa 12%, var(--surface-container-low)) 45%, color-mix(in srgb, #2563eb 14%, var(--surface-container-low)) 100%)',
+  border: '1px solid color-mix(in srgb, #3b82f6 22%, var(--outline-variant))',
+  boxShadow: 'inset 0 1px 0 color-mix(in srgb, #fff 35%, transparent)',
+} as const;
 
 /**
  * AI toolkit voice section — 4 cards in a row, 1 wider horizontal card below.
@@ -16,72 +25,80 @@ export default function VoiceCoachesPromo() {
         padding: '0 clamp(1rem, 4vw, 1.5rem)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>mic</span>
-        <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-          AI Coaches
-        </h2>
-      </div>
+      <div style={AI_COACHES_BAND_STYLE}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>mic</span>
+          <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+            AI Coaches
+          </h2>
+        </div>
 
-      {/* 4 cards in a row on desktop */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '0.75rem',
-        }}
-      >
-        {/* CTAs unified to "Start [name]" + badges to short Title Case
-            (audit #55, #56). */}
-        <VoiceCoachLauncherCard
-          {...readinessVoiceSurface}
-          title="AI Readiness Coach"
-          description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
-          href="/dashboard/readiness"
-          ctaLabel="Start readiness coach"
-        />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '0.75rem',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <VoiceCoachLauncherCard
+            {...studentCounselorVoiceSurface}
+            title="AI Career Counselor"
+            description="Private voice session that ends with a personalized 3-step action plan."
+            href="/dashboard/counselor"
+            ctaLabel="Start counselor session"
+          />
 
-        <VoiceCoachLauncherCard
-          badge="Elevator Speech"
-          icon="🎤"
-          glowColor="#7c3aed"
-          gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
-          title="AI Elevator Speech"
-          description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
-          href="/dashboard/ai-tools/elevator-pitch"
-          ctaLabel="Start elevator speech"
-        />
+          <VoiceCoachLauncherCard
+            badge="Introduction"
+            icon="🎤"
+            glowColor="#7c3aed"
+            gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
+            title="AI Elevator Introduction"
+            description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
+            href="/dashboard/ai-tools/elevator-pitch"
+            ctaLabel="Start elevator introduction"
+          />
 
-        <VoiceCoachLauncherCard
-          {...resumeCoachVoiceSurface}
-          title="Resume & Experience"
-          description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
-          href="/dashboard/ai-tools/resume-coach"
-          ctaLabel="Start resume coach"
-        />
+          <VoiceCoachLauncherCard
+            {...readinessVoiceSurface}
+            title="AI Readiness Coach"
+            description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
+            href="/dashboard/readiness"
+            ctaLabel="Start readiness coach"
+          />
 
-        <VoiceCoachLauncherCard
-          {...mockInterviewVoiceSurface}
-          title="Voice Interviewer"
-          description="Launch the full mock interview experience with setup guidance and optional recording."
-          href="/dashboard/ai-tools/voice-interview"
-          ctaLabel="Start mock interview"
-        />
-      </div>
+          <VoiceCoachLauncherCard
+            {...resumeCoachVoiceSurface}
+            badge="Resume enhancer"
+            title="Resume & Experience Enhancer"
+            description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
+            href="/dashboard/ai-tools/resume-coach"
+            ctaLabel="Start resume enhancer"
+          />
 
-      {/* 1 wider horizontal card below */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-        <VoiceCoachLauncherCard
-          badge="Career Coach"
-          icon="💼"
-          glowColor="#0d9488"
-          gradient="linear-gradient(135deg, #0f766e, #0d9488, #5eead4)"
-          title="Career & Business Coach"
-          description="Get broader career, project management, sales, marketing, and business guidance in one place."
-          href="/dashboard/ai-tools/career-business-coach"
-          ctaLabel="Start career coach"
-        />
+          <VoiceCoachLauncherCard
+            {...mockInterviewVoiceSurface}
+            badge="Job / role interview"
+            title="Voice Job/Role Interviewer"
+            description="Launch the full mock interview experience with setup guidance and optional recording."
+            href="/dashboard/ai-tools/voice-interview"
+            ctaLabel="Start voice interviewer"
+          />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
+          <VoiceCoachLauncherCard
+            badge="Career Coach"
+            icon="💼"
+            glowColor="#0d9488"
+            gradient="linear-gradient(135deg, #0f766e, #0d9488, #5eead4)"
+            title="Career & Business Coach"
+            description="Get broader career, project management, sales, marketing, and business guidance in one place."
+            href="/dashboard/ai-tools/career-business-coach"
+            ctaLabel="Start career coach"
+          />
+        </div>
       </div>
     </section>
   );

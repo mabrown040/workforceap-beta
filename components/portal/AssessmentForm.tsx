@@ -140,7 +140,7 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
           ? "You're ready to start training! Your counselor will be in touch."
           : pct >= 50
             ? 'Great job! Your counselor may suggest some foundational resources alongside your training.'
-            : 'Thanks for completing the assessment. We recommend starting with our Digital Literacy Empowerment Class to set you up for success.';
+            : 'Thanks for completing the assessment. Your counselor will follow up with next steps based on your answers.';
 
       setOutcome({ message, pct });
       setStep('confirm');

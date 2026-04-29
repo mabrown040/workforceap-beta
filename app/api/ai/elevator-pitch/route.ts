@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
+import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
@@ -15,7 +16,7 @@ import {
 
 /**
  * POST /api/ai/elevator-pitch
- * Body: { name, targetRole, strengths, certifications, industry }
+ * Body: { name, targetRole, strengths, certifications, industry, language }
  * Returns: { pitch: string, emailSent?: boolean } — a 10-20 second elevator statement
  */
 export async function POST(request: Request) {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
   catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
 
   const { name, targetRole, strengths, certifications, industry, subjectMemberId, sessionId } = body;
+  const language = normalizeAIResponseLanguage(body.language);
 
   if (!name?.trim() || !targetRole?.trim()) {
     return NextResponse.json({ error: 'Name and target role are required.' }, { status: 400 });
@@ -51,6 +53,7 @@ Certifications / credentials: ${certifications?.trim() || 'not specified'}
 Target industry: ${industry?.trim() || 'not specified'}
 
 Requirements:
+- ${aiResponseLanguageInstruction(language)}
 - Conversational, confident tone — sounds like a real person, not a resume
 - Includes who they are, what they do best, and what they're looking for
 - Ends with a clear connection hook (e.g. "I'd love to bring this to [industry]")
@@ -63,7 +66,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
   try {
     const pitch = await chatCompletion(
       [
-        { role: 'system', content: 'You write concise, natural elevator pitches for job seekers. Return only the pitch, nothing else.' },
+        { role: 'system', content: `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(language)} Return only the pitch, nothing else.` },
         { role: 'user', content: prompt },
       ],
       { maxTokens: 200, temperature: 0.7 }

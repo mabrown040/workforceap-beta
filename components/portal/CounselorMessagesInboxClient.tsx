@@ -90,7 +90,9 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
       <InboxSearch value={search} onChange={setSearch} placeholder="Search members…" />
       <InboxList>
         {filtered.length === 0 ? (
-          <InboxEmpty title="No matching members" description="Try a different search term." />
+          search.trim()
+            ? <InboxEmpty title="No matching members" description="Try a different search term." />
+            : <InboxEmpty title="No members assigned yet" description="Members will appear here once an admin assigns them to you." />
         ) : (
           filtered.map((r) => (
             <InboxRowButton

@@ -23,14 +23,14 @@ export default function TermsPage() {
             <p>By creating an account or using the Workforce Advancement Project (&ldquo;WorkforceAP&rdquo;) member portal and services, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
 
             <h2>2. Program Eligibility</h2>
-            <p>WorkforceAP programs are designed for qualifying participants. Eligibility requirements include but are not limited to: being 16 years of age or older, being a U.S. Citizen or Permanent Resident, and meeting income and employment criteria as determined during the application process. WorkforceAP reserves the right to verify eligibility and deny enrollment to ineligible applicants.</p>
+            <p>WorkforceAP programs are designed for qualifying participants. Eligibility requirements include but are not limited to: generally being 16 years of age or older, being a U.S. Citizen or Permanent Resident, and meeting income and employment criteria as determined during the application process. Some school- or partner-supported opportunities may allow minors to participate with parent or guardian consent and any additional required approvals. WorkforceAP reserves the right to verify eligibility and deny enrollment to ineligible applicants.</p>
 
             <h2>3. Member Responsibilities</h2>
             <p>As a member, you agree to:</p>
             <ul>
               <li>Provide accurate and truthful information during registration and throughout your participation</li>
               <li>Maintain the confidentiality of your account credentials</li>
-              <li>Commit to 100% program completion to the best of your ability</li>
+              <li>Make a good-faith effort to complete the program you enroll in</li>
               <li>Participate in job placement assistance services as outlined in your program</li>
               <li>Notify WorkforceAP of any changes to your eligibility status</li>
               <li>Use the member portal and resources only for their intended educational and career development purposes</li>
@@ -39,8 +39,8 @@ export default function TermsPage() {
             <h2>4. Program Participation</h2>
             <p>Enrollment in a WorkforceAP program is subject to seat availability. WorkforceAP reserves the right to modify program schedules, curriculum, and requirements. Participants who fail to meet program attendance or completion standards may be removed from the program. Loaner equipment provided as part of the program remains the property of WorkforceAP until program completion milestones are met.</p>
 
-            <h2>5. No-Cost Training for Members</h2>
-            <p>No-cost training is available to qualifying participants based on eligibility criteria. WorkforceAP programs are funded through grants, partnerships, and contributions. If it is determined that a participant provided false information to qualify for no-cost training, WorkforceAP reserves the right to terminate enrollment and seek recovery of program costs.</p>
+            <h2>5. Program Funding and Member Costs</h2>
+            <p>For qualifying participants, program costs may be covered through grants, partnerships, and contributions. If it is determined that a participant provided false information to receive funded access, WorkforceAP reserves the right to terminate enrollment and seek recovery of program costs.</p>
 
             <h2>6. Data and Privacy</h2>
             <p>Your use of the WorkforceAP platform is also governed by our <a href="/privacy">Privacy Policy</a>, which is incorporated into these Terms by reference. By using our services, you consent to the collection and use of your information as described in the Privacy Policy.</p>

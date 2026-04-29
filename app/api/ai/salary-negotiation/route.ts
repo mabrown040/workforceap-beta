@@ -6,6 +6,7 @@ import { salaryNegotiationSchema } from '@/lib/validation/salaryNegotiation';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -74,7 +75,7 @@ Write a ${isPhone ? 'phone call' : 'email'} script they can use word-for-word.`;
       console.error('Salary negotiation: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output: cleanLongFormPlainText(output) });
   } catch (err) {
     console.error('Salary negotiation error:', err);
     return NextResponse.json(

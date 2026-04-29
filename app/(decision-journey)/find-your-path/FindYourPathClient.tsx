@@ -421,7 +421,7 @@ function QuizResultsView({
           </>
         )}
       </div>
-      <p className="quiz-results-note">All programs are available at no cost to members.</p>
+      <p className="quiz-results-note">All programs are available at no cost for qualifying members.</p>
     </div>
   );
 }

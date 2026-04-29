@@ -59,6 +59,8 @@ type DashboardHomeClientProps = {
   interviewEligible?: boolean;
   interviewRequestedAt?: Date | null;
   interviewCompletedAt?: Date | null;
+  starterProfileReviewRequired?: boolean;
+  starterProfileMissingFields?: string[];
 };
 
 export default function DashboardHomeClient({
@@ -84,6 +86,8 @@ export default function DashboardHomeClient({
   interviewEligible = false,
   interviewRequestedAt = null,
   interviewCompletedAt = null,
+  starterProfileReviewRequired = false,
+  starterProfileMissingFields = [],
   age = null,
   isMinor = false,
 }: DashboardHomeClientProps) {
@@ -131,17 +135,17 @@ export default function DashboardHomeClient({
     {
       done: checklist.chooseProgram,
       doneLabel: 'Program selected',
-      pendingLabel: 'Choose program',
+      pendingLabel: noApplicationOnFile ? 'Start application' : 'Choose program',
     },
     {
       done: checklist.completeAssessment,
-      doneLabel: 'Assessment complete',
-      pendingLabel: 'Complete assessment',
+      doneLabel: 'Training preassessment complete',
+      pendingLabel: 'Complete preassessment',
     },
     {
       done: checklist.startFirstCourse,
-      doneLabel: 'First course started',
-      pendingLabel: 'Start first course',
+      doneLabel: 'Training started',
+      pendingLabel: 'Open your first course',
     },
     {
       done: checklist.completeFirstCourse,
@@ -154,18 +158,18 @@ export default function DashboardHomeClient({
     state === 'D'
       ? 'Training Complete'
       : state === 'B'
-        ? 'Assessment required'
+        ? 'Training preassessment required'
         : completedCount === 0
-          ? 'Your training is ready'
+          ? 'Your first course is next'
           : `Current training step: ${nextMilestone ?? programTitle}`;
 
   const progressCardSummary =
     state === 'D'
       ? `${completedCount} of ${totalCourses} courses marked complete.`
       : state === 'B'
-        ? 'Complete your skills assessment to start your first training step.'
+        ? 'Complete your Training Preassessment to unlock your first course.'
         : completedCount === 0
-          ? 'No courses are marked complete yet. Start with your first training step.'
+          ? 'No courses are marked complete yet. Open your first course to begin.'
           : `${completedCount} of ${totalCourses} courses marked complete.`;
 
   const weekEyebrow = useMemo(() => {
@@ -189,9 +193,9 @@ export default function DashboardHomeClient({
     },
     ...(assessmentScorePct != null
       ? [{
-          label: 'Assessment Score',
+          label: 'Preassessment Score',
           value: `${assessmentScorePct}%`,
-          hint: 'Skills benchmark',
+          hint: 'Training readiness benchmark',
           icon: 'psychology',
           accent: 'blue' as const,
           href: '/dashboard/skills-assessment',
@@ -217,11 +221,11 @@ export default function DashboardHomeClient({
           {weekEyebrow}{programTitle ? ` · ${programTitle}` : ''}
         </p>
         <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
-          Welcome back, {firstName}.
+          Your next steps, {firstName}.
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
           {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path. Programs are available at no cost to members.")}
-          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your assessment to start your training plan.`}
+          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your Training Preassessment to start your training plan.`}
           {state === 'C' && `You're ${progressPct}% through ${programTitle ?? 'your training plan'}. Keep going one step at a time.`}
           {state === 'D' && `Your training plan is complete. Focus on job outcomes and career readiness.`}
         </p>
@@ -307,15 +311,17 @@ export default function DashboardHomeClient({
                   )}
                   <div className="portal-card portal-card--flat portal-card--padded-sm">
                     <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                      {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost to members."}
-                      {state === 'B' && `Complete your skills assessment to start your ${programTitle} training.`}
+                      {state === 'A' && (noApplicationOnFile
+                        ? "Start your application to begin your career path. All programs are offered at no cost to members."
+                        : "Choose a program to get started on your career path. All programs are offered at no cost to members.")}
+                      {state === 'B' && `Complete your Training Preassessment to start your ${programTitle} training.`}
                       {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
                       {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                       {assessmentScorePct != null && (
                         <span style={{ padding: '0.25rem 0.625rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
-                          Assessment: {assessmentScorePct}%
+                          Preassessment: {assessmentScorePct}%
                         </span>
                       )}
                       {enrolledAt && (
@@ -418,7 +424,7 @@ export default function DashboardHomeClient({
                   const isCurrent = !item.done && (i === 0 || checklistItems[i - 1].done);
                   const label = item.done ? item.doneLabel : item.pendingLabel;
                   return (
-                    <div key={label} className="portal-milestone-step" style={{
+                    <div key={`${i}-${label}`} className="portal-milestone-step" style={{
                       opacity: item.done ? 0.5 : isCurrent ? 1 : 0.35,
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>
@@ -498,13 +504,17 @@ export default function DashboardHomeClient({
                     <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>GET STARTED</span>
                   </div>
                 </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Choose Your Program</h4>
+                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>
+                  {noApplicationOnFile ? 'Start Your Application' : 'Choose Your Program'}
+                </h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  Select one of our no-cost career programs. Funding is tied to a single program.
+                  {noApplicationOnFile
+                    ? 'Apply in about 10 minutes to get matched with the right no-cost program for your goals.'
+                    : 'Select one of our no-cost career programs. Funding is tied to a single program.'}
                 </p>
-                <Link href="/dashboard/program" className="btn btn-primary"
-                  onClick={() => handleDashboardAction('choose_program_clicked')}>
-                  Choose Your Program
+                <Link href={noApplicationOnFile ? '/apply' : '/dashboard/program'} className="btn btn-primary"
+                  onClick={() => handleDashboardAction(noApplicationOnFile ? 'start_application_clicked' : 'choose_program_clicked')}>
+                  {noApplicationOnFile ? 'Start Your Application' : 'Choose Your Program'}
                 </Link>
               </div>
             )}
@@ -517,13 +527,17 @@ export default function DashboardHomeClient({
                     <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>NEXT STEP</span>
                   </div>
                 </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Complete Your Skills Assessment</h4>
+                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>
+                  {starterProfileReviewRequired ? 'Review your starter profile details' : 'Complete Your Training Preassessment'}
+                </h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  A quick assessment tailors your {programTitle} learning path and starts role matching.
+                  {starterProfileReviewRequired
+                    ? `Before WorkforceAP unlocks your preassessment, confirm the contact and referral details entered for you.${starterProfileMissingFields.length ? ` Missing now: ${starterProfileMissingFields.join(', ')}.` : ''}`
+                    : `A quick preassessment tailors your ${programTitle} learning path and helps identify matching roles.`}
                 </p>
-                <Link href="/dashboard/assessment" className="btn btn-primary"
-                  onClick={() => handleDashboardAction('assessment_clicked')}>
-                  Take Assessment
+                <Link href={starterProfileReviewRequired ? '/dashboard/profile' : '/dashboard/assessment'} className="btn btn-primary"
+                  onClick={() => handleDashboardAction(starterProfileReviewRequired ? 'starter_profile_review_clicked' : 'assessment_clicked')}>
+                  {starterProfileReviewRequired ? 'Review profile' : 'Start Preassessment'}
                 </Link>
               </div>
             )}
@@ -557,7 +571,7 @@ export default function DashboardHomeClient({
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Career Readiness</h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  You've finished {programTitle}. Build readiness and apply for jobs.
+                  You've finished {programTitle}. Complete your readiness steps before applying for jobs.
                 </p>
                 <Link href="/dashboard/readiness" className="btn btn-primary"
                   onClick={() => handleDashboardAction('career_readiness_clicked')}>
@@ -660,7 +674,7 @@ export default function DashboardHomeClient({
                 { href: '/dashboard/ai-tools', label: 'Job Search Tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-                { href: '/dashboard/skills-assessment', label: 'Assessments', desc: 'Skills evaluation', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/skills-assessment', label: 'Training Preassessment', desc: 'Program readiness', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
               ].map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
@@ -704,9 +718,9 @@ export default function DashboardHomeClient({
               <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
                 {([
                   { done: checklist.createAccount, label: 'Create account' },
-                  { done: checklist.chooseProgram, label: 'Choose program' },
-                  { done: checklist.completeAssessment, label: 'Complete assessment' },
-                  { done: checklist.startFirstCourse, label: 'Training unlocked' },
+                  { done: checklist.chooseProgram, label: noApplicationOnFile ? 'Start application' : 'Choose program' },
+                  { done: checklist.completeAssessment, label: 'Complete preassessment' },
+                  { done: checklist.startFirstCourse, label: 'Open your first course' },
                   { done: checklist.completeFirstCourse, label: 'Complete your first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>

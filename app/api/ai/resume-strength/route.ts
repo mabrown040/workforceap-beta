@@ -6,6 +6,7 @@ import { resumeStrengthSchema } from '@/lib/validation/resumeStrength';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -76,7 +77,7 @@ Keep it concise and actionable. No fluff.`;
       console.error('Resume strength: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ output });
+    return NextResponse.json({ output: cleanLongFormPlainText(output) });
   } catch (err) {
     console.error('Resume strength error:', err);
     return NextResponse.json({ error: 'We could not analyze your resume just now. Please try again in a moment.' }, { status: 500 });

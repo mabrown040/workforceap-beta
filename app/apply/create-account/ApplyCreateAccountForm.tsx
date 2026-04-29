@@ -10,6 +10,7 @@ import {
   APPLY_PROGRAM_SLUG_KEY,
   getCareerQuizPayloadFromStorage,
 } from '@/lib/apply/applyProgramStorage';
+import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' }, { abbr: 'AK', name: 'Alaska' }, { abbr: 'AZ', name: 'Arizona' },
@@ -39,6 +40,7 @@ export default function ApplyCreateAccountForm() {
   const [error, setError] = useState('');
   const [verifyEmailMode, setVerifyEmailMode] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState('');
+  const [optionalAddressOpen, setOptionalAddressOpen] = useState(false);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -124,6 +126,8 @@ export default function ApplyCreateAccountForm() {
     };
   }, [init]);
 
+  const rankedProgramLabels = (programRankedSlugs ?? []).map((slug) => getProgramDisplayTitle(getProgramBySlug(slug) ?? slug));
+
   const emailLooksValid = (value: string) => {
     const v = value.trim();
     if (!v.includes('@')) return false;
@@ -156,18 +160,7 @@ export default function ApplyCreateAccountForm() {
     } else if (phoneDigits.length < 10) {
       nextFieldErrors.phone = 'Use a phone number with at least 10 digits.';
     }
-    if (!addressLine1.trim()) {
-      nextFieldErrors.addressLine1 = 'Enter your street address.';
-    }
-    if (!city.trim()) {
-      nextFieldErrors.city = 'Enter your city.';
-    }
-    if (!stateVal.trim()) {
-      nextFieldErrors.state = 'Enter your state.';
-    }
-    if (!zip.trim()) {
-      nextFieldErrors.zip = 'Enter your ZIP code.';
-    } else if (!/^\d{5}(-\d{4})?$/.test(zip.trim())) {
+    if (zip.trim() && !/^\d{5}(-\d{4})?$/.test(zip.trim())) {
       nextFieldErrors.zip = 'Please enter a valid 5-digit ZIP code';
     }
     if (password.length < 8) {
@@ -179,22 +172,17 @@ export default function ApplyCreateAccountForm() {
 
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
-      const needsContact =
-        nextFieldErrors.phone ||
-        nextFieldErrors.addressLine1 ||
-        nextFieldErrors.city ||
-        nextFieldErrors.state ||
-        nextFieldErrors.zip;
+      const needsContact = nextFieldErrors.phone;
       setError(
         needsContact
-          ? 'Please add a phone number and home address to continue.'
+          ? 'Please add a phone number to continue.'
           : 'Please fix the highlighted fields and try again.'
       );
       return;
     }
 
     if (!programRankedSlugs?.length) {
-      setError('Your program selection wasn\'t saved — please go back to step 2 and choose at least one program.');
+      setError('Your program selections weren\'t saved — please go back to step 2 and choose at least one program.');
       return;
     }
 
@@ -222,11 +210,11 @@ export default function ApplyCreateAccountForm() {
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phoneDigits,
-          addressLine1: addressLine1.trim(),
+          addressLine1: addressLine1.trim() || undefined,
           addressLine2: addressLine2.trim() || undefined,
-          city: city.trim(),
-          state: stateVal.trim(),
-          zip: zip.trim(),
+          city: city.trim() || undefined,
+          state: stateVal.trim() || undefined,
+          zip: zip.trim() || undefined,
           smsOptIn,
           password,
           programRankedSlugs,
@@ -310,12 +298,12 @@ export default function ApplyCreateAccountForm() {
     return (
       <div className="apply-form-missing-session">
         <p role="alert" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-          We couldn&rsquo;t find your saved program choice. This usually happens if you skipped step 2, opened this page in a new tab or device,
+          We couldn&rsquo;t find your saved program choices. This usually happens if you skipped step 2, opened this page in a new tab or device,
           or your browser cleared site data.
         </p>
         <p style={{ marginBottom: '0.75rem' }}>
           <Link href="/apply/results" className="btn btn-primary">
-            Back to step 2 — choose a program
+            Back to step 2 — choose your programs
           </Link>
         </p>
         <p>
@@ -329,7 +317,6 @@ export default function ApplyCreateAccountForm() {
     <form onSubmit={handleSubmit} className="apply-form" noValidate>
       <div className="apply-progress-bar" style={{ marginBottom: '1.25rem' }}>
         <div className="apply-progress-fill" style={{ width: '100%' }} />
-        <p className="apply-progress-label">Step 3 of 3 — create your account</p>
       </div>
 
       <p className="apply-step-back-nav" style={{ marginBottom: '1rem' }}>
@@ -338,163 +325,212 @@ export default function ApplyCreateAccountForm() {
 
       <div className="apply-transition-card" role="note" aria-label="Why account creation matters">
         <strong>Why we ask for this now:</strong>
-        <span> your account saves the program you selected, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
+        <span> your account saves the program choices you ranked, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
       </div>
+
+      <div className="apply-transition-card" role="note" aria-label="What you can finish later" style={{ marginTop: '0.75rem' }}>
+        <strong>Keep this part light:</strong>
+        <span> only your name, email, phone, and password are required to start. Mailing address details can be added later from your profile if we need them.</span>
+      </div>
+
+      {rankedProgramLabels.length > 0 ? (
+        <div className="apply-transition-card" role="note" aria-label="Saved program choices" style={{ marginTop: '0.75rem' }}>
+          <strong>Your saved choices:</strong>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+            {rankedProgramLabels.map((label, index) => (
+              <span
+                key={`${label}-${index}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  padding: '0.35rem 0.6rem',
+                  borderRadius: '999px',
+                  background: 'rgba(173,44,77,0.08)',
+                  color: 'var(--color-on-surface)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                }}
+              >
+                <span style={{ color: 'var(--color-accent)', fontWeight: 800 }}>#{index + 1}</span>
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <p className="apply-step-desc" style={{ marginTop: '1rem' }}>
         After you create your account, you can view your dashboard and next steps. Some applicants are asked to verify their email first — check your inbox if so.
       </p>
 
-      <div className="form-group">
-        <label htmlFor="firstName">First Name *</label>
-        <input
-          id="firstName"
-          type="text"
-          value={firstName}
-          onChange={(e) => {
-            setFirstName(e.target.value);
-            if (fieldErrors.firstName) setFieldErrors((f) => ({ ...f, firstName: undefined }));
-          }}
-          autoComplete="given-name"
-          required
-          aria-required="true"
-          aria-invalid={!!fieldErrors.firstName}
-        />
-        {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="lastName">Last Name *</label>
-        <input
-          id="lastName"
-          type="text"
-          value={lastName}
-          onChange={(e) => {
-            setLastName(e.target.value);
-            if (fieldErrors.lastName) setFieldErrors((f) => ({ ...f, lastName: undefined }));
-          }}
-          autoComplete="family-name"
-          required
-          aria-required="true"
-          aria-invalid={!!fieldErrors.lastName}
-        />
-        {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="email">Email *</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
-          }}
-          autoComplete="email"
-          required
-          aria-required="true"
-          aria-invalid={!!fieldErrors.email}
-        />
-        {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="phone">Phone *</label>
-        <input
-          id="phone"
-          type="tel"
-          value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value);
-            if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
-          }}
-          autoComplete="tel"
-          required
-          aria-invalid={!!fieldErrors.phone}
-        />
-        {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="addressLine1">Street address *</label>
-        <input
-          id="addressLine1"
-          type="text"
-          value={addressLine1}
-          onChange={(e) => {
-            setAddressLine1(e.target.value);
-            if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
-          }}
-          autoComplete="address-line1"
-          required
-          aria-invalid={!!fieldErrors.addressLine1}
-        />
-        {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
-      </div>
-      <div className="form-group">
-        <label htmlFor="addressLine2">Apt / suite (optional)</label>
-        <input
-          id="addressLine2"
-          type="text"
-          value={addressLine2}
-          onChange={(e) => setAddressLine2(e.target.value)}
-          autoComplete="address-line2"
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="city">City *</label>
-        <input
-          id="city"
-          type="text"
-          value={city}
-          onChange={(e) => {
-            setCity(e.target.value);
-            if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
-          }}
-          autoComplete="address-level2"
-          required
-          aria-invalid={!!fieldErrors.city}
-        />
-        {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
-      </div>
-      <div
-        className="form-group apply-create-account-state-zip"
-        style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.75rem' }}
-      >
-        <div>
-          <label htmlFor="state">State *</label>
-          <select
-            id="state"
-            value={stateVal}
-            onChange={(e) => {
-              setStateVal(e.target.value);
-              if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
-            }}
-            autoComplete="address-level1"
-            required
-            aria-invalid={!!fieldErrors.state}
-          >
-            <option value="">Select…</option>
-            {US_STATES.map((s) => (
-              <option key={s.abbr} value={s.abbr}>{s.name}</option>
-            ))}
-          </select>
-          {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
-        </div>
-        <div>
-          <label htmlFor="zip">ZIP *</label>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="firstName">First Name *</label>
           <input
-            id="zip"
+            id="firstName"
             type="text"
-            value={zip}
+            value={firstName}
             onChange={(e) => {
-              setZip(e.target.value);
-              if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
+              setFirstName(e.target.value);
+              if (fieldErrors.firstName) setFieldErrors((f) => ({ ...f, firstName: undefined }));
             }}
-            autoComplete="postal-code"
+            autoComplete="given-name"
             required
-            aria-invalid={!!fieldErrors.zip}
+            aria-required="true"
+            aria-invalid={!!fieldErrors.firstName}
           />
-          {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}
+          {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="lastName">Last Name *</label>
+          <input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={(e) => {
+              setLastName(e.target.value);
+              if (fieldErrors.lastName) setFieldErrors((f) => ({ ...f, lastName: undefined }));
+            }}
+            autoComplete="family-name"
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.lastName}
+          />
+          {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
         </div>
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="email">Email *</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
+            }}
+            autoComplete="email"
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.email}
+          />
+          <p className="apply-field-hint">Use an email you can check today in case we need verification.</p>
+          {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label htmlFor="phone">Phone *</label>
+          <input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
+            }}
+            autoComplete="tel"
+            required
+            aria-invalid={!!fieldErrors.phone}
+          />
+          <p className="apply-field-hint">We use this for counselor follow-up and application updates.</p>
+          {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
+        </div>
+      </div>
+      <details
+        open={optionalAddressOpen}
+        onToggle={(e) => setOptionalAddressOpen((e.currentTarget as HTMLDetailsElement).open)}
+        style={{
+          marginBottom: '1rem',
+          border: '1px solid rgba(0,0,0,0.08)',
+          borderRadius: '0.875rem',
+          padding: '0.9rem 1rem',
+          background: 'var(--surface-container-low)',
+        }}
+      >
+        <summary style={{ cursor: 'pointer', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+          Add mailing address now (optional)
+        </summary>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0.9rem' }}>
+          Skip this if you want to move faster. You can add it later from your profile.
+        </p>
+        <div className="form-group">
+          <label htmlFor="addressLine1">Street address (optional)</label>
+          <input
+            id="addressLine1"
+            type="text"
+            value={addressLine1}
+            onChange={(e) => {
+              setAddressLine1(e.target.value);
+              if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
+            }}
+            autoComplete="address-line1"
+            aria-invalid={!!fieldErrors.addressLine1}
+          />
+          {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
+        </div>
+        <div className="form-group">
+          <label htmlFor="addressLine2">Apt / suite (optional)</label>
+          <input
+            id="addressLine2"
+            type="text"
+            value={addressLine2}
+            onChange={(e) => setAddressLine2(e.target.value)}
+            autoComplete="address-line2"
+          />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="city">City (optional)</label>
+            <input
+              id="city"
+              type="text"
+              value={city}
+              onChange={(e) => {
+                setCity(e.target.value);
+                if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
+              }}
+              autoComplete="address-level2"
+              aria-invalid={!!fieldErrors.city}
+            />
+            {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="state">State (optional)</label>
+            <select
+              id="state"
+              value={stateVal}
+              onChange={(e) => {
+                setStateVal(e.target.value);
+                if (fieldErrors.state) setFieldErrors((f) => ({ ...f, state: undefined }));
+              }}
+              autoComplete="address-level1"
+              aria-invalid={!!fieldErrors.state}
+            >
+              <option value="">Select…</option>
+              {US_STATES.map((s) => (
+                <option key={s.abbr} value={s.abbr}>{s.name}</option>
+              ))}
+            </select>
+            {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label htmlFor="zip">ZIP (optional)</label>
+            <input
+              id="zip"
+              type="text"
+              value={zip}
+              onChange={(e) => {
+                setZip(e.target.value);
+                if (fieldErrors.zip) setFieldErrors((f) => ({ ...f, zip: undefined }));
+              }}
+              autoComplete="postal-code"
+              aria-invalid={!!fieldErrors.zip}
+            />
+            {fieldErrors.zip ? <p className="form-error">{fieldErrors.zip}</p> : null}
+          </div>
+        </div>
+      </details>
       <div className="form-group">
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
           <input type="checkbox" checked={smsOptIn} onChange={(e) => setSmsOptIn(e.target.checked)} />
@@ -514,6 +550,8 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.password) setFieldErrors((f) => ({ ...f, password: undefined }));
             }}
             autoComplete="new-password"
+            required
+            aria-required="true"
             aria-invalid={!!fieldErrors.password}
             style={{ paddingRight: '2.5rem' }}
           />
@@ -543,6 +581,8 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.confirmPassword) setFieldErrors((f) => ({ ...f, confirmPassword: undefined }));
             }}
             autoComplete="new-password"
+            required
+            aria-required="true"
             aria-invalid={!!fieldErrors.confirmPassword}
             style={{ paddingRight: '2.5rem' }}
           />
@@ -561,8 +601,11 @@ export default function ApplyCreateAccountForm() {
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>
-        {loading ? 'Creating your account…' : 'Create account and enter your path'}
+        {loading ? 'Creating your account…' : 'Save my spot and create login'}
       </button>
+      <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
+        No payment is due today. You can come back later to finish your profile.
+      </p>
     </form>
   );
 }

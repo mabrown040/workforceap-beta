@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { awardPoints } from '@/lib/member/points';
 import { chatCompletion } from '@/lib/ai/groq';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
@@ -147,12 +148,14 @@ export async function POST(req: NextRequest) {
     const output = buildHistoryOutput(transcript, steps);
 
     await ensureUserInDb(user);
-    await saveAIToolResult(
+    const resultId = await saveAIToolResult(
       user.id,
       'career_counselor',
       'Career readiness voice coach session',
       output
     );
+
+    awardPoints(user.id, 'counselor_session', resultId).catch(() => {});
 
     try {
       const dbUser = await prisma.user.findUnique({

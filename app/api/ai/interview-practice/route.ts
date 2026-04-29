@@ -5,7 +5,9 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanLongFormPlainText, cleanSpokenLine } from '@/lib/ai/postProcess';
 
 const LEVEL_PROMPTS = {
   entry: 'entry-level / junior (0-2 years experience)',
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { role, experienceLevel, count, resumeContext, subjectMemberId, sessionId } = parsed.data;
+  const { role, experienceLevel, count, resumeContext, language, subjectMemberId, sessionId } = parsed.data;
   const levelDesc = LEVEL_PROMPTS[experienceLevel];
 
   // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
@@ -54,6 +56,8 @@ export async function POST(request: Request) {
 
   const systemPrompt = `You are a career coach and interview preparation expert. Generate interview questions for job seekers.
 
+${aiResponseLanguageInstruction(language)}
+
 Format your response as a JSON array of objects. Each object must have:
 - "question": the interview question (string)
 - "type": "behavioral" or "technical" (string)
@@ -61,7 +65,7 @@ Format your response as a JSON array of objects. Each object must have:
 - "starHint": optional hint for STAR method if behavioral (string)
 - "exampleAnswer": a 2-3 sentence example answer showing how to respond. For behavioral questions, use STAR (Situation, Task, Action, Result). For technical questions, show a concise, structured response. This helps members see what a strong answer looks like.
 
-Return ONLY the JSON array, no other text.`;
+Return ONLY the JSON array, no other text. Keep JSON property names exactly as specified in English, but write every member-facing string value in the requested response language.`;
 
   const resumeBlock =
     resumeContext?.trim() &&
@@ -112,7 +116,14 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
       console.error('Interview practice: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ questions });
+    const cleanedQuestions = questions.map((q) => ({
+      ...q,
+      question: cleanSpokenLine(q.question),
+      tip: cleanLongFormPlainText(q.tip),
+      starHint: q.starHint ? cleanLongFormPlainText(q.starHint) : q.starHint,
+      exampleAnswer: q.exampleAnswer ? cleanLongFormPlainText(q.exampleAnswer) : q.exampleAnswer,
+    }));
+    return NextResponse.json({ questions: cleanedQuestions });
   } catch (err) {
     console.error('Interview practice error:', err);
     return NextResponse.json(

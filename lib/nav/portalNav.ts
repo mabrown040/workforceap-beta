@@ -26,6 +26,7 @@ import {
   Library,
   ListChecks,
   MessageSquare,
+  Mic,
   PlusCircle,
   Settings,
   Shield,
@@ -111,7 +112,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     ? [
         {
           href: '/dashboard/learning/wioa-qualification',
-          label: 'Funding Eligibility',
+          label: 'WIOA Qualification',
           group: 'insights',
           tab: 'program',
           Icon: Shield,
@@ -140,6 +141,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'AI Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/counselor', label: 'AI Counselor', group: 'workflows', tab: 'me', Icon: Mic },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
@@ -159,7 +161,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   },
   {
     href: '/dashboard/skills-assessment',
-    label: 'Skills Assessment',
+    label: 'Training Preassessment',
     group: 'insights',
     tab: 'me',
     Icon: ClipboardCheck,
@@ -169,7 +171,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {
     href: '/dashboard/messages',
-    label: 'My Counselor',
+    label: 'Counselor Chat',
     group: 'primary',
     tab: 'journey',
     Icon: MessageSquare,

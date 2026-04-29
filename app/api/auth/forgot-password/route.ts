@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { checkForgotPasswordRateLimit } from '@/lib/rate-limit';
+import { checkForgotPasswordRateLimit, checkForgotPasswordEmailRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 export async function POST(request: Request) {
   const ip = getClientIpFromRequest(request);
-  const { success: withinLimit } = await checkForgotPasswordRateLimit(ip);
-  if (!withinLimit) {
+  const { success: withinIpLimit } = await checkForgotPasswordRateLimit(ip);
+  if (!withinIpLimit) {
     return NextResponse.json(
       { error: 'Too many reset requests. Please try again in an hour.' },
       { status: 429, headers: { 'Retry-After': '3600' } }
@@ -23,6 +23,15 @@ export async function POST(request: Request) {
   const email = typeof body?.email === 'string' ? body.email.trim() : '';
   if (!email) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+  }
+
+  const { success: withinEmailLimit } = await checkForgotPasswordEmailRateLimit(email);
+  if (!withinEmailLimit) {
+    // Return the same uniform message — don't confirm the email exists
+    return NextResponse.json({
+      success: true,
+      message: 'If an account exists for that email, you will receive reset instructions shortly.',
+    });
   }
 
   let error: { message?: string } | null = null;

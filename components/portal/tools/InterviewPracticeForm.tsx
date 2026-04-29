@@ -7,6 +7,7 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ExportPdfButton from './ExportPdfButton';
+import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
 
 type Question = {
   question: string;
@@ -20,10 +21,11 @@ type StarWorksheet = { situation: string; task: string; action: string; result: 
 
 const emptyStar = (): StarWorksheet => ({ situation: '', task: '', action: '', result: '' });
 
-export default function InterviewPracticeForm() {
+export default function InterviewPracticeForm({ memberId }: { memberId?: string }) {
   const [role, setRole] = useState('');
   const [resumeContext, setResumeContext] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('mid');
+  const [language, setLanguage] = useState<AiToolLanguage>('en');
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -65,6 +67,8 @@ export default function InterviewPracticeForm() {
           difficulty,
           count: 8,
           resumeContext: resumeContext.trim() || undefined,
+          language,
+          ...(memberId ? { subjectMemberId: memberId } : {}),
         }),
       });
 
@@ -150,6 +154,7 @@ export default function InterviewPracticeForm() {
 
   return (
     <form onSubmit={handleSubmit} className="interview-practice-form">
+      <AiToolLanguageSelector value={language} onChange={setLanguage} />
       <div className="form-group">
         <label htmlFor="role">Target role</label>
         <input

@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const createSchema = z.object({
   goalType: z.string().min(1).max(100),
@@ -23,10 +24,11 @@ export async function GET() {
     const goals = await prisma.goal.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
+      take: 200,
     });
     return NextResponse.json({ goals });
   } catch (err) {
-    console.error('[GET /api/member/goals]', err);
+    captureApiError(err, { route: 'member/goals GET' });
     return NextResponse.json({ error: 'Failed to load goals' }, { status: 500 });
   }
 }
@@ -72,7 +74,7 @@ export async function POST(request: Request) {
     await trackEvent({ userId: user.id, eventName: 'goal_created', entityType: 'goal', entityId: goal.id });
     return NextResponse.json({ goal });
   } catch (err) {
-    console.error('[POST /api/member/goals]', err);
+    captureApiError(err, { route: 'member/goals POST' });
     return NextResponse.json({ error: 'Failed to create goal' }, { status: 500 });
   }
 }

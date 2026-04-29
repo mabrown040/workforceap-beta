@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { cookies } from 'next/headers';
 import { i18n } from '@/next-i18next.config.js';
 
@@ -28,20 +29,39 @@ export async function GET(request: Request) {
   /* Optional ?course=<slug> deep-links to a specific course in the enrolled program. */
   const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
 
-  if (requestedSlug && enrolledProgram && dbUser?.organizationId) {
-    const course = await prisma.course.findUnique({
-      where: {
-        organizationId_programSlug_courseSlug: {
-          organizationId: dbUser.organizationId,
-          programSlug: enrolledProgram,
-          courseSlug: requestedSlug,
+  if (requestedSlug && enrolledProgram) {
+    // Prefer DB override first (org-configured course URL type / slug)
+    if (dbUser?.organizationId) {
+      const course = await prisma.course.findUnique({
+        where: {
+          organizationId_programSlug_courseSlug: {
+            organizationId: dbUser.organizationId,
+            programSlug: enrolledProgram,
+            courseSlug: requestedSlug,
+          }
         }
-      }
-    });
+      });
 
-    if (course && course.courseraSlug) {
-      const urlType = course.courseraUrlType || 'learn';
-      return NextResponse.redirect(`https://www.coursera.org/${urlType}/${course.courseraSlug}`);
+      if (course && course.courseraSlug) {
+        const urlType = course.courseraUrlType || 'learn';
+        return NextResponse.redirect(`https://www.coursera.org/${urlType}/${course.courseraSlug}`);
+      }
+    }
+
+    // Fallback: construct enterprise deep link from discovered catalog
+    const discoveredProg = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
+    if (discoveredProg) {
+      const discoveredCourse = discoveredProg.courses.find((c) => c.slug === requestedSlug);
+      if (discoveredCourse) {
+        const programSlugFromUrl = discoveredProg.publicProgramUrl.match(/\/programs\/([^/?#]+)/)?.[1];
+        if (programSlugFromUrl) {
+          return NextResponse.redirect(
+            `https://www.coursera.org/programs/${programSlugFromUrl}/learn/${discoveredCourse.slug}`
+          );
+        }
+        // If URL parse fails, fall through to public learn URL
+        return NextResponse.redirect(`https://www.coursera.org/learn/${discoveredCourse.slug}`);
+      }
     }
   }
 
@@ -61,15 +81,34 @@ export async function GET(request: Request) {
 
   const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
-  // Learner program URL fix (#95) - typically appended with /auth or similar, but for now we just make sure it's not admin root if we have a template
+  // Prefer (1) a configured deep link when it is clearly program/course-specific,
+  // then (2) the discovered learner program URL for the member's actual
+  // enrollment, then (3) the generic Coursera platform root. This avoids
+  // dropping members on a broad homepage or admin landing when we know their
+  // enrolled learner program URL (#95).
+  const discoveredProgramUrl = enrolledProgram
+    ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.publicProgramUrl ?? null
+    : null;
+
+  const configuredLaunchUrl = buildCourseraLaunchUrl({
+    programSlug: enrolledProgram,
+    userId: user.id,
+    email: user.email ?? '',
+    currentCourseIndex,
+    locale,
+  });
+
+  const readiness = getCourseraReadiness(enrolledProgram);
+  const isProgramSpecificLaunchUrl = (url: string | null | undefined) => {
+    if (!url) return false;
+    return /\/programs\//.test(url) || /\/learn\//.test(url) || /\/professional-certificates\//.test(url);
+  };
+
   const launchUrl =
-    buildCourseraLaunchUrl({
-      programSlug: enrolledProgram,
-      userId: user.id,
-      email: user.email ?? '',
-      currentCourseIndex,
-      locale,
-    }) ?? getCourseraReadiness(enrolledProgram).platformUrl;
+    (isProgramSpecificLaunchUrl(configuredLaunchUrl) ? configuredLaunchUrl : null) ??
+    discoveredProgramUrl ??
+    configuredLaunchUrl ??
+    readiness.platformUrl;
 
   return NextResponse.redirect(launchUrl);
 }

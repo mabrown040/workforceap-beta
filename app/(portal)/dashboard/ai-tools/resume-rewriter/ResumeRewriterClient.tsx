@@ -37,7 +37,7 @@ function ResumeCoachRedirectCard() {
         href="/dashboard/ai-tools/resume-coach"
         style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'underline' }}
       >
-        Open Resume Coach for the voice flow →
+        Open Resume & Experience Enhancer for the voice flow →
       </Link>
     </p>
   );
@@ -50,8 +50,11 @@ function ResumeRewriterWithPrefill() {
   const [showLoadedBanner, setShowLoadedBanner] = useState(false);
   const [showUploadBanner, setShowUploadBanner] = useState(false);
   const loadedTextRef = useRef<string | null>(null);
+  const didFetchRef = useRef(false);
 
   useEffect(() => {
+    if (didFetchRef.current) return;
+    didFetchRef.current = true;
     let cancelled = false;
 
     fetch('/api/member/resume?includePlainText=1')
@@ -96,9 +99,7 @@ function ResumeRewriterWithPrefill() {
       resumeControlled={resumeText}
       onResumeChange={(val) => {
         setResumeText(val);
-        if (showLoadedBanner && loadedTextRef.current !== null && val !== loadedTextRef.current) {
-          setShowLoadedBanner(false);
-        }
+        if (showLoadedBanner) setShowLoadedBanner(false);
       }}
       resumeBanner={hasHydrated ? (
         <>

@@ -23,6 +23,7 @@ export async function GET() {
   const subgroupIds = subgroups.map((s) => s.subgroupId);
   const memberSubgroups = await prisma.memberSubgroup.findMany({
     where: { subgroupId: { in: subgroupIds } },
+    take: 1000,
     include: {
       member: {
         select: {

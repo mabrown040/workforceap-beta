@@ -7,6 +7,7 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
+import { awardPoints } from '@/lib/member/points';
 
 function normalizeText(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -121,6 +122,8 @@ export async function completeMemberCourse(args: {
   handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
     console.error('[career-os] learning completion workflow failed:', error)
   );
+
+  awardPoints(args.userId, 'course_completed', matchedCourse.slug).catch(() => {});
 
   return {
     ok: true,

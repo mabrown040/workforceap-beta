@@ -71,40 +71,47 @@ function buildNotifications(badges: Partial<Record<NavBadgeKey, number>>, role: 
   return items;
 }
 
-export default function NotificationBell() {
+export default function NotificationBell({ badges: externalBadges }: { badges?: Partial<Record<NavBadgeKey, number>> }) {
   const pathname = usePathname() ?? '';
   const role = getRole(pathname);
-  const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
+  const [selfBadges, setSelfBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
   const [open, setOpen] = useState(false);
   const [lastFetch, setLastFetch] = useState(0);
   const dropRef = useRef<HTMLDivElement>(null);
 
+  // When the parent (WorkspaceShell) provides badges, use those directly so the
+  // bell badge and the dropdown panel always read from the same source (#10).
+  const badges = externalBadges ?? selfBadges;
+
   const fetchBadges = useCallback(async () => {
+    if (externalBadges) return; // parent owns the data
     try {
       const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(role)}`, { credentials: 'include' });
       if (r.ok) {
         const data = await r.json() as Partial<Record<NavBadgeKey, number>>;
-        setBadges(data);
+        setSelfBadges(data);
         setLastFetch(Date.now());
       }
     } catch {
       /* non-fatal */
     }
-  }, [role]);
+  }, [role, externalBadges]);
 
-  // Initial load + poll every 45s
+  // Initial load + poll every 45s (only when not driven by parent)
   useEffect(() => {
+    if (externalBadges) return;
     void fetchBadges();
     const id = setInterval(() => void fetchBadges(), 45_000);
     return () => clearInterval(id);
-  }, [fetchBadges]);
+  }, [fetchBadges, externalBadges]);
 
-  // Also refresh on wa-nav-badges-refresh event
+  // Also refresh on wa-nav-badges-refresh event (only when not driven by parent)
   useEffect(() => {
+    if (externalBadges) return;
     const handler = () => void fetchBadges();
     window.addEventListener('wa-nav-badges-refresh', handler);
     return () => window.removeEventListener('wa-nav-badges-refresh', handler);
-  }, [fetchBadges]);
+  }, [fetchBadges, externalBadges]);
 
   // Close on outside click
   useEffect(() => {

@@ -14,10 +14,10 @@ export type AiToolsHubCategory = {
 };
 
 const TOOL_CARDS = {
-  elevatorPitch: { label: 'AI Elevator Speech', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
-  readinessCoach: { label: 'Career Readiness Coach', href: '/dashboard/readiness', icon: 'psychology' },
-  resumeCoach: { label: 'Resume Coach', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
-  voiceInterview: { label: 'Voice Interview', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
+  elevatorPitch: { label: 'AI Elevator Introduction', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
+  readinessCoach: { label: 'AI Readiness Coach', href: '/dashboard/readiness', icon: 'psychology' },
+  resumeCoach: { label: 'Resume & Experience Enhancer', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
+  voiceInterview: { label: 'Voice Job/Role Interviewer', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
   careerBusiness: { label: 'Career & Business Coach', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },
   resumeRewriter: { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter', icon: 'description' },
   resumeAnalysis: { label: 'Resume Analysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check' },
@@ -34,6 +34,15 @@ const TOOL_CARDS = {
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
   {
+    id: 'elevator-pitch',
+    title: TOOL_CARDS.elevatorPitch.label,
+    icon: TOOL_CARDS.elevatorPitch.icon,
+    description: 'Generate a sharp 10 to 20 second intro, save it, email it to yourself, then rehearse it on camera.',
+    links: [
+      { label: 'Open elevator introduction', href: TOOL_CARDS.elevatorPitch.href },
+    ],
+  },
+  {
     id: 'readiness',
     title: TOOL_CARDS.readinessCoach.label,
     icon: TOOL_CARDS.readinessCoach.icon,
@@ -43,21 +52,12 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     ],
   },
   {
-    id: 'elevator-pitch',
-    title: TOOL_CARDS.elevatorPitch.label,
-    icon: TOOL_CARDS.elevatorPitch.icon,
-    description: 'Generate a sharp 10 to 20 second intro, save it, email it to yourself, then rehearse it on camera.',
-    links: [
-      { label: 'Open AI elevator speech', href: TOOL_CARDS.elevatorPitch.href },
-    ],
-  },
-  {
     id: 'resume-coach',
     title: TOOL_CARDS.resumeCoach.label,
     icon: TOOL_CARDS.resumeCoach.icon,
     description: 'Practice your story out loud and tighten your resume inside the dedicated coaching flow.',
     links: [
-      { label: 'Open resume coach', href: TOOL_CARDS.resumeCoach.href },
+      { label: 'Open resume enhancer', href: TOOL_CARDS.resumeCoach.href },
     ],
   },
   {
@@ -66,7 +66,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     icon: TOOL_CARDS.voiceInterview.icon,
     description: 'Practice live mock interviews with voice coaching, setup guidance, and saved results.',
     links: [
-      { label: 'Start voice interview', href: TOOL_CARDS.voiceInterview.href },
+      { label: 'Open voice interviewer', href: TOOL_CARDS.voiceInterview.href },
     ],
   },
   {

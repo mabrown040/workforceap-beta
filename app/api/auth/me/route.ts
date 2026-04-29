@@ -8,6 +8,7 @@ import {
   isSuperAdmin,
 } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 export async function GET() {
   try {
@@ -54,17 +55,20 @@ export async function GET() {
     const partnerExclusive = !!partnerCtx && !superAdmin;
     const canAccessMemberDashboard = !partnerExclusive;
 
-    return NextResponse.json({
-      role: role || 'member',
-      partner: partnerCtx ? { partnerId: partnerCtx.partnerId, name: partnerCtx.partner.name } : null,
-      employer: employerNav,
-      counselor: counselorCtx ? { counselorId: counselorCtx.counselorId, partnerId: counselorCtx.partnerId } : null,
-      superAdmin,
-      canAccessMemberDashboard,
-      availablePortals,
-    });
+    return NextResponse.json(
+      {
+        role: role || 'member',
+        partner: partnerCtx ? { partnerId: partnerCtx.partnerId, name: partnerCtx.partner.name } : null,
+        employer: employerNav,
+        counselor: counselorCtx ? { counselorId: counselorCtx.counselorId, partnerId: counselorCtx.partnerId } : null,
+        superAdmin,
+        canAccessMemberDashboard,
+        availablePortals,
+      },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   } catch (err) {
-    console.error('[auth-me] Fatal error in auth/me route:', err);
+    captureApiError(err, { route: 'auth/me' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

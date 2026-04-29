@@ -6,6 +6,7 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
 import MockInterviewVideoRecorder from '@/components/portal/tools/MockInterviewVideoRecorder';
+import AiToolLanguageSelector, { type AiToolLanguage } from '@/components/portal/tools/AiToolLanguageSelector';
 
 const INTERVIEW_TYPES = ['Behavioral', 'Technical', 'General'] as const;
 const EXPERIENCE_LEVELS = [
@@ -22,6 +23,7 @@ export default function VoiceInterviewScaffold() {
   const [role, setRole] = useState('');
   const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('entry');
   const [interviewType, setInterviewType] = useState<(typeof INTERVIEW_TYPES)[number]>('Behavioral');
+  const [language, setLanguage] = useState<AiToolLanguage>('en');
   const [ready, setReady] = useState(false);
   const [lastUserText, setLastUserText] = useState('');
   const [voicePhase, setVoicePhase] = useState<VoiceSessionPhase>('pre');
@@ -68,6 +70,7 @@ export default function VoiceInterviewScaffold() {
     <div>
       {!ready ? (
         <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: 12 }}>
+          <AiToolLanguageSelector value={language} onChange={setLanguage} />
           <div className="form-group">
             <label htmlFor="vi-role">Target role</label>
             <input
@@ -286,7 +289,7 @@ export default function VoiceInterviewScaffold() {
               <PortalVoiceSession
                 key={voiceSessionKey}
                 sessionEndpoint="/api/member/voice-interview/session"
-                sessionPayload={{ role: role.trim(), interviewType, experienceLevel }}
+                sessionPayload={{ role: role.trim(), interviewType, experienceLevel, language }}
                 completionEndpoint="/api/member/voice-interview/transcript"
                 completionPayload={{ sessionId, role: role.trim(), interviewType }}
                 title="Voice mock interview"

@@ -27,8 +27,9 @@ export default async function DashboardCertificationsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
 
-  // Look up the member's enrolled program to show the correct pathway.
-  // Previously hardcoded to PATHWAYS[0] — all members saw IT Support.
+  // Resolve the member's pathway from their enrolled program. Returns null
+  // when the member has no enrolled program — pathway-dependent UI is gated
+  // off rather than rendering a default IT Support / Digital Literacy pathway.
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
     select: { enrolledProgram: true },
@@ -41,22 +42,28 @@ export default async function DashboardCertificationsPage() {
       orderBy: { earnedAt: 'desc' },
       select: { id: true, certName: true, earnedAt: true },
     }),
-    prisma.pathwayStepProgress.findMany({
-      where: { userId: user.id, pathwayId: primaryPathway.id },
-    }),
+    primaryPathway
+      ? prisma.pathwayStepProgress.findMany({
+          where: { userId: user.id, pathwayId: primaryPathway.id },
+        })
+      : Promise.resolve([] as Array<{ pathwayId: string; stepIndex: number; status: string }>),
   ]);
 
   const completedSteps = pathwayRows.filter((r) => r.status === 'completed').length;
   const pathwayPct =
-    primaryPathway.steps.length > 0
+    primaryPathway && primaryPathway.steps.length > 0
       ? Math.round((completedSteps / primaryPathway.steps.length) * 100)
       : 0;
 
-  const pathwayMilestones = buildPathwayMilestones(primaryPathway, pathwayRows);
+  const pathwayMilestones = primaryPathway
+    ? buildPathwayMilestones(primaryPathway, pathwayRows)
+    : [];
   const currentMilestone = pathwayMilestones.find((m) => m.status === 'current');
   const mobileProgressIcon = currentMilestone?.icon ?? 'route';
-  const mobileProgressTitle = currentMilestone?.label ?? primaryPathway.title;
-  const mobileProgressSubtitle = `${completedSteps} of ${primaryPathway.steps.length} modules · ${primaryPathway.title}`;
+  const mobileProgressTitle = currentMilestone?.label ?? primaryPathway?.title ?? '';
+  const mobileProgressSubtitle = primaryPathway
+    ? `${completedSteps} of ${primaryPathway.steps.length} modules · ${primaryPathway.title}`
+    : '';
 
   const certRows = certs.map((c) => ({
     id: c.id,
@@ -71,15 +78,11 @@ export default async function DashboardCertificationsPage() {
       <h1 className="wa-sr-only">Certificates &amp; achievements</h1>
       {/* ── MOBILE ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Header */}
-        <div style={{ padding: '1.25rem 1rem 0.5rem' }}>
-          <h2 style={{ fontSize: '1.375rem', fontWeight: 700, lineHeight: 1.25, marginBottom: '0.25rem' }}>
-            My Certificates
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Certificates and credentials you&rsquo;ve earned.
-          </p>
-        </div>
+        <PageHeader
+          title="My Certificates"
+          subtitle="Certificates and credentials you've earned."
+          titleHeadingLevel={2}
+        />
 
         {/* Stats chips */}
         <div style={{ display: 'flex', gap: '0.625rem', padding: '0.75rem 1rem', overflowX: 'auto' }}>
@@ -153,6 +156,7 @@ export default async function DashboardCertificationsPage() {
         </section>
 
         {/* In Progress */}
+        {primaryPathway && (
         <section style={{ padding: '0 1rem', marginBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.75rem' }}>In Progress</h2>
           <div
@@ -202,6 +206,7 @@ export default async function DashboardCertificationsPage() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Earn More CTA */}
         <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
@@ -383,6 +388,7 @@ export default async function DashboardCertificationsPage() {
             style={{ marginBottom: 'var(--space-12)' }}
           >
             {/* Active Pathway card (large) */}
+            {primaryPathway && (
             <div
               style={{
                 background: 'var(--surface-container-low)',
@@ -399,7 +405,7 @@ export default async function DashboardCertificationsPage() {
                 >
                   route
                 </span>
-                <h2 style={{ fontSize: 'var(--font-size-h3)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Active Pathway</h2>
+                <h2 className="portal-section-heading" style={{ margin: 0 }}>Active Pathway</h2>
               </div>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', fontSize: 'var(--font-size-sm)' }}>
                 Your current certification journey. Complete each milestone to move to the next.
@@ -447,6 +453,7 @@ export default async function DashboardCertificationsPage() {
                 ))}
               </div>
             </div>
+            )}
 
             {/* Ready for Download card */}
             <div
@@ -509,6 +516,7 @@ export default async function DashboardCertificationsPage() {
             </div>
 
             {/* Achievement badge with SVG ring */}
+            {primaryPathway && (
             <div
               style={{
                 background: 'var(--surface-container)',
@@ -546,6 +554,7 @@ export default async function DashboardCertificationsPage() {
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{primaryPathway.title}</div>
             </div>
+            )}
           </div>
 
           {/* Certificate Roadmap section */}
@@ -554,7 +563,7 @@ export default async function DashboardCertificationsPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                 timeline
               </span>
-              <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', margin: 0 }}>Certificate Roadmap</h2>
+              <h2 className="portal-section-heading" style={{ margin: 0 }}>Certificate Roadmap</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', maxWidth: '640px' }}>
               Industry-recognized credentials across IT, healthcare, and skilled trades. Check off certificates as you earn them.

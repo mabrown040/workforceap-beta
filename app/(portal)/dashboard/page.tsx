@@ -29,6 +29,9 @@ import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
+import PointsWidget from '@/components/portal/PointsWidget';
+import { getMemberPoints } from '@/lib/member/points';
+import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Your Dashboard',
@@ -88,11 +91,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           state: true,
           zip: true,
           profilePhone: true,
+          profileAddress: true,
           referralSource: true,
           dob: true,
           isMinor: true,
         },
       },
+      courseEnrollment: { select: { enrolledByAdminId: true } },
     },
   });
   const profilePromise = prisma.profile.findUnique({
@@ -139,7 +144,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, sessionEventsResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -163,6 +168,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     }),
     prisma.jobApplication.findMany({
       where: { userId: user.id, status: 'OFFER' },
+    }),
+    getMemberPoints(user.id),
+    prisma.pointsTransaction.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+      select: { id: true, event: true, points: true, note: true, createdAt: true },
     }),
     // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
     // ai_tool_run_completed event in the last 30 days where a counselor or
@@ -197,6 +209,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   }
 
   const jobOffers = jobApplicationsResult.status === 'fulfilled' ? jobApplicationsResult.value : [];
+
+  const memberPoints = pointsResult.status === 'fulfilled' ? pointsResult.value : null;
+  const recentTx = recentTxResult.status === 'fulfilled' ? recentTxResult.value : [];
 
   // Group on-behalf-of session events by sessionId so the dashboard can
   // render a single "Your session with {actor}" card for the most recent run.
@@ -285,20 +300,33 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         ? 'D'
         : 'C';
 
-  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, {
+  const completenessUser = {
     fullName: dbUser.fullName,
     email: dbUser.email,
+    enrolledProgram: dbUser.enrolledProgram,
+    assessmentCompleted: dbUser.assessmentCompleted,
+  };
+  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, completenessUser);
+  const profileMissingFields = getProfileMissingFields(profileForCompleteness, completenessUser);
+  const starterProfileReview = getCounselorStarterProfileReview({
+    wasCounselorCreated: !!intakeExtra?.courseEnrollment?.enrolledByAdminId,
+    phone: intakeExtra?.phone,
+    profilePhone: intakeExtra?.profile?.profilePhone,
+    profileAddress: intakeExtra?.profile?.profileAddress,
+    city: intakeExtra?.profile?.city,
+    state: intakeExtra?.profile?.state,
+    zip: intakeExtra?.profile?.zip,
+    referralSource: intakeExtra?.profile?.referralSource,
   });
-  const profileMissingFields = getProfileMissingFields(profileForCompleteness, {
-    fullName: dbUser.fullName,
-    email: dbUser.email,
-  });
+  const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
 
   let nextBestActions = buildNextBestActions({
     state: dashboardState,
     noApplicationOnFile,
     enrolledProgram,
     assessmentCompleted,
+    starterProfileReviewRequired: starterProfileReview.required,
+    starterProfileMissingFields: starterProfileMissingLabels,
     hasResume: engagementSignals.hasResume,
     profileCompletenessPct,
     profileMissingFields,
@@ -324,7 +352,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    startFirstCourse: !!enrolledProgram && assessmentCompleted, // training unlocked
+    // Audit #8: previously checked "training unlocked" (program enrolled +
+    // assessment done), so "Start training ✓" appeared while 0/16 courses
+    // were complete. Now ties to actual course completion progress.
+    startFirstCourse: completedCount >= 1,
     completeFirstCourse: completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
@@ -387,11 +418,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
     {
-      label: 'Profile verified',
+      label: 'Program selected',
       done: !!enrolledProgram,
       active: !enrolledProgram,
       locked: false,
-      detail: enrolledProgram ? 'Program on file' : 'Choose a program',
+      detail: enrolledProgram ? 'Program on file' : noApplicationOnFile ? 'Start your application' : 'Choose a program',
     },
     {
       label: 'Skills assessment',
@@ -420,11 +451,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           : interviewEligibleFlag
             ? 'Request or attend your interview'
             : preScreeningDone
-              ? 'Awaiting counselor'
+              ? 'Awaiting counselor review'
               : 'Submit pre-screening below',
     },
     {
-      label: 'Enrollment confirmed',
+      label: 'First course completed',
       done: completedCount > 0,
       active:
         !!enrolledProgram &&
@@ -437,11 +468,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         (interviewEligibleFlag && !interviewCompleted),
       detail:
         completedCount > 0
-          ? 'Training in progress'
+          ? allCoursesComplete
+            ? 'All courses complete'
+            : `${completedCount} course${completedCount === 1 ? '' : 's'} complete`
           : enrolledProgram && assessmentCompleted
             ? interviewEligibleFlag && !interviewCompleted
               ? 'Complete interview first'
-              : 'Start your first course'
+              : 'Open your first course'
             : 'Complete prior steps first',
     },
   ];
@@ -502,7 +535,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                     Member dashboard
                   </p>
                   <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    Hi, {firstName}
+                    Welcome back, {firstName}
                   </h2>
                 </div>
                 {program && (
@@ -682,6 +715,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
+        {/* ── Points widget ── */}
+        {memberPoints && memberPoints.total > 0 && (
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+            <PointsWidget
+              total={memberPoints.total}
+              level={memberPoints.level}
+              recent={recentTx}
+            />
+          </section>
+        )}
+
         {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
         {!enrolledProgram ? (
           <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
@@ -800,9 +844,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Recent AI Activity ── */}
+        {/* ── Recent AI Activity — mobile ── */}
         {recentTools.length > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
             <div className="portal-dash-section-header">
               <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
               <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
@@ -811,7 +855,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               {recentTools.map((r) => (
                 <div key={r.id} className="portal-activity-item">
                   <div className="portal-activity-item__icon">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">smart_toy</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
@@ -847,6 +891,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               wizardProps={{
                 initialFullName: intakeExtra?.fullName ?? '',
                 initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
+                initialAddress: intakeExtra?.profile?.profileAddress ?? '',
                 initialCity: intakeExtra?.profile?.city ?? '',
                 initialState: intakeExtra?.profile?.state ?? '',
                 initialZip: intakeExtra?.profile?.zip ?? '',
@@ -859,8 +904,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-                <div style={{ maxWidth: '300px' }}>
-                  <LogCertificationModal />
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
+                  <div style={{ maxWidth: '300px' }}>
+                    <LogCertificationModal />
+                  </div>
+                  {memberPoints && memberPoints.total > 0 && (
+                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
+                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
+                    </div>
+                  )}
                 </div>
               </div>
               <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
@@ -875,6 +927,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   interviewEligible={intakeExtra?.interviewEligible ?? false}
                   interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
                   interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+                  starterProfileReviewRequired={starterProfileReview.required}
+                  starterProfileMissingFields={starterProfileMissingLabels}
                   state={dashboardState}
                   programTitle={program?.title}
                   enrolledAt={dbUser.enrolledAt}
@@ -897,35 +951,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <MatchedRoles />
                 </Suspense>
               )}
-              {recentTools.length > 0 && (
-                <section style={{ padding: '1.5rem 2rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
-                  <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
-                    <h2 className="portal-section-heading" style={{ margin: 0 }}>Recent AI Activity</h2>
-                    <Link href="/dashboard/ai-tools/history" className="portal-section-action">
-                      View all
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>arrow_forward</span>
-                    </Link>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {recentTools.map((r) => (
-                      <div key={r.id} className="portal-card portal-card--flat portal-card--padded-sm" style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize:'1.25rem', color:'var(--color-accent)', flexShrink:0 }}>smart_toy</span>
-                        <div style={{ flex:1, minWidth:0 }}>
-                          <p style={{ fontSize:'0.875rem', fontWeight:600, margin:0, color:'var(--color-on-surface)' }}>{AI_TOOL_LABELS[r.toolType] ?? r.toolType}</p>
-                          {r.inputSummary && (
-                            <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {stripMarkdownForPreview(r.inputSummary)}
-                            </p>
-                          )}
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
-                          {formatPortalDate(r.createdAt)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
+              {/* Recent AI Activity is rendered in the mobile view above —
+                  suppressed here so the same data doesn't appear twice in the DOM
+                  on wider viewports. DashboardHomeClient surfaces activity inline. */}
             </PortalEntryClient>
           </Suspense>
         </PortalEntryErrorBoundary>

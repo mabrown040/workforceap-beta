@@ -6,6 +6,7 @@ import { sendCourseEnrolledEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/programCatalog';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
+import { awardPoints } from '@/lib/member/points';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -91,6 +92,8 @@ export async function POST(request: Request) {
     });
     return u;
   });
+
+  awardPoints(user.id, 'program_enrolled', slug).catch(() => {});
 
   // Lifecycle event: program_enrolled
   trackEvent({

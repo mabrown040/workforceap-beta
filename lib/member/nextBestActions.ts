@@ -19,6 +19,8 @@ export type NextBestActionsContext = {
   noApplicationOnFile: boolean;
   enrolledProgram: string | null;
   assessmentCompleted: boolean;
+  starterProfileReviewRequired?: boolean;
+  starterProfileMissingFields?: string[];
   hasResume: boolean;
   profileCompletenessPct: number;
   profileMissingFields?: string[];
@@ -55,15 +57,29 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
   }
 
   if (ctx.state === 'B') {
-    out.push({
-      id: 'skills_assessment',
-      title: 'Complete your skills assessment',
-      body: 'Start your training path and job matching with a short assessment.',
-      href: '/dashboard/assessment',
-      cta: 'Take assessment',
-      variant: 'urgent',
-      weight: 90,
-    });
+    if (ctx.starterProfileReviewRequired) {
+      const missing = ctx.starterProfileMissingFields?.slice(0, 3) ?? [];
+      const missingNote = missing.length > 0 ? ` Missing: ${missing.join(', ')}.` : '';
+      out.push({
+        id: 'review_starter_profile',
+        title: 'Review your starter profile details',
+        body: `Before WorkforceAP unlocks your Training Preassessment, confirm the contact and referral details your counselor entered.${missingNote}`,
+        href: '/dashboard/profile',
+        cta: 'Review profile',
+        variant: 'urgent',
+        weight: 92,
+      });
+    } else {
+      out.push({
+        id: 'skills_assessment',
+        title: 'Complete your Training Preassessment',
+        body: 'After you choose a program, this short preassessment helps personalize your training plan and identify roles that may be a good fit.',
+        href: '/dashboard/assessment',
+        cta: 'Start preassessment',
+        variant: 'urgent',
+        weight: 90,
+      });
+    }
   }
 
   if (ctx.counselorUnreadCount > 0) {
@@ -97,7 +113,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'interview_practice',
       title: 'Practice your interview answers',
-      body: 'Use guided interview practice so you sound ready for recruiter screens and counselor interviews.',
+      body: 'Use guided interview practice to prepare for recruiter screens and counselor interviews.',
       href: '/dashboard/ai-tools/interview-practice',
       cta: 'Practice interviews',
       variant: 'default',

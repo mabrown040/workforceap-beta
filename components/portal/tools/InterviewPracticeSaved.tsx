@@ -14,8 +14,8 @@ type Question = {
 
 type SavedResult = {
   id: string;
-  inputSummary: string;
-  output: string;
+  inputSummary: string | null;
+  output: string | null;
   createdAt: Date;
 };
 
@@ -34,7 +34,7 @@ export default function InterviewPracticeSaved({ results }: { results: SavedResu
         {results.map((r) => {
           let questions: Question[] = [];
           try {
-            questions = JSON.parse(r.output) as Question[];
+            questions = JSON.parse(r.output ?? '[]') as Question[];
             if (!Array.isArray(questions)) questions = [];
           } catch {
             // ignore
@@ -49,7 +49,7 @@ export default function InterviewPracticeSaved({ results }: { results: SavedResu
                 aria-expanded={isExpanded}
                 aria-controls={`saved-practice-content-${r.id}`}
               >
-                <span className="interview-practice-saved-summary">{r.inputSummary}</span>
+                <span className="interview-practice-saved-summary">{r.inputSummary ?? '—'}</span>
                 <span className="interview-practice-saved-date">
                   {formatPortalDate(r.createdAt)}
                 </span>

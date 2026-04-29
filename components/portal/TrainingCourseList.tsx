@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ProgramCourse } from '@/lib/content/programs';
-import { getDiscoveredProgram } from '@/lib/content/programs';
 
 type TrainingCourseListProps = {
   courses: ProgramCourse[];
@@ -11,9 +10,10 @@ type TrainingCourseListProps = {
   programSlug?: string;
 };
 
-export default function TrainingCourseList({ courses, completedSlugs, programSlug }: TrainingCourseListProps) {
+export default function TrainingCourseList({ courses, completedSlugs }: TrainingCourseListProps) {
   const router = useRouter();
   const [marking, setMarking] = useState<string | null>(null);
+  const [markError, setMarkError] = useState<string | null>(null);
   const completedSet = new Set(completedSlugs);
 
   const getStatus = (slug: string): 'complete' | 'in_progress' | 'not_started' => {
@@ -21,21 +21,9 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
     return 'not_started';
   };
 
-  const getCourseraCourseUrl = (courseSlug: string): string => {
-    if (!programSlug) return 'https://coursera.org';
-    
-    const discoveredProgram = getDiscoveredProgram(programSlug);
-    if (!discoveredProgram) return 'https://coursera.org';
-    
-    const discoveredCourse = discoveredProgram.courses.find((c: { slug: string }) => c.slug === courseSlug);
-    if (!discoveredCourse) return 'https://coursera.org';
-    
-    // Use the course's public URL if available, otherwise construct from course ID
-    return `https://www.coursera.org/learn/${discoveredCourse.slug}`;
-  };
-
   const handleMarkComplete = async (slug: string) => {
     setMarking(slug);
+    setMarkError(null);
     try {
       const res = await fetch('/api/member/courses/complete', {
         method: 'POST',
@@ -44,7 +32,12 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
       });
       if (res.ok) {
         router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        setMarkError(data.error ?? 'Could not mark course complete. Please try again.');
       }
+    } catch {
+      setMarkError('Could not mark course complete. Please try again.');
     } finally {
       setMarking(null);
     }
@@ -54,6 +47,21 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {markError && (
+        <div
+          role="alert"
+          style={{
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            background: 'rgba(200, 50, 50, 0.08)',
+            border: '1px solid rgba(200, 50, 50, 0.25)',
+            color: 'var(--color-error, #c83232)',
+            fontSize: '0.9rem',
+          }}
+        >
+          {markError}
+        </div>
+      )}
       {courses.map((c) => {
         const status = getStatus(c.slug);
         const isComplete = status === 'complete';
@@ -62,6 +70,7 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
           <div
             key={c.slug}
             data-course-slug={c.slug}
+            data-course-id={c.courseraCourseId ?? undefined}
             className={`training-course-card${isUpNext ? ' training-course-card--up-next' : ''}`}
             style={{
               padding: '1.25rem',
@@ -107,7 +116,7 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
                 {isComplete ? 'Complete' : 'Not Started'}
               </span>
               <a
-                href={getCourseraCourseUrl(c.slug)}
+                href={`https://www.coursera.org/learn/${encodeURIComponent(c.slug)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

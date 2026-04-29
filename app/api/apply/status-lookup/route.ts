@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { applicationStatusForPublicLookup } from '@/lib/member/memberApplicationStatus';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const bodySchema = z.object({
   email: z.string().email().max(320).toLowerCase().trim(),
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       applied: 'Applied — we received your application.',
       under_review: 'Under review — our team is evaluating your application.',
       accepted: 'Accepted — check your email and member portal for next steps.',
-      rejected: 'Not accepted — see your email for details or contact info@workforceap.org.',
+      rejected: 'Application closed — see your email for details or contact info@workforceap.org.',
     };
 
     return NextResponse.json({
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       message: labels[statusKey],
     });
   } catch (err) {
-    console.error(err);
+    captureApiError(err, { route: 'apply/status-lookup' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

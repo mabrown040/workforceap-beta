@@ -2,8 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sanitizePublicPartnerLabel, sanitizePublicSubgroupLabel } from '@/lib/public/publicDataFilters';
+import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 export async function GET(request: NextRequest) {
+  // Rate limiting to prevent token enumeration attacks
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkInviteAcceptRateLimit(ip);
+  if (!rateOk) {
+    return NextResponse.json(
+      { valid: false, error: 'Too many requests. Please wait before trying again.' },
+      { status: 429 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
 

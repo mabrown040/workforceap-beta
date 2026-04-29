@@ -3,6 +3,15 @@ import { createServerClient } from '@supabase/ssr';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { checkAuthRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: Request): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 /**
  * POST /api/auth/setup-mfa
@@ -14,6 +23,16 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
  * Body: { factorId, code }
  */
 export async function POST(request: Request) {
+  // Rate limiting to prevent MFA setup abuse
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkAuthRateLimit(ip);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many MFA setup attempts. Please wait before trying again.' },
+      { status: 429 }
+    );
+  }
+
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }
@@ -60,6 +79,16 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  // Rate limiting for MFA verification attempts
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkAuthRateLimit(ip);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many verification attempts. Please wait before trying again.' },
+      { status: 429 }
+    );
+  }
+
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }

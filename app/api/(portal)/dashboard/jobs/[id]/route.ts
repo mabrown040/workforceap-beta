@@ -1,11 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 /** Public job detail - only live jobs */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkPublicCareersGetRateLimit(ip);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down and try again.' },
+      { status: 429 }
+    );
+  }
+
   const { id } = await params;
   try {
     const job = await prisma.job.findFirst({

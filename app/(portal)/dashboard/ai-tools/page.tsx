@@ -18,6 +18,18 @@ export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
 
+  const primaryVerticalTools = [
+    { label: 'Elevator', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
+    { label: 'Career Readiness', href: '/dashboard/readiness', icon: 'psychology' },
+    { label: 'Resume', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
+    { label: 'Interviewing', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
+  ];
+
+  const secondaryHorizontalTools = [
+    { label: 'Counseling', href: '/dashboard/readiness', icon: 'support_agent' },
+    { label: 'Career & Business Coaching', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },
+  ];
+
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div className="wa-pb-24 md:wa-pb-0">

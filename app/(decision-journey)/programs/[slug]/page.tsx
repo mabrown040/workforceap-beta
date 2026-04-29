@@ -101,6 +101,58 @@ export default async function ProgramPage({ params }: Props) {
         <div className="container program-detail-grid">
           <div className="program-detail-main">
             <p className="program-detail-description">{getProgramDescription(program.category, program.slug)}</p>
+
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                background: 'var(--surface-container-low)',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
+                  Program snapshot
+                </p>
+                <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-on-surface)' }}>
+                  What you should know before you apply
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '1rem',
+                }}
+              >
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Best fit</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    {extra?.bestFor ?? `Members exploring ${program.categoryLabel.toLowerCase()} training with a clear first credential.`}
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Typical roles</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    {extra?.jobOutcomes?.length ? extra.jobOutcomes.join(' · ') : `Early-career ${program.categoryLabel.toLowerCase()} roles tied to this training path.`}
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Course preview</h3>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+                    {program.courses.slice(0, 4).map((course) => (
+                      <li key={course.slug}>{course.name}</li>
+                    ))}
+                  </ul>
+                  {program.courses.length > 4 ? (
+                    <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                      Plus {program.courses.length - 4} more course{program.courses.length - 4 === 1 ? '' : 's'} in the full path.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
             <ProgramDetailClient program={program} />
             
             {/* Bottom CTA Banner */}

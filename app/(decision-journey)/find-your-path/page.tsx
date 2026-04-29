@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { buildPageMetadata } from '@/app/seo';
 import FindYourPathClient from './FindYourPathClient';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramExtra } from '@/lib/content/programExtras';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Find Your Path — Program Quiz',
@@ -10,7 +13,21 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/find-your-path',
 });
 
+const fallbackProgramSlugs = [
+  'digital-literacy-empowerment-class',
+  'it-support-professional-certificate-ibm',
+  'project-management-professional-certificate-google',
+] as const;
+
 export default function FindYourPathPage() {
+  const fallbackPrograms = fallbackProgramSlugs
+    .map((slug) => getProgramBySlug(slug))
+    .filter((program) => Boolean(program))
+    .map((program) => ({
+      program: program!,
+      extra: getProgramExtra(program!.slug),
+    }));
+
   return (
     <div
       className="inner-page marketing-stack marketing-stack--enter"
@@ -65,6 +82,62 @@ export default function FindYourPathPage() {
         }}>
           {/* Main quiz area */}
           <div>
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1.25rem 1.5rem',
+                borderRadius: 'var(--radius-xl)',
+                background: 'var(--surface-container)',
+                border: '1px solid var(--surface-container-highest)',
+              }}
+            >
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div>
+                  <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
+                    Browse-first fallback
+                  </p>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem' }}>If the quiz feels slow, start with a likely fit.</h2>
+                </div>
+                <Link href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
+                  Browse the full catalog
+                </Link>
+              </div>
+              <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                You can still move forward without the quiz. These are common starting points for beginners, job-seekers who need a faster path, and members exploring business-facing work.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.875rem' }}>
+                {fallbackPrograms.map(({ program, extra }) => (
+                  <div
+                    key={program.slug}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.875rem',
+                      background: 'var(--surface-container-low)',
+                      border: '1px solid var(--outline-variant)',
+                    }}
+                  >
+                    <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.35rem' }}>
+                      {program.categoryLabel}
+                    </p>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>{program.title}</h3>
+                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                      {extra?.bestFor ?? `${program.duration} program with practical training and a clear next-step path.`}
+                    </p>
+                    <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                      {program.duration}
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <Link href={`/programs/${program.slug}`} style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                        View details →
+                      </Link>
+                      <Link href={`/apply?program=${program.slug}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
+                        Apply
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <FindYourPathClient idPrefix="fyp-desktop" />
           </div>
 
@@ -92,10 +165,12 @@ export default function FindYourPathPage() {
               borderRadius: 'var(--radius-xl)', overflow: 'hidden',
               position: 'relative', height: '200px',
             }}>
-              <img
+              <Image
                 src="/images/hero-people.jpg"
                 alt="Members collaborating on career training"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                fill
+                sizes="300px"
+                style={{ objectFit: 'cover' }}
               />
               <div style={{
                 position: 'absolute', inset: 0,

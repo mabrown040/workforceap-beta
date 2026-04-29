@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -10,6 +11,37 @@ export const metadata: Metadata = buildPageMetadata({
     'Answers about applying, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
   path: '/faq',
 });
+
+const faqHighlights = [
+  {
+    question: 'How much do WorkforceAP programs cost?',
+    answer:
+      'Programs are offered at no cost to qualifying members. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.',
+    href: '/programs',
+    cta: 'Browse programs',
+  },
+  {
+    question: 'Do I need prior tech experience?',
+    answer:
+      'No. Many members start from zero. If computers still feel new, there are beginner-safe options designed to help you build confidence first.',
+    href: '/find-your-path',
+    cta: 'Find your path',
+  },
+  {
+    question: 'What happens after I apply?',
+    answer:
+      'WorkforceAP reviews your goals, confirms fit, and follows up with next steps. That can include intake guidance, documentation review, or program-specific support.',
+    href: '/apply',
+    cta: 'Start application',
+  },
+  {
+    question: 'How long do programs take?',
+    answer:
+      'Most programs take about 3–5 months at roughly 10 hours per week. Digital Literacy is shorter and works well as an on-ramp if you need a gentler start.',
+    href: '/programs',
+    cta: 'See program timelines',
+  },
+];
 
 export default function FAQPage() {
   return (
@@ -38,6 +70,55 @@ export default function FAQPage() {
             <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7, fontWeight: 300, margin: 0 }}>
               Answers that address your concerns, whether you&rsquo;re applying, supporting someone who is, or deciding if WorkforceAP is right for you.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="content-section" style={{ paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+        <div className="container" style={{ maxWidth: 1200 }}>
+          <div
+            style={{
+              padding: '1.5rem',
+              borderRadius: '1rem',
+              background: 'var(--surface-container-low)',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <div style={{ marginBottom: '1rem' }}>
+              <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
+                Quick answers
+              </p>
+              <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--color-on-surface)' }}>
+                Start with the questions people ask most.
+              </h2>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              {faqHighlights.map((item) => (
+                <div
+                  key={item.question}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.875rem',
+                    background: 'var(--surface-container-high)',
+                    border: '1px solid var(--outline-variant)',
+                  }}
+                >
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{item.question}</h3>
+                  <p style={{ margin: '0 0 0.75rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)', fontSize: '0.92rem' }}>
+                    {item.answer}
+                  </p>
+                  <Link href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                    {item.cta} →
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

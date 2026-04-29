@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,6 +18,7 @@ export default function MemberNextStepsStrip({
   fillRow?: boolean;
 }) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const router = useRouter();
 
   const dismiss = useCallback((id: string) => {
     setDismissed((prev) => new Set([...prev, id]));
@@ -24,6 +26,26 @@ export default function MemberNextStepsStrip({
       fetch(`/api/member/nba/${id}`, { method: 'PATCH' }).catch(() => {});
     }
   }, []);
+
+  const completeAndOpen = useCallback(async (id: string, href: string) => {
+    if (!UUID_RE.test(id)) {
+      router.push(href);
+      return;
+    }
+
+    setDismissed((prev) => new Set([...prev, id]));
+    try {
+      await fetch(`/api/member/nba/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'COMPLETED' }),
+        keepalive: true,
+      });
+    } catch {
+      // Navigate anyway — tracking should never block the member.
+    }
+    router.push(href);
+  }, [router]);
 
   const visible = actions.filter((a) => !dismissed.has(a.id));
   if (visible.length === 0) return null;
@@ -162,6 +184,11 @@ export default function MemberNextStepsStrip({
             <Link
               href={a.href}
               className="btn btn-primary"
+              onClick={(e) => {
+                if (!UUID_RE.test(a.id)) return;
+                e.preventDefault();
+                void completeAndOpen(a.id, a.href);
+              }}
               style={{
                 alignSelf: 'flex-start',
                 fontSize: compact ? '0.8rem' : isFeatured ? '0.9rem' : '0.85rem',

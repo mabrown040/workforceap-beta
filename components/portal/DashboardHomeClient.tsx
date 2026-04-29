@@ -714,7 +714,7 @@ export default function DashboardHomeClient({
                   { done: checklist.createAccount, label: 'Create account' },
                   { done: checklist.chooseProgram, label: 'Choose program' },
                   { done: checklist.completeAssessment, label: 'Complete preassessment' },
-                  { done: checklist.startFirstCourse, label: 'Training unlocked' },
+                  { done: checklist.startFirstCourse, label: 'Start your first course' },
                   { done: checklist.completeFirstCourse, label: 'Complete your first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>

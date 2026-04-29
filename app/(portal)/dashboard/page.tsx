@@ -418,7 +418,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
     {
-      label: 'Profile verified',
+      label: 'Program selected',
       done: !!enrolledProgram,
       active: !enrolledProgram,
       locked: false,
@@ -455,7 +455,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               : 'Submit pre-screening below',
     },
     {
-      label: 'Enrollment confirmed',
+      label: 'First course completed',
       done: completedCount > 0,
       active:
         !!enrolledProgram &&

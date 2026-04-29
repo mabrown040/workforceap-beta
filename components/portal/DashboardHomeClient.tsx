@@ -144,7 +144,7 @@ export default function DashboardHomeClient({
     },
     {
       done: checklist.startFirstCourse,
-      doneLabel: 'First course complete',
+      doneLabel: 'Training started',
       pendingLabel: 'Open your first course',
     },
     {
@@ -424,7 +424,7 @@ export default function DashboardHomeClient({
                   const isCurrent = !item.done && (i === 0 || checklistItems[i - 1].done);
                   const label = item.done ? item.doneLabel : item.pendingLabel;
                   return (
-                    <div key={label} className="portal-milestone-step" style={{
+                    <div key={`${i}-${label}`} className="portal-milestone-step" style={{
                       opacity: item.done ? 0.5 : isCurrent ? 1 : 0.35,
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>

@@ -19,6 +19,18 @@ export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
 
+  const primaryVerticalTools = [
+    { label: 'Elevator', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
+    { label: 'Career Readiness', href: '/dashboard/readiness', icon: 'psychology' },
+    { label: 'Resume', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
+    { label: 'Interviewing', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
+  ];
+
+  const secondaryHorizontalTools = [
+    { label: 'Counseling', href: '/dashboard/readiness', icon: 'support_agent' },
+    { label: 'Career & Business Coaching', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },
+  ];
+
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
       <div className="wa-pb-24 md:wa-pb-0">
@@ -76,7 +88,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            Start with the 5 core tools below, then move step by step through resume prep, applications, interviews, and profile polish.
+            Same guided flow as home page: start with the core path, then use coaching support underneath.
           </p>
 
           <div className="wa-block md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
@@ -144,7 +156,65 @@ export default async function AIToolsPage() {
         </section>
       </div>
 
-      {/* Voice coaches — compact at top */}
+      <section style={{ maxWidth: '1100px', margin: '0 auto 1.5rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <PortalCard className="portal-card--flat">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>view_agenda</span>
+              <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                Core Tools Path
+              </h2>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+              {primaryVerticalTools.map((tool, i) => (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="portal-quick-action-item"
+                  style={{ textDecoration: 'none', padding: '0.85rem 0.9rem' }}
+                >
+                  <div className="portal-quick-action-item__icon">
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="portal-quick-action-item__label" style={{ marginBottom: 0 }}>{`${i + 1}. ${tool.label}`}</p>
+                  </div>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35 }}>chevron_right</span>
+                </Link>
+              ))}
+            </div>
+          </PortalCard>
+        </div>
+
+        <PortalCard className="portal-card--flat">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>view_carousel</span>
+            <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+              Coaching Support
+            </h2>
+          </div>
+          <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
+            {secondaryHorizontalTools.map((tool, i) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="portal-quick-action-item"
+                style={{ textDecoration: 'none', padding: '0.85rem 0.9rem', flex: '1 1 240px' }}
+              >
+                <div className="portal-quick-action-item__icon">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="portal-quick-action-item__label" style={{ whiteSpace: 'normal', marginBottom: 0 }}>{`${i + 1}. ${tool.label}`}</p>
+                </div>
+                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35 }}>chevron_right</span>
+              </Link>
+            ))}
+          </div>
+        </PortalCard>
+      </section>
+
+      {/* Voice coaches — compact reference section */}
       <div style={{ marginBottom: '1.5rem' }}>
         <VoiceCoachesPromo />
       </div>

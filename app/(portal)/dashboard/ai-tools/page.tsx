@@ -7,6 +7,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Toolkit',
@@ -163,6 +164,61 @@ export default async function AIToolsPage() {
       <div style={{ marginBottom: '1.5rem' }}>
         <VoiceCoachesPromo />
       </div>
+
+      {/* Guided job search steps */}
+      <section style={{ maxWidth: '1100px', margin: '0 auto 2rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
+          <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+            Guided Job Search Steps
+          </h2>
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <PortalCard className="portal-card--flat">
+            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+              Looking for your application tracker? It now lives under <strong style={{ color: 'var(--color-on-surface)' }}>Jobs</strong> so your saved roles and application status stay with the rest of your job search workflow.
+            </p>
+            <div style={{ marginTop: '0.875rem' }}>
+              <Link href="/dashboard/job-applications" className="btn btn-outline">
+                Open Application Tracker
+              </Link>
+            </div>
+          </PortalCard>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+          {AI_TOOLKIT_EXTRA_SECTIONS.map((section) => (
+            <PortalCard key={section.title} className="portal-card--flat">
+              <div style={{ marginBottom: '0.875rem' }}>
+                <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                  {section.title}
+                </h3>
+              </div>
+              <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
+                {section.tools.map((tool) => (
+                  <Link
+                    key={tool.href}
+                    href={tool.href}
+                    className="portal-quick-action-item"
+                    style={{ textDecoration: 'none', padding: '0.75rem 0.875rem', flex: '1 1 160px', maxWidth: '220px' }}
+                  >
+                    <div className="portal-quick-action-item__icon">
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p className="portal-quick-action-item__label" style={{ whiteSpace: 'normal', lineHeight: 1.35, overflowWrap: 'break-word' }}>
+                        {tool.label}
+                      </p>
+                    </div>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35, flexShrink: 0, marginTop: '0.15rem' }}>chevron_right</span>
+                  </Link>
+                ))}
+              </div>
+            </PortalCard>
+          ))}
+        </div>
+      </section>
 
       <div className="wa-block md:wa-hidden">
         <MobileBottomNav variant="portal" />

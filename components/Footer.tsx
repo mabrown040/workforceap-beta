@@ -73,6 +73,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             <li><Link href="/blog" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Blog</Link></li>
             <li><Link href="/privacy" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Privacy Policy</Link></li>
             <li><Link href="/terms" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Terms of Service</Link></li>
+            <li><Link href="/accessibility" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Accessibility Statement</Link></li>
           </ul>
         </div>
       </div>
@@ -94,7 +95,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
       {/* Copyright bar */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1.5rem 2rem 0', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          &copy; {new Date().getFullYear()} Workforce Advancement Project. Empowering People. Advancing Futures.
+          &copy; {new Date().getFullYear()} Workforce Advancement Project. Career training and job-readiness support at no cost to members.
         </p>
         <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', opacity: 0.6, marginTop: '0.75rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
           This site incorporates information from{' '}

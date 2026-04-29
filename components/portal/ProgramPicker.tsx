@@ -2,17 +2,75 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
+
+type WioaErrorCode = 'WIOA_NOT_STARTED' | 'WIOA_PENDING' | 'WIOA_NOT_ELIGIBLE';
+
+type EnrollError =
+  | { type: 'wioa'; code: WioaErrorCode; message: string }
+  | { type: 'generic'; message: string };
 
 type ProgramPickerProps = {
   programs: Program[];
 };
 
+function WioaErrorMessage({ error }: { error: EnrollError }) {
+  if (error.type === 'generic') {
+    return (
+      <p role="alert" style={{ marginTop: '0.75rem', color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+        {error.message}
+      </p>
+    );
+  }
+
+  const isBlocked = error.code === 'WIOA_NOT_ELIGIBLE';
+  const bg = isBlocked ? 'rgba(173,44,77,0.08)' : 'rgba(43,123,185,0.08)';
+  const border = isBlocked ? '1px solid rgba(173,44,77,0.25)' : '1px solid rgba(43,123,185,0.25)';
+  const color = isBlocked ? '#ad2c4d' : '#2b7bb9';
+
+  return (
+    <div
+      role="alert"
+      style={{
+        marginTop: '0.75rem',
+        padding: '0.875rem 1rem',
+        background: bg,
+        border,
+        borderRadius: '0.5rem',
+        fontSize: '0.875rem',
+        color: 'var(--color-on-surface)',
+        lineHeight: 1.55,
+      }}
+    >
+      <p style={{ margin: 0, fontWeight: 600, color, marginBottom: error.code === 'WIOA_NOT_STARTED' || error.code === 'WIOA_NOT_ELIGIBLE' ? '0.5rem' : 0 }}>
+        {error.message}
+      </p>
+      {error.code === 'WIOA_NOT_STARTED' && (
+        <Link
+          href="/dashboard/learning/wioa-qualification"
+          style={{ color: '#2b7bb9', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+        >
+          Start WIOA screening →
+        </Link>
+      )}
+      {error.code === 'WIOA_NOT_ELIGIBLE' && (
+        <Link
+          href="/counselor/contact"
+          style={{ color: '#ad2c4d', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+        >
+          Contact your counselor →
+        </Link>
+      )}
+    </div>
+  );
+}
+
 export default function ProgramPicker({ programs }: ProgramPickerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
-  const [error, setError] = useState('');
+  const [enrollError, setEnrollError] = useState<EnrollError | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
 
   const selectedProgram = useMemo(
@@ -22,7 +80,7 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
 
   const handleConfirm = async () => {
     if (!selectedProgram) return;
-    setError('');
+    setEnrollError(null);
     setLoading(selectedProgram.slug);
     try {
       const res = await fetch('/api/member/enroll', {
@@ -32,12 +90,11 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.code === 'PROFILE_INCOMPLETE') {
-          setError(
-            `${data.error ?? 'Complete your profile first.'} Update phone, address, and financial aid interest on your profile, then try again.`
-          );
+        const wioaCodes: WioaErrorCode[] = ['WIOA_NOT_STARTED', 'WIOA_PENDING', 'WIOA_NOT_ELIGIBLE'];
+        if (wioaCodes.includes(data.code)) {
+          setEnrollError({ type: 'wioa', code: data.code as WioaErrorCode, message: data.error ?? '' });
         } else {
-          setError(data.error ?? 'Failed to enroll');
+          setEnrollError({ type: 'generic', message: data.error ?? 'Failed to enroll' });
         }
         setLoading(null);
         return;
@@ -45,14 +102,13 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
       router.push('/dashboard');
       router.refresh();
     } catch {
-      setError('Failed to enroll. Please try again.');
+      setEnrollError({ type: 'generic', message: 'Failed to enroll. Please try again.' });
       setLoading(null);
     }
   };
 
   return (
     <div>
-      {error && <p className="form-error" role="alert">{error}</p>}
       {selectedProgram && (
         <div className="card" style={{ marginBottom: '1rem', padding: '1rem', border: '1px solid var(--outline-variant)' }}>
           <p style={{ marginBottom: '0.35rem', fontWeight: 700 }}>Review your selection</p>
@@ -63,13 +119,27 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
             Funding is tied to one program. After you confirm, changes require WorkforceAP admin help.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-primary" onClick={handleConfirm} disabled={!!loading}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleConfirm}
+              disabled={!!loading}
+              style={{ minHeight: '48px' }}
+            >
               {loading === selectedProgram.slug ? 'Confirming…' : 'Confirm program'}
             </button>
-            <button type="button" className="btn btn-outline" onClick={() => setSelectedSlug(null)} disabled={!!loading}>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => { setSelectedSlug(null); setEnrollError(null); }}
+              disabled={!!loading}
+              style={{ minHeight: '48px' }}
+            >
               Keep comparing
             </button>
           </div>
+
+          {enrollError && <WioaErrorMessage error={enrollError} />}
         </div>
       )}
 

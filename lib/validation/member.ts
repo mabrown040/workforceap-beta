@@ -35,13 +35,15 @@ export const memberSignupSchema = z.object({
     .min(10, 'Please enter a valid phone number')
     .max(20)
     .regex(/^[\d\s\-\(\)\+\.]+$/, 'Please enter a valid phone number')
-    .trim(),
+    .trim()
+    .optional(),
   zip: z
     .string()
     .min(5, 'Please enter a valid ZIP code')
     .max(10)
     .regex(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code (e.g. 78701 or 78701-1234)')
-    .trim(),
+    .trim()
+    .optional(),
   programInterest: z.enum(PROGRAM_INTEREST_OPTIONS, {
     errorMap: () => ({ message: 'Please select a program interest' }),
   }),

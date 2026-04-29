@@ -423,7 +423,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Phone */}
             <div style={s.fieldGroup}>
-              <label htmlFor="phone" style={s.label}>Phone</label>
+              <label htmlFor="phone" style={s.label}>
+                Phone <span style={{ fontSize: '0.75rem', color: '#737373', fontWeight: 400 }}>(optional)</span>
+              </label>
               <input
                 id="phone"
                 type="tel"
@@ -439,7 +441,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* ZIP */}
             <div style={s.fieldGroup}>
-              <label htmlFor="zip" style={s.label}>ZIP Code</label>
+              <label htmlFor="zip" style={s.label}>
+                ZIP Code <span style={{ fontSize: '0.75rem', color: '#737373', fontWeight: 400 }}>(optional)</span>
+              </label>
               <input
                 id="zip"
                 type="text"

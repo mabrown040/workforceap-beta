@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const redirectUrl = next === '/dashboard' ? `${origin}/dashboard?verified=1` : `${origin}${next}`;
+      return NextResponse.redirect(redirectUrl);
     }
   }
 

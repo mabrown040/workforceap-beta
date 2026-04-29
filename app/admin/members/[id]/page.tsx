@@ -9,7 +9,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
-import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
+import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
@@ -244,12 +244,7 @@ export default async function AdminMemberDetailPage({
       ? catalogPrograms.map((r) => ({ slug: r.programSlug, name: r.name, status: r.status }))
       : null;
 
-  const gate = memberTrainingProfileComplete({
-    phone: member.phone,
-    profilePhone: member.profile?.profilePhone,
-    profileAddress: member.profile?.profileAddress,
-    financialAidInterest: member.profile?.financialAidInterest,
-  });
+  const gate = isMemberWioaVerified({ wioaReviewStatus: member.wioaReviewStatus });
   const profileIncomplete = !gate.ok;
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;

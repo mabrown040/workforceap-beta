@@ -179,6 +179,14 @@ const STEPS = [
   { label: 'Program Selection', icon: 'school' },
 ];
 
+const NEXT_STEPS = [
+  'Submit your application and tell us what kind of work or training you want.',
+  'A WorkforceAP advisor reviews your information and follows up within 1–2 business days in most cases.',
+  'We talk through fit, eligibility, and the best next step for your situation.',
+  'If needed, we guide you to screening, documentation, interview, or program-readiness steps.',
+  'You get a clearer recommendation for training, support, and job-readiness next steps.',
+];
+
 export default async function ApplyPage({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   const programSlug = resolveApplyProgramSlug(sp.program);
@@ -252,9 +260,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           {/* Info card */}
           <div style={sPage.infoCard}>
             <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>What happens next?</h4>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              After you apply, a counselor reviews your goals, walks through best-fit program options, and follows up within 1–2 business days.
-            </p>
+            <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
+              {NEXT_STEPS.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
               Questions? Call <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
             </p>
@@ -294,7 +304,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Secure Data Handling</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              Your information is sent over encrypted connections and protected with access controls. We do not sell your personal information, and any limited sharing follows our Privacy Policy.
+              Your information is sent over encrypted connections and protected with access controls. We do not sell your personal information, and any limited sharing follows our <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>Privacy Policy</Link>.
             </p>
           </div>
         </div>
@@ -303,7 +313,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div>
             <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Someone Will Follow Up</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              A member advisor reviews every application within 1–2 business days and reaches out to help you find the right program fit.
+              A member advisor reviews every application within 1–2 business days in most cases and reaches out to help you find the right program fit.
             </p>
           </div>
         </div>

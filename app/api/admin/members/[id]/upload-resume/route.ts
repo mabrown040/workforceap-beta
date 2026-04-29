@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
+import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
 // Create bucket "member-resumes" in Supabase Dashboard → Storage if it does not exist
 const BUCKET = 'member-resumes';
@@ -82,13 +83,25 @@ export async function POST(
     enhancedPath = path;
   }
 
-  if (member.profile && (originalPath || enhancedPath)) {
-    await prisma.profile.update({
+  if (originalPath || enhancedPath) {
+    await prisma.profile.upsert({
       where: { userId },
-      data: {
+      create: {
+        userId,
+        role: member.profile?.role ?? 'member',
         ...(originalPath && { resumeOriginalPath: originalPath }),
         ...(enhancedPath && { resumeEnhancedPath: enhancedPath }),
       },
+      update: {
+        ...(originalPath && { resumeOriginalPath: originalPath }),
+        ...(enhancedPath && { resumeEnhancedPath: enhancedPath }),
+      },
+    });
+  }
+
+  if (enhancedPath && enhancedText && enhancedText.trim().length >= 40) {
+    await completeCareerOsResumeActions(userId).catch((error) => {
+      console.error('[admin/upload-resume] completeCareerOsResumeActions failed:', error);
     });
   }
 

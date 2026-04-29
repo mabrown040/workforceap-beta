@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
 const BUCKET = 'member-resumes';
 const MAX_CHARS = 120_000;
@@ -36,6 +37,12 @@ export async function POST(request: Request) {
       create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
       update: { resumeEnhancedPath: path },
     });
+
+    if (plainText.trim().length >= 40) {
+      await completeCareerOsResumeActions(user.id).catch((error) => {
+        console.error('[member/resume/plain-text] completeCareerOsResumeActions failed:', error);
+      });
+    }
 
     return NextResponse.json({ ok: true, path });
   } catch (e) {

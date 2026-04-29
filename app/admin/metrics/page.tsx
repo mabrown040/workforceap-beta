@@ -70,15 +70,15 @@ export default async function AdminMetricsPage() {
       {/* Career OS funnel */}
       <div style={{ marginBottom: '1.5rem' }}>
         <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-          Career OS — Completion Response Loop
+          Career OS — True Completion Loop
         </p>
         <div className="portal-metric-strip">
           {[
             { label: 'Completion Events', value: data.careerOsMetrics.completionEventsReceived, icon: 'school', accent: 'accent' as const },
             { label: 'Actions Created', value: data.careerOsMetrics.actionsCreated, icon: 'auto_awesome', accent: 'blue' as const },
             { label: 'Actions Pending', value: data.careerOsMetrics.actionsPending, icon: 'pending', accent: 'gold' as const },
-            { label: 'CTA Click-Through', value: data.careerOsMetrics.actionsClicked, icon: 'task_alt', accent: 'green' as const },
-            { label: 'Click-Through Rate', value: `${data.careerOsMetrics.followThroughRate}%`, icon: 'trending_up', accent: 'green' as const },
+            { label: 'Actions Completed', value: data.careerOsMetrics.actionsCompleted, icon: 'task_alt', accent: 'green' as const },
+            { label: 'Completion Rate', value: `${data.careerOsMetrics.followThroughRate}%`, icon: 'trending_up', accent: 'green' as const },
           ].map(m => (
             <div key={m.label} className="portal-metric-card">
               <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${m.accent}`}>
@@ -90,7 +90,7 @@ export default async function AdminMetricsPage() {
           ))}
         </div>
         <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-          Tracks Career OS learning-completion events, the follow-up actions created from them, and whether members clicked those action CTAs.
+          Tracks Career OS learning-completion events, the follow-up actions created from them, and whether members actually finished the underlying resume or interview task.
         </p>
       </div>
 

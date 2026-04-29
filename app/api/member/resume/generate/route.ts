@@ -7,6 +7,7 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { claudeChat, isAnthropicConfigured } from '@/lib/ai/anthropicChat';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
 const BUCKET = 'member-resumes';
 
@@ -196,6 +197,10 @@ Key rules:
       update: { resumeEnhancedPath: path },
     });
 
+    await completeCareerOsResumeActions(user.id).catch((error) => {
+      console.error('[member/resume/generate] completeCareerOsResumeActions failed:', error);
+    });
+
     return NextResponse.json({ ok: true, resume: output, path, fallbackUsed });
   } catch (err) {
     console.error('Generate resume error:', err);
@@ -217,6 +222,10 @@ Key rules:
         where: { userId: user.id },
         create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
         update: { resumeEnhancedPath: path },
+      });
+
+      await completeCareerOsResumeActions(user.id).catch((error) => {
+        console.error('[member/resume/generate:fallback] completeCareerOsResumeActions failed:', error);
       });
 
       return NextResponse.json({ ok: true, resume: output, path, fallbackUsed: true });

@@ -10,6 +10,7 @@ test('buildNextBestActions prioritizes new application on file', () => {
     assessmentCompleted: false,
     starterProfileReviewRequired: false,
     hasResume: false,
+    hasCompletedInterviewPractice: false,
     profileCompletenessPct: 20,
     jobApplicationCount: 0,
     counselorUnreadCount: 0,
@@ -26,6 +27,7 @@ test('buildNextBestActions prioritizes counselor unread when application exists'
     assessmentCompleted: true,
     starterProfileReviewRequired: false,
     hasResume: true,
+    hasCompletedInterviewPractice: false,
     profileCompletenessPct: 80,
     jobApplicationCount: 2,
     counselorUnreadCount: 3,
@@ -42,6 +44,7 @@ test('buildNextBestActions suggests tracker when eligible and no applications', 
     assessmentCompleted: true,
     starterProfileReviewRequired: false,
     hasResume: true,
+    hasCompletedInterviewPractice: false,
     profileCompletenessPct: 90,
     jobApplicationCount: 0,
     counselorUnreadCount: 0,
@@ -58,6 +61,7 @@ test('buildNextBestActions adds state-D readiness actions', () => {
     assessmentCompleted: true,
     starterProfileReviewRequired: false,
     hasResume: true,
+    hasCompletedInterviewPractice: false,
     profileCompletenessPct: 90,
     jobApplicationCount: 1,
     counselorUnreadCount: 0,
@@ -76,6 +80,7 @@ test('buildNextBestActions routes missing resume to resume rewriter', () => {
     assessmentCompleted: true,
     starterProfileReviewRequired: false,
     hasResume: false,
+    hasCompletedInterviewPractice: false,
     profileCompletenessPct: 90,
     jobApplicationCount: 1,
     counselorUnreadCount: 0,
@@ -95,6 +100,7 @@ test('buildNextBestActions prioritizes starter profile review for counselor-crea
     starterProfileReviewRequired: true,
     starterProfileMissingFields: ['ZIP code', 'referral source'],
     hasResume: false,
+    hasCompletedInterviewPractice: false,
     profileCompletenessPct: 40,
     jobApplicationCount: 0,
     counselorUnreadCount: 0,
@@ -103,4 +109,22 @@ test('buildNextBestActions prioritizes starter profile review for counselor-crea
 
   assert.equal(actions[0]?.id, 'review_starter_profile');
   assert.equal(actions[0]?.href, '/dashboard/profile');
+});
+
+test('buildNextBestActions hides interview practice after true completion', () => {
+  const actions = buildNextBestActions({
+    state: 'D',
+    noApplicationOnFile: false,
+    enrolledProgram: 'ai-software',
+    assessmentCompleted: true,
+    starterProfileReviewRequired: false,
+    hasResume: true,
+    hasCompletedInterviewPractice: true,
+    profileCompletenessPct: 90,
+    jobApplicationCount: 1,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+  });
+
+  assert.ok(!actions.some((a) => a.id === 'interview_practice'));
 });

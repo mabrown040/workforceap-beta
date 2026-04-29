@@ -132,7 +132,7 @@ function buildSuburbPresets(programShortLabel: string | null): CareerSearchPrese
 export async function fetchCareerBriefRelations(userId: string, options?: { activeMemberOnly?: boolean }) {
   const where = options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId };
 
-  const [user, goals, resourceProgress, learningProgress, pathwaySteps, certs, lastEvent] = await Promise.all([
+  const [user, goals, resourceProgress, learningProgress, pathwaySteps, certs, interviewPracticeCompletion, lastEvent] = await Promise.all([
     prisma.user.findUnique({
       where,
       include: memberCareerBriefInclude,
@@ -142,6 +142,10 @@ export async function fetchCareerBriefRelations(userId: string, options?: { acti
     prisma.learningProgress.findMany({ where: { userId } }),
     prisma.pathwayStepProgress.findMany({ where: { userId } }),
     prisma.userCertification.findMany({ where: { userId } }),
+    prisma.memberEvent.findFirst({
+      where: { userId, eventName: 'career_os.interview_practice_completed' },
+      select: { id: true },
+    }),
     prisma.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
   ]);
 
@@ -157,6 +161,7 @@ export async function fetchCareerBriefRelations(userId: string, options?: { acti
     pathwaySteps,
     jobApps,
     certs,
+    hasInterviewPracticeCompletion: !!interviewPracticeCompletion,
     lastEvent,
   };
 }
@@ -228,6 +233,7 @@ export async function loadMemberCareerBriefBundle(userId: string, options?: { ac
     rows.pathwaySteps,
     rows.jobApps,
     rows.certs,
+    rows.hasInterviewPracticeCompletion,
     rows.lastEvent
   );
   const careerBrief = assembleCareerBriefContext(rows.user, scoreBreakdown);
@@ -235,7 +241,7 @@ export async function loadMemberCareerBriefBundle(userId: string, options?: { ac
 }
 
 const emptyScoreBreakdown = (): ScoreBreakdown =>
-  buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], null);
+  buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], false, null);
 
 /**
  * Same as loadMemberCareerBriefBundle but survives transient DB errors: retries with a single
@@ -267,6 +273,7 @@ export async function loadMemberCareerBriefBundleSafe(
         [],
         user.jobApplications ?? [],
         [],
+        false,
         null
       );
       return { user, careerBrief: assembleCareerBriefContext(user, scoreBreakdown) };
@@ -303,6 +310,7 @@ export async function loadMemberCareerBriefBundleSafe(
           [],
           user.jobApplications ?? [],
           [],
+          false,
           null
         );
         return {

@@ -20,12 +20,13 @@ export async function PATCH(
   }
 
   try {
-    await prisma.memberNextBestAction.update({
-      where: { id, memberId: user.id },
-      data: { status: nextStatus },
-    });
-
     if (nextStatus === 'COMPLETED') {
+      const existing = await prisma.memberNextBestAction.findFirst({
+        where: { id, memberId: user.id },
+        select: { id: true },
+      });
+      if (!existing) return NextResponse.json({ ok: true });
+
       await prisma.memberEvent.create({
         data: {
           userId: user.id,
@@ -35,6 +36,11 @@ export async function PATCH(
           sourcePage: '/dashboard',
         },
       }).catch(() => {});
+    } else {
+      await prisma.memberNextBestAction.update({
+        where: { id, memberId: user.id },
+        data: { status: nextStatus },
+      });
     }
 
     return NextResponse.json({ ok: true });

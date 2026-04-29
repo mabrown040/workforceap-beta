@@ -22,6 +22,7 @@ export type NextBestActionsContext = {
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
   hasResume: boolean;
+  hasCompletedInterviewPractice?: boolean;
   profileCompletenessPct: number;
   profileMissingFields?: string[];
   jobApplicationCount: number;
@@ -109,7 +110,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     });
   }
 
-  if (ctx.state === 'D') {
+  if (ctx.state === 'D' && !ctx.hasCompletedInterviewPractice) {
     out.push({
       id: 'interview_practice',
       title: 'Practice your interview answers',

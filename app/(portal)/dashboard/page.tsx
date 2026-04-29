@@ -144,7 +144,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
 
-  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult] = await Promise.allSettled([
+  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -191,6 +191,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 30,
       select: { sessionId: true, entityId: true, createdAt: true, metadata: true },
     }),
+    prisma.memberEvent.findFirst({
+      where: { userId: user.id, eventName: 'career_os.interview_practice_completed' },
+      select: { id: true },
+    }),
   ]);
 
   const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
@@ -212,6 +216,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const memberPoints = pointsResult.status === 'fulfilled' ? pointsResult.value : null;
   const recentTx = recentTxResult.status === 'fulfilled' ? recentTxResult.value : [];
+  const hasCompletedInterviewPractice = interviewPracticeCompletionResult.status === 'fulfilled'
+    ? !!interviewPracticeCompletionResult.value
+    : false;
+  if (interviewPracticeCompletionResult.status === 'rejected') {
+    console.error('[dashboard] interview practice completion query failed', interviewPracticeCompletionResult.reason);
+  }
 
   // Group on-behalf-of session events by sessionId so the dashboard can
   // render a single "Your session with {actor}" card for the most recent run.
@@ -328,6 +338,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     starterProfileReviewRequired: starterProfileReview.required,
     starterProfileMissingFields: starterProfileMissingLabels,
     hasResume: engagementSignals.hasResume,
+    hasCompletedInterviewPractice,
     profileCompletenessPct,
     profileMissingFields,
     jobApplicationCount: engagementSignals.jobApplicationCount,

@@ -137,7 +137,8 @@ export default async function CareerBriefPage() {
   const { assembleCareerBriefContext } = await import('@/lib/content/careerBriefPersonalization');
   const breakdown = buildScoreBreakdownFromRelations(
     rows.user, rows.goals, rows.aiResults, rows.resourceProgress,
-    rows.learningProgress, rows.pathwaySteps, rows.jobApps, rows.certs, rows.lastEvent
+    rows.learningProgress, rows.pathwaySteps, rows.jobApps, rows.certs,
+    rows.hasInterviewPracticeCompletion, rows.lastEvent
   );
   const context = assembleCareerBriefContext(rows.user, breakdown);
 

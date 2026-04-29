@@ -148,9 +148,9 @@ async function getEnrollmentByProgram(): Promise<{ program: string; count: numbe
   return rows.map(r => ({ program: r.enrolledProgram ?? 'Unknown', count: r._count.id }));
 }
 
-/** Career OS funnel: completion events received → actions created → CTA clicks */
+/** Career OS funnel: completion events received → actions created → real action completion */
 async function getCareerOsMetrics() {
-  const [completionEventsReceived, actionsCreated, actionsClickedRows, actionsDismissedRows, actionsPendingRows] = await Promise.all([
+  const [completionEventsReceived, actionsCreated, actionsCompletedRows, actionsDismissedRows, actionsPendingRows] = await Promise.all([
     prisma.workflowDiagnostic.count({
       where: { workflow: CAREER_OS_WORKFLOW, status: 'started' },
     }),
@@ -161,12 +161,11 @@ async function getCareerOsMetrics() {
       },
     }),
     prisma.$queryRaw<Array<{ count: bigint | number }>>`
-      SELECT COUNT(DISTINCT click_event.entity_id)::bigint AS count
-      FROM member_events click_event
+      SELECT COUNT(DISTINCT nba.id)::bigint AS count
+      FROM member_next_best_actions nba
       INNER JOIN member_events source_event
-        ON source_event.entity_id = click_event.entity_id
-      WHERE click_event.event_name = 'member_next_best_action_clicked'
-        AND click_event.entity_type = 'MemberNextBestAction'
+        ON source_event.entity_id = nba.id
+      WHERE nba.status = 'COMPLETED'
         AND source_event.event_name = 'career_os.learning_completion_processed'
         AND source_event.entity_type = 'MemberNextBestAction'
     `,
@@ -190,20 +189,20 @@ async function getCareerOsMetrics() {
     `,
   ]);
 
-  const clickedCount = actionsClickedRows[0]?.count ?? 0;
+  const completedCount = actionsCompletedRows[0]?.count ?? 0;
   const dismissedCount = actionsDismissedRows[0]?.count ?? 0;
   const pendingCount = actionsPendingRows[0]?.count ?? 0;
-  const actionsClicked = typeof clickedCount === 'bigint' ? Number(clickedCount) : clickedCount;
+  const actionsCompleted = typeof completedCount === 'bigint' ? Number(completedCount) : completedCount;
   const actionsDismissed = typeof dismissedCount === 'bigint' ? Number(dismissedCount) : dismissedCount;
   const actionsPending = typeof pendingCount === 'bigint' ? Number(pendingCount) : pendingCount;
 
   const followThroughRate =
-    actionsCreated > 0 ? Math.round((actionsClicked / actionsCreated) * 100) : 0;
+    actionsCreated > 0 ? Math.round((actionsCompleted / actionsCreated) * 100) : 0;
 
   return {
     completionEventsReceived,
     actionsCreated,
-    actionsClicked,
+    actionsCompleted,
     actionsDismissed,
     actionsPending,
     followThroughRate,
@@ -340,7 +339,7 @@ export async function getAdminMetrics() {
       : {
         completionEventsReceived: 0,
         actionsCreated: 0,
-        actionsClicked: 0,
+        actionsCompleted: 0,
         actionsDismissed: 0,
         actionsPending: 0,
         followThroughRate: 0,

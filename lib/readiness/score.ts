@@ -51,6 +51,7 @@ export function buildScoreBreakdownFromRelations(
   pathwaySteps: { status: string }[],
   jobApps: { status: string }[],
   certs: unknown[],
+  hasInterviewPracticeCompletion: boolean,
   lastEvent: { createdAt: Date } | null
 ): ScoreBreakdown {
   const toolTypes = new Set(aiResults.map((r) => r.toolType));
@@ -69,7 +70,8 @@ export function buildScoreBreakdownFromRelations(
   const hasGoals = goals.length > 0;
   const hasResume = hasResumeFile || ['resume_rewriter', 'resume_analysis'].some((tool) => toolTypes.has(tool));
   const resourcesCompleted = resourceProgress.filter((r) => r.completedAt).length;
-  const hasInterview = ['interview_practice', 'interview_coach', 'voice_interview_video'].some((tool) => toolTypes.has(tool));
+  const hasInterview = hasInterviewPracticeCompletion
+    || ['interview_coach', 'voice_interview_video'].some((tool) => toolTypes.has(tool));
   const hasPathway = learningProgress.length > 0;
   const pathwayStepsCompleted = pathwaySteps.filter((p) => p.status === 'completed').length;
   const appCount = jobApps.filter((a) => a.status !== 'SAVED').length;
@@ -149,7 +151,7 @@ export async function computeReadinessScore(userId: string): Promise<number> {
 }
 
 export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown> {
-  const [user, goals, aiResults, resourceProgress, learningProgress, pathwaySteps, jobApps, certs, lastEvent] =
+  const [user, goals, aiResults, resourceProgress, learningProgress, pathwaySteps, jobApps, certs, interviewPracticeCompletionEvent, lastEvent] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: userId },
@@ -176,6 +178,10 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
       prisma.pathwayStepProgress.findMany({ where: { userId } }),
       prisma.jobApplication.findMany({ where: { userId } }),
       prisma.userCertification.findMany({ where: { userId } }),
+      prisma.memberEvent.findFirst({
+        where: { userId, eventName: 'career_os.interview_practice_completed' },
+        select: { id: true },
+      }),
       prisma.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
     ]);
 
@@ -188,6 +194,7 @@ export async function getScoreBreakdown(userId: string): Promise<ScoreBreakdown>
     pathwaySteps,
     jobApps,
     certs,
+    !!interviewPracticeCompletionEvent,
     lastEvent
   );
 }
@@ -198,6 +205,6 @@ export async function getScoreBreakdownSafe(userId: string): Promise<ScoreBreakd
     return await getScoreBreakdown(userId);
   } catch (e) {
     console.error('[getScoreBreakdownSafe]', userId, e);
-    return buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], null);
+    return buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], false, null);
   }
 }

@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
+import PortalCard from '@/components/portal/ui/PortalCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'AI Toolkit',

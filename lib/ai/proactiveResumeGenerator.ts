@@ -3,7 +3,7 @@ import { Groq } from 'groq-sdk';
 export async function generateResumeBullet(courseName: string): Promise<string> {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'dummy_key_for_build' });
   const response = await groq.chat.completions.create({
-    model: 'llama3-8b-8192',
+    model: 'llama-3.1-8b-instant',
     max_tokens: 150,
     messages: [
       { role: 'system', content: 'You are an expert resume writer. Generate exactly one strong, action-oriented resume bullet point for a candidate who just completed the provided training or course. Return ONLY the bullet point text, no preamble or quotes.' },

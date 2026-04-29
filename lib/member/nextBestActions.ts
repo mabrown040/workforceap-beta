@@ -73,7 +73,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       out.push({
         id: 'skills_assessment',
         title: 'Complete your Training Preassessment',
-        body: 'After you choose a program, this short preassessment helps personalize your training plan and job matching.',
+        body: 'After you choose a program, this short preassessment helps personalize your training plan and identify roles that may be a good fit.',
         href: '/dashboard/assessment',
         cta: 'Start preassessment',
         variant: 'urgent',
@@ -113,7 +113,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     out.push({
       id: 'interview_practice',
       title: 'Practice your interview answers',
-      body: 'Use guided interview practice so you sound ready for recruiter screens and counselor interviews.',
+      body: 'Use guided interview practice to prepare for recruiter screens and counselor interviews.',
       href: '/dashboard/ai-tools/interview-practice',
       cta: 'Practice interviews',
       variant: 'default',

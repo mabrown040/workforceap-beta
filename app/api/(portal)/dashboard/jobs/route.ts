@@ -3,9 +3,27 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
+import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { success: rateOk } = await checkPublicCareersGetRateLimit(ip);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down and try again.' },
+      { status: 429 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get('q')?.trim() || undefined;
   const locationType = searchParams.get('locationType') || undefined;

@@ -5,6 +5,15 @@ import { sendNewJobApplicationEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
+import { checkJobApplicationRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -19,6 +28,16 @@ export async function POST(
 ) {
   const authUser = await getUser();
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Rate limiting for job applications - use careers recommend limiter
+  const 
+  const { success: rateOk } = await checkJobApplicationRateLimit(authUser.id);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Too many applications. Please wait a moment before applying again.' },
+      { status: 429 }
+    );
+  }
 
   const [dbUser, profile] = await Promise.all([
     prisma.user.findUnique({

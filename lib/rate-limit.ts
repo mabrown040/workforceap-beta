@@ -203,3 +203,10 @@ export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success:
   const result = await inviteAcceptRateLimiter.limit(ip);
   return { success: result.success };
 }
+
+/** Job applications - per user; fail-open without Redis. */
+export async function checkJobApplicationRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!interestProfilerRateLimiter) return { success: true };
+  const result = await interestProfilerRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
+}

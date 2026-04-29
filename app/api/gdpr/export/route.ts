@@ -1,16 +1,34 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { checkInterestProfilerRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 /**
  * GET /api/gdpr/export
  * Returns all personal data for the authenticated user.
  * Implements GDPR Article 20 — Right to data portability.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limiting for GDPR export - resource intensive operation
+  const { success: rateOk } = await checkInterestProfilerRateLimit(user.id);
+  if (!rateOk) {
+    return NextResponse.json(
+      { error: 'Export requests are rate limited. Please wait before requesting another export.' },
+      { status: 429 }
+    );
   }
 
   const userId = user.id;

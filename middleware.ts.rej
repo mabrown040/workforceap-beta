@@ -1,0 +1,14 @@
+--- middleware.ts
++++ middleware.ts
+@@ -28,7 +28,11 @@
+ }
+ 
+ function isProtectedPath(pathname: string) {
+   return isPortalPath(pathname) || isAdminPath(pathname);
+ }
+ 
++function isProtectedApiPath(pathname: string) {
++  return isAdminApiPath(pathname);
++}
++
+ function requestedPathWithSearch(request: NextRequest) {

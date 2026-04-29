@@ -23,7 +23,7 @@ export default function TermsPage() {
             <p>By creating an account or using the Workforce Advancement Project (&ldquo;WorkforceAP&rdquo;) member portal and services, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
 
             <h2>2. Program Eligibility</h2>
-            <p>WorkforceAP programs are designed for qualifying participants. Eligibility requirements include but are not limited to: being 16 years of age or older, being a U.S. Citizen or Permanent Resident, and meeting income and employment criteria as determined during the application process. WorkforceAP reserves the right to verify eligibility and deny enrollment to ineligible applicants.</p>
+            <p>WorkforceAP programs are designed for qualifying participants. Eligibility requirements include but are not limited to: generally being 16 years of age or older, being a U.S. Citizen or Permanent Resident, and meeting income and employment criteria as determined during the application process. Some school- or partner-supported opportunities may allow minors to participate with parent or guardian consent and any additional required approvals. WorkforceAP reserves the right to verify eligibility and deny enrollment to ineligible applicants.</p>
 
             <h2>3. Member Responsibilities</h2>
             <p>As a member, you agree to:</p>

@@ -74,10 +74,10 @@ export default function PrivacyPage() {
             <h2>8. Children&rsquo;s Privacy and Minor Consent</h2>
             
             <h3>8.1 Age Requirements</h3>
-            <p>Our platform is intended for users 16 years of age and older. We do not knowingly collect personal information from children under 13 without verifiable parental consent, as required by the Children&rsquo;s Online Privacy Protection Act (COPPA).</p>
+            <p>Our platform is generally intended for users 16 years of age and older. In some school- or partner-supported programs, minors ages 13-17 may participate with parent or guardian consent and any additional program approvals. We do not knowingly collect personal information from children under 13 without verifiable parental consent, as required by the Children&rsquo;s Online Privacy Protection Act (COPPA).</p>
             
             <h3>8.2 Minors (Ages 13-17)</h3>
-            <p>For users between 13 and 17 years of age (minors), we require:</p>
+            <p>For minors who participate in an approved program experience, we require:</p>
             <ul>
               <li><strong>Parental or guardian consent:</strong> A parent or legal guardian must review and consent to our Terms of Service and this Privacy Policy before the minor can access our services</li>
               <li><strong>Guardian contact information:</strong> We collect parent/guardian name, email, and phone number for communication about the minor&rsquo;s participation</li>

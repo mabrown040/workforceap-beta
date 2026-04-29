@@ -32,14 +32,15 @@ function stageFromRow(
   app: Pick<Application, 'status' | 'programInterest' | 'submittedAt' | 'createdAt'>,
   member: { enrolledProgram: string | null; enrolledAt: Date | null; assessmentCompleted: boolean }
 ): MemberApplicationStage {
-  if (app.status === 'DENIED') return 'rejected';
-  if (app.status === 'PENDING') return 'applied';
-  if (app.status === 'NEEDS_INFO') return 'under_review';
-  if (app.status === 'APPROVED') {
-    if (!member.enrolledProgram) return 'accepted';
+  // Enrollment supersedes application status — once enrolled, show training state
+  if (member.enrolledProgram) {
     if (member.assessmentCompleted) return 'active';
     return 'enrolled';
   }
+  if (app.status === 'DENIED') return 'rejected';
+  if (app.status === 'PENDING') return 'applied';
+  if (app.status === 'NEEDS_INFO') return 'under_review';
+  if (app.status === 'APPROVED') return 'accepted';
   return 'applied';
 }
 

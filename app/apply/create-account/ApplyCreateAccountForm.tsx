@@ -604,7 +604,7 @@ export default function ApplyCreateAccountForm() {
         {loading ? 'Creating your account…' : 'Save my spot and create login'}
       </button>
       <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
-        No payment is due today. You can come back later to finish your profile.
+        You can come back later to finish your profile.
       </p>
     </form>
   );

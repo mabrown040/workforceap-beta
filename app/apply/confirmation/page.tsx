@@ -46,7 +46,7 @@ const TRUST_SIGNALS = [
   {
     icon: 'volunteer_activism',
     title: 'Nonprofit, member-first access',
-    desc: 'WorkforceAP is a 501(c)(3) nonprofit in Austin. Programs are funded by grants and partnerships so members are not charged for access.',
+    desc: 'WorkforceAP is a 501(c)(3) nonprofit in Austin. A counselor will follow up with eligibility and next-step guidance.',
   },
   {
     icon: 'support_agent',

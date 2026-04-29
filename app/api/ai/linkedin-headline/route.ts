@@ -6,6 +6,7 @@ import { linkedinHeadlineSchema } from '@/lib/validation/linkedinHeadline';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanSpokenLine } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -74,7 +75,7 @@ Generate 3 LinkedIn headline options.`;
       console.error('LinkedIn headline: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ headlines: headlines.slice(0, 5) });
+    return NextResponse.json({ headlines: headlines.slice(0, 5).map(cleanSpokenLine) });
   } catch (err) {
     console.error('LinkedIn headline error:', err);
     return NextResponse.json(

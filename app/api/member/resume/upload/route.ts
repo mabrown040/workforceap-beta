@@ -1,9 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { Buffer } from 'node:buffer';
+import { logAuthenticationFailed, logFileUploadBlocked, logSuspiciousRequest } from '@/lib/security/securityLogger';
+
+function getClientIp(request: Request): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 /** Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */
 const BUCKET = 'member-resumes';
@@ -12,12 +21,19 @@ const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 export async function POST(request: Request) {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) {
+      logAuthenticationFailed('/api/member/resume/upload', getClientIp(request));
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     let formData: FormData;
     try {
       formData = await request.formData();
     } catch {
+      logSuspiciousRequest('/api/member/resume/upload', getClientIp(request), {
+        error: 'invalid_form_data',
+        userAgent: request.headers.get('user-agent'),
+      });
       return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
     }
 
@@ -27,6 +43,11 @@ export async function POST(request: Request) {
     }
 
     if (file.size > MAX_SIZE) {
+      logFileUploadBlocked('/api/member/resume/upload', getClientIp(request), user.id, {
+        reason: 'file_too_large',
+        size: file.size,
+        maxSize: MAX_SIZE,
+      });
       return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 });
     }
 
@@ -34,7 +55,22 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(arrayBuffer);
 
     if (!validateFileType(buffer, file.type || '', file.name)) {
+      logFileUploadBlocked('/api/member/resume/upload', getClientIp(request), user.id, {
+        reason: 'invalid_file_type',
+        fileType: file.type,
+        fileName: file.name,
+      });
       return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }, { status: 400 });
+    }
+
+    // Detect potential malware or suspicious files
+    if (buffer.length < 100) {
+      logSuspiciousRequest('/api/member/resume/upload', getClientIp(request), {
+        userId: user.id,
+        reason: 'suspiciously_small_file',
+        size: buffer.length,
+        fileName: file.name,
+      });
     }
 
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';

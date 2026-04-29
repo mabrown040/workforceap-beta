@@ -210,3 +210,26 @@ export async function checkJobApplicationRateLimit(userId: string): Promise<{ su
   const result = await interestProfilerRateLimiter.limit(userId);
   return { success: result.success, remaining: result.remaining };
 }
+
+import { monitorRateLimit } from './security/rateLimitMonitor';
+
+// Enhanced rate limiting with security monitoring
+export async function checkRateLimitWithMonitoring(
+  identifier: string,
+  endpoint: string,
+  userId?: string
+): Promise<{ success: boolean; remaining?: number }> {
+  const result = await checkPublicCareersGetRateLimit(identifier);
+  
+  if (!result.success) {
+    // Monitor for abuse patterns
+    monitorRateLimit({
+      ip: identifier,
+      endpoint,
+      timestamp: Date.now(),
+      userId,
+    });
+  }
+  
+  return result;
+}

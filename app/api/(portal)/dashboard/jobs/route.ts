@@ -3,7 +3,9 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
-import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
+import { checkRateLimitWithMonitoring } from '@/lib/rate-limit';
+import { logRateLimitExceeded, logSuspiciousRequest } from '@/lib/security/securityLogger';
+import { getSecurityHeaders } from '@/lib/security/securityHeaders';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -16,16 +18,42 @@ function getClientIp(request: NextRequest): string {
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
   const ip = getClientIp(request);
-  const { success: rateOk } = await checkPublicCareersGetRateLimit(ip);
-  if (!rateOk) {
+  const rateLimitResult = await checkRateLimitWithMonitoring(ip, '/api/jobs');
+  
+  if (!rateLimitResult.success) {
+    logRateLimitExceeded('/api/jobs', ip, undefined, {
+      userAgent: request.headers.get('user-agent'),
+      query: request.nextUrl.search,
+    });
+    
+    const headers = getSecurityHeaders({
+      limit: 120,
+      remaining: 0,
+      reset: Date.now() + 3600000, // 1 hour
+    });
+    
     return NextResponse.json(
       { error: 'Too many requests. Please slow down and try again.' },
-      { status: 429 }
+      { 
+        status: 429,
+        headers: headers
+      }
     );
   }
 
-  const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get('q')?.trim() || undefined;
+  // Detect suspicious request patterns
+  const searchParams = new URL(request.url).searchParams;
+  const keyword = searchParams.get('q')?.trim();
+  
+  // Log suspicious patterns that might indicate scraping or injection attempts
+  if (keyword && (keyword.length > 200 || keyword.includes('<script>') || keyword.includes('javascript:'))) {
+    logSuspiciousRequest('/api/jobs', ip, {
+      query: keyword,
+      userAgent: request.headers.get('user-agent'),
+      pattern: 'potential_injection_or_scraping',
+    });
+  }
+
   const locationType = searchParams.get('locationType') || undefined;
   const jobType = searchParams.get('jobType') || undefined;
   const program = searchParams.get('program') || undefined;
@@ -123,9 +151,17 @@ export async function GET(request: NextRequest) {
     const visible = jobs.filter(
       (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
     );
-    return NextResponse.json(visible);
+    
+    const headers = getSecurityHeaders({
+      limit: 120,
+      remaining: rateLimitResult.remaining || 0,
+      reset: Date.now() + 3600000, // 1 hour
+    });
+    
+    return NextResponse.json(visible, { headers });
   } catch (err) {
     captureApiError(err, { route: 'GET /api/jobs' });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const headers = getSecurityHeaders();
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers });
   }
 }

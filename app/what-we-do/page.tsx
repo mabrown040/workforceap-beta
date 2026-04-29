@@ -7,7 +7,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
   description:
-    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, job placement support, and grant- and partner-funded access for qualifying members.',
+    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.',
   path: '/what-we-do',
 });
 
@@ -27,7 +27,7 @@ const BENTO_ITEMS = [
   {
     icon: 'verified',
     title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We measure what matters — jobs landed.',
+    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.',
     span: 'small',
   },
   {
@@ -157,7 +157,7 @@ export default function WhatWeDoPage() {
               textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
-            Employer-aligned training. No cost for qualifying members. Job placement support included.
+            Employer-aligned training. No cost for qualifying members. Career support throughout the journey.
             A model that works — and scales.
           </p>
 
@@ -221,7 +221,7 @@ export default function WhatWeDoPage() {
             Find Your Path
           </a>
           <Link href="/wioa-qualification" className="btn btn-secondary btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-            Check WIOA Funding
+            Check WIOA Options
           </Link>
         </div>
       </section>
@@ -306,7 +306,7 @@ export default function WhatWeDoPage() {
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
-                Our programs align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility
+                Some programs may align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility guidelines
                 criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking
                 career advancement.
               </p>

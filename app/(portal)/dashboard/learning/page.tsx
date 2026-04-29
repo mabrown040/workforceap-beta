@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { PATHWAYS, getPathwayForProgram } from '@/lib/content/learningPathways';
+import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
@@ -43,7 +43,6 @@ export default async function LearningPage() {
       select: { enrolledProgram: true, assessmentCompleted: true, coursesCompleted: true },
     }),
   ]);
-  const isEnrolled = !!dbUser?.enrolledProgram;
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   // Resolve the member's pathway from their enrolled program. Returns null
   // when the member has no enrolled program — we render an enroll-prompt
@@ -56,10 +55,12 @@ export default async function LearningPage() {
     ? buildPathwayMilestones(ACTIVE_PATHWAY, allProgress)
     : [];
 
-  const totalStepsAllPathways = PATHWAYS.reduce((sum, p) => sum + p.steps.length, 0);
-  const completedAll = allProgress.filter((r) => r.status === 'completed').length;
+  const completedPathwaySteps = pathwayMilestones.filter((m) => m.status === 'complete').length;
   const overallPct =
-    totalStepsAllPathways > 0 ? Math.round((completedAll / totalStepsAllPathways) * 100) : 0;
+    ACTIVE_PATHWAY && ACTIVE_PATHWAY.steps.length > 0
+      ? Math.round((completedPathwaySteps / ACTIVE_PATHWAY.steps.length) * 100)
+      : 0;
+  const learningStatusLabel = overallPct > 0 ? 'In Progress' : 'Ready to start';
 
   return (
     <>
@@ -80,7 +81,7 @@ export default async function LearningPage() {
           <div style={{ zIndex: 10, width: '60%' }}>
             <h3 className="wa-text-lg wa-font-bold wa-leading-tight wa-text-[var(--color-on-surface)]" style={{ marginBottom: '0.25rem' }}>{ACTIVE_PATHWAY.title}</h3>
             <p className="wa-text-sm wa-text-[var(--color-on-surface-variant)] wa-font-medium">
-              {isEnrolled ? 'In Progress' : 'Not Started'} · {ACTIVE_PATHWAY.steps.length} modules
+              {learningStatusLabel} · {ACTIVE_PATHWAY.steps.length} modules
             </p>
           </div>
           {/* Progress orb */}
@@ -120,7 +121,7 @@ export default async function LearningPage() {
       <section style={{ margin: '0 1.5rem 1.5rem' }}>
         <div className="wa-bg-gradient-to-br from-[var(--color-accent-dark)] to-[var(--color-accent)] wa-text-white" style={{ padding: '1.25rem', borderRadius: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <span className="bg-white/20 wa-text-[10px] wa-font-bold wa-tracking-wider wa-uppercase" style={{ padding: '0.125rem 0.5rem', borderRadius: '0.25rem' }}>Active</span>
+            <span className="bg-white/20 wa-text-[10px] wa-font-bold wa-tracking-wider wa-uppercase" style={{ padding: '0.125rem 0.5rem', borderRadius: '0.25rem' }}>{overallPct > 0 ? 'Active' : 'Next up'}</span>
             <span className="material-symbols-outlined wa-text-sm" style={{ '--ms-fill': 1 }}>timer</span>
             <span className="wa-text-xs wa-font-medium">~{ACTIVE_PATHWAY.estimatedWeeks} weeks</span>
           </div>
@@ -141,7 +142,7 @@ export default async function LearningPage() {
             }}
           >
             <span className="material-symbols-outlined" aria-hidden="true">play_arrow</span>
-            Continue Learning
+            {overallPct > 0 ? 'Continue Learning' : 'Start Learning'}
           </Link>
         </div>
       </section>
@@ -251,7 +252,7 @@ export default async function LearningPage() {
           }}
         >
           <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-2)' }}>
-            Overall Completion
+            Pathway Progress
           </div>
           <div style={{ fontSize: '1.5rem', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)' }}>
             {overallPct}%
@@ -311,7 +312,7 @@ export default async function LearningPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', '--ms-fill': 1 }}>play_circle</span>
-              Currently Active
+              {overallPct > 0 ? 'Currently Active' : 'Ready to Start'}
             </div>
             <h2 style={{ fontSize: 'var(--font-size-h2)', fontWeight: 'var(--font-weight-bold)', lineHeight: 'var(--line-height-tight)', marginBottom: 'var(--space-2)' }}>
               {ACTIVE_PATHWAY.title}
@@ -350,7 +351,7 @@ export default async function LearningPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
                 play_arrow
               </span>
-              Resume Learning
+              {overallPct > 0 ? 'Resume Learning' : 'Start Learning'}
             </Link>
           </div>
         </div>

@@ -42,7 +42,7 @@ export default async function AIToolsPage() {
         </div>
         <section
           style={{
-            padding: 'clamp(2rem, 4vw, 3rem) 1.5rem 2rem',
+            padding: 'clamp(1.5rem, 3vw, 2.25rem) 1.5rem 1.25rem',
             textAlign: 'center',
             background: 'linear-gradient(180deg, var(--surface-container-low) 0%, var(--surface-container-lowest) 100%)',
           }}
@@ -90,60 +90,6 @@ export default async function AIToolsPage() {
           >
             Same guided flow as home page: start with the core path, then use coaching support underneath.
           </p>
-
-          <div className="wa-block md:wa-hidden" style={{ maxWidth: '520px', margin: '0 auto 1.25rem' }}>
-            <PortalCard
-              className="portal-card--flat"
-            >
-              <div
-                style={{
-                  position: 'relative',
-                  height: '7rem',
-                  overflow: 'hidden',
-                  borderRadius: '0.75rem',
-                  padding: '1.25rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  background:
-                    'linear-gradient(135deg, var(--color-accent-dark) 0%, var(--color-accent) 100%)',
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    width: '7rem',
-                    height: '7rem',
-                    borderRadius: '9999px',
-                    marginRight: '-3rem',
-                    marginTop: '-3rem',
-                    background: 'color-mix(in srgb, var(--color-gold) 18%, transparent)',
-                    filter: 'blur(40px)',
-                  }}
-                />
-                <h2
-                  className="wa-text-base wa-font-bold"
-                  style={{ color: 'var(--color-white)', margin: 0, position: 'relative', zIndex: 1 }}
-                >
-                  Start with these 5 tools
-                </h2>
-                <p
-                  style={{
-                    color: 'color-mix(in srgb, var(--color-white) 92%, transparent)',
-                    fontSize: '0.75rem',
-                    margin: '0.25rem 0 0',
-                    position: 'relative',
-                    zIndex: 1,
-                  }}
-                >
-                  Start here first, then follow the guided steps below.
-                </p>
-              </div>
-            </PortalCard>
-          </div>
-
           <Link
             href="/dashboard/ai-tools/history"
             className="btn btn-outline"

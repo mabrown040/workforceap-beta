@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { JOB_READY_TRAINING_PCT } from '@/lib/member/trainingProgress';
 
 export type JobReadyRow = {
   id: string;
@@ -18,8 +19,8 @@ export default function AdminJobReadyTable({ rows }: { rows: JobReadyRow[] }) {
   if (rows.length === 0) {
     return (
       <div className="admin-empty-state">
-        <h3>No one is at 70%+ training yet</h3>
-        <p>Members appear here once they complete 70% or more of their enrolled program. This is separate from Interview ready, which gates on pre-screening.</p>
+        <h3>No one is at {JOB_READY_TRAINING_PCT}%+ training yet</h3>
+        <p>Members appear here once they complete {JOB_READY_TRAINING_PCT}% or more of their enrolled program. This is separate from Interview ready, which gates on pre-screening.</p>
       </div>
     );
   }

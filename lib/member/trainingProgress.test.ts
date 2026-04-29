@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { computeTrainingProgress, JOB_READY_TRAINING_PCT } from './trainingProgress';
-import { PROGRAMS } from '@/lib/content/programs';
+import { computeTrainingProgress, JOB_READY_TRAINING_PCT } from './trainingProgress.ts';
+import { PROGRAMS } from '../content/programs.ts';
 
 const sampleProgram = PROGRAMS.find((p) => p.courses.length >= 4);
 if (!sampleProgram) throw new Error('test fixture: need a program with at least 4 courses');

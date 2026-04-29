@@ -12,6 +12,7 @@ type LearningCompletionResult = {
 };
 
 const DUPLICATE_LOOKBACK_MS = 1000 * 60 * 60 * 24 * 7;
+export const CAREER_OS_WORKFLOW = 'career_os_learning_completion';
 
 function normalizeCourseName(courseName: string) {
   return courseName.trim().replace(/\s+/g, ' ');
@@ -22,7 +23,7 @@ export async function handleLearningCompletion(memberId: string, courseName: str
   const startedAt = Date.now();
 
   await recordWorkflowDiagnostic({
-    workflow: 'career_os_learning_completion',
+    workflow: CAREER_OS_WORKFLOW,
     status: 'started',
     entityType: 'user',
     entityId: memberId,
@@ -39,7 +40,7 @@ export async function handleLearningCompletion(memberId: string, courseName: str
 
     if (!member) {
       await recordWorkflowDiagnostic({
-        workflow: 'career_os_learning_completion',
+        workflow: CAREER_OS_WORKFLOW,
         status: 'error',
         entityType: 'user',
         entityId: memberId,
@@ -95,7 +96,7 @@ export async function handleLearningCompletion(memberId: string, courseName: str
       });
 
       await recordWorkflowDiagnostic({
-        workflow: 'career_os_learning_completion',
+        workflow: CAREER_OS_WORKFLOW,
         status: 'inspection',
         entityType: 'MemberNextBestAction',
         entityId: existingRecentAction.id,
@@ -161,7 +162,7 @@ export async function handleLearningCompletion(memberId: string, courseName: str
     });
 
     await recordWorkflowDiagnostic({
-      workflow: 'career_os_learning_completion',
+      workflow: CAREER_OS_WORKFLOW,
       status: 'success',
       entityType: 'MemberNextBestAction',
       entityId: action.id,
@@ -187,7 +188,7 @@ export async function handleLearningCompletion(memberId: string, courseName: str
     };
   } catch (error) {
     await recordWorkflowDiagnostic({
-      workflow: 'career_os_learning_completion',
+      workflow: CAREER_OS_WORKFLOW,
       status: 'error',
       entityType: 'user',
       entityId: memberId,

@@ -1,5 +1,6 @@
 import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { CAREER_OS_WORKFLOW } from '@/lib/workflows/careerOS';
 
 function logMetricsReason(label: string, reason: unknown) {
   const msg = reason instanceof Error ? reason.message : String(reason);
@@ -147,27 +148,62 @@ async function getEnrollmentByProgram(): Promise<{ program: string; count: numbe
   return rows.map(r => ({ program: r.enrolledProgram ?? 'Unknown', count: r._count.id }));
 }
 
-/** Career OS funnel: completions triggered → actions created → member follow-through */
+/** Career OS funnel: completion events received → actions created → CTA clicks */
 async function getCareerOsMetrics() {
-  const [completionsTriggered, actionsGenerated, actionsCompleted, actionsDismissed, actionsPending] = await Promise.all([
+  const [completionEventsReceived, actionsCreated, actionsClickedRows, actionsDismissedRows, actionsPendingRows] = await Promise.all([
     prisma.workflowDiagnostic.count({
-      where: { workflow: 'career_os_learning_completion', status: 'started' },
+      where: { workflow: CAREER_OS_WORKFLOW, status: 'started' },
     }),
-    prisma.workflowDiagnostic.count({
-      where: { workflow: 'career_os_learning_completion', status: 'success' },
+    prisma.memberEvent.count({
+      where: {
+        eventName: 'career_os.learning_completion_processed',
+        entityType: 'MemberNextBestAction',
+      },
     }),
-    prisma.memberNextBestAction.count({ where: { icon: 'auto_awesome', status: 'COMPLETED' } }),
-    prisma.memberNextBestAction.count({ where: { icon: 'auto_awesome', status: 'DISMISSED' } }),
-    prisma.memberNextBestAction.count({ where: { icon: 'auto_awesome', status: 'PENDING' } }),
+    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      SELECT COUNT(DISTINCT click_event.entity_id)::bigint AS count
+      FROM member_events click_event
+      INNER JOIN member_events source_event
+        ON source_event.entity_id = click_event.entity_id
+      WHERE click_event.event_name = 'member_next_best_action_clicked'
+        AND click_event.entity_type = 'MemberNextBestAction'
+        AND source_event.event_name = 'career_os.learning_completion_processed'
+        AND source_event.entity_type = 'MemberNextBestAction'
+    `,
+    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      SELECT COUNT(DISTINCT nba.id)::bigint AS count
+      FROM member_next_best_actions nba
+      INNER JOIN member_events source_event
+        ON source_event.entity_id = nba.id
+      WHERE nba.status = 'DISMISSED'
+        AND source_event.event_name = 'career_os.learning_completion_processed'
+        AND source_event.entity_type = 'MemberNextBestAction'
+    `,
+    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      SELECT COUNT(DISTINCT nba.id)::bigint AS count
+      FROM member_next_best_actions nba
+      INNER JOIN member_events source_event
+        ON source_event.entity_id = nba.id
+      WHERE nba.status = 'PENDING'
+        AND source_event.event_name = 'career_os.learning_completion_processed'
+        AND source_event.entity_type = 'MemberNextBestAction'
+    `,
   ]);
 
+  const clickedCount = actionsClickedRows[0]?.count ?? 0;
+  const dismissedCount = actionsDismissedRows[0]?.count ?? 0;
+  const pendingCount = actionsPendingRows[0]?.count ?? 0;
+  const actionsClicked = typeof clickedCount === 'bigint' ? Number(clickedCount) : clickedCount;
+  const actionsDismissed = typeof dismissedCount === 'bigint' ? Number(dismissedCount) : dismissedCount;
+  const actionsPending = typeof pendingCount === 'bigint' ? Number(pendingCount) : pendingCount;
+
   const followThroughRate =
-    actionsGenerated > 0 ? Math.round((actionsCompleted / actionsGenerated) * 100) : 0;
+    actionsCreated > 0 ? Math.round((actionsClicked / actionsCreated) * 100) : 0;
 
   return {
-    completionsTriggered,
-    actionsGenerated,
-    actionsCompleted,
+    completionEventsReceived,
+    actionsCreated,
+    actionsClicked,
     actionsDismissed,
     actionsPending,
     followThroughRate,
@@ -300,11 +336,11 @@ export async function getAdminMetrics() {
     ? placementStatsResult.value
     : { enrolled: 0, placed: 0, certifications: 0, placementRate: 0 };
   const careerOsMetrics = careerOsMetricsResult.status === 'fulfilled'
-    ? careerOsMetricsResult.value
-    : {
-        completionsTriggered: 0,
-        actionsGenerated: 0,
-        actionsCompleted: 0,
+      ? careerOsMetricsResult.value
+      : {
+        completionEventsReceived: 0,
+        actionsCreated: 0,
+        actionsClicked: 0,
         actionsDismissed: 0,
         actionsPending: 0,
         followThroughRate: 0,

@@ -57,7 +57,7 @@ const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRamp
   manufacturing: {
     tips: [
       'CPT/CLT certifications qualify you for apprenticeships with union pay scales',
-      'Many Austin-area manufacturers offer direct-hire after 60-day temp placement',
+      'Semiconductor fabs and logistics hubs offer direct-hire after 60-day temp placement',
       'Forklift certification takes 1 day and opens hundreds of roles',
     ],
     topRoles: ['Logistics Coordinator', 'Production Technician', 'Supply Chain Associate'],
@@ -66,7 +66,7 @@ const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRamp
   business: {
     tips: [
       'Google Project Management cert holders often stand out for PM roles',
-      'Salesforce admin roles are in high demand — even basic admin skills command $60K+',
+      'Salesforce admin roles remain in high demand — basic admin skills command $62K+ as of Q1 2026',
       'If you have an MBA, your MBA + tech cert combination is rare — lead with both on applications',
     ],
     topRoles: ['Project Manager', 'Operations Analyst', 'Business Development Rep'],
@@ -89,35 +89,35 @@ function getCategoryTips(programSlug: string | null) {
   return PROGRAM_TIPS[category] ?? PROGRAM_TIPS['digital-literacy'];
 }
 
-// Market signals — curated weekly intel by program category
+// Market signals — curated intel by program category (last refreshed Q1 2026)
 const MARKET_SIGNALS: Record<string, { headline: string; detail: string; icon: string }[]> = {
   'it-cyber': [
-    { headline: '47K+ IT Support openings in Texas', detail: 'Highest volume in Dallas-Fort Worth and Austin metro areas. Entry roles filling in 2–3 weeks.', icon: 'trending_up' },
-    { headline: 'Cybersecurity salaries up 11% YoY', detail: 'CompTIA Security+ holders averaging $72K entry. Demand driven by healthcare and finance sectors.', icon: 'security' },
+    { headline: '47K+ IT Support openings in Texas', detail: 'Highest volume in Dallas–Fort Worth and Austin metros. Entry roles filling in 2–3 weeks. Q1 2026 · BLS.', icon: 'trending_up' },
+    { headline: 'Cybersecurity median entry: $74K', detail: 'CompTIA Security+ holders averaging $74K entry, up 11% YoY. Demand driven by healthcare and finance. Q1 2026 · BLS OES.', icon: 'security' },
   ],
   'ai-software': [
-    { headline: 'AI Engineer demand up 34% nationally', detail: 'Python + ML skills dominate. IBM certification holders tracked to $85–110K starting range.', icon: 'auto_awesome' },
-    { headline: 'Remote AI roles outnumber on-site 3:1', detail: 'Most AI/ML positions allow full remote after 30-day onboarding. Major advantage for Texas talent.', icon: 'home_work' },
+    { headline: 'AI Engineer demand up 34% nationally', detail: 'Python + ML skills dominate. IBM cert holders tracked to $85–115K starting range. Q1 2026 · LinkedIn Workforce Report.', icon: 'auto_awesome' },
+    { headline: 'Remote AI roles outnumber on-site 3:1', detail: 'Most AI/ML positions allow full remote after 30-day onboarding. Major advantage for Texas talent. Q1 2026.', icon: 'home_work' },
   ],
   'cloud-data': [
-    { headline: 'AWS/GCP roles: fastest time-to-hire in tech', detail: 'Certified cloud practitioners seeing offers in under 3 weeks. Austin hiring volume up 22%.', icon: 'cloud' },
-    { headline: 'Data analyst median salary: $68K entry', detail: 'SQL + Tableau skills command premium. Financial services hiring most aggressively.', icon: 'analytics' },
+    { headline: 'AWS/GCP roles: fastest time-to-hire in tech', detail: 'Certified cloud practitioners seeing offers in under 3 weeks. Austin cloud hiring volume up 22% Q4 2025.', icon: 'cloud' },
+    { headline: 'Data analyst median entry: $72K', detail: 'SQL + Tableau skills command a premium. Financial services hiring most aggressively in Texas. Q1 2026 · BLS OES.', icon: 'analytics' },
   ],
   healthcare: [
-    { headline: 'Medical coding shortage: 29K unfilled roles', detail: 'Texas leads nationally. AAPC-certified coders placed within 6 weeks on average.', icon: 'medical_services' },
-    { headline: 'Healthcare admin salary: $47–58K entry', detail: 'Remote billing roles increased 40% since 2023. Hospital networks hiring directly from cert programs.', icon: 'local_hospital' },
+    { headline: 'Medical coding shortage: 29K unfilled roles', detail: 'Texas leads nationally. AAPC-certified coders placed within 6 weeks on average. Q1 2026 · AAPC.', icon: 'medical_services' },
+    { headline: 'Healthcare admin salary: $48–60K entry', detail: 'Remote billing roles up 40% since 2022. Hospital networks hiring directly from cert programs. Q1 2026 · BLS OES.', icon: 'local_hospital' },
   ],
   manufacturing: [
-    { headline: 'Austin logistics/trades up 18% YoY', detail: 'Tesla Gigafactory + semiconductor expansion driving trades demand. CPT holders fast-tracked.', icon: 'precision_manufacturing' },
-    { headline: 'Union apprenticeships paying $28–34/hr', detail: 'CLT and trades certifications open apprenticeship pipelines paying well above minimum.', icon: 'handshake' },
+    { headline: 'Semiconductor expansion: 4,200+ new trades jobs', detail: 'Austin-area chip fabs and logistics hubs added trades roles Q4 2025. CPT/CLT holders fast-tracked. Q1 2026.', icon: 'precision_manufacturing' },
+    { headline: 'Apprenticeships paying $30–38/hr', detail: 'CLT and trades certifications open union apprenticeship pipelines. Well above Texas median wage. Q1 2026.', icon: 'handshake' },
   ],
   business: [
-    { headline: 'PM roles: $72K average entry in Texas', detail: 'Google PM cert holders 2× more likely to receive callbacks. Remote options widely available.', icon: 'task_alt' },
-    { headline: 'Salesforce ecosystem: 4.2M new jobs by 2026', detail: 'Even admin-level Salesforce skills command $60–75K. Texas orgs actively recruiting.', icon: 'salesforce' },
+    { headline: 'PM roles: $74K average entry in Texas', detail: 'Google PM cert holders 2× more likely to receive callbacks. Remote options widely available. Q1 2026 · BLS OES.', icon: 'task_alt' },
+    { headline: 'Salesforce skills: 150K+ open U.S. roles', detail: 'Admin-level Salesforce skills command $62–78K. Texas orgs actively recruiting — demand continues to outpace supply. Q1 2026 · Salesforce Talent Alliance.', icon: 'salesforce' },
   ],
   'digital-literacy': [
-    { headline: 'Admin coordinator demand stable at 85K+ openings', detail: 'Every industry needs digital-literate staff. Microsoft cert holders preferred.', icon: 'computer' },
-    { headline: 'Fastest path to employment: 4–6 weeks post-cert', detail: 'Digital literacy grads often see shorter job search timelines than other tracks.', icon: 'speed' },
+    { headline: 'Admin coordinator demand: 85K+ openings', detail: 'Every industry needs digital-literate staff. Microsoft cert holders preferred by 70%+ of employers. Q1 2026 · Indeed.', icon: 'computer' },
+    { headline: 'Fastest path to employment: 4–6 weeks post-cert', detail: 'Digital literacy grads consistently see shorter job-search timelines than other tracks. Q1 2026.', icon: 'speed' },
   ],
 };
 

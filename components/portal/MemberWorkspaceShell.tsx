@@ -1,10 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import WorkspaceShell from './WorkspaceShell';
 import DashboardFooter from './DashboardFooter';
 import DashboardPageErrorBoundary from './DashboardPageErrorBoundary';
 import { MEMBER_PORTAL_NAV_ITEMS } from '@/lib/nav/portalNav';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 
 export default function MemberWorkspaceShell({
@@ -19,6 +22,22 @@ export default function MemberWorkspaceShell({
   portalRoles?: PortalSwitcherRole[];
   children: React.ReactNode;
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (searchParams.get('verified') === '1') {
+      trackFunnelEvent('member_signup', 'email_verified');
+      trackFunnelEvent('member_signup', 'dashboard_first_visit');
+      // Remove the param without adding to history
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('verified');
+      const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
+      router.replace(newUrl);
+    }
+  }, [searchParams, pathname, router]);
+
   return (
     <WorkspaceShell
       portalRole="member"

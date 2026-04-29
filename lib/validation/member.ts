@@ -23,6 +23,13 @@ export const PROGRAM_INTEREST_OPTIONS = [
   'Not sure — help me choose',
 ] as const;
 
+const optionalTrimmedString = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((value) => {
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }, schema.optional());
+
 export const memberSignupSchema = z.object({
   fullName: z
     .string()
@@ -30,18 +37,20 @@ export const memberSignupSchema = z.object({
     .max(120, 'Name must be less than 120 characters')
     .trim(),
   email: z.string().email('Please enter a valid email address').toLowerCase().trim(),
-  phone: z
-    .string()
-    .min(10, 'Please enter a valid phone number')
-    .max(20)
-    .regex(/^[\d\s\-\(\)\+\.]+$/, 'Please enter a valid phone number')
-    .trim(),
-  zip: z
-    .string()
-    .min(5, 'Please enter a valid ZIP code')
-    .max(10)
-    .regex(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code (e.g. 78701 or 78701-1234)')
-    .trim(),
+  phone: optionalTrimmedString(
+    z
+      .string()
+      .min(10, 'Please enter a valid phone number')
+      .max(20)
+      .regex(/^[\d\s\-\(\)\+\.]+$/, 'Please enter a valid phone number')
+  ),
+  zip: optionalTrimmedString(
+    z
+      .string()
+      .min(5, 'Please enter a valid ZIP code')
+      .max(10)
+      .regex(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code (e.g. 78701 or 78701-1234)')
+  ),
   programInterest: z.enum(PROGRAM_INTEREST_OPTIONS, {
     errorMap: () => ({ message: 'Please select a program interest' }),
   }),

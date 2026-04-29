@@ -31,6 +31,21 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
+function wioaBadgeProps(status: string | null | undefined): { label: string; variant: 'info' | 'success' | 'error' | 'neutral'; tooltip: string } {
+  switch (status) {
+    case 'verified':
+      return { label: 'WIOA Verified', variant: 'success', tooltip: 'Member is WIOA-verified and eligible to enroll in training' };
+    case 'pending':
+    case 'in_review':
+      return { label: 'WIOA Pending', variant: 'info', tooltip: 'Member submitted WIOA screening — awaiting counselor review' };
+    case 'not_eligible':
+    case 'needs_info':
+      return { label: 'Not Eligible', variant: 'error', tooltip: 'Member is not eligible for training enrollment until WorkforceAP resolves their WIOA status' };
+    default:
+      return { label: 'WIOA: Not Started', variant: 'info', tooltip: "Member hasn't submitted WIOA screening" };
+  }
+}
+
 export default async function CounselorStudentsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor/students');
@@ -55,6 +70,7 @@ export default async function CounselorStudentsPage() {
               programInterest: true,
               assessmentScorePct: true,
               coursesCompleted: true,
+              wioaReviewStatus: true,
             },
           },
         },
@@ -250,6 +266,7 @@ export default async function CounselorStudentsPage() {
                 enrolledProgram: a.member.enrolledProgram,
                 assessmentScorePct: a.member.assessmentScorePct,
               });
+              const wioa = wioaBadgeProps(a.member.wioaReviewStatus);
               return (
                 <Link
                   key={a.id}
@@ -332,6 +349,9 @@ export default async function CounselorStudentsPage() {
                           </span>
                         </div>
                       )}
+                      <div style={{ marginTop: '0.375rem' }} title={wioa.tooltip}>
+                        <StatusBadge label={wioa.label} variant={wioa.variant} />
+                      </div>
                     </div>
 
                     {/* Status + chevron */}
@@ -420,20 +440,28 @@ export default async function CounselorStudentsPage() {
           />
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
-            {assignments.map((a) => (
-              <li key={a.id}>
-                <Link
-                  href={`/counselor/students/${a.member.id}`}
-                  className="btn btn-outline"
-                  style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between' }}
-                >
-                  <span>{a.member.fullName}</span>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                    {a.member.email}
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {assignments.map((a) => {
+              const wioa = wioaBadgeProps(a.member.wioaReviewStatus);
+              return (
+                <li key={a.id}>
+                  <Link
+                    href={`/counselor/students/${a.member.id}`}
+                    className="btn btn-outline"
+                    style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}
+                  >
+                    <span style={{ fontWeight: 600 }}>{a.member.fullName}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                      <span title={wioa.tooltip}>
+                        <StatusBadge label={wioa.label} variant={wioa.variant} />
+                      </span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                        {a.member.email}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

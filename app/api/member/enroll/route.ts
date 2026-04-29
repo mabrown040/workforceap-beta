@@ -5,7 +5,7 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseEnrolledEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/programCatalog';
-import { memberTrainingProfileComplete } from '@/lib/platform/trainingEnrollmentGate';
+import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import { awardPoints } from '@/lib/member/points';
 
 export async function POST(request: Request) {
@@ -37,26 +37,26 @@ export async function POST(request: Request) {
     where: { id: user.id },
     select: {
       enrolledProgram: true,
-      phone: true,
-      profile: { select: { profilePhone: true, profileAddress: true } },
+      wioaReviewStatus: true,
       courseEnrollment: { select: { enrolledByAdminId: true } },
     },
   });
 
-  const adminBypass = !!existing?.courseEnrollment?.enrolledByAdminId;
-
-  const gate = memberTrainingProfileComplete({
-    phone: existing?.phone,
-    profilePhone: existing?.profile?.profilePhone,
-    profileAddress: existing?.profile?.profileAddress,
+  const gate = isMemberWioaVerified({
+    wioaReviewStatus: existing?.wioaReviewStatus,
+    enrolledByAdminId: existing?.courseEnrollment?.enrolledByAdminId,
   });
-  if (!adminBypass && !gate.ok) {
+  if (!gate.ok) {
+    const messages: Record<string, string> = {
+      WIOA_NOT_STARTED:
+        "Before you can enroll, you'll need to complete a brief eligibility screening. It takes about 5 minutes.",
+      WIOA_PENDING:
+        "Your eligibility screening is under review. We'll let you know once it's approved.",
+      WIOA_NOT_ELIGIBLE:
+        "Unfortunately, you're not eligible for this program based on current WIOA criteria. Let's find the right path.",
+    };
     return NextResponse.json(
-      {
-        error: 'Complete your profile to enroll in training',
-        code: 'PROFILE_INCOMPLETE',
-        missing: gate.missing,
-      },
+      { error: messages[gate.code] ?? 'Enrollment not available', code: gate.code },
       { status: 400 }
     );
   }

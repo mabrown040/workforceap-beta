@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import '@/css/counselor.css';
 import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 type WitData = {
   name: string;
@@ -54,6 +55,10 @@ export default function ResumeClient({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    trackFunnelEvent('member_signup', 'resume_page_viewed');
+  }, []);
+
+  useEffect(() => {
     fetch('/api/member/resume')
       .then((r) => r.json())
       .then((d) => {
@@ -81,6 +86,7 @@ export default function ResumeClient({
       setUploading(false);
       return;
     }
+    trackFunnelEvent('member_signup', 'resume_uploaded');
     try {
       const refetch = await fetch('/api/member/resume');
       const d = await refetch.json();

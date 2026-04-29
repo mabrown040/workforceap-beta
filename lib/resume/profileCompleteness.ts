@@ -7,7 +7,12 @@ type ProfileInput = {
   educationLevel?: string | null;
 } | null;
 
-type UserInput = { fullName?: string | null; email?: string } | null;
+type UserInput = {
+  fullName?: string | null;
+  email?: string;
+  enrolledProgram?: string | null;
+  assessmentCompleted?: boolean | null;
+} | null;
 
 const PROFILE_FIELDS: Array<{ label: string; get: (p: ProfileInput, u: UserInput) => string | null | undefined }> = [
   { label: 'full name', get: (_, u) => u?.fullName },
@@ -18,11 +23,17 @@ const PROFILE_FIELDS: Array<{ label: string; get: (p: ProfileInput, u: UserInput
   { label: 'bio', get: (p) => p?.profileBio },
   { label: 'employment status', get: (p) => p?.employmentStatus },
   { label: 'education level', get: (p) => p?.educationLevel },
+  { label: 'enrolled program', get: (_, u) => u?.enrolledProgram },
+  { label: 'skills assessment', get: (_, u) => (u?.assessmentCompleted ? 'done' : null) },
 ];
 
 /**
- * Profile completeness for resume generation.
- * Returns 0-100 based on key fields.
+ * Member-facing profile completeness. Returns 0-100 based on the union of
+ * identity, contact, background, program, and readiness signals — the same
+ * fields a member needs filled to be matched, served, and ready for resume
+ * generation. Both /dashboard and /dashboard/profile must pass the full user
+ * (including enrolledProgram and assessmentCompleted) so the value agrees
+ * across surfaces.
  */
 export function getProfileCompleteness(profile: ProfileInput, user: UserInput): number {
   if (!profile && !user) return 0;

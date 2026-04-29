@@ -140,9 +140,9 @@ export default async function DashboardProfilePage() {
     : "??";
 
   // Single source of truth: getProfileCompleteness in lib/resume/profileCompleteness.
-  // Both this page and dashboard/page must select the same set of profile fields
-  // (phone, address, linkedin, bio, employmentStatus, educationLevel) for the
-  // computed % to agree.
+  // Both this page and dashboard/page must pass the full user (fullName, email,
+  // enrolledProgram, assessmentCompleted) and profile (phone, address, linkedin,
+  // bio, employmentStatus, educationLevel) so the computed % agrees across surfaces.
   const profilePct = getProfileCompleteness(dbUser.profile, dbUser);
   const completeness = profilePct;
   const witData = {

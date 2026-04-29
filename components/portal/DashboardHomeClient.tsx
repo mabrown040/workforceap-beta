@@ -135,7 +135,7 @@ export default function DashboardHomeClient({
     {
       done: checklist.chooseProgram,
       doneLabel: 'Program selected',
-      pendingLabel: 'Choose program',
+      pendingLabel: noApplicationOnFile ? 'Start application' : 'Choose program',
     },
     {
       done: checklist.completeAssessment,
@@ -144,8 +144,8 @@ export default function DashboardHomeClient({
     },
     {
       done: checklist.startFirstCourse,
-      doneLabel: 'First course started',
-      pendingLabel: 'Start first course',
+      doneLabel: 'Training started',
+      pendingLabel: 'Open your first course',
     },
     {
       done: checklist.completeFirstCourse,
@@ -160,16 +160,16 @@ export default function DashboardHomeClient({
       : state === 'B'
         ? 'Training preassessment required'
         : completedCount === 0
-          ? 'Your training is ready'
+          ? 'Your first course is next'
           : `Current training step: ${nextMilestone ?? programTitle}`;
 
   const progressCardSummary =
     state === 'D'
       ? `${completedCount} of ${totalCourses} courses marked complete.`
       : state === 'B'
-        ? 'Complete your Training Preassessment to start your first training step.'
+        ? 'Complete your Training Preassessment to unlock your first course.'
         : completedCount === 0
-          ? 'No courses are marked complete yet. Start with your first training step.'
+          ? 'No courses are marked complete yet. Open your first course to begin.'
           : `${completedCount} of ${totalCourses} courses marked complete.`;
 
   const weekEyebrow = useMemo(() => {
@@ -311,7 +311,9 @@ export default function DashboardHomeClient({
                   )}
                   <div className="portal-card portal-card--flat portal-card--padded-sm">
                     <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                      {state === 'A' && "Choose a program to get started on your career path. All programs are offered at no cost to members."}
+                      {state === 'A' && (noApplicationOnFile
+                        ? "Start your application to begin your career path. All programs are offered at no cost to members."
+                        : "Choose a program to get started on your career path. All programs are offered at no cost to members.")}
                       {state === 'B' && `Complete your Training Preassessment to start your ${programTitle} training.`}
                       {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
                       {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
@@ -422,7 +424,7 @@ export default function DashboardHomeClient({
                   const isCurrent = !item.done && (i === 0 || checklistItems[i - 1].done);
                   const label = item.done ? item.doneLabel : item.pendingLabel;
                   return (
-                    <div key={label} className="portal-milestone-step" style={{
+                    <div key={`${i}-${label}`} className="portal-milestone-step" style={{
                       opacity: item.done ? 0.5 : isCurrent ? 1 : 0.35,
                       color: isCurrent ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
                     }}>
@@ -502,13 +504,17 @@ export default function DashboardHomeClient({
                     <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>GET STARTED</span>
                   </div>
                 </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Choose Your Program</h4>
+                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>
+                  {noApplicationOnFile ? 'Start Your Application' : 'Choose Your Program'}
+                </h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  Select one of our no-cost career programs. Funding is tied to a single program.
+                  {noApplicationOnFile
+                    ? 'Apply in about 10 minutes to get matched with the right no-cost program for your goals.'
+                    : 'Select one of our no-cost career programs. Funding is tied to a single program.'}
                 </p>
-                <Link href="/dashboard/program" className="btn btn-primary"
-                  onClick={() => handleDashboardAction('choose_program_clicked')}>
-                  Choose Your Program
+                <Link href={noApplicationOnFile ? '/apply' : '/dashboard/program'} className="btn btn-primary"
+                  onClick={() => handleDashboardAction(noApplicationOnFile ? 'start_application_clicked' : 'choose_program_clicked')}>
+                  {noApplicationOnFile ? 'Start Your Application' : 'Choose Your Program'}
                 </Link>
               </div>
             )}
@@ -712,9 +718,9 @@ export default function DashboardHomeClient({
               <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
                 {([
                   { done: checklist.createAccount, label: 'Create account' },
-                  { done: checklist.chooseProgram, label: 'Choose program' },
+                  { done: checklist.chooseProgram, label: noApplicationOnFile ? 'Start application' : 'Choose program' },
                   { done: checklist.completeAssessment, label: 'Complete preassessment' },
-                  { done: checklist.startFirstCourse, label: 'Start your first course' },
+                  { done: checklist.startFirstCourse, label: 'Open your first course' },
                   { done: checklist.completeFirstCourse, label: 'Complete your first course' },
                 ]).map(({ done, label }) => (
                   <li key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.875rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-accent)' }}>

@@ -422,7 +422,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       done: !!enrolledProgram,
       active: !enrolledProgram,
       locked: false,
-      detail: enrolledProgram ? 'Program on file' : 'Choose a program',
+      detail: enrolledProgram ? 'Program on file' : noApplicationOnFile ? 'Start your application' : 'Choose a program',
     },
     {
       label: 'Skills assessment',
@@ -468,11 +468,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         (interviewEligibleFlag && !interviewCompleted),
       detail:
         completedCount > 0
-          ? 'Training in progress'
+          ? allCoursesComplete
+            ? 'All courses complete'
+            : `${completedCount} course${completedCount === 1 ? '' : 's'} complete`
           : enrolledProgram && assessmentCompleted
             ? interviewEligibleFlag && !interviewCompleted
               ? 'Complete interview first'
-              : 'Start your first course'
+              : 'Open your first course'
             : 'Complete prior steps first',
     },
   ];

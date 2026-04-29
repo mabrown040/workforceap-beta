@@ -21,7 +21,7 @@ const BENTO_ITEMS = [
   {
     icon: 'lock_open',
     title: 'Zero-Barrier Access',
-    desc: 'No cost for members. No prerequisites. Funding comes from grants and partnerships — members are never charged for access.',
+    desc: 'No cost for qualifying members. No prerequisites. Funding comes from grants and partnerships that can cover access for eligible participants.',
     span: 'large',
   },
   {

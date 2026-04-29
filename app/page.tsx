@@ -13,7 +13,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training & Industry Certificates',
   description:
-    'Occupational and career training at no cost for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
+    'Occupational and career training with grant- and partner-funded access for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.',
   path: '/',
 });
 
@@ -182,7 +182,7 @@ export default async function HomePage() {
             marginBottom: '1rem',
             lineHeight: 1.6,
           }}>
-            No-cost career training for members who want a stronger path to work. Start with Find Your Path, see programs that fit, and get counselor guidance, resume help, and job-search support.
+            Career training with no upfront program cost for qualifying members who want a stronger path to work. Start with Find Your Path, see programs that fit, and get counselor guidance, resume help, and job-search support.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>
@@ -220,7 +220,7 @@ export default async function HomePage() {
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
-              <span>✓ Funded by grants and partnerships</span>
+              <span>✓ Grant- and partner-funded pathways</span>
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ No credit card required</span>
               <span style={{ opacity: 0.5 }}>·</span>
@@ -401,7 +401,7 @@ export default async function HomePage() {
               WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
-              We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost for qualifying members through WorkforceAP and partner-backed pathways.
+              We believe education should be an investment in the future, not a debt for the present. Programs may be available at no upfront cost for qualifying members through WorkforceAP and partner-backed pathways.
             </p>
           </div>
 

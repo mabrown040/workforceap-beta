@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: https: blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "frame-src https://www.googletagmanager.com https://challenges.cloudflare.com",
+              "frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com",
               "form-action 'self' https://formspree.io",
             ].join('; '),
           },

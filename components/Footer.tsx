@@ -81,7 +81,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
       {/* Workforce ecosystem context */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem 2rem 1.5rem', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
         <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-          Built with workforce ecosystem experience
+          Experience across the workforce ecosystem
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Community organizations</span>
@@ -95,7 +95,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
       {/* Copyright bar */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1.5rem 2rem 0', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          &copy; {new Date().getFullYear()} Workforce Advancement Project. Career training and job-readiness support at no cost to members.
+          &copy; {new Date().getFullYear()} Workforce Advancement Project. Career training and job-readiness support at no cost for qualifying members.
         </p>
         <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', opacity: 0.6, marginTop: '0.75rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
           This site incorporates information from{' '}

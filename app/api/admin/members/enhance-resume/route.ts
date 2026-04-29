@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -56,12 +57,15 @@ Your response must have two parts:
 
     const improvedMatch = output.match(/IMPROVED RESUME:?\s*([\s\S]*?)(?=IMPROVEMENT SUMMARY|$)/i);
     const summaryMatch = output.match(/IMPROVEMENT SUMMARY:?\s*([\s\S]*?)$/i);
-    const improvedResume = improvedMatch?.[1]?.trim() || output;
-    const improvementSummary = summaryMatch?.[1]?.trim() || '';
+    const improvedResume = cleanLongFormPlainText(improvedMatch?.[1]?.trim() || output);
+    const improvementSummary = (summaryMatch?.[1]?.trim() || '')
+      .split(/\n/)
+      .map((line) => cleanLongFormPlainText(line))
+      .filter(Boolean);
 
     return NextResponse.json({
       enhancedResume: improvedResume,
-      improvementSummary: improvementSummary.split(/\n/).filter(Boolean),
+      improvementSummary,
     });
   } catch (err) {
     console.error('Enhance resume error:', err);

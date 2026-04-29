@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { chatCompletion } from '@/lib/ai/groq';
+import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
@@ -81,7 +82,9 @@ export async function POST(req: NextRequest) {
   }
 
   const question = await chatCompletion(messages, { maxTokens: 200 });
-  const firstQuestion = question ?? `Tell me about yourself and why you are interested in the ${role} role.`;
+  const firstQuestion = cleanSpokenLine(
+    question ?? `Tell me about yourself and why you are interested in the ${role} role.`
+  );
 
   return NextResponse.json({
     mode: 'text',

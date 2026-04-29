@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { awardPoints } from '@/lib/member/points';
 import { chatCompletion } from '@/lib/ai/groq';
+import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
@@ -90,7 +91,9 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
       if (text) {
         try {
           const steps = JSON.parse(text) as string[];
-          if (Array.isArray(steps) && steps.length > 0) return steps.slice(0, 3);
+          if (Array.isArray(steps) && steps.length > 0) {
+            return steps.slice(0, 3).map((step) => cleanSpokenLine(step));
+          }
         } catch { /* fall through */ }
       }
     }
@@ -108,7 +111,9 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
   if (result) {
     try {
       const steps = JSON.parse(result) as string[];
-      if (Array.isArray(steps) && steps.length > 0) return steps.slice(0, 3);
+      if (Array.isArray(steps) && steps.length > 0) {
+        return steps.slice(0, 3).map((step) => cleanSpokenLine(step));
+      }
     } catch { /* fall through */ }
   }
 

@@ -7,6 +7,7 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { cleanLongFormPlainText, cleanSpokenLine } from '@/lib/ai/postProcess';
 
 const LEVEL_PROMPTS = {
   entry: 'entry-level / junior (0-2 years experience)',
@@ -115,7 +116,14 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
       console.error('Interview practice: failed to save result', saveErr);
     }
 
-    return NextResponse.json({ questions });
+    const cleanedQuestions = questions.map((q) => ({
+      ...q,
+      question: cleanSpokenLine(q.question),
+      tip: cleanLongFormPlainText(q.tip),
+      starHint: q.starHint ? cleanLongFormPlainText(q.starHint) : q.starHint,
+      exampleAnswer: q.exampleAnswer ? cleanLongFormPlainText(q.exampleAnswer) : q.exampleAnswer,
+    }));
+    return NextResponse.json({ questions: cleanedQuestions });
   } catch (err) {
     console.error('Interview practice error:', err);
     return NextResponse.json(

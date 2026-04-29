@@ -6,10 +6,9 @@ import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurfa
 const AI_COACHES_BAND_STYLE = {
   padding: '1.25rem clamp(0.75rem, 3vw, 1.25rem) 1.5rem',
   borderRadius: '1rem',
-  background:
-    'linear-gradient(180deg, color-mix(in srgb, #2563eb 16%, var(--surface-container-low)) 0%, color-mix(in srgb, #60a5fa 12%, var(--surface-container-low)) 45%, color-mix(in srgb, #2563eb 14%, var(--surface-container-low)) 100%)',
-  border: '1px solid color-mix(in srgb, #3b82f6 22%, var(--outline-variant))',
-  boxShadow: 'inset 0 1px 0 color-mix(in srgb, #fff 35%, transparent)',
+  background: 'var(--surface-container-low)',
+  border: '1px solid var(--outline-variant)',
+  boxShadow: 'none',
 } as const;
 
 /**

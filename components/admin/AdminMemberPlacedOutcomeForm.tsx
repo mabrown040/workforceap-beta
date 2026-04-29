@@ -194,8 +194,19 @@ export default function AdminMemberPlacedOutcomeForm({
         </div>
       </details>
 
-      <button type="submit" className="btn btn-primary btn-sm" disabled={saving} style={{ marginTop: '0.5rem' }}>
-        {saving ? 'Saving…' : initial ? 'Update placement record' : 'Save placement'}
+      <button type="submit" className="btn btn-primary btn-sm" disabled={saving} aria-busy={saving} style={{ marginTop: '0.5rem' }}>
+        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          {saving ? (
+            <>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+              Saving…
+            </>
+          ) : initial ? (
+            'Update placement record'
+          ) : (
+            'Save placement'
+          )}
+        </span>
       </button>
     </form>
   );

@@ -58,6 +58,9 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
       return NextResponse.redirect(loginUrl);
     }
+    if (isAdminApiPath(request.nextUrl.pathname)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return response;
   }
 
@@ -92,6 +95,10 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (isAdminApiPath(request.nextUrl.pathname) && !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // MFA enforcement for admin UI and admin API paths

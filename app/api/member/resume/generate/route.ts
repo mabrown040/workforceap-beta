@@ -5,6 +5,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { claudeChat, isAnthropicConfigured } from '@/lib/ai/anthropicChat';
+import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
@@ -179,9 +180,11 @@ Key rules:
       output = fallbackResume;
     }
 
+    const cleanedOutput = cleanLongFormPlainText(output);
+
     const supabase = getSupabaseAdmin();
     const path = `${user.id}/resume-enhanced.txt`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, output, {
+    const { error } = await supabase.storage.from(BUCKET).upload(path, cleanedOutput, {
       upsert: true,
       contentType: 'text/plain',
     });
@@ -201,10 +204,10 @@ Key rules:
       console.error('[member/resume/generate] completeCareerOsResumeActions failed:', error);
     });
 
-    return NextResponse.json({ ok: true, resume: output, path, fallbackUsed });
+    return NextResponse.json({ ok: true, resume: cleanedOutput, path, fallbackUsed });
   } catch (err) {
     console.error('Generate resume error:', err);
-    const output = fallbackResume;
+    const output = cleanLongFormPlainText(fallbackResume);
     try {
       const supabase = getSupabaseAdmin();
       const path = `${user.id}/resume-enhanced.txt`;

@@ -36,10 +36,11 @@ function wioaBadgeProps(status: string | null | undefined): { label: string; var
     case 'verified':
       return { label: 'WIOA Verified', variant: 'success', tooltip: 'Member is WIOA-verified and eligible to enroll in training' };
     case 'pending':
+    case 'in_review':
       return { label: 'WIOA Pending', variant: 'info', tooltip: 'Member submitted WIOA screening — awaiting counselor review' };
     case 'not_eligible':
     case 'needs_info':
-      return { label: 'Not Eligible', variant: 'error', tooltip: 'Member is not eligible based on WIOA criteria' };
+      return { label: 'Not Eligible', variant: 'error', tooltip: 'Member is not eligible for training enrollment until WorkforceAP resolves their WIOA status' };
     default:
       return { label: 'WIOA: Not Started', variant: 'info', tooltip: "Member hasn't submitted WIOA screening" };
   }

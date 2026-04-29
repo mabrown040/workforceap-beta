@@ -57,10 +57,10 @@ function WioaErrorMessage({ error }: { error: EnrollError }) {
       )}
       {error.code === 'WIOA_NOT_ELIGIBLE' && (
         <Link
-          href="/counselor/contact"
+          href="/contact"
           style={{ color: '#ad2c4d', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
         >
-          Contact your counselor →
+          Contact WorkforceAP →
         </Link>
       )}
     </div>

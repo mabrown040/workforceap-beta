@@ -11,7 +11,7 @@ export function isMemberWioaVerified(input: {
 
   const status = input.wioaReviewStatus ?? null;
   if (status === 'verified') return { ok: true };
-  if (status === 'pending') return { ok: false, code: 'WIOA_PENDING' };
+  if (status === 'pending' || status === 'in_review') return { ok: false, code: 'WIOA_PENDING' };
   if (status === 'not_eligible' || status === 'needs_info') return { ok: false, code: 'WIOA_NOT_ELIGIBLE' };
   return { ok: false, code: 'WIOA_NOT_STARTED' };
 }

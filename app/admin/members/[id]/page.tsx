@@ -245,7 +245,7 @@ export default async function AdminMemberDetailPage({
       : null;
 
   const gate = isMemberWioaVerified({ wioaReviewStatus: member.wioaReviewStatus });
-  const profileIncomplete = !gate.ok;
+  const enrollmentGateBlocked = !gate.ok;
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
@@ -425,7 +425,7 @@ export default async function AdminMemberDetailPage({
           <MemberDetailActions
             userId={member.id}
             memberName={member.fullName}
-            profileIncomplete={profileIncomplete}
+            enrollmentGateBlocked={enrollmentGateBlocked}
             currentProgramSlug={member.enrolledProgram}
             assessmentCompleted={member.assessmentCompleted}
             programOptions={programOptions ?? []}

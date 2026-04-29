@@ -17,6 +17,11 @@ test('returns WIOA_PENDING when status is pending', () => {
   assert.deepEqual(result, { ok: false, code: 'WIOA_PENDING' });
 });
 
+test('returns WIOA_PENDING when status is in_review', () => {
+  const result = isMemberWioaVerified({ wioaReviewStatus: 'in_review' });
+  assert.deepEqual(result, { ok: false, code: 'WIOA_PENDING' });
+});
+
 test('returns WIOA_NOT_ELIGIBLE when status is not_eligible', () => {
   const result = isMemberWioaVerified({ wioaReviewStatus: 'not_eligible' });
   assert.deepEqual(result, { ok: false, code: 'WIOA_NOT_ELIGIBLE' });

@@ -9,7 +9,7 @@ export type ProgramOption = { slug: string; name: string; status?: string };
 type MemberDetailActionsProps = {
   userId: string;
   memberName: string;
-  profileIncomplete: boolean;
+  enrollmentGateBlocked: boolean;
   currentProgramSlug: string | null;
   assessmentCompleted: boolean;
   programOptions: ProgramOption[];
@@ -18,7 +18,7 @@ type MemberDetailActionsProps = {
 export default function MemberDetailActions({
   userId,
   memberName,
-  profileIncomplete,
+  enrollmentGateBlocked,
   currentProgramSlug,
   assessmentCompleted,
   programOptions,
@@ -37,9 +37,9 @@ export default function MemberDetailActions({
     if (!programSlug) return;
     const selected = options.find((o) => o.slug === programSlug);
     const label = selected?.name ?? programSlug;
-    if (profileIncomplete) {
+    if (enrollmentGateBlocked) {
       const ok = window.confirm(
-        `Enroll ${memberName} in ${label}?\n\nTheir profile is incomplete (phone, address, and/or financial aid). They will be prompted to complete it after enrollment.`
+        `Enroll ${memberName} in ${label}?\n\nThis member is not yet verified for self-serve training enrollment. Admin enrollment will still work and create an admin bypass.`
       );
       if (!ok) return;
     }
@@ -79,9 +79,9 @@ export default function MemberDetailActions({
 
   return (
     <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {profileIncomplete && (
+      {enrollmentGateBlocked && (
         <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: 0 }}>
-          Profile incomplete for self-serve training enrollment — admin program changes still apply and set an admin enrollment bypass.
+          WIOA status is still blocking self-serve training enrollment — admin program changes still apply and set an admin enrollment bypass.
         </p>
       )}
       <div>

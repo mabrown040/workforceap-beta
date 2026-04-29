@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
 
 export const metadata: Metadata = {
@@ -14,5 +15,10 @@ export default function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <PortalLayoutClient>{children}</PortalLayoutClient>;
+  return (
+    <>
+      <PartnerExclusiveServerGate />
+      <PortalLayoutClient>{children}</PortalLayoutClient>
+    </>
+  );
 }

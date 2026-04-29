@@ -7,10 +7,15 @@
     "build": "node scripts/safe-migrate.cjs && node scripts/prisma-env.js prisma generate && next build",
     "postinstall": "node scripts/prisma-env.js prisma generate",
     "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "check": "npm run typecheck && npm run lint",
     "db:generate": "node scripts/prisma-env.js prisma generate",
     "db:migrate": "node scripts/prisma-env.js prisma migrate dev",
     "db:migrate:deploy": "node scripts/prisma-env.js prisma migrate deploy",
     "db:cleanup-fixtures": "node scripts/prisma-env.js npx tsx scripts/cleanup-fixtures.ts",
+    "db:backfill:courses": "node scripts/prisma-env.js npx tsx scripts/backfill-courses.ts",
     "db:push": "node scripts/prisma-env.js prisma db push",
     "db:studio": "node scripts/prisma-env.js prisma studio",
     "db:seed": "node scripts/prisma-env.js npx tsx prisma/seed.ts",
@@ -23,11 +28,12 @@
     "test:e2e:ui": "playwright test --ui",
     "repo:sync-master": "powershell -ExecutionPolicy Bypass -File scripts/auto-sync-master.ps1",
     "test:unit": "node --import tsx --test lib/**/*.test.ts",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "elevenlabs:apply-patches": "node scripts/elevenlabs/apply-agent-patches.mjs",
-    "email": "email dev -p 3001"
+    "email": "email dev -p 3001",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "check": "npm run typecheck && npm run lint"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -54,7 +60,7 @@
     "i18next-resources-to-backend": "^1.2.1",
     "lucide-react": "^0.577.0",
     "mammoth": "^1.12.0",
-    "next": "^15",
+    "next": "15.5.15",
     "next-i18next": "^16.0.5",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
@@ -69,8 +75,10 @@
     "undici": "^7.24.5",
     "zod": "^3.24.1"
   },
+  "overrides": {
+    "@xmldom/xmldom": "^0.9.0"
+  },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^16.2.4",
     "@playwright/test": "^1.49.1",
     "@react-email/preview-server": "^5.2.10",
     "@types/node": "^22",
@@ -79,7 +87,6 @@
     "autoprefixer": "^10.4.27",
     "eslint": "^9.39.4",
     "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react-hooks": "^7.1.1",
     "postcss": "^8.5.8",
     "prisma": "5.22.0",
     "react-email": "^5.2.10",

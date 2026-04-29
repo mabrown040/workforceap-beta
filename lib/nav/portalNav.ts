@@ -308,7 +308,8 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── Pipeline — training, progress, outcomes ──
   { href: '/admin/pipeline', label: 'Pipeline', group: 'pipeline', Icon: GitBranch },
-  { href: '/admin/members/interview-ready', label: 'Job ready', group: 'pipeline', Icon: ListChecks },
+  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'pipeline', Icon: ListChecks },
+  { href: '/admin/members/job-ready', label: 'Job ready (70%+)', group: 'pipeline', Icon: TrendingUp },
   { href: '/admin/programs', label: 'Programs', group: 'pipeline', Icon: BookOpen },
   {
     href: '/admin/program-change-requests',

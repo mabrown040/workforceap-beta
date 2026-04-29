@@ -300,14 +300,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         ? 'D'
         : 'C';
 
-  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, {
+  const completenessUser = {
     fullName: dbUser.fullName,
     email: dbUser.email,
-  });
-  const profileMissingFields = getProfileMissingFields(profileForCompleteness, {
-    fullName: dbUser.fullName,
-    email: dbUser.email,
-  });
+    enrolledProgram: dbUser.enrolledProgram,
+    assessmentCompleted: dbUser.assessmentCompleted,
+  };
+  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, completenessUser);
+  const profileMissingFields = getProfileMissingFields(profileForCompleteness, completenessUser);
   const starterProfileReview = getCounselorStarterProfileReview({
     wasCounselorCreated: !!intakeExtra?.courseEnrollment?.enrolledByAdminId,
     phone: intakeExtra?.phone,

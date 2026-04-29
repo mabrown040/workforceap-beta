@@ -533,7 +533,7 @@ export default function DashboardHomeClient({
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   {starterProfileReviewRequired
                     ? `Before WorkforceAP unlocks your preassessment, confirm the contact and referral details entered for you.${starterProfileMissingFields.length ? ` Missing now: ${starterProfileMissingFields.join(', ')}.` : ''}`
-                    : `A quick preassessment tailors your ${programTitle} learning path and starts role matching.`}
+                    : `A quick preassessment tailors your ${programTitle} learning path and helps identify matching roles.`}
                 </p>
                 <Link href={starterProfileReviewRequired ? '/dashboard/profile' : '/dashboard/assessment'} className="btn btn-primary"
                   onClick={() => handleDashboardAction(starterProfileReviewRequired ? 'starter_profile_review_clicked' : 'assessment_clicked')}>
@@ -571,7 +571,7 @@ export default function DashboardHomeClient({
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Career Readiness</h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  You've finished {programTitle}. Build readiness and apply for jobs.
+                  You've finished {programTitle}. Complete your readiness steps before applying for jobs.
                 </p>
                 <Link href="/dashboard/readiness" className="btn btn-primary"
                   onClick={() => handleDashboardAction('career_readiness_clicked')}>

@@ -95,7 +95,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
       {/* Copyright bar */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1.5rem 2rem 0', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          &copy; {new Date().getFullYear()} Workforce Advancement Project. Career training and job-readiness support at no cost for qualifying members.
+          &copy; {new Date().getFullYear()} Workforce Advancement Project. Career training and job-readiness support with no upfront program cost for qualifying members.
         </p>
         <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', opacity: 0.6, marginTop: '0.75rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
           This site incorporates information from{' '}

@@ -7,7 +7,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
   description:
-    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, no cost to members, job placement support, and grant- and partner-funded access.',
+    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, job placement support, and grant- and partner-funded access for qualifying members.',
   path: '/what-we-do',
 });
 
@@ -21,7 +21,7 @@ const BENTO_ITEMS = [
   {
     icon: 'lock_open',
     title: 'Zero-Barrier Access',
-    desc: 'No cost for members. No prerequisites. Funding comes from grants and partnerships — members are never charged for access.',
+    desc: 'No cost for qualifying members. No prerequisites. Funding comes from grants and partnerships that can cover access for eligible participants.',
     span: 'large',
   },
   {
@@ -157,7 +157,7 @@ export default function WhatWeDoPage() {
               textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
-            Employer-aligned training. No cost to members. Job placement built in.
+            Employer-aligned training. No cost for qualifying members. Job placement support included.
             A model that works — and scales.
           </p>
 

@@ -39,8 +39,8 @@ export default function TermsPage() {
             <h2>4. Program Participation</h2>
             <p>Enrollment in a WorkforceAP program is subject to seat availability. WorkforceAP reserves the right to modify program schedules, curriculum, and requirements. Participants who fail to meet program attendance or completion standards may be removed from the program. Loaner equipment provided as part of the program remains the property of WorkforceAP until program completion milestones are met.</p>
 
-            <h2>5. No-Cost Training for Members</h2>
-            <p>No-cost training is available to qualifying participants based on eligibility criteria. WorkforceAP programs are funded through grants, partnerships, and contributions. If it is determined that a participant provided false information to qualify for no-cost training, WorkforceAP reserves the right to terminate enrollment and seek recovery of program costs.</p>
+            <h2>5. Program Funding and Member Costs</h2>
+            <p>For qualifying participants, program costs may be covered through grants, partnerships, and contributions. If it is determined that a participant provided false information to receive funded access, WorkforceAP reserves the right to terminate enrollment and seek recovery of program costs.</p>
 
             <h2>6. Data and Privacy</h2>
             <p>Your use of the WorkforceAP platform is also governed by our <a href="/privacy">Privacy Policy</a>, which is incorporated into these Terms by reference. By using our services, you consent to the collection and use of your information as described in the Privacy Policy.</p>

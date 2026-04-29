@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -23,22 +24,33 @@ export default async function DashboardResumePage() {
     select: {
       resumeOriginalPath: true,
       resumeEnhancedPath: true,
+      profilePhone: true,
+      profileAddress: true,
+      profileLinkedin: true,
+      profileBio: true,
+      employmentStatus: true,
+      educationLevel: true,
       user: {
         select: {
           fullName: true,
           email: true,
           phone: true,
+          enrolledProgram: true,
+          assessmentCompleted: true,
         },
       },
     },
   });
 
+  const completeness = getProfileCompleteness(
+    profile ?? null,
+    profile?.user ?? null,
+  );
   const fields = {
     name: profile?.user?.fullName ?? '',
     email: profile?.user?.email ?? '',
     phone: profile?.user?.phone ?? '',
   };
-  const completeness = Object.values(fields).filter(Boolean).length * 20;
 
   return (
     <>

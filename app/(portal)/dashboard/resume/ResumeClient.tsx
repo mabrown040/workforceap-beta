@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -51,6 +51,7 @@ export default function ResumeClient({
   const [uploadError, setUploadError] = useState('');
   const [generateError, setGenerateError] = useState('');
   const [dragover, setDragover] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch('/api/member/resume')
@@ -208,10 +209,10 @@ export default function ResumeClient({
         onDragOver={(e) => { e.preventDefault(); setDragover(true); }}
         onDragLeave={() => setDragover(false)}
         onDrop={handleDrop}
-        onClick={() => document.getElementById('resume-file-input')?.click()}
+        onClick={() => fileInputRef.current?.click()}
       >
         <input
-          id="resume-file-input"
+          ref={fileInputRef}
           type="file"
           accept=".pdf,.doc,.docx,.txt"
           onChange={handleFileInput}
@@ -299,7 +300,7 @@ export default function ResumeClient({
                 File unavailable —{' '}
                 <button
                   type="button"
-                  onClick={() => document.getElementById('resume-file-input')?.click()}
+                  onClick={() => fileInputRef.current?.click()}
                   style={{ background: 'none', border: 'none', color: 'var(--color-accent)', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: 'inherit' }}
                 >
                   re-upload

@@ -13,7 +13,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training & Industry Certificates',
   description:
-    'Occupational and career training at no cost to members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
+    'Occupational and career training at no cost for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Grants and partnerships fund access. Apply today.',
   path: '/',
 });
 
@@ -401,7 +401,7 @@ export default async function HomePage() {
               WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we help members access laptops, resume support, and job search guidance.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
-              We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost to members through WorkforceAP and partner-backed pathways.
+              We believe education should be an investment in the future, not a debt for the present. Programs are offered at no cost for qualifying members through WorkforceAP and partner-backed pathways.
             </p>
           </div>
 
@@ -429,8 +429,8 @@ export default async function HomePage() {
               background: 'var(--color-accent)', color: 'white', padding: '1.5rem',
               textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>$0</span>
-              <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>Member Cost</span>
+              <span style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>Can be $0</span>
+              <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>Qualifying member cost</span>
             </div>
           </div>
         </div>

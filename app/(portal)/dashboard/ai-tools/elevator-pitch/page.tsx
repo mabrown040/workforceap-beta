@@ -37,7 +37,7 @@ export default async function ElevatorPitchPage() {
             toolTypes={['career_counselor']}
             inputSummaryStartsWith="AI elevator speech for"
             title="Previous elevator pitches"
-            emptyMessage="No saved elevator introductions yet. Generate your first one above."
+            emptyMessage="No saved elevator pitches yet. Generate your first one above."
           />
         </div>
         <MobileBottomNav variant="portal" />

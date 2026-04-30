@@ -30,7 +30,7 @@ const HELP_ITEMS = [
     title: 'Career Toolkit',
     body: 'Use our suite of tools to build your resume, prep for interviews, and match to jobs.',
     href: '/dashboard/ai-tools',
-    cta: 'Open AI tools',
+    cta: 'Open Career Toolkit',
   },
 ];
 

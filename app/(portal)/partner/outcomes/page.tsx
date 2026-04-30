@@ -12,7 +12,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Outcomes snapshot',
+  title: 'Outcomes Snapshot',
   description: 'High-level outcomes for your referrals.',
   path: '/partner/outcomes',
 });
@@ -42,7 +42,7 @@ export default async function PartnerOutcomesPage() {
     <PortalPageFrame>
       <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
         <PageHeader
-          title="Outcomes snapshot"
+          title="Outcomes Snapshot"
           subtitle={`Quick counts for ${ctx.partner.name}. See the overview for journey detail.`}
           action={
             <Link href="/partner" className="btn btn-secondary btn-sm">

@@ -27,8 +27,8 @@ const HELP_ITEMS = [
   },
   {
     icon: 'auto_awesome',
-    title: 'AI Tools',
-    body: 'Use our suite of AI-powered tools to build your resume, prep for interviews, and match to jobs.',
+    title: 'Career Toolkit',
+    body: 'Use our suite of tools to build your resume, prep for interviews, and match to jobs.',
     href: '/dashboard/ai-tools',
     cta: 'Open AI tools',
   },

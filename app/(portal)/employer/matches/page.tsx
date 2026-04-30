@@ -12,7 +12,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Match history',
+  title: 'Match History',
   description: 'Suggested candidates and your hiring pipeline actions.',
   path: '/employer/matches',
 });
@@ -86,7 +86,7 @@ export default async function EmployerMatchesPage() {
         title="Match History"
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">AI-suggested candidates for your roles</span>
+            <span className="wa-block md:wa-hidden">Suggested candidates for your roles</span>
             <span className="wa-hidden md:wa-block">Track suggested members and update your pipeline status as you move from outreach to hire.</span>
           </>
         }

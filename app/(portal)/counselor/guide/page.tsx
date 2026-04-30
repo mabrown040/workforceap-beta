@@ -8,7 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Counselor portal guide',
+  title: 'Counselor Portal Guide',
   description: 'Tools and reference for guiding your members from enrollment to employment.',
   path: '/counselor/guide',
 });
@@ -24,7 +24,7 @@ const CAPABILITIES = [
 const JOURNEY_STAGES = [
   { stage: 1, label: 'Profile complete', desc: 'Member has filled out profile, skills, and goals.' },
   { stage: 2, label: 'Assessment done', desc: 'Career readiness assessment completed.' },
-  { stage: 3, label: 'AI tools used', desc: 'Resume rewritten, interview practiced.' },
+  { stage: 3, label: 'Career tools used', desc: 'Resume rewritten, interview practiced.' },
   { stage: 4, label: 'Interview ready', desc: 'Passed mock interview, cleared for live interviews.' },
   { stage: 5, label: 'Active job search', desc: 'Applying to matched roles.' },
   { stage: 6, label: 'Placed', desc: 'Member has accepted an offer.', done: true },

@@ -69,9 +69,9 @@ export default function InactiveMembersPage() {
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
       <PageHeader
-        title="Inactive members"
+        title="Inactive Members"
         subtitle="Members who haven't been active on the platform. Reach out directly by email or phone, then log the outreach here so other staff can see the member was contacted."
-        breadcrumbs={[{ label: 'Counselor Portal', href: '/counselor' }, { label: 'Inactive members' }]}
+        breadcrumbs={[{ label: 'Counselor Portal', href: '/counselor' }, { label: 'Inactive Members' }]}
       />
 
       {/* Filter tabs */}

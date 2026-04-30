@@ -14,7 +14,7 @@ import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMe
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Referred members',
+  title: 'Referred Members',
   description: 'All members referred by your organization.',
   path: '/partner/referred-members',
 });
@@ -32,7 +32,7 @@ export default async function PartnerReferredMembersPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Referred members"
+        title="Referred Members"
         subtitle="Search and filter everyone your organization has referred to WorkforceAP."
         action={
           <>

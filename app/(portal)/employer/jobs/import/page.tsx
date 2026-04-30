@@ -9,7 +9,7 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ImportJobClient from './ImportJobClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Import jobs',
+  title: 'Import Jobs',
   description: 'Import job postings from URLs, LinkedIn, or careers pages as editable drafts.',
   path: '/employer/jobs/import',
 });

@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 const DIFFERENTIATORS = [
   'Completed career readiness training',
-  'Practiced interviews with AI coach',
+  'Practiced interviews with a coach',
   'Resume reviewed and optimized',
   'Assigned a counselor — supported through onboarding',
 ];
@@ -38,11 +38,11 @@ const FAQS = [
   },
   {
     q: 'How are candidates screened?',
-    a: 'Every candidate completes a career readiness assessment, AI-assisted interview practice, and resume review before reaching you. Our team also reviews all candidates manually before adding them to your pipeline.',
+    a: 'Every candidate completes a career readiness assessment, interview practice, and resume review before reaching you. Our team also reviews all candidates manually before adding them to your pipeline.',
   },
   {
     q: 'How long until I see candidates?',
-    a: 'You can start seeing AI-matched candidates within 1–2 business days of posting a role, depending on your location and requirements.',
+    a: 'You can start seeing matched candidates within 1–2 business days of posting a role, depending on your location and requirements.',
   },
   {
     q: 'What industries do you serve?',

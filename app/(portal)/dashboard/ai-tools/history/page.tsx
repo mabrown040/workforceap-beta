@@ -9,8 +9,8 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Tool History',
-  description: 'View your past AI tool results.',
+  title: 'Activity History',
+  description: 'View your past tool results.',
   path: '/dashboard/ai-tools/history',
 });
 
@@ -24,7 +24,7 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
-  interview_coach: 'AI Interview Coach',
+  interview_coach: 'Interview Coach',
   voice_interview_video: 'Mock Interview Video',
   career_counselor: 'Career Counselor',
   skill_assessment: 'Skill Mapper / Skill Assessment',
@@ -34,7 +34,7 @@ function getHistoryToolLabel(toolType: string, output: string): string {
   if (toolType === 'career_counselor') {
     try {
       const parsed = JSON.parse(output) as { type?: string };
-      if (parsed?.type === 'elevator_pitch') return 'AI Elevator Introduction';
+      if (parsed?.type === 'elevator_pitch') return 'Elevator Pitch';
     } catch {
       // ignore
     }
@@ -77,10 +77,10 @@ export default async function AIHistoryPage({ searchParams }: Props) {
         }}
       >
         <PageHeader
-          title="My AI results"
+          title="Activity History"
           subtitle="Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'History' },
           ]}
         />

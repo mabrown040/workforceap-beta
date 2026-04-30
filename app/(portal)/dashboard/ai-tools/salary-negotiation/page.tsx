@@ -33,7 +33,7 @@ export default async function SalaryNegotiationPage() {
           title="Salary Negotiation Script"
           subtitle="You got an offer -- now negotiate. Enter your numbers and get an exact script for a phone call or email."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'Salary Negotiation' },
           ]}
         />

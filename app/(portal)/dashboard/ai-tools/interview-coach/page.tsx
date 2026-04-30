@@ -8,8 +8,8 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Interview Coach',
-  description: 'Run a text-based mock interview and get instant AI feedback.',
+  title: 'Interview Coach',
+  description: 'Run a text-based mock interview and get instant feedback.',
   path: '/dashboard/ai-tools/interview-coach',
 });
 
@@ -29,11 +29,11 @@ export default async function InterviewCoachPage() {
         }}
       >
         <PageHeader
-          title="AI Interview Coach"
-          subtitle="Run a text-based mock interview and get instant AI feedback."
+          title="Interview Coach"
+          subtitle="Run a text-based mock interview and get instant feedback."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'AI Interview Coach' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Interview Coach' },
           ]}
         />
       </div>

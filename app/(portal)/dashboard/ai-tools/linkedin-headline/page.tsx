@@ -28,11 +28,11 @@ export default async function LinkedInHeadlinePage() {
         }}
       >
         <PageHeader
-          title="LinkedIn headline generator"
+          title="LinkedIn Headline"
           subtitle="Craft a compelling LinkedIn headline that gets you noticed by recruiters."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'LinkedIn headline' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'LinkedIn Headline' },
           ]}
         />
       </div>

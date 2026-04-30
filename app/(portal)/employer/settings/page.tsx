@@ -10,7 +10,7 @@ import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Company settings',
+  title: 'Company Settings',
   description: 'Employer portal company settings.',
   path: '/employer/settings',
 });

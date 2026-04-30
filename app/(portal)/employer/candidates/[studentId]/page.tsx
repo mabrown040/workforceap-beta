@@ -28,7 +28,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { studentId } = await params;
   return buildPageMetadata({
-    title: 'Candidate profile',
+    title: 'Candidate Profile',
     description: 'WorkforceAP member profile for your hiring pipeline.',
     path: `/employer/candidates/${studentId}`,
   });

@@ -3,8 +3,9 @@
  * Requires: PLAYWRIGHT_MEMBER_EMAIL, PLAYWRIGHT_PORTAL_PASSWORD
  * Optional: PLAYWRIGHT_BASE_URL, PORTAL_AUDIT_SECTION=all|member|admin|employer|partner|counselor
  */
-import { test, expect } from '@playwright/test';
-import { STATIC_PATHS, SECTION_LOGIN_REDIRECT } from '../../scripts/lib/portal-audit-paths.mjs';
+import { test, expect, type Page } from '@playwright/test';
+import { STATIC_PATHS } from '../../scripts/lib/portal-audit-paths.mjs';
+import { loginMemberPortal } from './auth-helpers';
 
 const EMAIL = process.env.PLAYWRIGHT_MEMBER_EMAIL ?? '';
 const PASSWORD = process.env.PLAYWRIGHT_PORTAL_PASSWORD ?? '';
@@ -19,6 +20,16 @@ function sectionsToRun(): Section[] {
   return [];
 }
 
+async function goAllowingAbort(page: Page, url: string): Promise<void> {
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes('net::ERR_ABORTED')) throw error;
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+  }
+}
+
 test.describe('cross-portal static routes', () => {
   test.skip(!EMAIL || !PASSWORD, 'Set PLAYWRIGHT_MEMBER_EMAIL and PLAYWRIGHT_PORTAL_PASSWORD');
 
@@ -27,16 +38,12 @@ test.describe('cross-portal static routes', () => {
     test.skip(sections.length === 0, 'Invalid PORTAL_AUDIT_SECTION');
 
     const origin = baseURL ?? 'http://localhost:3000';
-    const first = sections[0];
-    await page.goto(`${origin}/login?redirectTo=${encodeURIComponent(SECTION_LOGIN_REDIRECT[first])}`);
-    await page.getByLabel(/institutional id/i).fill(EMAIL);
-    await page.getByLabel(/access key/i).fill(PASSWORD);
-    await page.getByRole('button', { name: /authenticate access/i }).click();
+    await loginMemberPortal(page);
     await expect(page).not.toHaveURL(/\/login/, { timeout: 20000 });
 
     for (const section of sections) {
       for (const path of STATIC_PATHS[section]) {
-        await page.goto(`${origin}${path}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+        await goAllowingAbort(page, `${origin}${path}`);
         await expect(page).not.toHaveURL(/\/login/, { timeout: 10000 });
       }
     }

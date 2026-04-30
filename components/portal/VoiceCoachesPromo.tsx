@@ -81,7 +81,7 @@ export default function VoiceCoachesPromo() {
           <VoiceCoachLauncherCard
             {...mockInterviewVoiceSurface}
             badge="Job / role interview"
-            title="Voice Job/Role Interviewer"
+            title="Voice Interview Practice"
             description="Launch the full mock interview experience with setup guidance and optional recording."
             href="/dashboard/ai-tools/voice-interview"
             ctaLabel="Start voice interviewer"

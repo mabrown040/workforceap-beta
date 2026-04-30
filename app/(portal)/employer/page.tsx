@@ -32,7 +32,7 @@ export default async function EmployerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/employer');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/admin/employers' : '/employers';
+  const fallbackForUnlinked = superAdmin ? '/employer' : '/employers';
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(fallbackForUnlinked);

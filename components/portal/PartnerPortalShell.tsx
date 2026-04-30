@@ -28,7 +28,7 @@ export default function PartnerPortalShell({
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
       portalRoles={portalRoles}
-      superAdminBackHref={superAdmin ? '/admin/partners' : undefined}
+      superAdminBackHref={superAdmin ? '/partner' : undefined}
       superAdminBackLabel="Switch partner"
       footer={<DashboardFooter />}
     >

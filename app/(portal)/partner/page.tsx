@@ -38,7 +38,7 @@ export default async function PartnerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/partner');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/admin/partners' : '/dashboard';
+  const fallbackForUnlinked = superAdmin ? '/partner' : '/dashboard';
 
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(fallbackForUnlinked);

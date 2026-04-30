@@ -182,6 +182,7 @@ export default function DashboardHomeClient({
   }, []);
 
   const showPreassessmentScore = assessmentScorePct != null && completedCount === 0 && state !== 'D';
+  const showPreassessmentPhase = state === 'A' || state === 'B';
 
   /* ── Metric cards data ── */
   const metricCards = [
@@ -234,7 +235,7 @@ export default function DashboardHomeClient({
       </header>
 
       {/* ── 1. STATUS CARD — where am I, what's next ── */}
-      {(noApplicationOnFile || ((state === 'A' || state === 'B') && applicationStatus)) && (
+      {((state === 'A' || state === 'B') && (noApplicationOnFile || applicationStatus)) && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
           <section
             className="portal-card portal-card--flat"
@@ -676,7 +677,7 @@ export default function DashboardHomeClient({
                 { href: '/dashboard/ai-tools', label: 'Job Search Tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-                { href: '/dashboard/skills-assessment', label: showPreassessmentScore ? 'Training Preassessment' : 'Assessment Results', desc: showPreassessmentScore ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/skills-assessment', label: showPreassessmentPhase ? 'Training Preassessment' : 'Assessment Results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
               ].map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}

@@ -161,7 +161,7 @@ export default function DashboardHomeClient({
         ? 'Training preassessment required'
         : completedCount === 0
           ? 'Your first course is next'
-          : `Current training step: ${nextMilestone ?? programTitle}`;
+          : `Up next in training: ${nextMilestone ?? programTitle}`;
 
   const progressCardSummary =
     state === 'D'

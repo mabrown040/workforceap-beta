@@ -4,8 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Readiness Coach',
-  description: 'Talk through your career readiness plan with an AI coach — interviews, certifications, and next steps.',
+  title: 'Readiness Coach',
+  description: 'Talk through your career readiness plan with a coach — interviews, certifications, and next steps.',
   path: '/dashboard/ai-tools/readiness-coach',
 });
 

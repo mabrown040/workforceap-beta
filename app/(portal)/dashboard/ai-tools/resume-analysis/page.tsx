@@ -10,7 +10,7 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Analysis',
-  description: 'AI breakdown of your resume strength, structure, and quick wins — without a job description.',
+  description: 'Breakdown of your resume strength, structure, and quick wins — without a job description.',
   path: '/dashboard/ai-tools/resume-analysis',
 });
 
@@ -32,7 +32,7 @@ export default async function ResumeAnalysisPage() {
             title="Resume Analysis"
             subtitle="Get an ATS-aware review of your resume: score, strengths, priority fixes, and quick wins. Your uploaded resume pre-fills when available."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Resume Analysis' },
             ]}
           />

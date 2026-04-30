@@ -10,7 +10,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Toolkit',
+  title: 'Career Toolkit',
   description: 'Guided member tools for resumes, applications, interviews, LinkedIn, and job-search strategy.',
   path: '/dashboard/ai-tools',
 });
@@ -25,7 +25,7 @@ export default async function AIToolsPage() {
         <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
             { label: 'Member Portal', href: '/dashboard' },
-            { label: 'AI Toolkit' },
+            { label: 'Career Toolkit' },
           ]} />
         </div>
         <section
@@ -65,7 +65,7 @@ export default async function AIToolsPage() {
             Beta Access
           </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
-            AI Toolkit
+            Career Toolkit
           </h1>
           <p
             style={{
@@ -76,7 +76,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            Start with your AI coach cards below — bigger, simpler, and focused on the tools you actually use.
+            Start with the tool cards below — bigger, simpler, and focused on the tools you actually use.
           </p>
           <Link
             href="/dashboard/ai-tools/history"

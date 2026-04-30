@@ -30,7 +30,7 @@ export default async function CareerBusinessCoachPage() {
           title="Career and Business Coach"
           subtitle="Ask about project management, sales strategy, guerrilla marketing, communication challenges, or any career and business topic."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'Career and Business Coach' },
           ]}
         />

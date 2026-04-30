@@ -15,7 +15,7 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
-  career_counselor: 'Career Counselor',
+  career_counselor: 'Career Coach',
   skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 

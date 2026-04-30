@@ -32,7 +32,7 @@ export default async function JobMatchScorerPage() {
             title="Job Match Scorer"
             subtitle="Paste a job description and your resume. Get a match score and specific gaps to address."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Job Match Scorer' },
             ]}
           />

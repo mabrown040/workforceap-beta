@@ -22,7 +22,7 @@ import {
 } from '@/lib/employer/jobPostingApplicationStatus';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Employer overview',
+  title: 'Employer Overview',
   description: 'Manage your job postings and view applications.',
   path: '/employer',
 });
@@ -241,7 +241,7 @@ export default async function EmployerDashboardPage() {
           <VoiceAgentSurface {...employerVoiceSurface}>
             <PortalVoiceSession
               sessionEndpoint="/api/employer/voice-session"
-              title="Employer voice assistant"
+              title="Hiring Assistant"
               description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
               accent="var(--color-blue)"
               accentDark="var(--color-blue)"
@@ -343,7 +343,7 @@ export default async function EmployerDashboardPage() {
       <div className="wa-hidden md:wa-block">
       {/* ── Header ── */}
       <PageHeader
-        title="Employer overview"
+        title="Employer Overview"
         titleHeadingLevel={2}
         subtitle="Manage job postings, review applicants, and track your hiring pipeline."
         action={
@@ -358,7 +358,7 @@ export default async function EmployerDashboardPage() {
         <VoiceAgentSurface {...employerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/employer/voice-session"
-            title="Employer voice assistant"
+            title="Hiring Assistant"
             description="Ask about posting roles, reviewing applicants, or navigating this portal."
             accent="var(--color-blue)"
             accentDark="var(--color-blue)"
@@ -375,8 +375,8 @@ export default async function EmployerDashboardPage() {
             title="Welcome — start with your first posting"
             description="You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL."
             icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)' }}>work</span>}
-            primaryAction={{ label: 'Post your first job', href: '/employer/jobs/new' }}
-            secondaryAction={{ label: 'Import jobs', href: '/employer/jobs/import' }}
+            primaryAction={{ label: 'Post a Job', href: '/employer/jobs/new' }}
+            secondaryAction={{ label: 'Import Jobs', href: '/employer/jobs/import' }}
           />
         </section>
       )}

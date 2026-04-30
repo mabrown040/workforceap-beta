@@ -167,7 +167,7 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
       <h1 className="wa-sr-only">
-        Partner overview — {ctx.partner.name}
+        Partner Overview — {ctx.partner.name}
       </h1>
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block md:wa-hidden portal-mobile-content">
@@ -230,7 +230,7 @@ export default async function PartnerDashboardPage() {
             <VoiceAgentSurface {...partnerVoiceSurface}>
               <PortalVoiceSession
                 sessionEndpoint="/api/partner/voice-session"
-                title="Partner voice assistant"
+                title="Partner Assistant"
                 description="Ask about referrals, member progress, or using the partner portal."
                 accent="var(--color-amber)"
                 accentDark="var(--color-amber)"
@@ -355,7 +355,7 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Header ── */}
       <PageHeader
-        title="Partner overview"
+        title="Partner Overview"
         titleHeadingLevel={2}
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
         action={
@@ -376,7 +376,7 @@ export default async function PartnerDashboardPage() {
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/partner/voice-session"
-            title="Partner voice assistant"
+            title="Partner Assistant"
             description="Ask about referrals, member progress, or using the partner portal."
             accent="var(--color-amber)"
             accentDark="var(--color-amber)"

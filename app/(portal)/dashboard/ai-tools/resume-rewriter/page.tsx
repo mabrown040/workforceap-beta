@@ -36,9 +36,9 @@ export default async function ResumeRewriterPage() {
         >
           <PageHeader
             title="Resume Rewriter"
-            subtitle="AI-powered resume optimization that passes ATS and impresses recruiters."
+            subtitle="Resume optimization that passes ATS and impresses recruiters."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Resume Rewriter' },
             ]}
           />
@@ -194,7 +194,7 @@ export default async function ResumeRewriterPage() {
         <div style={{ maxWidth: 1120, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 16, marginBottom: '1.25rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
-              Paste your resume bullets. Our AI rewrites them with strong action verbs, quantifiable impact, and keyword
+              Paste your resume bullets. The tool rewrites them with strong action verbs, quantifiable impact, and keyword
               density tuned for ATS and recruiters. Use the text workflow below, or open Resume & Experience Enhancer for the dedicated voice experience.
             </p>
           </div>
@@ -213,7 +213,7 @@ export default async function ResumeRewriterPage() {
           <ToolHistoryPanel
             userId={user.id}
             toolType="resume_rewriter"
-            title="Recent resume helper + rewriter runs"
+            title="Recent resume rewrite runs"
           />
 
           <div
@@ -249,7 +249,7 @@ export default async function ResumeRewriterPage() {
                 </h3>
               </div>
               <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-                Our AI follows the WorkforceAP Curator&rsquo;s Standard — a methodology that balances ATS keyword density with
+                The workflow follows the WorkforceAP Curator&rsquo;s Standard — a methodology that balances ATS keyword density with
                 authentic professional voice. Each bullet is evaluated for quantifiable impact, strong action verbs, and
                 alignment with your target role&rsquo;s core competencies.
               </p>

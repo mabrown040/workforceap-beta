@@ -16,7 +16,7 @@ type Tab = {
 const TABS: Tab[] = [
   { href: '/dashboard', label: 'Home', icon: 'home', matches: (p) => p === '/dashboard' || p === '/dashboard/' },
   { href: '/dashboard/program', label: 'My Program', icon: 'school', matches: (p) => p.startsWith('/dashboard/program') },
-  { href: '/dashboard/ai-tools', label: 'AI Toolkit', icon: 'auto_awesome', matches: (p) => p.startsWith('/dashboard/ai-tools') },
+  { href: '/dashboard/ai-tools', label: 'Career Toolkit', icon: 'auto_awesome', matches: (p) => p.startsWith('/dashboard/ai-tools') },
   { href: '/dashboard/messages', label: 'Messages', icon: 'chat', matches: (p) => p.startsWith('/dashboard/messages'), badgeKey: 'counselor_messages_unread' },
   { href: '/dashboard/jobs', label: 'Jobs', icon: 'work', matches: (p) => p.startsWith('/dashboard/jobs') },
   { href: '/dashboard/counselor', label: 'AI Counselor', icon: 'support_agent', matches: (p) => p.startsWith('/dashboard/counselor') },

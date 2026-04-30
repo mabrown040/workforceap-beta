@@ -12,7 +12,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Attention queue',
+  title: 'Attention Queue',
   description: 'Members who may need a partner check-in.',
   path: '/partner/attention',
 });
@@ -47,9 +47,9 @@ export default async function PartnerAttentionPage({
     <PortalPageFrame>
       <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
         <PageHeader
-          title="Attention queue"
+          title="Attention Queue"
           subtitle="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
-          breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Attention queue' }]}
+          breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Attention Queue' }]}
         />
         <PartnerWorkflowTimeline events={events} />
         <PartnerAttentionClient initialTier={initialTier} />

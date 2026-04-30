@@ -44,7 +44,7 @@ export default async function InterviewPracticePage() {
           <PageHeader
             title="Interview Practice"
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Interview Practice' },
             ]}
           />

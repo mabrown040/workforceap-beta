@@ -61,10 +61,19 @@ export default function AdminResumeUpload({ memberId, onUploaded }: Props) {
       />
       {error && <p style={{ margin: 0, fontSize: '0.85rem', color: '#b91c1c' }}>{error}</p>}
       <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button type="submit" className="btn btn-primary btn-sm" disabled={uploading}>
-          {uploading ? 'Uploading…' : 'Upload'}
+        <button type="submit" className="btn btn-primary btn-sm" disabled={uploading} aria-busy={uploading}>
+          <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {uploading ? (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                Uploading…
+              </>
+            ) : (
+              'Upload'
+            )}
+          </span>
         </button>
-        <button type="button" className="btn btn-outline btn-sm" onClick={() => { setOpen(false); setError(null); }}>
+        <button type="button" className="btn btn-outline btn-sm" onClick={() => { setOpen(false); setError(null); }} disabled={uploading}>
           Cancel
         </button>
       </div>

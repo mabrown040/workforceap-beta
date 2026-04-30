@@ -161,8 +161,19 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
       </div>
 
       <div style={{ display: 'flex', gap: '0.75rem' }}>
-        <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Saving…' : subgroup ? 'Update' : 'Create'}
+        <button type="submit" className="btn btn-primary" disabled={saving} aria-busy={saving}>
+          <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {saving ? (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                Saving…
+              </>
+            ) : subgroup ? (
+              'Update'
+            ) : (
+              'Create'
+            )}
+          </span>
         </button>
         <button type="button" className="btn btn-outline" onClick={() => router.back()} disabled={saving}>
           Cancel

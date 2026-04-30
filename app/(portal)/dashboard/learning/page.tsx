@@ -12,7 +12,6 @@ import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
-import LearningCivicBotPanel from '@/components/portal/LearningCivicBotPanel';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
@@ -450,7 +449,6 @@ export default async function LearningPage() {
       </section>
       )}
 
-      <LearningCivicBotPanel />
     </div> {/* end hidden md:block */}
     </div>
 

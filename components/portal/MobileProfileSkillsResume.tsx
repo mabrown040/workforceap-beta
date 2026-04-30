@@ -74,7 +74,7 @@ export default function MobileProfileSkillsResume({
             >
               {uploading ? 'Uploading…' : 'Replace'}
             </button>
-            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" onChange={onFileChange} style={{ display: 'none' }} />
+            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ display: 'none' }} />
           </div>
 
           {/* Inline preview toggle */}
@@ -120,8 +120,8 @@ export default function MobileProfileSkillsResume({
           <p className="wa-text-sm wa-font-semibold" style={{ color: '#1c1b1b' }}>
             {uploading ? 'Uploading…' : 'Upload Resume'}
           </p>
-          <p className="wa-text-[10px]" style={{ color: '#584144' }}>PDF, DOC or TXT · Max 5MB</p>
-          <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={onFileChange} style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }} />
+          <p className="wa-text-[10px]" style={{ color: '#584144' }}>PDF, DOC, or DOCX · Max 5MB</p>
+          <input type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }} />
         </label>
       )}
 

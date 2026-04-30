@@ -55,7 +55,7 @@ export default function AdminResumeUpload({ memberId, onUploaded }: Props) {
       <input
         ref={fileRef}
         type="file"
-        accept=".pdf,.doc,.docx,.txt"
+        accept=".pdf,.doc,.docx"
         required
         style={{ fontSize: '0.9rem' }}
       />

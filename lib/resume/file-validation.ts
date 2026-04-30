@@ -16,14 +16,17 @@ export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
   { ext: 'docx', bytes: [0x50, 0x4B, 0x03, 0x04] }, // PK (ZIP/DOCX)
 ];
 
-export function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
+export function validateFileType(
+  buffer: Buffer,
+  mimeType: string,
+  fileName: string,
+  options?: { allowTxt?: boolean }
+): boolean {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
 
-  // For txt files, skip magic bytes check as text files do not have standard magic bytes
   if (ext === 'txt') {
-    // Bypass strict MIME type checks to accommodate ambiguous browser MIME types
-    return true;
+    return options?.allowTxt === true;
   }
 
   if (buffer.length < 4) return false;

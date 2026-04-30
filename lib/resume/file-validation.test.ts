@@ -27,3 +27,13 @@ test('rejects invalid pdf', () => {
     const buf = Buffer.from([0x00, 0x00, 0x44, 0x46, 0x00, 0x00]);
     assert.equal(validateFileType(buf, 'application/pdf', 'test.pdf'), false);
 });
+
+test('rejects txt by default', () => {
+    const buf = Buffer.from('resume text');
+    assert.equal(validateFileType(buf, 'text/plain', 'resume.txt'), false);
+});
+
+test('allows txt when explicitly enabled', () => {
+    const buf = Buffer.from('resume text');
+    assert.equal(validateFileType(buf, 'text/plain', 'resume.txt', { allowTxt: true }), true);
+});

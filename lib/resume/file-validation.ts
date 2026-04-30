@@ -4,10 +4,9 @@ export const ALLOWED_MIME_TYPES = new Set([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'text/plain',
 ]);
 
-export const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt']);
+export const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx']);
 
 // Magic bytes for allowed file types
 export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
@@ -19,12 +18,6 @@ export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
 export function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
-
-  // For txt files, skip magic bytes check as text files do not have standard magic bytes
-  if (ext === 'txt') {
-    // Bypass strict MIME type checks to accommodate ambiguous browser MIME types
-    return true;
-  }
 
   if (buffer.length < 4) return false;
 

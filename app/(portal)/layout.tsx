@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
-import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 
 export const metadata: Metadata = {
   title: 'Portal',

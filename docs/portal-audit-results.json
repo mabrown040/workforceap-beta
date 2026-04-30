@@ -1,7 +1,7 @@
 {
-  "baseURL": "https://workforceap-beta.vercel.app",
+  "baseURL": "https://www.workforceap.org",
   "portalAuditSection": "all",
-  "generatedAt": "2026-04-30T02:36:13.072Z",
+  "generatedAt": "2026-04-30T13:03:54.090Z",
   "dynamicPathsNote": {
     "member": [
       "/dashboard/career-brief/[slug]",
@@ -40,271 +40,271 @@
       "rows": [
         {
           "path": "/dashboard",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard",
+          "finalUrl": "https://www.workforceap.org/dashboard",
           "title": "Your Dashboard",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/account",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/account",
+          "finalUrl": "https://www.workforceap.org/dashboard/account",
           "title": "Account settings",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools",
-          "title": "AI Toolkit",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools",
+          "title": "Career Toolkit",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/career-business-coach",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/career-business-coach",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/career-business-coach",
           "title": "Career and Business Coach",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/cover-letter",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/cover-letter",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/cover-letter",
           "title": "Cover Letter Builder",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/elevator-pitch",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/elevator-pitch",
-          "title": "AI Elevator Introduction",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/elevator-pitch",
+          "title": "Elevator Pitch",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/gap-analyzer",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/gap-analyzer",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/gap-analyzer",
           "title": "Resume Gap Analyzer",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/history",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/history",
-          "title": "AI Tool History",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/history",
+          "title": "Activity History",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/interview-coach",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/interview-coach",
-          "title": "AI Interview Coach",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/interview-coach",
+          "title": "Interview Coach",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/interview-practice",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/interview-practice",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/interview-practice",
           "title": "Interview Practice Generator",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/job-match-scorer",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/job-match-scorer",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/job-match-scorer",
           "title": "Job Match Scorer",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/linkedin-about",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/linkedin-about",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/linkedin-about",
           "title": "LinkedIn About Section Generator",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/linkedin-headline",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/linkedin-headline",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/linkedin-headline",
           "title": "LinkedIn Headline Generator",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/readiness-coach",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/readiness-coach",
-          "title": "AI Readiness Coach",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/readiness-coach",
+          "title": "Readiness Coach",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/resume-analysis",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/readiness-coach",
-          "title": "Loading https://workforceap-beta.vercel.app/dashboard/readiness",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/readiness-coach",
+          "title": "Loading https://www.workforceap.org/dashboard/readiness",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/resume-coach",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/resume-coach",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/resume-coach",
           "title": "Resume & Experience Enhancer",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/resume-rewriter",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/resume-rewriter",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/resume-rewriter",
           "title": "Resume Rewriter",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/salary-negotiation",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/salary-negotiation",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/salary-negotiation",
           "title": "Salary Negotiation Script",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/skill-mapper",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/skill-mapper",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/skill-mapper",
           "title": "Skill Mapper",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/ai-tools/voice-interview",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/ai-tools/voice-interview",
-          "title": "Voice Job/Role Interviewer",
+          "finalUrl": "https://www.workforceap.org/dashboard/ai-tools/voice-interview",
+          "title": "Voice Interview Practice",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/assessment",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/assessment",
+          "finalUrl": "https://www.workforceap.org/dashboard/assessment",
           "title": "Skills Snapshot",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/career-brief",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/assessment",
+          "finalUrl": "https://www.workforceap.org/dashboard/assessment",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/career-library",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/career-library",
+          "finalUrl": "https://www.workforceap.org/dashboard/career-library",
           "title": "Career Resources",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/certifications",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/certifications",
+          "finalUrl": "https://www.workforceap.org/dashboard/certifications",
           "title": "My Certificates",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/counselor",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/counselor",
+          "finalUrl": "https://www.workforceap.org/dashboard/counselor",
           "title": "AI Career Counselor",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/coursera",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/coursera",
+          "finalUrl": "https://www.workforceap.org/dashboard/coursera",
           "title": "Coursera courses",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/guide",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/guide",
+          "finalUrl": "https://www.workforceap.org/dashboard/guide",
           "title": "Member guide",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/help",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/help",
+          "finalUrl": "https://www.workforceap.org/dashboard/help",
           "title": "Help & Support",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/job-applications",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/job-applications",
+          "finalUrl": "https://www.workforceap.org/dashboard/job-applications",
           "title": "Application tracker",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/jobs",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/jobs",
+          "finalUrl": "https://www.workforceap.org/dashboard/jobs",
           "title": "Job Board",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/learning",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/learning",
+          "finalUrl": "https://www.workforceap.org/dashboard/learning",
           "title": "The Learning Hub",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/learning/find-your-career",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/learning/find-your-career",
-          "title": "Find your career",
+          "finalUrl": "https://www.workforceap.org/dashboard/learning/find-your-career",
+          "title": "Find Your Career",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/learning/interest-profiler",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/learning/interest-profiler",
+          "finalUrl": "https://www.workforceap.org/dashboard/learning/interest-profiler",
           "title": "O*NET Interest Profiler",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/learning/wioa-qualification",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/learning/wioa-qualification",
+          "finalUrl": "https://www.workforceap.org/dashboard/learning/wioa-qualification",
           "title": "Training Funding Eligibility Check",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/mentor",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/mentor",
+          "finalUrl": "https://www.workforceap.org/dashboard/mentor",
           "title": "Mentor Dashboard",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/mentors",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/mentor",
+          "finalUrl": "https://www.workforceap.org/dashboard/mentor",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/messages",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/messages",
+          "finalUrl": "https://www.workforceap.org/dashboard/messages",
           "title": "Messages",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/profile",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/profile",
+          "finalUrl": "https://www.workforceap.org/dashboard/profile",
           "title": "My Profile",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/program",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/program",
+          "finalUrl": "https://www.workforceap.org/dashboard/program",
           "title": "My Program",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/readiness",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/readiness",
+          "finalUrl": "https://www.workforceap.org/dashboard/readiness",
           "title": "Job Readiness Checklist",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/resources",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/resources",
+          "finalUrl": "https://www.workforceap.org/dashboard/resources",
           "title": "Program Resources",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/resume",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/resume",
-          "title": "My Resume",
+          "finalUrl": "https://www.workforceap.org/dashboard/resume",
+          "title": "Resume",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/skills-assessment",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/skills-assessment",
-          "title": "Training Preassessment",
+          "finalUrl": "https://www.workforceap.org/dashboard/skills-assessment",
+          "title": "Skills Assessment",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/training",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/training",
+          "finalUrl": "https://www.workforceap.org/dashboard/training",
           "title": "My Training",
           "stuckLogin": false
         },
         {
           "path": "/dashboard/weekly-recap",
-          "finalUrl": "https://workforceap-beta.vercel.app/dashboard/weekly-recap",
+          "finalUrl": "https://www.workforceap.org/dashboard/weekly-recap",
           "title": "Weekly Recap",
           "stuckLogin": false
         }
@@ -315,223 +315,223 @@
       "rows": [
         {
           "path": "/admin",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin",
+          "finalUrl": "https://www.workforceap.org/admin",
           "title": "Admin overview - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/ai-tools",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/ai-tools",
+          "finalUrl": "https://www.workforceap.org/admin/ai-tools",
           "title": "AI tools analytics - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/assessments",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/assessments",
+          "finalUrl": "https://www.workforceap.org/admin/assessments",
           "title": "Admin – Skills assessments - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/audit-logs",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/audit-logs",
+          "finalUrl": "https://www.workforceap.org/admin/audit-logs",
           "title": "Admin – Audit Logs - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/blog",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/blog",
+          "finalUrl": "https://www.workforceap.org/admin/blog",
           "title": "Admin – Blog Posts - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/blog/ai",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/blog/ai",
+          "finalUrl": "https://www.workforceap.org/admin/blog/ai",
           "title": "Career Training at No Cost to Members | Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/blog/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/blog/new",
+          "finalUrl": "https://www.workforceap.org/admin/blog/new",
           "title": "Career Training at No Cost to Members | Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/career-mappings",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/career-mappings",
+          "finalUrl": "https://www.workforceap.org/admin/career-mappings",
           "title": "Career mappings (O*NET) - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/certifications",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/certifications",
+          "finalUrl": "https://www.workforceap.org/admin/certifications",
           "title": "Certificates analytics - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/counselors",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/counselors",
+          "finalUrl": "https://www.workforceap.org/admin/counselors",
           "title": "Counselors - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/diagnostics",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/diagnostics",
+          "finalUrl": "https://www.workforceap.org/admin/diagnostics",
           "title": "Admin diagnostics - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/employers",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/employers",
+          "finalUrl": "https://www.workforceap.org/admin/employers",
           "title": "Admin - Employers - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/exports",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/exports",
+          "finalUrl": "https://www.workforceap.org/admin/exports",
           "title": "Export Data - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/invites",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/invites",
+          "finalUrl": "https://www.workforceap.org/admin/invites",
           "title": "Admin – Invitations - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/invites/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/invites/new",
+          "finalUrl": "https://www.workforceap.org/admin/invites/new",
           "title": "New Invite",
           "stuckLogin": false
         },
         {
           "path": "/admin/jobs",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/jobs",
+          "finalUrl": "https://www.workforceap.org/admin/jobs",
           "title": "Admin - Jobs - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/members",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/members",
+          "finalUrl": "https://www.workforceap.org/admin/members",
           "title": "Admin – Members - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/members/interview-ready",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/members/interview-ready",
+          "finalUrl": "https://www.workforceap.org/admin/members/interview-ready",
           "title": "Admin – Interview ready - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/members/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/members/new",
+          "finalUrl": "https://www.workforceap.org/admin/members/new",
           "title": "Add Member - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/messages",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/messages",
+          "finalUrl": "https://www.workforceap.org/admin/messages",
           "title": "Portal messages (super admin) - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/mentors",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/mentors",
+          "finalUrl": "https://www.workforceap.org/admin/mentors",
           "title": "Admin - Mentors - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/metrics",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/metrics",
+          "finalUrl": "https://www.workforceap.org/admin/metrics",
           "title": "Admin analytics - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/partners",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/partners",
+          "finalUrl": "https://www.workforceap.org/admin/partners",
           "title": "Admin - Partners - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/partners/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/partners/new",
+          "finalUrl": "https://www.workforceap.org/admin/partners/new",
           "title": "Career Training at No Cost to Members | Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/pipeline",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/pipeline",
+          "finalUrl": "https://www.workforceap.org/admin/pipeline",
           "title": "Admin - Hiring Pipeline - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/placements/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/placements/new",
+          "finalUrl": "https://www.workforceap.org/admin/placements/new",
           "title": "Career Training at No Cost to Members | Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/program-change-requests",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/program-change-requests",
+          "finalUrl": "https://www.workforceap.org/admin/program-change-requests",
           "title": "Admin — Program change requests - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/programs",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/programs",
+          "finalUrl": "https://www.workforceap.org/admin/programs",
           "title": "Admin – Programs - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/sessions",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/sessions",
+          "finalUrl": "https://www.workforceap.org/admin/sessions",
           "title": "In-office sessions - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/sessions/walk-in",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/sessions/walk-in",
+          "finalUrl": "https://www.workforceap.org/admin/sessions/walk-in",
           "title": "Walk-in session - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/settings",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/settings",
+          "finalUrl": "https://www.workforceap.org/admin/settings",
           "title": "Admin – Settings - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/subgroups",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/subgroups",
+          "finalUrl": "https://www.workforceap.org/admin/subgroups",
           "title": "Admin - Subgroups - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/subgroups/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/subgroups/new",
+          "finalUrl": "https://www.workforceap.org/admin/subgroups/new",
           "title": "Create Subgroup - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/wioa-screening",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/wioa-screening",
+          "finalUrl": "https://www.workforceap.org/admin/wioa-screening",
           "title": "Admin – WIOA screening queue - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/users",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/users",
+          "finalUrl": "https://www.workforceap.org/admin/users",
           "title": "Admin – Users - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/users/deleted",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/users/deleted",
+          "finalUrl": "https://www.workforceap.org/admin/users/deleted",
           "title": "Deleted users - Workforce Advancement Project",
           "stuckLogin": false
         },
         {
           "path": "/admin/weekly-recap",
-          "finalUrl": "https://workforceap-beta.vercel.app/admin/weekly-recap",
+          "finalUrl": "https://www.workforceap.org/admin/weekly-recap",
           "title": "Weekly recap analytics - Workforce Advancement Project",
           "stuckLogin": false
         }
@@ -542,68 +542,68 @@
       "rows": [
         {
           "path": "/employer",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer",
-          "title": "Employer overview",
+          "finalUrl": "https://www.workforceap.org/employer",
+          "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/applications",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer",
+          "finalUrl": "https://www.workforceap.org/employer/applications",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/guide",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/guide",
-          "title": "How It Works for Employers",
+          "finalUrl": "https://www.workforceap.org/employer/guide",
+          "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/jobs",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/guide",
+          "finalUrl": "https://www.workforceap.org/employer/jobs",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/jobs/import",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/jobs/import",
-          "title": "Import jobs",
-          "stuckLogin": false
-        },
-        {
-          "path": "/employer/jobs/new",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/jobs/import",
-          "title": "Loading https://workforceap-beta.vercel.app/admin/employers",
-          "stuckLogin": false
-        },
-        {
-          "path": "/employer/matches",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/matches",
+          "finalUrl": "https://www.workforceap.org/employer/jobs/import",
           "title": "",
           "stuckLogin": false
         },
         {
+          "path": "/employer/jobs/new",
+          "finalUrl": "https://www.workforceap.org/employer/jobs/new",
+          "title": "",
+          "stuckLogin": false
+        },
+        {
+          "path": "/employer/matches",
+          "finalUrl": "https://www.workforceap.org/employer/matches",
+          "title": "Match History",
+          "stuckLogin": false
+        },
+        {
           "path": "/employer/messages",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/messages",
+          "finalUrl": "https://www.workforceap.org/employer/messages",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/pipeline",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/pipeline",
-          "title": "Candidate pipeline",
+          "finalUrl": "https://www.workforceap.org/employer/pipeline",
+          "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/settings",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/settings",
+          "finalUrl": "https://www.workforceap.org/employer/settings",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/employer/work-queue",
-          "finalUrl": "https://workforceap-beta.vercel.app/employer/work-queue",
-          "title": "Employer work queue",
+          "finalUrl": "https://www.workforceap.org/employer/work-queue",
+          "title": "",
           "stuckLogin": false
         }
       ]
@@ -613,67 +613,67 @@
       "rows": [
         {
           "path": "/partner",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner",
-          "title": "Partner Portal",
-          "stuckLogin": false
-        },
-        {
-          "path": "/partner/attention",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner",
-          "title": "Loading https://workforceap-beta.vercel.app/admin/partners",
-          "stuckLogin": false
-        },
-        {
-          "path": "/partner/exports",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/exports",
+          "finalUrl": "https://www.workforceap.org/partner",
           "title": "",
           "stuckLogin": false
         },
         {
+          "path": "/partner/attention",
+          "finalUrl": "https://www.workforceap.org/partner/attention",
+          "title": "",
+          "stuckLogin": false
+        },
+        {
+          "path": "/partner/exports",
+          "finalUrl": "https://www.workforceap.org/partner/exports",
+          "title": "Exports",
+          "stuckLogin": false
+        },
+        {
           "path": "/partner/guide",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/guide",
+          "finalUrl": "https://www.workforceap.org/partner/guide",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/partner/members",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/members",
+          "finalUrl": "https://www.workforceap.org/partner/members",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/partner/messages",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/messages",
+          "finalUrl": "https://www.workforceap.org/partner/messages",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/partner/milestones",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/milestones",
+          "finalUrl": "https://www.workforceap.org/partner/milestones",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/partner/outcomes",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/outcomes",
-          "title": "",
+          "finalUrl": "https://www.workforceap.org/partner/outcomes",
+          "title": "Outcomes Snapshot",
           "stuckLogin": false
         },
         {
           "path": "/partner/referred-members",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/referred-members",
+          "finalUrl": "https://www.workforceap.org/partner/referred-members",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/partner/resources",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/resources",
+          "finalUrl": "https://www.workforceap.org/partner/resources",
           "title": "",
           "stuckLogin": false
         },
         {
           "path": "/partner/settings",
-          "finalUrl": "https://workforceap-beta.vercel.app/partner/settings",
+          "finalUrl": "https://www.workforceap.org/partner/settings",
           "title": "",
           "stuckLogin": false
         }
@@ -684,55 +684,55 @@
       "rows": [
         {
           "path": "/counselor",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor",
+          "finalUrl": "https://www.workforceap.org/counselor",
           "title": "Counselor Portal",
           "stuckLogin": false
         },
         {
           "path": "/counselor/guide",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/guide",
-          "title": "Counselor portal guide",
+          "finalUrl": "https://www.workforceap.org/counselor/guide",
+          "title": "Counselor Portal Guide",
           "stuckLogin": false
         },
         {
           "path": "/counselor/messages",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/messages",
+          "finalUrl": "https://www.workforceap.org/counselor/messages",
           "title": "Counselor Portal",
           "stuckLogin": false
         },
         {
           "path": "/counselor/placements",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/placements",
+          "finalUrl": "https://www.workforceap.org/counselor/placements",
           "title": "Counselor Portal",
           "stuckLogin": false
         },
         {
           "path": "/counselor/resources",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/resources",
+          "finalUrl": "https://www.workforceap.org/counselor/resources",
           "title": "Counselor Portal",
           "stuckLogin": false
         },
         {
           "path": "/counselor/sessions",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/sessions",
-          "title": "In-office sessions",
+          "finalUrl": "https://www.workforceap.org/counselor/sessions",
+          "title": "In-Office Sessions",
           "stuckLogin": false
         },
         {
           "path": "/counselor/sessions/walk-in",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/sessions/walk-in",
-          "title": "Walk-in session",
+          "finalUrl": "https://www.workforceap.org/counselor/sessions/walk-in",
+          "title": "Walk-In Session",
           "stuckLogin": false
         },
         {
           "path": "/counselor/students",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/students",
+          "finalUrl": "https://www.workforceap.org/counselor/students",
           "title": "Counselor Portal",
           "stuckLogin": false
         },
         {
           "path": "/counselor/inactive-members",
-          "finalUrl": "https://workforceap-beta.vercel.app/counselor/inactive-members",
+          "finalUrl": "https://www.workforceap.org/counselor/inactive-members",
           "title": "Counselor Portal",
           "stuckLogin": false
         }

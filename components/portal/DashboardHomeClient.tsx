@@ -161,7 +161,7 @@ export default function DashboardHomeClient({
         ? 'Training preassessment required'
         : completedCount === 0
           ? 'Your first course is next'
-          : `Current training step: ${nextMilestone ?? programTitle}`;
+          : `Up next in training: ${nextMilestone ?? programTitle}`;
 
   const progressCardSummary =
     state === 'D'
@@ -181,6 +181,8 @@ export default function DashboardHomeClient({
     return `Week of ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   }, []);
 
+  const showPreassessmentScore = assessmentScorePct != null && completedCount === 0 && state !== 'D';
+
   /* ── Metric cards data ── */
   const metricCards = [
     {
@@ -191,7 +193,7 @@ export default function DashboardHomeClient({
       accent: 'accent' as const,
       href: '/dashboard/training',
     },
-    ...(assessmentScorePct != null
+    ...(showPreassessmentScore
       ? [{
           label: 'Preassessment Score',
           value: `${assessmentScorePct}%`,
@@ -232,7 +234,7 @@ export default function DashboardHomeClient({
       </header>
 
       {/* ── 1. STATUS CARD — where am I, what's next ── */}
-      {(noApplicationOnFile || applicationStatus) && (
+      {(noApplicationOnFile || ((state === 'A' || state === 'B') && applicationStatus)) && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
           <section
             className="portal-card portal-card--flat"
@@ -319,7 +321,7 @@ export default function DashboardHomeClient({
                       {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {assessmentScorePct != null && (
+                      {showPreassessmentScore && (
                         <span style={{ padding: '0.25rem 0.625rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
                           Preassessment: {assessmentScorePct}%
                         </span>
@@ -656,7 +658,7 @@ export default function DashboardHomeClient({
                 Talk to AI coach
               </Link>
               <Link href="/dashboard/ai-tools" className="btn btn-outline" onClick={() => handleDashboardAction('ai_tools_clicked')}>
-                Open job search tools
+                Open career tools
               </Link>
             </div>
           </div>
@@ -674,7 +676,7 @@ export default function DashboardHomeClient({
                 { href: '/dashboard/ai-tools', label: 'Job Search Tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-                { href: '/dashboard/skills-assessment', label: 'Training Preassessment', desc: 'Program readiness', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/skills-assessment', label: showPreassessmentScore ? 'Training Preassessment' : 'Assessment Results', desc: showPreassessmentScore ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
               ].map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}

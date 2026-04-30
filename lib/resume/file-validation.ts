@@ -4,9 +4,10 @@ export const ALLOWED_MIME_TYPES = new Set([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
 ]);
 
-export const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx']);
+export const ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'txt']);
 
 // Magic bytes for allowed file types
 export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
@@ -15,9 +16,18 @@ export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
   { ext: 'docx', bytes: [0x50, 0x4B, 0x03, 0x04] }, // PK (ZIP/DOCX)
 ];
 
-export function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
+export function validateFileType(
+  buffer: Buffer,
+  mimeType: string,
+  fileName: string,
+  options?: { allowTxt?: boolean }
+): boolean {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
+
+  if (ext === 'txt') {
+    return options?.allowTxt === true;
+  }
 
   if (buffer.length < 4) return false;
 

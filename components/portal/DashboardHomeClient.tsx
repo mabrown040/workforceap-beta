@@ -183,6 +183,16 @@ export default function DashboardHomeClient({
 
   const showPreassessmentScore = assessmentScorePct != null && completedCount === 0 && state !== 'D';
   const showPreassessmentPhase = state === 'A' || state === 'B';
+  const applicationSupportCopy =
+    state === 'A'
+      ? (noApplicationOnFile
+          ? 'Start your application to begin your career path. All programs are offered at no cost to members.'
+          : 'Choose a program to get started on your career path. All programs are offered at no cost to members.')
+      : state === 'B'
+        ? `Complete your Training Preassessment to start your ${programTitle} training.`
+        : state === 'C'
+          ? `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`
+          : 'Focus on career readiness: resume, interview practice, and job applications.';
 
   /* ── Metric cards data ── */
   const metricCards = [
@@ -314,12 +324,7 @@ export default function DashboardHomeClient({
                   )}
                   <div className="portal-card portal-card--flat portal-card--padded-sm">
                     <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                      {state === 'A' && (noApplicationOnFile
-                        ? "Start your application to begin your career path. All programs are offered at no cost to members."
-                        : "Choose a program to get started on your career path. All programs are offered at no cost to members.")}
-                      {state === 'B' && `Complete your Training Preassessment to start your ${programTitle} training.`}
-                      {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
-                      {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
+                      {applicationSupportCopy}
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                       {showPreassessmentScore && (

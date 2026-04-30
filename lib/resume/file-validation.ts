@@ -35,7 +35,23 @@ export function validateFileType(buffer: Buffer, mimeType: string, fileName: str
 
   return MAGIC_BYTES.some((m) => {
     if (m.ext !== ext) return false;
-    const searchBytes = Buffer.from(m.bytes);
-    return Buffer.from(searchArea).indexOf(searchBytes) !== -1;
+
+    const seq = m.bytes;
+    const seqLen = seq.length;
+
+    // Safely search for byte sequences by implementing a custom manual loop (byte-by-byte comparison)
+    // to avoid edge polyfill indexOf issues with arrays
+    for (let i = 0; i <= searchArea.length - seqLen; i++) {
+      let match = true;
+      for (let j = 0; j < seqLen; j++) {
+        if (searchArea[i + j] !== seq[j]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) return true;
+    }
+
+    return false;
   });
 }

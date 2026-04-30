@@ -12,7 +12,7 @@ const AI_COACHES_BAND_STYLE = {
 } as const;
 
 /**
- * AI toolkit voice section — 4 cards in a row, 1 wider horizontal card below.
+ * AI toolkit voice section — 4 primary cards stacked first, then 2 secondary cards side by side.
  */
 export default function VoiceCoachesPromo() {
   return (
@@ -41,14 +41,6 @@ export default function VoiceCoachesPromo() {
           }}
         >
           <VoiceCoachLauncherCard
-            {...studentCounselorVoiceSurface}
-            title="AI Career Counselor"
-            description="Private voice session that ends with a personalized 3-step action plan."
-            href="/dashboard/counselor"
-            ctaLabel="Start counselor session"
-          />
-
-          <VoiceCoachLauncherCard
             badge="Introduction"
             icon="🎤"
             glowColor="#7c3aed"
@@ -75,9 +67,7 @@ export default function VoiceCoachesPromo() {
             href="/dashboard/ai-tools/resume-coach"
             ctaLabel="Start resume enhancer"
           />
-        </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
           <VoiceCoachLauncherCard
             {...mockInterviewVoiceSurface}
             badge="Job / role interview"
@@ -85,6 +75,16 @@ export default function VoiceCoachesPromo() {
             description="Launch the full mock interview experience with setup guidance and optional recording."
             href="/dashboard/ai-tools/voice-interview"
             ctaLabel="Start voice interviewer"
+          />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
+          <VoiceCoachLauncherCard
+            {...studentCounselorVoiceSurface}
+            title="AI Career Coach"
+            description="Private voice session that ends with a personalized 3-step action plan."
+            href="/dashboard/counselor"
+            ctaLabel="Start career coach"
           />
           <VoiceCoachLauncherCard
             badge="Career Coach"
@@ -94,7 +94,7 @@ export default function VoiceCoachesPromo() {
             title="Career & Business Coach"
             description="Get broader career, project management, sales, marketing, and business guidance in one place."
             href="/dashboard/ai-tools/career-business-coach"
-            ctaLabel="Start career coach"
+            ctaLabel="Start career & business coach"
           />
         </div>
       </div>

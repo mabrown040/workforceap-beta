@@ -182,8 +182,8 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           {message.text}
         </div>
       )}
-      <button type="submit" className="btn btn-primary" disabled={saving}>
-        {saving ? 'Saving…' : 'Save changes'}
+      <button type="submit" className="btn btn-primary" disabled={saving} aria-busy={saving}>
+        <span aria-live="polite">{saving ? 'Saving…' : 'Save changes'}</span>
       </button>
     </form>
   );

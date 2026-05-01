@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHeader from '@/components/portal/PageHeader';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
@@ -124,9 +125,17 @@ export default async function JobsPage() {
         employer: { select: { companyName: true, logoUrl: true } },
       },
     });
-    const visible = jobs.filter(
-      (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
-    );
+    const visible = jobs
+      .filter(
+        (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+      )
+      .map((job) => ({
+        ...job,
+        employer: {
+          ...job.employer,
+          logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+        },
+      }));
     initialJobs = visible;
     initialTotal = visible.length;
   } catch {

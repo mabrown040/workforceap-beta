@@ -91,7 +91,7 @@ export default function AdminOrgSettingsForm({
         ) : null}
         <input id="logo" type="file" accept="image/*" onChange={(e) => void onLogo(e)} disabled={logoUploading} />
         <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
-          {logoUploading ? 'Uploading…' : 'Public URL stored on the organization. Uses Supabase bucket organization-branding.'}
+          {logoUploading ? 'Uploading…' : 'Stored in Supabase bucket organization-branding and resolved at render time.'}
         </p>
       </div>
       <div className="form-group">

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { employerSettingsPatchSchema } from '@/lib/employer/employerSettingsSchema';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 export async function PATCH(request: NextRequest) {
   const user = await getUser();
@@ -44,7 +45,7 @@ export async function PATCH(request: NextRequest) {
   return NextResponse.json({
     id: updated.id,
     companyName: updated.companyName,
-    logoUrl: updated.logoUrl,
+    logoUrl: resolveSupabasePublicAssetUrl('employer-logos', updated.logoUrl),
     companyDescription: updated.companyDescription,
     companyWebsite: updated.companyWebsite,
     companySize: updated.companySize,

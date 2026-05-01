@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
 export const SUPER_ADMIN_PARTNER_COOKIE = 'wa_super_admin_partner_id';
@@ -220,7 +221,7 @@ function mapEmployerRow(row: {
       companyName: row.companyName,
       contactEmail: row.contactEmail,
       tier: row.tier,
-      logoUrl: row.logoUrl,
+      logoUrl: resolveSupabasePublicAssetUrl('employer-logos', row.logoUrl),
     },
   };
 }

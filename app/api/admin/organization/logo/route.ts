@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 const BUCKET = 'organization-branding';
@@ -50,15 +51,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    const logo = pub.publicUrl;
-
     await prisma.organization.update({
       where: { id: organizationId },
-      data: { logo },
+      data: { logo: path },
     });
 
-    return NextResponse.json({ ok: true, logo });
+    return NextResponse.json({ ok: true, logo: resolveSupabasePublicAssetUrl(BUCKET, path) });
   } catch (error) {
     console.error('[admin/organization/logo] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

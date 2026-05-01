@@ -13,6 +13,7 @@ import {
   syncManagedUserRoles,
 } from '@/lib/admin/adminUserProvisioning';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 
 /** List users for admin dropdowns (e.g. subgroup leader selection). Returns id, fullName, email. */
 export async function GET() {
@@ -39,18 +40,6 @@ const createSchema = z.object({
   role: z.enum(ADMIN_USER_ROLES).default('member'),
   sendResetEmail: z.boolean().default(true),
 });
-
-async function findAuthUserIdByEmail(email: string) {
-  const supabase = getSupabaseAdmin();
-  for (let page = 1; page <= 5; page += 1) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw error;
-    const match = data.users.find((user) => user.email?.toLowerCase() === email);
-    if (match?.id) return match.id;
-    if (data.users.length < 1000) break;
-  }
-  return null;
-}
 
 export async function POST(request: NextRequest) {
   const admin = await getUser();
@@ -116,7 +105,7 @@ export async function POST(request: NextRequest) {
     if (!error && data.user?.id) {
       authUserId = data.user.id;
     } else if (error?.message?.includes('already') || error?.code === 'user_already_exists') {
-      authUserId = await findAuthUserIdByEmail(email);
+      authUserId = (await findSupabaseAuthUserByEmail(supabase, email, { perPage: 200, maxPages: 25 }))?.id ?? null;
       if (!authUserId) {
         return NextResponse.json({ error: 'This email already exists in auth, but could not be linked.' }, { status: 409 });
       }

@@ -35,7 +35,7 @@ export default function PortalNav({ className, currentRole, currentPath }: { cla
         </ul>
         <div className="portal-nav-actions">
           <LanguageToggle />
-          <Link href="/" className="portal-nav-home">
+          <Link href="/" prefetch={false} className="portal-nav-home">
             {PRODUCT_COPY.publicSiteLabel}
           </Link>
           <SignOutButton />

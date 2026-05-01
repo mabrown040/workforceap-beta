@@ -440,7 +440,7 @@ export default function WorkspaceShell({
                 </span>
                 <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
               </div>
-              <Link href="/" className="workspace-sidebar-home-link" onClick={closeDrawer}>
+              <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>
                 {PRODUCT_COPY.publicSiteLabel}
               </Link>
               <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>

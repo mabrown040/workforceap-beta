@@ -6,6 +6,14 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 
 const BUCKET = 'member-resumes';
 
+function storageErrorMessage(error: { message?: string } | null, action: 'sign' | 'download'): string {
+  const message = error?.message ?? '';
+  if (/not found|does not exist|Bucket/i.test(message)) {
+    return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
+  }
+  return action === 'sign' ? 'Could not create resume download link' : 'Could not load resume file';
+}
+
 export async function GET(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,20 +35,30 @@ export async function GET(req: NextRequest) {
     let enhancedUrl: string | null = null;
 
     if (originalPath) {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
-      originalUrl = data?.signedUrl ?? null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error('[member/resume] createSignedUrl original failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+      }
+      originalUrl = data.signedUrl;
     }
     if (enhancedPath) {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
-      enhancedUrl = data?.signedUrl ?? null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error('[member/resume] createSignedUrl enhanced failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+      }
+      enhancedUrl = data.signedUrl;
     }
 
     let enhancedText: string | null = null;
     if (enhancedPath) {
-      const { data: fileData } = await supabase.storage.from(BUCKET).download(enhancedPath);
-      if (fileData) {
-        enhancedText = await fileData.text();
+      const { data: fileData, error } = await supabase.storage.from(BUCKET).download(enhancedPath);
+      if (error || !fileData) {
+        console.error('[member/resume] download enhanced failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'download') }, { status: 502 });
       }
+      enhancedText = await fileData.text();
     }
 
     const extOf = (p: string | null | undefined) => {

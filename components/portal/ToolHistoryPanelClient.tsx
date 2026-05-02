@@ -1,8 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import AiResultRenderer from './AiResultRenderer';
 import { formatPortalDate } from '@/lib/formatDate';
+import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
 type Row = { id: string; toolType: string; inputSummary: string; output: string; createdAt: string };
 
@@ -42,6 +44,29 @@ export default function ToolHistoryPanelClient({ rows }: { rows: Row[] }) {
                     compact
                   />
                 </div>
+                {(() => {
+                  const next = getAIToolFollowThrough({
+                    toolType: row.toolType,
+                    inputSummary: row.inputSummary,
+                    output: row.output,
+                  });
+                  return (
+                    <div style={{ marginTop: '0.875rem', borderLeft: '4px solid var(--color-accent)', background: 'var(--surface-container)', borderRadius: '0.75rem', padding: '0.875rem' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                        Do this next
+                      </p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                        {next.title}
+                      </p>
+                      <p style={{ margin: '0 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
+                        {next.body}
+                      </p>
+                      <Link href={next.href} className="btn btn-outline">
+                        {next.cta}
+                      </Link>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>

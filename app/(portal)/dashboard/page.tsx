@@ -192,6 +192,7 @@ async function renderMemberDashboard(
     recentTxResult,
     sessionEventsResult,
     interviewPracticeCompletionResult,
+    placementConfirmationResult,
   ] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
@@ -257,6 +258,15 @@ async function renderMemberDashboard(
       },
       select: { id: true },
     }),
+    prisma.memberEvent.findMany({
+      where: {
+        userId: user.id,
+        eventName: "PLACEMENT_CONFIRMATION_SUBMITTED",
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: { entityId: true },
+    }),
   ]);
 
   const recentTools =
@@ -288,9 +298,26 @@ async function renderMemberDashboard(
     );
   }
 
+  const submittedPlacementConfirmations =
+    placementConfirmationResult.status === "fulfilled"
+      ? new Set(
+          placementConfirmationResult.value
+            .map((event) => event.entityId)
+            .filter((entityId): entityId is string => !!entityId),
+        )
+      : new Set<string>();
+  if (placementConfirmationResult.status === "rejected") {
+    console.error(
+      "[dashboard] placement confirmation query failed",
+      placementConfirmationResult.reason,
+    );
+  }
+
   const jobOffers =
     jobApplicationsResult.status === "fulfilled"
-      ? jobApplicationsResult.value
+      ? jobApplicationsResult.value.filter(
+          (offer) => !submittedPlacementConfirmations.has(offer.id),
+        )
       : [];
 
   const memberPoints =

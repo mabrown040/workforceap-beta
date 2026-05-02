@@ -19,6 +19,8 @@ export type NextBestActionsContext = {
   noApplicationOnFile: boolean;
   enrolledProgram: string | null;
   assessmentCompleted: boolean;
+  completedCourseCount?: number;
+  totalCourseCount?: number;
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
   hasResume: boolean;
@@ -95,6 +97,33 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       cta: 'Open messages',
       variant: 'urgent',
       weight: 88,
+    });
+  }
+
+  if (
+    ctx.assessmentCompleted &&
+    !!ctx.enrolledProgram &&
+    (ctx.completedCourseCount ?? 0) === 0 &&
+    (ctx.state === 'C' || ctx.state === 'D')
+  ) {
+    out.push({
+      id: 'launch_first_course',
+      title: 'Launch your first Coursera course',
+      body: 'Start training now so your first certificate, resume work, and job-readiness steps stay in motion together.',
+      href: '/dashboard/coursera',
+      cta: 'Open Coursera',
+      variant: 'urgent',
+      weight: 86,
+    });
+
+    out.push({
+      id: 'see_training_plan',
+      title: 'See how training leads to job help',
+      body: 'Get the simple step-by-step: preassessment, Coursera training, certificates, AI coaching, and counselor support.',
+      href: '/dashboard/guide',
+      cta: 'View guide',
+      variant: 'default',
+      weight: 79,
     });
   }
 

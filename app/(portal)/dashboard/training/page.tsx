@@ -207,6 +207,34 @@ export default async function TrainingPage() {
           </div>
         </div>
 
+        <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
+          <section
+            className="portal-card portal-card--flat"
+            style={{ borderLeft: '4px solid var(--color-blue)' }}
+          >
+            <div className="portal-card__body">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-blue)', '--ms-fill': 1 }}>
+                  route
+                </span>
+                <h2 className="portal-section-heading" style={{ margin: 0, fontSize: '1rem' }}>What happens after I start?</h2>
+              </div>
+              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.875rem', lineHeight: 1.6 }}>
+                Finish your courses in order. As you progress, WorkforceAP uses that momentum to support certificates, resume upgrades, interview prep, and job applications.
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                <li>Start with your current Coursera course.</li>
+                <li>Track certificates in your vault as you complete milestones.</li>
+                <li>Use readiness + AI tools alongside training so job help starts earlier.</li>
+              </ul>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem', marginTop: '1rem' }}>
+                <a href="/dashboard/guide" className="btn btn-outline">View full guide</a>
+                <a href="/dashboard/certifications" className="btn btn-outline">Open certificates</a>
+              </div>
+            </div>
+          </section>
+        </div>
+
         {/* Shared course list - rendered once to avoid duplication */}
         <div style={{ padding: '0 1rem' }}>
           <section>

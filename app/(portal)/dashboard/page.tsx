@@ -27,6 +27,7 @@ import {
   getProfileCompleteness,
   getProfileMissingFields,
 } from "@/lib/resume/profileCompleteness";
+import { getAIToolFollowThrough } from "@/lib/member/aiToolFollowThrough";
 import { parseCourseSlugList } from "@/lib/member/parseCourseSlugList";
 import { stripMarkdownForPreview } from "@/lib/text/stripMarkdown";
 import PortalLoadingState from "@/components/portal/PortalLoadingState";
@@ -352,6 +353,14 @@ async function renderMemberDashboard(
       (a, b) => b.startedAt.getTime() - a.startedAt.getTime(),
     )[0] ?? null;
 
+  const latestTool = recentTools[0] ?? null;
+  const latestToolFollowThrough = latestTool
+    ? getAIToolFollowThrough({
+        toolType: latestTool.toolType,
+        inputSummary: latestTool.inputSummary,
+      })
+    : null;
+
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
     intakeExtra?.onboardingCompletedAt != null &&
@@ -445,6 +454,8 @@ async function renderMemberDashboard(
     noApplicationOnFile,
     enrolledProgram,
     assessmentCompleted,
+    completedCourseCount: completedCount,
+    totalCourseCount: totalCourses,
     starterProfileReviewRequired: starterProfileReview.required,
     starterProfileMissingFields: starterProfileMissingLabels,
     hasResume: engagementSignals.hasResume,
@@ -1451,6 +1462,53 @@ async function renderMemberDashboard(
                 View all
               </Link>
             </div>
+            {latestTool && latestToolFollowThrough ? (
+              <div
+                style={{
+                  borderLeft: "4px solid var(--color-accent)",
+                  background: "var(--surface-container-low)",
+                  borderRadius: "0.875rem",
+                  padding: "0.875rem 1rem",
+                  marginBottom: "0.875rem",
+                }}
+              >
+                <p
+                  style={{
+                    margin: "0 0 0.3rem",
+                    fontSize: "0.6875rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "var(--color-accent)",
+                  }}
+                >
+                  After your last tool run
+                </p>
+                <h4
+                  style={{
+                    margin: "0 0 0.3rem",
+                    fontSize: "0.95rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                  }}
+                >
+                  {latestToolFollowThrough.title}
+                </h4>
+                <p
+                  style={{
+                    margin: "0 0 0.7rem",
+                    fontSize: "0.8125rem",
+                    lineHeight: 1.55,
+                    color: "var(--color-on-surface-variant)",
+                  }}
+                >
+                  {latestToolFollowThrough.body}
+                </p>
+                <Link href={latestToolFollowThrough.href} className="btn btn-outline">
+                  {latestToolFollowThrough.cta}
+                </Link>
+              </div>
+            ) : null}
             <div
               style={{
                 display: "flex",

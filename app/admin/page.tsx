@@ -312,18 +312,18 @@ export default async function AdminPage() {
                 Super Admin Portal Previews
               </p>
               <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-                Open employer, counselor, and partner views for demos.
+                Choose explicit employer or partner contexts for demos. No random fallback orgs.
               </p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <Link href="/admin/employers" className="btn btn-outline btn-sm">
-                Employer preview
+                Select employer preview
               </Link>
               <Link href="/counselor" className="btn btn-outline btn-sm">
                 Counselor preview
               </Link>
-              <Link href="/partner" className="btn btn-outline btn-sm">
-                Partner preview
+              <Link href="/admin/partners" className="btn btn-outline btn-sm">
+                Select partner preview
               </Link>
             </div>
           </div>

@@ -3,12 +3,24 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export default function OpenPartnerPortalButton({ partnerId }: { partnerId: string }) {
+export default function OpenPartnerPortalButton({
+  partnerId,
+  canOpenPortal = true,
+  disabledReason,
+}: {
+  partnerId: string;
+  canOpenPortal?: boolean;
+  disabledReason?: string;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function openPortal() {
+    if (!canOpenPortal) {
+      setError(disabledReason ?? 'This partner must be active before you can open the portal preview.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -34,8 +46,9 @@ export default function OpenPartnerPortalButton({ partnerId }: { partnerId: stri
         type="button"
         className="btn btn-outline btn-sm"
         style={{ color: 'var(--color-on-surface)', borderColor: 'var(--outline-variant)' }}
-        disabled={loading}
+        disabled={loading || !canOpenPortal}
         onClick={openPortal}
+        title={!canOpenPortal ? disabledReason : undefined}
       >
         {loading ? 'Opening…' : 'Open portal'}
       </button>

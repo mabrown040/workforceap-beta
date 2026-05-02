@@ -29,7 +29,7 @@ export async function GET() {
     if (!id) return NextResponse.json({ employer: null });
 
     const employer = await prisma.employer.findFirst({
-      where: { id },
+      where: { id, status: 'active' },
       select: { id: true, companyName: true },
     });
     return NextResponse.json({ employer });
@@ -59,12 +59,18 @@ export async function POST(request: NextRequest) {
 
     const employer = await prisma.employer.findFirst({
       where: { id: parsed.data.employerId },
-      select: { id: true, companyName: true },
+      select: { id: true, companyName: true, status: true },
     });
     if (!employer) return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
+    if (employer.status !== 'active') {
+      return NextResponse.json(
+        { error: 'Only active employers can be opened in the employer portal preview.' },
+        { status: 409 }
+      );
+    }
 
     store.set(SUPER_ADMIN_EMPLOYER_COOKIE, employer.id, cookieOpts);
-    return NextResponse.json({ ok: true, employer });
+    return NextResponse.json({ ok: true, employer: { id: employer.id, companyName: employer.companyName } });
   } catch (error) {
     console.error('[admin/employer-context POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

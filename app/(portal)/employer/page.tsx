@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -32,10 +33,9 @@ export default async function EmployerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/employer');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/employer' : '/employers';
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect(fallbackForUnlinked);
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const employerRow = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -48,7 +48,7 @@ export default async function EmployerDashboardPage() {
       companyWebsite: true,
     },
   });
-  if (!employerRow) redirect(fallbackForUnlinked);
+  if (!employerRow) redirect(await unlinkedEmployerHref(user.id));
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId },

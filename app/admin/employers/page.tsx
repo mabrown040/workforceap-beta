@@ -36,7 +36,7 @@ export default async function AdminEmployersPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title="Employers" subtitle="Employers with portal access. Create accounts below, or open a company's portal as a super-admin to help them post jobs." />
+      <PageHeader title="Employers" subtitle="Manage employer accounts. Only active employers can be opened in the employer portal preview; inactive rows stay here until reactivated." />
 
       {superAdmin && (
         <p style={{ fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -57,6 +57,7 @@ export default async function AdminEmployersPage() {
                   <th>Company</th>
                   <th>Contact</th>
                   <th>Portal User</th>
+                  <th>Status</th>
                   <th>Jobs</th>
                   <th>Tier</th>
                   {superAdmin && <th>Help</th>}
@@ -82,6 +83,20 @@ export default async function AdminEmployersPage() {
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.user.email}</div>
                     </td>
                     <td>
+                      <span
+                        style={{
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '999px',
+                          fontSize: '0.75rem',
+                          background: e.status === 'active' ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
+                          color: e.status === 'active' ? '#2d7a32' : 'var(--color-on-surface-variant)',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {e.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
                       <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>
                     </td>
                     <td>
@@ -89,7 +104,11 @@ export default async function AdminEmployersPage() {
                     </td>
                     {superAdmin && (
                       <td>
-                        <OpenEmployerPortalButton employerId={e.id} />
+                        <OpenEmployerPortalButton
+                          employerId={e.id}
+                          canOpenPortal={e.status === 'active'}
+                          disabledReason="Inactive employers cannot be opened in portal preview. Reactivate the employer first."
+                        />
                       </td>
                     )}
                   </tr>
@@ -115,7 +134,16 @@ export default async function AdminEmployersPage() {
                         {e.contactName} · {e.contactEmail}
                       </p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                      <span
+                        className="admin-portal-card__badge"
+                        style={{
+                          background: e.status === 'active' ? 'rgba(74,155,79,0.12)' : 'var(--surface-container)',
+                          color: e.status === 'active' ? '#2d7a32' : 'var(--color-on-surface-variant)',
+                        }}
+                      >
+                        {e.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
                       <span className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue" style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>work</span>
                       </span>
@@ -131,7 +159,13 @@ export default async function AdminEmployersPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
                       <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
-                      {superAdmin && <OpenEmployerPortalButton employerId={e.id} />}
+                      {superAdmin && (
+                        <OpenEmployerPortalButton
+                          employerId={e.id}
+                          canOpenPortal={e.status === 'active'}
+                          disabledReason="Inactive employers cannot be opened in portal preview. Reactivate the employer first."
+                        />
+                      )}
                     </div>
                   </div>
                 </div>

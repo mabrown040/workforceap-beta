@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -38,10 +39,9 @@ export default async function PartnerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/partner');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/partner' : '/dashboard';
 
-  const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect(fallbackForUnlinked);
+  const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const partnerRow = await prisma.partner.findUnique({
     where: { id: ctx.partnerId },
@@ -57,7 +57,7 @@ export default async function PartnerDashboardPage() {
     },
   });
 
-  if (!partnerRow) redirect(fallbackForUnlinked);
+  if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;

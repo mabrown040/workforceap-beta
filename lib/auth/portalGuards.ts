@@ -2,9 +2,9 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 
 /**
  * Where to send a logged-in user who reached an Employer portal page without
- * an Employer record. Super admins stay in the employer portal chrome so the
- * selected org cookie / portal fallback can resolve their view; everyone else
- * gets the public marketing page where they can request access.
+ * an Employer record. Super admins go back to the employer selector so they
+ * choose an explicit preview context; everyone else gets the public marketing
+ * page where they can request access.
  *
  * Use at every redirect site in app/(portal)/employer/**:
  *   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
@@ -16,10 +16,10 @@ import { isSuperAdmin } from '@/lib/auth/roles';
  * a single source of truth.
  */
 export async function unlinkedEmployerHref(userId: string): Promise<string> {
-  return (await isSuperAdmin(userId)) ? '/employer' : '/employers';
+  return (await isSuperAdmin(userId)) ? '/admin/employers' : '/employers';
 }
 
 /** Same as above for the Partner portal. */
 export async function unlinkedPartnerHref(userId: string): Promise<string> {
-  return (await isSuperAdmin(userId)) ? '/partner' : '/dashboard';
+  return (await isSuperAdmin(userId)) ? '/admin/partners' : '/dashboard';
 }

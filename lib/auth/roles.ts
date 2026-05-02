@@ -104,11 +104,11 @@ export async function getPartnerForUser(
       });
       if (byCookie) return { partnerId: byCookie.id, partner: byCookie, hasDirectPartnerLink: false };
     }
-    const first = await prisma.partner.findFirst({
-      where: { active: true, name: { not: 'Test Students' } },
-      select: { id: true, name: true, slug: true },
-    });
-    if (first) return { partnerId: first.id, partner: first, hasDirectPartnerLink: false };
+
+    // Super-admin partner previews must use an explicit selected context.
+    // Never fall through to the first active partner, which can expose real org data
+    // when a demo cookie is missing or stale.
+    return null;
   }
   return null;
 }
@@ -228,7 +228,7 @@ function mapEmployerRow(row: {
 
 /**
  * Employer portal context. Super-admins can open a specific employer via Admin → Employers ("Open portal"),
- * stored in a cookie; otherwise they fall back to their own employer row (if any) or the first active company.
+ * stored in a cookie; otherwise they fall back only to their own employer row (if any).
  * Pass `isSuperAdminHint` when the caller already computed it to avoid duplicate `profile` reads.
  */
 export async function getEmployerForUser(
@@ -262,12 +262,10 @@ export async function getEmployerForUser(
   }
 
   if (superUser) {
-    const first = await prisma.employer.findFirst({
-      where: { status: 'active' },
-      orderBy: { companyName: 'asc' },
-      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
-    });
-    if (first) return mapEmployerRow(first);
+    // Super-admin employer previews must use an explicit selected context.
+    // Never fall through to the first active employer, which can expose real company data
+    // when a demo cookie is missing or stale.
+    return null;
   }
 
   return null;

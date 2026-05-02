@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
@@ -103,7 +105,12 @@ export default async function MemberGuidePage() {
   });
   if (!dbUser) redirect('/login');
 
-  const completedCourses = Array.isArray(dbUser.coursesCompleted) ? dbUser.coursesCompleted.length : 0;
+  const enrolledProgram = dbUser.enrolledProgram ?? null;
+  const coursesCompletedSlugs = parseCourseSlugList(dbUser.coursesCompleted);
+  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const completedCourses = program
+    ? coursesCompletedSlugs.filter((s) => program.courses.some((c) => c.slug === s)).length
+    : 0;
 
   // Determine which step the member is on (0-indexed)
   const activeStep = !dbUser.profile?.city

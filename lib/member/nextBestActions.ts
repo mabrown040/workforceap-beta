@@ -20,7 +20,6 @@ export type NextBestActionsContext = {
   enrolledProgram: string | null;
   assessmentCompleted: boolean;
   completedCourseCount?: number;
-  totalCourseCount?: number;
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
   hasResume: boolean;

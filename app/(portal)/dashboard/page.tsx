@@ -482,7 +482,6 @@ async function renderMemberDashboard(
     enrolledProgram,
     assessmentCompleted,
     completedCourseCount: completedCount,
-    totalCourseCount: totalCourses,
     starterProfileReviewRequired: starterProfileReview.required,
     starterProfileMissingFields: starterProfileMissingLabels,
     hasResume: engagementSignals.hasResume,

@@ -142,7 +142,6 @@ test('buildNextBestActions adds first-course launch guidance before training sta
     enrolledProgram: 'it-support',
     assessmentCompleted: true,
     completedCourseCount: 0,
-    totalCourseCount: 8,
     starterProfileReviewRequired: false,
     hasResume: true,
     hasCompletedInterviewPractice: false,

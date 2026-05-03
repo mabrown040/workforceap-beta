@@ -4,15 +4,10 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY, CRON_CATEGORY_COLOR } from '@/lib/admin/cronRegistry';
+import { getEmailTemplateDemoByCronId } from '@/lib/admin/emailTemplateDemoPreviews';
 import PageHeader from '@/components/portal/PageHeader';
 import EmailTemplatesClient from '@/components/admin/EmailTemplatesClient';
 import { brandedEmailLayout } from '@/lib/email/template';
-import { weeklyRecapHtml } from '@/emails/weekly-recap';
-import { inactiveNudgeHtml } from '@/emails/inactive-nudge';
-import { applicantFollowupHtml } from '@/emails/applicant-followup';
-import { adminWeeklyRecapHtml } from '@/emails/admin-weekly-recap';
-import { partnerWeeklyDigestHtml } from '@/emails/partner-weekly-digest';
-import { courseCompletedHtml } from '@/emails/course-completed';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Email Template Previews',
@@ -30,106 +25,20 @@ export type TemplateSample = {
 };
 
 function buildSamples(): TemplateSample[] {
-  const weeklyRecapBody = weeklyRecapHtml({
-    firstName: 'Alex',
-    recapSummary: 'You completed 2 lessons this week. Your next step is Module 3: Networking Fundamentals. Keep it up!',
-  });
-
-  const inactiveBody = inactiveNudgeHtml({ firstName: 'Jordan' });
-
-  const applicantBody = applicantFollowupHtml({
-    firstName: 'Taylor',
-    expectedDate: 'May 9, 2026',
-  });
-
-  const adminRecapBody = adminWeeklyRecapHtml({
-    newApplicants: 4,
-    placements: 1,
-    atRiskStudents: 2,
-    pendingApplications: 3,
-  });
-
-  const partnerDigestBody = partnerWeeklyDigestHtml({
-    partnerName: 'Workforce Solutions',
-    weekLabel: 'May 5–9, 2026',
-    stageLines: ['3 Applied', '2 In Training', '1 Placed'],
-    successLines: [
-      'Maria S. — IT Support Certificate earned',
-      'James R. — Job placement confirmed',
-    ],
-  });
-
-  const milestoneBody = courseCompletedHtml({
-    firstName: 'Casey',
-    courseName: 'IT Support Professional (Google)',
-  });
-
-  const cMap: Record<string, { subject: string; body: string; ctaText?: string; ctaUrl?: string; title: string }> = {
-    'weekly-recap': {
-      title: 'Your Weekly Recap',
-      subject: 'Your WorkforceAP Weekly Recap',
-      body: weeklyRecapBody,
-      ctaText: 'View Dashboard',
-      ctaUrl: '/dashboard',
-    },
-    'inactive-nudge': {
-      title: 'We Miss You',
-      subject: 'We Miss You at WorkforceAP',
-      body: inactiveBody,
-      ctaText: 'Resume Training',
-      ctaUrl: '/dashboard',
-    },
-    'inactivity-nudge': {
-      title: 'We Miss You',
-      subject: 'We Miss You at WorkforceAP',
-      body: inactiveBody,
-      ctaText: 'Resume Training',
-      ctaUrl: '/dashboard',
-    },
-    'applicant-followup': {
-      title: 'Application Update',
-      subject: 'Your WorkforceAP Application is Being Reviewed',
-      body: applicantBody,
-      ctaText: 'Check Application Status',
-      ctaUrl: '/dashboard',
-    },
-    'weekly-recap-email': {
-      title: 'WorkforceAP Weekly Admin Recap',
-      subject: 'Weekly Recap: 4 new applicants, 1 placements',
-      body: adminRecapBody,
-      ctaText: 'View Admin Dashboard',
-      ctaUrl: '/admin',
-    },
-    'partner-outcome-digest': {
-      title: 'Your Weekly Partner Digest',
-      subject: 'WorkforceAP weekly referral update — Workforce Solutions',
-      body: partnerDigestBody,
-      ctaText: 'View Partner Portal',
-      ctaUrl: '/partner',
-    },
-    'milestone-celebration': {
-      title: 'Congratulations!',
-      subject: 'Congratulations! You Completed IT Support Professional (Google)',
-      body: milestoneBody,
-      ctaText: 'See Your Progress',
-      ctaUrl: '/dashboard',
-    },
-  };
-
-  return CRON_REGISTRY.map(cron => {
-    const s = cMap[cron.id];
-    if (!s) return null;
+  return CRON_REGISTRY.map((cron) => {
+    const demo = getEmailTemplateDemoByCronId(cron.id);
+    if (!demo) return null;
     return {
       cronId: cron.id,
       cronName: cron.name,
       category: cron.category,
       icon: cron.icon,
-      subject: s.subject,
+      subject: demo.subject,
       html: brandedEmailLayout({
-        title: s.title,
-        bodyHtml: s.body,
-        ctaText: s.ctaText,
-        ctaUrl: s.ctaUrl,
+        title: demo.title,
+        bodyHtml: demo.bodyHtml,
+        ctaText: demo.ctaText,
+        ctaUrl: demo.ctaUrl,
       }),
     };
   }).filter((s): s is TemplateSample => s !== null);

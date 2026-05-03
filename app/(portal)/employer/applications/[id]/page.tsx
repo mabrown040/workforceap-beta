@@ -11,6 +11,10 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplicationStatusUpdater from '@/components/employer/ApplicationStatusUpdater';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Application Review',
@@ -73,12 +77,12 @@ export default async function EmployerApplicationPage({
   if (!application) redirect('/employer');
 
   const statusHistory = [
-    { label: 'Applied', date: application.appliedAt, active: true },
+    { label: 'Applied', date: application.appliedAt },
     ...(application.statusUpdatedAt
-      ? [{ label: 'Status updated', date: application.statusUpdatedAt, active: true }]
+      ? [{ label: 'Status updated', date: application.statusUpdatedAt }]
       : []),
     ...(application.interviewScheduledAt
-      ? [{ label: 'Interview scheduled', date: application.interviewScheduledAt, active: true }]
+      ? [{ label: 'Interview scheduled', date: application.interviewScheduledAt }]
       : []),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -126,36 +130,44 @@ export default async function EmployerApplicationPage({
                 Current Status
               </p>
               <StatusBadge
-                label={
-                  application.status === 'hired'
-                    ? 'Hired'
-                    : application.status === 'rejected'
-                      ? 'Rejected'
-                      : application.status === 'interview'
-                        ? 'Interview'
-                        : application.status === 'offered'
-                          ? 'Offered'
-                          : application.status === 'reviewing'
-                            ? 'Reviewing'
-                            : 'Pending'
-                }
-                variant={
-                  application.status === 'hired'
-                    ? 'success'
-                    : application.status === 'rejected'
-                      ? 'error'
-                      : application.status === 'interview'
-                        ? 'info'
-                        : application.status === 'offered'
-                          ? 'success'
-                          : application.status === 'reviewing'
-                            ? 'info'
-                            : 'warning'
-                }
+                label={employerJobPostingApplicationStatusLabel(application.status)}
+                variant={employerJobPostingApplicationStatusBadgeVariant(application.status)}
               />
             </div>
             <ApplicationStatusUpdater applicationId={application.id} currentStatus={application.status} />
           </div>
+          {statusHistory.length > 0 && (
+            <div
+              style={{
+                marginTop: '1rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid var(--outline-variant)',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '0.6875rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-on-surface-variant)',
+                  margin: '0 0 0.5rem',
+                }}
+              >
+                Status timeline
+              </p>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {statusHistory.map((entry, i) => (
+                  <li key={i} style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface)' }}>
+                    <span style={{ fontWeight: 600 }}>{entry.label}</span>
+                    <span style={{ color: 'var(--color-on-surface-variant)', marginLeft: '0.5rem' }}>
+                      {new Date(entry.date).toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </PortalCard>
 
         {/* Applicant Info */}

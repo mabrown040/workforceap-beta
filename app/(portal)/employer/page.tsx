@@ -11,6 +11,10 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import {
+  employerJobPostingApplicationStatusBadgeVariant,
+  employerJobPostingApplicationStatusLabel,
+} from '@/lib/employer/jobPostingApplicationStatus';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer Portal',
@@ -119,9 +123,15 @@ export default async function EmployerDashboardPage() {
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                 Post your first job to start receiving applicants from WorkforceAP members.
               </p>
-              <Link href="/admin/jobs" className="btn btn-primary">
-                Post a Job (Admin)
-              </Link>
+              {superAdmin ? (
+                <Link href="/admin/jobs" className="btn btn-primary">
+                  Post a Job (Admin)
+                </Link>
+              ) : (
+                <Link href="/employer/jobs/new" className="btn btn-primary">
+                  Post a Job
+                </Link>
+              )}
             </div>
           </PortalCard>
         ) : (
@@ -227,32 +237,8 @@ export default async function EmployerDashboardPage() {
                             </td>
                             <td>
                               <StatusBadge
-                                label={
-                                  app.status === 'hired'
-                                    ? 'Hired'
-                                    : app.status === 'rejected'
-                                      ? 'Rejected'
-                                      : app.status === 'interview'
-                                        ? 'Interview'
-                                        : app.status === 'offered'
-                                          ? 'Offered'
-                                          : app.status === 'reviewing'
-                                            ? 'Reviewing'
-                                            : 'Pending'
-                                }
-                                variant={
-                                  app.status === 'hired'
-                                    ? 'success'
-                                    : app.status === 'rejected'
-                                      ? 'error'
-                                      : app.status === 'interview'
-                                        ? 'info'
-                                        : app.status === 'offered'
-                                          ? 'success'
-                                          : app.status === 'reviewing'
-                                            ? 'info'
-                                            : 'warning'
-                                }
+                                label={employerJobPostingApplicationStatusLabel(app.status)}
+                                variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
                               />
                             </td>
                             <td>{new Date(app.appliedAt).toLocaleDateString()}</td>

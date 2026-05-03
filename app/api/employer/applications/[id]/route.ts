@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { canTransitionJobApplicationStatus } from '@/lib/employer/applicationStatus';
 import { z } from 'zod';
 
 const updateSchema = z.object({
@@ -50,7 +51,14 @@ export async function PATCH(
   } = {};
 
   if (parsed.data.status) {
-    updates.status = parsed.data.status;
+    const nextStatus = parsed.data.status;
+    if (!canTransitionJobApplicationStatus(application.status, nextStatus)) {
+      return NextResponse.json(
+        { error: 'Invalid status transition', from: application.status, to: nextStatus },
+        { status: 400 }
+      );
+    }
+    updates.status = nextStatus;
     updates.statusUpdatedAt = new Date();
   }
   if (parsed.data.employerNotes !== undefined) {

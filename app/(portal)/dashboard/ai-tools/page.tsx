@@ -87,6 +87,16 @@ export default async function AIToolsPage() {
             </span>
             View my past results
           </Link>
+          <Link
+            href="/dashboard/ai-tools/interview-prep"
+            className="btn btn-outline"
+            style={{ marginLeft: '0.5rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+              library_books
+            </span>
+            Prep bundle
+          </Link>
         </section>
       </div>
 

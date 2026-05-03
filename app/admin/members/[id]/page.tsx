@@ -168,6 +168,12 @@ export default async function AdminMemberDetailPage({
         workspaceEmailProvisioned: true,
       },
     }).catch(() => null),
+    prisma.memberEvent.findMany({
+      where: { userId: id, eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+      select: { metadata: true, createdAt: true },
+    }).catch(() => []),
   ] as const;
 
   let member: any;
@@ -179,9 +185,10 @@ export default async function AdminMemberDetailPage({
   let activeCounselorAssign: any;
   let placedOutcomeRow: any;
   let courseEnrollment: any;
+  let pendingPlacementEvents: any;
 
   try {
-    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
+    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
       await Promise.all([
         prisma.user.findUnique({ where: { id }, select: fullMemberSelect }),
         ...sharedQueries(),
@@ -197,7 +204,7 @@ export default async function AdminMemberDetailPage({
 
     console.error('[admin/member-detail] falling back after optional data query failed', error);
 
-    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
+    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
       await Promise.all([
         prisma.user.findUnique({ where: { id }, select: fallbackMemberSelect }),
         ...sharedQueries(),
@@ -477,6 +484,31 @@ export default async function AdminMemberDetailPage({
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 className="portal-section-heading">Placement record</h2>
+          {pendingPlacementEvents && pendingPlacementEvents.length > 0 && !placedOutcomeRow && (
+            <div
+              style={{
+                marginBottom: '1rem',
+                padding: '0.875rem 1rem',
+                background: 'rgba(255,193,7,0.08)',
+                border: '1px solid rgba(255,193,7,0.2)',
+                borderRadius: '0.75rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)' }}>pending</span>
+                <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Pending member-reported placement</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                This member self-reported accepting a job offer on{' '}
+                {new Date(pendingPlacementEvents[0].createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+                . Review and verify to create an official placement record.
+              </p>
+            </div>
+          )}
           <AdminMemberPlacedOutcomeForm
             memberId={member.id}
             initial={

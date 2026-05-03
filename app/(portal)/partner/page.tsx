@@ -63,8 +63,9 @@ export default async function PartnerDashboardPage() {
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
 
-  const { members, pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(ctx.partnerId);
   const memberIds = members.map((m) => m.id);
+  const pendingPlacementCount = pendingPlacements.length;
 
   /** Distinct referred members who have at least one intake application tied to this partner link (apples-to-apples vs. total referrals). */
   const referredMembersAppliedViaLink =
@@ -111,11 +112,13 @@ export default async function PartnerDashboardPage() {
 
   const nextAction = total === 0
     ? { label: 'Share workforceap.org/apply with your community', href: '/partner/guide', tip: 'Ask applicants to list your organization when asked how they heard about us.' }
-    : placements === 0 && inTraining > 0
-      ? { label: `${inTraining} member${inTraining !== 1 ? 's' : ''} in training — encourage completion`, href: '/partner', tip: 'Check in with members who are close to finishing their program.' }
-      : placements > 0
-        ? { label: 'Celebrate placements, share more referrals', href: '/partner/guide', tip: 'Your referrals are landing jobs. Keep the pipeline full.' }
-        : { label: 'Review member progress', href: '/partner', tip: 'Members are moving through the journey — track their outcomes.' };
+    : pendingPlacementCount > 0
+      ? { label: `${pendingPlacementCount} member${pendingPlacementCount !== 1 ? 's' : ''} reported a job offer — review needed`, href: '/partner/outcomes', tip: 'WorkforceAP is reviewing these offers. You will see verified placements once confirmed.' }
+      : placements === 0 && inTraining > 0
+        ? { label: `${inTraining} member${inTraining !== 1 ? 's' : ''} in training — encourage completion`, href: '/partner', tip: 'Check in with members who are close to finishing their program.' }
+        : placements > 0
+          ? { label: 'Celebrate placements, share more referrals', href: '/partner/guide', tip: 'Your referrals are landing jobs. Keep the pipeline full.' }
+          : { label: 'Review member progress', href: '/partner', tip: 'Members are moving through the journey — track their outcomes.' };
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 
@@ -192,7 +195,7 @@ export default async function PartnerDashboardPage() {
         <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
         <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
         <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
-        <PortalKpiCard accent="accent" label="Needs Review" value={needsReviewCount} hint="Applied/enrolled or stalled" />
+        <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
       </div>
 
       {/* Next Step Guidance */}

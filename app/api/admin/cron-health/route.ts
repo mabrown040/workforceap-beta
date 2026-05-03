@@ -18,23 +18,25 @@ export async function GET() {
   }
 
   const cronSecret = process.env.CRON_SECRET;
+  const cronSecretConfigured = Boolean(cronSecret && cronSecret.length >= 16);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org';
 
   // Check vercel.json for crons array
   let vercelCronsConfigured = false;
   try {
     const vercelConfig = await import('@/vercel.json');
-    vercelCronsConfigured = Array.isArray(vercelConfig?.crons) && vercelConfig.crons.length > 0;
+    const cfg = vercelConfig.default ?? vercelConfig;
+    vercelCronsConfigured = Array.isArray(cfg?.crons) && cfg.crons.length > 0;
   } catch {
     vercelCronsConfigured = false;
   }
 
   return NextResponse.json({
-    cronSecretConfigured: Boolean(cronSecret && cronSecret.length >= 16),
+    cronSecretConfigured,
     cronSecretLength: cronSecret ? `${cronSecret.length} chars` : 'not set',
     siteUrl,
     vercelCronsConfigured,
-    nextSteps: !cronSecret
+    nextSteps: !cronSecretConfigured
       ? 'Add CRON_SECRET to Vercel environment variables (Production). Value must be at least 16 chars. Redeploy required.'
       : vercelCronsConfigured
         ? 'All green. Crons should run on schedule.'

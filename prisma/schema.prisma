@@ -191,6 +191,11 @@ model Profile {
   smsOptIn              Boolean   @default(false) @map("sms_opt_in")
   financialAidInterest  Boolean?  @map("financial_aid_interest")
 
+  // WIOA grant reporting — self-reported employment barriers and status at enroll
+  hasEmploymentBarrier     Boolean  @default(false) @map("has_employment_barrier")
+  barrierTypes             String[] @default([]) @map("barrier_types")
+  employmentStatusAtEnroll String?  @map("employment_status_at_enroll")
+
   // Minor (under 18) data handling for high school partnerships
   isMinor              Boolean   @default(false) @map("is_minor")
   parentGuardianName   String?   @map("parent_guardian_name")
@@ -1060,27 +1065,27 @@ model Invitation {
 // --- Employer Portal & Job Management ---
 
 model Employer {
-  id                    String    @id @default(uuid())
-  organizationId        String    @map("organization_id")
-  userId                String    @unique @map("user_id")
-  tier                  String    @default("basic") @map("tier")
-  companyName           String    @map("company_name")
-  companyWebsite        String?   @map("company_website")
-  companyDescription    String?   @map("company_description")
-  companySize           String?   @map("company_size")
-  industry              String?   @map("industry")
-  logoUrl               String?   @map("logo_url")
-  contactName           String    @map("contact_name")
-  contactEmail          String    @map("contact_email")
-  contactPhone          String?   @map("contact_phone")
-  status                   String   @default("active") // active, inactive
-  hiringPipelineActive     Boolean  @default(false)   @map("hiring_pipeline_active")
-  targetCertifications     String[] @default([])      @map("target_certifications")
-  placementAgreementSigned Boolean  @default(false)   @map("placement_agreement_signed")
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-  onboardingCompletedAt DateTime? @map("onboarding_completed_at")
-  tourCompletedAt       DateTime? @map("tour_completed_at")
+  id                       String    @id @default(uuid())
+  organizationId           String    @map("organization_id")
+  userId                   String    @unique @map("user_id")
+  tier                     String    @default("basic") @map("tier")
+  companyName              String    @map("company_name")
+  companyWebsite           String?   @map("company_website")
+  companyDescription       String?   @map("company_description")
+  companySize              String?   @map("company_size")
+  industry                 String?   @map("industry")
+  logoUrl                  String?   @map("logo_url")
+  contactName              String    @map("contact_name")
+  contactEmail             String    @map("contact_email")
+  contactPhone             String?   @map("contact_phone")
+  status                   String    @default("active") // active, inactive
+  hiringPipelineActive     Boolean   @default(false) @map("hiring_pipeline_active")
+  targetCertifications     String[]  @default([]) @map("target_certifications")
+  placementAgreementSigned Boolean   @default(false) @map("placement_agreement_signed")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+  onboardingCompletedAt    DateTime? @map("onboarding_completed_at")
+  tourCompletedAt          DateTime? @map("tour_completed_at")
 
   user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)

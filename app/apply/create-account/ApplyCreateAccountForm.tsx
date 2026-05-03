@@ -12,6 +12,25 @@ import {
 } from '@/lib/apply/applyProgramStorage';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
+// Persists in-progress account form fields so back-button / refresh / accidental
+// navigation does not wipe what the user already typed. Cleared on successful
+// signup or when the user resets the flow. Password fields are intentionally
+// excluded for security.
+const APPLY_ACCOUNT_DRAFT_KEY = 'apply_account_draft';
+type AccountDraft = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  smsOptIn?: boolean;
+  contactConsent?: boolean;
+};
+
 const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'AL', name: 'Alabama' }, { abbr: 'AK', name: 'Alaska' }, { abbr: 'AZ', name: 'Arizona' },
   { abbr: 'AR', name: 'Arkansas' }, { abbr: 'CA', name: 'California' }, { abbr: 'CO', name: 'Colorado' },
@@ -52,6 +71,7 @@ export default function ApplyCreateAccountForm() {
   const [stateVal, setStateVal] = useState('');
   const [zip, setZip] = useState('');
   const [smsOptIn, setSmsOptIn] = useState(false);
+  const [contactConsent, setContactConsent] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +87,9 @@ export default function ApplyCreateAccountForm() {
     zip?: string;
     password?: string;
     confirmPassword?: string;
+    contactConsent?: string;
   }>({});
+  const errorSummaryRef = useRef<HTMLDivElement | null>(null);
   const completedRef = useRef(false);
   const dropoffRef = useRef({ startedFields: 0, smsOptIn: false, program_slugs: null as string[] | null });
 
@@ -79,6 +101,60 @@ export default function ApplyCreateAccountForm() {
     const qEmail = searchParams.get('email')?.trim();
     if (qEmail) setEmail(qEmail);
   }, [searchParams]);
+
+  // Hydrate previously-typed values so back-button / refresh / tab restore
+  // does not erase what the user already entered.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = sessionStorage.getItem(APPLY_ACCOUNT_DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw) as AccountDraft;
+      if (draft.firstName) setFirstName(draft.firstName);
+      if (draft.lastName) setLastName(draft.lastName);
+      if (draft.email) setEmail(draft.email);
+      if (draft.phone) setPhone(draft.phone);
+      if (draft.addressLine1) {
+        setAddressLine1(draft.addressLine1);
+        setOptionalAddressOpen(true);
+      }
+      if (draft.addressLine2) setAddressLine2(draft.addressLine2);
+      if (draft.city) {
+        setCity(draft.city);
+        setOptionalAddressOpen(true);
+      }
+      if (draft.state) setStateVal(draft.state);
+      if (draft.zip) setZip(draft.zip);
+      if (typeof draft.smsOptIn === 'boolean') setSmsOptIn(draft.smsOptIn);
+      if (typeof draft.contactConsent === 'boolean') setContactConsent(draft.contactConsent);
+    } catch {
+      /* ignore corrupt draft */
+    }
+  }, []);
+
+  // Persist non-sensitive draft on every change. Passwords are intentionally
+  // excluded.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const draft: AccountDraft = {
+      firstName,
+      lastName,
+      email,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state: stateVal,
+      zip,
+      smsOptIn,
+      contactConsent,
+    };
+    try {
+      sessionStorage.setItem(APPLY_ACCOUNT_DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      /* storage may be full or disabled — non-fatal */
+    }
+  }, [firstName, lastName, email, phone, addressLine1, addressLine2, city, stateVal, zip, smsOptIn, contactConsent]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -169,6 +245,10 @@ export default function ApplyCreateAccountForm() {
     if (password.length >= 8 && confirmPassword !== password) {
       nextFieldErrors.confirmPassword = 'Passwords do not match.';
     }
+    if (!contactConsent) {
+      nextFieldErrors.contactConsent =
+        'Please confirm you agree to be contacted about your application so a counselor can follow up.';
+    }
 
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
@@ -178,6 +258,12 @@ export default function ApplyCreateAccountForm() {
           ? 'Please add a phone number to continue.'
           : 'Please fix the highlighted fields and try again.'
       );
+      // Move focus to the error summary so screen readers announce the issue
+      // and keyboard users can find it without scrolling.
+      requestAnimationFrame(() => {
+        errorSummaryRef.current?.focus();
+        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
       return;
     }
 
@@ -228,15 +314,47 @@ export default function ApplyCreateAccountForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong — please try again.');
-        trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: data.error ?? 'unknown_error' });
+        // Map common server-side errors to the specific field that produced
+        // them so users can fix the issue inline instead of guessing.
+        const serverMessage: string = typeof data?.error === 'string' ? data.error : '';
+        const lower = serverMessage.toLowerCase();
+        const serverFieldErrors: typeof fieldErrors = {};
+        if (lower.includes('already exists') || lower.includes('already registered')) {
+          serverFieldErrors.email = serverMessage;
+        } else if (lower.includes('password')) {
+          serverFieldErrors.password = serverMessage;
+        } else if (lower.includes('phone')) {
+          serverFieldErrors.phone = serverMessage;
+        } else if (lower.includes('email')) {
+          serverFieldErrors.email = serverMessage;
+        } else if (lower.includes('first name')) {
+          serverFieldErrors.firstName = serverMessage;
+        } else if (lower.includes('last name')) {
+          serverFieldErrors.lastName = serverMessage;
+        }
+        if (Object.keys(serverFieldErrors).length > 0) {
+          setFieldErrors((prev) => ({ ...prev, ...serverFieldErrors }));
+        }
+        setError(
+          serverMessage ||
+            'We could not finish creating your account. Please review your information and try again, or call (512) 777-1808.'
+        );
+        trackApplyFunnel(3, 'account_create_error', {
+          program_slugs: programRankedSlugs,
+          error_message: serverMessage || 'unknown_error',
+        });
         setLoading(false);
+        requestAnimationFrame(() => {
+          errorSummaryRef.current?.focus();
+          errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        });
         return;
       }
 
       sessionStorage.removeItem(APPLY_PROGRAM_SLUG_KEY);
       sessionStorage.removeItem(APPLY_PROGRAM_RANKED_KEY);
       sessionStorage.removeItem('apply_eligibility');
+      sessionStorage.removeItem(APPLY_ACCOUNT_DRAFT_KEY);
       try {
         sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
       } catch {
@@ -256,9 +374,15 @@ export default function ApplyCreateAccountForm() {
       const dest = typeof data.redirectTo === 'string' && data.redirectTo.startsWith('/') ? data.redirectTo : '/dashboard';
       window.location.href = dest;
     } catch {
-      setError('Something went wrong while creating your account. Please try again, or call (512) 777-1808 if you need help finishing.');
+      setError(
+        'We could not reach the server to finish creating your account. Check your internet connection and try again, or call (512) 777-1808 if it keeps failing.'
+      );
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });
       setLoading(false);
+      requestAnimationFrame(() => {
+        errorSummaryRef.current?.focus();
+        errorSummaryRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
     }
   };
 
@@ -291,7 +415,11 @@ export default function ApplyCreateAccountForm() {
   }
 
   if (init === 'loading') {
-    return <p>Loading…</p>;
+    return (
+      <p role="status" aria-live="polite">
+        Loading your saved program choices…
+      </p>
+    );
   }
 
   if (init === 'missing') {
@@ -380,7 +508,7 @@ export default function ApplyCreateAccountForm() {
             aria-required="true"
             aria-invalid={!!fieldErrors.firstName}
           />
-          {fieldErrors.firstName ? <p className="form-error">{fieldErrors.firstName}</p> : null}
+          {fieldErrors.firstName ? <p className="form-error" role="alert">{fieldErrors.firstName}</p> : null}
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
           <label htmlFor="lastName">Last Name *</label>
@@ -397,7 +525,7 @@ export default function ApplyCreateAccountForm() {
             aria-required="true"
             aria-invalid={!!fieldErrors.lastName}
           />
-          {fieldErrors.lastName ? <p className="form-error">{fieldErrors.lastName}</p> : null}
+          {fieldErrors.lastName ? <p className="form-error" role="alert">{fieldErrors.lastName}</p> : null}
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
@@ -415,9 +543,10 @@ export default function ApplyCreateAccountForm() {
             required
             aria-required="true"
             aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? 'email-error' : 'email-hint'}
           />
-          <p className="apply-field-hint">Use an email you can check today in case we need verification.</p>
-          {fieldErrors.email ? <p className="form-error">{fieldErrors.email}</p> : null}
+          <p id="email-hint" className="apply-field-hint">Use an email you can check today in case we need verification.</p>
+          {fieldErrors.email ? <p id="email-error" className="form-error" role="alert">{fieldErrors.email}</p> : null}
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
           <label htmlFor="phone">Phone *</label>
@@ -431,10 +560,12 @@ export default function ApplyCreateAccountForm() {
             }}
             autoComplete="tel"
             required
+            aria-required="true"
             aria-invalid={!!fieldErrors.phone}
+            aria-describedby={fieldErrors.phone ? 'phone-error' : 'phone-hint'}
           />
-          <p className="apply-field-hint">We use this for counselor follow-up and application updates.</p>
-          {fieldErrors.phone ? <p className="form-error">{fieldErrors.phone}</p> : null}
+          <p id="phone-hint" className="apply-field-hint">We use this for counselor follow-up and application updates.</p>
+          {fieldErrors.phone ? <p id="phone-error" className="form-error" role="alert">{fieldErrors.phone}</p> : null}
         </div>
       </div>
       <details
@@ -532,11 +663,20 @@ export default function ApplyCreateAccountForm() {
         </div>
       </details>
       <div className="form-group">
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-          <input type="checkbox" checked={smsOptIn} onChange={(e) => setSmsOptIn(e.target.checked)} />
-          Text me updates about my application (optional)
+        <label htmlFor="smsOptIn" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+          <input
+            id="smsOptIn"
+            type="checkbox"
+            checked={smsOptIn}
+            onChange={(e) => setSmsOptIn(e.target.checked)}
+            aria-describedby="sms-opt-in-hint"
+            style={{ marginTop: '0.2rem' }}
+          />
+          <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+            <strong>Text me updates</strong> about my application (optional). Separate from email follow-up — you can opt in or out independently.
+          </span>
         </label>
-        <p style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Message frequency varies. Reply STOP to cancel, HELP for help. Msg &amp; data rates may apply.</p>
+        <p id="sms-opt-in-hint" style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Message frequency varies. Reply STOP to cancel, HELP for help. Msg &amp; data rates may apply.</p>
       </div>
       <div className="form-group">
         <label htmlFor="password">Password *</label>
@@ -553,6 +693,7 @@ export default function ApplyCreateAccountForm() {
             required
             aria-required="true"
             aria-invalid={!!fieldErrors.password}
+            aria-describedby={fieldErrors.password ? 'password-error' : 'password-hint'}
             style={{ paddingRight: '2.5rem' }}
           />
           <button
@@ -566,8 +707,8 @@ export default function ApplyCreateAccountForm() {
             </span>
           </button>
         </div>
-        <p className="apply-field-hint">Use at least 8 characters. You&rsquo;ll use this password to come back and check your status.</p>
-        {fieldErrors.password ? <p className="form-error">{fieldErrors.password}</p> : null}
+        <p id="password-hint" className="apply-field-hint">Use at least 8 characters. You&rsquo;ll use this password to come back and check your status.</p>
+        {fieldErrors.password ? <p id="password-error" className="form-error" role="alert">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">
         <label htmlFor="confirmPassword">Confirm Password *</label>
@@ -584,6 +725,7 @@ export default function ApplyCreateAccountForm() {
             required
             aria-required="true"
             aria-invalid={!!fieldErrors.confirmPassword}
+            aria-describedby={fieldErrors.confirmPassword ? 'confirm-password-error' : undefined}
             style={{ paddingRight: '2.5rem' }}
           />
           <button
@@ -597,12 +739,93 @@ export default function ApplyCreateAccountForm() {
             </span>
           </button>
         </div>
-        {fieldErrors.confirmPassword ? <p className="form-error">{fieldErrors.confirmPassword}</p> : null}
+        {fieldErrors.confirmPassword ? <p id="confirm-password-error" className="form-error" role="alert">{fieldErrors.confirmPassword}</p> : null}
       </div>
-      {error && <p className="form-error" role="alert">{error}</p>}
-      <button type="submit" className="btn btn-primary btn-submit-full" disabled={loading}>
-        {loading ? 'Creating your account…' : 'Save my spot and create login'}
+
+      {/* Consent — each consent is its own checkbox with its own clear label.
+          Required contact consent is unbundled from the optional SMS consent. */}
+      <fieldset
+        className="form-group"
+        style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '0.875rem 1rem' }}
+      >
+        <legend style={{ padding: '0 0.4rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          Consent
+        </legend>
+        <label htmlFor="contactConsent" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
+          <input
+            id="contactConsent"
+            type="checkbox"
+            checked={contactConsent}
+            onChange={(e) => {
+              setContactConsent(e.target.checked);
+              if (fieldErrors.contactConsent) setFieldErrors((f) => ({ ...f, contactConsent: undefined }));
+            }}
+            required
+            aria-required="true"
+            aria-invalid={!!fieldErrors.contactConsent}
+            aria-describedby={fieldErrors.contactConsent ? 'contact-consent-error' : 'contact-consent-hint'}
+            style={{ marginTop: '0.2rem' }}
+          />
+          <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+            <strong>I agree to be contacted</strong> by WorkforceAP about my application by email or phone. *
+          </span>
+        </label>
+        <p id="contact-consent-hint" className="apply-field-hint" style={{ margin: '0 0 0.5rem 0' }}>
+          Required so a counselor can follow up about your next step. See our{' '}
+          <Link href="/privacy" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>Privacy Policy</Link>.
+        </p>
+        {fieldErrors.contactConsent ? (
+          <p id="contact-consent-error" className="form-error" role="alert" style={{ marginBottom: '0.5rem' }}>
+            {fieldErrors.contactConsent}
+          </p>
+        ) : null}
+      </fieldset>
+
+      {error && (
+        <div
+          ref={errorSummaryRef}
+          tabIndex={-1}
+          role="alert"
+          aria-live="assertive"
+          className="form-error"
+          style={{
+            padding: '0.75rem 1rem',
+            background: 'rgba(173,44,77,0.08)',
+            border: '1px solid rgba(173,44,77,0.25)',
+            borderRadius: '0.5rem',
+            marginTop: '0.75rem',
+          }}
+        >
+          {error}
+        </div>
+      )}
+      <button
+        type="submit"
+        className="btn btn-primary btn-submit-full"
+        disabled={loading}
+        aria-busy={loading}
+      >
+        {loading ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: '1rem',
+                height: '1rem',
+                border: '2px solid currentColor',
+                borderRightColor: 'transparent',
+                borderRadius: '50%',
+                display: 'inline-block',
+                animation: 'apply-spin 0.7s linear infinite',
+              }}
+            />
+            Creating your account…
+          </span>
+        ) : (
+          'Save my spot and create login'
+        )}
       </button>
+      <style>{`@keyframes apply-spin { to { transform: rotate(360deg); } }`}</style>
       <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
         You can come back later to finish your profile.
       </p>

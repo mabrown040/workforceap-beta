@@ -5,15 +5,11 @@ import { sendInterviewPrepBundleEmail } from '@/lib/email';
 
 /**
  * POST /api/member/prep-bundle/send
- * Body: { memberEmail?: string }
- * Sends the member's AI tool results as a pre-interview prep bundle email.
+ * Sends the member's AI tool results as a pre-interview prep bundle email to their account email.
  */
-export async function POST(request: Request) {
+export async function POST() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let body: { memberEmail?: string } = {};
-  try { body = await request.json(); } catch { /* no body ok */ }
 
   const bundle = await fetchInterviewPrepBundle(user.id);
   if (bundle.empty) {
@@ -23,7 +19,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const email = body.memberEmail?.trim() || user.email || '';
+  const email = user.email?.trim() || '';
   if (!email) {
     return NextResponse.json({ error: 'No email address available.' }, { status: 400 });
   }
@@ -39,25 +35,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true, sentTo: email, itemCount: bundle.items.length });
-}
-
-/**
- * GET /api/member/prep-bundle
- * Returns the bundle data for display (no email sent).
- */
-export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const bundle = await fetchInterviewPrepBundle(user.id);
-  return NextResponse.json({
-    items: bundle.items.map(i => ({
-      toolType: i.toolType,
-      title: i.title,
-      content: i.content,
-      createdAt: i.createdAt.toISOString(),
-    })),
-    generatedAt: bundle.generatedAt.toISOString(),
-    empty: bundle.empty,
-  });
 }

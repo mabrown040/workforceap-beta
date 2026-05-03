@@ -4,6 +4,26 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 
+const BARRIER_OPTIONS = [
+  { value: 'justice_involved', label: 'Justice-involved background' },
+  { value: 'employment_gap', label: 'Significant employment gap (1+ year)' },
+  { value: 'limited_work_history', label: 'Limited or no work history' },
+  { value: 'disability', label: 'Disability affecting employment' },
+  { value: 'housing_instability', label: 'Housing instability' },
+  { value: 'domestic_violence', label: 'Domestic violence situation' },
+  { value: 'homelessness', label: 'Homelessness' },
+  { value: 'substance_recovery', label: 'Substance recovery' },
+  { value: 'other', label: 'Other' },
+] as const;
+
+const EMPLOYMENT_STATUS_OPTIONS = [
+  { value: 'employed_full_time', label: 'Employed full-time' },
+  { value: 'employed_part_time', label: 'Employed part-time' },
+  { value: 'unemployed', label: 'Unemployed' },
+  { value: 'underemployed', label: 'Underemployed (working below your skill level or hours)' },
+  { value: 'not_looking', label: 'Not currently looking' },
+] as const;
+
 type DashboardProfileFormProps = {
   defaultFirstName: string;
   defaultLastName: string;
@@ -16,6 +36,9 @@ type DashboardProfileFormProps = {
   defaultLinkedin: string;
   defaultBio: string;
   defaultFinancialAidInterest?: boolean | null;
+  defaultHasEmploymentBarrier?: boolean;
+  defaultBarrierTypes?: string[];
+  defaultEmploymentStatusAtEnroll?: string | null;
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
 };
@@ -31,6 +54,9 @@ export default function DashboardProfileForm({
   defaultReferralSource,
   defaultLinkedin,
   defaultBio,
+  defaultHasEmploymentBarrier = false,
+  defaultBarrierTypes = [],
+  defaultEmploymentStatusAtEnroll = null,
   starterProfileReviewRequired = false,
   starterProfileMissingFields = [],
 }: DashboardProfileFormProps) {
@@ -47,6 +73,15 @@ export default function DashboardProfileForm({
   const [referralSource, setReferralSource] = useState(defaultReferralSource);
   const [linkedin, setLinkedin] = useState(defaultLinkedin);
   const [bio, setBio] = useState(defaultBio);
+  const [hasEmploymentBarrier, setHasEmploymentBarrier] = useState(defaultHasEmploymentBarrier);
+  const [barrierTypes, setBarrierTypes] = useState<string[]>(defaultBarrierTypes);
+  const [employmentStatusAtEnroll, setEmploymentStatusAtEnroll] = useState<string>(defaultEmploymentStatusAtEnroll ?? '');
+
+  const toggleBarrierType = (value: string) => {
+    setBarrierTypes((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +102,9 @@ export default function DashboardProfileForm({
           referralSource: referralSource.trim() || null,
           linkedin: linkedin.trim() || null,
           bio: bio.trim() || null,
+          hasEmploymentBarrier: barrierTypes.length > 0,
+          barrierTypes,
+          employmentStatusAtEnroll: employmentStatusAtEnroll || null,
         }),
       });
       const data = await res.json();
@@ -188,6 +226,88 @@ export default function DashboardProfileForm({
             value={bio}
             onChange={(e) => setBio(e.target.value)}
           />
+        </div>
+
+        {/* Employment background section */}
+        <div
+          style={{
+            borderTop: '1px solid var(--outline-variant)',
+            paddingTop: '1.25rem',
+            display: 'grid',
+            gap: '1rem',
+          }}
+        >
+          <h3
+            style={{
+              fontSize: '0.9375rem',
+              fontWeight: 700,
+              color: 'var(--color-on-surface)',
+              margin: 0,
+            }}
+          >
+            Employment background
+          </h3>
+
+          <div className="form-group">
+            <label htmlFor="employmentStatusAtEnroll">Employment status at enrollment</label>
+            <select
+              id="employmentStatusAtEnroll"
+              value={employmentStatusAtEnroll}
+              onChange={(e) => setEmploymentStatusAtEnroll(e.target.value)}
+            >
+              <option value="">Select…</option>
+              {EMPLOYMENT_STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <p
+              style={{
+                fontSize: '0.875rem',
+                color: 'var(--color-on-surface-variant)',
+                margin: '0 0 0.75rem',
+                lineHeight: 1.6,
+              }}
+            >
+              Some members face extra barriers to employment. Checking these helps us match you with
+              the right support — it&apos;s completely optional.
+            </p>
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              {BARRIER_OPTIONS.map((opt) => (
+                <label
+                  key={opt.value}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.625rem',
+                    fontSize: '0.875rem',
+                    color: 'var(--color-on-surface)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    value={opt.value}
+                    checked={barrierTypes.includes(opt.value)}
+                    onChange={() => toggleBarrierType(opt.value)}
+                    style={{ flexShrink: 0 }}
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+            {/* Keep hasEmploymentBarrier in sync with checkbox selection */}
+            <input
+              type="hidden"
+              name="hasEmploymentBarrier"
+              value={barrierTypes.length > 0 ? 'true' : 'false'}
+              readOnly
+            />
+          </div>
         </div>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}

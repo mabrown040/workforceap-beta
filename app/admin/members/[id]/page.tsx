@@ -354,6 +354,37 @@ export default async function AdminMemberDetailPage({
           </p>
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
+          <p>
+            <strong>Employment status at enrollment:</strong>{' '}
+            {member.profile?.employmentStatusAtEnroll
+              ? member.profile.employmentStatusAtEnroll.replace(/_/g, ' ')
+              : '—'}
+          </p>
+          {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes && member.profile.barrierTypes.length > 0 && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <strong>Employment barriers:</strong>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.375rem' }}>
+                {(member.profile.barrierTypes as string[]).map((bt: string) => (
+                  <span
+                    key={bt}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.2rem 0.625rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
+                      color: '#92400e',
+                      border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                    }}
+                  >
+                    {bt.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {wioaSnap && (

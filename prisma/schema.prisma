@@ -1073,7 +1073,10 @@ model Employer {
   contactName           String    @map("contact_name")
   contactEmail          String    @map("contact_email")
   contactPhone          String?   @map("contact_phone")
-  status                String    @default("active") // active, inactive
+  status                   String   @default("active") // active, inactive
+  hiringPipelineActive     Boolean  @default(false)   @map("hiring_pipeline_active")
+  targetCertifications     String[] @default([])      @map("target_certifications")
+  placementAgreementSigned Boolean  @default(false)   @map("placement_agreement_signed")
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
   onboardingCompletedAt DateTime? @map("onboarding_completed_at")

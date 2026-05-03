@@ -38,10 +38,14 @@ export async function GET(req: NextRequest) {
     // Counselors: verify assignment
     if (counselor && !admin) {
       const assignment = await prisma.counselorAssignment.findFirst({
-        where: { memberId: targetUserId, active: true },
-        include: { counselor: { select: { userId: true } } },
+        where: {
+          memberId: targetUserId,
+          active: true,
+          counselor: { userId: user.id, active: true },
+        },
+        select: { id: true },
       });
-      if (!assignment || assignment.counselor.userId !== user.id) {
+      if (!assignment) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     }

@@ -99,8 +99,13 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
         if (recipients.length > 0) {
           await sendVoiceCoachArtifactEmail({
             to: recipients,
-            memberName: dbUser?.fullName?.trim() || user.email || name.trim() || 'WorkforceAP member',
-            memberEmail: dbUser?.email?.trim() || user.email || null,
+            memberName:
+              dbUser?.fullName?.trim() ||
+              name.trim() ||
+              (onBehalf.subjectUserId === user.id ? user.email : null) ||
+              'WorkforceAP member',
+            memberEmail:
+              dbUser?.email?.trim() || (onBehalf.subjectUserId === user.id ? user.email : null) || null,
             coachLabel: 'Elevator Pitch Builder',
             artifactTitle: 'Generated pitch',
             artifactBody: trimmedPitch,

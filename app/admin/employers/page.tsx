@@ -13,6 +13,23 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
 
+function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
+  label: string;
+  color: string;
+  bg: string;
+} {
+  if (placementAgreementSigned && hiringPipelineActive) {
+    return { label: 'Strategic Hiring Partner', color: '#7b1fa2', bg: 'rgba(123,31,162,0.10)' };
+  }
+  if (placementAgreementSigned) {
+    return { label: 'Hiring Partner', color: '#1565c0', bg: 'rgba(21,101,192,0.10)' };
+  }
+  if (hiringPipelineActive) {
+    return { label: 'Active Pipeline', color: '#2e7d32', bg: 'rgba(46,125,50,0.10)' };
+  }
+  return { label: 'Standard', color: 'var(--color-on-surface-variant)', bg: 'var(--surface-container)' };
+}
+
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin - Employers',
   description: 'Manage employers.',
@@ -61,6 +78,7 @@ export default async function AdminEmployersPage() {
                   <th>Status</th>
                   <th>Jobs</th>
                   <th>Tier</th>
+                  <th>Partnership</th>
                   <th>Actions</th>
                   {superAdmin && <th>Help</th>}
                 </tr>
@@ -73,7 +91,9 @@ export default async function AdminEmployersPage() {
                         <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
                           {(e.companyName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
                         </div>
-                        <strong style={{ color: 'var(--color-on-surface)' }}>{e.companyName}</strong>
+                        <Link href={`/admin/employers/${e.id}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
+                          {e.companyName}
+                        </Link>
                       </div>
                     </td>
                     <td>
@@ -103,6 +123,16 @@ export default async function AdminEmployersPage() {
                     </td>
                     <td>
                       <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
+                    </td>
+                    <td>
+                      {(() => {
+                        const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
+                        return (
+                          <span style={{ padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.7rem', background: pt.bg, color: pt.color, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            {pt.label}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td>
                       <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />
@@ -155,6 +185,17 @@ export default async function AdminEmployersPage() {
                       <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>
                     </div>
                   </div>
+                  {/* Partnership tier row */}
+                  {(() => {
+                    const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
+                    return (
+                      <div style={{ paddingTop: '0.375rem' }}>
+                        <span style={{ padding: '0.15rem 0.45rem', borderRadius: '999px', fontSize: '0.7rem', background: pt.bg, color: pt.color, fontWeight: 600 }}>
+                          {pt.label}
+                        </span>
+                      </div>
+                    );
+                  })()}
                   {/* Meta + actions row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
                     <div style={{ minWidth: 0 }}>

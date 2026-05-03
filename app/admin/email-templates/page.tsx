@@ -116,10 +116,10 @@ function buildSamples(): TemplateSample[] {
     },
   };
 
-  return CRON_REGISTRY.map(cron => {
+  return CRON_REGISTRY.flatMap((cron) => {
     const s = cMap[cron.id];
-    if (!s) return null;
-    return {
+    if (!s) return [];
+    return [{
       cronId: cron.id,
       cronName: cron.name,
       category: cron.category,
@@ -131,8 +131,8 @@ function buildSamples(): TemplateSample[] {
         ctaText: s.ctaText,
         ctaUrl: s.ctaUrl,
       }),
-    };
-  }).filter((s): s is TemplateSample => s !== null);
+      }];
+  });
 }
 
 export default async function AdminEmailTemplatesPage() {

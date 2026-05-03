@@ -75,6 +75,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         select: {
           resumeOriginalPath: true,
           resumeEnhancedPath: true,
+          hasEmploymentBarrier: true,
+          barrierTypes: true,
         },
       },
     },
@@ -252,6 +254,30 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 <StatusBadge label={enrollmentBadge.label} variant={enrollmentBadgeVariant} />
               </div>
             </div>
+
+            {/* Employment barrier chips */}
+            {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginBottom: '0.875rem' }}>
+                {member.profile.barrierTypes.map((bt) => (
+                  <span
+                    key={bt}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.15rem 0.5rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
+                      color: '#92400e',
+                      border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                    }}
+                  >
+                    {bt.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* Action buttons */}
             <div style={{ display: 'flex', gap: '0.625rem' }}>
@@ -562,6 +588,30 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </Link>
             }
           />
+
+          {/* Employment barrier chips — desktop */}
+          {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', margin: '1rem 0' }}>
+              {member.profile.barrierTypes.map((bt) => (
+                <span
+                  key={bt}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
+                    color: '#92400e',
+                    border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                  }}
+                >
+                  {bt.replace(/_/g, ' ')}
+                </span>
+              ))}
+            </div>
+          )}
 
           {wioaSnap ? (
             <section style={{ marginTop: '1.5rem' }}>

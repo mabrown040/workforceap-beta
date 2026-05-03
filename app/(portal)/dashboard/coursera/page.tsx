@@ -165,6 +165,28 @@ export default async function CourseraIntegrationPage() {
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                {completedCount >= program.courses.length && (
+                  <div
+                    style={{
+                      width: '100%',
+                      background: 'rgba(74,155,79,0.08)',
+                      border: '1px solid rgba(74,155,79,0.2)',
+                      borderRadius: '0.75rem',
+                      padding: '0.875rem 1rem',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.375rem' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', '--ms-fill': 1 }}>
+                        workspace_premium
+                      </span>
+                      <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>All courses complete</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                      Certificates from completed courses sync automatically to your profile. View them in <Link href="/dashboard/certifications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>My Certificates</Link>. Official PDFs are issued by Coursera and must be downloaded from their platform.
+                    </p>
+                  </div>
+                )}
                 <a
                   href="/api/member/coursera/launch"
                   target="_blank"

@@ -36,7 +36,7 @@ const JOURNEY_STEPS = [
   {
     num: 3,
     title: 'Start Coursera training',
-    desc: 'Open your assigned Coursera courses, finish them in order, and earn the certificates tied to your program.',
+    desc: 'Open your assigned Coursera courses and finish them in order. Certificates from Coursera sync automatically to your profile as you complete each course.',
     href: '/dashboard/coursera',
     cta: 'Open Coursera',
     icon: 'school',

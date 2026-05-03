@@ -224,7 +224,7 @@ export default async function TrainingPage() {
               </p>
               <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                 <li>Start with your current Coursera course.</li>
-                <li>Track certificates in your vault as you complete milestones.</li>
+                <li>Certificates from Coursera appear automatically in your vault as you complete courses.</li>
                 <li>Use readiness + AI tools alongside training so job help starts earlier.</li>
               </ul>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem', marginTop: '1rem' }}>

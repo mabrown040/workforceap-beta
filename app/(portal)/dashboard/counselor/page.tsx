@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
+import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
@@ -54,7 +55,7 @@ export default async function CounselorPage() {
         {pastSessions.map((session) => {
           const steps = parseActionPlan(session.output as string | null);
           return (
-            <div key={session.id} className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+          <Link key={session.id} href={`/dashboard/counselor/${session.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: steps.length > 0 ? '0.5rem' : 0 }}>
                 {new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>
@@ -65,7 +66,7 @@ export default async function CounselorPage() {
                   ))}
                 </ul>
               )}
-            </div>
+            </Link>
           );
         })}
       </div>

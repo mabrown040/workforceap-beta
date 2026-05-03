@@ -59,12 +59,17 @@ const VALUES = [
 ];
 
 export default async function WhatWeDoPage() {
-  const pipelineEmployers = await prisma.employer.findMany({
-    where: { hiringPipelineActive: true, status: 'active' },
-    select: { id: true, companyName: true, logoUrl: true, industry: true },
-    take: 12,
-    orderBy: { updatedAt: 'desc' },
-  });
+  let pipelineEmployers: { id: string; companyName: string; logoUrl: string | null; industry: string | null }[] = [];
+  try {
+    pipelineEmployers = await prisma.employer.findMany({
+      where: { hiringPipelineActive: true, status: 'active' },
+      select: { id: true, companyName: true, logoUrl: true, industry: true },
+      take: 12,
+      orderBy: { updatedAt: 'desc' },
+    });
+  } catch {
+    // Column may not exist yet if migration hasn't been applied — section renders empty until then
+  }
 
   return (
     <div className="inner-page">

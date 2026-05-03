@@ -64,9 +64,10 @@ export default function SuperAdminViewSwitcher({
     };
   }, [open, closeAll]);
 
-  const handleSelect = (path: string) => {
+  const handleSelect = (view: (typeof VIEWS)[number]) => {
+    const path = view.path;
     closeAll();
-    if (!pathname?.startsWith(path)) router.push(path);
+    if (pathname !== path && !pathname?.startsWith(`${path}/`)) router.push(path);
   };
 
   if (!isSuperAdmin) return null;
@@ -119,7 +120,7 @@ export default function SuperAdminViewSwitcher({
                   <button
                     type="button"
                     className={`super-admin-view-switcher__option${isActive ? ' active' : ''}`}
-                    onClick={() => handleSelect(view.path)}
+                    onClick={() => handleSelect(view)}
                   >
                     {view.label}
                   </button>

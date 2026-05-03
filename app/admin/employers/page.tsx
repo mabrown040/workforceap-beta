@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import CreateEmployerAccountClient from './CreateEmployerAccountClient';
 import OpenEmployerPortalButton from './OpenEmployerPortalButton';
 import ClearEmployerPortalContext from './ClearEmployerPortalContext';
+import EmployerStatusButton from './EmployerStatusButton';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
@@ -60,6 +61,7 @@ export default async function AdminEmployersPage() {
                   <th>Status</th>
                   <th>Jobs</th>
                   <th>Tier</th>
+                  <th>Actions</th>
                   {superAdmin && <th>Help</th>}
                 </tr>
               </thead>
@@ -101,6 +103,9 @@ export default async function AdminEmployersPage() {
                     </td>
                     <td>
                       <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
+                    </td>
+                    <td>
+                      <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />
                     </td>
                     {superAdmin && (
                       <td>
@@ -159,6 +164,7 @@ export default async function AdminEmployersPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
                       <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
+                      <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />
                       {superAdmin && (
                         <OpenEmployerPortalButton
                           employerId={e.id}

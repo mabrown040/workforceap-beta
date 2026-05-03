@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Mail, Send, Users, Clock, CheckCircle } from 'lucide-react';
@@ -28,7 +28,7 @@ type Subgroup = { id: string; name: string };
 type Program = { slug: string; title: string };
 type Partner = { id: string; name: string };
 
-export default function AdminInvitesPage() {
+function AdminInvitesPageContent() {
   const searchParams = useSearchParams();
   const [invites, setInvites] = useState<Invite[]>([]);
   const [subgroups, setSubgroups] = useState<Subgroup[]>([]);
@@ -190,5 +190,13 @@ export default function AdminInvitesPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function AdminInvitesPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}><p>Loading...</p></div>}>
+      <AdminInvitesPageContent />
+    </Suspense>
   );
 }

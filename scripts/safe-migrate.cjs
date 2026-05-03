@@ -38,8 +38,12 @@ if (first.status === 0) {
   process.exit(0);
 }
 
-// P3018 — a previous migration is stuck; resolve it and retry once
-const p3018Match = first.output.match(/Migration name:\s*(\S+)/);
+// P3018/P3009 — a previous migration is stuck; resolve it and retry once
+// P3018 format: "Migration name: <name>"
+// P3009 format: "The `<name>` migration started at ... failed"
+const p3018Match =
+  first.output.match(/Migration name:\s*(\S+)/) ||
+  first.output.match(/The `([^`]+)` migration started at .* failed/);
 if (p3018Match) {
   const stuck = p3018Match[1];
   console.log(`safe-migrate: P3018 detected for "${stuck}" — resolving and retrying`);

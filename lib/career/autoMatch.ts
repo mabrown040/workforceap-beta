@@ -77,7 +77,8 @@ export function scoreToRecommendationType(score: number): AutoMatchResult['recom
 export function scoreProgram(prog: Program, occTokens: Set<string>): AutoMatchResult {
   const keywords = buildProgramKeywords(prog);
   const hits = keywords.filter((kw) => occTokens.has(kw));
-  const score = keywords.length > 0 ? hits.length / keywords.length : 0;
+  const rawScore = keywords.length > 0 ? hits.length / keywords.length : 0;
+  const score = Math.round(rawScore * 1000) / 1000;
   const recommendationType = scoreToRecommendationType(score);
 
   const matchedTerms = hits.slice(0, 5);
@@ -89,7 +90,7 @@ export function scoreProgram(prog: Program, occTokens: Set<string>): AutoMatchRe
   return {
     programSlug: prog.slug,
     programTitle: prog.title,
-    score: Math.round(score * 1000) / 1000,
+    score,
     reason,
     recommendationType,
     experienceBand: 'beginner',

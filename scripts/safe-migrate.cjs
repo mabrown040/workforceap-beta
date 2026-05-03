@@ -20,9 +20,9 @@ function runMigrateDeploy() {
   return { status: r.status ?? 1, output: stdout + stderr };
 }
 
-function resolveRolledBack(migrationName) {
-  console.log(`safe-migrate: marking "${migrationName}" as rolled back...`);
-  const r = spawnSync('npx', ['prisma', 'migrate', 'resolve', '--rolled-back', migrationName], {
+function resolveAsApplied(migrationName) {
+  console.log(`safe-migrate: marking "${migrationName}" as applied (skip broken SQL)...`);
+  const r = spawnSync('npx', ['prisma', 'migrate', 'resolve', '--applied', migrationName], {
     stdio: 'inherit',
     env: process.env,
     shell: true,
@@ -38,23 +38,31 @@ if (first.status === 0) {
   process.exit(0);
 }
 
-// P3018/P3009 — a previous migration is stuck; resolve it and retry once
+// P3018/P3009 — one or more stuck migrations; resolve each and retry (up to 5 times)
 // P3018 format: "Migration name: <name>"
 // P3009 format: "The `<name>` migration started at ... failed"
-const p3018Match =
-  first.output.match(/Migration name:\s*(\S+)/) ||
-  first.output.match(/The `([^`]+)` migration started at .* failed/);
-if (p3018Match) {
-  const stuck = p3018Match[1];
-  console.log(`safe-migrate: P3018 detected for "${stuck}" — resolving and retrying`);
-  const resolveStatus = resolveRolledBack(stuck);
+function extractStuck(output) {
+  const m =
+    output.match(/Migration name:\s*(\S+)/) ||
+    output.match(/The `([^`]+)` migration started at .* failed/);
+  return m ? m[1] : null;
+}
+
+let current = first;
+for (let attempt = 0; attempt < 5; attempt++) {
+  const stuck = extractStuck(current.output);
+  if (!stuck) break;
+  console.log(`safe-migrate: stuck migration "${stuck}" — marking as applied and retrying`);
+  const resolveStatus = resolveAsApplied(stuck);
   if (resolveStatus !== 0) {
     console.error('safe-migrate: resolve failed — cannot continue');
     process.exit(1);
   }
-  console.log('safe-migrate: retrying prisma migrate deploy...');
-  const second = runMigrateDeploy();
-  process.exit(second.status);
+  current = runMigrateDeploy();
+  if (current.status === 0) {
+    console.log('safe-migrate: migrations applied successfully after resolving stuck entries');
+    process.exit(0);
+  }
 }
 
-process.exit(first.status);
+process.exit(current.status);

@@ -4,8 +4,6 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { uploadMockInterviewVideo } from '@/lib/portal/mockInterviewVideoUpload';
 import type { VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 
-import ToolFollowThrough from './ToolFollowThrough';
-
 function pickMimeType(): string | undefined {
   if (typeof MediaRecorder === 'undefined') return undefined;
   const candidates = [
@@ -296,7 +294,6 @@ export default function MockInterviewVideoRecorder({
           {uploadHint}
         </p>
       ) : null}
-      <ToolFollowThrough toolType="interview_practice" />
     </div>
   );
 }

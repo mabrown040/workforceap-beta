@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import ExportPdfButton from './ExportPdfButton';
-import ToolFollowThrough from './ToolFollowThrough';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 export type ResumeSectionAuditCard = {
@@ -262,8 +261,6 @@ export default function ResumeAnalysisPanel({
             </div>
           </section>
         </section>
-
-        <ToolFollowThrough toolType="resume_analysis" />
 
         <p className="ai-result-saved">
           Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>

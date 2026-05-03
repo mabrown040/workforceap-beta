@@ -211,7 +211,7 @@ export default function ResumeStrengthForm() {
             exportTitle="Resume Strength Analysis"
             pdfToolName="Resume Analysis"
           />
-          <ToolFollowThrough toolType="resume_rewriter" />
+          <ToolFollowThrough toolType="resume_analysis" />
         </>
       )}
       {showFloating && (

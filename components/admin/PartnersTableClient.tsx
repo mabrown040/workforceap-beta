@@ -8,7 +8,7 @@ import PartnerEditModal from './PartnerEditModal';
 import PartnerDeactivateDialog from './PartnerDeactivateDialog';
 import OpenPartnerPortalButton from '@/app/admin/partners/OpenPartnerPortalButton';
 
-type Partner = { id: string; name: string; slug: string; contactName: string | null; contactEmail: string | null; contactPhone: string | null; active: boolean; notes: string | null; _count: { counselors: number; referrals: number } };
+type Partner = { id: string; name: string; slug: string; contactName: string | null; contactEmail: string | null; contactPhone: string | null; active: boolean; notes: string | null; logoUrl: string | null; brandColor: string | null; _count: { counselors: number; referrals: number } };
 type Subgroup = { id: string; name: string; type: string; partnerId: string | null };
 type Props = { partners: Partner[]; subgroups: Subgroup[]; superAdmin?: boolean };
 

@@ -688,6 +688,7 @@ model Partner {
   slug           String   @unique // e.g. "workforce-solutions-austin"
   referralCode   String   @unique @map("referral_code")
   logoUrl        String?  @map("logo_url")
+  brandColor     String?  @map("brand_color") // hex string (e.g. #1E3A8A); partner-scoped accent in portal header
   contactName    String?  @map("contact_name")
   contactEmail   String?  @map("contact_email")
   contactPhone   String?  @map("contact_phone")

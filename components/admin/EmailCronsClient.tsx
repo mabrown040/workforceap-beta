@@ -537,6 +537,11 @@ export default function EmailCronsClient({
                       {JSON.stringify(triggerResult.result as Record<string, unknown>, null, 2)}
                     </pre>
                   )}
+                  {!triggerResult.ok && triggerResult.error?.includes('CRON_SECRET') && (
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0' }}>
+                      Fix: Add CRON_SECRET to Vercel environment variables and redeploy.
+                    </p>
+                  )}
                 </div>
               )}
 

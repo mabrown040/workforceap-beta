@@ -5,6 +5,8 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
 export const SUPER_ADMIN_PARTNER_COOKIE = 'wa_super_admin_partner_id';
+const SUPER_ADMIN_FALLBACK_PARTNER_SLUG = 'workforce-solutions-austin';
+const SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL = 'employer-preview@example.com';
 
 export const getUserRoles = cache(async function getUserRoles(userId: string): Promise<string[]> {
   const userRoles = await prisma.userRole.findMany({
@@ -55,14 +57,14 @@ export async function requireAdmin(userId: string): Promise<void> {
   }
 }
 
-export async function isCounselor(userId: string): Promise<boolean> {
+export const isCounselor = cache(async function isCounselor(userId: string): Promise<boolean> {
   const row = await prisma.counselor.findFirst({
     where: { userId, active: true },
     select: { id: true },
   });
   if (row) return true;
   return isSuperAdmin(userId);
-}
+});
 
 export async function isPartner(userId: string): Promise<boolean> {
   const row = await prisma.partnerUser.findUnique({
@@ -105,9 +107,23 @@ export async function getPartnerForUser(
       if (byCookie) return { partnerId: byCookie.id, partner: byCookie, hasDirectPartnerLink: false };
     }
 
-    // Super-admin partner previews must use an explicit selected context.
-    // Never fall through to the first active partner, which can expose real org data
-    // when a demo cookie is missing or stale.
+    const fallbackPartner = await prisma.partner.findFirst({
+      where: { slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG, active: true },
+      select: { id: true, name: true, slug: true },
+    });
+    if (fallbackPartner) {
+      return { partnerId: fallbackPartner.id, partner: fallbackPartner, hasDirectPartnerLink: false };
+    }
+
+    const anyActivePartner = await prisma.partner.findFirst({
+      where: { active: true },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, name: true, slug: true },
+    });
+    if (anyActivePartner) {
+      return { partnerId: anyActivePartner.id, partner: anyActivePartner, hasDirectPartnerLink: false };
+    }
+
     return null;
   }
   return null;
@@ -251,6 +267,19 @@ export async function getEmployerForUser(
       });
       if (byCookie) return mapEmployerRow(byCookie);
     }
+
+    const fallbackEmployer = await prisma.employer.findFirst({
+      where: { contactEmail: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL, status: 'active' },
+      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
+    });
+    if (fallbackEmployer) return mapEmployerRow(fallbackEmployer);
+
+    const anyActiveEmployer = await prisma.employer.findFirst({
+      where: { status: 'active' },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
+    });
+    if (anyActiveEmployer) return mapEmployerRow(anyActiveEmployer);
   }
 
   const row = await prisma.employer.findUnique({
@@ -262,9 +291,6 @@ export async function getEmployerForUser(
   }
 
   if (superUser) {
-    // Super-admin employer previews must use an explicit selected context.
-    // Never fall through to the first active employer, which can expose real company data
-    // when a demo cookie is missing or stale.
     return null;
   }
 

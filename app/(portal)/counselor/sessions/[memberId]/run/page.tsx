@@ -103,6 +103,7 @@ export default async function SessionRunPage({
         ]}
       />
       <SessionRunClient
+        key={member.id}
         memberId={member.id}
         memberFullName={member.fullName ?? member.email}
         memberEmail={member.email}

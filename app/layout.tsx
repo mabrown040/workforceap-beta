@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
+import ChunkLoadRecovery from '@/components/ChunkLoadRecovery';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import ConversionMetrics from '@/components/analytics/ConversionMetrics';
 import PortalMetrics from '@/components/analytics/PortalMetrics';
@@ -96,6 +97,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </>
         )}
         <JsonLd />
+        <ChunkLoadRecovery />
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
         <ScrollAnimationsWrapper />

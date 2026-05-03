@@ -6,6 +6,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ElevatorPitchClient from '@/components/portal/tools/ElevatorPitchClient';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
+import ElevatorPitchDeploymentLogger from '@/components/portal/tools/ElevatorPitchDeploymentLogger';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Elevator Pitch',
@@ -39,6 +40,7 @@ export default async function ElevatorPitchPage() {
             title="Previous elevator pitches"
             emptyMessage="No saved elevator pitches yet. Generate your first one above."
           />
+          <ElevatorPitchDeploymentLogger />
         </div>
         <MobileBottomNav variant="portal" />
       </div>

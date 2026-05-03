@@ -7,11 +7,18 @@ import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 /**
  * On mount, loads plain text from the member's uploaded resume (if any) and
  * pre-fills the textarea only when it is still empty — same behavior as Resume Coach hydration.
+ * Pass `memberId` when in a counselor/admin session to hydrate the subject member's resume.
  */
-export function useHydrateMemberResumePlainText(setText: Dispatch<SetStateAction<string>>) {
+export function useHydrateMemberResumePlainText(
+  setText: Dispatch<SetStateAction<string>>,
+  memberId?: string
+) {
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/member/resume?includePlainText=1')
+    const url = memberId
+      ? `/api/member/resume?includePlainText=1&memberId=${encodeURIComponent(memberId)}`
+      : '/api/member/resume?includePlainText=1';
+    fetch(url)
       .then((r) => r.json())
       .then((d: { resumePlainText?: string | null }) => {
         if (cancelled) return;
@@ -25,5 +32,5 @@ export function useHydrateMemberResumePlainText(setText: Dispatch<SetStateAction
     return () => {
       cancelled = true;
     };
-  }, [setText]);
+  }, [setText, memberId]);
 }

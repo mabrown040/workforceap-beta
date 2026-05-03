@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   const users = await prisma.user.findMany({
     where: {
       deletedAt: null,
-      enrolledProgram: slug,
+      enrolledProgram: program.slug,
       ...MEMBER_ONLY_WHERE,
     },
     orderBy: { createdAt: 'desc' },
@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
       u.fullName,
       u.email,
       csvDate(u.enrolledAt),
-      slug,
+      program.slug,
       completed.length,
       totalCourses,
       totalCourses > 0 ? `${completionPct}%` : '',
@@ -161,7 +161,7 @@ export async function GET(req: NextRequest) {
   });
 
   const date = new Date().toISOString().slice(0, 10);
-  const filename = `cohort-${slug}-${date}.csv`;
+  const filename = `cohort-${program.slug}-${date}.csv`;
 
   const headers: Record<string, string> = {
     'Content-Type': 'text/csv; charset=utf-8',

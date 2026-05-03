@@ -47,3 +47,7 @@
 **Learning:** When adding loading states to form submission buttons, screen readers won't always announce the change from 'Save' to 'Saving...' if it just replaces the text. Adding `aria-busy={isLoading}` to the button and wrapping the dynamic text with `<span aria-live="polite">` ensures the user is informed that their action is being processed.
 **Action:** When creating forms, ensure submit buttons use `aria-busy` when submitting, disable the button to prevent double-clicks, and announce the loading text (e.g. 'Saving...') using `aria-live="polite"`.
 ## 2026-05-02 - Added aria-busy and aria-live to loading button\n**Learning:** When a destructing action is executing, adding an accessible loading state is an important aspect of a UI to indicate to screen readers when the action is loading vs completed.\n**Action:** Add `aria-busy` to the loading button and wrap the dynamic text within a span using `aria-live="polite"`
+
+## 2024-05-03 - [Button Component A11y]
+**Learning:** In reusable UI elements like buttons, dynamic loading states require explicit communication to assistive tech. The button element should adopt the `aria-busy` attribute, and its internal content can be wrapped in an `aria-live="polite"` region to inform users about state changes.
+**Action:** Always check the fundamental building blocks of a UI (like `Button.tsx`) for missing `aria-busy` states when the component accepts dynamic properties like `loading`.

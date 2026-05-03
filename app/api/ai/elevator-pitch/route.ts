@@ -91,7 +91,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
 
       try {
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: onBehalf.subjectUserId },
           select: { fullName: true, email: true },
         });
 

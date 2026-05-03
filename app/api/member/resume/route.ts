@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
@@ -22,9 +23,33 @@ export async function GET(req: NextRequest) {
     req.nextUrl.searchParams.get('includePlainText') === '1' ||
     req.nextUrl.searchParams.get('includePlainText') === 'true';
 
+  const memberId = req.nextUrl.searchParams.get('memberId');
+  const targetUserId = memberId || user.id;
+
+  // Authorize: own resume, admin, or assigned counselor
+  if (targetUserId !== user.id) {
+    const [admin, counselor] = await Promise.all([
+      isAdmin(user.id),
+      isCounselor(user.id),
+    ]);
+    if (!admin && !counselor) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    // Counselors: verify assignment
+    if (counselor && !admin) {
+      const assignment = await prisma.counselorAssignment.findFirst({
+        where: { memberId: targetUserId, active: true },
+        include: { counselor: { select: { userId: true } } },
+      });
+      if (!assignment || assignment.counselor.userId !== user.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+  }
+
   try {
     const profile = await prisma.profile.findUnique({
-      where: { userId: user.id },
+      where: { userId: targetUserId },
     });
 
     const originalPath = profile?.resumeOriginalPath;
@@ -70,7 +95,7 @@ export async function GET(req: NextRequest) {
 
     let resumePlainText: string | null = null;
     if (includePlain) {
-      resumePlainText = (await getMemberResumePlainText(user.id, 12000)) || null;
+      resumePlainText = (await getMemberResumePlainText(targetUserId, 12000)) || null;
     }
 
     return NextResponse.json({

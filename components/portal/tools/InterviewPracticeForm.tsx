@@ -47,7 +47,7 @@ export default function InterviewPracticeForm({ memberId }: { memberId?: string 
   const toggleFocus = (id: string) =>
     setFocusAreas((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
 
-  useHydrateMemberResumePlainText(setResumeContext);
+  useHydrateMemberResumePlainText(setResumeContext, memberId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

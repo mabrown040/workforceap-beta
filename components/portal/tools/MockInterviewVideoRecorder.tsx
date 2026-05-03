@@ -146,6 +146,7 @@ export default function MockInterviewVideoRecorder({
 
           if (startAttempt !== startAttemptRef.current || phase !== 'active') {
             stream.getTracks().forEach((t) => t.stop());
+            startInFlightRef.current = false;
             return;
           }
 
@@ -161,6 +162,7 @@ export default function MockInterviewVideoRecorder({
 
           if (startAttempt !== startAttemptRef.current || phase !== 'active') {
             cleanupStream();
+            startInFlightRef.current = false;
             return;
           }
 

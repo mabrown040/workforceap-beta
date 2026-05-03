@@ -529,6 +529,81 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
+      {/* ── S0-4: How WAP is different — UTM differentiation ── */}
+      <section style={{ padding: '5rem 0' }}>
+        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <h2
+              style={{
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-on-surface)',
+                marginBottom: '0.75rem',
+              }}
+            >
+              How WorkforceAP is{' '}
+              <span style={{ color: 'var(--color-accent)' }}>different</span>
+            </h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', maxWidth: '40rem', margin: '0 auto', lineHeight: 1.65 }}>
+              There are programs that train people. WorkforceAP connects training to real employment — and stays with you through it.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+            {[
+              {
+                icon: 'handshake',
+                title: 'Employer-connected, not just employer-aligned',
+                body: 'Most programs teach skills and hope employers notice. WorkforceAP is built with employer hiring needs as the starting point — and connects members directly to active hiring pipelines.',
+              },
+              {
+                icon: 'person_pin',
+                title: 'A counselor, not a chatbot',
+                body: 'Every member gets a human counselor assigned at enrollment. Not a help desk. Not a ticket queue. A person who knows your situation and follows up with you.',
+              },
+              {
+                icon: 'timeline',
+                title: 'Outcomes after placement, not just at placement',
+                body: 'We track member outcomes for 150 days post-placement. If something goes wrong after you land the job, we\'re still here.',
+              },
+              {
+                icon: 'verified_user',
+                title: 'Funded for people who actually need it',
+                body: 'Grant and partner funding covers access for qualifying members — including individuals with employment barriers, justice-involved backgrounds, and limited work history. The system is built for people who have been locked out, not people who just want upskilling.',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="portal-card portal-card--flat"
+                style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+              >
+                <div style={{
+                  width: '2.75rem',
+                  height: '2.75rem',
+                  borderRadius: '0.75rem',
+                  background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.375rem' }} aria-hidden="true">{item.icon}</span>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em', lineHeight: 1.35 }}>
+                    {item.title}
+                  </h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
+                    {item.body}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Values Section ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>

@@ -29,6 +29,8 @@ import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
+import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import { parseCourseSlugList as parseAdminCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -261,6 +263,20 @@ export default async function AdminMemberDetailPage({
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
+
+  // Progress strip props for admin view
+  const adminCoursesCompleted = parseAdminCourseSlugList(member.coursesCompleted);
+  const adminAllCoursesComplete =
+    program != null &&
+    program.courses.length > 0 &&
+    program.courses.every((c) => adminCoursesCompleted.includes(c.slug));
+  const adminProgressStripProps = {
+    intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
+    assessment: !!member.assessmentCompleted,
+    trainingStarted: adminCoursesCompleted.length > 0,
+    certsComplete: adminAllCoursesComplete,
+    employed: !!placedOutcomeRow,
+  };
   const chatThread = await getOrCreateMemberCounselorThread(member.id);
   const chatMsgs = await prisma.message.findMany({
     where: { threadId: chatThread.id },
@@ -318,6 +334,11 @@ export default async function AdminMemberDetailPage({
         }
       />
 
+      {/* ── Member journey progress strip ── */}
+      <div style={{ maxWidth: '800px', marginBottom: '1.5rem' }}>
+        <MemberProgressStrip {...adminProgressStripProps} />
+      </div>
+
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
         {/* Admin DB actions — password reset, profile edit */}
         <section className="portal-profile-section-card">
@@ -354,6 +375,37 @@ export default async function AdminMemberDetailPage({
           </p>
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
+          <p>
+            <strong>Employment status at enrollment:</strong>{' '}
+            {member.profile?.employmentStatusAtEnroll
+              ? (member.profile.employmentStatusAtEnroll as string).replace(/_/g, ' ')
+              : '—'}
+          </p>
+          {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes && (member.profile.barrierTypes as string[]).length > 0 && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <strong>Employment barriers:</strong>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.375rem' }}>
+                {(member.profile.barrierTypes as string[]).map((bt: string) => (
+                  <span
+                    key={bt}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.15rem 0.5rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
+                      color: '#92400e',
+                      border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                    }}
+                  >
+                    {bt.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {wioaSnap && (

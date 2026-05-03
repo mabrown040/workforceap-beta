@@ -19,6 +19,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import { formatPortalDate } from "@/lib/formatDate";
 import MemberDashboardVoiceSectionLazy from "@/components/portal/MemberDashboardVoiceSectionLazy";
 import MemberNextStepsStrip from "@/components/portal/MemberNextStepsStrip";
+import MemberProgressStrip from "@/components/portal/MemberProgressStrip";
 import MemberSessionCard from "@/components/portal/MemberSessionCard";
 import PortalEntryErrorBoundary from "@/components/portal/PortalEntryErrorBoundary";
 import { getMemberEngagementSignals } from "@/lib/member/memberEngagementSignals";
@@ -193,6 +194,7 @@ async function renderMemberDashboard(
     sessionEventsResult,
     interviewPracticeCompletionResult,
     placementConfirmationResult,
+    placementRecordResult,
   ] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
@@ -267,6 +269,10 @@ async function renderMemberDashboard(
       take: 20,
       select: { entityId: true },
     }),
+    prisma.placementRecord.findFirst({
+      where: { userId: user.id },
+      select: { id: true },
+    }),
   ]);
 
   const recentTools =
@@ -319,6 +325,17 @@ async function renderMemberDashboard(
           (offer) => !submittedPlacementConfirmations.has(offer.id),
         )
       : [];
+
+  const hasPlacementRecord =
+    placementRecordResult.status === "fulfilled"
+      ? !!placementRecordResult.value
+      : false;
+  if (placementRecordResult.status === "rejected") {
+    console.error(
+      "[dashboard] placement record query failed",
+      placementRecordResult.reason,
+    );
+  }
 
   const memberPoints =
     pointsResult.status === "fulfilled" ? pointsResult.value : null;
@@ -439,6 +456,17 @@ async function renderMemberDashboard(
         .length
     : 0;
   const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
+
+  // Progress strip props
+  const progressStripProps = {
+    intake:
+      intakeExtra?.onboardingCompletedAt != null ||
+      intakeExtra?.preScreeningResponse != null,
+    assessment: assessmentCompleted,
+    trainingStarted: coursesCompleted.length > 0,
+    certsComplete: allCoursesComplete,
+    employed: hasPlacementRecord,
+  };
 
   const dashboardState: "A" | "B" | "C" | "D" = !enrolledProgram
     ? "A"
@@ -1016,6 +1044,11 @@ async function renderMemberDashboard(
 
         <section style={{ padding: "0 1.5rem 1.25rem" }}>
           <MemberDashboardVoiceSectionLazy />
+        </section>
+
+        {/* ── Member journey progress strip ── */}
+        <section style={{ padding: "0 1.25rem 1rem" }}>
+          <MemberProgressStrip {...progressStripProps} />
         </section>
 
         {dashboardState !== "A" && nextBestActions.length > 0 && (
@@ -1632,6 +1665,16 @@ async function renderMemberDashboard(
                 }}
               >
                 <MemberDashboardVoiceSectionLazy />
+              </div>
+              {/* ── Member journey progress strip — desktop ── */}
+              <div
+                style={{
+                  maxWidth: 1200,
+                  margin: "0 auto",
+                  padding: "0 2rem 1.25rem",
+                }}
+              >
+                <MemberProgressStrip {...progressStripProps} />
               </div>
               <div
                 style={{ maxWidth: 1200, margin: "0 auto", padding: "0 2rem" }}

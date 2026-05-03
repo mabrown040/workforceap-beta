@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, Search, BookOpen, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import ToolFollowThrough from './ToolFollowThrough';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
@@ -902,6 +903,7 @@ export default function SkillMapperClient() {
                 </div>
               </div>
               <AxisLegend axes={radarData.map(d => d.axis)} />
+              <ToolFollowThrough toolType="skill_mapper" />
 
               {/* Export + profile compare prompt */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>

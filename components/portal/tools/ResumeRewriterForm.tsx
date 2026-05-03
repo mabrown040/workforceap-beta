@@ -7,6 +7,7 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import ExportPdfButton from './ExportPdfButton';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
+import ToolFollowThrough from './ToolFollowThrough';
 
 const SALARY_RANGES = [
   '',
@@ -273,6 +274,7 @@ export default function ResumeRewriterForm({
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
+          <ToolFollowThrough toolType="resume_rewriter" output={output} />
         </div>
       )}
       {/* Knowledge card */}

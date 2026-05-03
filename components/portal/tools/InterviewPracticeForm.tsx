@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import ToolFollowThrough from './ToolFollowThrough';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
@@ -337,6 +338,7 @@ export default function InterviewPracticeForm({ memberId }: { memberId?: string 
               );
             })}
           </ol>
+          <ToolFollowThrough toolType="interview_practice" />
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>

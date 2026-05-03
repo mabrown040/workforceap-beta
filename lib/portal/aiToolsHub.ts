@@ -86,7 +86,7 @@ export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
     tools: [TOOL_CARDS.resumeRewriter, TOOL_CARDS.resumeAnalysis, TOOL_CARDS.coverLetter],
   },
   {
-    title: 'Step 2: Practice interviews and target the right roles',
+    title: 'Step 2: Pre-interview prep and role targeting',
     tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper],
   },
   {

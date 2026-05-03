@@ -91,9 +91,20 @@ export default async function HowItWorksPage() {
                 Your path{' '}
                 <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
               </h1>
-              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
+              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
                 No gatekeeping. Clear, grant- and partner-funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).
               </p>
+              <div style={{ marginBottom: '2.5rem', padding: '1.125rem 1.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', borderLeft: '3px solid var(--color-accent)', maxWidth: '36rem' }}>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>Who can apply</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
+                  WorkforceAP is designed for adults who face barriers to employment — including low-income individuals, people with employment gaps,
+                  those with limited or no formal work history, justice-involved individuals, dislocated workers, veterans, and adult learners
+                  seeking a career change. WIOA eligibility can unlock additional funding.{' '}
+                  <Link href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                    Check WIOA options →
+                  </Link>
+                </p>
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
                   href="/find-your-path"

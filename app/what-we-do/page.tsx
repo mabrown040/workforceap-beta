@@ -306,9 +306,14 @@ export default function WhatWeDoPage() {
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
-                Some programs may align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility guidelines
-                criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking
-                career advancement.
+                Some programs may align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility
+                criteria — including low-income individuals, dislocated workers, adult learners, veterans, justice-involved
+                individuals, people with significant employment gaps, and those with limited or no formal work history.
+                If you&rsquo;re not sure whether you qualify, the{' '}
+                <Link href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  WIOA screener
+                </Link>{' '}
+                takes about two minutes.
               </p>
 
               <div
@@ -442,8 +447,90 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
+      {/* ── Transparency Section — S0-2 ── */}
+      <section style={{ padding: '5rem 0', background: 'var(--surface-container-low)' }}>
+        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <h2
+              style={{
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-on-surface)',
+                marginBottom: '0.75rem',
+              }}
+            >
+              What WorkforceAP provides —{' '}
+              <span style={{ color: 'var(--color-accent)' }}>and what we don&rsquo;t promise</span>
+            </h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', maxWidth: '38rem', margin: '0 auto', lineHeight: 1.65 }}>
+              Programs that overpromise set you up to fail. We&rsquo;d rather be honest about what we do and let member outcomes speak for themselves.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', maxWidth: '56rem', margin: '0 auto' }} className="wwd-transparency-grid">
+            {/* What we provide */}
+            <div
+              style={{
+                padding: '2rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                borderTop: '3px solid var(--color-accent)',
+              }}
+            >
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                What we provide
+              </h3>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                {[
+                  'Grant- and partner-funded access to training and certificates — no cost to qualifying members',
+                  'An assigned counselor who works with you through the full journey',
+                  'AI-powered tools: resume help, elevator pitch, interview practice, skills assessment, and readiness planning',
+                  'A job board with openings from employers actively hiring WorkforceAP graduates',
+                  '150 days of post-placement support after you land a job',
+                ].map((item) => (
+                  <li key={item} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0, marginTop: '0.05rem' }} aria-hidden="true">check_circle</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* What we don't promise */}
+            <div
+              style={{
+                padding: '2rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                borderTop: '3px solid var(--color-on-surface-variant)',
+              }}
+            >
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                What we can&rsquo;t promise
+              </h3>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                {[
+                  'Guaranteed employment or a specific income level — outcomes depend on market conditions, employer decisions, and your own effort',
+                  'Guaranteed enrollment in any specific program or cohort — some tracks have eligibility and capacity requirements',
+                  'A fixed timeline — most members complete core training in 4–8 weeks, but we work at your pace with no deadline',
+                ].map((item) => (
+                  <li key={item} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', flexShrink: 0, marginTop: '0.05rem' }} aria-hidden="true">remove_circle</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p style={{ marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, fontStyle: 'italic', borderTop: '1px solid var(--surface-container-high)', paddingTop: '1rem' }}>
+                Employment depends on many factors outside our control. We&rsquo;ll work with you every step of the way — but the job offer comes from an employer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Values Section ── */}
-      <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
+      <section style={{ padding: '6rem 0', background: 'var(--surface-container)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <h2
@@ -636,6 +723,7 @@ export default function WhatWeDoPage() {
         }
         @media (max-width: 767px) {
           .wwd-legacy-portrait { max-width: 100%; }
+          .wwd-transparency-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 

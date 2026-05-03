@@ -1,39 +1,38 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
+import { useLocale, type WAPLocale } from './LocaleContext';
 
-const languages = [
-  { code: 'en', label: 'English' },
-  { code: 'es', label: 'Español' },
-  { code: 'fr', label: 'Français' },
-  { code: 'pt', label: 'Português' },
+const languages: { code: WAPLocale; label: string; labelNative: string }[] = [
+  { code: 'en', label: 'English', labelNative: 'English' },
+  { code: 'es', label: 'Español', labelNative: 'Español' },
 ];
 
 export default function LanguageToggle() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { i18n } = useTranslation();
-
-  const handleChange = (code: string) => {
-    const newPath = pathname.replace(/^\/[a-z]{2}/, `/${code}`);
-    router.push(newPath || `/${code}`);
-    i18n.changeLanguage(code);
-  };
+  const { locale, setLocale } = useLocale();
 
   return (
-    <div className="language-toggle">
-      <Globe className="language-toggle-icon" />
+    <div className="language-toggle" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+      <Globe size={16} aria-hidden style={{ color: 'var(--color-on-surface-variant)' }} />
       <select
-        value={i18n.language}
-        onChange={(e) => handleChange(e.target.value)}
+        value={locale}
+        onChange={(e) => setLocale(e.target.value as WAPLocale)}
         aria-label="Select language"
         className="language-toggle-select"
+        style={{
+          background: 'transparent',
+          border: '1px solid var(--outline-variant)',
+          borderRadius: '0.5rem',
+          padding: '0.25rem 0.5rem',
+          fontSize: '0.8125rem',
+          fontWeight: 600,
+          color: 'var(--color-on-surface)',
+          cursor: 'pointer',
+        }}
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>
-            {lang.label}
+            {lang.labelNative}
           </option>
         ))}
       </select>

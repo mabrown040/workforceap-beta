@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import LanguageToggle from '@/components/portal/LanguageToggle';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
@@ -345,14 +346,16 @@ export default function MainNav() {
             <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
           </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
-            <div className="nav-theme-mobile-wrapper">
+            <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <LanguageToggle />
               <ThemeToggle variant="marketing" />
             </div>
           </li>
         </ul>
 
-        {/* Desktop-only theme toggle */}
-        <div className="nav-theme-slot-desktop">
+        {/* Desktop-only theme toggle + language */}
+        <div className="nav-theme-slot-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <LanguageToggle />
           <ThemeToggle variant="marketing" />
         </div>
       </div>

@@ -28,6 +28,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
+import LanguageToggle from '@/components/portal/LanguageToggle';
 
 // Map non-member portal roles to MobileBottomNav variants. Member uses
 // MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
@@ -443,6 +444,9 @@ export default function WorkspaceShell({
               <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>
                 {PRODUCT_COPY.publicSiteLabel}
               </Link>
+              <div style={{ padding: '0.5rem 0', display: 'flex', justifyContent: 'center' }}>
+                <LanguageToggle />
+              </div>
               <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
                 Sign out
               </SignOutButton>

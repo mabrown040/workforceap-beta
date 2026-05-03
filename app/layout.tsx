@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
+import ClientLocaleProvider from '@/components/portal/ClientLocaleProvider';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ChunkLoadRecovery from '@/components/ChunkLoadRecovery';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
@@ -103,8 +104,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         )}
         <JsonLd />
         <ChunkLoadRecovery />
+        <ClientLocaleProvider>
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
+        </ClientLocaleProvider>
         <ScrollAnimationsWrapper />
         <ConversionMetrics />
         <PortalMetrics />

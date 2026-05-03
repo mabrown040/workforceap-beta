@@ -8,6 +8,7 @@ import {
   extractVoiceTranscriptTurn,
   type VoiceTranscriptTurn,
 } from '@/lib/interview/voiceTranscript';
+import ToolFollowThrough from './ToolFollowThrough';
 
 type TranscriptEntry = { question: string; answer: string };
 type Phase = 'setup' | 'voice' | 'interview' | 'feedback';
@@ -483,6 +484,7 @@ export default function InterviewCoach() {
       <button type="button" onClick={reset} style={{ background: 'var(--color-accent)', color: '#fff', border: 0, borderRadius: 8, padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer' }}>
         Practice Again
       </button>
+      <ToolFollowThrough toolType="interview_coach" output={feedback} />
       {pastSessionsSection}
     </div>
   );

@@ -76,12 +76,66 @@ export function getAIToolFollowThrough(params: {
     };
   }
 
-  if (isElevatorPitch(toolType, inputSummary, output)) {
+  if (isElevatorPitch(toolType, inputSummary, output) || toolType === 'elevator_pitch') {
     return {
       title: 'Practice this pitch where it counts',
       body: 'Use your elevator introduction with counselors, interviews, and networking so it becomes natural before employer conversations.',
-      href: '/dashboard/readiness',
-      cta: 'Open readiness plan',
+      href: '/dashboard/ai-tools/voice-interview',
+      cta: 'Practice with voice interview',
+    };
+  }
+
+  if (toolType === 'salary_negotiation') {
+    return {
+      title: 'Use this strategy in real conversations',
+      body: 'Salary conversations work best when you rehearse your talking points before the actual offer discussion.',
+      href: '/dashboard/ai-tools/interview-practice',
+      cta: 'Practice negotiating',
+    };
+  }
+
+  if (toolType === 'application_tracker') {
+    return {
+      title: 'Keep applications organized',
+      body: 'Track every application so follow-ups and deadlines do not slip through the cracks.',
+      href: '/dashboard/job-applications',
+      cta: 'Open job applications',
+    };
+  }
+
+  if (toolType === 'career_business_coach') {
+    return {
+      title: 'Turn coaching into action',
+      body: 'The best coaching result is a clear next step. Connect this advice to training, job search, or counselor check-in.',
+      href: '/dashboard/guide',
+      cta: 'View your guide',
+    };
+  }
+
+  if (toolType === 'skill_mapper') {
+    return {
+      title: 'Use your skill map to target training',
+      body: 'Your mapped skills show where you are strong and where a course or project can close the gap.',
+      href: '/dashboard/training',
+      cta: 'Open training',
+    };
+  }
+
+  if (toolType === 'readiness_coach') {
+    return {
+      title: 'Turn readiness into real applications',
+      body: 'Readiness means you are prepared to apply. Use this momentum to submit applications or get counselor feedback.',
+      href: '/dashboard/jobs',
+      cta: 'Browse jobs',
+    };
+  }
+
+  if (toolType === 'voice_interview') {
+    return {
+      title: 'Move from practice to real interviews',
+      body: 'Voice interview practice builds confidence. Next step: apply the same answers in real employer conversations.',
+      href: '/dashboard/jobs',
+      cta: 'Browse jobs',
     };
   }
 

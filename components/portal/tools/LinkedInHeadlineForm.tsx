@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
+import ToolFollowThrough from './ToolFollowThrough';
 
 export default function LinkedInHeadlineForm() {
   const [role, setRole] = useState('');
@@ -137,6 +138,7 @@ export default function LinkedInHeadlineForm() {
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
+          <ToolFollowThrough toolType="linkedin_headline" />
         </div>
       )}
     </form>

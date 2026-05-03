@@ -29,6 +29,8 @@ import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
+import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import { parseCourseSlugList as parseAdminCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import '@/css/counselor.css';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -261,6 +263,20 @@ export default async function AdminMemberDetailPage({
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
+
+  // Progress strip props for admin view
+  const adminCoursesCompleted = parseAdminCourseSlugList(member.coursesCompleted);
+  const adminAllCoursesComplete =
+    program != null &&
+    program.courses.length > 0 &&
+    program.courses.every((c) => adminCoursesCompleted.includes(c.slug));
+  const adminProgressStripProps = {
+    intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
+    assessment: !!member.assessmentCompleted,
+    trainingStarted: adminCoursesCompleted.length > 0,
+    certsComplete: adminAllCoursesComplete,
+    employed: !!placedOutcomeRow,
+  };
   const chatThread = await getOrCreateMemberCounselorThread(member.id);
   const chatMsgs = await prisma.message.findMany({
     where: { threadId: chatThread.id },
@@ -317,6 +333,11 @@ export default async function AdminMemberDetailPage({
           </div>
         }
       />
+
+      {/* ── Member journey progress strip ── */}
+      <div style={{ maxWidth: '800px', marginBottom: '1.5rem' }}>
+        <MemberProgressStrip {...adminProgressStripProps} />
+      </div>
 
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
         {/* Admin DB actions — password reset, profile edit */}

@@ -90,7 +90,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     notFound();
   }
 
-  const [applications, aiMatches, memberPts, recentTx] = await Promise.all([
+  const [applications, aiMatches, memberPts, recentTx, pitchDeployments] = await Promise.all([
     prisma.jobPostingApplication.findMany({
       where: { studentId: memberId },
       orderBy: { appliedAt: 'desc' },
@@ -111,6 +111,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       orderBy: { createdAt: 'desc' },
       take: 5,
       select: { id: true, event: true, points: true, note: true, createdAt: true },
+    }).catch(() => []),
+    prisma.memberEvent.findMany({
+      where: { userId: memberId, eventName: 'pitch_deployed' },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, metadata: true, createdAt: true },
     }).catch(() => []),
   ]);
 
@@ -144,6 +150,30 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   const progressPct = programCourses.length > 0
     ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
     : 0;
+
+  type PitchOutcome = 'interview' | 'no_response' | 'pending' | 'other';
+  type PitchMeta = { employer: string; usedAt: string; outcome: PitchOutcome };
+  const typedPitchDeployments = pitchDeployments.map((ev) => ({
+    id: ev.id,
+    createdAt: ev.createdAt,
+    meta: (ev.metadata ?? {}) as Partial<PitchMeta>,
+  }));
+
+  function pitchOutcomeLabel(outcome: PitchOutcome | undefined): string {
+    switch (outcome) {
+      case 'interview': return 'Got interview';
+      case 'no_response': return 'No response';
+      case 'pending': return 'Pending';
+      default: return 'Other';
+    }
+  }
+  function pitchOutcomeColor(outcome: PitchOutcome | undefined): string {
+    switch (outcome) {
+      case 'interview': return 'var(--color-green, #16a34a)';
+      case 'pending': return '#d97706';
+      default: return 'var(--color-on-surface-variant)';
+    }
+  }
 
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
   let wioaReviewerName: string | null = null;
@@ -327,6 +357,67 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           <CounselorNotesPanel memberId={member.id} />
         </div>
 
+        {/* Elevator pitch deployments — mobile */}
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: '0.75rem',
+              padding: '1.25rem',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <h3 style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
+              Elevator Pitch
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.875rem' }}>
+              <strong style={{ color: 'var(--color-on-surface)' }}>Pitch uses:</strong>{' '}
+              {typedPitchDeployments.length}
+            </p>
+            {typedPitchDeployments.length === 0 ? (
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                No pitch deployments logged yet.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {typedPitchDeployments.map((ev) => (
+                  <div
+                    key={ev.id}
+                    style={{
+                      padding: '0.625rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      background: 'var(--surface-container-low)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--color-on-surface)', margin: 0 }}>
+                        {ev.meta.employer ?? '—'}
+                      </p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
+                        {new Date(ev.meta.usedAt ?? ev.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        color: pitchOutcomeColor(ev.meta.outcome),
+                        flexShrink: 0,
+                      }}
+                    >
+                      {pitchOutcomeLabel(ev.meta.outcome)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {wioaSnap ? (
           <div style={{ padding: '0 1rem 1rem' }}>
             <WioaScreeningReadonly
@@ -497,6 +588,72 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </div>
             </section>
           )}
+
+          {/* Elevator pitch deployments — desktop */}
+          <section style={{ marginTop: '1.5rem', maxWidth: 640 }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Elevator Pitch Usage</h2>
+            <div
+              className="portal-card portal-card--flat"
+              style={{ padding: '1.25rem', border: '1px solid var(--outline-variant)' }}
+            >
+              <p style={{ fontSize: '0.875rem', marginBottom: '0.875rem', color: 'var(--color-on-surface)' }}>
+                <strong>Elevator pitch uses:</strong>{' '}
+                {typedPitchDeployments.length}
+              </p>
+              {typedPitchDeployments.length === 0 ? (
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  No pitch deployments logged yet.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto auto',
+                      gap: '0.5rem',
+                      padding: '0 0.5rem 0.375rem',
+                      borderBottom: '1px solid var(--outline-variant)',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>Employer</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', textAlign: 'right' }}>Outcome</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', textAlign: 'right' }}>Date</span>
+                  </div>
+                  {typedPitchDeployments.map((ev) => (
+                    <div
+                      key={ev.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr auto auto',
+                        gap: '0.5rem',
+                        padding: '0.375rem 0.5rem',
+                        borderRadius: '0.375rem',
+                        background: 'var(--surface-container-lowest)',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                        {ev.meta.employer ?? '—'}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          color: pitchOutcomeColor(ev.meta.outcome),
+                          textAlign: 'right',
+                        }}
+                      >
+                        {pitchOutcomeLabel(ev.meta.outcome)}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {new Date(ev.meta.usedAt ?? ev.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
 
           <section style={{ marginTop: '1.5rem' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Resumes</h2>

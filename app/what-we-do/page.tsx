@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
+import Image from 'next/image';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
@@ -56,7 +58,13 @@ const VALUES = [
   },
 ];
 
-export default function WhatWeDoPage() {
+export default async function WhatWeDoPage() {
+  const pipelineEmployers = await prisma.employer.findMany({
+    where: { hiringPipelineActive: true, status: 'active' },
+    select: { id: true, companyName: true, logoUrl: true, industry: true },
+    take: 12,
+    orderBy: { updatedAt: 'desc' },
+  });
   return (
     <div className="inner-page">
       {/* ── Hero ── */}
@@ -603,6 +611,135 @@ export default function WhatWeDoPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Employers in our network ── */}
+      {pipelineEmployers.length > 0 && (
+        <section style={{ padding: '5rem 0', background: 'var(--surface-container-low)' }}>
+          <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+              <h2
+                style={{
+                  fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  color: 'var(--color-on-surface)',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                Employers in our{' '}
+                <span style={{ color: 'var(--color-accent)' }}>network</span>
+              </h2>
+              <p
+                style={{
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '1rem',
+                  maxWidth: '38rem',
+                  margin: '0 auto',
+                  lineHeight: 1.65,
+                }}
+              >
+                WorkforceAP connects certified members to employers actively hiring from our pipeline.
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              {pipelineEmployers.map((employer) => {
+                const initials = (employer.companyName ?? '?')
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase();
+                return (
+                  <div
+                    key={employer.id}
+                    className="portal-card portal-card--flat"
+                    style={{
+                      padding: '1.5rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.875rem',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {employer.logoUrl ? (
+                      <div style={{ width: '4rem', height: '4rem', borderRadius: 'var(--radius-lg)', overflow: 'hidden', flexShrink: 0 }}>
+                        <Image
+                          src={employer.logoUrl}
+                          alt={`${employer.companyName} logo`}
+                          width={64}
+                          height={64}
+                          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: '4rem',
+                          height: '4rem',
+                          borderRadius: 'var(--radius-lg)',
+                          background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#fff',
+                          fontWeight: 700,
+                          fontSize: '1.25rem',
+                          flexShrink: 0,
+                        }}
+                        aria-hidden="true"
+                      >
+                        {initials}
+                      </div>
+                    )}
+                    <div>
+                      <p
+                        style={{
+                          fontWeight: 700,
+                          fontSize: '0.9375rem',
+                          color: 'var(--color-on-surface)',
+                          margin: 0,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {employer.companyName}
+                      </p>
+                      {employer.industry && (
+                        <p
+                          style={{
+                            fontSize: '0.8125rem',
+                            color: 'var(--color-on-surface-variant)',
+                            margin: '0.25rem 0 0',
+                          }}
+                        >
+                          {employer.industry}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)' }}>
+              Are you an employer?{' '}
+              <Link
+                href="/partner"
+                style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
+              >
+                Partner with us →
+              </Link>
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* ── Values Section ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container)' }}>

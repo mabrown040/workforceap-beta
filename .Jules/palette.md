@@ -46,3 +46,4 @@
 ## 2026-05-24 - Accessible Loading Buttons
 **Learning:** When adding loading states to form submission buttons, screen readers won't always announce the change from 'Save' to 'Saving...' if it just replaces the text. Adding `aria-busy={isLoading}` to the button and wrapping the dynamic text with `<span aria-live="polite">` ensures the user is informed that their action is being processed.
 **Action:** When creating forms, ensure submit buttons use `aria-busy` when submitting, disable the button to prevent double-clicks, and announce the loading text (e.g. 'Saving...') using `aria-live="polite"`.
+## 2026-05-02 - Added aria-busy and aria-live to loading button\n**Learning:** When a destructing action is executing, adding an accessible loading state is an important aspect of a UI to indicate to screen readers when the action is loading vs completed.\n**Action:** Add `aria-busy` to the loading button and wrap the dynamic text within a span using `aria-live="polite"`

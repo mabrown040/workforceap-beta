@@ -20,6 +20,7 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import AdminMemberCounselorAssign from '@/components/admin/AdminMemberCounselorAssign';
 import AdminMemberPlacedOutcomeForm from '@/components/admin/AdminMemberPlacedOutcomeForm';
 import AdminMemberEnrollmentFundingForm from '@/components/admin/AdminMemberEnrollmentFundingForm';
+import AdminMemberWorkspaceEmail from '@/components/admin/AdminMemberWorkspaceEmail';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -580,6 +581,15 @@ export default async function AdminMemberDetailPage({
                   }
                 : null
             }
+          />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Workspace email</h2>
+          <AdminMemberWorkspaceEmail
+            memberId={member.id}
+            workspaceEmail={member.workspaceEmail ?? null}
+            workspaceEmailProvisioned={!!member.workspaceEmailProvisioned}
           />
         </section>
 

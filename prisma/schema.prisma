@@ -204,17 +204,6 @@ model Profile {
   studentId            String?   @map("student_id")
   ferpaConsentGiven    Boolean   @default(false) @map("ferpa_consent_given")
 
-  // Employment barrier tracking (WIOA grant reporting)
-  // Valid barrierTypes values:
-  //   "justice_involved" | "employment_gap" | "limited_work_history" | "disability"
-  //   | "housing_instability" | "domestic_violence" | "homelessness"
-  //   | "substance_recovery" | "other"
-  hasEmploymentBarrier        Boolean  @default(false) @map("has_employment_barrier")
-  barrierTypes                String[] @default([])    @map("barrier_types")
-  // Valid employmentStatusAtEnroll values:
-  //   "employed_full_time" | "employed_part_time" | "unemployed" | "underemployed" | "not_looking"
-  employmentStatusAtEnroll    String?                  @map("employment_status_at_enroll")
-
   role      String   @default("member")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -1084,7 +1073,7 @@ model Employer {
   contactName           String    @map("contact_name")
   contactEmail          String    @map("contact_email")
   contactPhone          String?   @map("contact_phone")
-  status                   String    @default("active") // active, inactive
+  status                   String   @default("active") // active, inactive
   hiringPipelineActive     Boolean  @default(false)   @map("hiring_pipeline_active")
   targetCertifications     String[] @default([])      @map("target_certifications")
   placementAgreementSigned Boolean  @default(false)   @map("placement_agreement_signed")

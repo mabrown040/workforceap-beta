@@ -65,6 +65,7 @@ export default async function WhatWeDoPage() {
     take: 12,
     orderBy: { updatedAt: 'desc' },
   });
+
   return (
     <div className="inner-page">
       {/* ── Hero ── */}

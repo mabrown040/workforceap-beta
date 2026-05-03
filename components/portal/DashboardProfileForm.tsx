@@ -5,24 +5,22 @@ import { useRouter } from 'next/navigation';
 import { PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 
 const BARRIER_OPTIONS = [
-  { value: 'justice_involved', label: 'Justice-involved / returning citizen' },
-  { value: 'employment_gap', label: 'Employment gap (6+ months)' },
-  { value: 'limited_work_history', label: 'Limited work history' },
-  { value: 'disability', label: 'Disability' },
+  { value: 'justice_involved', label: 'Justice-involved background' },
+  { value: 'employment_gap', label: 'Significant employment gap (1+ year)' },
+  { value: 'limited_work_history', label: 'Limited or no work history' },
+  { value: 'disability', label: 'Disability affecting employment' },
   { value: 'housing_instability', label: 'Housing instability' },
-  { value: 'domestic_violence', label: 'Domestic violence survivor' },
-  { value: 'homelessness', label: 'Experiencing homelessness' },
-  { value: 'substance_recovery', label: 'Substance use recovery' },
-  { value: 'other', label: 'Other barrier' },
+  { value: 'domestic_violence', label: 'Domestic violence situation' },
+  { value: 'homelessness', label: 'Homelessness' },
+  { value: 'substance_recovery', label: 'Substance recovery' },
+  { value: 'other', label: 'Other' },
 ] as const;
-
-type BarrierValue = typeof BARRIER_OPTIONS[number]['value'];
 
 const EMPLOYMENT_STATUS_OPTIONS = [
   { value: 'employed_full_time', label: 'Employed full-time' },
   { value: 'employed_part_time', label: 'Employed part-time' },
-  { value: 'unemployed', label: 'Unemployed, looking for work' },
-  { value: 'underemployed', label: 'Underemployed' },
+  { value: 'unemployed', label: 'Unemployed' },
+  { value: 'underemployed', label: 'Underemployed (working below your skill level or hours)' },
   { value: 'not_looking', label: 'Not currently looking' },
 ] as const;
 
@@ -75,16 +73,13 @@ export default function DashboardProfileForm({
   const [referralSource, setReferralSource] = useState(defaultReferralSource);
   const [linkedin, setLinkedin] = useState(defaultLinkedin);
   const [bio, setBio] = useState(defaultBio);
-  const [barrierTypes, setBarrierTypes] = useState<BarrierValue[]>(
-    (defaultBarrierTypes ?? []).filter((bt): bt is BarrierValue =>
-      BARRIER_OPTIONS.some((o) => o.value === bt)
-    )
-  );
-  const [employmentStatusAtEnroll, setEmploymentStatusAtEnroll] = useState(defaultEmploymentStatusAtEnroll ?? '');
+  const [hasEmploymentBarrier, setHasEmploymentBarrier] = useState(defaultHasEmploymentBarrier);
+  const [barrierTypes, setBarrierTypes] = useState<string[]>(defaultBarrierTypes);
+  const [employmentStatusAtEnroll, setEmploymentStatusAtEnroll] = useState<string>(defaultEmploymentStatusAtEnroll ?? '');
 
-  const toggleBarrierType = (value: BarrierValue) => {
+  const toggleBarrierType = (value: string) => {
     setBarrierTypes((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
     );
   };
 
@@ -233,7 +228,7 @@ export default function DashboardProfileForm({
           />
         </div>
 
-        {/* Employment background — WIOA grant reporting */}
+        {/* Employment background section */}
         <div
           style={{
             borderTop: '1px solid var(--outline-variant)',
@@ -242,34 +237,19 @@ export default function DashboardProfileForm({
             gap: '1rem',
           }}
         >
-          <div>
-            <p
-              style={{
-                fontWeight: 700,
-                fontSize: '0.9375rem',
-                color: 'var(--color-on-surface)',
-                margin: '0 0 0.25rem',
-              }}
-            >
-              Employment background
-            </p>
-            <p
-              style={{
-                fontSize: '0.8125rem',
-                color: 'var(--color-on-surface-variant)',
-                margin: 0,
-                lineHeight: 1.55,
-              }}
-            >
-              WorkforceAP is a WIOA-funded program. These questions help us report outcomes and
-              connect you with the right resources. All answers are confidential and voluntary.
-            </p>
-          </div>
+          <h3
+            style={{
+              fontSize: '0.9375rem',
+              fontWeight: 700,
+              color: 'var(--color-on-surface)',
+              margin: 0,
+            }}
+          >
+            Employment background
+          </h3>
 
           <div className="form-group">
-            <label htmlFor="employmentStatusAtEnroll">
-              Employment status when you joined WorkforceAP
-            </label>
+            <label htmlFor="employmentStatusAtEnroll">Employment status at enrollment</label>
             <select
               id="employmentStatusAtEnroll"
               value={employmentStatusAtEnroll}
@@ -284,18 +264,18 @@ export default function DashboardProfileForm({
             </select>
           </div>
 
-          <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
-            <legend
+          <div>
+            <p
               style={{
                 fontSize: '0.875rem',
-                fontWeight: 600,
-                color: 'var(--color-on-surface)',
-                marginBottom: '0.625rem',
-                paddingBottom: 0,
+                color: 'var(--color-on-surface-variant)',
+                margin: '0 0 0.75rem',
+                lineHeight: 1.6,
               }}
             >
-              Employment barriers (check all that apply)
-            </legend>
+              Some members face extra barriers to employment. Checking these helps us match you with
+              the right support — it&apos;s completely optional.
+            </p>
             <div style={{ display: 'grid', gap: '0.5rem' }}>
               {BARRIER_OPTIONS.map((opt) => (
                 <label
@@ -311,15 +291,23 @@ export default function DashboardProfileForm({
                 >
                   <input
                     type="checkbox"
+                    value={opt.value}
                     checked={barrierTypes.includes(opt.value)}
                     onChange={() => toggleBarrierType(opt.value)}
-                    style={{ width: '1rem', height: '1rem', flexShrink: 0 }}
+                    style={{ flexShrink: 0 }}
                   />
                   {opt.label}
                 </label>
               ))}
             </div>
-          </fieldset>
+            {/* Keep hasEmploymentBarrier in sync with checkbox selection */}
+            <input
+              type="hidden"
+              name="hasEmploymentBarrier"
+              value={barrierTypes.length > 0 ? 'true' : 'false'}
+              readOnly
+            />
+          </div>
         </div>
       </div>
       {error && <p className="form-error" role="alert">{error}</p>}

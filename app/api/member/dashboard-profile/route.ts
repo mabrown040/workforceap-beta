@@ -65,8 +65,22 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const { firstName, lastName, phone, address, city, state, zip, linkedin, bio, financialAidInterest, referralSource, hasEmploymentBarrier, barrierTypes, employmentStatusAtEnroll } =
-    parsed.data;
+  const {
+    firstName,
+    lastName,
+    phone,
+    address,
+    city,
+    state,
+    zip,
+    linkedin,
+    bio,
+    financialAidInterest,
+    referralSource,
+    hasEmploymentBarrier,
+    barrierTypes,
+    employmentStatusAtEnroll,
+  } = parsed.data;
   const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
   await prisma.$transaction(async (tx) => {

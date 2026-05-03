@@ -57,9 +57,12 @@ export async function loadPartnerReferralBundle(partnerId: string) {
   });
 
   const memberIds = referrals.map((r) => r.member.id);
+  const placedMemberIds = new Set(
+    referrals.filter((r) => r.member.placementRecord).map((r) => r.member.id)
+  );
 
-  // Load pending placement confirmations (self-reported by members, not yet reviewed)
-  const pendingPlacements =
+  // Self-reported placement confirmations still awaiting verification (exclude members who already have a placementRecord)
+  const rawPendingPlacementEvents =
     memberIds.length === 0
       ? []
       : await prisma.memberEvent.findMany({
@@ -76,13 +79,17 @@ export async function loadPartnerReferralBundle(partnerId: string) {
           },
         });
 
-  // Group by userId for quick lookup
-  const pendingByUserId = new Map<string, typeof pendingPlacements[number]>();
-  for (const p of pendingPlacements) {
+  const pendingForReview = rawPendingPlacementEvents.filter((p) => !placedMemberIds.has(p.userId));
+
+  // One row per member (most recent event first due to orderBy desc + first-wins)
+  const pendingByUserId = new Map<string, (typeof rawPendingPlacementEvents)[number]>();
+  for (const p of pendingForReview) {
     if (!pendingByUserId.has(p.userId)) {
       pendingByUserId.set(p.userId, p);
     }
   }
+
+  const pendingPlacements = Array.from(pendingByUserId.values());
 
   const pipelineMembers: PipelineRow[] = [];
 

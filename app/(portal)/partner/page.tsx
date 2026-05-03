@@ -137,16 +137,6 @@ export default async function PartnerDashboardPage() {
     (ACTIVE_STAGES as readonly string[]).includes(p.stage)
   ).length;
 
-  // "Needs review" = a real, reviewable outreach queue based on current signals:
-  // - early stages (applied/enrolled): likely need follow-up to move forward
-  // - stalled training: in_training but progress still near-zero
-  const needsReviewMembers = pipelineMembers.filter((p) => {
-    if (p.stage === 'applied' || p.stage === 'enrolled') return true;
-    if (p.stage === 'in_training' && (p.progress ?? 0) < 10) return true;
-    return false;
-  });
-  const needsReviewCount = needsReviewMembers.length;
-
   const inTrainingCount = stageCounts['in_training'] ?? 0;
 
   // Recent members for mobile (top 4)

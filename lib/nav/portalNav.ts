@@ -291,6 +291,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── People — everyone in the system ──
   { href: '/admin/members', label: 'Members', group: 'people', Icon: Users },
+  { href: '/admin/members/duplicates', label: 'Duplicate members', group: 'people', Icon: AlertTriangle },
   { href: '/admin/users', label: 'Users', group: 'people', Icon: User },
   { href: '/admin/employers', label: 'Employers', group: 'people', Icon: Building2 },
   { href: '/admin/partners', label: 'Partners', group: 'people', Icon: Handshake },

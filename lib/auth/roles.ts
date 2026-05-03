@@ -1,12 +1,16 @@
+import { randomUUID } from 'crypto';
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 export const SUPER_ADMIN_EMPLOYER_COOKIE = 'wa_super_admin_employer_id';
 export const SUPER_ADMIN_PARTNER_COOKIE = 'wa_super_admin_partner_id';
 const SUPER_ADMIN_FALLBACK_PARTNER_SLUG = 'workforce-solutions-austin';
+const SUPER_ADMIN_FALLBACK_PARTNER_NAME = 'Workforce Solutions Capital Area';
 const SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL = 'employer-preview@example.com';
+const SUPER_ADMIN_FALLBACK_EMPLOYER_NAME = 'WorkforceAP Example Employer';
 
 export const getUserRoles = cache(async function getUserRoles(userId: string): Promise<string[]> {
   const userRoles = await prisma.userRole.findMany({
@@ -115,6 +119,11 @@ export async function getPartnerForUser(
       return { partnerId: fallbackPartner.id, partner: fallbackPartner, hasDirectPartnerLink: false };
     }
 
+    const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
+    if (ensuredFallbackPartner) {
+      return { partnerId: ensuredFallbackPartner.id, partner: ensuredFallbackPartner, hasDirectPartnerLink: false };
+    }
+
     const anyActivePartner = await prisma.partner.findFirst({
       where: { active: true },
       orderBy: { createdAt: 'asc' },
@@ -220,6 +229,62 @@ export async function isEmployer(userId: string): Promise<boolean> {
   return !!row;
 }
 
+async function ensureSuperAdminFallbackPartner(): Promise<{ id: string; name: string; slug: string }> {
+  const organizationId = await getDefaultOrganizationId();
+  return prisma.partner.upsert({
+    where: { slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG },
+    update: { active: true, referralCode: SUPER_ADMIN_FALLBACK_PARTNER_SLUG },
+    create: {
+      organizationId,
+      name: SUPER_ADMIN_FALLBACK_PARTNER_NAME,
+      slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG,
+      referralCode: SUPER_ADMIN_FALLBACK_PARTNER_SLUG,
+      active: true,
+    },
+    select: { id: true, name: true, slug: true },
+  });
+}
+
+async function ensureSuperAdminFallbackEmployer(): Promise<{
+  id: string;
+  companyName: string;
+  contactEmail: string;
+  tier: string;
+  logoUrl: string | null;
+}> {
+  const organizationId = await getDefaultOrganizationId();
+  const user = await prisma.user.upsert({
+    where: { email: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL },
+    update: { fullName: 'Preview Employer Seed' },
+    create: {
+      id: randomUUID(),
+      organizationId,
+      email: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL,
+      fullName: 'Preview Employer Seed',
+    },
+    select: { id: true },
+  });
+
+  return prisma.employer.upsert({
+    where: { userId: user.id },
+    update: {
+      companyName: SUPER_ADMIN_FALLBACK_EMPLOYER_NAME,
+      contactEmail: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL,
+      status: 'active',
+    },
+    create: {
+      organizationId,
+      userId: user.id,
+      companyName: SUPER_ADMIN_FALLBACK_EMPLOYER_NAME,
+      contactName: 'WorkforceAP',
+      contactEmail: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL,
+      tier: 'basic',
+      status: 'active',
+    },
+    select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
+  });
+}
+
 function mapEmployerRow(row: {
   id: string;
   companyName: string;
@@ -273,6 +338,9 @@ export async function getEmployerForUser(
       select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
     });
     if (fallbackEmployer) return mapEmployerRow(fallbackEmployer);
+
+    const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer();
+    if (ensuredFallbackEmployer) return mapEmployerRow(ensuredFallbackEmployer);
 
     const anyActiveEmployer = await prisma.employer.findFirst({
       where: { status: 'active' },

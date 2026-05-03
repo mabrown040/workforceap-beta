@@ -309,21 +309,21 @@ export default async function AdminPage() {
                   margin: 0,
                 }}
               >
-                Super Admin Portal Previews
+                Super Admin Portal Views
               </p>
               <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-                Choose explicit employer or partner contexts for demos. No random fallback orgs.
+                View real employer and partner portals with live data. Select an org below.
               </p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <Link href="/admin/employers" className="btn btn-outline btn-sm">
-                Select employer preview
+                View employer portal
               </Link>
               <Link href="/counselor" className="btn btn-outline btn-sm">
                 Counselor preview
               </Link>
               <Link href="/admin/partners" className="btn btn-outline btn-sm">
-                Select partner preview
+                View partner portal
               </Link>
             </div>
           </div>

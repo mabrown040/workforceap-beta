@@ -78,6 +78,15 @@ export default function EmailCronsClient({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [activatingAll, setActivatingAll] = useState(false);
   const [pendingTrigger, setPendingTrigger] = useState<{ cron: CronWithStatus; recipientCount: number | null } | null>(null);
+  const [pendingDryRun, setPendingDryRun] = useState<{
+    cron: CronWithStatus;
+    recipientCount: number;
+    sampleRecipient: { email: string; name: string | null } | null;
+    subject: string;
+    htmlPreview: string;
+    note?: string;
+  } | null>(null);
+  const [dryRunningIds, setDryRunningIds] = useState<Set<string>>(() => new Set());
 
   const handleRunNowClick = async (cron: CronWithStatus) => {
     // Fetch recipient count for the confirm dialog (#162)
@@ -98,6 +107,54 @@ export default function EmailCronsClient({
       /* non-fatal — still allow confirm without count */
     }
     setPendingTrigger({ cron, recipientCount: count });
+  };
+
+  const handleDryRun = async (cron: CronWithStatus) => {
+    setDryRunningIds(prev => new Set(prev).add(cron.id));
+    try {
+      const res = await fetch(`/api/admin/email-crons/${cron.id}/dry-run`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const data = await res.json() as {
+        recipientCount: number;
+        sampleRecipient: { email: string; name: string | null } | null;
+        subject: string;
+        htmlPreview: string;
+        note?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setPendingDryRun({
+          cron,
+          recipientCount: 0,
+          sampleRecipient: null,
+          subject: '',
+          htmlPreview: '',
+          note: data.error ?? 'Dry-run failed',
+        });
+      } else {
+        setPendingDryRun({
+          cron,
+          recipientCount: data.recipientCount,
+          sampleRecipient: data.sampleRecipient,
+          subject: data.subject,
+          htmlPreview: data.htmlPreview,
+          note: data.note,
+        });
+      }
+    } catch (e) {
+      setPendingDryRun({
+        cron,
+        recipientCount: 0,
+        sampleRecipient: null,
+        subject: '',
+        htmlPreview: '',
+        note: e instanceof Error ? e.message : 'Network error',
+      });
+    } finally {
+      setDryRunningIds(prev => { const n = new Set(prev); n.delete(cron.id); return n; });
+    }
   };
 
   const handleTrigger = async (cron: CronWithStatus) => {
@@ -365,6 +422,7 @@ export default function EmailCronsClient({
           const isTogglingThis = togglingIds.has(cron.id);
           const isPreviewingThis = previewingIds.has(cron.id);
           const isPreviewOpen = previewPanelId === cron.id;
+          const isDryRunningThis = dryRunningIds.has(cron.id);
           const previewResult = previewData[cron.id];
           const triggerResult = triggerResults[cron.id];
           const accentColor = categoryColors[cron.category] ?? 'var(--color-accent)';
@@ -485,6 +543,27 @@ export default function EmailCronsClient({
                       {isTriggeringThis ? 'progress_activity' : 'play_arrow'}
                     </span>
                     {isTriggeringThis ? 'Running…' : 'Run now'}
+                  </button>
+
+                  {/* Dry run */}
+                  <button
+                    type="button"
+                    onClick={() => !isDryRunningThis && void handleDryRun(cron)}
+                    disabled={isDryRunningThis}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                      padding: '0.4rem 0.875rem', borderRadius: '0.5rem',
+                      border: '1px solid var(--outline-variant)',
+                      background: isDryRunningThis ? 'var(--surface-container-high)' : 'var(--surface-container)',
+                      color: 'var(--color-on-surface)', fontWeight: 700, fontSize: '0.8125rem',
+                      cursor: isDryRunningThis ? 'default' : 'pointer',
+                      opacity: isDryRunningThis ? 0.7 : 1, whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: isDryRunningThis ? "'FILL' 0" : "'FILL' 1", animation: isDryRunningThis ? 'spin 1s linear infinite' : 'none' }}>
+                      {isDryRunningThis ? 'progress_activity' : 'science'}
+                    </span>
+                    {isDryRunningThis ? 'Simulating…' : 'Dry run'}
                   </button>
 
                   {/* Preview recipients */}
@@ -670,6 +749,85 @@ export default function EmailCronsClient({
                 style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: 'none', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
               >
                 Run now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Dry-run preview dialog (#156) */}
+      {pendingDryRun && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}
+          onClick={() => setPendingDryRun(null)}
+        >
+          <div
+            style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.75rem 1.5rem', maxWidth: '32rem', width: '90vw', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 12px 40px rgba(0,0,0,0.32)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: 'rgba(43,123,185,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-blue, #2b7bb9)', fontVariationSettings: "'FILL' 1" }}>science</span>
+              </div>
+              <div>
+                <p style={{ fontWeight: 800, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>Dry run: {pendingDryRun.cron.name}</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Simulated — no emails were sent.</p>
+              </div>
+            </div>
+
+            {pendingDryRun.note && (
+              <div style={{ padding: '0.75rem 1rem', background: 'rgba(173,44,77,0.08)', borderRadius: '0.625rem', marginBottom: '1rem', fontSize: '0.875rem', color: 'var(--color-accent)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', fontVariationSettings: "'FILL' 1" }}>error</span>
+                {pendingDryRun.note}
+              </div>
+            )}
+
+            <div style={{ padding: '0.75rem 1rem', background: 'var(--surface-container)', borderRadius: '0.625rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', verticalAlign: 'middle', marginRight: '0.375rem', color: pendingDryRun.recipientCount === 0 ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                {pendingDryRun.recipientCount === 0 ? 'check_circle' : 'group'}
+              </span>
+              {pendingDryRun.recipientCount === 0
+                ? 'No recipients match today\'s criteria.'
+                : <><strong style={{ color: 'var(--color-on-surface)' }}>{pendingDryRun.recipientCount}</strong> recipient{pendingDryRun.recipientCount !== 1 ? 's' : ''} would receive this email.</>
+              }
+              {pendingDryRun.sampleRecipient && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+                  Sample: <strong style={{ color: 'var(--color-on-surface)' }}>{pendingDryRun.sampleRecipient.name ?? '—'}</strong> · {pendingDryRun.sampleRecipient.email}
+                </div>
+              )}
+            </div>
+
+            {pendingDryRun.subject && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>Subject</p>
+                <div style={{ padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface)', borderLeft: '3px solid var(--color-accent)' }}>
+                  {pendingDryRun.subject}
+                </div>
+              </div>
+            )}
+
+            {pendingDryRun.htmlPreview && (
+              <div style={{ marginBottom: '1.25rem' }}>
+                <p style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>HTML Preview</p>
+                <div style={{ padding: '0.75rem', background: 'var(--surface-container)', borderRadius: '0.5rem', fontSize: '0.8125rem', maxHeight: '16rem', overflow: 'auto', border: '1px solid var(--outline-variant)' }}>
+                  <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{pendingDryRun.htmlPreview}</pre>
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setPendingDryRun(null)}
+                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'transparent', color: 'var(--color-on-surface)', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => { setPendingDryRun(null); void handleRunNowClick(pendingDryRun.cron); }}
+                style={{ padding: '0.5rem 1.125rem', borderRadius: '0.5rem', border: 'none', background: 'var(--color-accent)', color: '#fff', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}
+              >
+                Proceed to send
               </button>
             </div>
           </div>

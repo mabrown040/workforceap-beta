@@ -404,6 +404,7 @@ export default async function CounselorPortalPage() {
             <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
+                { href: '/counselor/queue', icon: 'pending_actions', title: 'Work Queue', desc: 'Members waiting >24h for a reply', accent: 'accent' },
                 { href: '/counselor/students', icon: 'groups', title: 'My Members', desc: 'View roster and member details', accent: 'accent' },
                 { href: '/counselor/placements', icon: 'work', title: 'Placements', desc: 'Track job placements', accent: 'green' },
                 { href: '/counselor/inactive-members', icon: 'notifications_paused', title: 'Inactive Members', desc: 'Members who need re-engagement', accent: 'error' },

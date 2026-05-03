@@ -68,12 +68,16 @@ export async function GET(request: NextRequest) {
   ];
 
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const brandingHeader = [
-    `# Workforce Advancement Project — Partner ${preset === 'outcomes' ? 'Outcomes' : 'Referrals'} Export`,
-    `# workforceap.org | Generated: ${date}`,
-    `# Partner: ${ctx.partner.name}`,
+  const brandingLines = [
+    `# ${ctx.partner.name} — ${preset === 'outcomes' ? 'Outcomes' : 'Referrals'} Export`,
+  ];
+  if (ctx.partner.logoUrl) brandingLines.push(`# Logo: ${ctx.partner.logoUrl}`);
+  brandingLines.push(
+    `# Generated: ${date}`,
+    '# Powered by WorkforceAP — workforceap.org',
     '#',
-  ].join('\r\n');
+  );
+  const brandingHeader = brandingLines.join('\r\n');
   const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
   const suffix = preset === 'outcomes' ? 'outcomes' : 'referrals';
 

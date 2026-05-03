@@ -81,10 +81,18 @@ export async function isPartner(userId: string): Promise<boolean> {
 
 export type PartnerPortalContext = {
   partnerId: string;
-  partner: { id: string; name: string; slug: string };
+  partner: { id: string; name: string; slug: string; logoUrl: string | null; brandColor: string | null };
   /** User has a real `partner_users` row (not super-admin viewing first partner). */
   hasDirectPartnerLink: boolean;
 };
+
+const PARTNER_BRANDING_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  logoUrl: true,
+  brandColor: true,
+} as const;
 
 export async function getPartnerForUser(
   userId: string,
@@ -92,7 +100,7 @@ export async function getPartnerForUser(
 ): Promise<PartnerPortalContext | null> {
   const row = await prisma.partnerUser.findUnique({
     where: { userId },
-    include: { partner: { select: { id: true, name: true, slug: true, active: true } } },
+    include: { partner: { select: { ...PARTNER_BRANDING_SELECT, active: true } } },
   });
   if (row) {
     if (!row.partner.active) return null;
@@ -106,14 +114,14 @@ export async function getPartnerForUser(
     if (fromCookie) {
       const byCookie = await prisma.partner.findFirst({
         where: { id: fromCookie, active: true },
-        select: { id: true, name: true, slug: true },
+        select: PARTNER_BRANDING_SELECT,
       });
       if (byCookie) return { partnerId: byCookie.id, partner: byCookie, hasDirectPartnerLink: false };
     }
 
     const fallbackPartner = await prisma.partner.findFirst({
       where: { slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG, active: true },
-      select: { id: true, name: true, slug: true },
+      select: PARTNER_BRANDING_SELECT,
     });
     if (fallbackPartner) {
       return { partnerId: fallbackPartner.id, partner: fallbackPartner, hasDirectPartnerLink: false };
@@ -121,13 +129,17 @@ export async function getPartnerForUser(
 
     const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
     if (ensuredFallbackPartner) {
-      return { partnerId: ensuredFallbackPartner.id, partner: ensuredFallbackPartner, hasDirectPartnerLink: false };
+      return {
+        partnerId: ensuredFallbackPartner.id,
+        partner: { ...ensuredFallbackPartner, logoUrl: null, brandColor: null },
+        hasDirectPartnerLink: false,
+      };
     }
 
     const anyActivePartner = await prisma.partner.findFirst({
       where: { active: true },
       orderBy: { createdAt: 'asc' },
-      select: { id: true, name: true, slug: true },
+      select: PARTNER_BRANDING_SELECT,
     });
     if (anyActivePartner) {
       return { partnerId: anyActivePartner.id, partner: anyActivePartner, hasDirectPartnerLink: false };

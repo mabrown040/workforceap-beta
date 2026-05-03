@@ -57,6 +57,8 @@ export default function WorkspaceShell({
   marketingSiteLabel,
   showResumeUploadHint,
   portalRoles,
+  attributionLabel,
+  partnerAccentColor,
   children,
 }: {
   portalRole: PortalRole;
@@ -83,6 +85,17 @@ export default function WorkspaceShell({
   showResumeUploadHint?: boolean;
   /** Optional set of role-switch targets for authenticated multi-role users */
   portalRoles?: PortalSwitcherRole[];
+  /**
+   * Small "Powered by …" attribution shown on the right of the header.
+   * Used in white-labeled partner portals where the partner brand owns the left side.
+   */
+  attributionLabel?: string;
+  /**
+   * Optional partner-scoped accent color (hex). When provided, exposed as the
+   * `--partner-accent` CSS variable on the shell root so partner-specific UI
+   * can opt in without overriding the global `--color-accent`.
+   */
+  partnerAccentColor?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -236,8 +249,13 @@ export default function WorkspaceShell({
 
   const firstHref = navItems[0]?.href ?? '/';
 
+  const rootStyle =
+    partnerAccentColor && /^#[0-9A-Fa-f]{6}$/.test(partnerAccentColor)
+      ? ({ ['--partner-accent' as string]: partnerAccentColor } as React.CSSProperties)
+      : undefined;
+
   return (
-    <div className="workspace-shell-root">
+    <div className="workspace-shell-root" style={rootStyle}>
       <header
         ref={headerRef}
         className={`workspace-shell-header${minimalMobileHeader ? ' workspace-shell-header--minimal-mobile' : ''}`}
@@ -306,6 +324,20 @@ export default function WorkspaceShell({
             </div>
           )}
           <PortalHeaderActions badges={badges} />
+          {attributionLabel ? (
+            <span
+              className="workspace-shell-attribution"
+              style={{
+                fontSize: '0.7rem',
+                color: 'var(--color-on-surface-variant)',
+                whiteSpace: 'nowrap',
+                marginLeft: '0.25rem',
+              }}
+              aria-label={attributionLabel}
+            >
+              {attributionLabel}
+            </span>
+          ) : null}
         </div>
       </header>
 

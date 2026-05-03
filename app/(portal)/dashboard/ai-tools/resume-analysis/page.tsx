@@ -45,7 +45,9 @@ export default async function ResumeAnalysisPage() {
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume for a standalone review: overall score, what is working, what to fix first, and
-              easy upgrades. Use Job Match Scorer when you have a specific posting to compare against.
+              easy upgrades. Analysis is reviewed against hiring patterns common to ATS (Applicant Tracking Systems) — the software
+              most employers use to screen resumes before a human ever reads them. Use Job Match Scorer when you have
+              a specific posting to compare against.
             </p>
           </div>
 

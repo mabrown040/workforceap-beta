@@ -132,6 +132,26 @@ export default async function AdminProgramsPage() {
                     <div className="portal-progress-bar__fill" style={{ width: `${progressPct}%` }} />
                   </div>
                 )}
+
+                {stats.count > 0 && (
+                  <div style={{ marginTop: '0.875rem', display: 'flex', justifyContent: 'flex-end' }}>
+                    <a
+                      href={`/api/admin/cohort-export?program=${encodeURIComponent(program.slug)}`}
+                      className="btn btn-outline btn-sm"
+                      data-program-action="cohort-csv"
+                      aria-label={`Download cohort CSV for ${program.title}`}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        aria-hidden="true"
+                        style={{ fontSize: '1rem', marginRight: '0.25rem', verticalAlign: 'middle' }}
+                      >
+                        download
+                      </span>
+                      Cohort CSV
+                    </a>
+                  </div>
+                )}
               </article>
             ))}
           </div>

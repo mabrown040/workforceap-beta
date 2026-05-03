@@ -119,9 +119,11 @@ export async function getPartnerForUser(
       return { partnerId: fallbackPartner.id, partner: fallbackPartner, hasDirectPartnerLink: false };
     }
 
-    const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
-    if (ensuredFallbackPartner) {
+    try {
+      const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
       return { partnerId: ensuredFallbackPartner.id, partner: ensuredFallbackPartner, hasDirectPartnerLink: false };
+    } catch {
+      // Missing org/seed or DB errors: fall through to any active partner.
     }
 
     const anyActivePartner = await prisma.partner.findFirst({
@@ -339,8 +341,12 @@ export async function getEmployerForUser(
     });
     if (fallbackEmployer) return mapEmployerRow(fallbackEmployer);
 
-    const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer();
-    if (ensuredFallbackEmployer) return mapEmployerRow(ensuredFallbackEmployer);
+    try {
+      const ensuredFallbackEmployer = await ensureSuperAdminFallbackEmployer();
+      return mapEmployerRow(ensuredFallbackEmployer);
+    } catch {
+      // Missing org/seed or DB errors: fall through to any active employer.
+    }
 
     const anyActiveEmployer = await prisma.employer.findFirst({
       where: { status: 'active' },

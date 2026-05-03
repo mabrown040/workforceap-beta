@@ -4,17 +4,15 @@ import { sendPartnerWeeklyDigestEmail } from '@/lib/email';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
  * Protected with CRON_SECRET. Vercel schedule: Monday 8am CT (see vercel.json).
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+async function handle(request: Request) {
+  const unauthorized = authorizeCronRequest(request);
+  if (unauthorized) return unauthorized;
 
   const now = new Date();
   const weekStart = new Date(now);
@@ -138,3 +136,6 @@ export async function GET(request: Request) {
   await logCronRun('cron_partner_digest', runResult, sent === 0 && results.length > 0 ? 'error' : 'ok');
   return NextResponse.json({ ok: true, checkedAt: now.toISOString(), results });
 }
+
+export const GET = handle;
+export const POST = handle;

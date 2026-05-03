@@ -53,7 +53,7 @@ export const CRON_REGISTRY: CronDef[] = [
     schedule: '0 10 * * 3',
     scheduleLabel: 'Wednesday 10AM UTC',
     apiPath: '/api/cron/inactivity-nudge',
-    method: 'POST',
+    method: 'GET',
     icon: 'schedule_send',
     category: 'member',
     audienceDescription: 'Enrolled members inactive 14+ days',

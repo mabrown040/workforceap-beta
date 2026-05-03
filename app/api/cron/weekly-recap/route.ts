@@ -4,6 +4,7 @@ import { sendWeeklyRecapEmail } from '@/lib/email';
 import { generateWeeklyRecap } from '@/lib/recap/generate';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 
 /**
  * GET /api/cron/weekly-recap
@@ -15,12 +16,9 @@ import { logCronRun } from '@/lib/admin/logCronRun';
  *
  * Or trigger manually from admin at /admin/weekly-recap.
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+async function handle(request: Request) {
+  const unauthorized = authorizeCronRequest(request);
+  if (unauthorized) return unauthorized;
 
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
@@ -82,3 +80,6 @@ export async function GET(request: Request) {
   await logCronRun('cron_weekly_recap', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
   return NextResponse.json(runResult);
 }
+
+export const GET = handle;
+export const POST = handle;

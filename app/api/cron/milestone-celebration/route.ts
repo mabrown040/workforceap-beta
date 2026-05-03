@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 
 /**
  * GET /api/cron/milestone-celebration
@@ -11,12 +12,9 @@ import { logCronRun } from '@/lib/admin/logCronRun';
  *
  * Deploy with Vercel Cron: schedule "0 11 * * *" (daily 11AM UTC)
  */
-export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET?.trim();
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+async function handle(req: NextRequest) {
+  const unauthorized = authorizeCronRequest(req);
+  if (unauthorized) return unauthorized;
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -53,3 +51,6 @@ export async function GET(req: NextRequest) {
   await logCronRun('cron_milestone_celebration', runResult);
   return NextResponse.json(runResult);
 }
+
+export const GET = handle;
+export const POST = handle;

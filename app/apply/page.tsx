@@ -7,7 +7,7 @@ import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerTAsync } from '@/lib/i18n/serverLabels';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
 
@@ -192,6 +192,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   const programSlug = resolveApplyProgramSlug(sp.program);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
+  const t = await makeServerTAsync();
 
   return (
     <div style={sPage.wrapper}>

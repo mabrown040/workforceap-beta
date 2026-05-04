@@ -20,7 +20,7 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
   });
   const gridLevels = [0.25, 0.5, 0.75, 1];
   const gridColor = '#333537';
-  const accentColor = '#ad2c4d';
+  const accentColor = '#C41E3A';
   const labelColor = '#a3a3a3';
 
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
@@ -76,7 +76,7 @@ function renderDualRadarSvgString(
 
   const gridLevels = [0.25, 0.5, 0.75, 1];
   const gridColor = '#333537';
-  const accentColor = '#ad2c4d';
+  const accentColor = '#C41E3A';
   const blueColor = '#2b7bb9';
   const labelColor = '#a3a3a3';
   const shortTitle = occupationTitle.length > 22 ? occupationTitle.slice(0, 22) + '…' : occupationTitle;

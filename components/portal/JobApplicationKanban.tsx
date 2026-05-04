@@ -41,7 +41,7 @@ const STATUS_BADGE_CLASSES: Record<JobApplicationStatus, string> = {
 /** Left accent on kanban cards / columns — WorkforceAP burgundy on Applied */
 const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
   SAVED: "#64748b",
-  APPLIED: "#8c0f37",
+  APPLIED: "#8B0000",
   PHONE_SCREEN: "#2563eb",
   INTERVIEWING: "#d97706",
   OFFER: "#16a34a",
@@ -146,7 +146,7 @@ function MobileApplicationCard({
             <button
               type="button"
               onClick={handleSave}
-              className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-bg-[#6b0a2a]"
+              className="wa-flex-1 wa-px-3 wa-py-2 wa-bg-[#8B0000] wa-text-white wa-text-sm wa-font-medium wa-rounded hover:wa-bg-[#6b0a2a]"
             >
               Save
             </button>
@@ -163,7 +163,7 @@ function MobileApplicationCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="wa-mt-3 wa-text-xs wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
+          className="wa-mt-3 wa-text-xs wa-text-[#8B0000] wa-font-medium hover:wa-underline"
         >
           Update Status
         </button>

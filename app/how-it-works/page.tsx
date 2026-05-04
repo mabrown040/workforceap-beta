@@ -9,19 +9,25 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'How It Works',
-  description:
-    'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.',
-  path: '/how-it-works',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
+  return buildPageMetadata({
+    title: t('How It Works'),
+    description:
+      t('Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.'),
+    path: '/how-it-works',
+  });
+}
 
-const PHASES = [
+const PHASES = (t: (label: string) => string) => [
   {
     id: 1,
-    label: 'Phase 1 — Get Started',
-    title: 'Get Started',
+    label: t('Phase 1 — Get Started'),
+    title: t('Get Started'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num <= 3).map((s) => ({
       num: s.num,
       title: s.title,
@@ -31,8 +37,8 @@ const PHASES = [
   },
   {
     id: 2,
-    label: 'Phase 2 — Build Your Future',
-    title: 'Build Your Future',
+    label: t('Phase 2 — Build Your Future'),
+    title: t('Build Your Future'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 4 && s.num <= 6).map((s) => ({
       num: s.num,
       title: s.title,
@@ -42,8 +48,8 @@ const PHASES = [
   },
   {
     id: 3,
-    label: 'Phase 3 — Launch Your Career',
-    title: 'Launch Your Career',
+    label: t('Phase 3 — Launch Your Career'),
+    title: t('Launch Your Career'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 7).map((s) => ({
       num: s.num,
       title: s.title,
@@ -54,6 +60,8 @@ const PHASES = [
 ];
 
 export default async function HowItWorksPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   let overviewVideoEmbed: string | null = null;
   if (!shouldSkipOptionalDbQueriesAtBuild()) {
     try {
@@ -171,8 +179,8 @@ export default async function HowItWorksPage() {
             </p>
           </div>
 
-          {PHASES.map((phase, phaseIdx) => (
-            <div key={phase.id} style={{ marginBottom: phaseIdx < PHASES.length - 1 ? '4rem' : 0 }}>
+          {PHASES(t).map((phase, phaseIdx) => (
+            <div key={phase.id} style={{ marginBottom: phaseIdx < PHASES(t).length - 1 ? '4rem' : 0 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid rgba(88,65,68,0.1)', paddingBottom: '1rem', marginBottom: '2rem' }}>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
                 <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>

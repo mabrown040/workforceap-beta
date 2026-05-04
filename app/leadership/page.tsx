@@ -6,15 +6,23 @@ import './leadership.css';
 import { prisma } from '@/lib/db/prisma';
 import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
 import PlacementTrustCallout from '@/components/marketing/PlacementTrustCallout';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Board & Leadership',
-  description:
-    "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
-  path: '/leadership',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
+  return buildPageMetadata({
+    title: t('Board & Leadership'),
+    description:
+      t("Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact."),
+    path: '/leadership',
+  });
+}
 
 export default async function LeadershipPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   let placementMetrics = {
     placedCount: 0,
     withRetentionNote: 0,
@@ -61,7 +69,7 @@ export default async function LeadershipPage() {
                   letterSpacing: '0.08em',
                 }}
               >
-                Our Leadership
+                {t('Our Leadership')}
               </span>
 
               <h1
@@ -72,7 +80,7 @@ export default async function LeadershipPage() {
                   lineHeight: 1.08,
                 }}
               >
-                Stewards of the{' '}
+                {t('Stewards of the')}{' '}
                 <span
                   style={{
                     background:
@@ -81,7 +89,7 @@ export default async function LeadershipPage() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  Future Workforce.
+                  {t('Future Workforce.')}
                 </span>
               </h1>
 

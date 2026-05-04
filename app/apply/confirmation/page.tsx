@@ -68,7 +68,7 @@ export default function ApplyConfirmationPage() {
                   width: '5.5rem',
                   height: '5.5rem',
                   borderRadius: '9999px',
-                  background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                  background: 'linear-gradient(135deg, #8B0000, #C41E3A)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',

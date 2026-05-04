@@ -188,7 +188,7 @@ export default function PortalVoiceSession({
   title,
   titleAs = 'h3',
   description,
-  accent = '#8c0f37',
+  accent = '#8B0000',
   accentDark = '#6b0c29',
   speakingLabel = 'Assistant is speaking…',
   listeningLabel = 'Listening — speak when ready',

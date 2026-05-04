@@ -22,12 +22,13 @@ export default async function CounselorWorkQueuePage() {
   const admin = await isAdmin(user.id);
   if (!counselor && !admin) redirect('/dashboard');
 
-  let rows: Awaited<ReturnType<typeof getCounselorWorkQueue>>;
+  let rows: Awaited<ReturnType<typeof getCounselorWorkQueue>> = [];
+  let loadFailed = false;
   try {
     rows = await getCounselorWorkQueue(user.id, { isAdmin: admin });
   } catch (err) {
     console.error('[counselor/queue] getCounselorWorkQueue failed:', err);
-    rows = [];
+    loadFailed = true;
   }
 
   return (
@@ -42,7 +43,23 @@ export default async function CounselorWorkQueuePage() {
       />
 
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
-        {rows.length === 0 ? (
+        {loadFailed ? (
+          <PortalEmptyState
+            title="Unable to load queue"
+            description="We could not load overdue replies. Refresh the page or open Messages to keep following up."
+            icon={
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '2rem', color: 'var(--color-warning)' }}
+                aria-hidden="true"
+              >
+                error_outline
+              </span>
+            }
+            primaryAction={{ label: 'Refresh', href: '/counselor/queue' }}
+            secondaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
+          />
+        ) : rows.length === 0 ? (
           <PortalEmptyState
             title="All caught up"
             description="No member is waiting more than 24 hours for a reply. Nice work."

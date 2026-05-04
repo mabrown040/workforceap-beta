@@ -61,14 +61,17 @@ ever drops events.
 ### Where to download the CSV
 
 Coursera admin console → **Analytics → Reports → Learner activity & progress** →
-**Customise & Generate**. The download is a ZIP with six CSVs; only one is consumed by
-this importer:
+**Customise & Generate**. The download is a ZIP with six CSVs; the importer
+consumes two of them:
 
-- `CourseActivity workforce-advancement - CourseraEnterpriseExport ... .csv` — primary,
-  per-learner-per-course progress (this is the only file the importer reads).
-- `ProgramActivity ...` — supplementary program-level rollup. Not required.
-- `LearningPathActivity`, `ActivityByBusinessUnit`, `ActivityByCountry`, `ActivityByCity`
-  — aggregate-only and ignored.
+- `CourseActivity workforce-advancement - CourseraEnterpriseExport ... .csv` —
+  per-learner-per-course progress. Backs the `coursera_course_progress` table.
+- `LearningPathActivity workforce-advancement - CourseraEnterpriseExport ... .csv` —
+  per-learner-per-badge progress (a.k.a. specializations). Backs the
+  `coursera_badge_progress` table.
+- `ProgramActivity ...` — supplementary program-level rollup. Not used.
+- `ActivityByBusinessUnit`, `ActivityByCountry`, `ActivityByCity` — aggregate-only
+  and ignored.
 
 ### Schedule daily delivery
 
@@ -78,14 +81,24 @@ From the same Customise & Generate screen, schedule daily email delivery to
 ### Importing
 
 1. Sign in as an admin and visit `/admin/coursera/csv-import`.
-2. Upload the `CourseActivity ... .csv` file (5 MB cap).
-3. The importer parses the file, upserts each row into `coursera_course_progress`
-   keyed on `(lower(email), coursera_course_id)`, and resolves the `user_id` via:
+2. Upload either the `CourseActivity ... .csv` or
+   `LearningPathActivity ... .csv` file (5 MB cap). The importer auto-detects
+   which kind you uploaded by inspecting the header row.
+3. For **CourseActivity** the importer parses the file, upserts each row into
+   `coursera_course_progress` keyed on `(lower(email), coursera_course_id)`,
+   and resolves the `user_id` via:
    - Direct match on `lower(users.email)` first.
    - Falls back to the existing `coursera_identity_mappings` table.
-4. The result page shows inserted/updated/resolved/unresolved counts plus a
-   downloadable CSV of unresolved learners. Map them manually from
-   `/admin/coursera` to pick them up on the next import.
+4. For **LearningPathActivity** the importer parses the file, groups rows by
+   `(lower(email), badge_slug)` (the source CSV emits one row per
+   course-within-badge), and upserts one record per learner+badge into
+   `coursera_badge_progress`. Per group it counts `coursesCompleted` from rows
+   where `Is Course Completed = "Yes"`, picks `currentCourseName` as the most
+   recently enrolled in-progress course, and takes `MAX(lastActivityTime)`.
+   `user_id` is resolved using the same email-then-mapping ladder as
+   CourseActivity.
+5. The result page shows inserted/updated/resolved/unresolved counts plus a
+   downloadable CSV of unresolved learners.
 
 ### Endpoint
 
@@ -94,11 +107,12 @@ From the same Customise & Generate screen, schedule daily email delivery to
 - `multipart/form-data` with a `csv` file field, or
 - `Content-Type: text/csv` with the raw CSV body.
 
-Returns JSON:
+Returns JSON. The shape varies slightly by `kind`:
 
 ```json
 {
   "ok": true,
+  "kind": "course-activity",
   "filename": "CourseActivity ... .csv",
   "parsed": 3,
   "inserted": 3,
@@ -110,4 +124,46 @@ Returns JSON:
 }
 ```
 
+```json
+{
+  "ok": true,
+  "kind": "learning-path-activity",
+  "filename": "LearningPathActivity ... .csv",
+  "parsed": 3,
+  "inserted": 3,
+  "updated": 0,
+  "resolvedToUsers": 2,
+  "unresolved": 1,
+  "errors": [],
+  "unresolvedRows": [{ "email": "...", "name": "...", "badgeSlug": "...", "badgeTitle": "..." }]
+}
+```
+
 The endpoint is idempotent — re-uploading the same CSV updates rows in place.
+
+## Coursera-only learner mapping
+
+When a learner shows up on Coursera with an email we don't have in the `users`
+table (common before WIOA enrollment is complete or when the learner used a
+different email at signup), the importer still records their progress with a
+`null` `user_id`. The admin page at `/admin/coursera` surfaces these in a
+dedicated **"Coursera-only learners (unmatched)"** section that lists distinct
+external emails from both `coursera_course_progress` and
+`coursera_badge_progress` where `user_id IS NULL`.
+
+Each row has a **"Map to WAP user…"** action that opens an inline dropdown of
+WAP members. On submit it calls `POST /api/admin/coursera/map-unmatched` which:
+
+1. Upserts a `coursera_identity_mappings` row binding `userId ↔ courseraEmail`
+   so future ingest runs and live xAPI events resolve automatically.
+2. Backfills `user_id` on existing `coursera_course_progress` and
+   `coursera_badge_progress` rows for that lower-cased email — no re-import
+   needed.
+
+Per-learner drill-down pages live at:
+
+- `/admin/coursera/learners/[userId]` — for matched WAP users; shows xAPI
+  progress card, CSV-imported courses, badges, and identity mappings.
+- `/admin/coursera/learners/unmatched/[externalEmail]` — for unmatched Coursera
+  learners; shows their CSV course + badge progress keyed by raw external
+  email.

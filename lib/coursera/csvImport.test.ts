@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { parseCourseActivityCsv } from './csvImport';
+import {
+  detectCourseraCsvKind,
+  parseCourseActivityCsv,
+  parseLearningPathActivityCsv,
+} from './csvImport';
 
 const SAMPLE_PATH = path.resolve(
   process.cwd(),
@@ -11,6 +15,16 @@ const SAMPLE_PATH = path.resolve(
   '.coursera-csv-sample',
   'CourseActivity workforce-advancement - CourseraEnterpriseExport 2026-05-04 17-33-53 UTC.csv'
 );
+
+const BADGE_SAMPLE_PATH = path.resolve(
+  process.cwd(),
+  '..',
+  '.coursera-csv-sample',
+  'LearningPathActivity workforce-advancement - CourseraEnterpriseExport 2026-05-04 17-33-53 UTC.csv'
+);
+
+const BADGE_HEADER =
+  '"User Name","Email","Badge Title","Badge Slug","Badge Link","Badge Last Transaction Timestamp","Number of Courses","Progress in Badge (%)","Course Name","Course Enrollment Date","Is Course Completed","Course Completion Timestamp","Badge Completed","Badge Completion Timestamp","Last Activity Timestamp","List of Program","Collection ID","Collection Name","Total Estimated Learning Hours (since enrolled)","Manager Name","Manager Email","Job Title","Business Unit","Business Unit 2","Location City","Location Region","Location Country"';
 
 const HEADER =
   '"Name","Email","External ID","Course","Course ID","Course Slug","University","Enrollment Time","Class Start Time","Class End Time","Last Course Activity Time","Overall Progress","Total Estimated Learning Hours (since enrolled)","Completed","Removed From Program","Program Slug","Program Name","Collection Name","Collection ID","Completion Time","Course Grade","Course Certificate URL","Contract","Is Enterprise Contract Active","Learning Hours","Course Type","Manager Name","Manager Email","Job Title","Job Type","Business Unit","Business Unit 2","Location City","Location Region","Location Country"';
@@ -116,4 +130,94 @@ test('parseCourseActivityCsv skips rows missing email or course id', () => {
   const rows = parseCourseActivityCsv(csv);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].email, 'valid@example.com');
+});
+
+test('parseLearningPathActivityCsv handles the real Coursera enterprise export sample', () => {
+  if (!existsSync(BADGE_SAMPLE_PATH)) {
+    console.warn(`[csvImport.test] sample CSV not found at ${BADGE_SAMPLE_PATH}; skipping`);
+    return;
+  }
+
+  const content = readFileSync(BADGE_SAMPLE_PATH, 'utf8');
+  const rows = parseLearningPathActivityCsv(content);
+
+  assert.equal(rows.length, 3, 'expected 3 learner-badge rows in sample CSV');
+
+  const robert = rows.find((r) => r.name === 'Robert Noel');
+  assert.ok(robert, 'Robert Noel row present');
+  assert.equal(robert!.email, 'Noel2764@gmail.com');
+  assert.equal(
+    robert!.badgeSlug,
+    'project-management-and-pmp-certification-pathway-hr2it'
+  );
+  assert.equal(
+    robert!.badgeTitle,
+    'Project Management Professional Certificate (Microsoft)'
+  );
+  assert.equal(robert!.numberOfCourses, 10);
+  assert.equal(robert!.progressPercent, 0.0);
+  assert.equal(robert!.isCourseCompleted, false);
+  assert.equal(robert!.badgeCompleted, false);
+  assert.equal(robert!.collectionId, '1cvGr');
+  assert.equal(robert!.totalLearningHours, 1.43);
+  assert.ok(robert!.lastActivityTime instanceof Date);
+
+  const tarrance = rows.find((r) => r.name === 'Tarrance Hopkins');
+  assert.ok(tarrance);
+  assert.equal(tarrance!.email, 'tarrancehopkins98@gmail.com');
+  assert.equal(tarrance!.totalLearningHours, 10.04);
+
+  const clarence = rows.find((r) => r.name === 'Clarence B. Watson');
+  assert.ok(clarence);
+  assert.equal(clarence!.email, 'peacemycommunitybacktogether@gmail.com');
+  assert.equal(clarence!.totalLearningHours, 2.88);
+});
+
+test('parseLearningPathActivityCsv handles minimal inline CSV', () => {
+  const csv = `${BADGE_HEADER}
+"Jane Doe","jane@example.com","Test Badge","test-badge","https://link","2026-04-01T00:00:00","5","20.0","Course One","2026-04-01T00:00:00","Yes","2026-04-10T00:00:00","No","","2026-04-15T00:00:00","Prog","collId","Coll","2.5","","","","","","","",""
+`;
+
+  const rows = parseLearningPathActivityCsv(csv);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].email, 'jane@example.com');
+  assert.equal(rows[0].badgeSlug, 'test-badge');
+  assert.equal(rows[0].numberOfCourses, 5);
+  assert.equal(rows[0].progressPercent, 20.0);
+  assert.equal(rows[0].isCourseCompleted, true);
+  assert.equal(rows[0].badgeCompleted, false);
+  assert.ok(rows[0].courseCompletionTime instanceof Date);
+});
+
+test('parseLearningPathActivityCsv throws on unrecognized headers (wrong CSV tab)', () => {
+  // CourseActivity headers — different from LearningPathActivity.
+  const wrongHeader =
+    '"Name","Email","External ID","Course","Course ID","Course Slug","University"';
+  assert.throws(
+    () => parseLearningPathActivityCsv(wrongHeader + '\n'),
+    /missing required header/
+  );
+});
+
+test('parseLearningPathActivityCsv skips rows missing email, badge slug, or badge title', () => {
+  const csv = `${BADGE_HEADER}
+"No Email","","Title","slug-x","","","5","0","CN","","No","","No","","","","","","1","","","","","","","",""
+"No Slug","x@example.com","Title","","","","5","0","CN","","No","","No","","","","","","1","","","","","","","",""
+"No Title","y@example.com","","slug-y","","","5","0","CN","","No","","No","","","","","","1","","","","","","","",""
+"Valid","valid@example.com","Real Title","real-slug","","","5","0","CN","","No","","No","","","","","","1","","","","","","","",""
+`;
+
+  const rows = parseLearningPathActivityCsv(csv);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].email, 'valid@example.com');
+});
+
+test('detectCourseraCsvKind sniffs the CSV type from the header row', () => {
+  const courseHeaderOnly = `${HEADER}\n`;
+  const badgeHeaderOnly = `${BADGE_HEADER}\n`;
+  const garbage = `"Foo","Bar"\n`;
+
+  assert.equal(detectCourseraCsvKind(courseHeaderOnly), 'course-activity');
+  assert.equal(detectCourseraCsvKind(badgeHeaderOnly), 'learning-path-activity');
+  assert.equal(detectCourseraCsvKind(garbage), null);
 });

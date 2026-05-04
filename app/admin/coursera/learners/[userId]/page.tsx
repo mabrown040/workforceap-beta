@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
+import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera learner detail',
@@ -84,6 +85,7 @@ export default async function AdminCourseraLearnerPage({
   const role = await getProfileRole(member.id);
 
   const identityMappings = await loadIdentityMappingsForUser(member.id);
+  const csvProgress = await loadLearnerProgressByUserId(member.id);
 
   return (
     <PortalPageFrame>
@@ -137,6 +139,114 @@ export default async function AdminCourseraLearnerPage({
       <div style={{ marginBottom: '1rem' }}>
         <CourseraProgressCard userId={member.id} />
       </div>
+
+      {csvProgress && csvProgress.courses.length > 0 ? (
+        <section
+          className="content-card"
+          style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.6rem' }}
+        >
+          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera courses (from CSV)</h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ textAlign: 'left' }}>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Hours</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Certificate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {csvProgress.courses.map((course) => (
+                  <tr key={course.id}>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      <strong>{course.courseName}</strong>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                        {course.university ?? course.programName ?? course.programSlug}
+                      </div>
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                      {course.overallProgress.toFixed(2)}%
+                      {course.isCompleted ? (
+                        <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                          done
+                        </span>
+                      ) : null}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                      {course.learningHours.toFixed(2)}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      {formatDateTime(course.lastActivityTime)}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      {course.certificateUrl ? (
+                        <a href={course.certificateUrl} target="_blank" rel="noreferrer">view ↗</a>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      {csvProgress && csvProgress.badges.length > 0 ? (
+        <section
+          className="content-card"
+          style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.6rem' }}
+        >
+          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Specializations / badges (from CSV)</h2>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ textAlign: 'left' }}>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badge</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Courses done</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Current course</th>
+                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {csvProgress.badges.map((badge) => (
+                  <tr key={badge.id}>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      <strong>{badge.badgeTitle}</strong>
+                      {badge.badgeCompleted ? (
+                        <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                          completed
+                        </span>
+                      ) : null}
+                      {badge.badgeLink ? (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                          <a href={badge.badgeLink} target="_blank" rel="noreferrer">badge link ↗</a>
+                        </div>
+                      ) : null}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                      {badge.progressPercent.toFixed(2)}%
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                      {badge.coursesCompleted}/{badge.numberOfCourses}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      {badge.currentCourseName ?? '—'}
+                    </td>
+                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      {formatDateTime(badge.lastActivityTime)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
 
       <section
         className="content-card"

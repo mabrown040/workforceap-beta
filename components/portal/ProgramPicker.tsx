@@ -28,7 +28,7 @@ function WioaErrorMessage({ error }: { error: EnrollError }) {
   const isBlocked = error.code === 'WIOA_NOT_ELIGIBLE';
   const bg = isBlocked ? 'rgba(173,44,77,0.08)' : 'rgba(43,123,185,0.08)';
   const border = isBlocked ? '1px solid rgba(173,44,77,0.25)' : '1px solid rgba(43,123,185,0.25)';
-  const color = isBlocked ? '#ad2c4d' : '#2b7bb9';
+  const color = isBlocked ? '#C41E3A' : '#2b7bb9';
 
   return (
     <div
@@ -58,7 +58,7 @@ function WioaErrorMessage({ error }: { error: EnrollError }) {
       {error.code === 'WIOA_NOT_ELIGIBLE' && (
         <Link
           href="/contact"
-          style={{ color: '#ad2c4d', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
+          style={{ color: '#C41E3A', fontWeight: 700, textDecoration: 'none', fontSize: '0.875rem' }}
         >
           Contact WorkforceAP →
         </Link>

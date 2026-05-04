@@ -27,7 +27,7 @@ const bodySchema = z.object({
 });
 
 // PDF Generation Helpers
-const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #ad2c4d
+const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #C41E3A
 const DARK_TEXT = rgb(0.13, 0.13, 0.13);
 const MUTED = rgb(0.52, 0.52, 0.52);
 const RULE = rgb(0.87, 0.87, 0.87);

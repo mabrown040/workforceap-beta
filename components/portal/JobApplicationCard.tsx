@@ -22,7 +22,7 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
 
 const CARD_ACCENT: Record<JobApplicationStatus, string> = {
   SAVED: "#64748b",
-  APPLIED: "#8c0f37",
+  APPLIED: "#8B0000",
   PHONE_SCREEN: "#2563eb",
   INTERVIEWING: "#d97706",
   OFFER: "#16a34a",
@@ -154,7 +154,7 @@ export default function JobApplicationCard({
       role="button"
       tabIndex={0}
       aria-label={`Edit job application for ${application.role} at ${application.company}`}
-      className="portal-kanban-card job-app-card wa-cursor-pointer focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1"
+      className="portal-kanban-card job-app-card wa-cursor-pointer focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8B0000] focus-visible:wa-ring-offset-1"
       style={
         {
           padding: "0.75rem",

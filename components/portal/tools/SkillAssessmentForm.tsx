@@ -386,16 +386,16 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                     </g>
                   );
                 })}
-                <polygon points={radarPolygon} fill="rgba(140, 15, 55, 0.18)" stroke="#8c0f37" strokeWidth="2.5" />
+                <polygon points={radarPolygon} fill="rgba(140, 15, 55, 0.18)" stroke="#8B0000" strokeWidth="2.5" />
                 {radarAxes.map((axis, index) => {
                   const angle = -Math.PI / 2 + (Math.PI * 2 * index) / radarAxes.length;
                   const effectiveValue = axis.hasData === false ? 0 : axis.value;
                   const point = polarToCartesian(angle, (CHART_RADIUS * effectiveValue) / axis.maxValue);
                   // Show hollow circle for axes with no data, filled for axes with data
                   return axis.hasData === false ? (
-                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="none" stroke="#8c0f37" strokeWidth="2" />
+                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="none" stroke="#8B0000" strokeWidth="2" />
                   ) : (
-                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="#8c0f37" />
+                    <circle key={axis.axis} cx={point.x} cy={point.y} r="4.5" fill="#8B0000" />
                   );
                 })}
               </svg>
@@ -415,7 +415,7 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                           width: `${axis.value}%`,
                           height: '100%',
                           borderRadius: '999px',
-                          background: 'linear-gradient(90deg, #8c0f37 0%, #c7496a 100%)',
+                          background: 'linear-gradient(90deg, #8B0000 0%, #c7496a 100%)',
                         }}
                       />
                     )}

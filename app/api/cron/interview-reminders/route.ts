@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
         user: { deletedAt: null, notificationsReminders: true },
       },
       take: 200,
+      orderBy: { nextInterviewDate: 'asc' },
       include: { user: { select: { email: true, fullName: true } } },
     });
 
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
         user: { deletedAt: null, notificationsReminders: true },
       },
       take: 200,
+      orderBy: { nextInterviewDate: 'asc' },
       include: { user: { select: { email: true, fullName: true } } },
     });
 

@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { useTranslatedLabel } from './useTranslatedLabel';
 
 type Props = {
   compact?: boolean;
 };
 
 export default function PartnerInviteMemberButton({ compact = false }: Props) {
+  const tLabel = useTranslatedLabel();
   const dialogId = useId();
   const titleId = useId();
   const descriptionId = useId();
@@ -98,7 +100,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
         aria-expanded={open}
         aria-controls={dialogId}
       >
-        Invite Member
+        {tLabel('Invite Member')}
       </button>
 
       {open ? (
@@ -145,7 +147,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
                 </p>
               </div>
               <button type="button" className="btn btn-outline" onClick={() => setOpen(false)} disabled={submitting}>
-                Close
+                {tLabel('Close')}
               </button>
             </div>
 
@@ -203,7 +205,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setOpen(false)} disabled={submitting}>
-                  Cancel
+                  {tLabel('Cancel')}
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={submitting || !email.trim()}>
                   {submitting ? 'Sending…' : 'Send Invite'}

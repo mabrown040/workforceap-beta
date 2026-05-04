@@ -11,6 +11,7 @@ import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import { buildEmployerInbox } from '@/lib/messages/employerInbox';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -37,7 +38,7 @@ export default async function EmployerMessagesPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Messages"
+        title={t('Messages')}
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">Candidates and WorkforceAP team</span>

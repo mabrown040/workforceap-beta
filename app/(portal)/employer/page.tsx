@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -22,11 +22,13 @@ import {
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Employer overview',
   description: 'Manage your job postings and view applications.',
   path: '/employer',
 });
+}
 
 export default async function EmployerDashboardPage() {
   const user = await getUser();

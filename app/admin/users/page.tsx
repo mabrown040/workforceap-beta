@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -10,11 +10,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminUsersManager from '@/components/admin/AdminUsersManager';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Users',
   description: 'Manage user emails, roles, and password resets.',
   path: '/admin/users',
 });
+}
 
 export default async function AdminUsersPage() {
   const user = await getUser();

@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getAiToolsCohortStats } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'AI tools analytics',
   description: 'AI tool usage by cohort.',
   path: '/admin/ai-tools',
 });
+}
 
 export default async function AdminAiToolsAnalyticsPage() {
   const user = await getUser();

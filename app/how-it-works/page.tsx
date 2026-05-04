@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -13,14 +13,12 @@ import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
-  return buildPageMetadata({
-    title: t('How It Works'),
-    description:
-      t('Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.'),
-    path: '/how-it-works',
-  });
+  return buildPageMetadataAsync({
+  title: 'How It Works',
+  description:
+    'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.',
+  path: '/how-it-works',
+});
 }
 
 const PHASES = (t: (label: string) => string) => [

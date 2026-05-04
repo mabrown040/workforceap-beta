@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { Prisma } from '@prisma/client';
@@ -13,11 +13,13 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import WioaReviewFilterBar from '@/components/admin/WioaReviewFilterBar';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – WIOA screening queue',
   description: 'Members who submitted the WIOA self-screening questionnaire.',
   path: '/admin/wioa-screening',
 });
+}
 
 type PageProps = {
   searchParams?: Promise<{ review?: string | string[] }>;

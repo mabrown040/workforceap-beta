@@ -15,13 +15,15 @@ import { getStaleApplications } from '@/lib/data/applications';
 import StaleApplicationsBanner from './StaleApplicationsBanner';
 
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin - Hiring Pipeline',
   description: 'View and manage the hiring pipeline.',
   path: '/admin/pipeline',
 });
+}
 
 function toKanbanMember(s: {
   id: string;

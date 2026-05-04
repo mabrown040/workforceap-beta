@@ -1,5 +1,5 @@
-﻿import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import type { Metadata } from 'next';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
@@ -9,14 +9,12 @@ import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
-  return buildPageMetadata({
-    title: t('Workforce Development Training & Industry Certificates'),
-    description:
-      t('WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.'),
-    path: '/what-we-do',
-  });
+  return buildPageMetadataAsync({
+  title: 'Workforce Development Training & Industry Certificates',
+  description:
+    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.',
+  path: '/what-we-do',
+});
 }
 
 const BENTO_ITEMS = [

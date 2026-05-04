@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Our Impact',
   description:
     'See how Workforce Advancement Project expands access to career training through employer-aligned programs, partnerships, and member support.',
   path: '/impact',
 });
+}
 
 const IMPACT_STATS = [
   { value: '25+', label: 'Years removing barriers to workforce opportunity' },

@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import JobApplicationsTracker from '@/components/portal/JobApplicationsTracker';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Application tracker',
   description: 'Track your job applications and interview progress from the Jobs workflow.',
   path: '/dashboard/job-applications',
 });
+}
 
 export default async function JobApplicationsPage() {
   const user = await getUser();

@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'LinkedIn About Section Generator',
   description: 'Create a polished LinkedIn About section from your role and resume or bullet points.',
   path: '/dashboard/ai-tools/linkedin-about',
 });
+}
 
 export default async function LinkedInAboutPage() {
   const user = await getUser();

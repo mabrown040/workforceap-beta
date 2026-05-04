@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import InterviewCoach from '@/components/portal/tools/InterviewCoach';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Interview Coach',
-  description: 'Run a text-based mock interview and get instant feedback.',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'AI Interview Coach',
+  description: 'Run a text-based mock interview and get instant AI feedback.',
   path: '/dashboard/ai-tools/interview-coach',
 });
+}
 
 export default async function InterviewCoachPage() {
   const user = await getUser();

@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import VoiceSessionIntroStrip from '@/components/portal/tools/VoiceSessionIntroStrip';
 import { getUser } from '@/lib/auth/server';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Resume & Experience Enhancer',
   description: 'Practice your story out loud and refine your resume in a dedicated voice coaching flow.',
   path: '/dashboard/ai-tools/resume-coach',
 });
+}
 
 export default async function ResumeCoachPage() {
   const user = await getUser();

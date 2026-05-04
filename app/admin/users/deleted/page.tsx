@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import DeletedUsersClient, {
   type DeletedUserRow,
 } from '@/components/admin/DeletedUsersClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Deleted users',
   description: 'Soft-deleted user records — free their email to allow re-signup, or restore.',
   path: '/admin/users/deleted',
 });
+}
 
 /**
  * Soft-deleted users admin view. Built per user direction 2026-04-26

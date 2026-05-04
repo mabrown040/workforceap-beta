@@ -1,52 +1,15 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug, type Program } from '@/lib/content/programs';
+import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import { markCourseProgressCompleted } from '@/lib/member/courseProgress';
+import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 import { awardPoints } from '@/lib/member/points';
-
-function normalizeText(value: string) {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
-}
-
-function normalizeSlug(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function resolveProgramCourse(
-  program: Program,
-  args: { courseSlug?: string; courseName?: string }
-): { slug: string; name: string } | null {
-  if (args.courseSlug) {
-    const requestedSlug = args.courseSlug.trim();
-    const requestedSlugNormalized = normalizeSlug(requestedSlug);
-    const bySlug = program.courses.find((course) =>
-      course.slug === requestedSlug
-      || normalizeSlug(course.slug) === requestedSlugNormalized
-      || normalizeSlug(course.name) === requestedSlugNormalized
-    );
-    if (bySlug) return { slug: bySlug.slug, name: bySlug.name };
-  }
-
-  if (args.courseName) {
-    const target = normalizeText(args.courseName);
-    const targetSlug = normalizeSlug(args.courseName);
-    const byName = program.courses.find((course) =>
-      normalizeText(course.name) === target || normalizeSlug(course.name) === targetSlug
-    );
-    if (byName) return { slug: byName.slug, name: byName.name };
-  }
-
-  return null;
-}
 
 export async function completeMemberCourse(args: {
   userId: string;
@@ -79,6 +42,14 @@ export async function completeMemberCourse(args: {
 
   const completed = parseCourseSlugList(dbUser.coursesCompleted);
   if (completed.includes(matchedCourse.slug)) {
+    const discovered = getDiscoveredProgram(dbUser.enrolledProgram);
+    const discoveredMeta = discovered?.courses.find((c) => c.slug === matchedCourse.slug);
+    await markCourseProgressCompleted({
+      userId: args.userId,
+      programSlug: dbUser.enrolledProgram,
+      courseSlug: matchedCourse.slug,
+      courseId: discoveredMeta?.courseId ?? null,
+    }).catch(() => {});
     return {
       ok: true,
       alreadyCompleted: true,
@@ -95,6 +66,15 @@ export async function completeMemberCourse(args: {
     where: { id: args.userId },
     data: { coursesCompleted: updated },
   });
+
+  const discovered = getDiscoveredProgram(dbUser.enrolledProgram);
+  const discoveredMeta = discovered?.courses.find((c) => c.slug === matchedCourse.slug);
+  await markCourseProgressCompleted({
+    userId: args.userId,
+    programSlug: dbUser.enrolledProgram,
+    courseSlug: matchedCourse.slug,
+    courseId: discoveredMeta?.courseId ?? null,
+  }).catch(() => {});
 
   trackEvent({
     userId: args.userId,

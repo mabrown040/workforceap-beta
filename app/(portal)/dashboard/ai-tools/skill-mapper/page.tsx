@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SkillMapperClient from '@/components/portal/tools/SkillMapperClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Skill Mapper',
   description: 'Explore occupation skills from O*NET. Visualize competency radar charts and top skills for any career path.',
   path: '/dashboard/ai-tools/skill-mapper',
 });
+}
 
 export default async function SkillMapperPage() {
   const user = await getUser();

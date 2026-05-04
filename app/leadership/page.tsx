@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 import './leadership.css';
@@ -10,30 +10,13 @@ import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
-  return buildPageMetadata({
-    title: t('Board & Leadership'),
-    description:
-      t("Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact."),
-    path: '/leadership',
-  });
+  return buildPageMetadataAsync({
+  title: 'Board & Leadership',
+  description:
+    "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
+  path: '/leadership',
+});
 }
-
-export default async function LeadershipPage() {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
-  let placementMetrics = {
-    placedCount: 0,
-    withRetentionNote: 0,
-    lastPlacedAt: null as Date | null,
-    asOfLabel: 'Outcomes data unavailable',
-  };
-  try {
-    placementMetrics = await getPlacementPublicMetrics(prisma);
-  } catch {
-    // keep defaults
-  }
 
   return (
     <div className="inner-page">

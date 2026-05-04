@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { Prisma } from '@prisma/client';
 import { notFound, redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -34,11 +34,13 @@ import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import { parseCourseSlugList as parseAdminCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import '@/css/counselor.css';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Member Detail',
   description: 'View and manage member.',
   path: '/admin/members',
 });
+}
 
 export default async function AdminMemberDetailPage({
   params,

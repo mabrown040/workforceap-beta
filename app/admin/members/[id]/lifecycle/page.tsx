@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Member lifecycle',
   description: 'Lifecycle timeline and enrollment drift audit for a member.',
   path: '/admin/members',
 });
+}
 
 export default async function AdminMemberLifecyclePage({
   params,

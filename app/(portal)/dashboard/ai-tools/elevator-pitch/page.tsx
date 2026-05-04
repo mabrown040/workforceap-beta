@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
@@ -8,11 +8,13 @@ import ElevatorPitchClient from '@/components/portal/tools/ElevatorPitchClient';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import ElevatorPitchDeploymentLogger from '@/components/portal/tools/ElevatorPitchDeploymentLogger';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Elevator Pitch',
-  description: '10-20 second elevator introduction with saved history, email delivery, and voice rehearsal recording.',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'AI Elevator Introduction',
+  description: 'AI-crafted 10-20 second elevator introduction with saved history, email delivery, and voice rehearsal recording.',
   path: '/dashboard/ai-tools/elevator-pitch',
 });
+}
 
 export default async function ElevatorPitchPage() {
   const user = await getUser();

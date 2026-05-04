@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'LinkedIn Headline Generator',
   description: 'Craft a compelling LinkedIn headline that gets you noticed.',
   path: '/dashboard/ai-tools/linkedin-headline',
 });
+}
 
 export default async function LinkedInHeadlinePage() {
   const user = await getUser();

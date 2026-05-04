@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
@@ -11,11 +11,13 @@ import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Career Toolkit',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'AI Toolkit',
   description: 'Guided member tools for resumes, applications, interviews, LinkedIn, and job-search strategy.',
   path: '/dashboard/ai-tools',
 });
+}
 
 export default async function AIToolsPage() {
   const user = await getUser();

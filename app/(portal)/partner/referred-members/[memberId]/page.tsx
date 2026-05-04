@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { CheckCircle } from 'lucide-react';
 
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getPartnerForUser } from '@/lib/auth/roles';
@@ -19,7 +19,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { memberId } = await params;
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: 'Member overview',
     description: 'Referred member progress (read-only).',
     path: `/partner/referred-members/${memberId}`,

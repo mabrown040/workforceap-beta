@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getCareerBriefs, getCareerBriefContent } from '@/lib/content/careerBriefs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const briefs = getCareerBriefs();
   const brief = briefs.find((b) => b.slug === slug);
   if (!brief) return { title: 'Brief not found' };
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: brief.title,
     description: 'Weekly Career Brief for WorkforceAP members.',
     path: `/dashboard/career-brief/${slug}`,

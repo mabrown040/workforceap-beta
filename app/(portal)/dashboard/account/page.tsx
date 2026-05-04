@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Account settings',
   description: 'Manage your account and password.',
   path: '/dashboard/account',
 });
+}
 
 export default async function DashboardAccountPage() {
   const user = await getUser();

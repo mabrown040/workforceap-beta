@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import FindYourPathClient from './FindYourPathClient';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Find Your Path — Program Quiz',
   description:
     'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for qualifying members.',
   path: '/find-your-path',
 });
+}
 
 const fallbackProgramSlugs = [
   'digital-literacy-empowerment-class',

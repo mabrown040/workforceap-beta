@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = {
-  ...buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  const base = await buildPageMetadataAsync({
     title: 'Set new password',
     description: 'Choose a new password for your WorkforceAP account.',
     path: '/reset-password',
-  }),
-  robots: { index: false, follow: false },
-};
+  });
+  return { ...base, robots: { index: false, follow: false } };
+}
 
 export default function ResetPasswordLayout({ children }: { children: React.ReactNode }) {
   return children;

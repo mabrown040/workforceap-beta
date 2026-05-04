@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import WioaQualificationClient from '@/components/portal/WioaQualificationClient';
@@ -9,11 +9,13 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Training Funding Eligibility Check',
   description: 'Answer a few questions to help your counselor identify which no-cost training services may be available to you.',
   path: '/dashboard/learning/wioa-qualification',
 });
+}
 
 export default async function WioaQualificationPage() {
   const user = await getUser();

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
@@ -29,12 +29,14 @@ function getPrefilledTopic(topicParam?: string | string[]): string {
   return topicMap[topic] ?? '';
 }
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Contact Us',
   description:
     'Contact Workforce Advancement Project for program questions, enrollment support, and partnership opportunities.',
   path: '/contact',
 });
+}
 
 const contactCards = [
   {

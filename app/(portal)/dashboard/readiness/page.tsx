@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getScoreBreakdownSafe } from '@/lib/readiness/score';
 import PageHeader from '@/components/portal/PageHeader';
@@ -12,11 +12,13 @@ import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturn
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 import '@/css/counselor.css';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Job Readiness Checklist',
   description: 'Track your progress toward being job-ready.',
   path: '/dashboard/readiness',
 });
+}
 
 /**
  * Map the 10-item score breakdown into 4 mobile-friendly categories.

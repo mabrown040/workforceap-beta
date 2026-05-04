@@ -3,13 +3,15 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin - Subgroups',
   description: 'Manage member subgroups.',
   path: '/admin/subgroups',
 });
+}
 
 export default async function AdminSubgroupsPage() {
   const subgroups = await prisma.subgroup.findMany({

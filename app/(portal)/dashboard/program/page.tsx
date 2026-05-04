@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
@@ -13,11 +13,13 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'My Program',
   description: 'View or select your enrolled program.',
   path: '/dashboard/program',
 });
+}
 
 export default async function ProgramPage() {
   const user = await getUser();

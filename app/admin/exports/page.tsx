@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { PROGRAMS } from '@/lib/content/programs';
@@ -9,11 +9,13 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminExportForm from './AdminExportForm';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Export Data',
   description: 'Export member training data for state reporting and compliance.',
   path: '/admin/exports',
 });
+}
 
 export default async function AdminExportsPage() {
   const user = await getUser();

@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Mentor Dashboard',
   description: 'Manage your upcoming mentor sessions and availability.',
   path: '/dashboard/mentor',
 });
+}
 
 export default async function MentorDashboardPage() {
   const user = await getUser();

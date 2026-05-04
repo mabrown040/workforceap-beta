@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Job Match Scorer',
   description: 'See how well your resume matches a job and get specific gaps to address.',
   path: '/dashboard/ai-tools/job-match-scorer',
 });
+}
 
 export default async function JobMatchScorerPage() {
   const user = await getUser();

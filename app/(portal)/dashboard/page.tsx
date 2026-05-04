@@ -180,7 +180,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 4,
       select: { id: true, event: true, points: true, note: true, createdAt: true },
     }),
-    // In-office session events ΓÇö see lib/auth/actAsSubject.ts. Pulls every
+    // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
     // ai_tool_run_completed event in the last 30 days where a counselor or
     // admin acted on behalf of this member, so the dashboard can render a
     // "Your session with {actor} on {date}" card.

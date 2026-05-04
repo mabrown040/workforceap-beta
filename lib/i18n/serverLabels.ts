@@ -109,9 +109,9 @@ const SERVER_LABELS_ES: Record<string, string> = {
   'or email': 'o envía un correo a',
 };
 
-function getServerLocale(): WAPLocale {
+export async function getServerLocaleAsync(): Promise<WAPLocale> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const locale = cookieStore.get(COOKIE_KEY)?.value;
     if (locale === 'es' || locale === 'en') return locale;
   } catch {
@@ -120,12 +120,16 @@ function getServerLocale(): WAPLocale {
   return 'en';
 }
 
-export function getServerLabel(label: string, locale?: WAPLocale): string {
-  const resolvedLocale = locale ?? getServerLocale();
-  if (resolvedLocale === 'en') return label;
+export function getServerLabel(label: string, locale: WAPLocale): string {
+  if (locale === 'en') return label;
   return SERVER_LABELS_ES[label] ?? label;
 }
 
-export function makeServerT(locale?: WAPLocale) {
+export function makeServerT(locale: WAPLocale) {
   return (label: string) => getServerLabel(label, locale);
+}
+
+export async function makeServerTAsync(): Promise<(label: string) => string> {
+  const locale = await getServerLocaleAsync();
+  return makeServerT(locale);
 }

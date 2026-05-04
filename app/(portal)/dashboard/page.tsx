@@ -20,12 +20,18 @@ import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
+import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
+import {
+  isTrainingStaleForCounselorEscalation,
+  loadMemberProgramTrainingView,
+} from '@/lib/member/memberProgramTrainingView';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
@@ -85,6 +91,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       preScreeningResponse: { select: { id: true } },
       onboardingCompletedAt: true,
       tourCompletedAt: true,
+      assessmentCompletedAt: true,
       fullName: true,
       phone: true,
       programInterest: true,
@@ -310,11 +317,33 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const totalCourses = program?.courses.length ?? 0;
-  const completedCount = program
-    ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
-    : 0;
-  const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
+  const trainingView =
+    enrolledProgram && program
+      ? await loadMemberProgramTrainingView({
+          userId: user.id,
+          programSlug: enrolledProgram,
+          coursesCompletedJson: dbUser.coursesCompleted,
+        })
+      : null;
+
+  const completedCount =
+    trainingView?.completedCount ??
+    (program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0);
+  const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
+  const allCoursesComplete =
+    trainingView?.allCoursesComplete ??
+    (totalCourses > 0 && completedCount >= totalCourses);
+  const progressPercentDisplay =
+    trainingView?.progressPercentDisplay ??
+    (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
+
+  let trainingEligibleSince: Date | null = null;
+  if (enrolledProgram && assessmentCompleted) {
+    const enrolledMs = dbUser.enrolledAt?.getTime() ?? 0;
+    const assessMs = intakeExtra?.assessmentCompletedAt?.getTime() ?? 0;
+    const mx = Math.max(enrolledMs, assessMs);
+    trainingEligibleSince = mx > 0 ? new Date(mx) : null;
+  }
 
   const hasPlacementRecord = !!intakeExtra?.placementRecord?.placedAt;
 
@@ -335,6 +364,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       : allCoursesComplete
         ? 'D'
         : 'C';
+
+  const showStuckCounselor =
+    dashboardState === 'C' &&
+    trainingView != null &&
+    isTrainingStaleForCounselorEscalation({
+      trainingView,
+      trainingEligibleSince,
+      allCoursesComplete,
+      dashboardInTraining: true,
+    });
 
   const completenessUser = {
     fullName: dbUser.fullName,
@@ -373,6 +412,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     courseEnrollmentActive: intakeExtra ? !!intakeExtra.courseEnrollment?.id : undefined,
     placementPlacedAt: intakeExtra?.placementRecord?.placedAt ?? null,
     placementRetentionDecision: intakeExtra?.placementRecord?.retentionDecision ?? null,
+    trainingCoursesIncomplete: !!(trainingView && !trainingView.allCoursesComplete && trainingView.totalCourses > 0),
+    nextIncompleteCourseName: trainingView?.nextIncompleteCourseName ?? null,
   });
 
   for (const dbAction of dynamicNextActions.reverse()) {
@@ -387,16 +428,19 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     });
   }
   nextBestActions = nextBestActions.slice(0, 4);
+  const dominantNextAction = nextBestActions[0] ?? null;
+  const mobileStripActions =
+    dominantNextAction && nextBestActions[0]?.id === dominantNextAction.id
+      ? nextBestActions.slice(1)
+      : nextBestActions;
 
   const checklist = {
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    // Audit #8: previously checked "training unlocked" (program enrolled +
-    // assessment done), so "Start training Γ£ô" appeared while 0/16 courses
-    // were complete. Now ties to actual course completion progress.
-    startFirstCourse: completedCount >= 1,
-    completeFirstCourse: completedCount >= 1,
+    // Milestones follow `CourseProgress` / xAPI when present, fall back to raw count.
+    startFirstCourse: trainingView ? trainingView.hasStartedTraining : completedCount >= 1,
+    completeFirstCourse: trainingView ? trainingView.hasCompletedFirstCourse : completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
 
@@ -410,9 +454,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   recentActivity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   const lastThree = recentActivity.slice(0, 3);
 
-  const nextIncompleteCourse = program
-    ? program.courses.find((c) => !coursesCompleted.includes(c.slug))
-    : null;
+  const nextIncompleteCourse =
+    program && trainingView?.nextIncompleteCourseSlug
+      ? program.courses.find((c) => c.slug === trainingView.nextIncompleteCourseSlug) ?? null
+      : program
+        ? program.courses.find((c) => !coursesCompleted.includes(c.slug)) ?? null
+        : null;
 
   const recommendedActions = careerBrief.recommendedActions;
   const jobSearchUrl = careerBrief.jobSearchUrl;
@@ -425,8 +472,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     console.error('[dashboard] isSuperAdmin failed', e);
   }
 
-  /* Mobile progress percentage for orb */
-  const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
+  const mobilePct = progressPercentDisplay;
   const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
   const mobileProgressSummary = totalCourses > 0
     ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
@@ -639,7 +686,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             {dashboardState !== 'A' && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                Training progress is based on completed courses. Your application steps are shown below.
+                Training progress blends Coursera activity (xAPI) with courses you mark complete. Application steps are below.
               </p>
             </div>
             )}
@@ -682,6 +729,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
+        {showStuckCounselor && (
+          <section style={{ padding: '0 1.25rem 0.75rem' }}>
+            <MemberStuckCounselorStrip />
+          </section>
+        )}
+
+        {dashboardState !== 'A' && dominantNextAction ? (
+          <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
+        ) : null}
+
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
@@ -689,9 +746,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <MemberProgressStrip {...progressStripProps} />
         </section>
 
-        {dashboardState !== 'A' && nextBestActions.length > 0 && (
+        {dashboardState !== 'A' && mobileStripActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
-            <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
+            <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
           </section>
         )}
 
@@ -976,6 +1033,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   jobSearchUrl={jobSearchUrl}
                   aiToolsUsedCount={recentTools.length}
                   firstName={firstName}
+                  dominantNextAction={dominantNextAction}
+                  showStuckCounselorStrip={showStuckCounselor}
+                  blendedTrainingProgressPct={progressPercentDisplay}
                   nextBestActions={nextBestActions}
                   assessmentDone={assessmentCompleted}
                   preScreeningDone={!!intakeExtra?.preScreeningResponse}

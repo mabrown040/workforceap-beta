@@ -6,10 +6,16 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
+import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  getCourseraSyncStatus,
+  listXapiStatementsNeedingAttention,
+  loadMemberProgressAuditByEmail,
+} from '@/lib/admin/courseraOps';
 import {
   getCourseraSkillsetProgressSummary,
   listCourseraIdentityMappings,
@@ -102,17 +108,24 @@ function fmtDateTime(value: Date | null): string {
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin – Coursera Identity Mapping',
-    description: 'Map Coursera learners to WorkforceAP members and review unmatched xAPI events.',
+    description: 'Map Coursera learners to WorkforceAP members, audit xAPI statements, and review member course progress.',
     path: '/admin/coursera',
   });
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminCourseraPage() {
+export default async function AdminCourseraPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ auditEmail?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const sp = (await searchParams) ?? {};
+  const auditEmailRaw = typeof sp.auditEmail === 'string' ? sp.auditEmail : '';
 
   // Include every active user who is a member — those with profile.role === 'member'
   // and those without a profile row (the role helper defaults to 'member' there).
@@ -140,13 +153,23 @@ export default async function AdminCourseraPage() {
   });
 
   let mappings = await Promise.resolve([] as Awaited<ReturnType<typeof listCourseraIdentityMappings>>);
-  let unmatchedEvents = await Promise.resolve([] as Awaited<ReturnType<typeof listRecentUnmatchedXapiEvents>>);
+  let xapiAttention = await Promise.resolve([] as Awaited<ReturnType<typeof listXapiStatementsNeedingAttention>>);
+  let syncStatus = await Promise.resolve({
+    lastXapiReceivedAt: null as Date | null,
+    distinctMembersWithCourseProgress: 0,
+    attentionStatementCount: 0,
+  });
+  let progressAudit = await Promise.resolve(
+    null as Awaited<ReturnType<typeof loadMemberProgressAuditByEmail>> | null
+  );
   let loadError: string | null = null;
+  let progressAuditError: string | null = null;
 
   try {
-    [mappings, unmatchedEvents] = await Promise.all([
+    [mappings, xapiAttention, syncStatus] = await Promise.all([
       listCourseraIdentityMappings(),
-      listRecentUnmatchedXapiEvents(100),
+      listXapiStatementsNeedingAttention(100),
+      getCourseraSyncStatus(),
     ]);
   } catch (error) {
     loadError = error instanceof Error ? error.message : 'Unable to load Coursera mapping data right now.';
@@ -157,6 +180,15 @@ export default async function AdminCourseraPage() {
   const badgeProgress = await loadBadgeProgressSummary();
   const unmatchedLearners = await loadUnmatchedLearners(100);
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
+
+  if (auditEmailRaw.trim().length > 0) {
+    try {
+      progressAudit = await loadMemberProgressAuditByEmail(auditEmailRaw);
+    } catch (error) {
+      progressAuditError = error instanceof Error ? error.message : 'Unable to load progress audit.';
+      console.error('[admin/coursera] progress audit failed:', error);
+    }
+  }
 
   const memberOptions = members.map((member) => ({
     id: member.id,
@@ -172,18 +204,23 @@ export default async function AdminCourseraPage() {
     <PortalPageFrame>
       <PageHeader
         title="Coursera identity mapping"
-        subtitle="Manually bind Coursera learners to WAP members and review xAPI events that did not match automatically."
+        subtitle="Manually bind Coursera learners to WAP members, audit xAPI statements, and inspect member course progress."
         breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Coursera' }]}
       />
 
       <div style={{ display: 'grid', gap: '1rem', marginBottom: '1rem' }}>
-        <div className="content-card" style={{ padding: '1rem 1.1rem' }}>
-          <div style={{ display: 'grid', gap: '0.35rem' }}>
-            <strong>Matching order</strong>
-            <span style={{ color: 'var(--color-on-surface-variant)' }}>
-              Manual actor mapping, then manual Coursera email mapping, then direct email match from xAPI Mbox.
-            </span>
-          </div>
+        <div className="content-card coursera-admin-intro" style={{ padding: '1.25rem 1.35rem' }}>
+          <h2 className="coursera-admin-intro__title">Where Coursera data lands</h2>
+          <p className="coursera-admin-intro__copy">
+            Coursera learning activity arrives as <strong>xAPI statements</strong>, is stored as <strong>XapiStatement</strong> rows,
+            matched to a member (manual mapping or inbox email), then merged into <strong>CourseProgress</strong> for each course.
+            That row-level progress is what members see on <strong>My Training</strong> and feeds completion signals elsewhere in the portal.
+          </p>
+          <CourseraPipelineFlow variant="full" />
+          <p className="coursera-admin-intro__match">
+            <strong>Matching order:</strong> manual actor / Coursera email mapping first, then direct email match from the xAPI actor
+            mbox when no manual row applies.
+          </p>
         </div>
 
         {loadError ? (
@@ -191,7 +228,7 @@ export default async function AdminCourseraPage() {
             <div style={{ display: 'grid', gap: '0.35rem' }}>
               <strong>Coursera mapping data is temporarily unavailable</strong>
               <span style={{ color: 'var(--color-on-surface-variant)' }}>
-                The admin page loaded, but the mapping tables or recent xAPI events could not be read yet.
+                The admin page loaded, but the mapping tables or xAPI statement data could not be read yet.
               </span>
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
                 Error: {loadError}
@@ -474,7 +511,11 @@ export default async function AdminCourseraPage() {
       <CourseraMappingsAdmin
         members={memberOptions}
         mappings={mappings}
-        unmatchedEvents={unmatchedEvents}
+        xapiAttention={xapiAttention}
+        syncStatus={syncStatus}
+        progressAudit={progressAudit}
+        progressAuditError={progressAuditError}
+        auditEmailInitial={auditEmailRaw}
       />
     </PortalPageFrame>
   );

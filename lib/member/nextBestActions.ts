@@ -33,6 +33,9 @@ export type NextBestActionsContext = {
   courseEnrollmentActive?: boolean;
   placementPlacedAt?: Date | null;
   placementRetentionDecision?: string | null;
+  /** When true, surfaces “continue training” ahead of lower-priority chores. */
+  trainingCoursesIncomplete?: boolean;
+  nextIncompleteCourseName?: string | null;
 };
 
 export function buildNextBestActions(ctx: NextBestActionsContext): NextBestAction[] {
@@ -103,6 +106,24 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
         weight: 90,
       });
     }
+  }
+
+  if (
+    ctx.state === 'C' &&
+    ctx.assessmentCompleted &&
+    !!ctx.enrolledProgram &&
+    ctx.trainingCoursesIncomplete &&
+    (ctx.nextIncompleteCourseName ?? '').length > 0
+  ) {
+    out.push({
+      id: 'continue_training',
+      title: `Continue training: ${ctx.nextIncompleteCourseName}`,
+      body: 'Open My Training for Coursera links, xAPI sync status, and your course checklist.',
+      href: '/dashboard/training',
+      cta: 'Open My Training',
+      variant: 'urgent',
+      weight: 86,
+    });
   }
 
   if (ctx.counselorUnreadCount > 0) {

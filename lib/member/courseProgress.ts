@@ -7,6 +7,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
+import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
 import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
@@ -22,21 +23,6 @@ function matchCourseSlugFromObjectId(programSlug: string, objectId: string | nul
   for (const c of disc.courses) {
     if (needle.includes(c.courseId.toLowerCase())) return c.slug;
     if (needle.includes(`/${c.slug}`) || needle.endsWith(c.slug.toLowerCase())) return c.slug;
-  }
-  return null;
-}
-
-function inferNextStatus(parsed: ParsedXapiStatement): CourseProgressStatus | null {
-  if (!isXapiCourseProgressVerb(parsed)) return null;
-  if (isXapiCompletionVerb(parsed)) return CourseProgressStatus.COMPLETED;
-  const verbId = (parsed.verbId ?? '').toLowerCase();
-  if (
-    verbId.includes('started')
-    || verbId.includes('registered')
-    || verbId.includes('initialized')
-    || verbId.includes('progressed')
-  ) {
-    return CourseProgressStatus.IN_PROGRESS;
   }
   return null;
 }
@@ -142,7 +128,7 @@ export async function upsertCourseProgressFromXapiStatement(args: {
 
   if (!matched) return;
 
-  const nextStatus = inferNextStatus(parsed);
+  const nextStatus = inferCourseProgressStatusFromXapiVerb(parsed);
   if (!nextStatus) return;
 
   const meta = discoveredMetaForSlug(enrolledProgramSlug, matched.slug);

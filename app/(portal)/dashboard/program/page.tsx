@@ -5,6 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
@@ -72,10 +73,19 @@ export default async function ProgramPage() {
     );
   }
 
-  const completedSet = new Set(coursesCompleted);
-  const completedCount = program.courses.filter((c) => completedSet.has(c.slug)).length;
+  const trainingView = await loadMemberProgramTrainingView({
+    userId: user.id,
+    programSlug: enrolledSlug,
+    coursesCompletedJson: dbUser?.coursesCompleted,
+  });
+  const completedSet = new Set(trainingView?.completedSlugsAuthoritative ?? coursesCompleted);
+  const completedCount =
+    trainingView?.completedCount ??
+    program.courses.filter((c) => completedSet.has(c.slug)).length;
   const nextCourseSlug =
-    program.courses.find((c) => !completedSet.has(c.slug))?.slug ?? null;
+    trainingView?.nextIncompleteCourseSlug ??
+    program.courses.find((c) => !completedSet.has(c.slug))?.slug ??
+    null;
 
   return (
     <>

@@ -82,19 +82,27 @@ export async function getCounselorWorkQueue(
 
   // Last message per thread. DISTINCT ON is fast on the (thread_id, created_at)
   // index already declared in schema.prisma.
-  const lastMessages = await prisma.$queryRawUnsafe<Array<{
-    id: string;
-    thread_id: string;
-    author_id: string;
-    body: string | null;
-    created_at: Date;
-  }>>(
-    `SELECT DISTINCT ON (thread_id) id, thread_id, author_id, body, created_at
-     FROM messages
-     WHERE thread_id::text = ANY($1::text[])
-     ORDER BY thread_id, created_at DESC`,
-    threadIds,
-  );
+  // Use Prisma's findMany with orderBy to get last message per thread instead of raw SQL
+  const messages = await prisma.message.findMany({
+    where: { threadId: { in: threadIds } },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      threadId: true,
+      authorId: true,
+      body: true,
+      createdAt: true,
+    },
+  });
+
+  // Get last message per thread
+  const lastMessages = new Map<string, typeof messages[0]>();
+  for (const msg of messages) {
+    if (!lastMessages.has(msg.threadId)) {
+      lastMessages.set(msg.threadId, msg);
+    }
+  }
+  const lastMessageList = Array.from(lastMessages.values());
 
   const memberLookup = new Map<string, { id: string; fullName: string | null; email: string }>();
   const users = await prisma.user.findMany({
@@ -107,27 +115,27 @@ export async function getCounselorWorkQueue(
   const cutoff = now.getTime() - QUEUE_THRESHOLD_HOURS * HOUR_MS;
   const rows: WorkQueueRow[] = [];
 
-  for (const lm of lastMessages) {
-    const thread = threads.find((t) => t.id === lm.thread_id);
+  for (const lm of lastMessageList) {
+    const thread = threads.find((t) => t.id === lm.threadId);
     if (!thread?.memberId) continue;
     // Latest message must be from the member (not the counselor).
-    if (lm.author_id !== thread.memberId) continue;
+    if (lm.authorId !== thread.memberId) continue;
     // Must have been waiting longer than the threshold.
-    if (lm.created_at.getTime() > cutoff) continue;
+    if (lm.createdAt.getTime() > cutoff) continue;
     const member = memberLookup.get(thread.memberId);
     if (!member) continue;
 
     const hoursWaiting = Math.max(
       QUEUE_THRESHOLD_HOURS,
-      Math.round((now.getTime() - lm.created_at.getTime()) / HOUR_MS),
+      Math.round((now.getTime() - lm.createdAt.getTime()) / HOUR_MS),
     );
     rows.push({
       memberId: member.id,
       memberName: member.fullName ?? member.email,
       memberEmail: member.email,
-      threadId: lm.thread_id,
+      threadId: lm.threadId,
       lastMessageBody: lm.body ?? '',
-      lastMessageAt: lm.created_at,
+      lastMessageAt: lm.createdAt,
       hoursWaiting,
     });
   }

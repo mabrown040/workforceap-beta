@@ -4,6 +4,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
@@ -19,6 +20,11 @@ import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 async function handle(request: Request) {
   const unauthorized = authorizeCronRequest(request);
   if (unauthorized) return unauthorized;
+
+  if (!(await isCronEnabled('cron_inactive_nudge'))) {
+    await logCronRun('cron_inactive_nudge', { skipped: true, reason: 'disabled' }, 'ok');
+    return NextResponse.json({ skipped: true, reason: 'disabled' });
+  }
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);

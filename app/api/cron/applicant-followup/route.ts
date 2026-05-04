@@ -4,6 +4,7 @@ import { sendApplicantFollowupEmail, sendAdminPendingApplicantsEmail } from '@/l
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
@@ -15,6 +16,11 @@ import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 async function handle(request: Request) {
   const unauthorized = authorizeCronRequest(request);
   if (unauthorized) return unauthorized;
+
+  if (!(await isCronEnabled('cron_applicant_followup'))) {
+    await logCronRun('cron_applicant_followup', { skipped: true, reason: 'disabled' }, 'ok');
+    return NextResponse.json({ skipped: true, reason: 'disabled' });
+  }
 
   const now = new Date();
   const threeDaysAgo = new Date(now);

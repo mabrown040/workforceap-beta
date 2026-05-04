@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 /**
  * GET /api/cron/milestone-celebration
@@ -15,6 +16,11 @@ import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 async function handle(req: NextRequest) {
   const unauthorized = authorizeCronRequest(req);
   if (unauthorized) return unauthorized;
+
+  if (!(await isCronEnabled('cron_milestone_celebration'))) {
+    await logCronRun('cron_milestone_celebration', { skipped: true, reason: 'disabled' }, 'ok');
+    return NextResponse.json({ skipped: true, reason: 'disabled' });
+  }
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);

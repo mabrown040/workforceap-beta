@@ -5,6 +5,7 @@ import { generateWeeklyRecap } from '@/lib/recap/generate';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 /**
  * GET /api/cron/weekly-recap
@@ -19,6 +20,11 @@ import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 async function handle(request: Request) {
   const unauthorized = authorizeCronRequest(request);
   if (unauthorized) return unauthorized;
+
+  if (!(await isCronEnabled('cron_weekly_recap'))) {
+    await logCronRun('cron_weekly_recap', { skipped: true, reason: 'disabled' }, 'ok');
+    return NextResponse.json({ skipped: true, reason: 'disabled' });
+  }
 
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));

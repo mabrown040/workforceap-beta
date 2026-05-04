@@ -4,6 +4,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 /**
  * POST /api/cron/inactivity-nudge
@@ -16,6 +17,11 @@ import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 async function handle(req: NextRequest) {
   const unauthorized = authorizeCronRequest(req);
   if (unauthorized) return unauthorized;
+
+  if (!(await isCronEnabled('cron_inactivity_nudge'))) {
+    await logCronRun('cron_inactivity_nudge', { skipped: true, reason: 'disabled' }, 'ok');
+    return NextResponse.json({ skipped: true, reason: 'disabled' });
+  }
 
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);

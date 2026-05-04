@@ -7,6 +7,7 @@ import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
 

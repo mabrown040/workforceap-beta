@@ -8,7 +8,11 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 const createSchema = z.object({
   programSlug: z.string().min(1).max(120),
   seatCount: z.coerce.number().int().min(1).max(5000),
-  startBy: z.string().max(32).optional().nullable(),
+  startBy: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'startBy must be a valid date in YYYY-MM-DD format' })
+    .max(32)
+    .optional()
+    .nullable(),
   mouUrl: z.string().url().max(2000).optional().nullable().or(z.literal('')),
   notes: z.string().max(4000).optional().nullable(),
 });

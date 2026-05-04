@@ -111,7 +111,9 @@ const SERVER_LABELS_ES: Record<string, string> = {
 
 function getServerLocale(): WAPLocale {
   try {
-    const cookieStore = cookies();
+    // Next.js 15 cookies() is synchronous in server components.
+    // Type assertion defends against version-to-version type drift.
+    const cookieStore = cookies() as unknown as { get: (name: string) => { value?: string } | undefined };
     const locale = cookieStore.get(COOKIE_KEY)?.value;
     if (locale === 'es' || locale === 'en') return locale;
   } catch {

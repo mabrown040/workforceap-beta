@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
   );
   const brandingHeader = brandingLines.join('\r\n');
   const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
-  const suffix = preset === 'outcomes' ? 'outcomes' : 'referrals';
+  const suffix = preset === 'outcomes' ? 'outcomes' : preset === 'demographics' ? 'demographics' : 'referrals';
 
   return new NextResponse(csv, {
     status: 200,

@@ -154,8 +154,9 @@ model User {
   pointsTransactions PointsTransaction[]
   pointsAwarded      PointsTransaction[] @relation("PointsAwarder")
 
-  courseraCourseProgress CourseraCourseProgress[]
-  courseraBadgeProgress  CourseraBadgeProgress[]
+  courseraCourseProgress   CourseraCourseProgress[]
+  courseraBadgeProgress    CourseraBadgeProgress[]
+  courseraSkillsetProgress CourseraSkillsetProgress[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -1811,4 +1812,25 @@ model CourseraBadgeProgress {
   @@index([userId])
   @@index([badgeSlug])
   @@map("coursera_badge_progress")
+}
+
+// --- Coursera Active-Pull Sync ---
+
+/// Snapshot of Coursera Enterprise skillset progress for a member, written
+/// by the `coursera-sync` cron. One row per (userId, skillsetId).
+model CourseraSkillsetProgress {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  skillsetId   String   @map("skillset_id")
+  skillsetName String   @map("skillset_name")
+  progressPct  Int      @map("progress_pct") // 0-100
+  programId    String   @map("program_id")
+  programSlug  String?  @map("program_slug")
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillsetId])
+  @@index([programId])
+  @@map("coursera_skillset_progress")
 }

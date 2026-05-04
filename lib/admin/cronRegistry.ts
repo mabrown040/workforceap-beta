@@ -164,6 +164,20 @@ export const CRON_REGISTRY: CronDef[] = [
     audienceDescription: 'Internal monitoring — no emails sent',
     workflowKey: 'cron_verification',
   },
+  {
+    id: 'coursera-sync',
+    name: 'Coursera Active-Pull Sync',
+    description:
+      'Polls Coursera Enterprise skillset progress for each enrolled member and snapshots it into coursera_skillset_progress. No-ops gracefully when no skillset IDs are configured.',
+    schedule: '0 */6 * * *',
+    scheduleLabel: 'Every 6 hours',
+    apiPath: '/api/cron/coursera-sync',
+    method: 'GET',
+    icon: 'sync',
+    category: 'admin',
+    audienceDescription: 'Internal — writes to coursera_skillset_progress, no emails sent',
+    workflowKey: 'cron_coursera_sync',
+  },
 ];
 
 export const CRON_CATEGORY_COLOR: Record<CronDef['category'], string> = {

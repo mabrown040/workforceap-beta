@@ -9,7 +9,8 @@ import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 function parseActionPlan(output: string | null): string[] {
   if (!output) return [];
@@ -37,6 +38,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function CounselorPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/counselor');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   const dbProfile = await prisma.user.findUnique({ where: { id: user.id }, select: { fullName: true } });
   const metaName = user.user_metadata?.full_name as string | undefined;

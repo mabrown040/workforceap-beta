@@ -85,6 +85,34 @@ export async function loadPartnerReferralBundle(partnerId: string) {
     orderBy: { referredAt: 'desc' },
   });
 
+  const memberIds = referrals.map((r) => r.member.id);
+
+  // Load pending placement confirmations (self-reported by members, not yet reviewed)
+  const pendingPlacements =
+    memberIds.length === 0
+      ? []
+      : await prisma.memberEvent.findMany({
+          where: {
+            userId: { in: memberIds },
+            eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',
+          },
+          orderBy: { createdAt: 'desc' },
+          select: {
+            userId: true,
+            eventName: true,
+            metadata: true,
+            createdAt: true,
+          },
+        });
+
+  // Group by userId for quick lookup
+  const pendingByUserId = new Map<string, typeof pendingPlacements[number]>();
+  for (const p of pendingPlacements) {
+    if (!pendingByUserId.has(p.userId)) {
+      pendingByUserId.set(p.userId, p);
+    }
+  }
+
   const pipelineMembers: PipelineRow[] = [];
 
   for (const r of referrals) {
@@ -115,7 +143,7 @@ export async function loadPartnerReferralBundle(partnerId: string) {
 
   const members = pipelineMembers.map((p) => p.member);
 
-  return { referrals, members, pipelineMembers };
+  return { referrals, members, pipelineMembers, pendingPlacements };
 }
 
 export function toPartnerMembersListRows(pipelineMembers: PipelineRow[]) {

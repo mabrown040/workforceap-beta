@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendAdminWeeklyRecapEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 
 /**
  * Cron endpoint to send weekly admin recap email.
@@ -10,12 +11,9 @@ import { logCronRun } from '@/lib/admin/logCronRun';
  * Gathers: new applicants, placements, at-risk students, pending applications.
  * Protected with CRON_SECRET header.
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+async function handle(request: Request) {
+  const unauthorized = authorizeCronRequest(request);
+  if (unauthorized) return unauthorized;
 
   try {
   const now = new Date();
@@ -78,3 +76,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Cron job failed' }, { status: 500 });
   }
 }
+
+export const GET = handle;
+export const POST = handle;

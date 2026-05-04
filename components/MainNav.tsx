@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import LanguageToggle from '@/components/portal/LanguageToggle';
+import { useTranslatedLabel } from '@/components/portal/useTranslatedLabel';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
@@ -52,6 +54,7 @@ export default function MainNav() {
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
+  const translateLabel = useTranslatedLabel();
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -261,13 +264,13 @@ export default function MainNav() {
                     onClick={() => setActiveDropdown(isOpen ? null : item.label)}
                     onKeyDown={(e) => handleDropdownKeyDown(e, item.label, isOpen, subMenuId)}
                   >
-                    {item.label}
+                    {translateLabel(item.label)}
                   </button>
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href} role="none">
                         <Link href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
-                          {child.label}
+                          {translateLabel(child.label)}
                         </Link>
                       </li>
                     ))}
@@ -278,7 +281,7 @@ export default function MainNav() {
             return [
               <li key={item.href}>
                 <Link href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
-                  {item.label}
+                  {translateLabel(item.label)}
                 </Link>
               </li>,
             ];
@@ -293,7 +296,7 @@ export default function MainNav() {
                 className={`nav-login-primary${portalHrefActive(portalState.primary.href) ? ' active' : ''}`}
                 onClick={closeMobile}
               >
-                {portalState.primary.label}
+                {translateLabel(portalState.primary.label)}
               </Link>
               {loginSubmenuItems.length > 0 ? (
                 <button
@@ -334,7 +337,7 @@ export default function MainNav() {
                       className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
                       onClick={closeMobile}
                     >
-                      {item.label}
+                      {translateLabel(item.label)}
                     </Link>
                   </li>
                 ))}
@@ -342,17 +345,19 @@ export default function MainNav() {
             ) : null}
           </li>
           <li>
-            <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
+            <Link href="/apply" className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</Link>
           </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
-            <div className="nav-theme-mobile-wrapper">
+            <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <LanguageToggle />
               <ThemeToggle variant="marketing" />
             </div>
           </li>
         </ul>
 
-        {/* Desktop-only theme toggle */}
-        <div className="nav-theme-slot-desktop">
+        {/* Desktop-only theme toggle + language */}
+        <div className="nav-theme-slot-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <LanguageToggle />
           <ThemeToggle variant="marketing" />
         </div>
       </div>

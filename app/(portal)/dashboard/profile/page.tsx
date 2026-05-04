@@ -60,6 +60,9 @@ export default async function DashboardProfilePage() {
         financialAidInterest: true,
         resumeEnhancedPath: true,
         resumeOriginalPath: true,
+        hasEmploymentBarrier: true,
+        barrierTypes: true,
+        employmentStatusAtEnroll: true,
       },
     },
     courseEnrollment: {
@@ -304,6 +307,13 @@ export default async function DashboardProfilePage() {
               defaultBio={dbUser.profile?.profileBio ?? ""}
               defaultFinancialAidInterest={
                 dbUser.profile?.financialAidInterest ?? null
+              }
+              defaultHasEmploymentBarrier={
+                dbUser.profile?.hasEmploymentBarrier ?? false
+              }
+              defaultBarrierTypes={dbUser.profile?.barrierTypes ?? []}
+              defaultEmploymentStatusAtEnroll={
+                dbUser.profile?.employmentStatusAtEnroll ?? null
               }
               starterProfileReviewRequired={starterProfileReview.required}
               starterProfileMissingFields={starterProfileMissingLabels}

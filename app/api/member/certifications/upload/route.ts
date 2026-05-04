@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
+const BUCKET = 'member-files';
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+
+function storageErrorMessage(error: { message?: string } | null): string {
+  const message = error?.message ?? '';
+  if (/not found|does not exist|Bucket/i.test(message)) {
+    return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
+  }
+  return 'Failed to attach certificate file';
+}
 
 /**
  * POST /api/member/certifications/upload
@@ -11,8 +21,9 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
  *   - file: the certificate file (PDF/image)
  *   - certName: the certificate name to associate with
  *
- * Stores via Supabase Storage if configured, or returns a soft success
- * so the cert is still recorded in the DB even without file storage.
+ * Stores the optional certificate file in Supabase Storage.
+ * This route is intentionally strict: if the upload fails, we return an error
+ * instead of pretending the file was attached.
  */
 export async function POST(req: NextRequest) {
   const user = await getUser();
@@ -49,48 +60,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Certificate not found — add it first' }, { status: 404 });
   }
 
-  // If Supabase storage is configured, upload there
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const storagePath = `cert-files/${user.id}/${cert.id}.${ext}`;
+    const supabase = getSupabaseAdmin();
 
-  if (supabaseUrl && serviceKey) {
-    try {
-      const bytes = await file.arrayBuffer();
-      const storagePath = `cert-files/${user.id}/${cert.id}.${ext}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(storagePath, arrayBuffer, {
+      upsert: true,
+      contentType: file.type || 'application/octet-stream',
+    });
 
-      const uploadRes = await fetch(
-        `${supabaseUrl}/storage/v1/object/member-files/${storagePath}`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${serviceKey}`,
-            'Content-Type': file.type || 'application/octet-stream',
-            'x-upsert': 'true',
-          },
-          body: bytes,
-        }
-      );
-
-      if (uploadRes.ok) {
-        const publicUrl = `${supabaseUrl}/storage/v1/object/public/member-files/${storagePath}`;
-        // Store the file URL on the certification record if schema supports it
-        // (graceful — skip if column does not exist yet)
-        try {
-          await (prisma.userCertification as unknown as { update: (args: unknown) => Promise<unknown> }).update({
-            where: { id: cert.id },
-            data: { fileUrl: publicUrl } as Record<string, unknown>,
-          });
-        } catch {
-          // Column might not exist yet — cert is still recorded
-        }
-        return NextResponse.json({ success: true, fileUrl: publicUrl });
-      }
-    } catch (e) {
-      console.error('[cert-upload] storage upload failed', e);
-      // Fall through — cert is still recorded, just without file
+    if (error) {
+      console.error('[cert-upload] storage upload failed', error);
+      return NextResponse.json({ error: storageErrorMessage(error) }, { status: 500 });
     }
-  }
 
-  // Return soft success — cert is in DB, file just could not be stored
-  return NextResponse.json({ success: true, note: 'Certificate recorded. File storage not available — contact support to attach the PDF.' });
+    return NextResponse.json({ success: true, storagePath });
+  } catch (e) {
+    console.error('[cert-upload] storage upload failed', e);
+    const error =
+      e instanceof Error && e.message.includes('SUPABASE_SERVICE_ROLE_KEY')
+        ? 'Server configuration error (Supabase)'
+        : 'Failed to attach certificate file';
+    return NextResponse.json({ error }, { status: 500 });
+  }
 }

@@ -32,7 +32,7 @@ export default async function CoverLetterPage() {
             title="Cover Letter Builder"
             subtitle="Tailored cover letters that connect your experience to the job."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Cover Letter' },
             ]}
           />
@@ -41,7 +41,7 @@ export default async function CoverLetterPage() {
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12, marginBottom: '1rem', background: 'var(--surface-container-low)' }}>
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
-              Create a compelling, tailored cover letter in minutes. Our AI connects your experience
+              Create a compelling, tailored cover letter in minutes. The tool connects your experience
               directly to the job requirements, highlighting why you&rsquo;re the right fit.
             </p>
           </div>

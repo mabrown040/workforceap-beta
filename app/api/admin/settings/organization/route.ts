@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 const hexColor = z
@@ -35,7 +36,10 @@ export async function GET() {
     },
   });
   if (!org) return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
-  return NextResponse.json(org);
+  return NextResponse.json({
+    ...org,
+    logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),
+  });
 }
 
 export async function PATCH(request: NextRequest) {
@@ -67,5 +71,8 @@ export async function PATCH(request: NextRequest) {
     },
   });
 
-  return NextResponse.json(org);
+  return NextResponse.json({
+    ...org,
+    logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),
+  });
 }

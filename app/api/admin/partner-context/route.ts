@@ -29,7 +29,7 @@ export async function GET() {
     if (!id) return NextResponse.json({ partner: null });
 
     const partner = await prisma.partner.findFirst({
-      where: { id },
+      where: { id, active: true },
       select: { id: true, name: true },
     });
     return NextResponse.json({ partner });
@@ -59,12 +59,18 @@ export async function POST(request: NextRequest) {
 
     const partner = await prisma.partner.findFirst({
       where: { id: parsed.data.partnerId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, active: true },
     });
     if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    if (!partner.active) {
+      return NextResponse.json(
+        { error: 'Only active partners can be opened in the partner portal preview.' },
+        { status: 409 }
+      );
+    }
 
     store.set(SUPER_ADMIN_PARTNER_COOKIE, partner.id, cookieOpts);
-    return NextResponse.json({ ok: true, partner });
+    return NextResponse.json({ ok: true, partner: { id: partner.id, name: partner.name } });
   } catch (error) {
     console.error('[admin/partner-context POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

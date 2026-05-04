@@ -75,6 +75,7 @@ export default async function AdminSessionRunPage({
         ]}
       />
       <SessionRunClient
+        key={member.id}
         memberId={member.id}
         memberFullName={member.fullName ?? member.email}
         memberEmail={member.email}

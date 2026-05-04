@@ -7,6 +7,8 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
+import ToolFollowThrough from './ToolFollowThrough';
+
 export default function GapAnalyzerForm() {
   const [resume, setResume] = useState('');
   const [output, setOutput] = useState('');
@@ -123,6 +125,7 @@ export default function GapAnalyzerForm() {
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
+          <ToolFollowThrough toolType="gap_analyzer" />
         </div>
       )}
     </form>

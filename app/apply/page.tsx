@@ -203,12 +203,13 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <h1 style={sPage.heroHeading}>Start Your Application</h1>
         <p style={sPage.heroDesc}>
           This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&rsquo;re not sure yet — and a member advisor will follow up within 1–2 business days to walk you through your options.
-          <strong> No prior experience required. We&rsquo;ll help you confirm fit and eligibility for next steps.</strong>
+          <strong> Programs are offered at no cost to qualifying members, funded by grants and partnerships.</strong>
+          <span> No prior experience required. We&rsquo;ll help you confirm fit and eligibility for next steps.</span>
         </p>
         <div style={sPage.heroFallback}>
           <p style={sPage.heroFallbackTitle}>Need help getting started?</p>
           <p style={sPage.heroFallbackText}>
-            You can still reach us directly. Call a counselor or send a message, and we&rsquo;ll help you start the application manually.
+            You can still reach us directly. Call a counselor or send a message, and we&rsquo;ll help you start the application manually and explain the funding path, eligibility, and next step before you commit.
           </p>
           <div style={sPage.heroFallbackActions}>
             <Link href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>

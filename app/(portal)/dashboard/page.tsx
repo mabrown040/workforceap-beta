@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+﻿import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -19,10 +19,12 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
+import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
@@ -36,7 +38,7 @@ import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Your Dashboard',
-  description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
+  description: 'Your WorkforceAP member dashboard ΓÇö training progress, next steps, career tools, and application status.',
   path: '/dashboard',
 });
 
@@ -178,7 +180,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 4,
       select: { id: true, event: true, points: true, note: true, createdAt: true },
     }),
-    // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
+    // In-office session events ΓÇö see lib/auth/actAsSubject.ts. Pulls every
     // ai_tool_run_completed event in the last 30 days where a counselor or
     // admin acted on behalf of this member, so the dashboard can render a
     // "Your session with {actor} on {date}" card.
@@ -261,6 +263,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const latestSession =
     [...sessionMap.values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0] ?? null;
 
+  const latestTool = recentTools[0] ?? null;
+  const latestToolFollowThrough = latestTool
+    ? getAIToolFollowThrough({
+        toolType: latestTool.toolType,
+        inputSummary: latestTool.inputSummary,
+      })
+    : null;
+
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
     intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
@@ -303,6 +313,18 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
     : 0;
   const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
+
+  const hasPlacementRecord = !!intakeExtra?.placementRecord?.placedAt;
+
+  const progressStripProps = {
+    intake:
+      intakeExtra?.onboardingCompletedAt != null ||
+      intakeExtra?.preScreeningResponse != null,
+    assessment: assessmentCompleted,
+    trainingStarted: coursesCompleted.length > 0,
+    certsComplete: allCoursesComplete,
+    employed: hasPlacementRecord,
+  };
 
   const dashboardState: 'A' | 'B' | 'C' | 'D' = !enrolledProgram
     ? 'A'
@@ -369,7 +391,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
     // Audit #8: previously checked "training unlocked" (program enrolled +
-    // assessment done), so "Start training ✓" appeared while 0/16 courses
+    // assessment done), so "Start training Γ£ô" appeared while 0/16 courses
     // were complete. Now ties to actual course completion progress.
     startFirstCourse: completedCount >= 1,
     completeFirstCourse: completedCount >= 1,
@@ -431,7 +453,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
 
-  /* Journey timeline — complete / active (next) / locked (future) */
+  /* Journey timeline ΓÇö complete / active (next) / locked (future) */
   const journeySteps = [
     {
       label: 'Program selected',
@@ -463,7 +485,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       detail: interviewCompleted
         ? 'Complete'
         : interviewRequested
-          ? 'Scheduled — watch your email'
+          ? 'Scheduled ΓÇö watch your email'
           : interviewEligibleFlag
             ? 'Request or attend your interview'
             : preScreeningDone
@@ -499,9 +521,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     <>
       <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
 
-      {/* ── Recent in-office session card — shown to both mobile + desktop
+      {/* ΓöÇΓöÇ Recent in-office session card ΓÇö shown to both mobile + desktop
           when a counselor or admin ran tools on the member's behalf in the
-          last 30 days. See lib/auth/actAsSubject.ts. ── */}
+          last 30 days. See lib/auth/actAsSubject.ts. ΓöÇΓöÇ */}
       {latestSession ? (
         <MemberSessionCard
           actorName={latestSession.actorName}
@@ -510,10 +532,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         />
       ) : null}
 
-      {/* ── Mobile-only dashboard (≤767px) ── */}
+      {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">
 
-        {/* ── Hero: greeting + progress ring ── */}
+        {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
         <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
           <div
             style={{
@@ -563,7 +585,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 )}
               </div>
 
-              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
+              {/* Progress ring ΓÇö hidden for pre-enrollment (state A) since 0% is misleading */}
               {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
                 <div
                   className="portal-progress-ring"
@@ -622,7 +644,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ── */}
+        {/* ΓöÇΓöÇ State A: unmissable next-step CTA ΓÇö shown before voice section when member hasn't enrolled ΓöÇΓöÇ */}
         {dashboardState === 'A' && (
           <section style={{ padding: '0 1.25rem 1.25rem' }}>
             <Link
@@ -642,7 +664,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </p>
               <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
                 {noApplicationOnFile
-                  ? 'Apply now — 10 minutes'
+                  ? 'Apply now ΓÇö 10 minutes'
                   : 'Choose your program'}
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
@@ -661,6 +683,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
+        <section style={{ padding: '0 1.5rem 1.25rem' }}>
+          <MemberProgressStrip {...progressStripProps} />
+        </section>
 
         {dashboardState !== 'A' && nextBestActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
@@ -668,7 +693,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* ── Priority next-step card ── */}
+        {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
         <PlacementConfirmationStrip offers={jobOffers} />
         {applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
@@ -697,13 +722,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* ── Career path ── */}
+        {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
         <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
           <LogCertificationModal />
         </div>
 
-        {/* ── Application journey timeline ── */}
+        {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-dash-section-header__title">Application Journey</h3>
@@ -731,7 +756,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Points widget ── */}
+        {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
         {memberPoints && memberPoints.total > 0 && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <PointsWidget
@@ -742,7 +767,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
+        {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
           <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
@@ -838,7 +863,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* ── Quick Actions 2x2 ── */}
+        {/* ΓöÇΓöÇ Quick Actions 2x2 ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-dash-section-header__title">Quick Actions</h3>
@@ -860,7 +885,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Recent AI Activity — mobile ── */}
+        {/* ΓöÇΓöÇ Recent AI Activity ΓÇö mobile ΓöÇΓöÇ */}
         {recentTools.length > 0 && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
             <div className="portal-dash-section-header">
@@ -893,7 +918,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         )}
       </div>
 
-      {/* ── Desktop view (hidden on mobile) ── */}
+      {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}
       <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
           <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
@@ -917,6 +942,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             >
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
+              </div>
+              <div
+                style={{
+                  maxWidth: 1200,
+                  margin: '0 auto',
+                  padding: '0 2rem 1.25rem',
+                }}
+              >
+                <MemberProgressStrip {...progressStripProps} />
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <div style={{ marginBottom: '1.25rem' }}>
@@ -970,7 +1004,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <MatchedRoles />
                 </Suspense>
               )}
-              {/* Recent AI Activity is rendered in the mobile view above —
+              {/* Recent AI Activity is rendered in the mobile view above ΓÇö
                   suppressed here so the same data doesn't appear twice in the DOM
                   on wider viewports. DashboardHomeClient surfaces activity inline. */}
             </PortalEntryClient>
@@ -978,7 +1012,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </PortalEntryErrorBoundary>
       </div>
 
-      {/* Bottom nav — mobile only */}
+      {/* Bottom nav ΓÇö mobile only */}
       <MobileBottomNav variant="portal" />
     </>
   );

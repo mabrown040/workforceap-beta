@@ -12,7 +12,7 @@ import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
 import { listEmployerWorkflowEvents } from '@/lib/portal/workflowEvents';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Employer work queue',
+  title: 'Employer Work Queue',
   description: 'Prioritized hiring actions and SLA-style queues.',
   path: '/employer/work-queue',
 });
@@ -59,9 +59,9 @@ export default async function EmployerWorkQueuePage({
     <PortalPageFrame>
     <div className="employer-work-queue-page wa-pb-24 md:wa-pb-0">
       <PageHeader
-        title="Work queue"
+        title="Work Queue"
         subtitle="Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Work queue' }]}
+        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Work Queue' }]}
       />
 
       <EmployerWorkQueueClient

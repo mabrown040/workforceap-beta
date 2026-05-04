@@ -80,7 +80,7 @@ export default async function DashboardCertificationsPage() {
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
           title="My Certificates"
-          subtitle="Certificates and credentials you've earned."
+          subtitle="Track credentials you've earned and download your certificate record."
           titleHeadingLevel={2}
         />
 
@@ -101,7 +101,7 @@ export default async function DashboardCertificationsPage() {
             },
             {
               icon: 'verified',
-              label: certs.length > 0 ? 'On file' : 'Start pathway',
+              label: certs.length > 0 ? 'Record saved' : 'Start pathway',
               color: 'var(--color-green)',
               bg: 'rgba(74,155,79,0.12)',
             },
@@ -141,7 +141,7 @@ export default async function DashboardCertificationsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {certs.length === 0 ? (
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>
-                No certificates recorded yet. Mark certificates earned in your roadmap below, or complete training milestones.
+                No certificates recorded yet. Certificates appear here when you complete Coursera courses (they sync automatically) or when you add certificates you've earned elsewhere.
               </p>
             ) : (
               certs.map((cert) => (
@@ -207,6 +207,67 @@ export default async function DashboardCertificationsPage() {
           </div>
         </section>
         )}
+
+        {/* S1-1: Start Here cert guide card (mobile) */}
+        <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+          <div
+            style={{
+              padding: '1.125rem',
+              background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
+              borderRadius: '0.875rem',
+            }}
+          >
+            <div style={{ display: 'flex', gap: '0.625rem', marginBottom: '0.75rem', alignItems: 'flex-start' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0 }} aria-hidden="true">help_center</span>
+              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
+                Not sure which cert to go after?
+              </p>
+            </div>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, margin: '0 0 0.875rem' }}>
+              Your Career Coach can help. Common certs our members target:
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {['PMP — Project Management', 'AWS Cloud Practitioner', 'CompTIA A+ / IT Support', 'Google IT Support Certificate'].map((label) => (
+                <a
+                  key={label}
+                  href="/dashboard/ai-tools/career-business-coach"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    background: 'var(--surface-container)',
+                    borderRadius: '0.625rem',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    color: 'var(--color-on-surface)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">workspace_premium</span>
+                  {label}
+                </a>
+              ))}
+            </div>
+            <a
+              href="/dashboard/ai-tools/career-business-coach"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                marginTop: '0.875rem',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: 'var(--color-accent)',
+                textDecoration: 'none',
+              }}
+            >
+              Open Career Coach
+              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">arrow_forward</span>
+            </a>
+          </div>
+        </div>
 
         {/* Earn More CTA */}
         <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
@@ -375,10 +436,84 @@ export default async function DashboardCertificationsPage() {
                   }}
                 >
                   {certs.length > 0
-                    ? 'Credentials saved to your WorkforceAP profile. Official PDFs come from the issuing organization.'
-                    : 'Earn certificates through your pathway to see them listed here.'}
+                    ? 'Credentials saved to your WorkforceAP profile. Official PDF certificates come from the issuing organization (Coursera, CompTIA, etc.).'
+                    : 'Earn certificates through your program pathway to see them listed here. Coursera certificates sync automatically; others can be added manually.'}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* S1-1: Start Here cert guide card */}
+          <div
+            style={{
+              marginBottom: 'var(--space-8)',
+              padding: '1.25rem 1.5rem',
+              background: 'color-mix(in srgb, var(--color-accent) 6%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
+              borderRadius: 'var(--radius-xl)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.375rem', color: 'var(--color-accent)', flexShrink: 0, marginTop: '0.1rem' }} aria-hidden="true">help_center</span>
+              <div>
+                <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
+                  Not sure which cert to go after?
+                </p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.55 }}>
+                  Your Career Coach can help you build a cert plan around your goals. Common starting points:
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', paddingLeft: '2.125rem' }}>
+              {[
+                { label: 'PMP — Project Management', hint: 'Ask: How do I get started on PMP?' },
+                { label: 'AWS Cloud Practitioner', hint: "Ask: What's the path to AWS Cloud Practitioner?" },
+                { label: 'CompTIA A+ / IT Support', hint: 'Ask: How do I start CompTIA A+?' },
+                { label: 'Google IT Support Certificate', hint: 'Ask: How do I complete Google IT Support?' },
+              ].map((cert) => (
+                <a
+                  key={cert.label}
+                  href={`/dashboard/ai-tools/career-business-coach`}
+                  title={cert.hint}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.375rem',
+                    padding: '0.4rem 0.875rem',
+                    background: 'var(--surface-container)',
+                    border: '1px solid var(--outline-variant)',
+                    borderRadius: '999px',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                    color: 'var(--color-on-surface)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-accent)' }} aria-hidden="true">workspace_premium</span>
+                  {cert.label}
+                </a>
+              ))}
+              <a
+                href="/dashboard/ai-tools/career-business-coach"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.4rem 0.875rem',
+                  background: 'var(--color-accent)',
+                  borderRadius: '999px',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  color: '#fff',
+                  textDecoration: 'none',
+                }}
+              >
+                Talk to your coach
+                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">arrow_forward</span>
+              </a>
             </div>
           </div>
 
@@ -470,10 +605,10 @@ export default async function DashboardCertificationsPage() {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>
                   download
                 </span>
-                <h3 style={{ fontSize: 'var(--font-size-h4)', fontWeight: 'var(--font-weight-medium)', margin: 0 }}>Ready for Download</h3>
+                <h3 style={{ fontSize: 'var(--font-size-h4)', fontWeight: 'var(--font-weight-medium)', margin: 0 }}>Certificate Record</h3>
               </div>
               <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Export your earned certificates as a CSV for your records. Official PDFs are issued by the certifying body.
+                Export a CSV list of your earned certificates for your records. Official PDF certificates are issued by the certifying organization (Coursera, CompTIA, etc.) and must be downloaded from their platform.
               </p>
               {certs.length > 0 ? (
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>

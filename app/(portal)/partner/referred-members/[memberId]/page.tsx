@@ -79,7 +79,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   if (!member) notFound();
 
-  const [recentEvents, outreachLogs] = await Promise.all([
+  const [recentEvents, outreachLogs, placementConfirmations] = await Promise.all([
     prisma.memberEvent.findMany({
       where: { userId: memberId },
       orderBy: { createdAt: 'desc' },
@@ -93,6 +93,12 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
         createdBy: { select: { fullName: true } },
       },
     }),
+    prisma.memberEvent.findMany({
+      where: { userId: memberId, eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+      select: { metadata: true, createdAt: true },
+    }),
   ]);
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
@@ -101,8 +107,9 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
   const placed = !!member.placementRecord;
+  const pendingPlacement = placementConfirmations[0] ?? null;
   const recentEvent = recentEvents[0] ?? null;
-  const memberStatus = placed ? 'Placed' : progressPct >= 80 ? 'Course-complete' : 'In training';
+  const memberStatus = placed ? 'Placed' : pendingPlacement ? 'Offer reported — review pending' : progressPct >= 80 ? 'Course-complete' : 'In training';
 
   const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
   const allCoursesDone =
@@ -310,6 +317,28 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                     <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
                       {member.placementRecord.salaryOffered != null ? `$${member.placementRecord.salaryOffered.toLocaleString()}` : '—'}
                     </p>
+                  </div>
+                </div>
+              ) : pendingPlacement ? (
+                <div style={{ marginTop: '0.75rem' }}>
+                  <div
+                    style={{
+                      background: 'rgba(255,193,7,0.08)',
+                      border: '1px solid rgba(255,193,7,0.2)',
+                      borderRadius: '0.75rem',
+                      padding: '0.875rem 1rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.625rem',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', flexShrink: 0 }}>pending</span>
+                    <div>
+                      <p style={{ margin: '0 0 0.25rem', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Offer reported — under review</p>
+                      <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                        This member self-reported accepting a job offer. WorkforceAP staff are reviewing the report before finalizing the placement.
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : (

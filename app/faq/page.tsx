@@ -4,6 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'FAQ: WIOA-Aligned Career Training & Certifications',
@@ -43,7 +45,9 @@ const faqHighlights = [
   },
 ];
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   return (
     <div className="inner-page">
       <section className="content-section" style={{ paddingBottom: 0 }}>
@@ -61,7 +65,7 @@ export default function FAQPage() {
                   fontSize: '0.65rem',
                 }}
               >
-                Knowledge Base
+                {t('Knowledge Base')}
               </span>
             </div>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1rem' }}>
@@ -86,7 +90,7 @@ export default function FAQPage() {
           >
             <div style={{ marginBottom: '1rem' }}>
               <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-                Quick answers
+                {t('Quick answers')}
               </p>
               <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--color-on-surface)' }}>
                 Start with the questions people ask most.

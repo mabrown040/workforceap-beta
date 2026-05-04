@@ -8,9 +8,11 @@ import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'AI Toolkit',
+  title: 'Career Toolkit',
   description: 'Guided member tools for resumes, applications, interviews, LinkedIn, and job-search strategy.',
   path: '/dashboard/ai-tools',
 });
@@ -18,6 +20,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
@@ -25,7 +29,7 @@ export default async function AIToolsPage() {
         <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
             { label: 'Member Portal', href: '/dashboard' },
-            { label: 'AI Toolkit' },
+            { label: 'Career Toolkit' },
           ]} />
         </div>
         <section
@@ -46,7 +50,7 @@ export default async function AIToolsPage() {
               marginBottom: '0.5rem',
             }}
           >
-            Included for members
+            {t('Included for members')}
           </p>
           <span
             style={{
@@ -62,10 +66,10 @@ export default async function AIToolsPage() {
               marginBottom: '1rem',
             }}
           >
-            Beta Access
+            {t('Beta Access')}
           </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
-            AI Toolkit
+            {t('Career Toolkit')}
           </h1>
           <p
             style={{
@@ -76,7 +80,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            Start with your AI coach cards below — bigger, simpler, and focused on the tools you actually use.
+            Start with the tool cards below — bigger, simpler, and focused on the tools you actually use.
           </p>
           <Link
             href="/dashboard/ai-tools/history"
@@ -85,7 +89,17 @@ export default async function AIToolsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               history
             </span>
-            View my past results
+            {t('View my past results')}
+          </Link>
+          <Link
+            href="/dashboard/ai-tools/interview-prep"
+            className="btn btn-outline"
+            style={{ marginLeft: '0.5rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+              library_books
+            </span>
+            {t('Prep bundle')}
           </Link>
         </section>
       </div>
@@ -119,7 +133,7 @@ export default async function AIToolsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Guided Job Search Steps
+            {t('Guided Job Search Steps')}
           </h2>
         </div>
 
@@ -130,7 +144,7 @@ export default async function AIToolsPage() {
             </p>
             <div style={{ marginTop: '0.875rem' }}>
               <Link href="/dashboard/job-applications" className="btn btn-outline">
-                Open Application Tracker
+                {t('Open Application Tracker')}
               </Link>
             </div>
           </PortalCard>

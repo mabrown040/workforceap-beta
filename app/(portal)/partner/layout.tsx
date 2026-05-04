@@ -25,6 +25,8 @@ export default async function PartnerPortalLayout({ children }: { children: Reac
   return (
     <PartnerPortalShell
       partnerName={ctx.partner.name}
+      partnerLogoUrl={ctx.partner.logoUrl}
+      partnerBrandColor={ctx.partner.brandColor}
       superAdmin={superUser && !ctx.hasDirectPartnerLink}
       superAdminImpersonating={superAdminImpersonating}
       portalRoles={portalRoles}

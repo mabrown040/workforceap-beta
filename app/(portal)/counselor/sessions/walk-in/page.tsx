@@ -7,7 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import WalkInSessionClient from '@/components/portal/sessions/WalkInSessionClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Walk-in session',
+  title: 'Walk-In Session',
   description: 'Create a new member and run a guided 30-minute session — resume, cover letter, interview prep, all in one.',
   path: '/counselor/sessions/walk-in',
 });
@@ -26,12 +26,12 @@ export default async function WalkInSessionPage() {
   return (
     <>
       <PageHeader
-        title="Walk-in session"
+        title="Walk-In Session"
         subtitle="Brand new member sitting with you. Start with their basics — we'll create their account and walk through resume, cover letter, and interview prep together."
         breadcrumbs={[
           { label: 'Counselor', href: '/counselor' },
-          { label: 'In-office sessions', href: '/counselor/sessions' },
-          { label: 'Walk-in' },
+          { label: 'In-Office Sessions', href: '/counselor/sessions' },
+          { label: 'Walk-In Session' },
         ]}
       />
       <WalkInSessionClient counselorName={user.email ?? 'your counselor'} />

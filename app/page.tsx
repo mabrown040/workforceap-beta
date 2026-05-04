@@ -189,15 +189,25 @@ export default async function HomePage() {
             <span style={{ color: 'var(--color-accent)' }}>Advancing Futures.</span>
           </h1>
 
-          <p style={{
-            fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.25rem)',
-            color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
-            maxWidth: '560px',
-            marginBottom: '1rem',
-            lineHeight: 1.6,
-          }}>
-            Career training with no upfront program cost for qualifying members who want a stronger path to work. Start with Find Your Path, see programs that fit, and get counselor guidance, resume help, and job-search support.
-          </p>
+          <div style={{ maxWidth: '980px', display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1rem' }}>
+            <p style={{
+              fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.22rem)',
+              color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
+              lineHeight: 1.7,
+              margin: 0,
+            }}>
+              Workforce Advancement Project (WAP) is a 501(c)(3) nonprofit that equips individuals, counselors, and advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life at no cost to the member.
+            </p>
+
+            <p style={{
+              fontSize: 'clamp(0.98rem, 0.45vw + 0.92rem, 1.12rem)',
+              color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.82))',
+              lineHeight: 1.65,
+              margin: 0,
+            }}>
+              Start with Find Your Path, see programs that fit, and get counselor guidance, resume help, and job-search support.
+            </p>
+          </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>
             {HERO_PATH_STEPS.map((step, index) => (
@@ -406,16 +416,16 @@ export default async function HomePage() {
           {/* Text block (2/3) */}
           <div>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
-              Our Impact
+              About Us
             </span>
             <h2 className="text-display-sm" style={{ marginBottom: '1.5rem' }}>
-              Built on 25+ Years of Workforce Experience
+              Employer-Aligned Training. Career Support Throughout the Journey.
             </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '640px' }}>
-              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we help members access laptops, resume support, and job search guidance.
+            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '680px' }}>
+              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. We combine employer-aligned training, AI workforce readiness and soft-skill support, occupational training, and career guidance in a model built to work and scale — with no cost to qualifying members.
             </p>
-            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '640px' }}>
-              We believe education should be an investment in the future, not a debt for the present. Programs may be available at no upfront cost for qualifying members through WorkforceAP and partner-backed pathways.
+            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '680px' }}>
+              Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we support members with resume help, interview prep, job-search guidance, and career support from first step to placement.
             </p>
           </div>
 

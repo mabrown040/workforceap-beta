@@ -8,6 +8,7 @@ import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import ExportPdfButton from './ExportPdfButton';
+import ToolFollowThrough from './ToolFollowThrough';
 
 export default function CoverLetterForm() {
   const [resume, setResume] = useState('');
@@ -135,6 +136,7 @@ export default function CoverLetterForm() {
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
+          <ToolFollowThrough toolType="cover_letter" output={output} />
         </div>
       )}
     </form>

@@ -11,7 +11,7 @@ import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPr
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Partner settings',
+  title: 'Partner Settings',
   description: 'Partner portal settings.',
   path: '/partner/settings',
 });
@@ -73,16 +73,16 @@ export default async function PartnerSettingsPage() {
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Organization</h2>
         <InfoRow label="Name" value={partner.name} />
         <InfoRow label="Slug" value={partner.slug} mono />
-        <InfoRow label="Referral code" value={partner.referralCode} mono />
+        <InfoRow label="Referral Code" value={partner.referralCode} mono />
         <InfoRow label="Type" value={partner.organizationType} />
         <InfoRow label="Status" value={partner.active} />
-        <InfoRow label="Onboarding done" value={partner.onboardingCompletedAt} />
-        <InfoRow label="Portal tour" value={partner.tourCompletedAt} />
+        <InfoRow label="Onboarding Complete" value={partner.onboardingCompletedAt} />
+        <InfoRow label="Portal Tour" value={partner.tourCompletedAt} />
       </div>
 
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
-        <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary contact</h2>
-        <InfoRow label="Contact name" value={partner.contactName} />
+        <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary Contact</h2>
+        <InfoRow label="Contact Name" value={partner.contactName} />
         <InfoRow label="Email" value={partner.contactEmail} />
         <InfoRow label="Phone" value={partner.contactPhone} />
       </div>

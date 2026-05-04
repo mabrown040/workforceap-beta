@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
@@ -15,11 +17,13 @@ import { logCronRun } from '@/lib/admin/logCronRun';
  * then find eligible members NOT in that set. This bounds the scan to a 7-day
  * window regardless of table size.
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+async function handle(request: Request) {
+  const unauthorized = authorizeCronRequest(request);
+  if (unauthorized) return unauthorized;
+
+  if (!(await isCronEnabled('cron_inactive_nudge'))) {
+    await logCronRun('cron_inactive_nudge', { skipped: true, reason: 'disabled' }, 'ok');
+    return NextResponse.json({ skipped: true, reason: 'disabled' });
   }
 
   const sevenDaysAgo = new Date();
@@ -60,3 +64,6 @@ export async function GET(request: Request) {
   await logCronRun('cron_inactive_nudge', runResult);
   return NextResponse.json(runResult);
 }
+
+export const GET = handle;
+export const POST = handle;

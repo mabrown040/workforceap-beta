@@ -11,14 +11,14 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Partner resources',
+  title: 'Partner Resources',
   description: 'Links and contacts for partner organizations.',
   path: '/partner/resources',
 });
 
 const PUBLIC_LINKS = [
-  { href: '/programs', label: 'Training programs', desc: 'Certificates and pathways we offer.' },
-  { href: '/how-it-works', label: 'How it works', desc: 'Timeline from application to job search support.' },
+  { href: '/programs', label: 'Training Programs', desc: 'Certificates and pathways we offer.' },
+  { href: '/how-it-works', label: 'How It Works', desc: 'Timeline from application to job search support.' },
   { href: '/faq', label: 'FAQ', desc: 'Common questions for participants and partners.' },
   { href: '/contact', label: 'Contact', desc: 'Reach the WorkforceAP team.' },
 ];
@@ -38,7 +38,7 @@ export default async function PartnerResourcesPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Partner resources"
+        title="Partner Resources"
         subtitle={`Quick links for ${ctx.partner.name} and your internal team.`}
       />
       {/* Mobile View */}
@@ -97,7 +97,7 @@ export default async function PartnerResourcesPage() {
       <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', padding: '0 1rem' }}>
         Member-facing tools (resume, learning, assessments) live in the{' '}
         <Link href="/dashboard" style={{ color: 'var(--color-accent)' }}>
-          member portal
+          Member Portal
         </Link>{' '}
         after they enroll.
       </p>
@@ -162,7 +162,7 @@ export default async function PartnerResourcesPage() {
       <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
         Member-facing tools (resume, learning, assessments) live in the{' '}
         <Link href="/dashboard" style={{ color: 'var(--color-accent)' }}>
-          member portal
+          Member Portal
         </Link>{' '}
         after they enroll.
       </p>

@@ -40,6 +40,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={combinedClasses}
         disabled={disabled || loading}
+        aria-busy={loading}
         {...props}
       >
         {loading && (
@@ -58,7 +59,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             </svg>
           </span>
         )}
-        <span className={loading ? 'btn-content-loading' : undefined}>
+        <span className={loading ? 'btn-content-loading' : undefined} aria-live="polite">
           {children}
         </span>
       </button>

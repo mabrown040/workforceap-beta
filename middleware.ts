@@ -10,6 +10,8 @@ const PORTAL_PATHS = [
   '/help',
   '/applications',
   '/account',
+  '/profile',
+  '/certifications',
   '/partner',
   '/employer',
   '/counselor',

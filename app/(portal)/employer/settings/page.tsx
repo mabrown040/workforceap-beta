@@ -5,12 +5,13 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Company settings',
+  title: 'Company Settings',
   description: 'Employer portal company settings.',
   path: '/employer/settings',
 });
@@ -38,6 +39,11 @@ export default async function EmployerSettingsPage() {
   });
   if (!employer) redirect(await unlinkedEmployerHref(user.id));
 
+  const employerInitial = {
+    ...employer,
+    logoUrl: resolveSupabasePublicAssetUrl('employer-logos', employer.logoUrl),
+  };
+
   return (
     <>
       <div style={{ maxWidth: '720px', margin: '0 auto', paddingBottom: '5rem' }}>
@@ -53,7 +59,7 @@ export default async function EmployerSettingsPage() {
             <h2 className="portal-profile-section-card__title">Company Profile</h2>
           </div>
           <div className="portal-profile-section-card__body">
-            <EmployerSettingsForm initial={employer} />
+            <EmployerSettingsForm initial={employerInitial} />
           </div>
         </div>
 

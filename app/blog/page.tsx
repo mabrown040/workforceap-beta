@@ -6,6 +6,8 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BlogListingClient from './BlogListingClient';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
@@ -18,6 +20,8 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default async function BlogPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let posts: any[] = [];
   if (!shouldSkipOptionalDbQueriesAtBuild()) {
@@ -54,7 +58,7 @@ export default async function BlogPage() {
     <div className="inner-page blog-page">
       <PageHero
         className="blog-page-hero"
-        title={hasPosts ? 'Blog' : 'Career Resources'}
+        title={hasPosts ? t('Blog') : t('Career Resources')}
         subtitle={
           hasPosts
             ? 'Career tips, program spotlights, success stories, and local insights.'

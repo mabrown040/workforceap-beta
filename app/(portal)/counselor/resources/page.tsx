@@ -7,14 +7,14 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const WORKFLOW_LINKS = [
-  { href: '/counselor/students', icon: 'groups', label: 'My members', desc: 'Roster and detail views' },
+  { href: '/counselor/students', icon: 'groups', label: 'My Members', desc: 'Roster and detail views' },
   { href: '/counselor/messages', icon: 'forum', label: 'Messages', desc: 'Portal threads with members' },
-  { href: '/counselor/guide', icon: 'menu_book', label: 'Portal guide', desc: 'How the counselor workspace fits together' },
+  { href: '/counselor/guide', icon: 'menu_book', label: 'Portal Guide', desc: 'How the counselor workspace fits together' },
 ];
 
 const REFERENCE_LINKS = [
-  { href: '/programs', icon: 'school', label: 'Programs catalog', desc: 'Certificates and pathways we offer' },
-  { href: '/how-it-works', icon: 'info', label: 'How it works', desc: 'Timeline from application to job search' },
+  { href: '/programs', icon: 'school', label: 'Programs Catalog', desc: 'Certificates and pathways we offer' },
+  { href: '/how-it-works', icon: 'info', label: 'How It Works', desc: 'Timeline from application to job search' },
   { href: '/faq', icon: 'help', label: 'FAQ', desc: 'Common questions for participants and partners' },
   { href: '/contact', icon: 'mail', label: 'Contact', desc: 'Reach the WorkforceAP team' },
 ];
@@ -49,14 +49,14 @@ export default async function CounselorResourcesPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Resources"
+        title="Counselor Resources"
         subtitle="Program context, member-facing pages, and tools you use most often in sessions."
       />
       {/* Mobile View */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <section style={{ marginBottom: '1.75rem' }}>
           <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-            Counseling workflow
+            Counseling Workflow
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {WORKFLOW_LINKS.map((link) => (
@@ -67,7 +67,7 @@ export default async function CounselorResourcesPage() {
 
         <section style={{ marginBottom: '1.75rem' }}>
           <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-            Member-facing reference
+            Member-Facing Reference
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {REFERENCE_LINKS.map((link) => (
@@ -99,7 +99,7 @@ export default async function CounselorResourcesPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           <section>
             <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-              Counseling workflow
+              Counseling Workflow
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {WORKFLOW_LINKS.map((link) => (
@@ -110,7 +110,7 @@ export default async function CounselorResourcesPage() {
 
           <section>
             <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-              Member-facing reference
+              Member-Facing Reference
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {REFERENCE_LINKS.map((link) => (

@@ -10,7 +10,7 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Resume Analysis',
-  description: 'AI breakdown of your resume strength, structure, and quick wins — without a job description.',
+  description: 'Breakdown of your resume strength, structure, and quick wins — without a job description.',
   path: '/dashboard/ai-tools/resume-analysis',
 });
 
@@ -32,7 +32,7 @@ export default async function ResumeAnalysisPage() {
             title="Resume Analysis"
             subtitle="Get an ATS-aware review of your resume: score, strengths, priority fixes, and quick wins. Your uploaded resume pre-fills when available."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Resume Analysis' },
             ]}
           />
@@ -45,7 +45,9 @@ export default async function ResumeAnalysisPage() {
           >
             <p style={{ fontSize: '0.82rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>
               Paste your resume for a standalone review: overall score, what is working, what to fix first, and
-              easy upgrades. Use Job Match Scorer when you have a specific posting to compare against.
+              easy upgrades. Analysis is reviewed against hiring patterns common to ATS (Applicant Tracking Systems) — the software
+              most employers use to screen resumes before a human ever reads them. Use Job Match Scorer when you have
+              a specific posting to compare against.
             </p>
           </div>
 

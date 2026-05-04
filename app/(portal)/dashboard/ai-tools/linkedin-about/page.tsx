@@ -28,10 +28,10 @@ export default async function LinkedInAboutPage() {
         }}
       >
         <PageHeader
-          title="LinkedIn About section"
+          title="LinkedIn About"
           subtitle="Add your target role and highlights. If you have a resume on file, we prefill from it and use the full text when generating your 3-paragraph About section."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'LinkedIn About' },
           ]}
         />

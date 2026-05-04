@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
 const BUCKET = 'member-resumes';
+
+function storageErrorMessage(error: { message?: string } | null, action: 'sign' | 'download'): string {
+  const message = error?.message ?? '';
+  if (/not found|does not exist|Bucket/i.test(message)) {
+    return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
+  }
+  return action === 'sign' ? 'Could not create resume download link' : 'Could not load resume file';
+}
 
 export async function GET(req: NextRequest) {
   const user = await getUser();
@@ -14,9 +23,33 @@ export async function GET(req: NextRequest) {
     req.nextUrl.searchParams.get('includePlainText') === '1' ||
     req.nextUrl.searchParams.get('includePlainText') === 'true';
 
+  const memberId = req.nextUrl.searchParams.get('memberId');
+  const targetUserId = memberId || user.id;
+
+  // Authorize: own resume, admin, or assigned counselor
+  if (targetUserId !== user.id) {
+    const [admin, counselor] = await Promise.all([
+      isAdmin(user.id),
+      isCounselor(user.id),
+    ]);
+    if (!admin && !counselor) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    // Counselors: verify assignment
+    if (counselor && !admin) {
+      const assignment = await prisma.counselorAssignment.findFirst({
+        where: { memberId: targetUserId, active: true },
+        include: { counselor: { select: { userId: true } } },
+      });
+      if (!assignment || assignment.counselor.userId !== user.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+  }
+
   try {
     const profile = await prisma.profile.findUnique({
-      where: { userId: user.id },
+      where: { userId: targetUserId },
     });
 
     const originalPath = profile?.resumeOriginalPath;
@@ -27,20 +60,30 @@ export async function GET(req: NextRequest) {
     let enhancedUrl: string | null = null;
 
     if (originalPath) {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
-      originalUrl = data?.signedUrl ?? null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error('[member/resume] createSignedUrl original failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+      }
+      originalUrl = data.signedUrl;
     }
     if (enhancedPath) {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
-      enhancedUrl = data?.signedUrl ?? null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error('[member/resume] createSignedUrl enhanced failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+      }
+      enhancedUrl = data.signedUrl;
     }
 
     let enhancedText: string | null = null;
     if (enhancedPath) {
-      const { data: fileData } = await supabase.storage.from(BUCKET).download(enhancedPath);
-      if (fileData) {
-        enhancedText = await fileData.text();
+      const { data: fileData, error } = await supabase.storage.from(BUCKET).download(enhancedPath);
+      if (error || !fileData) {
+        console.error('[member/resume] download enhanced failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'download') }, { status: 502 });
       }
+      enhancedText = await fileData.text();
     }
 
     const extOf = (p: string | null | undefined) => {
@@ -52,7 +95,7 @@ export async function GET(req: NextRequest) {
 
     let resumePlainText: string | null = null;
     if (includePlain) {
-      resumePlainText = (await getMemberResumePlainText(user.id, 12000)) || null;
+      resumePlainText = (await getMemberResumePlainText(targetUserId, 12000)) || null;
     }
 
     return NextResponse.json({

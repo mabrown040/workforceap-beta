@@ -12,7 +12,8 @@ import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
-import LearningCivicBotPanel from '@/components/portal/LearningCivicBotPanel';
+import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
+import { readinessVoiceSurface } from '@/lib/portal/voice';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
@@ -432,6 +433,17 @@ export default async function LearningPage() {
       {/* Destination cards (existing component — career library, program resources) */}
       <LearningHubDestinationCards />
 
+      {/* AI Study Assistant — inline voice coach entry point */}
+      <section style={{ marginBottom: 'var(--space-8)', maxWidth: '380px' }}>
+        <VoiceCoachLauncherCard
+          {...readinessVoiceSurface}
+          title="AI Study Assistant"
+          description="Talk through your current module, prep for the next step, or ask questions about your training path."
+          href="/dashboard/readiness"
+          ctaLabel="Start study session"
+        />
+      </section>
+
       {/* Your learning pathway — enrolled pathway only, with real DB-backed progress */}
       {ACTIVE_PATHWAY && (
       <section style={{ marginBottom: 'var(--space-8)' }}>
@@ -450,7 +462,6 @@ export default async function LearningPage() {
       </section>
       )}
 
-      <LearningCivicBotPanel />
     </div> {/* end hidden md:block */}
     </div>
 

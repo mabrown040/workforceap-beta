@@ -11,6 +11,8 @@ import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import { buildEmployerInbox } from '@/lib/messages/employerInbox';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -21,6 +23,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function EmployerMessagesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/messages');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
@@ -37,7 +41,7 @@ export default async function EmployerMessagesPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Messages"
+        title={t('Messages')}
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">Candidates and WorkforceAP team</span>

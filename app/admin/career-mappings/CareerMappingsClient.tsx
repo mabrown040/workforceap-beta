@@ -29,6 +29,56 @@ type AutoMatchResult = {
   experienceBand: 'beginner' | 'some_experience' | 'experienced';
 };
 
+export type AuditEntry = {
+  id: string;
+  action: string;
+  targetId: string | null;
+  actorName: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+};
+
+type Props = {
+  history?: AuditEntry[];
+};
+
+const ACTION_LABEL: Record<string, string> = {
+  mapping_created: 'Created',
+  mapping_updated: 'Updated',
+  mapping_deactivated: 'Deactivated',
+  mapping_reactivated: 'Reactivated',
+  mapping_deleted: 'Deleted',
+};
+
+const ACTION_COLOR: Record<string, string> = {
+  mapping_created: 'var(--color-green, #4a9b4f)',
+  mapping_updated: 'var(--color-accent)',
+  mapping_deactivated: 'var(--color-gold)',
+  mapping_reactivated: 'var(--color-green, #4a9b4f)',
+  mapping_deleted: '#b91c1c',
+};
+
+function describeMappingChange(entry: AuditEntry): string {
+  const meta = entry.metadata ?? {};
+  const after = (meta.after as Record<string, unknown> | null) ?? null;
+  const before = (meta.before as Record<string, unknown> | null) ?? null;
+  const ref = after ?? before;
+  if (!ref) return entry.targetId ?? '—';
+  const programSlug = typeof ref.programSlug === 'string' ? ref.programSlug : '?';
+  const onetCode = typeof ref.onetCode === 'string' ? ref.onetCode : '?';
+  return `${onetCode} → ${programSlug}`;
+}
+
+function formatTimestamp(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 const EXPERIENCE_BANDS = ['beginner', 'some_experience', 'experienced'] as const;
 const REC_TYPES = ['primary', 'bridge', 'stretch'] as const;
 
@@ -44,7 +94,7 @@ const BAND_LABEL: Record<string, string> = {
   experienced: 'Experienced',
 };
 
-export default function CareerMappingsClient() {
+export default function CareerMappingsClient({ history = [] }: Props = {}) {
   const [searchQ, setSearchQ] = useState('');
   const [searchResults, setSearchResults] = useState<OnetOccupation[]>([]);
   const [selectedOcc, setSelectedOcc] = useState<OnetOccupation | null>(null);
@@ -535,6 +585,92 @@ export default function CareerMappingsClient() {
           </div>
         </div>
       )}
+
+      {/* History — last 20 mapping audit log entries (server-rendered, read-only) */}
+      <div style={{ marginTop: '2rem' }}>
+        <div className="portal-dash-section-header" style={{ marginBottom: '0.75rem' }}>
+          <h2 className="portal-dash-section-header__title">History</h2>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+            Last {history.length} {history.length === 1 ? 'change' : 'changes'}
+          </span>
+        </div>
+        {history.length === 0 ? (
+          <div
+            className="portal-card portal-card--flat"
+            style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}
+          >
+            No mapping changes recorded yet.
+          </div>
+        ) : (
+          <div
+            className="portal-card portal-card--flat"
+            style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column' }}
+          >
+            {history.map((entry) => (
+              <div
+                key={entry.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.5rem 0.75rem',
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '0.625rem',
+                    fontWeight: 800,
+                    padding: '0.15rem 0.4rem',
+                    borderRadius: '9999px',
+                    background: `${ACTION_COLOR[entry.action] ?? 'var(--color-accent)'}22`,
+                    color: ACTION_COLOR[entry.action] ?? 'var(--color-accent)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    flexShrink: 0,
+                    minWidth: '5.25rem',
+                    textAlign: 'center',
+                  }}
+                >
+                  {ACTION_LABEL[entry.action] ?? entry.action}
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: '0.75rem',
+                    color: 'var(--color-on-surface)',
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {describeMappingChange(entry)}
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--color-on-surface-variant)',
+                    flexShrink: 0,
+                    maxWidth: '8rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {entry.actorName ?? 'system'}
+                </span>
+                <span
+                  style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}
+                >
+                  {formatTimestamp(entry.createdAt)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

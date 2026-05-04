@@ -3,12 +3,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getEmployerForUser } from '@/lib/auth/roles';
+import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
-import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
@@ -21,6 +20,7 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -33,10 +33,12 @@ export default async function EmployerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/employer');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/admin/employers' : '/employers';
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect(fallbackForUnlinked);
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) {
+    if (superAdmin) redirect('/admin/employers');
+    redirect('/dashboard');
+  }
 
   const employerRow = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -49,7 +51,10 @@ export default async function EmployerDashboardPage() {
       companyWebsite: true,
     },
   });
-  if (!employerRow) redirect(fallbackForUnlinked);
+  if (!employerRow) {
+    if (superAdmin) redirect('/admin/employers');
+    redirect('/dashboard');
+  }
 
   const hiringIntents = await prisma.employerHiringIntent.findMany({
     where: { employerId: ctx.employerId },
@@ -537,6 +542,7 @@ export default async function EmployerDashboardPage() {
       </section>
       </div>{/* end desktop */}
     </PortalPageFrame>
+    <MobileBottomNav variant="portal" />
     </PortalEntryClient>
   );
 }

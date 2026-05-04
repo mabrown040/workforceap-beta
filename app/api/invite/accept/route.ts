@@ -6,6 +6,7 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { invitationRoleLabel, inviteAcceptLoginRedirect } from '@/lib/invitations/inviteRoleLabels';
 import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 import { Prisma } from '@prisma/client';
 
 type InviteTx = Prisma.TransactionClient;
@@ -529,10 +530,10 @@ async function createNewUserAndAccept(
       }
       // Orphaned Supabase auth user (previous attempt created auth but DB tx failed).
       // Look up the existing auth user and continue with DB record creation.
-      const { data: userByEmail } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      const orphanedAuthUser = userByEmail?.users?.find(
-        (u) => u.email?.toLowerCase() === inviteEmail
-      );
+      const orphanedAuthUser = await findSupabaseAuthUserByEmail(supabase, inviteEmail, {
+        perPage: 200,
+        maxPages: 25,
+      });
       if (orphanedAuthUser) {
         // Update password in case it changed between attempts
         if (password) {

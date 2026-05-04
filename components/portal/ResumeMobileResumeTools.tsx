@@ -158,7 +158,7 @@ export default function ResumeMobileResumeTools({
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.doc,.docx,.txt"
+            accept=".pdf,.doc,.docx"
             onChange={handleFileInput}
             style={{ display: 'none' }}
           />
@@ -166,7 +166,7 @@ export default function ResumeMobileResumeTools({
             {uploading ? 'Uploading…' : 'Tap to choose a file, or drag and drop'}
           </p>
           <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            PDF, DOC, DOCX, TXT — max 5MB
+            PDF, DOC, DOCX — max 5MB
           </p>
         </div>
         {uploadError && <p style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{uploadError}</p>}

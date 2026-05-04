@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 import { getUser } from '@/lib/auth/server';
 import { revalidatePath } from 'next/cache';
+import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
 
 export async function confirmPlacement(jobApplicationId: string) {
   const user = await getUser();
@@ -22,29 +23,6 @@ export async function confirmPlacement(jobApplicationId: string) {
   }
 
   const now = new Date();
-  const reviewNote = 'Member self-reported offer acceptance. Counselor review still required.';
-
-  const windowEnd = defaultOnboardingWindowEnd(now);
-  await prisma.placementRecord.upsert({
-    where: { userId: user.id },
-    update: {
-      employerName: application.company,
-      jobTitle: application.role,
-      placedAt: now,
-      notes: reviewNote,
-      startDateVerified: false,
-      onboardingWindowEnd: windowEnd,
-    },
-    create: {
-      userId: user.id,
-      employerName: application.company,
-      jobTitle: application.role,
-      placedAt: now,
-      notes: reviewNote,
-      startDateVerified: false,
-      onboardingWindowEnd: windowEnd,
-    },
-  });
 
   await prisma.memberEvent.create({
     data: {
@@ -56,12 +34,35 @@ export async function confirmPlacement(jobApplicationId: string) {
         company: application.company,
         role: application.role,
         confirmedAt: now.toISOString(),
+        pendingReview: true,
+        note: 'Member self-reported offer acceptance. No placement record created until staff review.',
       },
       sourcePage: '/dashboard',
     },
   });
 
+  const referral = await prisma.partnerReferral.findFirst({
+    where: { memberId: user.id },
+    select: { partnerId: true },
+  });
+
+  if (referral?.partnerId) {
+    await recordPartnerWorkflowEvent({
+      partnerId: referral.partnerId,
+      actorUserId: user.id,
+      kind: 'placement_confirmation_submitted',
+      headline: `${application.company} offer reported by member`,
+      detail:
+        'Member self-reported an accepted role. WorkforceAP review is still pending before placement is finalized.',
+      entityType: 'JobApplication',
+      entityId: application.id,
+    });
+  }
+
   revalidatePath('/dashboard');
   revalidatePath('/admin');
   revalidatePath(`/admin/members/${user.id}`);
+  revalidatePath('/partner');
+  revalidatePath('/partner/attention');
+  revalidatePath('/partner/outcomes');
 }

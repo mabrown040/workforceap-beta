@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { auditLog } from '@/lib/audit';
 
 const upsertSchema = z.object({
   id: z.string().uuid().optional(),
@@ -15,6 +16,47 @@ const upsertSchema = z.object({
   whyRecommended: z.string().max(10000).optional().nullable(),
   isActive: z.boolean().optional().default(true),
 });
+
+const deleteSchema = z.object({
+  id: z.string().uuid(),
+});
+
+/**
+ * Subset of CareerProgramMapping serialized into AuditLog metadata for
+ * compliance / before-after comparisons. Stays small and stable on purpose.
+ */
+type MappingSnapshot = {
+  id: string;
+  onetCode: string;
+  programSlug: string;
+  priority: number;
+  experienceBand: string;
+  recommendationType: string;
+  whyRecommended: string | null;
+  isActive: boolean;
+};
+
+function snapshot(row: {
+  id: string;
+  onetCode: string;
+  programSlug: string;
+  priority: number;
+  experienceBand: string;
+  recommendationType: string;
+  whyRecommended: string | null;
+  isActive: boolean;
+}): MappingSnapshot {
+  return {
+    id: row.id,
+    onetCode: row.onetCode,
+    programSlug: row.programSlug,
+    priority: row.priority,
+    experienceBand: row.experienceBand,
+    recommendationType: row.recommendationType,
+    whyRecommended: row.whyRecommended,
+    isActive: row.isActive,
+  };
+}
 
 export async function GET(request: NextRequest) {
   const user = await getUser();
@@ -78,6 +120,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (data.id) {
+    const before = await prisma.careerProgramMapping.findUnique({ where: { id: data.id } });
     const row = await prisma.careerProgramMapping.update({
       where: { id: data.id },
       data: {
@@ -90,6 +133,23 @@ export async function POST(request: NextRequest) {
         isActive: data.isActive ?? true,
       },
     });
+
+    // Pick the right action verb so a future versioned timeline reads naturally.
+    let action = 'mapping_updated';
+    if (before && before.isActive && !row.isActive) action = 'mapping_deactivated';
+    else if (before && !before.isActive && row.isActive) action = 'mapping_reactivated';
+
+    await auditLog({
+      actorUserId: user.id,
+      action,
+      targetType: 'career_program_mapping',
+      targetId: row.id,
+      metadata: {
+        before: before ? snapshot(before) : null,
+        after: snapshot(row),
+      },
+    });
+
     return NextResponse.json({ mapping: row });
   }
 
@@ -104,5 +164,59 @@ export async function POST(request: NextRequest) {
       isActive: data.isActive ?? true,
     },
   });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'mapping_created',
+    targetType: 'career_program_mapping',
+    targetId: row.id,
+    metadata: {
+      before: null,
+      after: snapshot(row),
+    },
+  });
+
   return NextResponse.json({ mapping: row });
+}
+
+export async function DELETE(request: NextRequest) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    await requireAdmin(user.id);
+  } catch {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
+  const parsed = deleteSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const before = await prisma.careerProgramMapping.findUnique({ where: { id: parsed.data.id } });
+  if (!before) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  await prisma.careerProgramMapping.delete({ where: { id: parsed.data.id } });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'mapping_deleted',
+    targetType: 'career_program_mapping',
+    targetId: parsed.data.id,
+    metadata: {
+      before: snapshot(before),
+      after: null,
+    },
+  });
+
+  return NextResponse.json({ ok: true });
 }

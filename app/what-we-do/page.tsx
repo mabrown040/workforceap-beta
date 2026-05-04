@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from "@/components/Footer";
@@ -17,7 +17,7 @@ const BENTO_ITEMS = [
   {
     icon: 'school',
     title: 'Employer-Influenced Curricula',
-    desc: 'Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.',
+    desc: 'Training programs shaped with employer input ΓÇö Google, IBM, AWS, Microsoft, CompTIA ΓÇö so credentials map to real hiring needs.',
     span: 'tall',
   },
   {
@@ -35,7 +35,7 @@ const BENTO_ITEMS = [
   {
     icon: 'hub',
     title: 'Regional Scalability',
-    desc: 'A repeatable model built to serve communities nationwide — not just one local market.',
+    desc: 'A repeatable model built to serve communities nationwide ΓÇö not just one local market.',
     span: 'small',
   },
 ];
@@ -54,7 +54,7 @@ const VALUES = [
   {
     num: '03',
     title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we bring the right people together so members don\'t have to figure it out alone.',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches ΓÇö we bring the right people together so members don\'t have to figure it out alone.',
   },
 ];
 
@@ -71,9 +71,22 @@ export default async function WhatWeDoPage() {
     // keep defaults
   }
 
+  let pipelineEmployers: { id: string; companyName: string; logoUrl: string | null; industry: string | null }[] = [];
+  try {
+    pipelineEmployers = await prisma.employer.findMany({
+      where: { hiringPipelineActive: true, status: 'active' },
+      select: { id: true, companyName: true, logoUrl: true, industry: true },
+      take: 12,
+      orderBy: { updatedAt: 'desc' },
+    });
+  } catch {
+    // Column may not exist yet if migration hasn't been applied — section renders empty until then
+  }
+
+
   return (
     <div className="inner-page">
-      {/* ── Hero ── */}
+      {/* ΓöÇΓöÇ Hero ΓöÇΓöÇ */}
       <section
         className="wwd-photo-hero"
         style={{
@@ -172,7 +185,7 @@ export default async function WhatWeDoPage() {
             }}
           >
             Employer-aligned training. No cost for qualifying members. Career support throughout the journey.
-            A model that works — and scales.
+            A model that works ΓÇö and scales.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
@@ -240,7 +253,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Legacy Section ── */}
+      {/* ΓöÇΓöÇ Legacy Section ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -362,7 +375,7 @@ export default async function WhatWeDoPage() {
                     Placements on file in WorkforceAP systems (n). {placementMetrics.asOfLabel}
                   </div>
                   <p style={{ margin: '0.65rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
-                    Historical training reach through workforce partnerships remains 2,000+ — a separate figure from this portal placement counter.
+                    Historical training reach through workforce partnerships remains 2,000+ ΓÇö a separate figure from this portal placement counter.
                   </p>
                 </div>
               </div>
@@ -371,7 +384,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Making an impact — Bento Grid ── */}
+      {/* ΓöÇΓöÇ Making an impact ΓÇö Bento Grid ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -459,7 +472,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Values Section ── */}
+      {/* ΓöÇΓöÇ Values Section ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -543,7 +556,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* ΓöÇΓöÇ CTA ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -658,7 +671,7 @@ export default async function WhatWeDoPage() {
 
       <MobileBottomNav />
       <Footer />
-      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      {/* Spacer for mobile bottom nav ΓÇö ensures footer content is not hidden */}
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );

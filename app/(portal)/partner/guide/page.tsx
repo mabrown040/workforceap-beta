@@ -9,7 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Partner referral guide',
+  title: 'Partner Referral Guide',
   description: 'How to refer members and track progress in the partner portal.',
   path: '/partner/guide',
 });

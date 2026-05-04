@@ -6,7 +6,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import SessionsIndexBody from '@/components/portal/sessions/SessionsIndexBody';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'In-office sessions',
+  title: 'In-Office Sessions',
   description: 'Run a guided 30-minute session with a member. Build profile, resume, cover letter, and interview prep together.',
   path: '/counselor/sessions',
 });

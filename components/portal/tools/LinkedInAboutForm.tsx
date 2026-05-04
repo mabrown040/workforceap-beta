@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
+import ToolFollowThrough from './ToolFollowThrough';
 
 const RESUME_PREFILL_MAX = 3500;
 
@@ -180,6 +181,7 @@ export default function LinkedInAboutForm() {
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>
+          <ToolFollowThrough toolType="linkedin_about" />
         </div>
       )}
     </form>

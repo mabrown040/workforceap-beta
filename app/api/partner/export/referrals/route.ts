@@ -101,14 +101,19 @@ export async function GET(request: NextRequest) {
   ];
 
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const brandingHeader = [
+  const brandingLines = [
     `# Workforce Advancement Project — Partner ${
       preset === 'outcomes' ? 'Outcomes' : preset === 'demographics' ? 'Demographics' : 'Referrals'
     } Export`,
-    `# workforceap.org | Generated: ${date}`,
     `# Partner: ${ctx.partner.name}`,
+  ];
+  if (ctx.partner.logoUrl) brandingLines.push(`# Logo: ${ctx.partner.logoUrl}`);
+  brandingLines.push(
+    `# Generated: ${date}`,
+    '# Powered by WorkforceAP — workforceap.org',
     '#',
-  ].join('\r\n');
+  );
+  const brandingHeader = brandingLines.join('\r\n');
   const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
   const suffix = preset === 'outcomes' ? 'outcomes' : 'referrals';
 

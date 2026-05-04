@@ -1,0 +1,47 @@
+const SERVER_LABELS: Record<string, string> = {
+  'Choose Your Path': 'Elige tu camino',
+  'Find the right program': 'Encuentra el programa adecuado',
+  'for your goals.': 'para tus metas.',
+  'Quick start': 'Inicio rápido',
+  'Start with the lane that fits you best.': 'Empieza con la ruta que mejor se adapte a ti.',
+  'Not sure? Take the 2-minute pathfinder': '¿No estás seguro? Haz la guía de 2 minutos',
+  'Find Your Path — Take the Quiz': 'Encuentra tu camino — haz la evaluación',
+  'Compare Programs': 'Comparar programas',
+  'View Salary Guide': 'Ver guía salarial',
+  'How to choose a program': 'Cómo elegir un programa',
+  'From enrollment to employment': 'De la inscripción al empleo',
+  'Ready to take the next step?': '¿Listo para dar el siguiente paso?',
+  'Start Application': 'Comenzar solicitud',
+  'Talk to an Advisor': 'Hablar con un asesor',
+  'Get in Touch': 'Ponte en contacto',
+  'Send Us a Message': 'Envíanos un mensaje',
+  'Austin-based team': 'Equipo con base en Austin',
+  'Workforce Advancement Project Team': 'Equipo de Workforce Advancement Project',
+  'Knowledge Base': 'Centro de ayuda',
+  'Quick answers': 'Respuestas rápidas',
+  'Career Resources': 'Recursos profesionales',
+  'Blog': 'Blog',
+  'Career Toolkit': 'Kit de herramientas profesionales',
+  'Included for members': 'Incluido para miembros',
+  'Beta Access': 'Acceso beta',
+  'View my past results': 'Ver mis resultados anteriores',
+  'Prep bundle': 'Paquete de preparación',
+  'Guided Job Search Steps': 'Pasos guiados para buscar empleo',
+  'Open Application Tracker': 'Abrir seguimiento de solicitudes',
+  'AI Career Counselor': 'Consejero profesional con IA',
+  'Past sessions': 'Sesiones anteriores',
+  'Resume': 'Currículum',
+  'Employer Portal': 'Portal de empleador',
+  'Messages': 'Mensajes',
+  'Referred Members': 'Miembros referidos',
+  'Export CSV': 'Exportar CSV',
+};
+
+export function getServerLabel(label: string, locale: 'en' | 'es' = 'en'): string {
+  if (locale === 'en') return label;
+  return SERVER_LABELS[label] ?? label;
+}
+
+export function makeServerT(locale: 'en' | 'es') {
+  return (label: string) => getServerLabel(label, locale);
+}

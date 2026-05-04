@@ -8,7 +8,8 @@ import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Messages',
@@ -19,6 +20,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function MemberMessagesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/messages');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   const thread = await getOrCreateMemberCounselorThread(user.id);
 

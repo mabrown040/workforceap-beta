@@ -6,7 +6,8 @@ import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training Programs — Nationwide Certificates',
@@ -14,7 +15,9 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/programs',
 });
 
-export default function ProgramsPage() {
+export default async function ProgramsPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   const mobileBrowseChips = [
     { href: '#program-catalog', label: 'All' },
     ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({

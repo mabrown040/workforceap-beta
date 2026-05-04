@@ -12,7 +12,8 @@ import { getUser } from '@/lib/auth/server';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMembersMobile';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Referred Members',
@@ -23,6 +24,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function PartnerReferredMembersPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner/referred-members');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));

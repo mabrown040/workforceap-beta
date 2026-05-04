@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 
 export type WAPLocale = 'en' | 'es';
 
@@ -405,6 +406,7 @@ const TRANSLATIONS: Record<WAPLocale, Record<string, string>> = {
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<WAPLocale>('en');
+  const router = useRouter();
 
   useEffect(() => {
     const saved = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as WAPLocale | null) : null;
@@ -413,9 +415,12 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const setLocale = (l: WAPLocale) => {
     setLocaleState(l);
-    if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, l);
-    // Also set html lang attribute
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, l);
+      document.cookie = `${STORAGE_KEY}=${l};path=/;max-age=31536000;SameSite=Lax`;
+    }
     document.documentElement.lang = l;
+    router.refresh();
   };
 
   const t = (key: string, fallback?: string) => TRANSLATIONS[locale][key] ?? fallback ?? key;

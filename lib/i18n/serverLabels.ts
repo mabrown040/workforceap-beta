@@ -37,7 +37,11 @@ const SERVER_LABELS: Record<string, string> = {
   'Export CSV': 'Exportar CSV',
 };
 
-export function getServerLabel(label: string) {
+export function getServerLabel(label: string, locale: 'en' | 'es' = 'en'): string {
+  if (locale === 'en') return label;
   return SERVER_LABELS[label] ?? label;
 }
 
+export function makeServerT(locale: 'en' | 'es') {
+  return (label: string) => getServerLabel(label, locale);
+}

@@ -8,7 +8,8 @@ import { getProfileCompleteness } from "@/lib/resume/profileCompleteness";
 import PageHeader from "@/components/portal/PageHeader";
 import ResumeClient from "./ResumeClient";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Resume",
@@ -20,6 +21,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function DashboardResumePage() {
   const user = await getUser();
   if (!user) redirect("/login?redirectTo=/dashboard/resume");
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   const profile = await prisma.profile.findUnique({
     where: { userId: user.id },

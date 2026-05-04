@@ -11,7 +11,8 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer Portal',
@@ -22,6 +23,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function EmployerDashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   const superAdmin = await isSuperAdmin(user.id);
   const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });

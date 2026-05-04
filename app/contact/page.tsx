@@ -4,7 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
   const raw = Array.isArray(topicParam) ? topicParam[0] : topicParam;
@@ -98,6 +99,8 @@ export default async function ContactPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const initialTopic = getPrefilledTopic(resolvedSearchParams?.topic);
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   return (
     <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">

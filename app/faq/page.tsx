@@ -4,7 +4,8 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'FAQ: WIOA-Aligned Career Training & Certifications',
@@ -44,7 +45,9 @@ const faqHighlights = [
   },
 ];
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   return (
     <div className="inner-page">
       <section className="content-section" style={{ paddingBottom: 0 }}>

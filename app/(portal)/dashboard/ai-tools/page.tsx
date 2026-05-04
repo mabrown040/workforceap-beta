@@ -8,7 +8,8 @@ import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
-import { getServerLabel as t } from '@/lib/i18n/serverLabels';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Toolkit',
@@ -19,6 +20,8 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
+  const locale = await getLocale();
+  const t = makeServerT(locale);
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>

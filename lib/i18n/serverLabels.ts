@@ -106,7 +106,21 @@ const SERVER_LABELS_ES: Record<string, string> = {
   'What happens next?': '¿Qué sigue?',
   'Start your application': 'Comienza tu solicitud',
   "If the form doesn't load, call": 'Si el formulario no carga, llama',
-  'or email': 'o envía un correo a',
+  'Board & Leadership': 'Junta Directiva y Liderazgo',
+  'Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.': 'Conoce al equipo de liderazgo detrás de WorkforceAP — décadas de experiencia en desarrollo de la fuerza laboral, credibilidad tecnológica del lado del empleador, disciplina militar e impacto comunitario a nivel nacional.',
+  'Our Leadership': 'Nuestro Liderazgo',
+  'Stewards of the': 'Administradores del',
+  'Future Workforce.': 'Futuro de la Fuerza Laboral.',
+  'Workforce Development Training & Industry Certificates': 'Capacitación en Desarrollo de la Fuerza Laboral y Certificaciones Industriales',
+  'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.': 'WorkforceAP está construido sobre 25+ años de liderazgo en desarrollo de la fuerza laboral. Capacitación alineada con empleadores, apoyo profesional y acceso financiado por subvenciones y socios para miembros que califiquen.',
+  'How It Works': 'Cómo Funciona',
+  'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.': 'Tu camino desde la solicitud hasta la certificación y colocación laboral. Diez pasos claros — cada uno diseñado para prepararte para el éxito.',
+  'Get Started': 'Comenzar',
+  'Build Your Future': 'Construye tu Futuro',
+  'Launch Your Career': 'Lanza tu Carrera',
+  'Phase 1 — Get Started': 'Fase 1 — Comenzar',
+  'Phase 2 — Build Your Future': 'Fase 2 — Construye tu Futuro',
+  'Phase 3 — Launch Your Career': 'Fase 3 — Lanza tu Carrera',
 };
 
 export async function getServerLocaleAsync(): Promise<WAPLocale> {

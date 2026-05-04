@@ -116,7 +116,6 @@ const SERVER_LABELS_ES: Record<string, string> = {
   'Workforce Development Training & Industry Certificates': 'Capacitación en Desarrollo de la Fuerza Laboral y Certificaciones Industriales',
   'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.': 'WorkforceAP está construido sobre 25+ años de liderazgo en desarrollo de la fuerza laboral. Capacitación alineada con empleadores, apoyo profesional y acceso financiado por subvenciones y socios para miembros que califiquen.',
   // How-it-works metadata + phase labels
-  'How It Works': 'Cómo funciona',
   'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.': 'Tu camino desde la solicitud hasta la certificación y colocación laboral. Diez pasos claros — cada uno diseñado para prepararte para el éxito.',
   'Get Started': 'Comenzar',
   'Build Your Future': 'Construye tu Futuro',

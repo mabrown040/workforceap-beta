@@ -9,6 +9,7 @@ import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 function parseActionPlan(output: string | null): string[] {
   if (!output) return [];
@@ -50,7 +51,7 @@ export default async function CounselorPage() {
 
   const historySection = pastSessions.length > 0 ? (
     <section style={{ padding: '1.5rem 1rem 2rem' }}>
-      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>Past sessions</h2>
+      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>{t('Past sessions')}</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {pastSessions.map((session) => {
           const steps = parseActionPlan(session.output as string | null);
@@ -98,7 +99,7 @@ export default async function CounselorPage() {
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>
       <PageHeader
-        title="AI Career Counselor"
+        title={t('AI Career Counselor')}
         subtitle="Your session is private. Speak naturally — I'm here to help."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'AI Career Counselor' }]}
       />

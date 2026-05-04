@@ -11,6 +11,7 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer Portal',
@@ -62,7 +63,7 @@ export default async function EmployerDashboardPage() {
 
   return (
     <PortalPageFrame maxWidth="80rem">
-      <h1 className="wa-sr-only">Employer Portal — {employer.companyName}</h1>
+      <h1 className="wa-sr-only">{t('Employer Portal')} — {employer.companyName}</h1>
 
       {/* Header */}
       <div style={{ padding: '1.5rem 1.5rem 0.75rem' }}>
@@ -70,7 +71,7 @@ export default async function EmployerDashboardPage() {
           className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
           style={{ color: 'var(--color-accent)' }}
         >
-          Employer Portal
+          {t('Employer Portal')}
         </p>
         <h2
           className="wa-text-3xl wa-font-extrabold wa-tracking-tight"

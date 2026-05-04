@@ -6,6 +6,7 @@ import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Training Programs — Nationwide Certificates',
@@ -38,7 +39,7 @@ export default function ProgramsPage() {
                 className="text-label-upper"
                 style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}
               >
-                Choose Your Path
+                {t('Choose Your Path')}
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>
                 Find the right program{' '}
@@ -126,14 +127,14 @@ export default function ProgramsPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem' }}>
               <div>
                 <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-                  Quick start
+                  {t('Quick start')}
                 </p>
                 <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
-                  Start with the lane that fits you best.
+                  {t('Start with the lane that fits you best.')}
                 </h2>
               </div>
               <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
-                Not sure? Take the 2-minute pathfinder
+                {t('Not sure? Take the 2-minute pathfinder')}
               </Link>
             </div>
 
@@ -238,7 +239,7 @@ export default function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">psychology</span>
-              Find Your Path — Take the Quiz
+              {t('Find Your Path — Take the Quiz')}
             </Link>
             <Link
               href="/program-comparison"
@@ -256,7 +257,7 @@ export default function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">compare_arrows</span>
-              Compare Programs
+              {t('Compare Programs')}
             </Link>
             <Link
               href="/salary-guide"
@@ -274,7 +275,7 @@ export default function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">payments</span>
-              View Salary Guide
+              {t('View Salary Guide')}
             </Link>
           </div>
         </div>
@@ -298,7 +299,7 @@ export default function ProgramsPage() {
                 marginBottom: '0.5rem',
               }}
             >
-              How to choose a program
+              {t('How to choose a program')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.75rem', maxWidth: '44rem' }}>
               The right program depends on where you are now and where you want to go. Consider these
@@ -357,7 +358,7 @@ export default function ProgramsPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              From enrollment to employment
+              {t('From enrollment to employment')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '32rem', margin: '0 auto' }}>
               WorkforceAP supports members at every step — from choosing a program through landing a job in their field.
@@ -438,7 +439,7 @@ export default function ProgramsPage() {
             className="text-display-sm"
             style={{ color: 'var(--color-white, #fff)', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
           >
-            Ready to take the next step?
+            {t('Ready to take the next step?')}
           </h2>
           <p
             style={{
@@ -478,7 +479,7 @@ export default function ProgramsPage() {
                 textDecoration: 'none',
               }}
             >
-              Start Application
+              {t('Start Application')}
             </Link>
             <Link
               href="/contact"
@@ -492,7 +493,7 @@ export default function ProgramsPage() {
                 textDecoration: 'none',
               }}
             >
-              Talk to an Advisor
+              {t('Talk to an Advisor')}
             </Link>
           </div>
         </div>

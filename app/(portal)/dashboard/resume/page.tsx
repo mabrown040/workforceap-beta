@@ -8,6 +8,7 @@ import { getProfileCompleteness } from "@/lib/resume/profileCompleteness";
 import PageHeader from "@/components/portal/PageHeader";
 import ResumeClient from "./ResumeClient";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Resume",
@@ -111,7 +112,7 @@ export default async function DashboardResumePage() {
                   color: "var(--color-on-surface)",
                 }}
               >
-                Resume
+                {t('Resume')}
               </h1>
               <p
                 style={{
@@ -158,7 +159,7 @@ export default async function DashboardResumePage() {
           }}
         >
           <PageHeader
-            title="Resume"
+            title={t('Resume')}
             subtitle="Upload your resume, review it inline, or build one from your profile."
             breadcrumbs={[
               { label: "Member Portal", href: "/dashboard" },

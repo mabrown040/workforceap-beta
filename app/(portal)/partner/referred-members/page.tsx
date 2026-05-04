@@ -12,6 +12,7 @@ import { getUser } from '@/lib/auth/server';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMembersMobile';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Referred Members',
@@ -32,7 +33,7 @@ export default async function PartnerReferredMembersPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Referred Members"
+        title={t('Referred Members')}
         subtitle="Search and filter everyone your organization has referred to WorkforceAP."
         action={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -59,7 +60,7 @@ export default async function PartnerReferredMembersPage() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Export CSV
+              {t('Export CSV')}
             </a>
           </div>
         }

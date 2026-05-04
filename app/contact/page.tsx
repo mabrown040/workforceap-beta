@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
   const raw = Array.isArray(topicParam) ? topicParam[0] : topicParam;
@@ -104,7 +105,7 @@ export default async function ContactPage({
         <div className="container" style={{ maxWidth: 1400 }}>
           <div style={{ marginBottom: '2.5rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              Get in Touch
+              {t('Get in Touch')}
             </span>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.25rem' }}>
               We&rsquo;re here for <span style={{ color: 'var(--color-accent)' }}>members, employers, and partners</span> alike.
@@ -120,7 +121,7 @@ export default async function ContactPage({
             <div>
               <div className="portal-card portal-card--flat" style={{ padding: 'clamp(1.25rem, 3vw, 2.5rem)' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>
-                  Send Us a Message
+                  {t('Send Us a Message')}
                 </h2>
                 <ContactFormClient initialTopic={initialTopic} />
               </div>
@@ -149,7 +150,7 @@ export default async function ContactPage({
                   background: 'var(--surface-container-low)',
                 }}
               >
-                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>Austin-based team</p>
+                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{t('Austin-based team')}</p>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>Built in Austin, supporting members nationwide</h3>
                 <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   We work from Austin, Texas and support members, partners, and employers across the country. Use the form,
@@ -169,7 +170,7 @@ export default async function ContactPage({
             &ldquo;We believe everyone deserves a clear path to a meaningful career. That starts with being available and responsive to the people we serve.&rdquo;
           </p>
           <p className="text-label-upper" style={{ color: 'var(--color-accent)', marginTop: '1.5rem' }}>
-            Workforce Advancement Project Team
+            {t('Workforce Advancement Project Team')}
           </p>
         </div>
       </section>

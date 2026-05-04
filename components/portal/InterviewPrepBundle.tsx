@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Send, FileText, Loader2, Mail, Copy, Check, Trash2 } from 'lucide-react';
+import { FileText, Loader2, Mail, Copy, Check, ChevronRight } from 'lucide-react';
 
 export type PrepBundleItem = {
   toolType: string;
@@ -101,22 +102,58 @@ export default function InterviewPrepBundle() {
   }
 
   if (!bundle || bundle.empty) {
+    const TOOLS = [
+      { label: 'Resume', href: '/dashboard/ai-tools/resume-rewriter', desc: 'AI-polished version of your resume' },
+      { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', desc: 'Tailored letter for any job posting' },
+      { label: 'Elevator Pitch', href: '/dashboard/ai-tools/elevator-pitch', desc: '10–20 second intro you can rehearse' },
+      { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice', desc: 'Mock Q&A with instant feedback' },
+      { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline', desc: 'Stand-out headline for your profile' },
+      { label: 'Salary Negotiation', href: '/dashboard/ai-tools/salary-negotiation', desc: 'Script for your next offer conversation' },
+    ];
     return (
-      <div
-        style={{
-          padding: '2rem 1rem',
-          borderRadius: '0.75rem',
-          background: 'var(--surface-container)',
-          textAlign: 'center',
-        }}
-      >
-        <FileText size={40} style={{ marginBottom: '0.75rem', color: 'var(--color-accent)' }} />
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem' }}>
-          No prep materials yet
-        </h2>
-        <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Run a few AI tools first — resume, cover letter, elevator pitch, interview practice — then come back here.
-        </p>
+      <div>
+        <div
+          style={{
+            padding: '1.25rem 1rem 1rem',
+            borderRadius: '0.75rem',
+            background: 'var(--surface-container)',
+            marginBottom: '1.25rem',
+          }}
+        >
+          <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+            No prep materials yet
+          </h2>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+            Run any of these tools and your results will appear here automatically.
+          </p>
+        </div>
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {TOOLS.map(tool => (
+            <li key={tool.href}>
+              <Link
+                href={tool.href}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <div
+                  className="portal-card portal-card--flat portal-card--padded-sm"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    transition: 'background-color 0.15s',
+                  }}
+                >
+                  <FileText size={18} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 700 }}>{tool.label}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{tool.desc}</div>
+                  </div>
+                  <ChevronRight size={16} style={{ color: 'var(--color-on-surface-variant)', opacity: 0.5, flexShrink: 0 }} />
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }

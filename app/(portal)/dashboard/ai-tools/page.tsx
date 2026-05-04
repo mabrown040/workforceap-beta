@@ -8,6 +8,7 @@ import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
+import { getServerLabel as t } from '@/lib/i18n/serverLabels';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Career Toolkit',
@@ -46,7 +47,7 @@ export default async function AIToolsPage() {
               marginBottom: '0.5rem',
             }}
           >
-            Included for members
+            {t('Included for members')}
           </p>
           <span
             style={{
@@ -62,10 +63,10 @@ export default async function AIToolsPage() {
               marginBottom: '1rem',
             }}
           >
-            Beta Access
+            {t('Beta Access')}
           </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
-            Career Toolkit
+            {t('Career Toolkit')}
           </h1>
           <p
             style={{
@@ -85,7 +86,7 @@ export default async function AIToolsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               history
             </span>
-            View my past results
+            {t('View my past results')}
           </Link>
           <Link
             href="/dashboard/ai-tools/interview-prep"
@@ -95,7 +96,7 @@ export default async function AIToolsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               library_books
             </span>
-            Prep bundle
+            {t('Prep bundle')}
           </Link>
         </section>
       </div>
@@ -110,7 +111,7 @@ export default async function AIToolsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Guided Job Search Steps
+            {t('Guided Job Search Steps')}
           </h2>
         </div>
 
@@ -121,7 +122,7 @@ export default async function AIToolsPage() {
             </p>
             <div style={{ marginTop: '0.875rem' }}>
               <Link href="/dashboard/job-applications" className="btn btn-outline">
-                Open Application Tracker
+                {t('Open Application Tracker')}
               </Link>
             </div>
           </PortalCard>

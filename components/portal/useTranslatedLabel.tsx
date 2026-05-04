@@ -70,6 +70,18 @@ const LABEL_TO_KEY: Record<string, string> = {
 
   // Footer / common
   'Sign out': 'nav.signOut',
+  'Invite Member': 'partner.inviteMember',
+  'Close': 'common.close',
+  'Cancel': 'common.cancel',
+  'Save': 'form.save',
+  'Save changes': 'profile.saveChanges',
+  'Sending…': 'common.sending',
+  'Send Message': 'messages.sendMessage',
+  'First Name *': 'form.firstNameRequired',
+  'Last Name *': 'form.lastNameRequired',
+  'Email Address *': 'form.emailRequired',
+  'Phone Number': 'form.phoneNumber',
+  'Your Message *': 'messages.yourMessageRequired',
 };
 
 export function useTranslatedLabel() {

@@ -13,12 +13,14 @@ import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   return buildPageMetadataAsync({
-  title: 'How It Works',
-  description:
-    'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.',
-  path: '/how-it-works',
-});
+    title: t('How It Works'),
+    description:
+      t('Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.'),
+    path: '/how-it-works',
+  });
 }
 
 const PHASES = (t: (label: string) => string) => [

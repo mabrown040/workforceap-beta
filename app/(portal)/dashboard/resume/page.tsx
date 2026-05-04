@@ -8,13 +8,15 @@ import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { makeServerT } from '@/lib/i18n/serverLabels';
+import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'My Resume',
-  description: 'Upload, view, and AI-generate your professional resume.',
-  path: '/dashboard/resume',
-});
+    title: 'My Resume',
+    description: 'Upload, view, and AI-generate your professional resume.',
+    path: '/dashboard/resume',
+  });
 }
 
 export default async function DashboardResumePage() {

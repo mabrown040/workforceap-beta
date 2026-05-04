@@ -10,10 +10,10 @@ import ElevatorPitchDeploymentLogger from '@/components/portal/tools/ElevatorPit
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Elevator Introduction',
-  description: 'AI-crafted 10-20 second elevator introduction with saved history, email delivery, and voice rehearsal recording.',
-  path: '/dashboard/ai-tools/elevator-pitch',
-});
+    title: 'AI Elevator Introduction',
+    description: 'AI-crafted 10-20 second elevator introduction with saved history, email delivery, and voice rehearsal recording.',
+    path: '/dashboard/ai-tools/elevator-pitch',
+  });
 }
 
 export default async function ElevatorPitchPage() {

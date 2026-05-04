@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import LanguageToggle from '@/components/portal/LanguageToggle';
+import { useTranslatedLabel } from '@/components/portal/useTranslatedLabel';
 import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
@@ -272,7 +274,7 @@ export default function MainNav() {
                     {item.children.map((child) => (
                       <li key={child.href} role="none">
                         <LocalizedLink href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
-                          {child.label}
+                          {translateLabel(child.label)}
                         </LocalizedLink>
                       </li>
                     ))}
@@ -283,7 +285,7 @@ export default function MainNav() {
             return [
               <li key={item.href}>
                 <LocalizedLink href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
-                  {item.label}
+                  {translateLabel(item.label)}
                 </LocalizedLink>
               </li>,
             ];
@@ -347,7 +349,7 @@ export default function MainNav() {
             ) : null}
           </li>
           <li>
-            <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</LocalizedLink>
+            <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
           </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

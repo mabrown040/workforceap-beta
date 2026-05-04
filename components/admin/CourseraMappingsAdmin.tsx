@@ -206,6 +206,12 @@ export default function CourseraMappingsAdmin({
                 className="coursera-input"
                 placeholder="learner@example.com"
               />
+              {selectedMember?.workspaceEmail ? (
+                <p style={{ margin: '0.35rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                  Suggested from training seat: <strong>{selectedMember.workspaceEmail}</strong>
+                  {selectedMember.workspaceEmailProvisioned ? ' (provisioned)' : ''}
+                </p>
+              ) : null}
             </div>
 
             <div style={{ minWidth: 0 }}>

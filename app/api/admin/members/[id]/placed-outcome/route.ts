@@ -98,7 +98,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       startDateVerified: d.startDateVerified ?? false,
       fundingSource: d.fundingSource?.trim() || null,
       grantReportingNotes: d.grantReportingNotes?.trim() || null,
-      onboardingWindowEnd: windowEnd,
+      ...(prior?.onboardingWindowEnd ? {} : { onboardingWindowEnd: windowEnd }),
     },
   });
 

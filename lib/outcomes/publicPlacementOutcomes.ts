@@ -77,7 +77,7 @@ export function wilsonInterval(successes: number, trials: number, z = 1.96): { l
   const margin =
     (z / denom) * Math.sqrt((phat * (1 - phat) + z2 / (4 * trials)) / trials);
   return {
-    center,
+    center: phat,
     low: Math.max(0, center - margin),
     high: Math.min(1, center + margin),
   };

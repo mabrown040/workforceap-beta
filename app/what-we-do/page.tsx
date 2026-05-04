@@ -17,7 +17,7 @@ const BENTO_ITEMS = [
   {
     icon: 'school',
     title: 'Employer-Influenced Curricula',
-    desc: 'Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.',
+    desc: 'Training programs shaped with employer input ΓÇö Google, IBM, AWS, Microsoft, CompTIA ΓÇö so credentials map to real hiring needs.',
     span: 'tall',
   },
   {
@@ -35,7 +35,7 @@ const BENTO_ITEMS = [
   {
     icon: 'hub',
     title: 'Regional Scalability',
-    desc: 'A repeatable model built to serve communities nationwide — not just one local market.',
+    desc: 'A repeatable model built to serve communities nationwide ΓÇö not just one local market.',
     span: 'small',
   },
 ];
@@ -54,7 +54,7 @@ const VALUES = [
   {
     num: '03',
     title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we bring the right people together so members don\'t have to figure it out alone.',
+    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches ΓÇö we bring the right people together so members don\'t have to figure it out alone.',
   },
 ];
 
@@ -185,7 +185,7 @@ export default async function WhatWeDoPage() {
             }}
           >
             Employer-aligned training. No cost for qualifying members. Career support throughout the journey.
-            A model that works — and scales.
+            A model that works ΓÇö and scales.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
@@ -671,7 +671,7 @@ export default async function WhatWeDoPage() {
 
       <MobileBottomNav />
       <Footer />
-      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      {/* Spacer for mobile bottom nav ΓÇö ensures footer content is not hidden */}
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );

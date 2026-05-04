@@ -409,9 +409,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const saved = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as WAPLocale | null) : null;
-    if (saved && WAP_LOCALES.includes(saved)) setLocaleState(saved);
-  }, []);
+    if (typeof window === 'undefined') return;
+    const saved = localStorage.getItem(STORAGE_KEY) as WAPLocale | null;
+    if (!saved || !WAP_LOCALES.includes(saved)) return;
+    setLocaleState(saved);
+    document.cookie = `${STORAGE_KEY}=${saved};path=/;max-age=31536000;SameSite=Lax`;
+    document.documentElement.lang = saved;
+    router.refresh();
+  }, [router]);
 
   const setLocale = (l: WAPLocale) => {
     setLocaleState(l);

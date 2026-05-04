@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyPageSkeleton from '../ApplyPageSkeleton';
 import ApplyResultsClient from './ApplyResultsClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Choose Your Programs',
   description: 'Review your likely fit, rank up to three programs, and continue to account creation.',
   path: '/apply/results',
 });
+}
 
 export default function ApplyResultsPage() {
   return (

@@ -82,9 +82,6 @@ function ProgramCard({ program }: { program: Program }) {
             <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
           </p>
         )}
-        <small style={{ display: 'block', fontSize: '.75rem', color: 'var(--color-on-surface-variant)', marginTop: '.25rem' }}>
-
-        </small>
       </div>
       {nonEmptySkills.length > 0 ? (
         <div className="program-card-skills" style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>

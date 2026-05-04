@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -11,11 +11,13 @@ import { listPartnerWorkflowEvents } from '@/lib/portal/workflowEvents';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Attention queue',
   description: 'Members who may need a partner check-in.',
   path: '/partner/attention',
 });
+}
 
 export default async function PartnerAttentionPage({
   searchParams,

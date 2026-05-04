@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
@@ -10,11 +10,13 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { listCourseraIdentityMappings, listRecentUnmatchedXapiEvents } from '@/lib/xapi/mappings';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Admin – Coursera Identity Mapping',
-  description: 'Map Coursera learners to WorkforceAP members and review unmatched xAPI events.',
-  path: '/admin/coursera',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+    title: 'Admin – Coursera Identity Mapping',
+    description: 'Map Coursera learners to WorkforceAP members and review unmatched xAPI events.',
+    path: '/admin/coursera',
+  });
+}
 
 export const dynamic = 'force-dynamic';
 

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -8,11 +8,13 @@ import { CRON_REGISTRY, CRON_CATEGORY_COLOR } from '@/lib/admin/cronRegistry';
 import PageHeader from '@/components/portal/PageHeader';
 import EmailCronsClient from '@/components/admin/EmailCronsClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Email & Cron Management',
   description: 'Manage automated email triggers and scheduled jobs.',
   path: '/admin/email-crons',
 });
+}
 
 export default async function AdminEmailCronsPage() {
   const user = await getUser();

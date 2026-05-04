@@ -1,0 +1,217 @@
+import 'server-only';
+
+import { CourseProgressStatus } from '@prisma/client';
+
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { prisma } from '@/lib/db/prisma';
+import type { ParsedXapiStatement } from '@/lib/xapi/statements';
+import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
+import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
+
+function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
+  return disc?.courses.find((c) => c.slug === courseSlug) ?? null;
+}
+
+function matchCourseSlugFromObjectId(programSlug: string, objectId: string | null | undefined): string | null {
+  if (!objectId) return null;
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
+  if (!disc) return null;
+  const needle = objectId.toLowerCase();
+  for (const c of disc.courses) {
+    if (needle.includes(c.courseId.toLowerCase())) return c.slug;
+    if (needle.includes(`/${c.slug}`) || needle.endsWith(c.slug.toLowerCase())) return c.slug;
+  }
+  return null;
+}
+
+function inferNextStatus(parsed: ParsedXapiStatement): CourseProgressStatus | null {
+  if (!isXapiCourseProgressVerb(parsed)) return null;
+  if (isXapiCompletionVerb(parsed)) return CourseProgressStatus.COMPLETED;
+  const verbId = (parsed.verbId ?? '').toLowerCase();
+  if (
+    verbId.includes('started')
+    || verbId.includes('registered')
+    || verbId.includes('initialized')
+    || verbId.includes('progressed')
+  ) {
+    return CourseProgressStatus.IN_PROGRESS;
+  }
+  return null;
+}
+
+function mergePercent(current: number, incoming: number | null | undefined): number {
+  if (incoming == null || !Number.isFinite(incoming)) return current;
+  const clamped = Math.max(0, Math.min(100, Math.round(incoming)));
+  return Math.max(current, clamped);
+}
+
+export async function refreshMemberProgramProgressRollup(userId: string, programSlug: string) {
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
+  const program = getProgramBySlug(programSlug);
+  const totalCourses = disc?.courses.length ?? program?.courses.length ?? 0;
+
+  const rows = await prisma.courseProgress.findMany({
+    where: { userId, programSlug },
+    select: { status: true, percentComplete: true },
+  });
+
+  const completed = rows.filter((r) => r.status === CourseProgressStatus.COMPLETED).length;
+  const sumPercent = rows.reduce((acc, r) => acc + r.percentComplete, 0);
+  const averagePercent = totalCourses > 0 ? Math.round(sumPercent / totalCourses) : 0;
+
+  await prisma.memberProgramProgress.upsert({
+    where: {
+      userId_programSlug: { userId, programSlug },
+    },
+    create: {
+      userId,
+      programSlug,
+      coursesCompleted: completed,
+      averagePercent,
+    },
+    update: {
+      coursesCompleted: completed,
+      averagePercent,
+    },
+  });
+}
+
+export async function markCourseProgressCompleted(args: {
+  userId: string;
+  programSlug: string;
+  courseSlug: string;
+  courseId?: string | null;
+}) {
+  const now = new Date();
+  const meta = discoveredMetaForSlug(args.programSlug, args.courseSlug);
+  const courseId = args.courseId ?? meta?.courseId ?? null;
+
+  await prisma.courseProgress.upsert({
+    where: {
+      userId_programSlug_courseSlug: {
+        userId: args.userId,
+        programSlug: args.programSlug,
+        courseSlug: args.courseSlug,
+      },
+    },
+    create: {
+      userId: args.userId,
+      programSlug: args.programSlug,
+      courseSlug: args.courseSlug,
+      courseId,
+      status: CourseProgressStatus.COMPLETED,
+      percentComplete: 100,
+      scoreScaled: null,
+      scoreRaw: null,
+      startedAt: now,
+      completedAt: now,
+    },
+    update: {
+      courseId: courseId ?? undefined,
+      status: CourseProgressStatus.COMPLETED,
+      percentComplete: 100,
+      completedAt: now,
+    },
+  });
+
+  await refreshMemberProgramProgressRollup(args.userId, args.programSlug);
+}
+
+/**
+ * Upsert `CourseProgress` from a matched xAPI statement for the member's enrolled program.
+ */
+export async function upsertCourseProgressFromXapiStatement(args: {
+  userId: string;
+  enrolledProgramSlug: string;
+  parsed: ParsedXapiStatement;
+}): Promise<void> {
+  const { userId, enrolledProgramSlug, parsed } = args;
+
+  if (!isXapiCourseProgressVerb(parsed)) return;
+
+  const program = getProgramBySlug(enrolledProgramSlug);
+  if (!program) return;
+
+  const slugFromObject = matchCourseSlugFromObjectId(enrolledProgramSlug, parsed.courseObjectId);
+  const matched = resolveProgramCourse(program, {
+    courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
+    courseName: parsed.courseName,
+  });
+
+  if (!matched) return;
+
+  const nextStatus = inferNextStatus(parsed);
+  if (!nextStatus) return;
+
+  const meta = discoveredMetaForSlug(enrolledProgramSlug, matched.slug);
+  const courseId = meta?.courseId ?? null;
+
+  const incomingPercent = isXapiCompletionVerb(parsed)
+    ? 100
+    : mergePercent(0, parsed.resultProgressPercent ?? undefined);
+
+  const existing = await prisma.courseProgress.findUnique({
+    where: {
+      userId_programSlug_courseSlug: {
+        userId,
+        programSlug: enrolledProgramSlug,
+        courseSlug: matched.slug,
+      },
+    },
+  });
+
+  let status = nextStatus;
+  if (existing?.status === CourseProgressStatus.COMPLETED) {
+    status = CourseProgressStatus.COMPLETED;
+  }
+
+  const percentComplete = (() => {
+    if (status === CourseProgressStatus.COMPLETED) return 100;
+    const base = existing?.percentComplete ?? 0;
+    return mergePercent(base, incomingPercent);
+  })();
+
+  const now = new Date();
+  const startedAt = existing?.startedAt
+    ?? (status === CourseProgressStatus.IN_PROGRESS || status === CourseProgressStatus.COMPLETED ? now : null);
+
+  const completedAt =
+    status === CourseProgressStatus.COMPLETED
+      ? (existing?.completedAt ?? now)
+      : existing?.completedAt ?? null;
+
+  await prisma.courseProgress.upsert({
+    where: {
+      userId_programSlug_courseSlug: {
+        userId,
+        programSlug: enrolledProgramSlug,
+        courseSlug: matched.slug,
+      },
+    },
+    create: {
+      userId,
+      programSlug: enrolledProgramSlug,
+      courseSlug: matched.slug,
+      courseId,
+      status,
+      percentComplete,
+      scoreScaled: parsed.resultScoreScaled ?? null,
+      scoreRaw: parsed.resultScoreRaw ?? null,
+      startedAt: startedAt ?? undefined,
+      completedAt: completedAt ?? undefined,
+    },
+    update: {
+      courseId: courseId ?? undefined,
+      status,
+      percentComplete,
+      scoreScaled: parsed.resultScoreScaled ?? undefined,
+      scoreRaw: parsed.resultScoreRaw ?? undefined,
+      startedAt: startedAt ?? undefined,
+      completedAt: completedAt ?? undefined,
+    },
+  });
+
+  await refreshMemberProgramProgressRollup(userId, enrolledProgramSlug);
+}

@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminInterviewReadyTable from '@/components/admin/AdminInterviewReadyTable';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Interview ready',
   description: 'Members who completed pre-screening',
   path: '/admin/members/interview-ready',
 });
+}
 
 export default async function AdminInterviewReadyPage() {
   const user = await getUser();

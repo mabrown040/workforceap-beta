@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getMemberResources } from '@/lib/content/memberResources';
 import { SignOutButton } from '@/components/portal/SignOutButton';
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resources = await getMemberResources();
   const resource = resources.find((r) => r.id === id);
   if (!resource) return { title: 'Resource not found' };
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: resource.title,
     description: resource.summary,
     path: `/dashboard/career-library/${id}`,

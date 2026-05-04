@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import PageHeader from '@/components/portal/PageHeader';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin - Jobs',
   description: 'Manage employer job postings.',
   path: '/admin/jobs',
 });
+}
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',

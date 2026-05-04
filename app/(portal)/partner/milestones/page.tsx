@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -10,11 +10,13 @@ import PartnerMilestonesMobile from '@/components/partner/PartnerMilestonesMobil
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Milestones',
   description: 'Certificates, placements, and activity for your referrals.',
   path: '/partner/milestones',
 });
+}
 
 export default async function PartnerMilestonesPage() {
   const user = await getUser();

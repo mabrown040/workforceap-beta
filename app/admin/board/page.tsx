@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getBoardOutcomes, type BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
@@ -9,12 +9,14 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import BoardOutcomesView from '@/components/admin/BoardOutcomesView';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Board outcomes',
   description: 'Outcomes view for workforce boards and grant funders. Real-time WIOA-aligned metrics.',
   path: '/admin/board',
   robots: { index: false, follow: false },
 });
+}
 
 const VALID_PERIODS: BoardOutcomesPeriod[] = ['all-time', 'ytd', 'q-current', 'q-prev'];
 

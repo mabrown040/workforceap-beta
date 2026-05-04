@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import SkillAssessmentForm from '@/components/portal/tools/SkillAssessmentForm';
 import AssessmentRetakeButton from '@/components/portal/AssessmentRetakeButton';
 import PageHeader from '@/components/portal/PageHeader';
@@ -12,11 +12,13 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { TOTAL_POINTS } from '@/lib/assessment/answer-key';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Training Preassessment',
   description: 'View your Training Preassessment status, skill portfolio, and career readiness.',
   path: '/dashboard/skills-assessment',
 });
+}
 
 type SavedSkillSnapshot = {
   id: string;

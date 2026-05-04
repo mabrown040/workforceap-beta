@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getWeeklyRecapCohortStats } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Weekly recap analytics',
   description: 'Weekly recap engagement by cohort.',
   path: '/admin/weekly-recap',
 });
+}
 
 export default async function AdminWeeklyRecapAnalyticsPage() {
   const user = await getUser();

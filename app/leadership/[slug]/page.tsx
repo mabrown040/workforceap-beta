@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildPageMetadata, DEFAULT_OG_IMAGE, SITE_URL } from '@/app/seo';
+import { buildPageMetadataAsync, DEFAULT_OG_IMAGE, SITE_URL } from '@/app/seo';
 import Footer from '@/components/Footer';
 import {
   getLeaderBySlug,
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage =
     leader.image && leader.image.trim().length > 0 ? `${SITE_URL}${leader.image}` : DEFAULT_OG_IMAGE;
 
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: `${leader.name} — ${leader.title}`,
     description: `Learn more about ${leader.name}, ${leader.title} at Workforce Advancement Project.`,
     path: `/leadership/${slug}`,

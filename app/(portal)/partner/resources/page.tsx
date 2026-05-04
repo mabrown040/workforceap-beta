@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -10,11 +10,13 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { prisma } from '@/lib/db/prisma';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Partner resources',
   description: 'Links and contacts for partner organizations.',
   path: '/partner/resources',
 });
+}
 
 const PUBLIC_LINKS = [
   { href: '/programs', label: 'Training programs', desc: 'Certificates and pathways we offer.' },

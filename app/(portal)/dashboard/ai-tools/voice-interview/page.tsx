@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import VoiceInterviewScaffold from '@/components/portal/tools/VoiceInterviewScaffold';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Voice Job/Role Interviewer',
   description: 'Practice a live voice mock interview for a specific job or role, with optional camera recording and real-time coaching feedback.',
   path: '/dashboard/ai-tools/voice-interview',
 });
+}
 
 export default async function VoiceInterviewPage() {
   const user = await getUser();

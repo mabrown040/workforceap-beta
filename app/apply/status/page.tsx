@@ -2,15 +2,17 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ApplyStatusClient from './ApplyStatusClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Application status',
   description: 'Check your WorkforceAP application status with the email you applied with.',
   path: '/apply/status',
 });
+}
 
 export default async function ApplyStatusPage() {
   const user = await getUser();

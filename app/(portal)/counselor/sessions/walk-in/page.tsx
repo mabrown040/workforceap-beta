@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import WalkInSessionClient from '@/components/portal/sessions/WalkInSessionClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Walk-in session',
   description: 'Create a new member and run a guided 30-minute session — resume, cover letter, interview prep, all in one.',
   path: '/counselor/sessions/walk-in',
 });
+}
 
 export default async function WalkInSessionPage() {
   const user = await getUser();

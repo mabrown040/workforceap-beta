@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -11,11 +11,13 @@ import EmployerWorkflowTimeline from '@/components/employer/EmployerWorkflowTime
 import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
 import { listEmployerWorkflowEvents } from '@/lib/portal/workflowEvents';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Employer work queue',
   description: 'Prioritized hiring actions and SLA-style queues.',
   path: '/employer/work-queue',
 });
+}
 
 export default async function EmployerWorkQueuePage({
   searchParams,

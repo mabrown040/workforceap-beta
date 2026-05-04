@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import ReadinessCounselorClient from './ReadinessCounselorClient';
 import '@/css/counselor.css';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Readiness Checklist',
   description: 'Job readiness checklist.',
   path: '/admin/members',
 });
+}
 
 export default async function AdminMemberReadinessPage({
   params,

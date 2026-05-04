@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { randomUUID } from 'node:crypto';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 import PageHeader from '@/components/portal/PageHeader';
 import SessionRunClient from '@/components/portal/sessions/SessionRunClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Session run',
   description: 'Build resume, cover letter, and interview prep with a member in one session.',
   path: '/counselor/sessions',
 });
+}
 
 type SearchParams = { sid?: string; fresh?: string };
 

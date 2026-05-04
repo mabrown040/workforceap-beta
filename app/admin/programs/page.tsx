@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import { PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminProgramCatalogClient from '@/components/admin/AdminProgramCatalogClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Programs',
   description: 'Program overview and enrollment stats.',
   path: '/admin/programs',
 });
+}
 
 export default async function AdminProgramsPage() {
   const user = await getUser();

@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
@@ -33,11 +33,13 @@ import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Your Dashboard',
   description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
   path: '/dashboard',
 });
+}
 
 export default async function DashboardPage() {
   const user = await getUser();

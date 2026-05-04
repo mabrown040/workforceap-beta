@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import ProgramChangeRequestsAdminClient from './ProgramChangeRequestsAdminClient';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin — Program change requests',
   description: 'Review member requests to switch enrolled program.',
   path: '/admin/program-change-requests',
 });
+}
 
 export default async function AdminProgramChangeRequestsPage() {
   const user = await getUser();

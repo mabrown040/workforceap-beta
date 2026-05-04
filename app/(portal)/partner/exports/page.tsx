@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Exports',
   description: 'Download referral outcomes as CSV.',
   path: '/partner/exports',
 });
+}
 
 export default async function PartnerExportsPage() {
   const user = await getUser();

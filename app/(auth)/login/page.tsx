@@ -1,19 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getUser } from '@/lib/auth/server';
 import LoginForm from './LoginForm';
 
-export const metadata: Metadata = {
-  ...buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  const base = await buildPageMetadataAsync({
     title: 'Sign In',
     description:
       'Sign in to your WorkforceAP account — member, partner, or employer portal. Same account; choose your destination before you log in.',
     path: '/login',
-  }),
-  robots: { index: false, follow: false },
-};
+  });
+  return { ...base, robots: { index: false, follow: false } };
+}
 
 export default async function LoginPage({
   searchParams,

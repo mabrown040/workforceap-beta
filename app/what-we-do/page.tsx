@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Workforce Development Training & Industry Certificates',
   description:
     'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.',
   path: '/what-we-do',
 });
+}
 
 const BENTO_ITEMS = [
   {

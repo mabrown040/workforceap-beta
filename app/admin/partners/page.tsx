@@ -7,13 +7,15 @@ import PartnersTableClient from '@/components/admin/PartnersTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin - Partners',
   description: 'Manage partner organizations.',
   path: '/admin/partners',
 });
+}
 
 async function loadAdminPartnersData() {
   return Promise.all([

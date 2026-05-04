@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { PROGRAMS, getProgramBySlug, getProgramDisplayPartner, getProgramDisplayTitle } from '@/lib/content/programs';
 import { PROGRAM_COMPARISON_FEATURED } from '@/lib/content/programComparisonTracks';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? ` Earn your ${displayPartner}-recognized certification.`
     : '';
   const description = `Training in ${displayTitle} offered at no cost for qualifying members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: `${displayTitle} Training & Certification`,
     description,
     path: `/programs/${slug}`,

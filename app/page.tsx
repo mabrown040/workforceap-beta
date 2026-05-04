@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
@@ -10,12 +10,14 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 // Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
 // keep the supporting copy immediately concrete, member-safe, and operational.
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Career Training & Industry Certificates',
   description:
     'Occupational and career training with grant- and partner-funded access for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.',
   path: '/',
 });
+}
 
 const HERO_IMAGE_SRC = '/images/hero-people.jpg';
 const HOMEPAGE_PROGRAM_CARD_IMAGES = {

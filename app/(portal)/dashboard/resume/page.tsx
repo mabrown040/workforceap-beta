@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
@@ -9,11 +9,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'My Resume',
   description: 'Upload, view, and AI-generate your professional resume.',
   path: '/dashboard/resume',
 });
+}
 
 export default async function DashboardResumePage() {
   const user = await getUser();

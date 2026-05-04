@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Career Training Programs — Nationwide Certificates',
   description: `Explore ${WORKFORCEAP_PROGRAM_CATALOG_SIZE} career training programs offered at no cost to members, with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. Nationwide pathways supported by grants and partnerships.`,
   path: '/programs',
 });
+}
 
 export default function ProgramsPage() {
   const mobileBrowseChips = [
@@ -147,38 +149,24 @@ export default function ProgramsPage() {
               {[
                 {
                   eyebrow: 'Beginner-safe',
-                  title: 'New to Tech',
-                  desc: 'Start with a smoother on-ramp if you want to build confidence with computers before jumping into faster technical tracks.',
+                  title: 'New to tech',
+                  desc: 'Build confidence with computers first, then move into faster tracks when you are ready.',
                   href: '/programs/digital-literacy-empowerment-class',
                   cta: 'See Digital Literacy path',
                 },
                 {
                   eyebrow: 'Move quickly',
                   title: 'Fastest path to a job',
-                  desc: 'If you need a faster route into tech, start with IT Support. It is one of the clearest paths into real entry-level roles and can open the door to what comes next.',
+                  desc: 'IT Support is one of the clearest routes into real entry-level roles and opens the door to what comes next.',
                   href: '/programs/it-support-professional-certificate-ibm',
                   cta: 'See IT Support path',
                 },
                 {
                   eyebrow: 'Salary upside',
-                  title: 'Strongest earning potential',
-                  desc: 'If long-term pay matters most, start with practical technical tracks like IT Support, then explore Cybersecurity and Cloud paths that can lead to stronger salary ceilings.',
-                  href: '#subgroup-it-support',
-                  cta: 'See IT and Cyber paths',
-                },
-                {
-                  eyebrow: 'People-facing',
-                  title: 'Business and customer-facing work',
-                  desc: 'If you like organizing, communicating, or helping teams and customers, start with business-oriented options.',
-                  href: '#subgroup-leadership',
-                  cta: 'Browse business paths',
-                },
-                {
-                  eyebrow: 'Technical and Hands-On',
-                  title: 'IT, Cybersecurity, and Practical Technical Work',
-                  desc: 'If you want direct technical problem-solving, start with hands-on IT and operations-focused programs.',
-                  href: '#subgroup-it-support',
-                  cta: 'Browse technical paths',
+                  title: 'Higher earning potential',
+                  desc: 'After IT fundamentals, explore cybersecurity, cloud, data, and AI tracks that can lead to stronger salary ceilings.',
+                  href: '#subgroup-programming',
+                  cta: 'Browse advanced technical paths',
                 },
               ].map((item) => (
                 <Link

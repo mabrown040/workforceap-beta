@@ -1,20 +1,23 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'My Training',
   description: 'Complete your courses and track your progress toward getting job-ready.',
   path: '/dashboard/training',
 });
+}
 
 export default async function TrainingPage() {
   const user = await getUser();
@@ -40,10 +43,44 @@ export default async function TrainingPage() {
   const program = getProgramBySlug(dbUser.enrolledProgram);
   if (!program) redirect('/dashboard/program');
 
+  const discovered = getDiscoveredProgram(program);
+  const coursesWithIds = program.courses.map((c) => ({
+    ...c,
+    courseraCourseId: discovered?.courses.find((dc) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
+  }));
+
+  const [progressRows, programRollup] = await Promise.all([
+    prisma.courseProgress.findMany({
+      where: { userId: user.id, programSlug: dbUser.enrolledProgram },
+      select: { courseSlug: true, status: true, percentComplete: true },
+    }),
+    prisma.memberProgramProgress.findUnique({
+      where: {
+        userId_programSlug: { userId: user.id, programSlug: dbUser.enrolledProgram },
+      },
+      select: { coursesCompleted: true, averagePercent: true },
+    }),
+  ]);
+
+  const progressBySlug: Record<string, CourseProgressUi> = {};
+  for (const row of progressRows) {
+    progressBySlug[row.courseSlug] = { status: row.status, percentComplete: row.percentComplete };
+  }
+
   const coursesCompleted = (dbUser.coursesCompleted as string[] | null) ?? [];
   const completedSet = new Set(coursesCompleted);
-  const completedCount = program.courses.filter((c) => completedSet.has(c.slug)).length;
-  const progressPct = program.courses.length > 0 ? Math.round((completedCount / program.courses.length) * 100) : 0;
+  const completedFromRows = program.courses.filter((c) => {
+    const p = progressBySlug[c.slug];
+    return p?.status === 'COMPLETED' || completedSet.has(c.slug);
+  }).length;
+  const completedCount =
+    programRollup != null ? programRollup.coursesCompleted : completedFromRows;
+  const progressPct =
+    programRollup != null && program.courses.length > 0
+      ? programRollup.averagePercent
+      : program.courses.length > 0
+        ? Math.round((completedFromRows / program.courses.length) * 100)
+        : 0;
 
   return (
     <>
@@ -220,9 +257,10 @@ export default async function TrainingPage() {
               {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
             </p>
             <TrainingCourseList
-              courses={program.courses}
+              courses={coursesWithIds}
               completedSlugs={coursesCompleted}
               programSlug={dbUser.enrolledProgram}
+              progressBySlug={progressBySlug}
             />
           </section>
         </div>

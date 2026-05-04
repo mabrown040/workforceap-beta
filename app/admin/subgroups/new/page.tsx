@@ -2,14 +2,16 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
 import SubgroupForm from '@/components/admin/SubgroupForm';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Create Subgroup',
   description: 'Create a new subgroup for partner, manager, or church visibility.',
   path: '/admin/subgroups',
 });
+}
 
 export default async function NewSubgroupPage() {
   const [users, partners] = await Promise.all([

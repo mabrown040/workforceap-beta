@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getPathwayForProgram } from '@/lib/content/learningPathways';
@@ -16,12 +16,14 @@ import LearningCivicBotPanel from '@/components/portal/LearningCivicBotPanel';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'The Learning Hub',
   description:
     'Learning pathways, the career resource library, and program-specific tools — organized in one place.',
   path: '/dashboard/learning',
 });
+}
 
 /* Icon map for upcoming modules */
 const MODULE_ICONS: Record<string, string> = {

@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
@@ -27,11 +27,13 @@ const AdminAnalyticsCharts = dynamic(
   )}
 );
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin analytics',
   description: 'Engagement and activity metrics.',
   path: '/admin/metrics',
 });
+}
 
 export default async function AdminMetricsPage() {
   const user = await getUser();

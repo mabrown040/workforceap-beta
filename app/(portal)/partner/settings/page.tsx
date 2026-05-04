@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -10,11 +10,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Partner settings',
   description: 'Partner portal settings.',
   path: '/partner/settings',
 });
+}
 
 function InfoRow({ label, value, mono }: { label: string; value: string | null | boolean | Date; mono?: boolean }) {
   let display: string;

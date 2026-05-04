@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import type { Prisma } from '@prisma/client';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AuditLogsClient from './AuditLogsClient';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Audit Logs',
   description: 'Compliance registry and system event audit trail.',
   path: '/admin/audit-logs',
 });
+}
 
 const PAGE_SIZE = 50;
 

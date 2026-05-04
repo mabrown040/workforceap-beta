@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -8,11 +8,13 @@ import { FUNNEL_DEFINITIONS } from '@/lib/events/catalog';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin diagnostics',
   description: 'Recent workflow diagnostics for imports, recommendations, and review queues.',
   path: '/admin/diagnostics',
 });
+}
 
 const STATUS_COLOR: Record<string, string> = {
   ok: 'rgba(74,155,79,0.12)',

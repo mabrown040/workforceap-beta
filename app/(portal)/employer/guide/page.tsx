@@ -2,15 +2,17 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'How It Works for Employers',
   description: 'Access vetted, job-ready talent in a few simple steps.',
   path: '/employer/guide',
 });
+}
 
 const DIFFERENTIATORS = [
   'Completed career readiness training',

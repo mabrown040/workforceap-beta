@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Privacy Policy',
   description: 'Privacy Policy for the Workforce Advancement Project — how we collect, use, and protect your information.',
   path: '/privacy',
 });
+}
 
 export default function PrivacyPage() {
   return (

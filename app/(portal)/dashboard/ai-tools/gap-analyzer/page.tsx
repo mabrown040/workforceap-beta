@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import GapAnalyzerForm from '@/components/portal/tools/GapAnalyzerForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Resume Gap Analyzer',
   description: 'Detect employment gaps and get suggested framing for cover letters and interviews.',
   path: '/dashboard/ai-tools/gap-analyzer',
 });
+}
 
 export default async function GapAnalyzerPage() {
   const user = await getUser();

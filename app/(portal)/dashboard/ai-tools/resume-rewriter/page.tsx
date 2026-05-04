@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ResumeRewriterClient from './ResumeRewriterClient';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Resume Rewriter',
   description: 'Rewrite your resume to match your target job.',
   path: '/dashboard/ai-tools/resume-rewriter',
 });
+}
 
 export default async function ResumeRewriterPage() {
   const user = await getUser();

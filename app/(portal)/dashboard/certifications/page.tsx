@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getPathwayForProgram } from '@/lib/content/learningPathways';
@@ -17,11 +17,13 @@ import {
 } from '@/components/portal/CertificationVaultActions';
 import CertificationAddForm from '@/components/portal/CertificationAddForm';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'My Certificates',
   description: 'Track credentials, download certificates, and follow your certification roadmap.',
   path: '/dashboard/certifications',
 });
+}
 
 export default async function DashboardCertificationsPage() {
   const user = await getUser();

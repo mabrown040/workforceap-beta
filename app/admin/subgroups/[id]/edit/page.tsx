@@ -3,14 +3,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import SubgroupForm from '@/components/admin/SubgroupForm';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Edit Subgroup',
   description: 'Edit subgroup details.',
   path: '/admin/subgroups',
 });
+}
 
 type Props = { params: Promise<{ id: string }> };
 

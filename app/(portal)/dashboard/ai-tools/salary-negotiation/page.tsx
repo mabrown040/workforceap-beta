@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SalaryNegotiationForm from '@/components/portal/tools/SalaryNegotiationForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Salary Negotiation Script',
   description: 'Get a word-for-word script to negotiate your offer—phone or email.',
   path: '/dashboard/ai-tools/salary-negotiation',
 });
+}
 
 export default async function SalaryNegotiationPage() {
   const user = await getUser();

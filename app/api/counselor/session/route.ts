@@ -3,14 +3,14 @@ import { getUser } from '@/lib/auth/server';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchCounselorPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { cookies } from 'next/headers';
-import { i18n } from '@/next-i18next.config.js';
+import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const cookieStore = await cookies();
-  const locale = cookieStore.get('i18next')?.value ?? i18n.defaultLocale;
+  const locale = getAppLocaleFromCookieStore(cookieStore);
 
   try {
     const dynamicVariables = await fetchCounselorPortalDynamicVariables(user.id);

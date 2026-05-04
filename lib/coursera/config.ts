@@ -7,6 +7,8 @@ type StringArrayMap = Record<string, string[]>;
 
 const DEFAULT_API_BASE_URL = 'https://api.coursera.com/ent/api/rest/v1';
 const DEFAULT_PLATFORM_URL = 'https://www.coursera.org';
+/** Default per-course deep link when `COURSERA_COURSE_URL_TEMPLATE` is unset. Uses Coursera `courseId` from catalog/env maps. */
+const DEFAULT_COURSE_URL_TEMPLATE = 'https://www.coursera.org/learn/{courseId}?enroll=true';
 
 const DISCOVERED_PROGRAM_ID_MAP: StringMap = Object.fromEntries(
   Object.entries(DISCOVERED_COURSERA_PROGRAMS).map(([programSlug, mapping]) => [programSlug, mapping.courseraProgramId])
@@ -110,7 +112,8 @@ export function getCourseraConfig() {
     programHomeUrl,
     programUrlTemplate: process.env.COURSERA_PROGRAM_URL_TEMPLATE?.trim() || '',
     /** Template for deep-linking to individual courses: {courseId}, {programId}, {userId}, {email} */
-    courseUrlTemplate: process.env.COURSERA_COURSE_URL_TEMPLATE?.trim() || '',
+    courseUrlTemplate:
+      process.env.COURSERA_COURSE_URL_TEMPLATE?.trim() || DEFAULT_COURSE_URL_TEMPLATE,
     defaultSkillsetIds: parseCsv(process.env.COURSERA_DEFAULT_SKILLSET_IDS),
     skillsetIdMap: parseStringArrayMap(process.env.COURSERA_SKILLSET_ID_MAP),
     /** Map of programSlug → courseIndex → Coursera course ID */
@@ -139,20 +142,20 @@ export function buildCourseraLaunchUrl(args: {
   email: string;
   /** 0-based index of the current course the member should start */
   currentCourseIndex?: number;
+  /** When set, overrides the course ID taken from `courseIdMap` at `currentCourseIndex`. */
+  currentCourseId?: string | null;
   /** Optional locale for localized Coursera URLs */
   locale?: string;
 }): string | null {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(args.programSlug);
-  const locale = args.locale ?? 'en';
-  const localizedBaseUrl = locale === 'en' ? config.platformUrl : `${config.platformUrl}/${locale}`;
 
-  // If we have a course ID map and a current course index, deep-link to that specific course
   const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;
-  const currentCourseId =
-    courseIds && args.currentCourseIndex != null
+  const fromIndex =
+    courseIds && args.currentCourseIndex != null && args.currentCourseIndex >= 0
       ? courseIds[args.currentCourseIndex]
       : undefined;
+  const currentCourseId = (args.currentCourseId?.trim() || fromIndex) ?? undefined;
 
   if (currentCourseId && config.courseUrlTemplate) {
     const courseUrl = interpolateTemplate(config.courseUrlTemplate, {
@@ -194,7 +197,7 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
   if (!config.programHomeUrl && !config.programUrlTemplate && !config.courseUrlTemplate) {
     launchMissing.push('program or course launch URL template');
   }
-  if (config.programUrlTemplate.includes('{programId}') && !programId) {
+  if (config.programUrlTemplate?.includes('{programId}') && !programId) {
     launchMissing.push('Coursera program ID mapping');
   }
   if (config.courseUrlTemplate && (!courseIds || courseIds.length === 0)) {

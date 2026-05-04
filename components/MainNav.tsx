@@ -4,7 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
+import { splitLocalePrefix } from '@/lib/i18n/config';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
 
 const navItems = [
@@ -31,7 +33,8 @@ function dropdownMenuId(baseId: string, label: string) {
 }
 
 export default function MainNav() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '/';
+  const { pathnameWithoutLocale } = splitLocalePrefix(pathname);
   const navMenuId = useId();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -145,7 +148,7 @@ export default function MainNav() {
     return () => { cancelled = true; window.removeEventListener('focus', refreshPortalLinks); };
   }, []);
 
-  useEffect(() => { closeMobile(); }, [pathname, closeMobile]);
+  useEffect(() => { closeMobile(); }, [pathnameWithoutLocale, closeMobile]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -192,8 +195,8 @@ export default function MainNav() {
     if (mobileOpen) { closeMobile(); } else { setMobileOpen(true); document.body.classList.add('mobile-nav-open'); }
   };
 
-  const isActive = (href: string) => pathname === href;
-  const isParentActive = (children: { href: string }[]) => children.some((c) => pathname === c.href);
+  const isActive = (href: string) => pathnameWithoutLocale === href;
+  const isParentActive = (children: { href: string }[]) => children.some((c) => pathnameWithoutLocale === c.href);
 
   const handleDropdownKeyDown = useCallback(
     (e: React.KeyboardEvent, label: string, isOpen: boolean, subMenuId: string) => {
@@ -207,20 +210,21 @@ export default function MainNav() {
   );
 
   const portalHrefActive = (href: string) => {
-    if (href === '/login' || href.startsWith('/login?')) return pathname === '/login';
-    if (href === '/partner') return pathname.startsWith('/partner');
+    const p = pathnameWithoutLocale;
+    if (href === '/login' || href.startsWith('/login?')) return p === '/login';
+    if (href === '/partner') return p.startsWith('/partner');
     if (href === '/dashboard') {
       return (
-        pathname.startsWith('/dashboard') ||
-        pathname.startsWith('/employer') ||
-        pathname.startsWith('/admin') ||
-        pathname.startsWith('/counselor') ||
-        pathname.startsWith('/mentor') ||
-        pathname.startsWith('/account') ||
-        pathname.startsWith('/dashboard/account')
+        p.startsWith('/dashboard') ||
+        p.startsWith('/employer') ||
+        p.startsWith('/admin') ||
+        p.startsWith('/counselor') ||
+        p.startsWith('/mentor') ||
+        p.startsWith('/account') ||
+        p.startsWith('/dashboard/account')
       );
     }
-    return pathname === href || pathname.startsWith(`${href}/`);
+    return p === href || p.startsWith(`${href}/`);
   };
 
   const loginDropdownId = `${navMenuId}-login-submenu`;
@@ -230,9 +234,9 @@ export default function MainNav() {
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container" ref={navContainerRef}>
-        <Link href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
+        <LocalizedLink href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image src="/images/wap_logo.png" alt="Workforce Advancement Project" width={1930} height={985} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
-        </Link>
+        </LocalizedLink>
 
         {/* Mobile toggle */}
         <button ref={toggleRef} type="button" className="mobile-nav-toggle" aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} aria-controls={navMenuId} onClick={toggleMobile}>
@@ -266,9 +270,9 @@ export default function MainNav() {
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href} role="none">
-                        <Link href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
+                        <LocalizedLink href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
                           {child.label}
-                        </Link>
+                        </LocalizedLink>
                       </li>
                     ))}
                   </ul>
@@ -277,9 +281,9 @@ export default function MainNav() {
             }
             return [
               <li key={item.href}>
-                <Link href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
+                <LocalizedLink href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
                   {item.label}
-                </Link>
+                </LocalizedLink>
               </li>,
             ];
           })}
@@ -342,7 +346,7 @@ export default function MainNav() {
             ) : null}
           </li>
           <li>
-            <Link href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</Link>
+            <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</LocalizedLink>
           </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper">

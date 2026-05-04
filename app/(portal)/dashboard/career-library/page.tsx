@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getMemberResources } from '@/lib/content/memberResources';
@@ -10,11 +10,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import ResourcesClient from '@/app/(portal)/resources/ResourcesClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Career Resources',
   description: 'Practical job-seeker resources by career stage. Resume, interviewing, career planning, AI skills, and job search.',
   path: '/dashboard/career-library',
 });
+}
 
 export default async function DashboardCareerLibraryPage() {
   const user = await getUser();

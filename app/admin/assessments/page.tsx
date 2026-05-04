@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -10,11 +10,13 @@ import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Skills assessments',
   description: 'View and export member skills assessment results.',
   path: '/admin/assessments',
 });
+}
 
 export default async function AdminAssessmentsPage({
   searchParams,

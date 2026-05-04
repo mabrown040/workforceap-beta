@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata, SITE_URL } from '@/app/seo';
+import { buildPageMetadataAsync, SITE_URL } from '@/app/seo';
+import { getRequestLocale } from '@/lib/i18n/server';
+import { withLocalePrefix } from '@/lib/i18n/config';
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 
@@ -41,12 +43,13 @@ export function buildApplyProgramSeo(program: Program): { title: string; descrip
   return { title, description };
 }
 
-export function buildApplyPageMetadata(programParam: string | undefined): Metadata {
+export async function buildApplyPageMetadata(programParam: string | undefined): Promise<Metadata> {
   const slug = resolveApplyProgramSlug(programParam);
   const program = slug ? getProgramBySlug(slug) : undefined;
+  const locale = await getRequestLocale();
 
   if (!program) {
-    return buildPageMetadata({
+    return buildPageMetadataAsync({
       title: 'Apply for Career Training',
       description:
         'Apply for career certification training at no cost to members. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We follow up with next steps in 1 to 2 business days.',
@@ -55,16 +58,17 @@ export function buildApplyPageMetadata(programParam: string | undefined): Metada
   }
 
   const { title, description } = buildApplyProgramSeo(program);
-  const base = buildPageMetadata({
+  const base = await buildPageMetadataAsync({
     title,
     description,
     path: '/apply',
   });
+  const localizedApply = withLocalePrefix('/apply', locale);
   return {
     ...base,
     alternates: {
       ...base.alternates,
-      canonical: `${SITE_URL}/apply?program=${encodeURIComponent(program.slug)}`,
+      canonical: `${SITE_URL}${localizedApply}?program=${encodeURIComponent(program.slug)}`,
     },
   };
 }

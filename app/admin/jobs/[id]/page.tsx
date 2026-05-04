@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -17,13 +17,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       where: { id },
       select: { title: true },
     });
-    return buildPageMetadata({
+    return buildPageMetadataAsync({
       title: job ? `Review: ${job.title}` : 'Review Job',
       description: 'Review and approve job posting.',
       path: `/admin/jobs/${id}`,
     });
   } catch {
-    return buildPageMetadata({
+    return buildPageMetadataAsync({
       title: 'Review Job',
       description: 'Review and approve job posting.',
       path: `/admin/jobs/${id}`,

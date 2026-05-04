@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch {
     job = null;
   }
-  if (!job) return buildPageMetadata({ title: 'Job', description: '', path: `/dashboard/jobs/${id}` });
-  return buildPageMetadata({
+  if (!job) return buildPageMetadataAsync({ title: 'Job', description: '', path: `/dashboard/jobs/${id}` });
+  return buildPageMetadataAsync({
     title: job.title,
     description: job.description?.slice(0, 160) ?? '',
     path: `/dashboard/jobs/${id}`,

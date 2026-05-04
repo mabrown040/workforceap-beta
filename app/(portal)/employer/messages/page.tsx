@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -12,11 +12,13 @@ import { serializeMessage } from '@/lib/messages/counselorThread';
 import { buildEmployerInbox } from '@/lib/messages/employerInbox';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Messages',
   description: 'Message candidates and the WorkforceAP team.',
   path: '/employer/messages',
 });
+}
 
 export default async function EmployerMessagesPage() {
   const user = await getUser();

@@ -6,17 +6,19 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getCourseraReadiness } from '@/lib/coursera/config';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Coursera courses',
   description: 'Launch Coursera courses, track your progress, and keep all your training in one place.',
   path: '/dashboard/coursera',
 });
+}
 
 function statusLabel(ready: boolean, waitingText: string) {
   return ready ? 'Ready' : waitingText;

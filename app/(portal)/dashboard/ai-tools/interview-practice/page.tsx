@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
@@ -9,11 +9,13 @@ import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeS
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Interview Practice Generator',
   description: 'Generate role-specific interview questions with answer frameworks.',
   path: '/dashboard/ai-tools/interview-practice',
 });
+}
 
 export default async function InterviewPracticePage() {
   const user = await getUser();

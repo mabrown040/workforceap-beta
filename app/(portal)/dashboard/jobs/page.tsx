@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
@@ -11,11 +11,13 @@ import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Job Board',
   description: 'Browse job openings from WorkforceAP employer partners. Log in to apply.',
   path: '/dashboard/jobs',
 });
+}
 
 export default async function JobsPage() {
   const user = await getUser();

@@ -6,13 +6,15 @@ import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { prisma } from '@/lib/db/prisma';
 import CounselorPortalShell from '@/components/portal/CounselorPortalShell';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Counselor Portal',
   description: 'Support your members from enrollment through employment.',
   path: '/counselor',
 });
+}
 
 export default async function CounselorLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();

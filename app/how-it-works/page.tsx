@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -9,12 +9,14 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'How It Works',
   description:
     'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.',
   path: '/how-it-works',
 });
+}
 
 const PHASES = [
   {

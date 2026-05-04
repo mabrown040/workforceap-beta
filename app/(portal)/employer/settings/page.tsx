@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Company settings',
   description: 'Employer portal company settings.',
   path: '/employer/settings',
 });
+}
 
 export default async function EmployerSettingsPage() {
   const user = await getUser();

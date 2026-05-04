@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import PageHero from '@/components/PageHero';
@@ -10,12 +10,14 @@ import BlogListingClient from './BlogListingClient';
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Workforce Development Blog | Career Tips & Training News',
   description:
     'Career tips, program spotlights, success stories, and workforce insights from Workforce Advancement Project. Career training advice, job-readiness guidance, and workforce insights for individuals nationwide.',
   path: '/blog',
 });
+}
 
 export default async function BlogPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

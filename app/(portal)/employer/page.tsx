@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -21,11 +21,13 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Employer overview',
   description: 'Manage your job postings and view applications.',
   path: '/employer',
 });
+}
 
 export default async function EmployerDashboardPage() {
   const user = await getUser();

@@ -1,41 +1,62 @@
 import type { CSSProperties } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 import ShareButtons from '@/components/apply/ShareButtons';
 
-export const metadata = buildPageMetadata({
-  title: 'Application Received',
-  description: 'Your application has been submitted successfully.',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'You’re in the WorkforceAP system',
+  description:
+    'Your application is on file. See your timeline, what happens next in 1–2 business days, and what you can do now.',
   path: '/apply/confirmation',
 });
+}
 
 const NEXT_STEPS = [
   {
     num: '1',
-    title: 'Staff review starts first',
-    desc: 'A WorkforceAP team member reviews your application, what you told us about your goals, and whether your selected program looks like the best fit.',
+    title: 'You applied',
+    desc: 'Your application is saved in the WorkforceAP system. Your goals, contact information, and program interest are on file for our team.',
   },
   {
     num: '2',
-    title: 'We send your next step within 1 to 2 business days',
-    desc: 'Look for an email from WorkforceAP. We will tell you what comes next instead of leaving you to guess.',
+    title: 'Counselor review (about 1–2 business days)',
+    desc: 'A WorkforceAP counselor reviews your application, checks fit with your chosen path, and lines up the right next conversation or paperwork.',
   },
   {
     num: '3',
-    title: 'We move you into the right next stage',
-    desc: 'That may be a counselor conversation, program-fit guidance, account help, or training access depending on your path and readiness.',
+    title: 'Program assignment',
+    desc: 'We confirm or adjust your program so training, funding steps, and support match your situation. You will get clear instructions by email.',
+  },
+  {
+    num: '4',
+    title: 'Training start',
+    desc: 'Once enrolled, you begin coursework and milestones with counselor support—so you always know where you are in the process.',
   },
 ];
 
-const WHILE_YOU_WAIT = [
-  'Create your member account so you can check status and continue faster later.',
-  'Watch your inbox and spam folder for an email from WorkforceAP.',
-  'Keep the same email and phone number available so our team can reach you.',
-];
+const WHAT_YOU_CAN_DO_NOW = [
+  {
+    label: 'Create your member account',
+    href: '/apply/create-account',
+    desc: 'Check application status anytime and pick up faster when our team reaches out.',
+  },
+  {
+    label: 'Open your dashboard for tools',
+    href: '/login',
+    desc: 'After you sign in, your dashboard is where AI career tools, messages, and learning live.',
+  },
+  {
+    label: 'Browse programs and prep materials',
+    href: '/programs',
+    desc: 'Review program tracks and get oriented before your counselor follow-up.',
+  },
+] as const;
 
 const TRUST_SIGNALS = [
   {
@@ -79,16 +100,19 @@ export default function ApplyConfirmationPage() {
                   check
                 </span>
               </div>
-              <h1 className="text-display-sm" style={{ marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>
-                Application Received
+              <h1 className="text-display-sm" style={{ marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
+                You’re in the WorkforceAP system.
               </h1>
+              <p style={{ color: 'var(--color-on-surface)', fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '36rem', margin: '0 auto 0.75rem', fontWeight: 600 }}>
+                Here’s exactly what happens next:
+              </p>
               <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.7, maxWidth: '34rem', margin: '0 auto 1rem' }}>
-                Your application is in our review queue now. A WorkforceAP team member will review it and email you within 1 to 2 business days with the next step for your path.
+                Your application is received and on file. A counselor will review it and email you within about 1–2 business days with the next concrete step for your path.
               </p>
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.9rem', fontWeight: 600 }}>
-                <span>Reviewed by staff</span>
+                <span>On file with WorkforceAP</span>
                 <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
-                <span>Email follow-up in 1 to 2 business days</span>
+                <span>Counselor review in ~1–2 business days</span>
               </div>
             </div>
 

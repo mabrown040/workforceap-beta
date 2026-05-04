@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 import PartnerSignupForm from './PartnerSignupForm';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Partner organization registration',
   description:
     'Register your organization as a WorkforceAP community partner. Refer members to training offered at no cost to members and track outcomes in the partner portal.',
   path: '/partner-signup',
 });
+}
 
 export default function PartnerSignupPage() {
   return (

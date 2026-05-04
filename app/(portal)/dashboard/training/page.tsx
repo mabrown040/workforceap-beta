@@ -3,14 +3,20 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import Link from 'next/link';
+import { getCourseraReadiness } from '@/lib/coursera/config';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
 import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import TrainingDataFlowStrip from '@/components/portal/TrainingDataFlowStrip';
+import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
+import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
+import { trackTrainingTabViewed } from '@/lib/analytics/track';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -40,6 +46,8 @@ export default async function TrainingPage() {
   if (!dbUser.assessmentCompleted) {
     redirect('/dashboard/assessment?redirect=/dashboard/training');
   }
+
+  trackTrainingTabViewed(user.id);
 
   const program = getProgramBySlug(dbUser.enrolledProgram);
   if (!program) redirect('/dashboard/program');
@@ -82,6 +90,8 @@ export default async function TrainingPage() {
       : program.courses.length > 0
         ? Math.round((completedFromRows / program.courses.length) * 100)
         : 0;
+
+  const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
 
   return (
     <>
@@ -129,16 +139,14 @@ export default async function TrainingPage() {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', marginTop: '0.75rem', marginBottom: '1rem' }}>
-            <a
+            <TrackedCourseraLaunchLink
               href="/api/member/coursera/launch"
-              target="_blank"
-              rel="noopener noreferrer"
               className="btn btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.65rem 1rem' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
               Open Coursera
-            </a>
+            </TrackedCourseraLaunchLink>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
               <a
                 href="/dashboard/certifications"
@@ -201,10 +209,8 @@ export default async function TrainingPage() {
               flexWrap: 'wrap',
             }}
           >
-            <a
+            <TrackedCourseraLaunchLink
               href="/api/member/coursera/launch"
-              target="_blank"
-              rel="noopener noreferrer"
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',
@@ -215,7 +221,7 @@ export default async function TrainingPage() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
               Open Coursera
-            </a>
+            </TrackedCourseraLaunchLink>
             <a
               href="/dashboard/certifications"
               className="btn btn-outline"
@@ -249,10 +255,27 @@ export default async function TrainingPage() {
           <CourseraProgressCard userId={user.id} />
         </div>
 
-        <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
+        <div style={{ padding: '0 1rem' }}>
+          <TrainingDataFlowStrip />
+          <details className="training-sync-details">
+            <summary>Optional: refresh progress &amp; Coursera tools</summary>
+            <div className="training-sync-details__body">
+              <p style={{ margin: '0 0 var(--space-4)', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
+                Pull the latest completion data from Coursera, or open the full Coursera hub for launches and partner notes.
+              </p>
+              <CourseraSyncCard enabled={courseraReadiness.canSync} />
+              <p style={{ margin: 'var(--space-4) 0 0' }}>
+                <Link href="/dashboard/coursera" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>hub</span>
+                  Open Coursera hub
+                </Link>
+              </p>
+            </div>
+          </details>
+
           <section
             className="portal-card portal-card--flat"
-            style={{ borderLeft: '4px solid var(--color-blue)' }}
+            style={{ borderLeft: '4px solid var(--color-blue)', marginTop: '1.25rem' }}
           >
             <div className="portal-card__body">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
@@ -287,7 +310,7 @@ export default async function TrainingPage() {
               <h2 className="portal-section-heading" style={{ margin: 0 }}>Your Courses</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-              {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
+              {program.title} on Coursera (our online partner). Complete courses in order; progress updates when Coursera sends activity, and you can still mark a course done manually if needed.
             </p>
             <TrainingCourseList
               courses={coursesWithIds}

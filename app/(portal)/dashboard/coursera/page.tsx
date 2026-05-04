@@ -5,7 +5,8 @@ import { ExternalLink } from 'lucide-react';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
+import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getCourseraReadiness } from '@/lib/coursera/config';
 import PageHeader from '@/components/portal/PageHeader';
@@ -35,14 +36,24 @@ export default async function CourseraIntegrationPage() {
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const completedCount = program
-    ? completedSlugs.filter((slug) => program.courses.some((course) => course.slug === slug)).length
-    : 0;
-  const progressPct = program?.courses.length
-    ? Math.round((completedCount / program.courses.length) * 100)
-    : 0;
+  const trainingView =
+    enrolledProgram && program
+      ? await loadMemberProgramTrainingView({
+          userId: user.id,
+          programSlug: enrolledProgram,
+          coursesCompletedJson: dbUser?.coursesCompleted,
+        })
+      : null;
+  const completedCount = trainingView?.completedCount ?? 0;
+  const progressPct =
+    trainingView?.progressPercentDisplay ??
+    (program?.courses.length
+      ? Math.round((completedCount / program.courses.length) * 100)
+      : 0);
   const readiness = getCourseraReadiness(enrolledProgram);
+
+  const doneSlugsSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
+  const orderedIncompleteCourses = program?.courses.filter((c) => !doneSlugsSet.has(c.slug)) ?? [];
 
   return (
     <>
@@ -95,10 +106,11 @@ export default async function CourseraIntegrationPage() {
 
               {/* Course pathway list */}
               <div style={{ marginBottom: '1rem' }}>
-                {program.courses.map((course, i) => {
-                  const done = i < completedCount;
-                  const current = i === completedCount;
-                  const locked = i > completedCount;
+                {program.courses.map((course) => {
+                  const done = doneSlugsSet.has(course.slug);
+                  const currentSlug = orderedIncompleteCourses[0]?.slug ?? null;
+                  const current = course.slug === currentSlug;
+                  const locked = !done && !current;
                   return (
                     <div
                       key={course.slug}
@@ -189,15 +201,14 @@ export default async function CourseraIntegrationPage() {
                     </p>
                   </div>
                 )}
-                <a
+                <TrackedCourseraLaunchLink
                   href="/api/member/coursera/launch"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="btn btn-primary coursera-btn-external"
+                  courseSlug={orderedIncompleteCourses[0]?.slug}
                 >
                   {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
                   <ExternalLink size={16} aria-hidden />
-                </a>
+                </TrackedCourseraLaunchLink>
                 <Link href="/dashboard/training" className="btn btn-outline">
                   Open training tracker
                 </Link>

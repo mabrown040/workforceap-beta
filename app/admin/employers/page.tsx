@@ -13,12 +13,29 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
 
+function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
+  label: string;
+  color: string;
+  bg: string;
+} {
+  if (placementAgreementSigned && hiringPipelineActive) {
+    return { label: 'Strategic Hiring Partner', color: '#7b1fa2', bg: 'rgba(123,31,162,0.10)' };
+  }
+  if (placementAgreementSigned) {
+    return { label: 'Hiring Partner', color: '#1565c0', bg: 'rgba(21,101,192,0.10)' };
+  }
+  if (hiringPipelineActive) {
+    return { label: 'Active Pipeline', color: '#2e7d32', bg: 'rgba(46,125,50,0.10)' };
+  }
+  return { label: 'Standard', color: 'var(--color-on-surface-variant)', bg: 'var(--surface-container)' };
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Admin - Employers',
-  description: 'Manage employers.',
-  path: '/admin/employers',
-});
+    title: 'Admin - Employers',
+    description: 'Manage employers.',
+    path: '/admin/employers',
+  });
 }
 
 export default async function AdminEmployersPage() {

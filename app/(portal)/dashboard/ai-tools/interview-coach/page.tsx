@@ -9,10 +9,10 @@ import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Interview Coach',
-  description: 'Run a text-based mock interview and get instant AI feedback.',
-  path: '/dashboard/ai-tools/interview-coach',
-});
+    title: 'AI Interview Coach',
+    description: 'Run a text-based mock interview and get instant AI feedback.',
+    path: '/dashboard/ai-tools/interview-coach',
+  });
 }
 
 export default async function InterviewCoachPage() {

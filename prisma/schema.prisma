@@ -74,6 +74,8 @@ model User {
   workspaceEmailProvisioned    Boolean             @default(false) @map("workspace_email_provisioned")
   /// Set when career quiz indicates no reliable computer; counselors can follow up.
   needsComputerSupportFollowUp Boolean             @default(false) @map("needs_computer_support_follow_up")
+  /// Daily cron: Coursera course progress stale for this member (see stale-training-check cron).
+  staleTrainingDetectedAt      DateTime?           @map("stale_training_detected_at")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
   careerRecommendationJson     Json?               @map("career_recommendation_json")
   /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
@@ -166,6 +168,7 @@ model User {
   @@index([createdAt])
   @@index([deletedAt])
   @@index([email])
+  @@index([staleTrainingDetectedAt])
   @@map("users")
 }
 

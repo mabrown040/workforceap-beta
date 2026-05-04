@@ -17,10 +17,10 @@ import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Candidate pipeline',
-  description: 'AI-suggested matches for your open roles.',
-  path: '/employer/pipeline',
-});
+    title: 'Candidate pipeline',
+    description: 'AI-suggested matches for your open roles.',
+    path: '/employer/pipeline',
+  });
 }
 
 export default async function EmployerPipelinePage() {

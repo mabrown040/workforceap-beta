@@ -8,10 +8,10 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Find your career',
-  description: 'O*NET Interest Profiler and O*NET skill mapping — choose how to explore careers.',
-  path: '/dashboard/learning/find-your-career',
-});
+    title: 'Find your career',
+    description: 'O*NET Interest Profiler and O*NET skill mapping — choose how to explore careers.',
+    path: '/dashboard/learning/find-your-career',
+  });
 }
 
 const TOOLS = [

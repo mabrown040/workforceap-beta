@@ -12,7 +12,9 @@ import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
 import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
+import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import PortalMetricCard from '@/components/portal/ui/PortalMetricCard';
 
@@ -47,6 +49,11 @@ type DashboardHomeClientProps = {
   };
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
+  /** Primary dashboard CTA — also removed from the horizontal strip when present to avoid duplication. */
+  dominantNextAction?: NextBestAction | null;
+  showStuckCounselorStrip?: boolean;
+  /** When set (from `CourseProgress` / rollup), drives hero % and metric cards instead of completion ratio alone. */
+  blendedTrainingProgressPct?: number;
   nextBestActions?: NextBestAction[];
   aiToolsUsedCount?: number;
   jobSearchUrl?: string | null;
@@ -76,6 +83,9 @@ export default function DashboardHomeClient({
   checklist,
   checklistAllDone,
   recommendedActions,
+  dominantNextAction = null,
+  showStuckCounselorStrip = false,
+  blendedTrainingProgressPct,
   nextBestActions = [],
   aiToolsUsedCount = 0,
   jobSearchUrl,
@@ -124,7 +134,19 @@ export default function DashboardHomeClient({
     });
   };
 
-  const progressPct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  const progressPct =
+    typeof blendedTrainingProgressPct === 'number' && Number.isFinite(blendedTrainingProgressPct)
+      ? Math.max(0, Math.min(100, Math.round(blendedTrainingProgressPct)))
+      : totalCourses > 0
+        ? Math.round((completedCount / totalCourses) * 100)
+        : 0;
+
+  const nextStripActions = useMemo(() => {
+    const list = nextBestActions ?? [];
+    if (!dominantNextAction || list.length === 0) return list;
+    if (list[0]?.id === dominantNextAction.id) return list.slice(1);
+    return list;
+  }, [dominantNextAction, nextBestActions]);
 
   const checklistItems = [
     {
@@ -244,6 +266,14 @@ export default function DashboardHomeClient({
         </p>
       </header>
 
+      {showStuckCounselorStrip && state === 'C' ? (
+        <div style={{ padding: '0 2rem', marginBottom: '1.25rem' }}>
+          <MemberStuckCounselorStrip />
+        </div>
+      ) : null}
+
+      {dominantNextAction && state !== 'A' ? <MemberDoThisNextCard action={dominantNextAction} /> : null}
+
       {/* ── 1. STATUS CARD — where am I, what's next ── */}
       {((state === 'A' || state === 'B') && (noApplicationOnFile || applicationStatus)) && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
@@ -346,10 +376,10 @@ export default function DashboardHomeClient({
         </div>
       )}
 
-      {/* ── 2. PRIMARY NEXT ACTION — first nextBestAction ── */}
-      {nextBestActions.length > 0 && (
+      {/* ── 2. MORE NEXT STEPS — remaining actions after dominant card ── */}
+      {nextStripActions.length > 0 && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
-          <MemberNextStepsStrip actions={nextBestActions.slice(0, 3)} />
+          <MemberNextStepsStrip actions={nextStripActions.slice(0, 3)} />
         </div>
       )}
 

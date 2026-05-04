@@ -165,10 +165,15 @@ export default function ApplyConfirmationPage() {
 
             <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--surface-container)', borderRadius: '0.875rem', padding: '1.25rem' }}>
-                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>What to do while you wait</h2>
-                <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-                  {WHILE_YOU_WAIT.map((item) => (
-                    <li key={item} style={{ marginBottom: '0.5rem' }}>{item}</li>
+                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>What you can do now</h2>
+                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+                  {WHAT_YOU_CAN_DO_NOW.map((item) => (
+                    <li key={item.label} style={{ marginBottom: '0.75rem' }}>
+                      <Link href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                        {item.label}
+                      </Link>
+                      <span style={{ display: 'block', marginTop: '0.25rem', fontSize: '0.9375rem' }}>{item.desc}</span>
+                    </li>
                   ))}
                 </ul>
               </div>

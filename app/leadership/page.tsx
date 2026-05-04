@@ -10,10 +10,12 @@ import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   return buildPageMetadataAsync({
-    title: 'Board & Leadership',
+    title: t('Board & Leadership'),
     description:
-      "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
+      t("Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact."),
     path: '/leadership',
   });
 }

@@ -11,10 +11,10 @@ import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Tool History',
-  description: 'View your past AI tool results.',
-  path: '/dashboard/ai-tools/history',
-});
+    title: 'AI Tool History',
+    description: 'View your past AI tool results.',
+    path: '/dashboard/ai-tools/history',
+  });
 }
 
 const TOOL_LABELS: Record<string, string> = {

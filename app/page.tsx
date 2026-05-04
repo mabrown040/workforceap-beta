@@ -16,12 +16,14 @@ import { getLocale } from '@/lib/i18n/serverLocale';
 // Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
 // keep the supporting copy immediately concrete, member-safe, and operational.
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
   return buildPageMetadataAsync({
-  title: 'Career Training & Industry Certificates',
-  description:
-    'Occupational and career training with grant- and partner-funded access for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.',
-  path: '/',
-});
+    title: t('Career Training & Industry Certificates'),
+    description:
+      t('Occupational and career training with grant- and partner-funded access for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.'),
+    path: '/',
+  });
 }
 
 const HERO_IMAGE_SRC = '/images/hero-people.jpg';

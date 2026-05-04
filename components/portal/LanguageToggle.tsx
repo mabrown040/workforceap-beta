@@ -1,6 +1,9 @@
 'use client';
 
 import { Globe } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import type { AppLocale } from '@/lib/i18n/config';
 import { isAppLocale, splitLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
 import { setLocaleCookie } from '@/lib/i18n/client';
@@ -55,7 +58,7 @@ export default function LanguageToggle() {
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>
-            {lang.labelNative}
+            {lang.label}
           </option>
         ))}
       </select>

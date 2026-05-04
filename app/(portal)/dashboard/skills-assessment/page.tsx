@@ -14,10 +14,10 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Training Preassessment',
-  description: 'View your Training Preassessment status, skill portfolio, and career readiness.',
-  path: '/dashboard/skills-assessment',
-});
+    title: 'Training Preassessment',
+    description: 'View your Training Preassessment status, skill portfolio, and career readiness.',
+    path: '/dashboard/skills-assessment',
+  });
 }
 
 type SavedSkillSnapshot = {

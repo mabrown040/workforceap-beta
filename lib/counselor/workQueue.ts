@@ -91,7 +91,7 @@ export async function getCounselorWorkQueue(
   }>>(
     `SELECT DISTINCT ON (thread_id) id, thread_id, author_id, body, created_at
      FROM messages
-     WHERE thread_id = ANY($1::uuid[])
+     WHERE thread_id::text = ANY($1::text[])
      ORDER BY thread_id, created_at DESC`,
     threadIds,
   );

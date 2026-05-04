@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { PROGRAMS } from '@/lib/content/programs';
@@ -8,11 +8,13 @@ import { prisma } from '@/lib/db/prisma';
 import AddMemberWizard from './AddMemberWizard';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Add Member',
   description: 'Create a new member account.',
   path: '/admin/members',
 });
+}
 
 export default async function AddMemberPage() {
   const user = await getUser();

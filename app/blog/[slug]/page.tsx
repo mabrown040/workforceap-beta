@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import ReactMarkdown from 'react-markdown';
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) return {};
   const path = `/blog/${post.slug}`;
   const defImg = getDefaultImage(post.category, post.slug);
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: post.title,
     description: post.excerpt ?? post.title,
     path,

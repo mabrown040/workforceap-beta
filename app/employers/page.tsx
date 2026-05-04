@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import Footer from "@/components/Footer";
@@ -9,12 +9,14 @@ import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Hire Certified Tech Graduates',
   description:
     'Access pre-screened, certified tech talent. WorkforceAP graduates hold industry credentials from Google, IBM, AWS, CompTIA. Post jobs or become a hiring partner. Serving employers nationwide.',
   path: '/employers',
 });
+}
 
 const VALUE_CARDS = [
   {
@@ -89,21 +91,21 @@ const PARTNERSHIP_TIERS = [
   {
     title: 'Standard',
     features: ['Post unlimited jobs', 'Access to active members and alumni', 'Direct candidate introductions'],
-    cta: 'Start Standard Intake',
+    cta: 'Request employer intake',
     href: '#employer-contact-form',
     featured: false,
   },
   {
     title: 'Strategic Partner',
     features: ['First access to graduating cohorts', 'Input on curriculum design', 'Co-branded success stories', 'Quarterly hiring events'],
-    cta: 'Start Partner Intake',
+    cta: 'Request employer intake',
     href: '#employer-contact-form',
     featured: true,
   },
   {
     title: 'Team Training',
     features: ['Upskill your existing workforce', 'Custom training programs', 'Group enrollment options', 'Dedicated account manager'],
-    cta: 'Start Team Training Intake',
+    cta: 'Request employer intake',
     href: '#employer-contact-form',
     featured: false,
   },
@@ -255,24 +257,8 @@ export default async function EmployersPage() {
                 textDecoration: 'none',
               }}
             >
-              Start Employer Intake
+              Request employer intake
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
-            </Link>
-            <Link
-              href="#employer-contact-form"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'var(--color-gold)',
-                color: 'var(--color-on-surface)',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}
-            >
-              Request a Hiring Match
             </Link>
             {!user && (
               <Link

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -21,11 +21,13 @@ import {
 } from '@/lib/employer/employerJobsListQuery';
 import { employerJobStatusBadgeVariant, employerJobStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Job Postings',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'My Jobs',
   description: 'Manage your job postings.',
   path: '/employer/jobs',
 });
+}
 
 type SearchProps = { searchParams: Promise<{ page?: string; filter?: string }> };
 

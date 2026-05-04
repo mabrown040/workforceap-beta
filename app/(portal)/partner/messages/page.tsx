@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -14,11 +14,13 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { InboxRowLayout } from '@/components/portal/ui/inbox/InboxPrimitives';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Messages',
   description: 'Message the WorkforceAP team.',
   path: '/partner/messages',
 });
+}
 
 export default async function PartnerMessagesPage() {
   const user = await getUser();

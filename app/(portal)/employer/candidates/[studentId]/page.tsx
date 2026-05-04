@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
@@ -27,8 +27,8 @@ export async function generateMetadata({
   params: Promise<{ studentId: string }>;
 }): Promise<Metadata> {
   const { studentId } = await params;
-  return buildPageMetadata({
-    title: 'Candidate Profile',
+  return buildPageMetadataAsync({
+    title: 'Candidate profile',
     description: 'WorkforceAP member profile for your hiring pipeline.',
     path: `/employer/candidates/${studentId}`,
   });

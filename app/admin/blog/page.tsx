@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import BlogPostActions from '@/components/admin/BlogPostActions';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Blog Posts',
   description: 'Manage blog content.',
   path: '/admin/blog',
 });
+}
 
 const STATUS_COLOR: Record<string, { bg: string; color: string }> = {
   published: { bg: 'rgba(74,155,79,0.12)', color: 'var(--color-green, #4a9b4f)' },

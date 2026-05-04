@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
+import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { cookies } from 'next/headers';
-import { i18n } from '@/next-i18next.config.js';
+import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 
 export async function GET(request: Request) {
   const user = await getUser();
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   const cookieStore = await cookies();
-  const locale = cookieStore.get('i18next')?.value ?? i18n.defaultLocale;
+  const locale = getAppLocaleFromCookieStore(cookieStore);
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -81,6 +81,12 @@ export async function GET(request: Request) {
 
   const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
+  const courseIdMap = enrolledProgram ? getCourseraConfig().courseIdMap[enrolledProgram] : undefined;
+  const currentCourseId =
+    courseIdMap && currentCourseIndex != null && currentCourseIndex >= 0
+      ? courseIdMap[currentCourseIndex]
+      : undefined;
+
   // Prefer (1) a configured deep link when it is clearly program/course-specific,
   // then (2) the discovered learner program URL for the member's actual
   // enrollment, then (3) the generic Coursera platform root. This avoids
@@ -95,6 +101,7 @@ export async function GET(request: Request) {
     userId: user.id,
     email: user.email ?? '',
     currentCourseIndex,
+    currentCourseId,
     locale,
   });
 

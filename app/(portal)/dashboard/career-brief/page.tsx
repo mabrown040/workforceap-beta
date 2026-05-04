@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { buildScoreBreakdownFromRelations } from '@/lib/readiness/score';
@@ -10,11 +10,13 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { parseProgramSalaryRange, salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Career Brief',
   description: 'Your personalized career intelligence — salary benchmarks, job market signals, and action items.',
   path: '/dashboard/career-brief',
 });
+}
 
 // Program-category → career tips mapping
 const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRampMonths: number }> = {

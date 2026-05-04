@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import SessionsIndexBody from '@/components/portal/sessions/SessionsIndexBody';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'In-office sessions',
   description: 'Run a guided 30-minute session with a member. Build profile, resume, cover letter, and interview prep together.',
   path: '/admin/sessions',
 });
+}
 
 /**
  * In-office sessions — admin view. Mirrors /counselor/sessions but stays

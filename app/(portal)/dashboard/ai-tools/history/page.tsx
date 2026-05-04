@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AIHistoryList from '@/components/portal/AIHistoryList';
@@ -9,11 +9,13 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Activity History',
-  description: 'View your past tool results.',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'AI Tool History',
+  description: 'View your past AI tool results.',
   path: '/dashboard/ai-tools/history',
 });
+}
 
 const TOOL_LABELS: Record<string, string> = {
   job_match_scorer: 'Job Match Scorer',

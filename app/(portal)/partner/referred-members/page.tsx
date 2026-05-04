@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PartnerInviteMemberButton from '@/components/portal/PartnerInviteMemberButton';
 import PageHeader from '@/components/portal/PageHeader';
@@ -15,11 +15,13 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Referred Members',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'Referred members',
   description: 'All members referred by your organization.',
   path: '/partner/referred-members',
 });
+}
 
 export default async function PartnerReferredMembersPage() {
   const user = await getUser();

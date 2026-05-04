@@ -153,6 +153,8 @@ model User {
   memberPoints       MemberPoints?
   pointsTransactions PointsTransaction[]
   pointsAwarded      PointsTransaction[] @relation("PointsAwarder")
+  courseProgress           CourseProgress[]
+  memberProgramProgress    MemberProgramProgress[]
 
   courseraCourseProgress   CourseraCourseProgress[]
   courseraBadgeProgress    CourseraBadgeProgress[]
@@ -1323,6 +1325,76 @@ model CourseEnrollment {
   @@index([organizationId])
   @@index([programSlug])
   @@map("course_enrollments")
+}
+
+/// xAPI statements ingested from Coursera (LRS webhook). `statementId` is the external UUID when present.
+model XapiStatement {
+  id                 String    @id @default(uuid())
+  statementId        String?   @unique @map("statement_id")
+  actorEmail         String?   @map("actor_email")
+  verb               String
+  courseId           String?   @map("course_id")
+  courseName         String?   @map("course_name")
+  resultScoreScaled  Float?    @map("result_score_scaled")
+  resultScoreRaw     Float?    @map("result_score_raw")
+  resultCompletion   Boolean?  @map("result_completion")
+  resultSuccess      Boolean?  @map("result_success")
+  processed          Boolean   @default(false)
+  processedAt        DateTime? @map("processed_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  @@index([actorEmail])
+  @@index([createdAt])
+  @@map("xapi_statements")
+}
+
+enum CourseProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+
+  @@map("course_progress_status")
+}
+
+/// Per-member, per-program course progress (Coursera xAPI and manual completion).
+model CourseProgress {
+  id               String               @id @default(uuid())
+  userId           String               @map("user_id")
+  programSlug      String               @map("program_slug")
+  courseId         String?              @map("course_id")
+  courseSlug       String               @map("course_slug")
+  status           CourseProgressStatus @default(NOT_STARTED)
+  percentComplete  Int                  @default(0) @map("percent_complete")
+  scoreScaled      Float?               @map("score_scaled")
+  scoreRaw         Float?               @map("score_raw")
+  startedAt        DateTime?            @map("started_at")
+  completedAt      DateTime?            @map("completed_at")
+  lastUpdatedAt    DateTime             @updatedAt @map("last_updated_at")
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programSlug, courseSlug])
+  @@index([userId])
+  @@index([programSlug])
+  @@map("course_progress")
+}
+
+/// Rolled-up training stats per member + program (from `CourseProgress` and catalog course counts).
+model MemberProgramProgress {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  programSlug       String   @map("program_slug")
+  coursesCompleted  Int      @default(0) @map("courses_completed")
+  averagePercent    Int      @default(0) @map("average_percent")
+  createdAt         DateTime @default(now()) @map("created_at")
+  lastUpdatedAt     DateTime @updatedAt @map("last_updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programSlug])
+  @@index([userId])
+  @@map("member_program_progress")
 }
 
 model PreScreeningResponse {

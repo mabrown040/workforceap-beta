@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
@@ -28,12 +28,14 @@ function parseActionPlan(output: string | null): string[] {
   return steps;
 }
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'AI Career Counselor',
   description: 'A private voice conversation with an AI career counselor. Leave with a personalized action plan.',
   path: '/dashboard/counselor',
   robots: { index: false, follow: false },
 });
+}
 
 export default async function CounselorPage() {
   const user = await getUser();

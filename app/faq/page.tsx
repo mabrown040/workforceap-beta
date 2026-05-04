@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
 import { makeServerT } from '@/lib/i18n/serverLabels';
 import { getLocale } from '@/lib/i18n/serverLocale';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'FAQ: WIOA-Aligned Career Training & Certifications',
   description:
     'Answers about applying, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions.',
   path: '/faq',
 });
+}
 
 const faqHighlights = [
   {

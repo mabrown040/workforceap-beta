@@ -1,17 +1,17 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyCreateAccountForm from './ApplyCreateAccountForm';
 
-export const metadata: Metadata = {
-  ...buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  const base = await buildPageMetadataAsync({
     title: 'Save Your Spot and Create Your Login',
     description: 'Create your account to save your ranked program choices and connect with your next steps.',
     path: '/apply/create-account',
-  }),
-  robots: { index: false, follow: false },
-};
+  });
+  return { ...base, robots: { index: false, follow: false } };
+}
 
 export default function ApplyCreateAccountPage() {
   return (

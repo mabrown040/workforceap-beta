@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
@@ -99,11 +99,13 @@ function fmtDateTime(value: Date | null): string {
   return value.toLocaleString();
 }
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Admin – Coursera Identity Mapping',
-  description: 'Map Coursera learners to WorkforceAP members and review unmatched xAPI events.',
-  path: '/admin/coursera',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+    title: 'Admin – Coursera Identity Mapping',
+    description: 'Map Coursera learners to WorkforceAP members and review unmatched xAPI events.',
+    path: '/admin/coursera',
+  });
+}
 
 export const dynamic = 'force-dynamic';
 

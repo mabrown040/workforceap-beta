@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ResumeStrengthForm from '@/components/portal/tools/ResumeStrengthForm';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Resume Analysis',
   description: 'Breakdown of your resume strength, structure, and quick wins — without a job description.',
   path: '/dashboard/ai-tools/resume-analysis',
 });
+}
 
 export default async function ResumeAnalysisPage() {
   const user = await getUser();

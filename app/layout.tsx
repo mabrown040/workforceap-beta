@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale } from '@/lib/i18n/config';
 import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ClientLocaleProvider from '@/components/portal/ClientLocaleProvider';
@@ -48,8 +50,11 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const orgBranding = await getDefaultOrgBranding();
+  const h = await headers();
+  const rawLang = h.get(WAP_LOCALE_HEADER);
+  const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   return (
-    <html lang="en">
+    <html lang={htmlLang}>
       <head>
         <ThemeInitScript />
         <script

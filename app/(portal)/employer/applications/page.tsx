@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -13,11 +13,13 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const PAGE_SIZE = 25;
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Applicants',
   description: 'View applications from WorkforceAP members to your job postings.',
   path: '/employer/applications',
 });
+}
 
 export default async function EmployerApplicationsPage({
   searchParams,

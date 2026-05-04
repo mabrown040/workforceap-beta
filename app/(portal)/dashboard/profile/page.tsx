@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
-import { buildPageMetadata } from "@/app/seo";
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/db/prisma";
 import { getProgramBySlug } from "@/lib/content/programs";
@@ -20,11 +20,13 @@ import {
   getStarterProfileFieldLabels,
 } from "@/lib/member/starterProfileReview";
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: "My Profile",
   description: "View and edit your profile.",
   path: "/dashboard/profile",
 });
+}
 
 export default async function DashboardProfilePage() {
   const user = await getUser();

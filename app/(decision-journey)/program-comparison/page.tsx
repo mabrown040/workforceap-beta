@@ -1,22 +1,19 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { buildPageMetadata, SITE_URL } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 
-export const metadata: Metadata = {
-  ...buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
     title: 'Compare Programs',
     description:
       'Compare WorkforceAP career tracks side-by-side: duration, salary, demand, and fit. Pick programs to compare or start from recommended paths.',
     path: '/program-comparison',
-  }),
-  alternates: {
-    canonical: `${SITE_URL}/program-comparison`,
-  },
-};
+  });
+}
 
 const tracks = getProgramComparisonTracks();
 

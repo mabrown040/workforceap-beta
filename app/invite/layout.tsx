@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = {
-  ...buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  const base = await buildPageMetadataAsync({
     title: 'Accept Your Invitation',
     description: 'Accept your invitation to join Workforce Advancement Project.',
     path: '/invite',
-  }),
-  robots: { index: false, follow: false },
-};
+  });
+  return { ...base, robots: { index: false, follow: false } };
+}
 
 export default function InviteLayout({ children }: { children: React.ReactNode }) {
   return children;

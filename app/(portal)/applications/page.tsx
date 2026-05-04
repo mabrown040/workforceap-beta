@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Job Applications',
   description: 'Track your job applications and interview progress.',
   path: '/applications',
 });
+}
 
 export default async function ApplicationsPage() {
   const user = await getUser();

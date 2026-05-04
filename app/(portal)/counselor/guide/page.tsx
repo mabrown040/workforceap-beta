@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Counselor Portal Guide',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'Counselor portal guide',
   description: 'Tools and reference for guiding your members from enrollment to employment.',
   path: '/counselor/guide',
 });
+}
 
 const CAPABILITIES = [
   { icon: 'monitoring', text: 'View member progress — enrollment stage, tools used, readiness score' },

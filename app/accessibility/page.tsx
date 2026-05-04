@@ -3,14 +3,16 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Accessibility Statement',
   description:
     'Read Workforce Advancement Project accessibility commitments and how to request help using the site.',
   path: '/accessibility',
 });
+}
 
 const sectionStyle: CSSProperties = {
   maxWidth: 900,

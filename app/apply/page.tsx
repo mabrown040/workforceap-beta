@@ -13,7 +13,7 @@ type PageProps = { searchParams?: Promise<{ program?: string }> };
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const sp = searchParams ? await searchParams : {};
-  return buildApplyPageMetadata(sp.program);
+  return await buildApplyPageMetadata(sp.program);
 }
 
 /* ─── styles ─── */

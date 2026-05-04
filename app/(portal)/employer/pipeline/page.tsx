@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -15,11 +15,13 @@ import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Candidate Pipeline',
-  description: 'Suggested matches for your open roles.',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'Candidate pipeline',
+  description: 'AI-suggested matches for your open roles.',
   path: '/employer/pipeline',
 });
+}
 
 export default async function EmployerPipelinePage() {
   const user = await getUser();

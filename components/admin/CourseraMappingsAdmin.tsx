@@ -170,8 +170,18 @@ export default function CourseraMappingsAdmin({
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
           <div className="coursera-form-grid" style={{ display: 'grid', gap: '1rem' }}>
             <div style={{ minWidth: 0 }}>
-              <label style={labelStyle}>Member</label>
-              <select value={userId} onChange={(e) => setUserId(e.target.value)} style={inputStyle} className="coursera-input" required>
+              <label htmlFor="coursera-mapping-userId" style={labelStyle}>
+                Member
+              </label>
+              <select
+                id="coursera-mapping-userId"
+                name="userId"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                style={inputStyle}
+                className="coursera-input"
+                required
+              >
                 <option value="">Select a member</option>
                 {members.map((member) => (
                   <option key={member.id} value={member.id}>
@@ -182,30 +192,67 @@ export default function CourseraMappingsAdmin({
             </div>
 
             <div style={{ minWidth: 0 }}>
-              <label style={labelStyle}>Coursera email</label>
-              <input value={courseraEmail} onChange={(e) => setCourseraEmail(e.target.value)} style={inputStyle} className="coursera-input" placeholder="learner@example.com" />
-              {selectedMember?.workspaceEmail ? (
-                <p style={{ margin: '0.35rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                  Suggested from training seat: <strong>{selectedMember.workspaceEmail}</strong>
-                  {selectedMember.workspaceEmailProvisioned ? ' (provisioned)' : ''}
-                </p>
-              ) : null}
+              <label htmlFor="coursera-mapping-courseraEmail" style={labelStyle}>
+                Coursera email
+              </label>
+              <input
+                id="coursera-mapping-courseraEmail"
+                name="courseraEmail"
+                type="email"
+                autoComplete="email"
+                value={courseraEmail}
+                onChange={(e) => setCourseraEmail(e.target.value)}
+                style={inputStyle}
+                className="coursera-input"
+                placeholder="learner@example.com"
+              />
             </div>
 
             <div style={{ minWidth: 0 }}>
-              <label style={labelStyle}>Actor identifier</label>
-              <input value={actorIdentifier} onChange={(e) => setActorIdentifier(e.target.value)} style={inputStyle} className="coursera-input" placeholder="optional stable Coursera actor id" />
+              <label htmlFor="coursera-mapping-actorIdentifier" style={labelStyle}>
+                Actor identifier
+              </label>
+              <input
+                id="coursera-mapping-actorIdentifier"
+                name="actorIdentifier"
+                value={actorIdentifier}
+                onChange={(e) => setActorIdentifier(e.target.value)}
+                style={inputStyle}
+                className="coursera-input"
+                placeholder="optional stable Coursera actor id"
+              />
             </div>
 
             <div style={{ minWidth: 0 }}>
-              <label style={labelStyle}>Actor home page</label>
-              <input value={actorHomePage} onChange={(e) => setActorHomePage(e.target.value)} style={inputStyle} className="coursera-input" placeholder="optional actor home page" />
+              <label htmlFor="coursera-mapping-actorHomePage" style={labelStyle}>
+                Actor home page
+              </label>
+              <input
+                id="coursera-mapping-actorHomePage"
+                name="actorHomePage"
+                type="url"
+                value={actorHomePage}
+                onChange={(e) => setActorHomePage(e.target.value)}
+                style={inputStyle}
+                className="coursera-input"
+                placeholder="optional actor home page"
+              />
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>Notes</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...inputStyle, minHeight: '5rem', resize: 'vertical' }} className="coursera-input" placeholder="Why this mapping exists, test notes, etc." />
+            <label htmlFor="coursera-mapping-notes" style={labelStyle}>
+              Notes
+            </label>
+            <textarea
+              id="coursera-mapping-notes"
+              name="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              style={{ ...inputStyle, minHeight: '5rem', resize: 'vertical' }}
+              className="coursera-input"
+              placeholder="Why this mapping exists, test notes, etc."
+            />
           </div>
 
           {selectedMember && (

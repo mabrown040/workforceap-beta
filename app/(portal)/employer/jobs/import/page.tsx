@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ImportJobClient from './ImportJobClient';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Import Jobs',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'Import jobs',
   description: 'Import job postings from URLs, LinkedIn, or careers pages as editable drafts.',
   path: '/employer/jobs/import',
 });
+}
 
 export default async function ImportJobPage() {
   const user = await getUser();

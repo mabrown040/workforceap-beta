@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 import SalaryTableWrapper from '@/components/portal/SalaryTableWrapper';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Salary Guide',
   description:
     'Program-by-program starting salary ranges (aligned with our /programs catalog). Understand fit, ramp, and realistic outcomes — not just the biggest number.',
   path: '/salary-guide',
 });
+}
 
 const insights = [
   {

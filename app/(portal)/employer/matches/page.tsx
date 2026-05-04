@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -11,11 +11,13 @@ import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHisto
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Match History',
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'Match history',
   description: 'Suggested candidates and your hiring pipeline actions.',
   path: '/employer/matches',
 });
+}
 
 export default async function EmployerMatchesPage() {
   const user = await getUser();

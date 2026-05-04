@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import { PROGRAMS } from '@/lib/content/programs';
 import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'New Invite',
   description: 'Send a new platform invitation.',
   path: '/admin/invites/new',
 });
+}
 
 type InviteFormPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

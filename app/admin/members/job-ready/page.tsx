@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -9,11 +9,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import AdminJobReadyTable, { type JobReadyRow } from '@/components/admin/AdminJobReadyTable';
 import { computeTrainingProgress, JOB_READY_TRAINING_PCT } from '@/lib/member/trainingProgress';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Admin – Job ready',
   description: `Members who have completed ${JOB_READY_TRAINING_PCT}%+ of their training program.`,
   path: '/admin/members/job-ready',
 });
+}
 
 export default async function AdminJobReadyPage() {
   const user = await getUser();

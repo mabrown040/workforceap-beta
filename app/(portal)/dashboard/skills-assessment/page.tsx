@@ -2,22 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { buildPageMetadata } from "@/app/seo";
-import SkillAssessmentForm from "@/components/portal/tools/SkillAssessmentForm";
-import AssessmentRetakeButton from "@/components/portal/AssessmentRetakeButton";
-import PageHeader from "@/components/portal/PageHeader";
-import { getUser } from "@/lib/auth/server";
-import { prisma } from "@/lib/db/prisma";
-import { getProgramBySlug } from "@/lib/content/programs";
-import { TOTAL_POINTS } from "@/lib/assessment/answer-key";
-import MobileBottomNav from "@/components/MobileBottomNav";
+import { buildPageMetadataAsync } from '@/app/seo';
+import SkillAssessmentForm from '@/components/portal/tools/SkillAssessmentForm';
+import AssessmentRetakeButton from '@/components/portal/AssessmentRetakeButton';
+import PageHeader from '@/components/portal/PageHeader';
+import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { TOTAL_POINTS } from '@/lib/assessment/answer-key';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: "Skills Assessment",
-  description:
-    "View your skills assessment status, saved skill snapshots, and next career steps.",
-  path: "/dashboard/skills-assessment",
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+  title: 'Training Preassessment',
+  description: 'View your Training Preassessment status, skill portfolio, and career readiness.',
+  path: '/dashboard/skills-assessment',
 });
+}
 
 type SavedSkillSnapshot = {
   id: string;

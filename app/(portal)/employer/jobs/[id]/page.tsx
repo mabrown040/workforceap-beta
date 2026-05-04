@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
@@ -17,7 +17,7 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const fallback = buildPageMetadata({ title: 'Edit Job', description: 'Edit job posting.', path: `/employer/jobs/${id}` });
+  const fallback = await buildPageMetadataAsync({ title: 'Edit Job', description: 'Edit job posting.', path: `/employer/jobs/${id}` });
   const user = await getUser();
   if (!user) return fallback;
   const ctx = await getEmployerForUser(user.id);
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { id, employerId: ctx.employerId },
     select: { title: true },
   });
-  return buildPageMetadata({
+  return buildPageMetadataAsync({
     title: job ? `Edit: ${job.title}` : 'Edit Job',
     description: 'Edit job posting.',
     path: `/employer/jobs/${id}`,

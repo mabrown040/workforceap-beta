@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import PageHero from '@/components/PageHero';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Terms of Service',
   description: 'Terms of Service for the Workforce Advancement Project member portal and training programs.',
   path: '/terms',
 });
+}
 
 export default function TermsPage() {
   return (

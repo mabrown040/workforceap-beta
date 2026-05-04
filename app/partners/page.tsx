@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
 import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldCheck } from 'lucide-react';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { getRequestLocale } from '@/lib/i18n/server';
+import { withLocalePrefix } from '@/lib/i18n/config';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Community & Employer Partners',
   description:
     'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
   path: '/partners',
 });
+}
 
 const PARTNER_TYPES = [
   {
@@ -87,7 +91,11 @@ const FAQ_ITEMS = [
   },
 ];
 
-export default function PartnersPage() {
+export default async function PartnersPage() {
+  const locale = await getRequestLocale();
+  const partnershipContactHref = `${withLocalePrefix('/contact', locale)}?topic=partnership`;
+  const employersMarketingHref = withLocalePrefix('/employers', locale);
+
   return (
     <div className="inner-page">
       {/* ── Hero ── */}
@@ -178,23 +186,41 @@ export default function PartnersPage() {
             Each partnership has a clear path and real outcomes.
           </p>
 
-          <Link
-            href="#partner-types"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'var(--color-accent)',
-              color: '#fff',
-              padding: '1rem 2rem',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 700,
-              textDecoration: 'none',
-            }}
-          >
-            Explore Partnership Types
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
-          </Link>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+            <Link
+              href={partnershipContactHref}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'var(--color-accent)',
+                color: '#fff',
+                padding: '1rem 2rem',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              Request partnership info
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
+            </Link>
+            <Link
+              href="#partner-types"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                color: 'rgba(255,255,255,0.9)',
+                padding: '0.75rem 1rem',
+                fontWeight: 600,
+                textDecoration: 'underline',
+                textUnderlineOffset: '4px',
+              }}
+            >
+              Browse partnership types
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -530,7 +556,7 @@ export default function PartnersPage() {
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
-                href="/contact?topic=partnership"
+                href={partnershipContactHref}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -543,11 +569,11 @@ export default function PartnersPage() {
                   textDecoration: 'none',
                 }}
               >
-                Become a Partner
+                Request partnership info
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
-                href="/employers"
+                href={employersMarketingHref}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -561,7 +587,7 @@ export default function PartnersPage() {
                   textDecoration: 'none',
                 }}
               >
-                Employer Solutions
+                I am hiring (employers)
               </Link>
             </div>
           </div>

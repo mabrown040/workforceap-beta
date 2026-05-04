@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -11,11 +11,13 @@ import ResourcesClient from './ResourcesClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
-export const metadata: Metadata = buildPageMetadata({
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
   title: 'Program Resources',
   description: 'AI career tools, external guides, and program-specific resources for your track.',
   path: '/dashboard/resources',
 });
+}
 
 const CATEGORY_LABELS: Record<string, string> = {
   'digital-literacy': 'Digital Literacy',

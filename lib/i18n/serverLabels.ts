@@ -58,6 +58,10 @@ const SERVER_LABELS_ES: Record<string, string> = {
   'Terms of Service': 'Términos de servicio',
   'Accessibility Statement': 'Declaración de accesibilidad',
   // Homepage labels
+  'Empowering People.': 'Empoderando Personas.',
+  'Advancing Futures.': 'Avanzando Hacia el Futuro.',
+  'Career Training & Industry Certificates': 'Capacitación Profesional y Certificaciones Industriales',
+  'Occupational and career training with grant- and partner-funded access for qualifying members — Digital Literacy, Tech, Data, AI, Healthcare, Manufacturing, and Skilled Trades. Apply today.': 'Capacitación profesional con acceso financiado por subvenciones y socios para miembros que califiquen — Alfabetización digital, Tecnología, Datos, IA, Salud, Manufactura y Oficios calificados. Solicita hoy.',
   'Browse Programs': 'Explorar programas',
   'Ready to apply? Start your application →': '¿Listo para aplicar? Comienza tu solicitud →',
   'Empowering People. Advancing Futures.': 'Empoderando personas. Avanzando hacia el futuro.',

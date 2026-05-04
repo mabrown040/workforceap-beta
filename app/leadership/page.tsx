@@ -11,12 +11,27 @@ import { getLocale } from '@/lib/i18n/serverLocale';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Board & Leadership',
-  description:
-    "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
-  path: '/leadership',
-});
+    title: 'Board & Leadership',
+    description:
+      "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
+    path: '/leadership',
+  });
 }
+
+export default async function LeadershipPage() {
+  const locale = await getLocale();
+  const t = makeServerT(locale);
+  let placementMetrics = {
+    placedCount: 0,
+    withRetentionNote: 0,
+    lastPlacedAt: null as Date | null,
+    asOfLabel: 'Outcomes data unavailable',
+  };
+  try {
+    placementMetrics = await getPlacementPublicMetrics(prisma);
+  } catch {
+    // keep defaults
+  }
 
   return (
     <div className="inner-page">

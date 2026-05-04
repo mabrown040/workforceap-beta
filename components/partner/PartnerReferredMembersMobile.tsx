@@ -86,12 +86,12 @@ export default function PartnerReferredMembersMobile({ rows }: { rows: PartnerMe
               No members yet
             </p>
             <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)' }}>
-              Share your referral link to start building your pipeline.
+              You haven't referred any members yet. Tap Invite Member above to start building your pipeline.
             </p>
           </div>
         ) : filtered.length === 0 ? (
           <p className="wa-text-sm" style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '1.5rem' }}>
-            No members in this filter.
+            No members match this filter. Try a different filter option.
           </p>
         ) : (
           filtered.map((row) => {

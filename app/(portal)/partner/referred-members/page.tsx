@@ -35,35 +35,33 @@ export default async function PartnerReferredMembersPage() {
         title="Referred Members"
         subtitle="Search and filter everyone your organization has referred to WorkforceAP."
         action={
-          <>
-            <div className="wa-block md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'stretch' }}>
-              <PartnerInviteMemberButton compact />
-              <a
-                href="/partner/exports"
-                className="active:scale-[0.98] wa-transition-all"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.375rem',
-                  padding: '0.5rem 0.875rem',
-                  background: 'var(--surface-container)',
-                  borderRadius: '0.625rem',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: 'var(--color-on-surface)',
-                  textDecoration: 'none',
-                  border: '1px solid var(--outline-variant)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">download</span>
-                Export CSV
-              </a>
-            </div>
-            <div className="wa-hidden md:wa-block">
-              <PartnerInviteMemberButton />
-            </div>
-          </>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <PartnerInviteMemberButton />
+            <a
+              href="/partner/exports"
+              className="active:scale-[0.98] wa-transition-all"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                padding: '0.5rem 0.875rem',
+                background: 'var(--surface-container)',
+                borderRadius: '0.625rem',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: 'var(--color-on-surface)',
+                textDecoration: 'none',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export CSV
+            </a>
+          </div>
         }
       />
       <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>

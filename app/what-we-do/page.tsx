@@ -1,10 +1,10 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
-import Image from 'next/image';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { prisma } from '@/lib/db/prisma';
+import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
@@ -59,6 +59,18 @@ const VALUES = [
 ];
 
 export default async function WhatWeDoPage() {
+  let placementMetrics = {
+    placedCount: 0,
+    withRetentionNote: 0,
+    lastPlacedAt: null as Date | null,
+    asOfLabel: 'Outcomes data unavailable',
+  };
+  try {
+    placementMetrics = await getPlacementPublicMetrics(prisma);
+  } catch {
+    // keep defaults
+  }
+
   let pipelineEmployers: { id: string; companyName: string; logoUrl: string | null; industry: string | null }[] = [];
   try {
     pipelineEmployers = await prisma.employer.findMany({
@@ -71,9 +83,10 @@ export default async function WhatWeDoPage() {
     // Column may not exist yet if migration hasn't been applied — section renders empty until then
   }
 
+
   return (
     <div className="inner-page">
-      {/* ── Hero ── */}
+      {/* ΓöÇΓöÇ Hero ΓöÇΓöÇ */}
       <section
         className="wwd-photo-hero"
         style={{
@@ -240,7 +253,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Legacy Section ── */}
+      {/* ΓöÇΓöÇ Legacy Section ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -320,14 +333,9 @@ export default async function WhatWeDoPage() {
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
-                Some programs may align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility
-                criteria — including low-income individuals, dislocated workers, adult learners, veterans, justice-involved
-                individuals, people with significant employment gaps, and those with limited or no formal work history.
-                If you&rsquo;re not sure whether you qualify, the{' '}
-                <Link href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                  WIOA screener
-                </Link>{' '}
-                takes about two minutes.
+                Some programs may align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility guidelines
+                criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking
+                career advancement.
               </p>
 
               <div
@@ -360,12 +368,15 @@ export default async function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-accent)',
                   }}
                 >
-                  <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    2,000+
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1.2 }}>
+                    {placementMetrics.placedCount}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Trained through workforce development programs (historical).
+                    Placements on file in WorkforceAP systems (n). {placementMetrics.asOfLabel}
                   </div>
+                  <p style={{ margin: '0.65rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
+                    Historical training reach through workforce partnerships remains 2,000+ — a separate figure from this portal placement counter.
+                  </p>
                 </div>
               </div>
             </div>
@@ -373,7 +384,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Making an impact — Bento Grid ── */}
+      {/* ΓöÇΓöÇ Making an impact — Bento Grid ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
@@ -461,294 +472,8 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Transparency Section — S0-2 ── */}
-      <section style={{ padding: '5rem 0', background: 'var(--surface-container-low)' }}>
-        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-on-surface)',
-                marginBottom: '0.75rem',
-              }}
-            >
-              What WorkforceAP provides —{' '}
-              <span style={{ color: 'var(--color-accent)' }}>and what we don&rsquo;t promise</span>
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', maxWidth: '38rem', margin: '0 auto', lineHeight: 1.65 }}>
-              Programs that overpromise set you up to fail. We&rsquo;d rather be honest about what we do and let member outcomes speak for themselves.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', maxWidth: '56rem', margin: '0 auto' }} className="wwd-transparency-grid">
-            {/* What we provide */}
-            <div
-              style={{
-                padding: '2rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                borderTop: '3px solid var(--color-accent)',
-              }}
-            >
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                What we provide
-              </h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-                {[
-                  'Grant- and partner-funded access to training and certificates — no cost to qualifying members',
-                  'An assigned counselor who works with you through the full journey',
-                  'AI-powered tools: resume help, elevator pitch, interview practice, skills assessment, and readiness planning',
-                  'A job board with openings from employers actively hiring WorkforceAP graduates',
-                  '150 days of post-placement support after you land a job',
-                ].map((item) => (
-                  <li key={item} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem', flexShrink: 0, marginTop: '0.05rem' }} aria-hidden="true">check_circle</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* What we don't promise */}
-            <div
-              style={{
-                padding: '2rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                borderTop: '3px solid var(--color-on-surface-variant)',
-              }}
-            >
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                What we can&rsquo;t promise
-              </h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-                {[
-                  'Guaranteed employment or a specific income level — outcomes depend on market conditions, employer decisions, and your own effort',
-                  'Guaranteed enrollment in any specific program or cohort — some tracks have eligibility and capacity requirements',
-                  'A fixed timeline — most members complete core training in 4–8 weeks, but we work at your pace with no deadline',
-                ].map((item) => (
-                  <li key={item} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', flexShrink: 0, marginTop: '0.05rem' }} aria-hidden="true">remove_circle</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <p style={{ marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, fontStyle: 'italic', borderTop: '1px solid var(--surface-container-high)', paddingTop: '1rem' }}>
-                Employment depends on many factors outside our control. We&rsquo;ll work with you every step of the way — but the job offer comes from an employer.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── S0-4: How WAP is different — UTM differentiation ── */}
-      <section style={{ padding: '5rem 0' }}>
-        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-on-surface)',
-                marginBottom: '0.75rem',
-              }}
-            >
-              How WorkforceAP is{' '}
-              <span style={{ color: 'var(--color-accent)' }}>different</span>
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', maxWidth: '40rem', margin: '0 auto', lineHeight: 1.65 }}>
-              There are programs that train people. WorkforceAP connects training to real employment — and stays with you through it.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
-            {[
-              {
-                icon: 'handshake',
-                title: 'Employer-connected, not just employer-aligned',
-                body: 'Most programs teach skills and hope employers notice. WorkforceAP is built with employer hiring needs as the starting point — and connects members directly to active hiring pipelines.',
-              },
-              {
-                icon: 'person_pin',
-                title: 'A counselor, not a chatbot',
-                body: 'Every member gets a human counselor assigned at enrollment. Not a help desk. Not a ticket queue. A person who knows your situation and follows up with you.',
-              },
-              {
-                icon: 'timeline',
-                title: 'Outcomes after placement, not just at placement',
-                body: 'We track member outcomes for 150 days post-placement. If something goes wrong after you land the job, we\'re still here.',
-              },
-              {
-                icon: 'verified_user',
-                title: 'Funded for people who actually need it',
-                body: 'Grant and partner funding covers access for qualifying members — including individuals with employment barriers, justice-involved backgrounds, and limited work history. The system is built for people who have been locked out, not people who just want upskilling.',
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="portal-card portal-card--flat"
-                style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
-              >
-                <div style={{
-                  width: '2.75rem',
-                  height: '2.75rem',
-                  borderRadius: '0.75rem',
-                  background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.375rem' }} aria-hidden="true">{item.icon}</span>
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', letterSpacing: '-0.01em', lineHeight: 1.35 }}>
-                    {item.title}
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
-                    {item.body}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Employers in our network ── */}
-      {pipelineEmployers.length > 0 && (
-        <section style={{ padding: '5rem 0', background: 'var(--surface-container-low)' }}>
-          <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-              <h2
-                style={{
-                  fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--color-on-surface)',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                Employers in our{' '}
-                <span style={{ color: 'var(--color-accent)' }}>network</span>
-              </h2>
-              <p
-                style={{
-                  color: 'var(--color-on-surface-variant)',
-                  fontSize: '1rem',
-                  maxWidth: '38rem',
-                  margin: '0 auto',
-                  lineHeight: 1.65,
-                }}
-              >
-                WorkforceAP connects certified members to employers actively hiring from our pipeline.
-              </p>
-            </div>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '1rem',
-              }}
-            >
-              {pipelineEmployers.map((employer) => {
-                const initials = (employer.companyName ?? '?')
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase();
-                return (
-                  <div
-                    key={employer.id}
-                    className="portal-card portal-card--flat"
-                    style={{
-                      padding: '1.5rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '0.875rem',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {employer.logoUrl ? (
-                      <div style={{ width: '4rem', height: '4rem', borderRadius: 'var(--radius-lg)', overflow: 'hidden', flexShrink: 0 }}>
-                        <Image
-                          src={employer.logoUrl}
-                          alt={`${employer.companyName} logo`}
-                          width={64}
-                          height={64}
-                          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          width: '4rem',
-                          height: '4rem',
-                          borderRadius: 'var(--radius-lg)',
-                          background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#fff',
-                          fontWeight: 700,
-                          fontSize: '1.25rem',
-                          flexShrink: 0,
-                        }}
-                        aria-hidden="true"
-                      >
-                        {initials}
-                      </div>
-                    )}
-                    <div>
-                      <p
-                        style={{
-                          fontWeight: 700,
-                          fontSize: '0.9375rem',
-                          color: 'var(--color-on-surface)',
-                          margin: 0,
-                          lineHeight: 1.3,
-                        }}
-                      >
-                        {employer.companyName}
-                      </p>
-                      {employer.industry && (
-                        <p
-                          style={{
-                            fontSize: '0.8125rem',
-                            color: 'var(--color-on-surface-variant)',
-                            margin: '0.25rem 0 0',
-                          }}
-                        >
-                          {employer.industry}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)' }}>
-              Are you an employer?{' '}
-              <Link
-                href="/partner"
-                style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
-              >
-                Partner with us →
-              </Link>
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* ── Values Section ── */}
-      <section style={{ padding: '6rem 0', background: 'var(--surface-container)' }}>
+      {/* ΓöÇΓöÇ Values Section ΓöÇΓöÇ */}
+      <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <h2
@@ -831,7 +556,7 @@ export default async function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* ΓöÇΓöÇ CTA ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -941,7 +666,6 @@ export default async function WhatWeDoPage() {
         }
         @media (max-width: 767px) {
           .wwd-legacy-portrait { max-width: 100%; }
-          .wwd-transparency-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 

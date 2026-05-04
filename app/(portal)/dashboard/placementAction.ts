@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db/prisma';
+import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 import { getUser } from '@/lib/auth/server';
 import { revalidatePath } from 'next/cache';
 import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';

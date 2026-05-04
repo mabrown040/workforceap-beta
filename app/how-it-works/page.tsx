@@ -8,6 +8,7 @@ import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'How It Works',
@@ -312,6 +313,12 @@ export default async function HowItWorksPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="content-section" style={{ padding: '2rem 1rem 1rem' }}>
+        <div className="container" style={{ maxWidth: 760 }}>
+          <ProgramCommitmentPanel />
         </div>
       </section>
 

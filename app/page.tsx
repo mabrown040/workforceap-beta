@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { prisma } from '@/lib/db/prisma';
+import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -120,6 +122,18 @@ export default async function HomePage() {
         )
         .slice(0, 4);
   const programCount = activePrograms.length > 0 ? activePrograms.length : WORKFORCEAP_PROGRAM_CATALOG_SIZE;
+
+  let placementMetrics = {
+    placedCount: 0,
+    withRetentionNote: 0,
+    lastPlacedAt: null as Date | null,
+    asOfLabel: '',
+  };
+  try {
+    placementMetrics = await getPlacementPublicMetrics(prisma);
+  } catch (e) {
+    console.error('[homepage] placement metrics failed', e);
+  }
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
@@ -408,7 +422,7 @@ export default async function HomePage() {
               Employer-Aligned Training. Career Support Throughout the Journey.
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '680px' }}>
-              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience. We combine employer-aligned training, AI workforce readiness and soft-skill support, occupational training, and career guidance in a model built to work and scale — with no cost to qualifying members.
+              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a Vision given and a reoccurring Dream given to Michael Brown for years. WorkforceAP combines employer-aligned training, AI workforce readiness and soft-skill support, occupational training, and career guidance in a model built to work and scale — with no cost to qualifying members.
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '680px' }}>
               Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we support members with resume help, interview prep, job-search guidance, and career support from first step to placement.
@@ -423,8 +437,11 @@ export default async function HomePage() {
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trained historically</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>{placementMetrics.placedCount}</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Placements tracked (portal)</span>
+              <span style={{ fontSize: '0.68rem', color: 'var(--color-on-surface-variant)', marginTop: '0.45rem', lineHeight: 1.45, maxWidth: '14rem' }}>
+                n={placementMetrics.placedCount}. {placementMetrics.asOfLabel} Historical training reach remains 2,000+ through partner programs nationwide — a different count than this portal placement file.
+              </span>
             </div>
             <div className="portal-card portal-card--flat" style={{
               background: 'var(--surface-container-high)', padding: '1.5rem',

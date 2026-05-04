@@ -39,8 +39,24 @@ export async function GET(request: NextRequest) {
   ];
 
   const outcomesHeaders = [...baseHeaders, 'Placed employer', 'Job title', 'Placed date'];
+  const demographicsHeaders = [
+    ...baseHeaders,
+    'City',
+    'State',
+    'ZIP',
+    'Ethnicity',
+    'Veteran status',
+    'Employment status',
+    'Education level',
+    'Placed employer',
+    'Job title',
+    'Placed date',
+    'Onboarding window end',
+    'Retention decision',
+  ];
 
-  const headers = preset === 'outcomes' ? outcomesHeaders : baseHeaders;
+  const headers =
+    preset === 'outcomes' ? outcomesHeaders : preset === 'demographics' ? demographicsHeaders : baseHeaders;
 
   const lines = [
     headers.join(','),
@@ -63,13 +79,33 @@ export async function GET(request: NextRequest) {
           pr?.placedAt ? csvEscape(pr.placedAt.toISOString()) : ''
         );
       }
+      if (preset === 'demographics') {
+        const prof = p.member.profile;
+        base.push(
+          csvEscape(prof?.city ?? ''),
+          csvEscape(prof?.state ?? ''),
+          csvEscape(prof?.zip ?? ''),
+          csvEscape(prof?.ethnicity ?? ''),
+          csvEscape(prof?.veteranStatus ?? ''),
+          csvEscape(prof?.employmentStatus ?? ''),
+          csvEscape(prof?.educationLevel ?? ''),
+          csvEscape(pr?.employerName ?? ''),
+          csvEscape(pr?.jobTitle ?? ''),
+          pr?.placedAt ? csvEscape(pr.placedAt.toISOString()) : '',
+          pr?.onboardingWindowEnd ? csvEscape(pr.onboardingWindowEnd.toISOString()) : '',
+          csvEscape(pr?.retentionDecision ?? '')
+        );
+      }
       return base.join(',');
     }),
   ];
 
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const brandingLines = [
-    `# ${ctx.partner.name} — ${preset === 'outcomes' ? 'Outcomes' : 'Referrals'} Export`,
+    `# Workforce Advancement Project — Partner ${
+      preset === 'outcomes' ? 'Outcomes' : preset === 'demographics' ? 'Demographics' : 'Referrals'
+    } Export`,
+    `# Partner: ${ctx.partner.name}`,
   ];
   if (ctx.partner.logoUrl) brandingLines.push(`# Logo: ${ctx.partner.logoUrl}`);
   brandingLines.push(
@@ -79,7 +115,7 @@ export async function GET(request: NextRequest) {
   );
   const brandingHeader = brandingLines.join('\r\n');
   const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
-  const suffix = preset === 'outcomes' ? 'outcomes' : 'referrals';
+  const suffix = preset === 'outcomes' ? 'outcomes' : preset === 'demographics' ? 'demographics' : 'referrals';
 
   return new NextResponse(csv, {
     status: 200,

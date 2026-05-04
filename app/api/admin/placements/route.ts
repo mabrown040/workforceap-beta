@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { trackEvent } from '@/lib/events/track';
+import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 
 const placementSchema = z.object({
   userId: z.string().uuid(),
@@ -45,6 +46,10 @@ export async function POST(request: NextRequest) {
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const prior = await prisma.placementRecord.findUnique({ where: { userId } });
+  const now = new Date();
+  const windowEndForCreate = defaultOnboardingWindowEnd(now);
+  const windowEndForUpdate =
+    prior && !prior.onboardingWindowEnd ? defaultOnboardingWindowEnd(prior.placedAt) : undefined;
 
   const placement = await prisma.placementRecord.upsert({
     where: { userId },
@@ -56,6 +61,7 @@ export async function POST(request: NextRequest) {
       salaryOffered: salaryOffered ?? null,
       placedBy: user.id,
       notes: notes ?? null,
+      onboardingWindowEnd: windowEndForCreate,
     },
     update: {
       employerName,
@@ -63,6 +69,7 @@ export async function POST(request: NextRequest) {
       startDate: startDate ? new Date(startDate) : null,
       salaryOffered: salaryOffered ?? null,
       notes: notes ?? null,
+      ...(windowEndForUpdate ? { onboardingWindowEnd: windowEndForUpdate } : {}),
     },
   });
 

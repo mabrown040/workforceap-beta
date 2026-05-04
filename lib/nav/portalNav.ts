@@ -105,6 +105,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard', label: 'Home', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
   { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  {
+    href: '/dashboard/program/start',
+    label: 'Path to certification',
+    group: 'insights',
+    tab: 'program',
+    Icon: GitBranch,
+  },
   { href: '/dashboard/training', label: 'My Classes', group: 'primary', tab: 'program', Icon: GraduationCap },
   { href: '/dashboard/certifications', label: 'My Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
   { href: '/dashboard/career-brief', label: 'My Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
@@ -321,6 +328,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/assessments', label: 'Assessments', group: 'pipeline', Icon: ClipboardCheck },
   { href: '/admin/wioa-screening', label: 'Funding eligibility', group: 'pipeline', Icon: ClipboardList },
   { href: '/admin/career-mappings', label: 'Career paths', group: 'pipeline', Icon: Target },
+  { href: '/admin/employer-screening-packs', label: 'Employer screening', group: 'pipeline', Icon: ListChecks },
   { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
 
   // ── Workflows — admin-as-counselor force multiplier ──
@@ -338,6 +346,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── Insights — metrics and reporting ──
   { href: '/admin/board', label: 'Board outcomes', group: 'insights', Icon: TrendingUp },
+  { href: '/admin/outcomes', label: 'Placement outcomes', group: 'insights', Icon: LineChart },
   { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
   { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },

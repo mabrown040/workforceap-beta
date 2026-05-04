@@ -5,6 +5,8 @@ import { JobApplication } from '@prisma/client';
 import JobApplicationForm from './JobApplicationForm';
 import JobApplicationKanban from './JobApplicationKanban';
 import PortalEmptyState from './PortalEmptyState';
+import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
+import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
 
 interface JobApplicationsTrackerProps {
   userId: string;
@@ -15,6 +17,10 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feedbackPrompt, setFeedbackPrompt] = useState<{
+    jobApplicationId: string;
+    recentTools: RecentToolOption[];
+  } | null>(null);
 
   // Fetch applications
   useEffect(() => {
@@ -46,10 +52,19 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
       if (!res.ok) throw new Error("We couldn't add this application. Try again in a moment.");
       
-      const newApp = await res.json();
+      const payload = await res.json();
+      const newApp = (payload.application ?? payload) as JobApplication;
       setApplications([newApp, ...applications]);
       setIsModalOpen(false);
       setError(null);
+      if (payload.promptAiFeedback && payload.recentTools?.length && newApp.id) {
+        setFeedbackPrompt({
+          jobApplicationId: newApp.id,
+          recentTools: payload.recentTools as RecentToolOption[],
+        });
+      } else {
+        setFeedbackPrompt(null);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "We couldn't add this application. Try again in a moment.");
     }
@@ -90,6 +105,15 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
           {error}
         </div>
       )}
+
+      {feedbackPrompt ? (
+        <ApplicationAiFeedbackPrompt
+          jobApplicationId={feedbackPrompt.jobApplicationId}
+          recentTools={feedbackPrompt.recentTools}
+          onDone={() => setFeedbackPrompt(null)}
+          onSkip={() => setFeedbackPrompt(null)}
+        />
+      ) : null}
 
       {/* Header with Button */}
       <div className="wa-mb-6 wa-flex wa-justify-between wa-items-center">

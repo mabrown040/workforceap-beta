@@ -31,7 +31,21 @@ export default async function ProgramPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, enrolledAt: true, coursesCompleted: true },
+    select: {
+      enrolledProgram: true,
+      enrolledAt: true,
+      coursesCompleted: true,
+      workspaceEmail: true,
+      workspaceEmailProvisioned: true,
+      courseEnrollment: {
+        select: {
+          id: true,
+          workspaceEmail: true,
+          workspaceEmailProvisioned: true,
+          enrolledAt: true,
+        },
+      },
+    },
   });
 
   const enrolledSlug = dbUser?.enrolledProgram ?? null;
@@ -71,6 +85,29 @@ export default async function ProgramPage() {
         />
 
         <PortalCard>
+          <div style={{ marginBottom: '1rem', padding: '0.9rem 1rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)' }}>
+            <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              Coursera & training email
+            </p>
+            <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', lineHeight: 1.55 }}>
+              {dbUser?.courseEnrollment?.workspaceEmailProvisioned || dbUser?.workspaceEmailProvisioned
+                ? 'Your WorkforceAP training seat is on file. Use the training email below when opening Coursera links so progress syncs.'
+                : 'Staff still provisions Coursera under your assigned WorkforceAP workspace email when your seat is ready — watch Counselor Chat for the exact address.'}
+            </p>
+            {(dbUser?.courseEnrollment?.workspaceEmail || dbUser?.workspaceEmail) && (
+              <p style={{ margin: '0.5rem 0 0', fontWeight: 700, wordBreak: 'break-all' }}>
+                {dbUser?.courseEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail}
+              </p>
+            )}
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <Link href="/dashboard/program/start" className="btn btn-outline btn-small">
+                Path to certification
+              </Link>
+              <Link href="/dashboard/coursera" className="btn btn-primary btn-small">
+                Open Coursera hub
+              </Link>
+            </div>
+          </div>
           <div className="dashboard-program-detail" style={{ borderLeft: `4px solid ${program.borderColor}` }}>
             <div className="dashboard-program-detail-header">
               <span className="dashboard-program-detail-icon">

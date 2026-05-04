@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 
 const bodySchema = z.object({
   employerName: z.string().min(1).max(300).trim(),
@@ -64,6 +65,7 @@ export async function POST(request: NextRequest, { params }: Props) {
   const programSlug = d.programSlug?.trim() || member.enrolledProgram || null;
 
   const prior = await prisma.placementRecord.findUnique({ where: { userId: memberId } });
+  const windowEnd = defaultOnboardingWindowEnd(placedAt);
 
   // Write to canonical PlacementRecord (includes WIOA fields)
   const placement = await prisma.placementRecord.upsert({
@@ -82,6 +84,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       startDateVerified: d.startDateVerified ?? false,
       fundingSource: d.fundingSource?.trim() || null,
       grantReportingNotes: d.grantReportingNotes?.trim() || null,
+      onboardingWindowEnd: windowEnd,
     },
     update: {
       employerName: d.employerName,
@@ -95,6 +98,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       startDateVerified: d.startDateVerified ?? false,
       fundingSource: d.fundingSource?.trim() || null,
       grantReportingNotes: d.grantReportingNotes?.trim() || null,
+      onboardingWindowEnd: windowEnd,
     },
   });
 

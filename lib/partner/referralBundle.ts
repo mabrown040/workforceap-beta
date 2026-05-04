@@ -14,7 +14,25 @@ const referralMemberSelect = {
   deletedAt: true,
   assessmentCompleted: true,
   placementRecord: {
-    select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
+    select: {
+      employerName: true,
+      jobTitle: true,
+      salaryOffered: true,
+      placedAt: true,
+      onboardingWindowEnd: true,
+      retentionDecision: true,
+    },
+  },
+  profile: {
+    select: {
+      city: true,
+      state: true,
+      zip: true,
+      ethnicity: true,
+      veteranStatus: true,
+      employmentStatus: true,
+      educationLevel: true,
+    },
   },
   userCertifications: { select: { certName: true, earnedAt: true } },
   applications: { select: { status: true, submittedAt: true } },
@@ -34,6 +52,17 @@ export type ReferralMember = {
     jobTitle: string;
     salaryOffered: number | null;
     placedAt: Date | null;
+    onboardingWindowEnd: Date | null;
+    retentionDecision: string | null;
+  } | null;
+  profile: {
+    city: string | null;
+    state: string | null;
+    zip: string | null;
+    ethnicity: string | null;
+    veteranStatus: string | null;
+    employmentStatus: string | null;
+    educationLevel: string | null;
   } | null;
   userCertifications: { certName: string; earnedAt: Date | null }[];
   applications: { status: string; submittedAt: Date | null }[];

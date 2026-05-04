@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 import ShareButtons from '@/components/apply/ShareButtons';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 
 export const metadata = buildPageMetadata({
   title: 'Application Received',
@@ -133,6 +134,10 @@ export default function ApplyConfirmationPage() {
                 ))}
               </div>
             </section>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <ProgramCommitmentPanel variant="compact" />
+            </div>
 
             <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--surface-container)', borderRadius: '0.875rem', padding: '1.25rem' }}>

@@ -99,6 +99,20 @@ export const CRON_REGISTRY: CronDef[] = [
     workflowKey: 'cron_partner_digest',
   },
   {
+    id: 'interview-reminders',
+    name: 'Interview prep + debrief emails',
+    description:
+      'Sends a prep reminder ~24h before nextInterviewDate on the application tracker, and a short debrief prompt ~24h after.',
+    schedule: '30 14 * * *',
+    scheduleLabel: 'Daily 2:30 PM UTC',
+    apiPath: '/api/cron/interview-reminders',
+    method: 'GET',
+    icon: 'event',
+    category: 'member',
+    audienceDescription: 'Members with interview dates on job applications',
+    workflowKey: 'cron_interview_reminders',
+  },
+  {
     id: 'milestone-celebration',
     name: 'Milestone Celebration',
     description: 'Sends celebration emails for newly completed programs.',

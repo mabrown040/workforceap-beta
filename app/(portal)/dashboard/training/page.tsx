@@ -9,6 +9,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
+import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'My Training',
@@ -205,6 +206,10 @@ export default async function TrainingPage() {
               Job Readiness
             </a>
           </div>
+        </div>
+
+        <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
+          <CourseraProgressCard userId={user.id} />
         </div>
 
         <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>

@@ -60,10 +60,16 @@ export async function POST(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  const result = await provider.provision({
-    user: member,
-    requestedLocalPart: parsed.data.requestedLocalPart,
-  });
+  let result;
+  try {
+    result = await provider.provision({
+      user: member,
+      requestedLocalPart: parsed.data.requestedLocalPart,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Provisioning failed';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 
   if (!result.success) {
     return NextResponse.json(
@@ -116,7 +122,13 @@ export async function DELETE(_request: NextRequest, { params }: Props) {
   }
 
   const previousEmail = member.workspaceEmail;
-  const result = await provider.revoke({ user: member });
+  let result;
+  try {
+    result = await provider.revoke({ user: member });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Revoke failed';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
   if (!result.success) {
     return NextResponse.json(
       { error: result.error ?? 'Revoke failed' },

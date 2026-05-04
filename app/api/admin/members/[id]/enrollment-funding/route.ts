@@ -23,7 +23,11 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
-    select: { id: true },
+    select: {
+      id: true,
+      workspaceEmail: true,
+      workspaceEmailProvisioned: true,
+    },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
@@ -46,26 +50,38 @@ export async function POST(request: NextRequest, { params }: Props) {
     where: { userId: memberId },
   });
 
+  const workspaceLocked = member.workspaceEmailProvisioned;
+  const enrollmentWorkspace = workspaceLocked
+    ? {
+        workspaceEmail: member.workspaceEmail,
+        workspaceEmailProvisioned: true,
+      }
+    : {
+        workspaceEmail: d.workspaceEmail ?? null,
+        workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false,
+      };
+
   if (enrollment) {
     await prisma.courseEnrollment.update({
       where: { userId: memberId },
       data: {
         fundingSource: d.fundingSource ?? null,
         fundingNotes: d.fundingNotes ?? null,
+        ...enrollmentWorkspace,
+      },
+    });
+  }
+
+  // Sync workspaceEmail + provisioned flag to User (body is ignored when provisioned via workspace-email flow)
+  if (!workspaceLocked) {
+    await prisma.user.update({
+      where: { id: memberId },
+      data: {
         workspaceEmail: d.workspaceEmail ?? null,
         workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false,
       },
     });
   }
-
-  // Always sync workspaceEmail + provisioned flag to User
-  await prisma.user.update({
-    where: { id: memberId },
-    data: {
-      workspaceEmail: d.workspaceEmail ?? null,
-      workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false,
-    },
-  });
 
   return NextResponse.json({ ok: true });
 }

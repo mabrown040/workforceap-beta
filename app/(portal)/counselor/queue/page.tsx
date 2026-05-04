@@ -22,7 +22,13 @@ export default async function CounselorWorkQueuePage() {
   const admin = await isAdmin(user.id);
   if (!counselor && !admin) redirect('/dashboard');
 
-  const rows = await getCounselorWorkQueue(user.id, { isAdmin: admin });
+  let rows: Awaited<ReturnType<typeof getCounselorWorkQueue>>;
+  try {
+    rows = await getCounselorWorkQueue(user.id, { isAdmin: admin });
+  } catch (err) {
+    console.error('[counselor/queue] getCounselorWorkQueue failed:', err);
+    rows = [];
+  }
 
   return (
     <PortalPageFrame>

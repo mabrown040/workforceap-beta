@@ -1,0 +1,242 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+
+type UnresolvedRow = { email: string; name: string; courseId: string; course: string };
+
+type ImportResult = {
+  ok: true;
+  filename: string | null;
+  parsed: number;
+  inserted: number;
+  updated: number;
+  resolvedToUsers: number;
+  unresolved: number;
+  errors: string[];
+  unresolvedRows: UnresolvedRow[];
+};
+
+const cardStyle: React.CSSProperties = {
+  background: 'var(--surface-container-lowest)',
+  border: '1px solid var(--outline-variant)',
+  borderRadius: '1rem',
+  padding: '1rem',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: '0.75rem',
+  fontWeight: 700,
+  color: 'var(--color-on-surface-variant)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.06em',
+  marginBottom: '0.375rem',
+};
+
+const buttonPrimaryStyle: React.CSSProperties = {
+  padding: '0.7rem 1.1rem',
+  borderRadius: '0.65rem',
+  border: 'none',
+  background: 'var(--color-primary)',
+  color: 'var(--color-on-primary)',
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontSize: '0.95rem',
+};
+
+function downloadUnresolvedCsv(rows: UnresolvedRow[]) {
+  const header = 'email,name,course_id,course\n';
+  const escape = (v: string) => `"${(v ?? '').replace(/"/g, '""')}"`;
+  const body = rows
+    .map((r) => `${escape(r.email)},${escape(r.name)},${escape(r.courseId)},${escape(r.course)}`)
+    .join('\n');
+  const blob = new Blob([header + body + '\n'], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `coursera-unresolved-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export default function CourseraCsvImportClient() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [file, setFile] = useState<File | null>(null);
+  const [result, setResult] = useState<ImportResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setResult(null);
+
+    if (!file) {
+      setError('Choose a CSV file to upload.');
+      return;
+    }
+
+    const form = new FormData();
+    form.append('csv', file);
+
+    startTransition(async () => {
+      try {
+        const response = await fetch('/api/admin/coursera/csv-import', {
+          method: 'POST',
+          credentials: 'include',
+          body: form,
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          setError(payload?.error || `Import failed (HTTP ${response.status}).`);
+          return;
+        }
+        setResult(payload as ImportResult);
+        router.refresh();
+      } catch {
+        setError('Network error while uploading CSV.');
+      }
+    });
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: '1.25rem' }}>
+      <section style={cardStyle}>
+        <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Upload Coursera CourseActivity CSV</h2>
+        <p style={{ marginTop: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
+          Drop the <code>CourseActivity workforce-advancement - CourseraEnterpriseExport ... .csv</code>{' '}
+          file from the latest Coursera enterprise export. Other tabs in the same ZIP (ProgramActivity,
+          LearningPathActivity, etc.) are not used by this importer.
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}
+        >
+          <div>
+            <label htmlFor="coursera-csv-file" style={labelStyle}>
+              CSV file
+            </label>
+            <input
+              id="coursera-csv-file"
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              style={{ display: 'block' }}
+              disabled={isPending}
+            />
+            <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              Max 5 MB. Idempotent on (email, course id) — re-uploads update existing rows.
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button type="submit" style={buttonPrimaryStyle} disabled={isPending || !file}>
+              {isPending ? 'Importing…' : 'Import CSV'}
+            </button>
+            {file ? (
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                {file.name} ({Math.round(file.size / 1024)} KB)
+              </span>
+            ) : null}
+          </div>
+        </form>
+
+        {error ? (
+          <div
+            style={{
+              marginTop: '1rem',
+              padding: '0.75rem 1rem',
+              borderRadius: '0.65rem',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: 'rgb(239, 68, 68)',
+              background: 'rgba(239, 68, 68, 0.08)',
+              fontSize: '0.95rem',
+            }}
+          >
+            {error}
+          </div>
+        ) : null}
+      </section>
+
+      {result ? (
+        <section style={cardStyle}>
+          <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Import result</h2>
+          <p style={{ marginTop: '0.4rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            {result.filename ? <>From <code>{result.filename}</code>.</> : null} Parsed {result.parsed} row(s).
+          </p>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: '0.75rem',
+              marginTop: '1rem',
+            }}
+          >
+            <Stat label="Inserted" value={result.inserted} />
+            <Stat label="Updated" value={result.updated} />
+            <Stat label="Resolved to users" value={result.resolvedToUsers} />
+            <Stat label="Unresolved" value={result.unresolved} />
+          </div>
+
+          {result.unresolved > 0 ? (
+            <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem' }}>
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                {result.unresolved} learner row(s) could not be matched to a WAP user. Map them manually
+                from the <a href="/admin/coursera">Coursera identity mapping</a> page.
+              </span>
+              <button
+                type="button"
+                onClick={() => downloadUnresolvedCsv(result.unresolvedRows)}
+                style={{
+                  ...buttonPrimaryStyle,
+                  background: 'var(--surface-container)',
+                  color: 'var(--color-on-surface)',
+                  border: '1px solid var(--outline-variant)',
+                  width: 'fit-content',
+                }}
+              >
+                Download unresolved rows (CSV)
+              </button>
+            </div>
+          ) : null}
+
+          {result.errors.length > 0 ? (
+            <details style={{ marginTop: '1rem' }}>
+              <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+                {result.errors.length} error(s) during ingest
+              </summary>
+              <ul style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                {result.errors.slice(0, 50).map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div
+      style={{
+        background: 'var(--surface-container)',
+        borderRadius: '0.65rem',
+        padding: '0.75rem 0.9rem',
+        border: '1px solid var(--outline-variant)',
+      }}
+    >
+      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', fontWeight: 700 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '0.25rem' }}>{value}</div>
+    </div>
+  );
+}

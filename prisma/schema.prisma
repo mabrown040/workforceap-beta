@@ -154,6 +154,8 @@ model User {
   pointsTransactions PointsTransaction[]
   pointsAwarded      PointsTransaction[] @relation("PointsAwarder")
 
+  courseraCourseProgress CourseraCourseProgress[]
+
   @@index([organizationId])
   @@index([wioaReviewStatus])
   @@index([enrolledProgram])
@@ -1732,4 +1734,47 @@ model PointsTransaction {
   @@index([userId])
   @@index([createdAt])
   @@map("points_transactions")
+}
+
+// --- Coursera CSV / xAPI ingestion ---
+
+/// Per-learner-per-course progress imported from the Coursera "Learner activity & progress"
+/// CSV report (CourseActivity tab). Used as a backfill + ongoing-redundancy path alongside
+/// the realtime xAPI bridge. Idempotent on (externalEmail, courseraCourseId).
+model CourseraCourseProgress {
+  id                   String    @id @default(uuid())
+  userId               String?   @map("user_id")
+  externalEmail        String    @map("external_email")
+  externalName         String?   @map("external_name")
+  courseraCourseId     String    @map("coursera_course_id")
+  courseraCourseSlug   String?   @map("coursera_course_slug")
+  courseName           String    @map("course_name")
+  university           String?   @map("university")
+  collectionName       String?   @map("collection_name")
+  collectionId         String?   @map("collection_id")
+  programSlug          String    @map("program_slug")
+  programName          String?   @map("program_name")
+  enrollmentTime       DateTime? @map("enrollment_time")
+  classStartTime       DateTime? @map("class_start_time")
+  classEndTime         DateTime? @map("class_end_time")
+  lastActivityTime     DateTime? @map("last_activity_time")
+  completionTime       DateTime? @map("completion_time")
+  overallProgress      Decimal   @map("overall_progress") @db.Decimal(5, 2)
+  learningHours        Decimal   @map("learning_hours") @db.Decimal(8, 2)
+  isCompleted          Boolean   @default(false) @map("is_completed")
+  isRemovedFromProgram Boolean   @default(false) @map("is_removed_from_program")
+  courseGrade          String?   @map("course_grade")
+  certificateUrl       String?   @map("certificate_url")
+  contractName         String?   @map("contract_name")
+  contractActive       Boolean?  @map("contract_active")
+  source               String    @default("csv_import") @map("source")
+  lastSyncedAt         DateTime  @default(now()) @updatedAt @map("last_synced_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([externalEmail, courseraCourseId])
+  @@index([userId])
+  @@index([programSlug])
+  @@index([courseraCourseId])
+  @@map("coursera_course_progress")
 }

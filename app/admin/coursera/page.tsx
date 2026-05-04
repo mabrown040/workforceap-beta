@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
@@ -9,6 +10,88 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { listCourseraIdentityMappings, listRecentUnmatchedXapiEvents } from '@/lib/xapi/mappings';
+
+type CourseProgressSummary = {
+  totalRows: number;
+  latestSyncedAt: Date | null;
+  topLearners: Array<{
+    id: string;
+    externalEmail: string;
+    externalName: string | null;
+    courseName: string;
+    courseraCourseId: string;
+    overallProgress: number;
+    learningHours: number;
+    isCompleted: boolean;
+    lastActivityTime: Date | null;
+    user: { fullName: string; email: string } | null;
+  }>;
+};
+
+async function loadCourseProgressSummary(): Promise<CourseProgressSummary | null> {
+  try {
+    const summaryRows = await prisma.$queryRaw<Array<{ total: bigint | number; latest: Date | null }>>`
+      SELECT COUNT(*)::bigint AS total, MAX(last_synced_at) AS latest FROM coursera_course_progress
+    `;
+    const top = await prisma.$queryRaw<Array<{
+      id: string;
+      externalEmail: string;
+      externalName: string | null;
+      courseName: string;
+      courseraCourseId: string;
+      overallProgress: string | number;
+      learningHours: string | number;
+      isCompleted: boolean;
+      lastActivityTime: Date | null;
+      userFullName: string | null;
+      userEmail: string | null;
+    }>>`
+      SELECT
+        ccp.id,
+        ccp.external_email AS "externalEmail",
+        ccp.external_name AS "externalName",
+        ccp.course_name AS "courseName",
+        ccp.coursera_course_id AS "courseraCourseId",
+        ccp.overall_progress AS "overallProgress",
+        ccp.learning_hours AS "learningHours",
+        ccp.is_completed AS "isCompleted",
+        ccp.last_activity_time AS "lastActivityTime",
+        u.full_name AS "userFullName",
+        u.email AS "userEmail"
+      FROM coursera_course_progress ccp
+      LEFT JOIN users u ON u.id = ccp.user_id
+      ORDER BY ccp.overall_progress DESC, ccp.last_activity_time DESC NULLS LAST
+      LIMIT 10
+    `;
+
+    return {
+      totalRows: Number(summaryRows[0]?.total ?? 0),
+      latestSyncedAt: summaryRows[0]?.latest ?? null,
+      topLearners: top.map((row) => ({
+        id: row.id,
+        externalEmail: row.externalEmail,
+        externalName: row.externalName,
+        courseName: row.courseName,
+        courseraCourseId: row.courseraCourseId,
+        overallProgress: Number(row.overallProgress) || 0,
+        learningHours: Number(row.learningHours) || 0,
+        isCompleted: row.isCompleted,
+        lastActivityTime: row.lastActivityTime,
+        user: row.userFullName && row.userEmail
+          ? { fullName: row.userFullName, email: row.userEmail }
+          : null,
+      })),
+    };
+  } catch (error) {
+    console.error('[admin/coursera] failed to load CSV progress summary:', error);
+    return null;
+  }
+}
+
+function fmtDateTime(value: Date | null): string {
+  if (!value) return '—';
+  return value.toLocaleString();
+}
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Coursera Identity Mapping',
@@ -62,6 +145,8 @@ export default async function AdminCourseraPage() {
     console.error('[admin/coursera] failed to load mapping data:', error);
   }
 
+  const courseProgress = await loadCourseProgressSummary();
+
   const memberOptions = members.map((member) => ({
     id: member.id,
     fullName: member.fullName,
@@ -104,6 +189,108 @@ export default async function AdminCourseraPage() {
           </div>
         ) : null}
       </div>
+
+      <section
+        className="content-card"
+        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera course progress</h2>
+            <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              Per-learner-per-course progress imported from the Coursera "Learner activity &amp; progress"
+              CSV report. Use this for backfill and as a redundant feed alongside the realtime xAPI bridge.
+            </span>
+          </div>
+          <Link
+            href="/admin/coursera/csv-import"
+            style={{
+              padding: '0.55rem 0.9rem',
+              borderRadius: '0.65rem',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+              textDecoration: 'none',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+            }}
+          >
+            Import CSV →
+          </Link>
+        </div>
+
+        {courseProgress ? (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              <span><strong>{courseProgress.totalRows}</strong> course progress row(s)</span>
+              <span>•</span>
+              <span>Last synced: <strong>{fmtDateTime(courseProgress.latestSyncedAt)}</strong></span>
+            </div>
+
+            {courseProgress.topLearners.length > 0 ? (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left' }}>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Hours</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courseProgress.topLearners.map((learner) => (
+                      <tr key={learner.id}>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.user ? (
+                            <>
+                              <strong>{learner.user.fullName}</strong>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                            </>
+                          ) : (
+                            <>
+                              <strong>{learner.externalName || learner.externalEmail}</strong>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                                {learner.externalEmail} · unmapped
+                              </div>
+                            </>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.courseName}
+                          {learner.isCompleted ? (
+                            <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                              completed
+                            </span>
+                          ) : null}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                          {learner.overallProgress.toFixed(2)}%
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                          {learner.learningHours.toFixed(2)}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {fmtDateTime(learner.lastActivityTime)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                No course progress imported yet. Use “Import CSV” to upload the latest Coursera export.
+              </span>
+            )}
+          </>
+        ) : (
+          <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            Course progress data is unavailable right now.
+          </span>
+        )}
+      </section>
 
       <CourseraMappingsAdmin
         members={memberOptions}

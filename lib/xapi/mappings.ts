@@ -360,6 +360,71 @@ export async function listCourseraIdentityMappings() {
   `;
 }
 
+export type CourseraSkillsetProgressSummary = {
+  totalRows: number;
+  latestSyncedAt: Date | null;
+  topMembers: Array<{
+    userId: string;
+    userEmail: string;
+    userFullName: string;
+    skillsetId: string;
+    skillsetName: string;
+    progressPct: number;
+    programId: string;
+    programSlug: string | null;
+    lastSyncedAt: Date;
+  }>;
+};
+
+export async function getCourseraSkillsetProgressSummary(
+  topLimit = 10
+): Promise<CourseraSkillsetProgressSummary> {
+  // The CourseraSkillsetProgress table is owned by Prisma and may not exist yet
+  // in environments that haven't run `prisma migrate deploy`. Treat any access
+  // failure as a soft-empty so the admin page still renders.
+  try {
+    const [aggregate, top] = await Promise.all([
+      prisma.courseraSkillsetProgress.aggregate({
+        _count: { _all: true },
+        _max: { lastSyncedAt: true },
+      }),
+      prisma.courseraSkillsetProgress.findMany({
+        orderBy: [{ progressPct: 'desc' }, { lastSyncedAt: 'desc' }],
+        take: topLimit,
+        select: {
+          userId: true,
+          skillsetId: true,
+          skillsetName: true,
+          progressPct: true,
+          programId: true,
+          programSlug: true,
+          lastSyncedAt: true,
+          user: { select: { email: true, fullName: true } },
+        },
+      }),
+    ]);
+
+    return {
+      totalRows: aggregate._count._all,
+      latestSyncedAt: aggregate._max.lastSyncedAt ?? null,
+      topMembers: top.map((row) => ({
+        userId: row.userId,
+        userEmail: row.user.email,
+        userFullName: row.user.fullName,
+        skillsetId: row.skillsetId,
+        skillsetName: row.skillsetName,
+        progressPct: row.progressPct,
+        programId: row.programId,
+        programSlug: row.programSlug,
+        lastSyncedAt: row.lastSyncedAt,
+      })),
+    };
+  } catch (error) {
+    console.warn('[xapi/mappings] coursera_skillset_progress unavailable:', error);
+    return { totalRows: 0, latestSyncedAt: null, topMembers: [] };
+  }
+}
+
 export async function listRecentUnmatchedXapiEvents(limit = 50) {
   await ensureCourseraMappingTables();
 

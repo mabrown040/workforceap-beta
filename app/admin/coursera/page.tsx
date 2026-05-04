@@ -10,7 +10,11 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { listCourseraIdentityMappings, listRecentUnmatchedXapiEvents } from '@/lib/xapi/mappings';
+import {
+  getCourseraSkillsetProgressSummary,
+  listCourseraIdentityMappings,
+  listRecentUnmatchedXapiEvents,
+} from '@/lib/xapi/mappings';
 import { loadBadgeProgressSummary, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
 
 type CourseProgressSummary = {
@@ -150,6 +154,7 @@ export default async function AdminCourseraPage() {
   const courseProgress = await loadCourseProgressSummary();
   const badgeProgress = await loadBadgeProgressSummary();
   const unmatchedLearners = await loadUnmatchedLearners(100);
+  const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
 
   const memberOptions = members.map((member) => ({
     id: member.id,
@@ -397,6 +402,71 @@ export default async function AdminCourseraPage() {
             programTitle: m.programTitle,
           }))}
         />
+      </div>
+
+      <div className="content-card" style={{ padding: '1rem 1.1rem', marginBottom: '1rem' }}>
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
+          <strong>Active-pull skillset progress</strong>
+          <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            Snapshot written by the <code>/api/cron/coursera-sync</code> cron
+            (every 6h). Empty until skillset IDs are configured for at least one
+            program.
+          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', marginTop: '0.25rem' }}>
+            <div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                Rows
+              </div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 600 }}>
+                {skillsetProgress.totalRows}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                Last sync
+              </div>
+              <div style={{ fontSize: '1rem', fontWeight: 500 }}>
+                {skillsetProgress.latestSyncedAt
+                  ? skillsetProgress.latestSyncedAt.toISOString().replace('T', ' ').slice(0, 19) + ' UTC'
+                  : '—'}
+              </div>
+            </div>
+          </div>
+
+          {skillsetProgress.topMembers.length > 0 ? (
+            <div style={{ marginTop: '0.5rem', overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)' }}>
+                    <th style={{ padding: '0.35rem 0.5rem' }}>Member</th>
+                    <th style={{ padding: '0.35rem 0.5rem' }}>Skillset</th>
+                    <th style={{ padding: '0.35rem 0.5rem', textAlign: 'right' }}>Progress</th>
+                    <th style={{ padding: '0.35rem 0.5rem' }}>Last sync</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {skillsetProgress.topMembers.map((row) => (
+                    <tr key={`${row.userId}:${row.skillsetId}`} style={{ borderTop: '1px solid var(--outline-variant, #ddd)' }}>
+                      <td style={{ padding: '0.35rem 0.5rem' }}>
+                        <div style={{ fontWeight: 500 }}>{row.userFullName || row.userEmail}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                          {row.userEmail}
+                        </div>
+                      </td>
+                      <td style={{ padding: '0.35rem 0.5rem' }}>{row.skillsetName}</td>
+                      <td style={{ padding: '0.35rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                        {row.progressPct}%
+                      </td>
+                      <td style={{ padding: '0.35rem 0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                        {row.lastSyncedAt.toISOString().slice(0, 10)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <CourseraMappingsAdmin

@@ -167,3 +167,7 @@ Per-learner drill-down pages live at:
 - `/admin/coursera/learners/unmatched/[externalEmail]` — for unmatched Coursera
   learners; shows their CSV course + badge progress keyed by raw external
   email.
+
+## Active pull cron
+
+While Coursera-side webhooks aren't subscribed yet, `/api/cron/coursera-sync` (registered in `vercel.json` on `0 */6 * * *`, every 6 hours) is the self-serve backfill path. On each run it pulls every active WAP member (`role='member'`, `deletedAt IS NULL`, non-empty email), resolves their `programId` and `skillsetIds` via `resolveCourseraProgramId` / `resolveCourseraSkillsetIds`, calls `fetchCourseraLearnerSkillsetProgress` (4-in-flight concurrency, 250ms gap between batches), and upserts one row per `(userId, skillsetId)` into `coursera_skillset_progress`. Per-member errors are caught and logged via `captureApiError` so one bad member never aborts the run. If no skillset IDs are configured for any program — the current production state — the cron short-circuits with `{ ok: true, skipped: 'no_skillsets_configured', members: 0 }` and makes zero Coursera API calls. Disable the cron by inserting a `WorkflowDiagnostic` toggle row for `cron_coursera_sync` with `metadata.enabled = false` (matches the existing `isCronEnabled` pattern); the admin readout at `/admin/coursera` surfaces row count, last sync, and top 10 members by progress.

@@ -44,7 +44,10 @@ if (first.status === 0) {
 function extractStuck(output) {
   const m =
     output.match(/Migration name:\s*(\S+)/) ||
-    output.match(/The `([^`]+)` migration started at .* failed/);
+    output.match(/The `([^`]+)` migration started at .* failed/) ||
+    output.match(/type "([^"]+)" already exists/) ||
+    output.match(/relation "([^"]+)" already exists/) ||
+    output.match(/column "([^"]+)" of relation "([^"]+)" already exists/);
   return m ? m[1] : null;
 }
 

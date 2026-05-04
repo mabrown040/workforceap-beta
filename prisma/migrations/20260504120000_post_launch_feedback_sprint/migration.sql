@@ -1,5 +1,8 @@
--- CreateEnum
-CREATE TYPE "application_ai_feedback_how_used" AS ENUM ('YES', 'ADJUSTED', 'NO', 'SKIPPED');
+-- CreateEnum (idempotent — safe if type already exists from partial apply)
+DO $$ BEGIN
+    CREATE TYPE "application_ai_feedback_how_used" AS ENUM ('YES', 'ADJUSTED', 'NO', 'SKIPPED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- AlterTable
 ALTER TABLE "job_applications" ADD COLUMN "interview_pre_reminder_sent_at" TIMESTAMP(3),

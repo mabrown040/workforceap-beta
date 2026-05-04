@@ -155,6 +155,7 @@ model User {
   pointsAwarded      PointsTransaction[] @relation("PointsAwarder")
 
   courseraCourseProgress CourseraCourseProgress[]
+  courseraBadgeProgress  CourseraBadgeProgress[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -1777,4 +1778,37 @@ model CourseraCourseProgress {
   @@index([programSlug])
   @@index([courseraCourseId])
   @@map("coursera_course_progress")
+}
+
+/// Per-learner-per-badge (specialization) progress imported from the Coursera
+/// "Learner activity & progress" CSV report (LearningPathActivity tab). The raw
+/// CSV has one row per (learner, course-within-badge); the ingester deduplicates
+/// to one row per (learner, badgeSlug). Idempotent on (externalEmail, badgeSlug).
+model CourseraBadgeProgress {
+  id                  String    @id @default(uuid())
+  userId              String?   @map("user_id")
+  externalEmail       String    @map("external_email")
+  externalName        String?   @map("external_name")
+  badgeSlug           String    @map("badge_slug")
+  badgeTitle          String    @map("badge_title")
+  badgeLink           String?   @map("badge_link")
+  numberOfCourses     Int       @map("number_of_courses")
+  progressPercent     Decimal   @map("progress_percent") @db.Decimal(5, 2)
+  coursesCompleted    Int       @default(0) @map("courses_completed")
+  currentCourseName   String?   @map("current_course_name")
+  badgeCompleted      Boolean   @default(false) @map("badge_completed")
+  badgeCompletionTime DateTime? @map("badge_completion_time")
+  lastActivityTime    DateTime? @map("last_activity_time")
+  totalLearningHours  Decimal   @map("total_learning_hours") @db.Decimal(8, 2)
+  collectionId        String?   @map("collection_id")
+  collectionName      String?   @map("collection_name")
+  source              String    @default("csv_import") @map("source")
+  lastSyncedAt        DateTime  @default(now()) @updatedAt @map("last_synced_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([externalEmail, badgeSlug])
+  @@index([userId])
+  @@index([badgeSlug])
+  @@map("coursera_badge_progress")
 }

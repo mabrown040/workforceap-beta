@@ -5,11 +5,13 @@ import { buildPageMetadata } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
+import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { listCourseraIdentityMappings, listRecentUnmatchedXapiEvents } from '@/lib/xapi/mappings';
+import { loadBadgeProgressSummary, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
 
 type CourseProgressSummary = {
   totalRows: number;
@@ -146,6 +148,8 @@ export default async function AdminCourseraPage() {
   }
 
   const courseProgress = await loadCourseProgressSummary();
+  const badgeProgress = await loadBadgeProgressSummary();
+  const unmatchedLearners = await loadUnmatchedLearners(100);
 
   const memberOptions = members.map((member) => ({
     id: member.id,
@@ -291,6 +295,109 @@ export default async function AdminCourseraPage() {
           </span>
         )}
       </section>
+
+      <section
+        className="content-card"
+        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
+      >
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Specialization progress</h2>
+          <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            Per-learner-per-badge progress imported from the Coursera{' '}
+            <em>LearningPathActivity</em> CSV. One record per (learner, badge), with badge
+            progress percentage, courses completed, and the current in-progress course.
+          </span>
+        </div>
+
+        {badgeProgress ? (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              <span><strong>{badgeProgress.totalRows}</strong> badge progress row(s)</span>
+              <span>•</span>
+              <span>Last synced: <strong>{fmtDateTime(badgeProgress.latestSyncedAt)}</strong></span>
+            </div>
+
+            {badgeProgress.topLearners.length > 0 ? (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left' }}>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badge</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Courses done</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Current course</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {badgeProgress.topLearners.map((learner) => (
+                      <tr key={learner.id}>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.user ? (
+                            <>
+                              <strong>{learner.user.fullName}</strong>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                            </>
+                          ) : (
+                            <>
+                              <strong>{learner.externalName || learner.externalEmail}</strong>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                                {learner.externalEmail} · unmapped
+                              </div>
+                            </>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.badgeTitle}
+                          {learner.badgeCompleted ? (
+                            <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                              completed
+                            </span>
+                          ) : null}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                          {learner.progressPercent.toFixed(2)}%
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                          {learner.coursesCompleted}/{learner.numberOfCourses}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.currentCourseName ?? '—'}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {fmtDateTime(learner.lastActivityTime)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                No badge progress imported yet. Use “Import CSV” above and upload the
+                <code> LearningPathActivity ... .csv</code> file from a Coursera enterprise export.
+              </span>
+            )}
+          </>
+        ) : (
+          <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            Badge progress data is unavailable right now.
+          </span>
+        )}
+      </section>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <CourseraUnmatchedLearners
+          learners={unmatchedLearners}
+          members={memberOptions.map((m) => ({
+            id: m.id,
+            fullName: m.fullName,
+            email: m.email,
+            programTitle: m.programTitle,
+          }))}
+        />
+      </div>
 
       <CourseraMappingsAdmin
         members={memberOptions}

@@ -3,10 +3,14 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-type UnresolvedRow = { email: string; name: string; courseId: string; course: string };
+type CsvKind = 'course-activity' | 'learning-path-activity';
 
-type ImportResult = {
+type UnresolvedCourseRow = { email: string; name: string; courseId: string; course: string };
+type UnresolvedBadgeRow = { email: string; name: string; badgeSlug: string; badgeTitle: string };
+
+type CourseImportResult = {
   ok: true;
+  kind: 'course-activity';
   filename: string | null;
   parsed: number;
   inserted: number;
@@ -14,8 +18,23 @@ type ImportResult = {
   resolvedToUsers: number;
   unresolved: number;
   errors: string[];
-  unresolvedRows: UnresolvedRow[];
+  unresolvedRows: UnresolvedCourseRow[];
 };
+
+type BadgeImportResult = {
+  ok: true;
+  kind: 'learning-path-activity';
+  filename: string | null;
+  parsed: number;
+  inserted: number;
+  updated: number;
+  resolvedToUsers: number;
+  unresolved: number;
+  errors: string[];
+  unresolvedRows: UnresolvedBadgeRow[];
+};
+
+type ImportResult = CourseImportResult | BadgeImportResult;
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--surface-container-lowest)',
@@ -45,21 +64,42 @@ const buttonPrimaryStyle: React.CSSProperties = {
   fontSize: '0.95rem',
 };
 
-function downloadUnresolvedCsv(rows: UnresolvedRow[]) {
-  const header = 'email,name,course_id,course\n';
-  const escape = (v: string) => `"${(v ?? '').replace(/"/g, '""')}"`;
-  const body = rows
-    .map((r) => `${escape(r.email)},${escape(r.name)},${escape(r.courseId)},${escape(r.course)}`)
-    .join('\n');
+function escapeCsv(v: string) {
+  return `"${(v ?? '').replace(/"/g, '""')}"`;
+}
+
+function downloadUnresolvedCsv(result: ImportResult) {
+  const isCourse = result.kind === 'course-activity';
+  const header = isCourse ? 'email,name,course_id,course\n' : 'email,name,badge_slug,badge_title\n';
+  const body = isCourse
+    ? (result.unresolvedRows as UnresolvedCourseRow[])
+        .map(
+          (r) =>
+            `${escapeCsv(r.email)},${escapeCsv(r.name)},${escapeCsv(r.courseId)},${escapeCsv(r.course)}`
+        )
+        .join('\n')
+    : (result.unresolvedRows as UnresolvedBadgeRow[])
+        .map(
+          (r) =>
+            `${escapeCsv(r.email)},${escapeCsv(r.name)},${escapeCsv(r.badgeSlug)},${escapeCsv(r.badgeTitle)}`
+        )
+        .join('\n');
   const blob = new Blob([header + body + '\n'], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `coursera-unresolved-${new Date().toISOString().slice(0, 10)}.csv`;
+  const fileSuffix = isCourse ? 'unresolved-courses' : 'unresolved-badges';
+  a.download = `coursera-${fileSuffix}-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function describeKind(kind: CsvKind | null) {
+  if (kind === 'course-activity') return 'CourseActivity (per-course progress)';
+  if (kind === 'learning-path-activity') return 'LearningPathActivity (badge / specialization progress)';
+  return null;
 }
 
 export default function CourseraCsvImportClient() {
@@ -105,11 +145,12 @@ export default function CourseraCsvImportClient() {
   return (
     <div style={{ display: 'grid', gap: '1.25rem' }}>
       <section style={cardStyle}>
-        <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Upload Coursera CourseActivity CSV</h2>
+        <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Upload Coursera CSV</h2>
         <p style={{ marginTop: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
-          Drop the <code>CourseActivity workforce-advancement - CourseraEnterpriseExport ... .csv</code>{' '}
-          file from the latest Coursera enterprise export. Other tabs in the same ZIP (ProgramActivity,
-          LearningPathActivity, etc.) are not used by this importer.
+          Drop either the <code>CourseActivity ... .csv</code> (per-course progress) or the{' '}
+          <code>LearningPathActivity ... .csv</code> (badge / specialization progress) file from
+          the latest Coursera enterprise export. The importer auto-detects which type you
+          uploaded from its header row and routes to the right ingester.
         </p>
 
         <form
@@ -129,7 +170,7 @@ export default function CourseraCsvImportClient() {
               disabled={isPending}
             />
             <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-              Max 5 MB. Idempotent on (email, course id) — re-uploads update existing rows.
+              Max 5 MB. Idempotent — re-uploads update existing rows in place.
             </span>
           </div>
 
@@ -166,7 +207,9 @@ export default function CourseraCsvImportClient() {
         <section style={cardStyle}>
           <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Import result</h2>
           <p style={{ marginTop: '0.4rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-            {result.filename ? <>From <code>{result.filename}</code>.</> : null} Parsed {result.parsed} row(s).
+            Detected: <strong>{describeKind(result.kind)}</strong>.{' '}
+            {result.filename ? <>From <code>{result.filename}</code>. </> : null}
+            Parsed {result.parsed} row(s).
           </p>
 
           <div
@@ -186,12 +229,13 @@ export default function CourseraCsvImportClient() {
           {result.unresolved > 0 ? (
             <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem' }}>
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-                {result.unresolved} learner row(s) could not be matched to a WAP user. Map them manually
-                from the <a href="/admin/coursera">Coursera identity mapping</a> page.
+                {result.unresolved} learner row(s) could not be matched to a WAP user. Map them
+                inline from the <a href="/admin/coursera">Coursera admin page</a> — look for the{' '}
+                "Coursera-only learners" section.
               </span>
               <button
                 type="button"
-                onClick={() => downloadUnresolvedCsv(result.unresolvedRows)}
+                onClick={() => downloadUnresolvedCsv(result)}
                 style={{
                   ...buttonPrimaryStyle,
                   background: 'var(--surface-container)',

@@ -22,6 +22,20 @@ const REQUIRED_HEADERS = [
   'Program Slug',
 ] as const;
 
+const REQUIRED_BADGE_HEADERS = [
+  'User Name',
+  'Email',
+  'Badge Title',
+  'Badge Slug',
+  'Number of Courses',
+  'Progress in Badge (%)',
+  'Course Name',
+  'Is Course Completed',
+  'Badge Completed',
+  'Last Activity Timestamp',
+  'Total Estimated Learning Hours (since enrolled)',
+] as const;
+
 export type ParsedCourseActivityRow = {
   name: string;
   email: string;
@@ -58,6 +72,65 @@ export type IngestResult = {
   errors: string[];
   unresolvedRows: Array<{ email: string; name: string; courseId: string; course: string }>;
 };
+
+/**
+ * One row per (learner, course-within-badge) as it appears in the CSV.
+ * The badge-level fields (badgeTitle, badgeSlug, progressPercent, etc.) are
+ * identical across rows for the same (email, badgeSlug); the per-course fields
+ * (courseName, courseEnrollmentDate, isCourseCompleted, courseCompletionTime)
+ * vary per row. The ingester groups + deduplicates to one row per badge.
+ */
+export type ParsedBadgeRow = {
+  name: string;
+  email: string;
+  badgeTitle: string;
+  badgeSlug: string;
+  badgeLink: string | null;
+  badgeLastTransactionTime: Date | null;
+  numberOfCourses: number;
+  progressPercent: number;
+  courseName: string | null;
+  courseEnrollmentDate: Date | null;
+  isCourseCompleted: boolean;
+  courseCompletionTime: Date | null;
+  badgeCompleted: boolean;
+  badgeCompletionTime: Date | null;
+  lastActivityTime: Date | null;
+  totalLearningHours: number;
+  collectionId: string | null;
+  collectionName: string | null;
+};
+
+export type BadgeIngestResult = {
+  inserted: number;
+  updated: number;
+  resolvedToUsers: number;
+  unresolved: number;
+  errors: string[];
+  unresolvedRows: Array<{ email: string; name: string; badgeSlug: string; badgeTitle: string }>;
+};
+
+export type CsvKind = 'course-activity' | 'learning-path-activity';
+
+/**
+ * Sniff the CSV's first row to figure out which Coursera tab this is. Lets the
+ * admin upload UI auto-route to the right ingester without a manual selector.
+ */
+export function detectCourseraCsvKind(content: string): CsvKind | null {
+  const lines = splitCsvRows(content);
+  if (lines.length < 1) return null;
+  const header = splitCsvLine(lines[0]).map((field) => field.trim());
+
+  const hasAll = (required: readonly string[]) => required.every((h) => header.includes(h));
+
+  if (hasAll(REQUIRED_BADGE_HEADERS) && header.includes('Badge Slug')) {
+    return 'learning-path-activity';
+  }
+  if (hasAll(REQUIRED_HEADERS)) {
+    return 'course-activity';
+  }
+  return null;
+}
 
 /**
  * Split a single CSV line into fields. Handles double-quoted fields (with embedded
@@ -292,4 +365,99 @@ export async function ingestCourseActivityRows(
 ): Promise<IngestResult> {
   const mod = await import('./csvImport.server');
   return mod.ingestCourseActivityRows(rows, options);
+}
+
+/**
+ * Parse the Coursera LearningPathActivity CSV (specialization/badge progress)
+ * into structured rows. Each output row matches one input row (per-course
+ * within a badge); the ingester is responsible for grouping these by
+ * (email, badgeSlug) and producing one record per badge.
+ *
+ * Throws if required headers are missing — sentinel against feeding the wrong
+ * tab from the same enterprise export ZIP.
+ */
+export function parseLearningPathActivityCsv(content: string): ParsedBadgeRow[] {
+  const lines = splitCsvRows(content);
+  if (lines.length < 1) return [];
+
+  const header = splitCsvLine(lines[0]).map((field) => field.trim());
+
+  for (const required of REQUIRED_BADGE_HEADERS) {
+    if (!header.includes(required)) {
+      throw new Error(
+        `Coursera LearningPathActivity CSV is missing required header "${required}". ` +
+          `Did you upload the wrong tab? Expected the "LearningPathActivity" CSV from the enterprise export.`
+      );
+    }
+  }
+
+  const indexOf = (col: string) => header.indexOf(col);
+  const idx = {
+    name: indexOf('User Name'),
+    email: indexOf('Email'),
+    badgeTitle: indexOf('Badge Title'),
+    badgeSlug: indexOf('Badge Slug'),
+    badgeLink: indexOf('Badge Link'),
+    badgeLastTransactionTimestamp: indexOf('Badge Last Transaction Timestamp'),
+    numberOfCourses: indexOf('Number of Courses'),
+    progressPercent: indexOf('Progress in Badge (%)'),
+    courseName: indexOf('Course Name'),
+    courseEnrollmentDate: indexOf('Course Enrollment Date'),
+    isCourseCompleted: indexOf('Is Course Completed'),
+    courseCompletionTimestamp: indexOf('Course Completion Timestamp'),
+    badgeCompleted: indexOf('Badge Completed'),
+    badgeCompletionTimestamp: indexOf('Badge Completion Timestamp'),
+    lastActivityTimestamp: indexOf('Last Activity Timestamp'),
+    collectionId: indexOf('Collection ID'),
+    collectionName: indexOf('Collection Name'),
+    totalLearningHours: indexOf('Total Estimated Learning Hours (since enrolled)'),
+  };
+
+  const rows: ParsedBadgeRow[] = [];
+
+  for (let i = 1; i < lines.length; i += 1) {
+    const raw = lines[i];
+    if (!raw.trim()) continue;
+
+    const fields = splitCsvLine(raw);
+
+    const email = (fields[idx.email] ?? '').trim();
+    const badgeSlug = (fields[idx.badgeSlug] ?? '').trim();
+    const badgeTitle = (fields[idx.badgeTitle] ?? '').trim();
+
+    // Skip rows missing the absolute minimum identifiers — without these we
+    // cannot upsert deterministically and would just generate noise.
+    if (!email || !badgeSlug || !badgeTitle) continue;
+
+    rows.push({
+      name: (fields[idx.name] ?? '').trim(),
+      email,
+      badgeTitle,
+      badgeSlug,
+      badgeLink: nullable(fields[idx.badgeLink]),
+      badgeLastTransactionTime: parseDateOrNull(fields[idx.badgeLastTransactionTimestamp]),
+      numberOfCourses: parseNumberOrZero(fields[idx.numberOfCourses]),
+      progressPercent: parseNumberOrZero(fields[idx.progressPercent]),
+      courseName: nullable(fields[idx.courseName]),
+      courseEnrollmentDate: parseDateOrNull(fields[idx.courseEnrollmentDate]),
+      isCourseCompleted: parseYesNo(fields[idx.isCourseCompleted]),
+      courseCompletionTime: parseDateOrNull(fields[idx.courseCompletionTimestamp]),
+      badgeCompleted: parseYesNo(fields[idx.badgeCompleted]),
+      badgeCompletionTime: parseDateOrNull(fields[idx.badgeCompletionTimestamp]),
+      lastActivityTime: parseDateOrNull(fields[idx.lastActivityTimestamp]),
+      totalLearningHours: parseNumberOrZero(fields[idx.totalLearningHours]),
+      collectionId: nullable(fields[idx.collectionId]),
+      collectionName: nullable(fields[idx.collectionName]),
+    });
+  }
+
+  return rows;
+}
+
+export async function ingestLearningPathActivityRows(
+  rows: ParsedBadgeRow[],
+  options?: { source?: string }
+): Promise<BadgeIngestResult> {
+  const mod = await import('./csvImport.server');
+  return mod.ingestLearningPathActivityRows(rows, options);
 }

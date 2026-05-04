@@ -3,7 +3,12 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 
-import type { IngestResult, ParsedCourseActivityRow } from './csvImport';
+import type {
+  BadgeIngestResult,
+  IngestResult,
+  ParsedBadgeRow,
+  ParsedCourseActivityRow,
+} from './csvImport';
 
 type UserMatch = { id: string };
 
@@ -204,4 +209,292 @@ export async function ingestCourseActivityRows(
   }
 
   return { inserted, updated, resolvedToUsers, unresolved, errors, unresolvedRows };
+}
+
+/**
+ * Idempotency: ensures the unique expression index on (lower(external_email),
+ * badge_slug) exists. Mirrors ensureProgressIndex above for the badge table.
+ */
+let ensureBadgeProgressIndexPromise: Promise<void> | null = null;
+
+async function ensureBadgeProgressIndex() {
+  if (!ensureBadgeProgressIndexPromise) {
+    ensureBadgeProgressIndexPromise = (async () => {
+      await prisma.$executeRawUnsafe(`
+        CREATE UNIQUE INDEX IF NOT EXISTS coursera_badge_progress_email_badge_key
+        ON coursera_badge_progress (LOWER(external_email), badge_slug)
+      `);
+    })().catch((error) => {
+      ensureBadgeProgressIndexPromise = null;
+      throw error;
+    });
+  }
+  await ensureBadgeProgressIndexPromise;
+}
+
+type BadgeAggregate = {
+  name: string;
+  email: string;
+  badgeTitle: string;
+  badgeSlug: string;
+  badgeLink: string | null;
+  numberOfCourses: number;
+  progressPercent: number;
+  coursesCompleted: number;
+  currentCourseName: string | null;
+  badgeCompleted: boolean;
+  badgeCompletionTime: Date | null;
+  lastActivityTime: Date | null;
+  totalLearningHours: number;
+  collectionId: string | null;
+  collectionName: string | null;
+};
+
+/**
+ * Group the per-(learner, course-within-badge) rows from the CSV into one
+ * record per (learner, badgeSlug). For each group:
+ *   - take the first row's badge-level fields (identical across rows)
+ *   - count rows where Is Course Completed = "Yes" → coursesCompleted
+ *   - pick currentCourseName from the most recently active in-progress course
+ *     (max courseEnrollmentDate among isCourseCompleted=false rows; falls back
+ *     to the latest row in the group if all are completed)
+ *   - take MAX(lastActivityTime) across the group
+ */
+function aggregateBadgeRows(rows: ParsedBadgeRow[]): BadgeAggregate[] {
+  const groups = new Map<string, ParsedBadgeRow[]>();
+
+  for (const row of rows) {
+    const key = `${row.email.toLowerCase()}::${row.badgeSlug}`;
+    const list = groups.get(key);
+    if (list) {
+      list.push(row);
+    } else {
+      groups.set(key, [row]);
+    }
+  }
+
+  const aggregates: BadgeAggregate[] = [];
+
+  for (const groupRows of groups.values()) {
+    const first = groupRows[0];
+
+    let coursesCompleted = 0;
+    let lastActivityTime: Date | null = null;
+    let inProgressCandidate: { name: string; ts: number } | null = null;
+    let fallbackCandidate: { name: string; ts: number } | null = null;
+
+    for (const row of groupRows) {
+      if (row.isCourseCompleted) coursesCompleted += 1;
+
+      if (row.lastActivityTime) {
+        const t = row.lastActivityTime.getTime();
+        if (!lastActivityTime || t > lastActivityTime.getTime()) {
+          lastActivityTime = row.lastActivityTime;
+        }
+      }
+
+      const enrollmentTs = row.courseEnrollmentDate ? row.courseEnrollmentDate.getTime() : 0;
+      if (row.courseName) {
+        if (!row.isCourseCompleted) {
+          if (!inProgressCandidate || enrollmentTs > inProgressCandidate.ts) {
+            inProgressCandidate = { name: row.courseName, ts: enrollmentTs };
+          }
+        }
+        if (!fallbackCandidate || enrollmentTs > fallbackCandidate.ts) {
+          fallbackCandidate = { name: row.courseName, ts: enrollmentTs };
+        }
+      }
+    }
+
+    const currentCourseName =
+      inProgressCandidate?.name ?? fallbackCandidate?.name ?? null;
+
+    aggregates.push({
+      name: first.name,
+      email: first.email,
+      badgeTitle: first.badgeTitle,
+      badgeSlug: first.badgeSlug,
+      badgeLink: first.badgeLink,
+      numberOfCourses: first.numberOfCourses,
+      progressPercent: first.progressPercent,
+      coursesCompleted,
+      currentCourseName,
+      badgeCompleted: first.badgeCompleted,
+      badgeCompletionTime: first.badgeCompletionTime,
+      lastActivityTime,
+      totalLearningHours: first.totalLearningHours,
+      collectionId: first.collectionId,
+      collectionName: first.collectionName,
+    });
+  }
+
+  return aggregates;
+}
+
+/**
+ * Upsert each (learner, badge) aggregate into `coursera_badge_progress`.
+ * Resolves `user_id` by direct email match first, then falls back to
+ * coursera_identity_mappings.
+ *
+ * Idempotent on (lower(external_email), badge_slug) — re-running the same CSV
+ * updates the existing row rather than duplicating.
+ */
+export async function ingestLearningPathActivityRows(
+  rows: ParsedBadgeRow[],
+  options: { source?: string } = {}
+): Promise<BadgeIngestResult> {
+  await ensureCourseraMappingTables();
+  await ensureBadgeProgressIndex();
+
+  const source = options.source?.trim() || 'csv_import';
+
+  let inserted = 0;
+  let updated = 0;
+  let resolvedToUsers = 0;
+  let unresolved = 0;
+  const errors: string[] = [];
+  const unresolvedRows: BadgeIngestResult['unresolvedRows'] = [];
+
+  const aggregates = aggregateBadgeRows(rows);
+
+  const userIdCache = new Map<string, string | null>();
+
+  for (const row of aggregates) {
+    const lowerEmail = row.email.toLowerCase();
+
+    let userId: string | null;
+    if (userIdCache.has(lowerEmail)) {
+      userId = userIdCache.get(lowerEmail) ?? null;
+    } else {
+      try {
+        userId = await resolveUserIdByEmail(row.email);
+      } catch (error) {
+        userId = null;
+        errors.push(
+          `Failed to resolve user for ${row.email}: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+      userIdCache.set(lowerEmail, userId);
+    }
+
+    if (userId) {
+      resolvedToUsers += 1;
+    } else {
+      unresolved += 1;
+      unresolvedRows.push({
+        email: row.email,
+        name: row.name,
+        badgeSlug: row.badgeSlug,
+        badgeTitle: row.badgeTitle,
+      });
+    }
+
+    try {
+      const upsertRows = await prisma.$queryRaw<Array<{ inserted: boolean }>>`
+        INSERT INTO coursera_badge_progress (
+          id,
+          user_id,
+          external_email,
+          external_name,
+          badge_slug,
+          badge_title,
+          badge_link,
+          number_of_courses,
+          progress_percent,
+          courses_completed,
+          current_course_name,
+          badge_completed,
+          badge_completion_time,
+          last_activity_time,
+          total_learning_hours,
+          collection_id,
+          collection_name,
+          source,
+          last_synced_at
+        ) VALUES (
+          gen_random_uuid(),
+          ${userId},
+          ${lowerEmail},
+          ${row.name || null},
+          ${row.badgeSlug},
+          ${row.badgeTitle},
+          ${row.badgeLink},
+          ${row.numberOfCourses},
+          ${row.progressPercent},
+          ${row.coursesCompleted},
+          ${row.currentCourseName},
+          ${row.badgeCompleted},
+          ${row.badgeCompletionTime},
+          ${row.lastActivityTime},
+          ${row.totalLearningHours},
+          ${row.collectionId},
+          ${row.collectionName},
+          ${source},
+          now()
+        )
+        ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET
+          user_id = COALESCE(EXCLUDED.user_id, coursera_badge_progress.user_id),
+          external_name = EXCLUDED.external_name,
+          badge_title = EXCLUDED.badge_title,
+          badge_link = EXCLUDED.badge_link,
+          number_of_courses = EXCLUDED.number_of_courses,
+          progress_percent = EXCLUDED.progress_percent,
+          courses_completed = EXCLUDED.courses_completed,
+          current_course_name = EXCLUDED.current_course_name,
+          badge_completed = EXCLUDED.badge_completed,
+          badge_completion_time = EXCLUDED.badge_completion_time,
+          last_activity_time = EXCLUDED.last_activity_time,
+          total_learning_hours = EXCLUDED.total_learning_hours,
+          collection_id = EXCLUDED.collection_id,
+          collection_name = EXCLUDED.collection_name,
+          source = EXCLUDED.source,
+          last_synced_at = now()
+        RETURNING (xmax = 0) AS inserted
+      `;
+      if (upsertRows[0]?.inserted) {
+        inserted += 1;
+      } else {
+        updated += 1;
+      }
+    } catch (error) {
+      errors.push(
+        `Upsert failed for ${row.email} / ${row.badgeSlug}: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  return { inserted, updated, resolvedToUsers, unresolved, errors, unresolvedRows };
+}
+
+/**
+ * Backfill `user_id` on existing coursera_course_progress and
+ * coursera_badge_progress rows for a given Coursera email. Used by the admin
+ * "Map to WAP user…" action so historical CSV rows pick up the user binding
+ * without re-running the CSV import.
+ */
+export async function backfillUserIdForCourseraEmail(
+  courseraEmail: string,
+  userId: string
+): Promise<{ courseRowsUpdated: number; badgeRowsUpdated: number }> {
+  const lower = courseraEmail.trim().toLowerCase();
+  if (!lower) return { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
+
+  const courseRowsUpdated = await prisma.$executeRaw`
+    UPDATE coursera_course_progress
+    SET user_id = ${userId}
+    WHERE LOWER(external_email) = ${lower}
+      AND user_id IS NULL
+  `;
+
+  const badgeRowsUpdated = await prisma.$executeRaw`
+    UPDATE coursera_badge_progress
+    SET user_id = ${userId}
+    WHERE LOWER(external_email) = ${lower}
+      AND user_id IS NULL
+  `;
+
+  return {
+    courseRowsUpdated: Number(courseRowsUpdated) || 0,
+    badgeRowsUpdated: Number(badgeRowsUpdated) || 0,
+  };
 }

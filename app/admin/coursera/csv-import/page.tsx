@@ -10,7 +10,7 @@ import { isAdmin } from '@/lib/auth/roles';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Coursera CSV import',
-  description: 'Import the Coursera "Learner activity & progress" CSV report (CourseActivity tab) for backfill and ongoing redundancy.',
+  description: 'Import the Coursera "Learner activity & progress" CSV report (CourseActivity or LearningPathActivity tab) for backfill and ongoing redundancy.',
   path: '/admin/coursera/csv-import',
 });
 
@@ -25,7 +25,7 @@ export default async function AdminCourseraCsvImportPage() {
     <PortalPageFrame>
       <PageHeader
         title="Coursera CSV import"
-        subtitle="Upload the CourseActivity tab from a Coursera enterprise export to backfill course progress."
+        subtitle="Upload either the CourseActivity or LearningPathActivity tab from a Coursera enterprise export."
         breadcrumbs={[
           { label: 'Admin', href: '/admin' },
           { label: 'Coursera', href: '/admin/coursera' },
@@ -39,8 +39,11 @@ export default async function AdminCourseraCsvImportPage() {
             <strong>Where to download the CSV</strong>
             <span style={{ color: 'var(--color-on-surface-variant)' }}>
               Coursera admin → Analytics → Reports → <em>Learner activity &amp; progress</em>{' '}
-              → Customise &amp; Generate. The export ZIP contains six CSVs; this importer only consumes
-              the <code>CourseActivity ... .csv</code> file. The other tabs are aggregate-only and ignored.
+              → Customise &amp; Generate. The export ZIP contains six CSVs; this importer
+              consumes two of them: <code>CourseActivity ... .csv</code> for per-course
+              progress and <code>LearningPathActivity ... .csv</code> for badge / specialization
+              progress. CSV type is auto-detected from the header row. The other tabs are
+              aggregate-only and ignored.
             </span>
             <span style={{ color: 'var(--color-on-surface-variant)' }}>
               Schedule daily delivery to <code>michael.brown2@workforceap.org</code> from the same screen

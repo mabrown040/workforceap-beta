@@ -62,6 +62,7 @@ export default async function CounselorPage() {
             <Link
               key={session.id}
               href={`/dashboard/counselor/${session.id}`}
+              className="counselor-history-card"
               style={{
                 textDecoration: 'none',
                 color: 'inherit',
@@ -72,14 +73,6 @@ export default async function CounselorPage() {
                 background: 'var(--surface-container)',
                 cursor: 'pointer',
                 transition: 'background 0.15s, border-color 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--surface-container-high)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--surface-container)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-subtle)';
               }}
             >
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: steps.length > 0 ? '0.5rem' : 0 }}>
@@ -96,6 +89,12 @@ export default async function CounselorPage() {
           );
         })}
       </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .counselor-history-card:hover {
+          background: var(--surface-container-high) !important;
+          border-color: var(--color-accent) !important;
+        }
+      `}} />
     </section>
   ) : null;
 

@@ -55,7 +55,29 @@ export default async function CounselorPage() {
         {pastSessions.map((session) => {
           const steps = parseActionPlan(session.output as string | null);
           return (
-          <Link key={session.id} href={`/dashboard/counselor/${session.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+            <Link
+              key={session.id}
+              href={`/dashboard/counselor/${session.id}`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'block',
+                padding: '1rem 1.25rem',
+                borderRadius: '0.75rem',
+                border: '1px solid var(--color-border-subtle)',
+                background: 'var(--surface-container)',
+                cursor: 'pointer',
+                transition: 'background 0.15s, border-color 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = 'var(--surface-container-high)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-accent)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = 'var(--surface-container)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-subtle)';
+              }}
+            >
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: steps.length > 0 ? '0.5rem' : 0 }}>
                 {new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>

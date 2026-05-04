@@ -110,9 +110,10 @@ export default function ApplyCreateAccountForm() {
       const raw = sessionStorage.getItem(APPLY_ACCOUNT_DRAFT_KEY);
       if (!raw) return;
       const draft = JSON.parse(raw) as AccountDraft;
+      const urlEmail = new URLSearchParams(window.location.search).get('email')?.trim();
       if (draft.firstName) setFirstName(draft.firstName);
       if (draft.lastName) setLastName(draft.lastName);
-      if (draft.email) setEmail(draft.email);
+      if (draft.email && !urlEmail) setEmail(draft.email);
       if (draft.phone) setPhone(draft.phone);
       if (draft.addressLine1) {
         setAddressLine1(draft.addressLine1);
@@ -123,8 +124,14 @@ export default function ApplyCreateAccountForm() {
         setCity(draft.city);
         setOptionalAddressOpen(true);
       }
-      if (draft.state) setStateVal(draft.state);
-      if (draft.zip) setZip(draft.zip);
+      if (draft.state) {
+        setStateVal(draft.state);
+        setOptionalAddressOpen(true);
+      }
+      if (draft.zip) {
+        setZip(draft.zip);
+        setOptionalAddressOpen(true);
+      }
       if (typeof draft.smsOptIn === 'boolean') setSmsOptIn(draft.smsOptIn);
       if (typeof draft.contactConsent === 'boolean') setContactConsent(draft.contactConsent);
     } catch {
@@ -321,7 +328,7 @@ export default function ApplyCreateAccountForm() {
         const serverFieldErrors: typeof fieldErrors = {};
         if (lower.includes('already exists') || lower.includes('already registered')) {
           serverFieldErrors.email = serverMessage;
-        } else if (lower.includes('password')) {
+        } else if (lower.includes('password') && !lower.includes('password reset')) {
           serverFieldErrors.password = serverMessage;
         } else if (lower.includes('phone')) {
           serverFieldErrors.phone = serverMessage;

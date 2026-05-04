@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 type MemberOption = {
@@ -8,6 +8,8 @@ type MemberOption = {
   fullName: string;
   email: string;
   programTitle: string | null;
+  workspaceEmail?: string | null;
+  workspaceEmailProvisioned?: boolean;
 };
 
 type MappingRow = {
@@ -102,6 +104,12 @@ export default function CourseraMappingsAdmin({
     [members, userId]
   );
 
+  useEffect(() => {
+    const m = members.find((x) => x.id === userId);
+    const email = m?.workspaceEmail?.trim() ?? '';
+    setCourseraEmail(email);
+  }, [userId, members]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
@@ -176,6 +184,12 @@ export default function CourseraMappingsAdmin({
             <div style={{ minWidth: 0 }}>
               <label style={labelStyle}>Coursera email</label>
               <input value={courseraEmail} onChange={(e) => setCourseraEmail(e.target.value)} style={inputStyle} className="coursera-input" placeholder="learner@example.com" />
+              {selectedMember?.workspaceEmail ? (
+                <p style={{ margin: '0.35rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                  Suggested from training seat: <strong>{selectedMember.workspaceEmail}</strong>
+                  {selectedMember.workspaceEmailProvisioned ? ' (provisioned)' : ''}
+                </p>
+              ) : null}
             </div>
 
             <div style={{ minWidth: 0 }}>

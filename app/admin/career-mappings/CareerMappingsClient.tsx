@@ -190,6 +190,14 @@ export default function CareerMappingsClient() {
         </p>
       </div>
 
+      <div className="content-card" style={{ padding: '0.85rem 1rem', marginBottom: '1rem', fontSize: '0.88rem', color: 'var(--color-on-surface-variant)' }}>
+        Employer-designed screening packs (shown to members near program completion) are managed separately:{' '}
+        <a href="/admin/employer-screening-packs" style={{ fontWeight: 700, color: 'var(--color-accent)' }}>
+          Employer screening packs
+        </a>
+        .
+      </div>
+
       {/* Search */}
       <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem', borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.06)' }}>

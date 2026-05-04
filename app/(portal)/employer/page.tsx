@@ -20,6 +20,7 @@ import {
   employerJobPostingApplicationStatusBadgeVariant,
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
+import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer overview',
@@ -49,6 +50,12 @@ export default async function EmployerDashboardPage() {
     },
   });
   if (!employerRow) redirect(fallbackForUnlinked);
+
+  const hiringIntents = await prisma.employerHiringIntent.findMany({
+    where: { employerId: ctx.employerId },
+    orderBy: { createdAt: 'desc' },
+    take: 25,
+  });
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId },
@@ -339,6 +346,11 @@ export default async function EmployerDashboardPage() {
           </div>
         </div>
       </div>
+
+      <div style={{ padding: '0 1.5rem 1.5rem' }} className="md:wa-hidden">
+        <EmployerHiringIntentPanel initialIntents={hiringIntents} />
+      </div>
+
       {/* ── Desktop View ── */}
       <div className="wa-hidden md:wa-block">
       {/* ── Header ── */}
@@ -398,6 +410,10 @@ export default async function EmployerDashboardPage() {
             <p className="portal-metric-card__hint">{card.hint}</p>
           </div>
         ))}
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <EmployerHiringIntentPanel initialIntents={hiringIntents} />
       </section>
 
       {/* ── Talent Pipeline + Sidebar ── */}

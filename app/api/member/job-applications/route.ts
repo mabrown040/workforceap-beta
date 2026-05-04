@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
 
 // GET: List user's job applications
 export async function GET() {
@@ -86,7 +87,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(application, { status: 201 });
+    const recentTools = await findRecentAiToolsForApplicationFeedback(prisma, user.id);
+    const promptAiFeedback = recentTools.length > 0;
+
+    return NextResponse.json(
+      {
+        application,
+        promptAiFeedback,
+        recentTools: promptAiFeedback
+          ? recentTools.map((t) => ({ id: t.id, label: t.label, createdAt: t.createdAt.toISOString() }))
+          : [],
+      },
+      { status: 201 },
+    );
   } catch (error) {
     captureApiError(error, { route: 'POST /api/member/job-applications' });
     return NextResponse.json(

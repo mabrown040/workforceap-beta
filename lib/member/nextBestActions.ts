@@ -28,6 +28,10 @@ export type NextBestActionsContext = {
   jobApplicationCount: number;
   counselorUnreadCount: number;
   weeklyRecapUnopened: boolean;
+  /** True when a CourseEnrollment row exists (Coursera / training seat provisioned). */
+  courseEnrollmentActive?: boolean;
+  placementPlacedAt?: Date | null;
+  placementRetentionDecision?: string | null;
 };
 
 export function buildNextBestActions(ctx: NextBestActionsContext): NextBestAction[] {
@@ -54,6 +58,23 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       cta: 'Choose program',
       variant: 'urgent',
       weight: 95,
+    });
+  }
+
+  if (
+    (ctx.state === 'C' || ctx.state === 'D') &&
+    !!ctx.enrolledProgram &&
+    ctx.assessmentCompleted &&
+    ctx.courseEnrollmentActive === false
+  ) {
+    out.push({
+      id: 'path_to_cert',
+      title: 'See your path to certification',
+      body: 'Understand how staff enrolls you in Coursera, what happens before your first class, and how exams fit in.',
+      href: '/dashboard/program/start',
+      cta: 'Open enrollment guide',
+      variant: 'default',
+      weight: 86,
     });
   }
 
@@ -108,6 +129,31 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       variant: 'default',
       weight: 80,
     });
+  }
+
+  if (ctx.placementPlacedAt && !ctx.placementRetentionDecision) {
+    const days = (Date.now() - ctx.placementPlacedAt.getTime()) / 86400000;
+    if (days >= 85 && days <= 130) {
+      out.push({
+        id: 'placement_retention_window_90',
+        title: 'Quick check-in on your new role',
+        body: 'You have been placed for a few months. If anything changed at work, message your counselor so grant reporting stays accurate.',
+        href: '/dashboard/messages',
+        cta: 'Message counselor',
+        variant: 'default',
+        weight: 74,
+      });
+    } else if (days >= 175 && days <= 230) {
+      out.push({
+        id: 'placement_retention_window_180',
+        title: 'Six-month placement follow-up',
+        body: 'Counselors use your updates for retention reporting. Send a short note in Counselor Chat if you have not already.',
+        href: '/dashboard/messages',
+        cta: 'Open Counselor Chat',
+        variant: 'default',
+        weight: 73,
+      });
+    }
   }
 
   if (ctx.state === 'D' && !ctx.hasCompletedInterviewPractice) {

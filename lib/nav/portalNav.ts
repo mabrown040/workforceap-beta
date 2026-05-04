@@ -320,6 +320,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/assessments', label: 'Assessments', group: 'pipeline', Icon: ClipboardCheck },
   { href: '/admin/wioa-screening', label: 'Funding eligibility', group: 'pipeline', Icon: ClipboardList },
   { href: '/admin/career-mappings', label: 'Career paths', group: 'pipeline', Icon: Target },
+  { href: '/admin/employer-screening-packs', label: 'Employer screening', group: 'pipeline', Icon: ListChecks },
   { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
 
   // ── Workflows — admin-as-counselor force multiplier ──
@@ -337,6 +338,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── Insights — metrics and reporting ──
   { href: '/admin/board', label: 'Board outcomes', group: 'insights', Icon: TrendingUp },
+  { href: '/admin/outcomes', label: 'Placement outcomes', group: 'insights', Icon: LineChart },
   { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
   { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },

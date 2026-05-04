@@ -92,6 +92,7 @@ model User {
   readinessChecklist     ReadinessChecklist[]
   applications           Application[]
   jobApplications        JobApplication[]
+  applicationAiFeedbacks ApplicationAiFeedback[]
   benefitRequests        BenefitRequest[]
   learningProgress       LearningProgress[]
   aiToolResults          AIToolResult[]
@@ -326,15 +327,21 @@ model JobApplication {
   url               String?
   /// When set, this row is linked to a curated employer job on the member job board.
   curatedJobId      String?              @map("curated_job_id")
+  /// Cron: pre-interview reminder email sent (idempotency).
+  interviewPreReminderSentAt DateTime? @map("interview_pre_reminder_sent_at")
+  /// Cron: day-after interview self-report prompt sent.
+  interviewPostFollowUpSentAt DateTime? @map("interview_post_follow_up_sent_at")
   createdAt         DateTime             @default(now()) @map("created_at")
   updatedAt         DateTime             @updatedAt @map("updated_at")
 
   user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
   curatedJob Job? @relation(fields: [curatedJobId], references: [id], onDelete: SetNull)
+  applicationAiFeedback ApplicationAiFeedback?
 
   @@index([userId])
   @@index([status])
   @@index([curatedJobId])
+  @@index([nextInterviewDate])
   @@map("job_applications")
 }
 
@@ -617,10 +624,37 @@ model AIToolResult {
   createdAt    DateTime   @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  primaryForApplicationFeedbacks ApplicationAiFeedback[] @relation("PrimaryAiToolResult")
 
   @@index([userId])
   @@index([userId, toolType])
   @@map("ai_tool_results")
+}
+
+/// Member self-report: after logging a job application, did they use AI-prepared materials?
+model ApplicationAiFeedback {
+  id                    String                       @id @default(uuid())
+  jobApplicationId      String                       @unique @map("job_application_id")
+  userId                String                       @map("user_id")
+  howUsed               ApplicationAiFeedbackHowUsed @map("how_used")
+  primaryAiToolResultId String?                      @map("primary_ai_tool_result_id")
+  createdAt             DateTime                     @default(now()) @map("created_at")
+
+  jobApplication      JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  primaryAiToolResult AIToolResult?  @relation("PrimaryAiToolResult", fields: [primaryAiToolResultId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("application_ai_feedback")
+}
+
+enum ApplicationAiFeedbackHowUsed {
+  YES
+  ADJUSTED
+  NO
+  SKIPPED
+
+  @@map("application_ai_feedback_how_used")
 }
 
 enum AIToolType {
@@ -930,6 +964,10 @@ model PlacementRecord {
   programSlug         String? @map("program_slug")
   wageAtFollowUp      Int?    @map("wage_at_follow_up") // annual, 90/180-day follow-up
   retentionStatus     String? @map("retention_status") // e.g. "retained_90d", "retained_180d", "separated"
+  /// End of employer/program onboarding window (e.g. 6 months from placement).
+  onboardingWindowEnd DateTime? @db.Date @map("onboarding_window_end")
+  /// Counselor-recorded outcome after window: retained | not_retained | pending
+  retentionDecision   String?   @map("retention_decision")
   startDateVerified   Boolean @default(false) @map("start_date_verified")
   fundingSource       String? @map("funding_source") // e.g. "WIOA_Adult", "WIOA_Youth", "TAA"
   grantReportingNotes String? @map("grant_reporting_notes") @db.Text
@@ -1084,9 +1122,46 @@ model Employer {
   jobs           Job[]
   workflowEvents PortalWorkflowEvent[]
   messageThread  MessageThread?
+  hiringIntents  EmployerHiringIntent[]
 
   @@index([organizationId])
   @@map("employers")
+}
+
+/// Employer-signed cohort hiring intent (MOU / pipeline).
+model EmployerHiringIntent {
+  id          String    @id @default(uuid())
+  employerId  String    @map("employer_id")
+  programSlug String    @map("program_slug")
+  seatCount   Int       @map("seat_count")
+  startBy     DateTime? @map("start_by")
+  signedAt    DateTime? @map("signed_at")
+  mouUrl      String?   @map("mou_url")
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  employer Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+
+  @@index([employerId])
+  @@index([programSlug])
+  @@map("employer_hiring_intents")
+}
+
+/// Optional employer-designed screening questions shown to members (end of training).
+model EmployerScreeningPack {
+  id             String   @id @default(uuid())
+  programSlug    String   @map("program_slug")
+  employerLabel  String   @map("employer_label")
+  packTitle      String   @map("pack_title")
+  questionsJson  Json     @map("questions_json")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([programSlug])
+  @@index([isActive])
+  @@map("employer_screening_packs")
 }
 
 enum JobLocationType {

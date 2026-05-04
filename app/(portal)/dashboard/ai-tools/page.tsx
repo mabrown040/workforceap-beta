@@ -90,6 +90,25 @@ export default async function AIToolsPage() {
         </section>
       </div>
 
+      <section style={{ maxWidth: '1100px', margin: '0 auto 1.25rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+        <PortalCard className="portal-card--flat">
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                Start here
+              </p>
+              <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.05rem', fontWeight: 800 }}>Path to certification</h2>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.55 }}>
+                See how staff enrolls you in Coursera, workspace email, exams, and job support — before you dive into AI tools.
+              </p>
+            </div>
+            <Link href="/dashboard/program/start" className="btn btn-primary">
+              Open enrollment guide
+            </Link>
+          </div>
+        </PortalCard>
+      </section>
+
       {/* Voice coaches */}
       <div style={{ marginBottom: '1.5rem' }}>
         <VoiceCoachesPromo />

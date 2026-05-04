@@ -49,6 +49,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   const referral = await prisma.partnerReferral.findFirst({
     where: { partnerId: ctx.partnerId, memberId },
+    select: { id: true, referredAt: true },
   });
   if (!referral) notFound();
 
@@ -67,6 +68,9 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
           startDate: true,
           salaryOffered: true,
           placedAt: true,
+          retentionStatus: true,
+          retentionDecision: true,
+          onboardingWindowEnd: true,
         },
       },
       userCertifications: { select: { certName: true, earnedAt: true }, orderBy: { earnedAt: 'desc' } },
@@ -100,6 +104,48 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const recentEvent = recentEvents[0] ?? null;
   const memberStatus = placed ? 'Placed' : progressPct >= 80 ? 'Course-complete' : 'In training';
 
+  const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
+  const allCoursesDone =
+    program && program.courses.length > 0 && program.courses.every((c) => coursesDone.includes(c.slug));
+  const certPhaseLabel = certificateCount > 0 || allCoursesDone ? 'In progress or complete' : 'Pending';
+
+  const journey = [
+    { key: 'intake', label: 'Intake', detail: 'Referral on file', date: referral?.referredAt ?? null, done: !!referral },
+    {
+      key: 'training',
+      label: 'Training',
+      detail: program?.title ?? 'Program',
+      date: member.enrolledAt,
+      done: !!member.enrolledAt,
+    },
+    {
+      key: 'cert',
+      label: 'Certification',
+      detail: certPhaseLabel,
+      date: lastCertAt,
+      done: certificateCount > 0 || allCoursesDone,
+    },
+    {
+      key: 'placement',
+      label: 'Placement',
+      detail: member.placementRecord ? `${member.placementRecord.jobTitle} @ ${member.placementRecord.employerName}` : 'Not placed yet',
+      date: member.placementRecord?.placedAt ?? null,
+      done: placed,
+    },
+    {
+      key: 'retention',
+      label: 'Retention / follow-up',
+      detail:
+        member.placementRecord?.retentionDecision ??
+        member.placementRecord?.retentionStatus ??
+        (member.placementRecord?.onboardingWindowEnd
+          ? `Onboarding window through ${formatDate(member.placementRecord.onboardingWindowEnd)}`
+          : 'Recorded after placement'),
+      date: member.placementRecord?.onboardingWindowEnd ?? null,
+      done: !!(member.placementRecord?.retentionStatus || member.placementRecord?.retentionDecision),
+    },
+  ];
+
   function formatEventLabel(event: (typeof recentEvents)[number]) {
     if (event.metadata && typeof event.metadata === 'object' && event.metadata !== null && 'label' in event.metadata) {
       return `${event.eventName} — ${String((event.metadata as { label?: string }).label)}`;
@@ -124,6 +170,55 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] wa-gap-4 md:wa-gap-6">
           <div className="wa-grid wa-grid-cols-1 wa-gap-4">
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('Member journey')}
+              <p style={{ margin: '0.5rem 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                Intake through training, certification, placement, and retention follow-up. Dates show the latest signal we have in each phase.
+              </p>
+              <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.65rem' }}>
+                {journey.map((step, idx) => (
+                  <li
+                    key={step.key}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'auto 1fr',
+                      gap: '0.65rem',
+                      alignItems: 'flex-start',
+                      padding: '0.65rem 0.75rem',
+                      borderRadius: '0.75rem',
+                      background: step.done ? 'color-mix(in srgb, var(--color-green) 10%, var(--surface-container-low))' : 'var(--surface-container-low)',
+                      border: `1px solid ${step.done ? 'color-mix(in srgb, var(--color-green) 35%, transparent)' : 'var(--outline-variant)'}`,
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        width: '1.75rem',
+                        height: '1.75rem',
+                        borderRadius: '999px',
+                        background: step.done ? 'var(--color-green)' : 'var(--surface-container-highest)',
+                        color: step.done ? '#fff' : 'var(--color-on-surface-variant)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      {step.done ? '✓' : idx + 1}
+                    </span>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 800 }}>{step.label}</p>
+                      <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{step.detail}</p>
+                      {step.date ? (
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(step.date)}</p>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
             <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
               <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                 Member snapshot

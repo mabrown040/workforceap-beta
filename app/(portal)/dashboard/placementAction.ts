@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db/prisma';
+import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 import { getUser } from '@/lib/auth/server';
 import { revalidatePath } from 'next/cache';
 
@@ -23,6 +24,7 @@ export async function confirmPlacement(jobApplicationId: string) {
   const now = new Date();
   const reviewNote = 'Member self-reported offer acceptance. Counselor review still required.';
 
+  const windowEnd = defaultOnboardingWindowEnd(now);
   await prisma.placementRecord.upsert({
     where: { userId: user.id },
     update: {
@@ -31,6 +33,7 @@ export async function confirmPlacement(jobApplicationId: string) {
       placedAt: now,
       notes: reviewNote,
       startDateVerified: false,
+      onboardingWindowEnd: windowEnd,
     },
     create: {
       userId: user.id,
@@ -39,6 +42,7 @@ export async function confirmPlacement(jobApplicationId: string) {
       placedAt: now,
       notes: reviewNote,
       startDateVerified: false,
+      onboardingWindowEnd: windowEnd,
     },
   });
 

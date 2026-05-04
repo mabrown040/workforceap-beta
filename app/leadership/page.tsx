@@ -3,6 +3,9 @@ import { buildPageMetadata } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 import './leadership.css';
+import { prisma } from '@/lib/db/prisma';
+import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
+import PlacementTrustCallout from '@/components/marketing/PlacementTrustCallout';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Board & Leadership',
@@ -11,7 +14,19 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/leadership',
 });
 
-export default function LeadershipPage() {
+export default async function LeadershipPage() {
+  let placementMetrics = {
+    placedCount: 0,
+    withRetentionNote: 0,
+    lastPlacedAt: null as Date | null,
+    asOfLabel: 'Outcomes data unavailable',
+  };
+  try {
+    placementMetrics = await getPlacementPublicMetrics(prisma);
+  } catch {
+    // keep defaults
+  }
+
   return (
     <div className="inner-page">
       {/* ── Hero Section ── */}
@@ -137,6 +152,21 @@ export default function LeadershipPage() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="content-section" style={{ background: 'var(--surface-container-low)', paddingTop: '2.5rem', paddingBottom: '2.5rem' }}>
+        <div className="container" style={{ maxWidth: 900 }}>
+          <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '0.75rem' }}>
+            Outcomes signal (aggregate)
+          </span>
+          <h2 className="text-display-sm" style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>
+            Placement records in WorkforceAP systems
+          </h2>
+          <PlacementTrustCallout metrics={placementMetrics} variant="inline" />
+          <p style={{ margin: '1rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+            This is not a guarantee of individual outcomes. Programs may be available at no upfront cost for qualifying members through WorkforceAP and partner-backed pathways.
+          </p>
         </div>
       </section>
 

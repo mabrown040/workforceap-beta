@@ -3,6 +3,8 @@ import { buildPageMetadata } from '@/app/seo';
 import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { prisma } from '@/lib/db/prisma';
+import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Workforce Development Training & Industry Certificates',
@@ -56,7 +58,19 @@ const VALUES = [
   },
 ];
 
-export default function WhatWeDoPage() {
+export default async function WhatWeDoPage() {
+  let placementMetrics = {
+    placedCount: 0,
+    withRetentionNote: 0,
+    lastPlacedAt: null as Date | null,
+    asOfLabel: 'Outcomes data unavailable',
+  };
+  try {
+    placementMetrics = await getPlacementPublicMetrics(prisma);
+  } catch {
+    // keep defaults
+  }
+
   return (
     <div className="inner-page">
       {/* ── Hero ── */}
@@ -341,12 +355,15 @@ export default function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-accent)',
                   }}
                 >
-                  <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    2,000+
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1.2 }}>
+                    {placementMetrics.placedCount}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Trained through workforce development programs (historical).
+                    Placements on file in WorkforceAP systems (n). {placementMetrics.asOfLabel}
                   </div>
+                  <p style={{ margin: '0.65rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
+                    Historical training reach through workforce partnerships remains 2,000+ — a separate figure from this portal placement counter.
+                  </p>
                 </div>
               </div>
             </div>

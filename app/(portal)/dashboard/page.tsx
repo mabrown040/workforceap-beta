@@ -29,6 +29,7 @@ import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
@@ -97,7 +98,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           isMinor: true,
         },
       },
-      courseEnrollment: { select: { enrolledByAdminId: true } },
+      courseEnrollment: { select: { enrolledByAdminId: true, id: true } },
+      placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
     },
   });
   const profilePromise = prisma.profile.findUnique({
@@ -344,6 +346,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     jobApplicationCount: engagementSignals.jobApplicationCount,
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
+    courseEnrollmentActive: intakeExtra ? !!intakeExtra.courseEnrollment?.id : undefined,
+    placementPlacedAt: intakeExtra?.placementRecord?.placedAt ?? null,
+    placementRetentionDecision: intakeExtra?.placementRecord?.retentionDecision ?? null,
   });
 
   for (const dbAction of dynamicNextActions.reverse()) {
@@ -914,6 +919,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 <MemberDashboardVoiceSectionLazy />
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <ProgramCommitmentPanel variant="compact" />
+                </div>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
                   <div style={{ maxWidth: '300px' }}>

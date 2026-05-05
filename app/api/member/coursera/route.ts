@@ -9,6 +9,7 @@ export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  try {
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
     select: { enrolledProgram: true, coursesCompleted: true, fullName: true },
@@ -52,4 +53,7 @@ export async function GET() {
       skillsetCount: readiness.skillsetIds.length,
     },
   });
+  } catch {
+    return NextResponse.json({ error: 'Failed to load Coursera data' }, { status: 500 });
+  }
 }

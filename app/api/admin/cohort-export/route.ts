@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  try {
   const EXPORT_LIMIT = 10_000;
   const users = await prisma.user.findMany({
     where: {
@@ -174,4 +175,7 @@ export async function GET(req: NextRequest) {
   }
 
   return new NextResponse(csv, { status: 200, headers });
+  } catch {
+    return NextResponse.json({ error: 'Export failed' }, { status: 500 });
+  }
 }

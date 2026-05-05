@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { getTranslations } from 'next-intl/server';
+import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.whatWeDo');

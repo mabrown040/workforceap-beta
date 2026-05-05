@@ -10,6 +10,8 @@ export const resumeRewriterSchema = z.object({
   subjectMemberId: z.string().uuid().optional(),
   /** Group multiple tool runs into one session. */
   sessionId: z.string().uuid().optional(),
+  /** early_career | career_transition | experienced — or auto from profile when omitted. */
+  resumeFramework: z.enum(['auto', 'early_career', 'career_transition', 'experienced']).optional().default('auto'),
 });
 
 export type ResumeRewriterInput = z.infer<typeof resumeRewriterSchema>;

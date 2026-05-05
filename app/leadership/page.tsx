@@ -3,17 +3,20 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 import './leadership.css';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('marketing.leadership');
   return buildPageMetadataAsync({
-  title: 'Board & Leadership',
-  description:
-    "Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact.",
-  path: '/leadership',
-});
+    title: t('title'),
+    description: t('description'),
+    path: '/leadership',
+  });
 }
 
-export default function LeadershipPage() {
+export default async function LeadershipPage() {
+  const t = await getTranslations('marketing.leadership');
+
   return (
     <div className="inner-page">
       {/* ── Hero Section ── */}
@@ -48,7 +51,7 @@ export default function LeadershipPage() {
                   letterSpacing: '0.08em',
                 }}
               >
-                Our Leadership
+                {t('heroLabel')}
               </span>
 
               <h1
@@ -59,7 +62,7 @@ export default function LeadershipPage() {
                   lineHeight: 1.08,
                 }}
               >
-                Stewards of the{' '}
+                {t('heroHeadline1')}{' '}
                 <span
                   style={{
                     background:
@@ -68,7 +71,7 @@ export default function LeadershipPage() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  Future Workforce.
+                  {t('heroHeadlineAccent')}
                 </span>
               </h1>
 
@@ -80,12 +83,7 @@ export default function LeadershipPage() {
                   lineHeight: 1.75,
                 }}
               >
-                Our governance team combines{' '}
-                <strong>decades of workforce development leadership</strong>,{' '}
-                <strong>employer-side tech credibility</strong>,{' '}
-                <strong>military and operations discipline</strong>, and{' '}
-                <strong>deep community roots</strong> — connecting workforce
-                training to real outcomes across the nation.
+                {t('governanceBody')}
               </p>
             </div>
 
@@ -116,7 +114,7 @@ export default function LeadershipPage() {
                   className="text-label-upper"
                   style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}
                 >
-                  Established 2025
+                  {t('established')}
                 </span>
               </div>
 
@@ -132,10 +130,7 @@ export default function LeadershipPage() {
                   opacity: 0.85,
                 }}
               >
-                &ldquo;This isn&rsquo;t a generic nonprofit team. These are
-                people who&rsquo;ve run programs at scale, led at Goodwill and
-                Urban League, built systems at IBM and Microsoft, commanded in
-                the Army and at AWS &mdash; and who show up nationwide.&rdquo;
+                &ldquo;{t('quote')}&rdquo;
               </p>
             </div>
           </div>

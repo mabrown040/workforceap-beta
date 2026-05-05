@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 export type OrgBranding = {
@@ -19,7 +20,10 @@ export async function getDefaultOrgBranding(): Promise<OrgBranding> {
       where: { id },
       select: { primaryColor: true, logo: true },
     });
-    return { primaryColor: org?.primaryColor ?? null, logo: org?.logo ?? null };
+    return {
+      primaryColor: org?.primaryColor ?? null,
+      logo: resolveSupabasePublicAssetUrl('organization-branding', org?.logo ?? null),
+    };
   } catch {
     // Build-time / missing DB / missing org row — neutral branding
     return { primaryColor: null, logo: null };

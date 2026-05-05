@@ -8,21 +8,23 @@ import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('marketing.howItWorks');
   return buildPageMetadataAsync({
-  title: 'How It Works',
-  description:
-    'Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.',
-  path: '/how-it-works',
-});
+    title: t('title'),
+    description: t('description'),
+    path: '/how-it-works',
+  });
 }
 
-const PHASES = [
+const PHASES = (t: (key: string) => string) => [
   {
     id: 1,
-    label: 'Phase 1 — Get Started',
-    title: 'Get Started',
+    label: t('phase1Label'),
+    title: t('phase1Title'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num <= 3).map((s) => ({
       num: s.num,
       title: s.title,
@@ -32,8 +34,8 @@ const PHASES = [
   },
   {
     id: 2,
-    label: 'Phase 2 — Build Your Future',
-    title: 'Build Your Future',
+    label: t('phase2Label'),
+    title: t('phase2Title'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 4 && s.num <= 6).map((s) => ({
       num: s.num,
       title: s.title,
@@ -43,8 +45,8 @@ const PHASES = [
   },
   {
     id: 3,
-    label: 'Phase 3 — Launch Your Career',
-    title: 'Launch Your Career',
+    label: t('phase3Label'),
+    title: t('phase3Title'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 7).map((s) => ({
       num: s.num,
       title: s.title,
@@ -55,6 +57,7 @@ const PHASES = [
 ];
 
 export default async function HowItWorksPage() {
+  const t = await getTranslations('marketing.howItWorks');
   let overviewVideoEmbed: string | null = null;
   if (!shouldSkipOptionalDbQueriesAtBuild()) {
     try {
@@ -87,15 +90,24 @@ export default async function HowItWorksPage() {
                   marginBottom: '1.5rem',
                 }}
               >
-                Member Experience
+                {t('heroEyebrow')}
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Your path{' '}
-                <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
+                {t('heroHeadline')}{' '}
+                <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span>
               </h1>
-              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '2.5rem' }}>
-                No gatekeeping. Clear, grant- and partner-funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).
+              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+                {t('heroCopy')}
               </p>
+              <div style={{ marginBottom: '2.5rem', padding: '1.125rem 1.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', borderLeft: '3px solid var(--color-accent)', maxWidth: '36rem' }}>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{t('whoCanApplyTitle')}</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
+                  {t('whoCanApplyBody')}{' '}
+                  <Link href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                    {t('wioaLink')}
+                  </Link>
+                </p>
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                 <Link
                   href="/find-your-path"
@@ -110,7 +122,7 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Find your career
+                  {t('heroCta1')}
                 </Link>
                 <Link
                   href="/apply"
@@ -125,7 +137,7 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Apply now
+                  {t('heroCta2')}
                 </Link>
                 <Link
                   href="/programs"
@@ -141,7 +153,7 @@ export default async function HowItWorksPage() {
                     border: '2px solid var(--color-accent)',
                   }}
                 >
-                  View programs
+                  {t('heroCta3')}
                 </Link>
               </div>
             </div>
@@ -154,15 +166,15 @@ export default async function HowItWorksPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              What Happens After You Apply
+              {t('journeyTitle')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-              Ten steps, three phases. Every step has a purpose — and a person supporting you through it.
+              {t('journeySubtitle')}
             </p>
           </div>
 
-          {PHASES.map((phase, phaseIdx) => (
-            <div key={phase.id} style={{ marginBottom: phaseIdx < PHASES.length - 1 ? '4rem' : 0 }}>
+          {PHASES(t).map((phase, phaseIdx) => (
+            <div key={phase.id} style={{ marginBottom: phaseIdx < PHASES(t).length - 1 ? '4rem' : 0 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid rgba(88,65,68,0.1)', paddingBottom: '1rem', marginBottom: '2rem' }}>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
                 <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
@@ -180,7 +192,7 @@ export default async function HowItWorksPage() {
                       }}
                     >
                       <span className="text-label-upper" style={{ color: isHighlight ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>
-                        Phase {String(step.num).padStart(2, '0')}
+                        {t('phaseLabel')} {String(step.num).padStart(2, '0')}
                       </span>
                       <h4 style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{step.title}</h4>
                       {step.num === 2 && overviewVideoEmbed ? (
@@ -204,14 +216,14 @@ export default async function HowItWorksPage() {
                             />
                           </div>
                           <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
-                            Prefer to read? The summary below is always available.
+                            {t('videoCaption')}
                           </p>
                         </div>
                       ) : null}
                       <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.desc}</p>
                       {step.why && (
                         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', fontStyle: 'italic', opacity: 0.8 }}>
-                          Why: {step.why}
+                          {t('whyPrefix')} {step.why}
                         </p>
                       )}
                     </div>
@@ -220,6 +232,17 @@ export default async function HowItWorksPage() {
               </div>
             </div>
           ))}
+
+          {/* Post-timeline CTA — prevent dead-end after long scroll */}
+          <div style={{ marginTop: '3rem', textAlign: 'center', padding: '2.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', fontSize: '1rem' }}>
+              {t('ctaBody')}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+              <Link href="/apply" className="btn btn-primary">{t('ctaApply')}</Link>
+              <Link href="/find-your-path" className="btn btn-secondary">{t('heroCta1')}</Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -231,20 +254,22 @@ export default async function HowItWorksPage() {
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
               <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ maxWidth: 'min(42rem, 100%)' }}>
-                  <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
+                  <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('laptopTitle')}</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
-                    Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
+                    {t('laptopBody')}
                   </p>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {['Pre-configured with all necessary software', 'Technical support included'].map((item) => (
-                      <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                        {item}
-                      </li>
-                    ))}
                     <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
                       <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                      No upfront program cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', marginLeft: '0.25rem' }}>qualifying members</Link>
+                      {t('laptopItem1')}
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                      {t('laptopItem2')}
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                      {t('laptopItem3')}
                     </li>
                   </ul>
                 </div>
@@ -258,22 +283,24 @@ export default async function HowItWorksPage() {
                   <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '2rem', '--ms-fill': 1 }}>calendar_today</span>
                   </div>
-                  <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>150-Day Post-Hire Support</h2>
+                  <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>{t('support150Title')}</h2>
                   <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
-                    We don&rsquo;t just find you a job; we help you keep it. Our support continues for five months after your start date.
+                    {t('support150Body')}
                   </p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  {[
-                    { label: 'Benefit 01', text: 'Monthly Check-ins' },
-                    { label: 'Benefit 02', text: 'Conflict Resolution' },
-                    { label: 'Benefit 03', text: 'Advancement Coaching' },
-                  ].map((b) => (
-                    <div key={b.label} style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{b.label}</p>
-                      <p style={{ fontWeight: 500 }}>{b.text}</p>
-                    </div>
-                  ))}
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit01Label')}</p>
+                    <p style={{ fontWeight: 500 }}>{t('benefit01Text')}</p>
+                  </div>
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit02Label')}</p>
+                    <p style={{ fontWeight: 500 }}>{t('benefit02Text')}</p>
+                  </div>
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit03Label')}</p>
+                    <p style={{ fontWeight: 500 }}>{t('benefit03Text')}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -281,28 +308,54 @@ export default async function HowItWorksPage() {
             {/* Career Training Benefits */}
             <div style={{ gridColumn: 'span 12' }}>
               <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
-                <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
+                <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>{t('trainingTitle')}</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
-                  {[
-                    { icon: 'school', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
-                    { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
-                    { icon: 'work', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
-                    { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
-                  ].map((b) => (
-                    <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>{b.icon}</span>
-                        </div>
-                        <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>school</span>
                       </div>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{b.desc}</p>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training1Title')}</h4>
                     </div>
-                  ))}
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training1Desc')}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>groups</span>
+                      </div>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training2Title')}</h4>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training2Desc')}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>work</span>
+                      </div>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training3Title')}</h4>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training3Desc')}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>psychology</span>
+                      </div>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training4Title')}</h4>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training4Desc')}</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="content-section" style={{ padding: '2rem 1rem 1rem' }}>
+        <div className="container" style={{ maxWidth: 760 }}>
+          <ProgramCommitmentPanel />
         </div>
       </section>
 
@@ -319,10 +372,10 @@ export default async function HowItWorksPage() {
           overflow: 'hidden',
         }}>
           <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
-            Ready to take the first step?
+            {t('ctaTitle')}
           </h2>
           <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and there&rsquo;s no application fee.
+            {t('ctaBody')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
             <Link
@@ -337,7 +390,7 @@ export default async function HowItWorksPage() {
                 textDecoration: 'none',
               }}
             >
-              Apply For Next Cohort
+              {t('ctaApply')}
             </Link>
             <Link
               href="/contact"
@@ -351,7 +404,7 @@ export default async function HowItWorksPage() {
                 textDecoration: 'none',
               }}
             >
-              Speak with an Advisor
+              {t('ctaContact')}
             </Link>
           </div>
         </div>

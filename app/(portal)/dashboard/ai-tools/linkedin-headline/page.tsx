@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInHeadlineForm from '@/components/portal/tools/LinkedInHeadlineForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -30,11 +29,11 @@ export default async function LinkedInHeadlinePage() {
         }}
       >
         <PageHeader
-          title="LinkedIn headline generator"
+          title="LinkedIn Headline"
           subtitle="Craft a compelling LinkedIn headline that gets you noticed by recruiters."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'LinkedIn headline' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'LinkedIn Headline' },
           ]}
         />
       </div>
@@ -46,8 +45,6 @@ export default async function LinkedInHeadlinePage() {
         </div>
         <ToolHistoryPanel userId={user.id} toolType="linkedin_headline" />
       </div>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

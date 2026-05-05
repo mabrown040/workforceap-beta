@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { getCourseraConfig } from '@/lib/coursera/config';
-import { getDiscoveredProgram } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import CourseraProgressCardView, {
   type CourseraProgressRow,
 } from '@/components/portal/CourseraProgressCardView';
@@ -37,7 +37,7 @@ export default async function CourseraProgressCard({
   // the first row's programSlug since all rows share the member's enrollment.
   const programSlug = rows[0]?.programSlug ?? null;
   const fromDiscovered = programSlug
-    ? getDiscoveredProgram(programSlug)?.publicProgramUrl ?? null
+    ? DISCOVERED_COURSERA_PROGRAMS[programSlug]?.publicProgramUrl ?? null
     : null;
   const fromConfig = getCourseraConfig().programHomeUrl || null;
   const programHomeUrl: string | null = fromDiscovered ?? fromConfig;

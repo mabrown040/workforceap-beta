@@ -41,17 +41,27 @@ async function login(page, redirectPath) {
   await page.goto(`${baseURL}/login?redirectTo=${encodeURIComponent(redirectPath)}`, {
     waitUntil: 'domcontentloaded',
   });
-  await page.getByLabel(/institutional id/i).fill(email);
-  await page.getByLabel(/access key/i).fill(password);
-  await page.getByRole('button', { name: /authenticate access/i }).click();
-  await page.waitForURL((u) => !u.pathname.includes('/login'), { timeout: 25000 });
+  await page.locator('#email').click();
+  await page.locator('#email').fill(email);
+  await page.locator('#password').click();
+  await page.locator('#password').fill(password);
+  await Promise.all([
+    page.waitForURL((u) => !u.pathname.includes('/login'), { timeout: 25000 }),
+    page.getByRole('button', { name: /sign in/i }).click(),
+  ]);
 }
 
 async function auditSection(page, section) {
   const paths = STATIC_PATHS[section];
   const rows = [];
   for (const path of paths) {
-    await page.goto(`${baseURL}${path}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    try {
+      await page.goto(`${baseURL}${path}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    } catch (error) {
+      const message = error?.message ?? String(error);
+      if (!message.includes('net::ERR_ABORTED')) throw error;
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+    }
     const finalUrl = page.url();
     const title = await page.title();
     const stuckLogin = finalUrl.includes('/login');

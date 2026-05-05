@@ -4,7 +4,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AssessmentForm from '@/components/portal/AssessmentForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
@@ -97,8 +96,6 @@ export default async function AssessmentPage({
         </div>
       </section>
 
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

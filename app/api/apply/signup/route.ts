@@ -222,6 +222,7 @@ export async function POST(request: NextRequest) {
           state: state?.trim() || null,
           zip: zip?.trim() || null,
           smsOptIn: smsOptIn ?? false,
+          role: 'member',
         },
         update: {
           profilePhone: phone,
@@ -230,6 +231,7 @@ export async function POST(request: NextRequest) {
           state: state?.trim() || null,
           zip: zip?.trim() || null,
           smsOptIn: smsOptIn ?? false,
+          role: 'member',
         },
       });
 
@@ -246,6 +248,13 @@ export async function POST(request: NextRequest) {
           referralPartnerId,
         },
       });
+
+      // Create partner referral record so the member shows in partner's referred members list
+      if (referralPartnerId) {
+        await tx.partnerReferral.create({
+          data: { partnerId: referralPartnerId, memberId: user.id },
+        });
+      }
     });
     await trackEvent({
       userId: user.id,

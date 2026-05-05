@@ -2,7 +2,8 @@ import 'server-only';
 
 import { CourseProgressStatus } from '@prisma/client';
 
-import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
@@ -10,13 +11,13 @@ import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProg
 import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
-  const disc = getDiscoveredProgram(programSlug);
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
   return disc?.courses.find((c) => c.slug === courseSlug) ?? null;
 }
 
 function matchCourseSlugFromObjectId(programSlug: string, objectId: string | null | undefined): string | null {
   if (!objectId) return null;
-  const disc = getDiscoveredProgram(programSlug);
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
   if (!disc) return null;
   const needle = objectId.toLowerCase();
   for (const c of disc.courses) {
@@ -33,7 +34,7 @@ function mergePercent(current: number, incoming: number | null | undefined): num
 }
 
 export async function refreshMemberProgramProgressRollup(userId: string, programSlug: string) {
-  const disc = getDiscoveredProgram(programSlug);
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
   const program = getProgramBySlug(programSlug);
   const totalCourses = disc?.courses.length ?? program?.courses.length ?? 0;
 

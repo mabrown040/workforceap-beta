@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
+import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,6 +59,31 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
           <p>{error}</p>
         </div>
       ) : null}
+
+      <section className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Enrollment steps (member Path to certification)</h2>
+        <p style={{ margin: '0 0 1rem', fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+          When you assign a program on the invite, members see these steps under{' '}
+          <strong>Member Portal → My Program → Path to certification</strong> after they accept.
+        </p>
+        <div style={{ display: 'grid', gap: '0.75rem' }}>
+          {PROGRAMS.map((p) => {
+            const steps = getProgramEnrollmentSteps(p.slug);
+            return (
+              <details key={p.slug} style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.65rem', padding: '0.5rem 0.75rem' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 700 }}>{p.title}</summary>
+                <ol style={{ margin: '0.5rem 0 0', paddingLeft: '1.1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  {steps.map((s) => (
+                    <li key={s.id} style={{ marginBottom: '0.25rem' }}>
+                      {s.title}
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            );
+          })}
+        </div>
+      </section>
 
       <form method="post" action="/api/admin/invites" className="portal-card portal-card--flat" style={{ padding: '1.25rem', display: 'grid', gap: '1rem' }}>
         <label className="form-group" style={{ margin: 0 }}>

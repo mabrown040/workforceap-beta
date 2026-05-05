@@ -41,14 +41,14 @@ export default function PlacementConfirmationStrip({ offers }: { offers: any[] }
               <span className="material-symbols-outlined" style={{ color: '#fff', fontVariationSettings: "'FILL' 1", flexShrink: 0, marginLeft: '0.5rem' }} aria-hidden>work</span>
             </div>
             <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-              Confirm your placement so we can officially celebrate and update your counselor!
+              Let WorkforceAP know you accepted the offer. This does not change your support, access, or placement status on its own — it just alerts the team to review and follow up.
             </p>
             <button type="button"
               onClick={() => handleConfirm(offer.id)}
               disabled={loading[offer.id]}
               style={{ display: 'block', width: '100%', background: '#fff', color: '#059669', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', border: 'none', cursor: 'pointer' }}
             >
-              {loading[offer.id] ? 'Confirming...' : 'Yes, I got the job!'}
+              {loading[offer.id] ? 'Sending update...' : 'Yes — notify my team'}
             </button>
           </div>
         </div>

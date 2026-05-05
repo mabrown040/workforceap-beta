@@ -102,7 +102,6 @@ export default function EmployerSettingsForm({ initial }: { initial: EmployerSet
           contactName,
           contactEmail,
           contactPhone: contactPhone.trim() || null,
-          logoUrl: logoUrl.trim() || null,
         }),
       });
       const data = await r.json().catch(() => ({}));

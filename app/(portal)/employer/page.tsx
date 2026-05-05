@@ -3,12 +3,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getEmployerForUser } from '@/lib/auth/roles';
+import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
-import { isSuperAdmin } from '@/lib/auth/roles';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
@@ -20,6 +19,7 @@ import {
   employerJobPostingApplicationStatusBadgeVariant,
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
+import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -34,10 +34,12 @@ export default async function EmployerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/employer');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/admin/employers' : '/employers';
 
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) redirect(fallbackForUnlinked);
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) {
+    if (superAdmin) redirect('/admin/employers');
+    redirect('/dashboard');
+  }
 
   const employerRow = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -50,7 +52,16 @@ export default async function EmployerDashboardPage() {
       companyWebsite: true,
     },
   });
-  if (!employerRow) redirect(fallbackForUnlinked);
+  if (!employerRow) {
+    if (superAdmin) redirect('/admin/employers');
+    redirect('/dashboard');
+  }
+
+  const hiringIntents = await prisma.employerHiringIntent.findMany({
+    where: { employerId: ctx.employerId },
+    orderBy: { createdAt: 'desc' },
+    take: 25,
+  });
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId },
@@ -341,6 +352,11 @@ export default async function EmployerDashboardPage() {
           </div>
         </div>
       </div>
+
+      <div style={{ padding: '0 1.5rem 1.5rem' }} className="md:wa-hidden">
+        <EmployerHiringIntentPanel initialIntents={hiringIntents} />
+      </div>
+
       {/* ── Desktop View ── */}
       <div className="wa-hidden md:wa-block">
       {/* ── Header ── */}
@@ -400,6 +416,10 @@ export default async function EmployerDashboardPage() {
             <p className="portal-metric-card__hint">{card.hint}</p>
           </div>
         ))}
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <EmployerHiringIntentPanel initialIntents={hiringIntents} />
       </section>
 
       {/* ── Talent Pipeline + Sidebar ── */}
@@ -522,7 +542,6 @@ export default async function EmployerDashboardPage() {
         )}
       </section>
       </div>{/* end desktop */}
-    </PortalPageFrame>
-    </PortalEntryClient>
+    </PortalPageFrame>    </PortalEntryClient>
   );
 }

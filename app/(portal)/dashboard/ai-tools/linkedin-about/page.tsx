@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -30,10 +29,10 @@ export default async function LinkedInAboutPage() {
         }}
       >
         <PageHeader
-          title="LinkedIn About section"
+          title="LinkedIn About"
           subtitle="Add your target role and highlights. If you have a resume on file, we prefill from it and use the full text when generating your 3-paragraph About section."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'LinkedIn About' },
           ]}
         />
@@ -46,8 +45,6 @@ export default async function LinkedInAboutPage() {
         </div>
         <ToolHistoryPanel userId={user.id} toolType="linkedin_about" />
       </div>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

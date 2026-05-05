@@ -8,7 +8,6 @@ import { getUser } from '@/lib/auth/server';
 import { getCareerBriefs, getCareerBriefContent } from '@/lib/content/careerBriefs';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import { generatePersonalizedBriefSection } from '@/lib/ai/careerBriefAI';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -87,8 +86,6 @@ export default async function CareerBriefDetailPage({ params }: Props) {
         </div>
       </section>
 
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

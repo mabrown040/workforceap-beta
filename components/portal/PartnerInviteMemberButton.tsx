@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   compact?: boolean;
 };
 
 export default function PartnerInviteMemberButton({ compact = false }: Props) {
+  const tPartner = useTranslations('partner');
+  const tCommon = useTranslations('common');
   const dialogId = useId();
   const titleId = useId();
   const descriptionId = useId();
@@ -98,7 +101,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
         aria-expanded={open}
         aria-controls={dialogId}
       >
-        Invite Member
+        {tPartner('inviteMember')}
       </button>
 
       {open ? (
@@ -145,7 +148,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
                 </p>
               </div>
               <button type="button" className="btn btn-outline" onClick={() => setOpen(false)} disabled={submitting}>
-                Close
+                {tCommon('close')}
               </button>
             </div>
 
@@ -203,7 +206,7 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-outline" onClick={() => setOpen(false)} disabled={submitting}>
-                  Cancel
+                  {tCommon('cancel')}
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={submitting || !email.trim()}>
                   {submitting ? 'Sending…' : 'Send Invite'}

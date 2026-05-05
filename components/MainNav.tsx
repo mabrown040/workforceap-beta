@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import LanguageToggle from '@/components/portal/LanguageToggle';
+import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
@@ -55,6 +57,41 @@ export default function MainNav() {
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
+  const tNav = useTranslations('nav');
+  const tCta = useTranslations('cta');
+  const translateLabel = (label: string): string => {
+    const navMap: Record<string, string> = {
+      'Programs': tNav('programs'),
+      'Check Eligibility': tNav('checkEligibility'),
+      'Find Your Path': tNav('findYourPath'),
+      'Partners': tNav('partners'),
+      'Employers': tNav('employers'),
+      'Blog': tNav('blog'),
+      'Contact Us': tNav('contactUs'),
+      'About Us': tNav('aboutUs'),
+      'What We Do': tNav('whatWeDo'),
+      'How It Works': tNav('howItWorks'),
+      'Leadership': tNav('leadership'),
+      'FAQ': tNav('faq'),
+      'Member dashboard': tNav('dashboard'),
+      'Account settings': tNav('myAccount'),
+      'Account': tNav('myAccount'),
+      'Employer portal': tNav('employer'),
+      'Partner portal': tNav('partner'),
+      'Partner': tNav('partner'),
+    };
+    if (label in navMap) return navMap[label];
+    const ctaMap: Record<string, string> = {
+      'Apply Now': tCta('applyNow'),
+      'Login': tCta('logIn'),
+      'Counselor sign in': tCta('logIn'),
+      'Partner sign in': tCta('logIn'),
+      'Employer sign in': tCta('logIn'),
+      'Member sign in': tCta('logIn'),
+    };
+    if (label in ctaMap) return ctaMap[label];
+    return label;
+  };
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -78,74 +115,82 @@ export default function MainNav() {
 
   useEffect(() => {
     let cancelled = false;
-    const refreshPortalLinks = () => {
-      void (async () => {
-        try {
-          const res = await fetch('/api/auth/me', { credentials: 'include' });
-          const data = (await res.json()) as {
-            role: string | null;
-            partner: { partnerId: string } | null;
-            employer: { employerId: string; companyName: string } | null;
-            superAdmin: boolean;
-            canAccessMemberDashboard: boolean;
-          };
-          if (cancelled) return;
-          if (!data.role) {
-            setPortalState({
-              primary: { href: '/login', label: 'Login' },
-              submenu: [
-                { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-                { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
-                { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-                { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
-              ],
-            });
-            return;
-          }
-          const partnerExclusive = !!data.partner && !data.superAdmin;
-          if (partnerExclusive) {
-            setPortalState({
-              primary: { href: '/partner', label: 'Partner' },
-              submenu: [
-                { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-                { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-                { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
-              ],
-            });
-            return;
-          }
-          const sub: Array<{ href: string; label: string }> = [
-            { href: '/dashboard', label: 'Member dashboard' },
-          ];
-          if (data.employer) {
-            sub.push({ href: '/employer', label: 'Employer portal' });
-          }
-          if (data.partner && data.superAdmin) {
-            sub.push({ href: '/partner', label: 'Partner portal' });
-          }
-          sub.push({ href: '/dashboard/account', label: 'Account settings' });
+    let lastRefreshAt = 0;
+    /** Cap refresh rate so tab-switching every few seconds doesn't spam /api/auth/me. */
+    const REFRESH_THROTTLE_MS = 60_000;
+    const doFetch = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = (await res.json()) as {
+          role: string | null;
+          partner: { partnerId: string } | null;
+          employer: { employerId: string; companyName: string } | null;
+          superAdmin: boolean;
+          canAccessMemberDashboard: boolean;
+        };
+        if (cancelled) return;
+        if (!data.role) {
           setPortalState({
-            primary: { href: '/dashboard', label: 'Account' },
-            submenu: sub,
+            primary: { href: '/login', label: 'Login' },
+            submenu: [
+              { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+              { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
+              { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+              { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+            ],
           });
-        } catch {
-          if (!cancelled) {
-            setPortalState({
-              primary: { href: '/login', label: 'Login' },
-              submenu: [
-                { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-                { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
-                { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-                { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
-              ],
-            });
-          }
+          return;
         }
-      })();
+        const partnerExclusive = !!data.partner && !data.superAdmin;
+        if (partnerExclusive) {
+          setPortalState({
+            primary: { href: '/partner', label: 'Partner' },
+            submenu: [
+              { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+              { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+              { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+            ],
+          });
+          return;
+        }
+        const sub: Array<{ href: string; label: string }> = [
+          { href: '/dashboard', label: 'Member dashboard' },
+        ];
+        if (data.employer) {
+          sub.push({ href: '/employer', label: 'Employer portal' });
+        }
+        if (data.partner && data.superAdmin) {
+          sub.push({ href: '/partner', label: 'Partner portal' });
+        }
+        sub.push({ href: '/dashboard/account', label: 'Account settings' });
+        setPortalState({
+          primary: { href: '/dashboard', label: 'Account' },
+          submenu: sub,
+        });
+      } catch {
+        if (!cancelled) {
+          setPortalState({
+            primary: { href: '/login', label: 'Login' },
+            submenu: [
+              { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
+              { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
+              { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
+              { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+            ],
+          });
+        }
+      }
     };
-    refreshPortalLinks();
-    window.addEventListener('focus', refreshPortalLinks);
-    return () => { cancelled = true; window.removeEventListener('focus', refreshPortalLinks); };
+    const refreshPortalLinks = (force = false) => {
+      const now = Date.now();
+      if (!force && now - lastRefreshAt < REFRESH_THROTTLE_MS) return;
+      lastRefreshAt = now;
+      void doFetch();
+    };
+    refreshPortalLinks(true);
+    const onFocus = () => refreshPortalLinks(false);
+    window.addEventListener('focus', onFocus);
+    return () => { cancelled = true; window.removeEventListener('focus', onFocus); };
   }, []);
 
   useEffect(() => { closeMobile(); }, [pathnameWithoutLocale, closeMobile]);
@@ -265,13 +310,13 @@ export default function MainNav() {
                     onClick={() => setActiveDropdown(isOpen ? null : item.label)}
                     onKeyDown={(e) => handleDropdownKeyDown(e, item.label, isOpen, subMenuId)}
                   >
-                    {item.label}
+                    {translateLabel(item.label)}
                   </button>
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href} role="none">
                         <LocalizedLink href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
-                          {child.label}
+                          {translateLabel(child.label)}
                         </LocalizedLink>
                       </li>
                     ))}
@@ -282,7 +327,7 @@ export default function MainNav() {
             return [
               <li key={item.href}>
                 <LocalizedLink href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
-                  {item.label}
+                  {translateLabel(item.label)}
                 </LocalizedLink>
               </li>,
             ];
@@ -297,7 +342,7 @@ export default function MainNav() {
                 className={`nav-login-primary${portalHrefActive(portalState.primary.href) ? ' active' : ''}`}
                 onClick={closeMobile}
               >
-                {portalState.primary.label}
+                {translateLabel(portalState.primary.label)}
               </Link>
               {loginSubmenuItems.length > 0 ? (
                 <button
@@ -338,7 +383,7 @@ export default function MainNav() {
                       className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
                       onClick={closeMobile}
                     >
-                      {item.label}
+                      {translateLabel(item.label)}
                     </Link>
                   </li>
                 ))}
@@ -346,17 +391,19 @@ export default function MainNav() {
             ) : null}
           </li>
           <li>
-            <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>Apply Now</LocalizedLink>
+            <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
           </li>
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
-            <div className="nav-theme-mobile-wrapper">
+            <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <LanguageToggle />
               <ThemeToggle variant="marketing" />
             </div>
           </li>
         </ul>
 
-        {/* Desktop-only theme toggle */}
-        <div className="nav-theme-slot-desktop">
+        {/* Desktop-only theme toggle + language */}
+        <div className="nav-theme-slot-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <LanguageToggle />
           <ThemeToggle variant="marketing" />
         </div>
       </div>

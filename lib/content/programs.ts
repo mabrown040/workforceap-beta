@@ -4,28 +4,10 @@
  * Icons are Lucide icon names — rendered by components that import from lucide-react.
  */
 
-import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
-
-export type DiscoveredCourseraCourse = {
-  courseId: string;
-  slug: string;
-  name: string;
-  partner: string;
-  estimatedHours?: number;
-};
-
-export type DiscoveredCourseraProgram = {
-  courseraProgramId: string;
-  title?: string;
-  courseraCollectionTitle?: string;
-  publicProgramUrl?: string;
-  courses: DiscoveredCourseraCourse[];
-};
-
-const DISCOVERED_PROGRAM_BY_SLUG = DISCOVERED_COURSERA_PROGRAMS as unknown as Record<string, DiscoveredCourseraProgram>;
-const DISCOVERED_PROGRAM_ALIASES: Record<string, string> = {
-  'comptia-a-professional-certificate': 'comptia-a-plus',
-};
+import {
+  DISCOVERED_COURSERA_PROGRAMS,
+  type CourseraDiscoveredCourse,
+} from '@/lib/content/courseraDiscoveredCatalog';
 
 function slugify(s: string): string {
   return s
@@ -62,21 +44,26 @@ function normalizeDiscoveredProgramTitle(title: string): string {
 
 export function getDiscoveredProgram(program: Program | string) {
   const slug = typeof program === 'string' ? program : program.slug;
-  const canonicalSlug = DISCOVERED_PROGRAM_ALIASES[slug] ?? slug;
-  return DISCOVERED_PROGRAM_BY_SLUG[canonicalSlug] ?? null;
+  return DISCOVERED_COURSERA_PROGRAMS[slug];
 }
 
 function inferDiscoveredPartnerLabel(program: Program | string): string | null {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return null;
 
-  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
+  const title = normalizeDiscoveredProgramTitle(discovered.title ?? '');
   const brandedSuffix = title.match(/\(([^)]+)\)\s*$/)?.[1]?.trim();
   const recognizedCredentialBrands = new Set(['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA']);
   if (brandedSuffix && recognizedCredentialBrands.has(brandedSuffix)) return brandedSuffix;
   if (title.startsWith('CompTIA ')) return 'CompTIA';
 
-  const partners = Array.from(new Set(discovered.courses.map((course) => course.partner).filter(Boolean)));
+  const partners = Array.from(
+    new Set(
+      discovered.courses
+        .map((course: CourseraDiscoveredCourse) => course.partner)
+        .filter((p): p is string => Boolean(p))
+    )
+  );
   if (partners.length === 1) return partners[0] ?? null;
 
   return 'Coursera partners';
@@ -85,7 +72,7 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
 export function getProgramDisplayTitle(program: Program | string): string {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return typeof program === 'string' ? program : program.title;
-  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? (typeof program === 'string' ? program : program.title));
+  return normalizeDiscoveredProgramTitle(discovered.title ?? '');
 }
 
 export function getProgramDisplayPartner(program: Program | string): string {
@@ -122,12 +109,12 @@ function mkProgram(
 ): Program {
   const slug = slugOverride ?? slugify(title);
   const canonicalCategoryColor = PROGRAM_CATEGORY_COLORS[category] ?? categoryColor;
-  const discoveredCourses = getDiscoveredProgram(slug)?.courses;
+  const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
   const courses: ProgramCourse[] = discoveredCourses?.length
-    ? discoveredCourses.map((course) => ({
+    ? discoveredCourses.map((course: CourseraDiscoveredCourse) => ({
         slug: course.slug,
         name: course.name,
-        estimatedHours: course.estimatedHours || defaultHours,
+        estimatedHours: course.estimatedHours ?? defaultHours,
       }))
     : courseNames.map((name, i) => ({
         slug: `${slug}-course-${i + 1}`,

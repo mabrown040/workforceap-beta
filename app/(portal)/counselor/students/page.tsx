@@ -114,7 +114,7 @@ export default async function CounselorStudentsPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title="My members" subtitle="Members assigned to you for coaching and messaging." />
+      <PageHeader title="My Members" subtitle="Members assigned to you for coaching and messaging." />
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
@@ -241,7 +241,7 @@ export default async function CounselorStudentsPage() {
               description="Members will appear here once assigned by an administrator."
               icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
               primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-              secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+              secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
             />
           ) : (
             assignments.map((a) => {
@@ -436,7 +436,7 @@ export default async function CounselorStudentsPage() {
             description="Members will appear here once assigned by an administrator."
             icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
             primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+            secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
           />
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>

@@ -4,12 +4,12 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getAgeGroup } from '@/lib/util/ageCalculation';
 import PageHeader from '@/components/portal/PageHeader';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -126,9 +126,17 @@ export default async function JobsPage() {
         employer: { select: { companyName: true, logoUrl: true } },
       },
     });
-    const visible = jobs.filter(
-      (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
-    );
+    const visible = jobs
+      .filter(
+        (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+      )
+      .map((job) => ({
+        ...job,
+        employer: {
+          ...job.employer,
+          logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+        },
+      }));
     initialJobs = visible;
     initialTotal = visible.length;
   } catch {
@@ -147,6 +155,67 @@ export default async function JobsPage() {
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
+          {/* S1-3: Cert-to-job pathway banner — certs that open doors */}
+          {user ? (
+            <div
+              style={{
+                padding: '1.125rem 1.25rem',
+                background: 'color-mix(in srgb, var(--color-accent) 6%, var(--surface-container-low))',
+                border: '1px solid color-mix(in srgb, var(--color-accent) 20%, transparent)',
+                borderLeft: '3px solid var(--color-accent)',
+                borderRadius: '0.875rem',
+                marginBottom: '1.25rem',
+              }}
+            >
+              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Certificates that open doors in our employer network
+              </p>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
+                Employers hiring through WorkforceAP prioritize members with verified certificates. The most in-demand right now:
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+                {[
+                  'Google IT Support',
+                  'CompTIA A+',
+                  'AWS Cloud Practitioner',
+                  'Google Project Management',
+                  'IBM Data Analyst',
+                ].map((cert) => (
+                  <a
+                    key={cert}
+                    href="/dashboard/certifications"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.3125rem 0.75rem',
+                      background: 'var(--surface-container)',
+                      border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
+                      borderRadius: '99px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      color: 'var(--color-accent)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    {cert}
+                  </a>
+                ))}
+                <a
+                  href="/dashboard/certifications"
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: 'var(--color-on-surface-variant)',
+                    textDecoration: 'none',
+                    marginLeft: '0.25rem',
+                  }}
+                >
+                  View all certs →
+                </a>
+              </div>
+            </div>
+          ) : null}
+
           {user ? (
             <div
               className="portal-card portal-card--flat"
@@ -321,8 +390,6 @@ export default async function JobsPage() {
           )}
         </div>
       </section>
-    </div>
-    <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

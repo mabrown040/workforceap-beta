@@ -17,6 +17,12 @@ const patchSchema = z.object({
   contactPhone: z.string().max(50).optional().nullable(),
   active: z.boolean().optional(),
   notes: z.string().max(5000).optional().nullable(),
+  logoUrl: z.string().url().max(2048).optional().nullable(),
+  brandColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, 'Brand color must be a 6-digit hex (e.g. #1E3A8A)')
+    .optional()
+    .nullable(),
   subgroupIds: z.array(z.string().uuid()).optional(),
 });
 
@@ -75,6 +81,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (data.contactPhone !== undefined) updateData.contactPhone = data.contactPhone?.trim() || null;
   if (data.active !== undefined) updateData.active = data.active;
   if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
+  if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl?.trim() || null;
+  if (data.brandColor !== undefined) updateData.brandColor = data.brandColor?.trim() || null;
 
   await prisma.$transaction(async (tx) => {
     if (Object.keys(updateData).length > 0) {

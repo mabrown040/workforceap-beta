@@ -4,6 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminOrgSettingsForm from '@/components/admin/AdminOrgSettingsForm';
@@ -33,7 +34,7 @@ export default async function AdminSettingsPage() {
       <AdminOrgSettingsForm
         defaultName={org?.name ?? 'WorkforceAP'}
         defaultOverviewVideoUrl={org?.overviewVideoUrl ?? ''}
-        defaultLogoUrl={org?.logo ?? ''}
+        defaultLogoUrl={resolveSupabasePublicAssetUrl('organization-branding', org?.logo) ?? ''}
         defaultPrimaryColor={org?.primaryColor ?? ''}
       />
     </div>

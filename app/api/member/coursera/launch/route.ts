@@ -3,7 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
-import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { cookies } from 'next/headers';
 import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 
@@ -48,7 +49,7 @@ export async function GET(request: Request) {
     }
 
     // Fallback: construct enterprise deep link from discovered catalog
-    const discoveredProg = getDiscoveredProgram(enrolledProgram);
+    const discoveredProg = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
     if (discoveredProg) {
       const discoveredCourse = discoveredProg.courses.find((c) => c.slug === requestedSlug);
       if (discoveredCourse) {
@@ -86,7 +87,7 @@ export async function GET(request: Request) {
   // dropping members on a broad homepage or admin landing when we know their
   // enrolled learner program URL (#95).
   const discoveredProgramUrl = enrolledProgram
-    ? getDiscoveredProgram(enrolledProgram)?.publicProgramUrl ?? null
+    ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.publicProgramUrl ?? null
     : null;
 
   const configuredLaunchUrl = buildCourseraLaunchUrl({

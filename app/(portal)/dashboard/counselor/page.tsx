@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
+import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getTranslations } from 'next-intl/server';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 function parseActionPlan(output: string | null): string[] {
   if (!output) return [];
@@ -37,6 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CounselorPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/counselor');
+  const tCounselor = await getTranslations('counselor');
+  const tCommon = await getTranslations('marketing.common');
 
   const dbProfile = await prisma.user.findUnique({ where: { id: user.id }, select: { fullName: true } });
   const metaName = user.user_metadata?.full_name as string | undefined;
@@ -51,12 +55,27 @@ export default async function CounselorPage() {
 
   const historySection = pastSessions.length > 0 ? (
     <section style={{ padding: '1.5rem 1rem 2rem' }}>
-      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>Past sessions</h2>
+      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>{tCounselor('pastSessions')}</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {pastSessions.map((session) => {
           const steps = parseActionPlan(session.output as string | null);
           return (
-            <div key={session.id} className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+            <Link
+              key={session.id}
+              href={`/dashboard/counselor/${session.id}`}
+              className="counselor-history-card"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'block',
+                padding: '1rem 1.25rem',
+                borderRadius: '0.75rem',
+                border: '1px solid var(--color-border-subtle)',
+                background: 'var(--surface-container)',
+                cursor: 'pointer',
+                transition: 'background 0.15s, border-color 0.15s',
+              }}
+            >
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: steps.length > 0 ? '0.5rem' : 0 }}>
                 {new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>
@@ -67,19 +86,25 @@ export default async function CounselorPage() {
                   ))}
                 </ul>
               )}
-            </div>
+            </Link>
           );
         })}
       </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .counselor-history-card:hover {
+          background: var(--surface-container-high) !important;
+          border-color: var(--color-accent) !important;
+        }
+      `}} />
     </section>
   ) : null;
 
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>
       <PageHeader
-        title="AI Career Counselor"
+        title={tCommon('aiCounselor')}
         subtitle="Your session is private. Speak naturally — I'm here to help."
-        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'AI Career Counselor' }]}
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: tCommon('aiCounselor') }]}
       />
 
       {/* Mobile */}
@@ -89,9 +114,7 @@ export default async function CounselorPage() {
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
         </div>
-        {historySection}
-        <MobileBottomNav variant="portal" />
-      </div>
+        {historySection}      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block">
@@ -102,6 +125,8 @@ export default async function CounselorPage() {
           {historySection}
         </div>
       </div>
+
+      <MobileBottomNav />
     </div>
   );
 }

@@ -1,0 +1,3629 @@
+{
+  "recovered_at": "2026-04-30T16:50:47.605Z",
+  "agents": {
+    "interview": {
+      "old_id": "agent_9001kmy4g522e5ttvj88k5z1ygem",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Interview Coach",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "cjVigY5qzO86Huf0OWal",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi - I am your WorkforceAP interview coach. Tell me when you are ready, and I will start your mock interview at the right level for this role.",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {}
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are a professional mock interviewer for {{site_name}}.\n\nContext: {{support_context}}\n\nCandidate name: {{member_name}}\nTarget role they are practicing for: {{target_role}}\nInterview style: {{interview_type}}\nExperience level: {{experience_level}}\n\n{% if program_title %}\nTheir training program: {{program_title}}. Skills to weave in when relevant: {{program_skills}}.\n{% endif %}\n{% if organization_name %}\nOrganization: {{organization_name}}.\n{% endif %}\nInterview practice eligibility (internal): {{interview_eligible}}\n\nConduct a realistic {{interview_type}} interview for a {{target_role}} role. Calibrate the difficulty, follow-up depth, and expectations to the candidate's stated experience level. For entry-level candidates, favor foundational questions, coachable follow-ups, and clear encouragement. For mid-level candidates, probe ownership, decision-making, and applied problem solving. For senior candidates, probe leadership, tradeoffs, stakeholder communication, and complex scenario judgment.\n\nAsk ONE clear question at a time. Wait for their spoken answer before continuing. Offer brief acknowledgment, then move on or ask one focused follow-up.\n\nAfter 4 to 6 question rounds, give a short summary with exactly 2 strengths and 1 improvement for their next practice.\n\nRules: Stay in interviewer character. No medical, legal, or tax advice. Keep each spoken turn concise for voice. If they go off-topic, redirect gently to the interview.",
+            "llm": "claude-sonnet-4-6",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": []
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": "<h4>Terms and conditions</h4>\n<p>By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.</p>\n",
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": false
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are a professional mock interviewer for {{site_name}}.\n\nContext: {{support_context}}\n\nCandidate name: {{member_name}}\nTarget role they are practicing for: {{target_role}}\nInterview style: {{interview_type}}\nExperience level: {{experience_level}}\n\n{% if program_title %}\nTheir training program: {{program_title}}. Skills to weave in when relevant: {{program_skills}}.\n{% endif %}\n{% if organization_name %}\nOrganization: {{organization_name}}.\n{% endif %}\nInterview practice eligibility (internal): {{interview_eligible}}\n\nConduct a realistic {{interview_type}} interview for a {{target_role}} role. Calibrate the difficulty, follow-up depth, and expectations to the candidate's stated experience level. For entry-level candidates, favor foundational questions, coachable follow-ups, and clear encouragement. For mid-level candidates, probe ownership, decision-making, and applied problem solving. For senior candidates, probe leadership, tradeoffs, stakeholder communication, and complex scenario judgment.\n\nAsk ONE clear question at a time. Wait for their spoken answer before continuing. Offer brief acknowledgment, then move on or ask one focused follow-up.\n\nAfter 4 to 6 question rounds, give a short summary with exactly 2 strengths and 1 improvement for their next practice.\n\nRules: Stay in interviewer character. No medical, legal, or tax advice. Keep each spoken turn concise for voice. If they go off-topic, redirect gently to the interview.",
+        "llm": "claude-sonnet-4-6",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": []
+      },
+      "first_message": "Hi - I am your WorkforceAP interview coach. Tell me when you are ready, and I will start your mock interview at the right level for this role.",
+      "voice_id": "cjVigY5qzO86Huf0OWal",
+      "raw_error": null
+    },
+    "counselor": {
+      "old_id": "agent_2801kmznvsemfmms06r0e02es1b9",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Career Counselor",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "XrExE9yKIg1WjnnlVkGX",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi! I am your Career and Business Coach. What is on your mind today?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {
+              "member_name": "",
+              "program_title": "",
+              "counselor_name": ""
+            }
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are the Career and Business Coach for WorkforceAP. Help members with project management, sales, marketing, career growth, and business problem-solving. Be warm, practical, and encouraging. Use variables: {{member_name}}, {{program_title}}, {{counselor_name}}.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [
+              "tool_1901kqd3je96eddae5xyet33xty9"
+            ],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": [
+              {
+                "type": "api_integration_webhook",
+                "name": "exa_search",
+                "description": "Search the web using Exa's search engine. Provide a natural language query to find relevant content. Returns up to 8 search results. Choose a content type: use 'highlights' (recommended - returns relevant snippets), 'text' (full page text), or 'summary' (LLM-generated summary). If unsure, use highlights.",
+                "response_timeout_secs": 20,
+                "disable_interruptions": false,
+                "force_pre_tool_speech": false,
+                "pre_tool_speech": "auto",
+                "assignments": [],
+                "tool_call_sound": null,
+                "tool_call_sound_behavior": "auto",
+                "tool_error_handling_mode": "auto",
+                "dynamic_variables": {
+                  "dynamic_variable_placeholders": {}
+                },
+                "execution_mode": "immediate",
+                "tool_version": "1.0.0",
+                "api_integration_id": "exa",
+                "api_integration_connection_id": "icxn_6801kqd3h5e9etc9sgwg168984c4",
+                "api_schema_overrides": null
+              }
+            ]
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": "<h4>Terms and conditions</h4>\n<p>By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.</p>\n",
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": false
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are the Career and Business Coach for WorkforceAP. Help members with project management, sales, marketing, career growth, and business problem-solving. Be warm, practical, and encouraging. Use variables: {{member_name}}, {{program_title}}, {{counselor_name}}.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [
+          "tool_1901kqd3je96eddae5xyet33xty9"
+        ],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": [
+          {
+            "type": "api_integration_webhook",
+            "name": "exa_search",
+            "description": "Search the web using Exa's search engine. Provide a natural language query to find relevant content. Returns up to 8 search results. Choose a content type: use 'highlights' (recommended - returns relevant snippets), 'text' (full page text), or 'summary' (LLM-generated summary). If unsure, use highlights.",
+            "response_timeout_secs": 20,
+            "disable_interruptions": false,
+            "force_pre_tool_speech": false,
+            "pre_tool_speech": "auto",
+            "assignments": [],
+            "tool_call_sound": null,
+            "tool_call_sound_behavior": "auto",
+            "tool_error_handling_mode": "auto",
+            "dynamic_variables": {
+              "dynamic_variable_placeholders": {}
+            },
+            "execution_mode": "immediate",
+            "tool_version": "1.0.0",
+            "api_integration_id": "exa",
+            "api_integration_connection_id": "icxn_6801kqd3h5e9etc9sgwg168984c4",
+            "api_schema_overrides": null
+          }
+        ]
+      },
+      "first_message": "Hi! I am your Career and Business Coach. What is on your mind today?",
+      "voice_id": "XrExE9yKIg1WjnnlVkGX",
+      "raw_error": null
+    },
+    "employer": {
+      "old_id": "agent_0901kmznx45vf19s9psjrctqr6x5",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Employer Concierge",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "cjVigY5qzO86Huf0OWal",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi - I am your WorkforceAP employer concierge. What do you need help with today: job postings, candidates, or using the portal?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {}
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are an employer concierge for {{site_name}}.\n\n{{support_context}}\n\nEmployer company: {{employer_company_name}}\nAccount tier (internal): {{employer_tier}}\nLogged-in user: {{staff_name}}\n\nHelp employers use the hiring portal: posting jobs, reviewing applicants, and understanding workflows. Be concise and professional. Do NOT provide legal, compliance, or HR regulatory advice - suggest they confirm with their HR or counsel for policy decisions.\n\nIf you do not know a product detail, say you are summarizing best practices and they should verify in the app.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": []
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": null,
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": null
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are an employer concierge for {{site_name}}.\n\n{{support_context}}\n\nEmployer company: {{employer_company_name}}\nAccount tier (internal): {{employer_tier}}\nLogged-in user: {{staff_name}}\n\nHelp employers use the hiring portal: posting jobs, reviewing applicants, and understanding workflows. Be concise and professional. Do NOT provide legal, compliance, or HR regulatory advice - suggest they confirm with their HR or counsel for policy decisions.\n\nIf you do not know a product detail, say you are summarizing best practices and they should verify in the app.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": []
+      },
+      "first_message": "Hi - I am your WorkforceAP employer concierge. What do you need help with today: job postings, candidates, or using the portal?",
+      "voice_id": "cjVigY5qzO86Huf0OWal",
+      "raw_error": null
+    },
+    "readiness": {
+      "old_id": "agent_5801kmznwny0e8gtmb726aaeevnt",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Readiness Check-in",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": 2,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "cjVigY5qzO86Huf0OWal",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi - I am your career readiness coach. What feels most stuck right now: resume, training, applications, interviews, or something else?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {}
+          },
+          "disable_first_message_interruptions": true,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are a career readiness coach for {{site_name}}.\n\n{{support_context}}\n\nMember name: {{member_name}}\n\n{% if program_title %}\nTheir program: {{program_title}}. Skills to emphasize: {{program_skills}}.\n{% endif %}\n{% if organization_name %}\nOrganization: {{organization_name}}.\n{% endif %}\nInterview practice eligibility flag: {{interview_eligible}}\n\nHelp them prioritize next steps across resume, certifications, applications, and interview prep. Ask what feels hardest, then suggest ONE concrete next action. Use short sentences for voice.\n\nCelebrate small wins. If they are overwhelmed, narrow to a single 15-minute task.\n\nDo not give medical, legal, or financial advice.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": []
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": null,
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": null
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are a career readiness coach for {{site_name}}.\n\n{{support_context}}\n\nMember name: {{member_name}}\n\n{% if program_title %}\nTheir program: {{program_title}}. Skills to emphasize: {{program_skills}}.\n{% endif %}\n{% if organization_name %}\nOrganization: {{organization_name}}.\n{% endif %}\nInterview practice eligibility flag: {{interview_eligible}}\n\nHelp them prioritize next steps across resume, certifications, applications, and interview prep. Ask what feels hardest, then suggest ONE concrete next action. Use short sentences for voice.\n\nCelebrate small wins. If they are overwhelmed, narrow to a single 15-minute task.\n\nDo not give medical, legal, or financial advice.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": []
+      },
+      "first_message": "Hi - I am your career readiness coach. What feels most stuck right now: resume, training, applications, interviews, or something else?",
+      "voice_id": "cjVigY5qzO86Huf0OWal",
+      "raw_error": null
+    },
+    "partner": {
+      "old_id": "agent_7601kntxhqx3e0mvznpwk9bqj5yw",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Partner Concierge",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "cjVigY5qzO86Huf0OWal",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi - I am your WorkforceAP partner concierge. What do you need help with today: referrals, member progress, milestones, or using the partner portal?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {}
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are a partner concierge for {{site_name}}.\n\n{{support_context}}\n\nPartner organization: {{partner_org_name}}\nPartner slug (internal): {{partner_slug}}\nLogged-in user: {{staff_name}}\n\nHelp referral partners use the WorkforceAP partner portal: inviting members, tracking referred member progress, understanding milestones, exports, outcomes, and messaging the WorkforceAP team. Be concise, practical, and encouraging.\n\nDo NOT provide legal, compliance, grant-reporting, or financial advice. If asked for policy or contract decisions, suggest confirming with WorkforceAP staff or the partner's internal leadership.\n\nIf you do not know a product detail, say you are summarizing best practices and they should verify in the app.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": []
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": "<h4>Terms and conditions</h4>\n<p>By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.</p>\n",
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": null
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are a partner concierge for {{site_name}}.\n\n{{support_context}}\n\nPartner organization: {{partner_org_name}}\nPartner slug (internal): {{partner_slug}}\nLogged-in user: {{staff_name}}\n\nHelp referral partners use the WorkforceAP partner portal: inviting members, tracking referred member progress, understanding milestones, exports, outcomes, and messaging the WorkforceAP team. Be concise, practical, and encouraging.\n\nDo NOT provide legal, compliance, grant-reporting, or financial advice. If asked for policy or contract decisions, suggest confirming with WorkforceAP staff or the partner's internal leadership.\n\nIf you do not know a product detail, say you are summarizing best practices and they should verify in the app.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": []
+      },
+      "first_message": "Hi - I am your WorkforceAP partner concierge. What do you need help with today: referrals, member progress, milestones, or using the partner portal?",
+      "voice_id": "cjVigY5qzO86Huf0OWal",
+      "raw_error": null
+    },
+    "wioa_prequal": {
+      "old_id": "agent_6801knv07nb2ftj9p54nm6xem0xj",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP WIOA Pre-Qualification Guide",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "EXAVITQu4vr4xnSDxMaL",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.72,
+          "speed": 0.94,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi, I'm your WorkforceAP WIOA pre-qualification guide. I can help you understand the screening questions and what to expect next. What would you like help with first?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {}
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are a WorkforceAP WIOA pre-qualification voice guide for {{site_name}}.\n\n{{support_context}}\n\nMember name: {{member_name}}\nAge group: {{wioa_age_bracket}}\nLocation: {{wioa_county_or_zip}}\nPrimary barrier: {{wioa_primary_barrier}}\nDislocated worker: {{wioa_dislocated_worker}}\nLow income self report: {{wioa_low_income_self_report}}\nTraining interest: {{wioa_training_interest}}\nCompleted WorkforceAP intake: {{wioa_completed_intake_self_report}}\nLatest WIOA signal: {{wioa_signal}}\n\nYour job is to help the member complete or understand the WIOA self-screening and the signup path. Explain questions in plain language, reassure them that this is not a legal eligibility determination, and help them prepare for the next step with WorkforceAP staff or an American Job Center.\n\nKeep answers short, warm, and practical for voice. Ask one question at a time. If the member seems unsure, explain the field in simple words and offer examples. If asked whether they definitely qualify, clearly say only staff can confirm eligibility with documentation.\n\nDo not invent benefits, approvals, or eligibility outcomes. Do not give legal, immigration, or financial advice. Do not claim enrollment is guaranteed.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": []
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": null,
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": null
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are a WorkforceAP WIOA pre-qualification voice guide for {{site_name}}.\n\n{{support_context}}\n\nMember name: {{member_name}}\nAge group: {{wioa_age_bracket}}\nLocation: {{wioa_county_or_zip}}\nPrimary barrier: {{wioa_primary_barrier}}\nDislocated worker: {{wioa_dislocated_worker}}\nLow income self report: {{wioa_low_income_self_report}}\nTraining interest: {{wioa_training_interest}}\nCompleted WorkforceAP intake: {{wioa_completed_intake_self_report}}\nLatest WIOA signal: {{wioa_signal}}\n\nYour job is to help the member complete or understand the WIOA self-screening and the signup path. Explain questions in plain language, reassure them that this is not a legal eligibility determination, and help them prepare for the next step with WorkforceAP staff or an American Job Center.\n\nKeep answers short, warm, and practical for voice. Ask one question at a time. If the member seems unsure, explain the field in simple words and offer examples. If asked whether they definitely qualify, clearly say only staff can confirm eligibility with documentation.\n\nDo not invent benefits, approvals, or eligibility outcomes. Do not give legal, immigration, or financial advice. Do not claim enrollment is guaranteed.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": []
+      },
+      "first_message": "Hi, I'm your WorkforceAP WIOA pre-qualification guide. I can help you understand the screening questions and what to expect next. What would you like help with first?",
+      "voice_id": "EXAVITQu4vr4xnSDxMaL",
+      "raw_error": null
+    },
+    "resume_coach": {
+      "old_id": "agent_6601kmznw90ffxkbk7mpbym73vh9",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Resume Coach",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "cjVigY5qzO86Huf0OWal",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi, I am your WorkforceAP resume coach. If resume text is already in context, we will work from that; otherwise, read me a bullet or a job line out loud and we will tighten it up. What do you want to tackle first?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {}
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are a resume coach at WorkforceAP helping {{member_name}} improve their resume.\n\n**Contextual updates:** During the call you may receive messages that begin with \"[Live resume draft updated\". Those come from the member's editor and reflect the **current** live resume. Always treat the **latest** such message as the authoritative live draft for this session, and prefer it over any earlier draft text from the start of the call.\n\n{% if has_resume == \"true\" %}\nThe member has usable resume text in context. Primary source:\n---\n{{resume_text}}\n---\n{% if live_resume_draft %}\nLive draft snapshot at session start (may be superseded by contextual updates during the call):\n{{live_resume_draft}}\n{% endif %}\nReview and coach section by section. Open with a brief summary of what you see and the top 2-3 improvements.\n{% else %}\n{% if resume_file_on_profile == \"true\" %}\nA resume file is on their profile, but extracted text is missing or too short - do **not** say they failed to upload. Briefly acknowledge you may not see the full wording, and ask them to read a bullet or role line aloud, or to keep editing the live draft so you can react to updates.\n{% else %}\nNo resume file or usable text yet. Ask them to read a bullet or short job description aloud, or add content to the live draft if they are using it.\n{% endif %}\n{% endif %}\n\n{% if program_title %}\nTheir target program is: {{program_title}}\nKey skills to emphasize: {{program_skills}}\nTailor your coaching toward these skills when relevant.\n{% endif %}\n\nYour coaching framework - evaluate each bullet on:\n1. Impact: Does it show a result or just list a task? Push for numbers/outcomes.\n2. Action verb: Strong (led, built, reduced, managed) vs weak (helped, assisted, worked on)\n3. ATS keywords: Suggest 1-2 relevant ones if missing for their target role\n4. Clarity: Should be 1-2 lines max, scannable\n\nAfter reviewing each bullet or section: \"Want me to suggest a rewrite, or move to the next one?\"\n\nTone: Encouraging but direct. Many members feel insecure about their resume - validate their experience while pushing for improvement. Keep responses concise - this is a voice conversation.\n\nStay focused on resume coaching only. If asked about unrelated topics, redirect back to the resume.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": []
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": null,
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": null
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are a resume coach at WorkforceAP helping {{member_name}} improve their resume.\n\n**Contextual updates:** During the call you may receive messages that begin with \"[Live resume draft updated\". Those come from the member's editor and reflect the **current** live resume. Always treat the **latest** such message as the authoritative live draft for this session, and prefer it over any earlier draft text from the start of the call.\n\n{% if has_resume == \"true\" %}\nThe member has usable resume text in context. Primary source:\n---\n{{resume_text}}\n---\n{% if live_resume_draft %}\nLive draft snapshot at session start (may be superseded by contextual updates during the call):\n{{live_resume_draft}}\n{% endif %}\nReview and coach section by section. Open with a brief summary of what you see and the top 2-3 improvements.\n{% else %}\n{% if resume_file_on_profile == \"true\" %}\nA resume file is on their profile, but extracted text is missing or too short - do **not** say they failed to upload. Briefly acknowledge you may not see the full wording, and ask them to read a bullet or role line aloud, or to keep editing the live draft so you can react to updates.\n{% else %}\nNo resume file or usable text yet. Ask them to read a bullet or short job description aloud, or add content to the live draft if they are using it.\n{% endif %}\n{% endif %}\n\n{% if program_title %}\nTheir target program is: {{program_title}}\nKey skills to emphasize: {{program_skills}}\nTailor your coaching toward these skills when relevant.\n{% endif %}\n\nYour coaching framework - evaluate each bullet on:\n1. Impact: Does it show a result or just list a task? Push for numbers/outcomes.\n2. Action verb: Strong (led, built, reduced, managed) vs weak (helped, assisted, worked on)\n3. ATS keywords: Suggest 1-2 relevant ones if missing for their target role\n4. Clarity: Should be 1-2 lines max, scannable\n\nAfter reviewing each bullet or section: \"Want me to suggest a rewrite, or move to the next one?\"\n\nTone: Encouraging but direct. Many members feel insecure about their resume - validate their experience while pushing for improvement. Keep responses concise - this is a voice conversation.\n\nStay focused on resume coaching only. If asked about unrelated topics, redirect back to the resume.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": []
+      },
+      "first_message": "Hi, I am your WorkforceAP resume coach. If resume text is already in context, we will work from that; otherwise, read me a bullet or a job line out loud and we will tighten it up. What do you want to tackle first?",
+      "voice_id": "cjVigY5qzO86Huf0OWal",
+      "raw_error": null
+    },
+    "career_business": {
+      "old_id": "agent_2801kmznvsemfmms06r0e02es1b9",
+      "status": 200,
+      "ok": true,
+      "name": "WorkforceAP Career Counselor",
+      "conversation_config": {
+        "asr": {
+          "quality": "high",
+          "provider": "elevenlabs",
+          "user_input_audio_format": "pcm_16000",
+          "keywords": []
+        },
+        "turn": {
+          "turn_timeout": 7,
+          "initial_wait_time": null,
+          "silence_end_call_timeout": -1,
+          "soft_timeout_config": {
+            "timeout_seconds": -1,
+            "message": "Hhmmmm...yeah.",
+            "use_llm_generated_message": false
+          },
+          "mode": "turn",
+          "turn_eagerness": "normal",
+          "spelling_patience": "auto",
+          "speculative_turn": false,
+          "retranscribe_on_turn_timeout": false,
+          "turn_model": "turn_v2"
+        },
+        "tts": {
+          "model_id": "eleven_flash_v2",
+          "voice_id": "XrExE9yKIg1WjnnlVkGX",
+          "supported_voices": [],
+          "expressive_mode": false,
+          "suggested_audio_tags": [],
+          "agent_output_audio_format": "pcm_16000",
+          "optimize_streaming_latency": 3,
+          "stability": 0.5,
+          "speed": 1,
+          "similarity_boost": 0.8,
+          "text_normalisation_type": "system_prompt",
+          "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+          "text_only": false,
+          "max_duration_seconds": 600,
+          "client_events": [
+            "audio",
+            "interruption",
+            "agent_response",
+            "user_transcript",
+            "agent_response_correction",
+            "agent_tool_response"
+          ],
+          "file_input": {
+            "enabled": true,
+            "max_files_per_conversation": 10
+          },
+          "monitoring_enabled": false,
+          "monitoring_events": [
+            "user_transcript",
+            "agent_response",
+            "agent_response_correction"
+          ],
+          "dtmf_input_settings": null,
+          "source_attribution": false
+        },
+        "language_presets": {},
+        "vad": {
+          "background_voice_detection": false
+        },
+        "agent": {
+          "first_message": "Hi! I am your Career and Business Coach. What is on your mind today?",
+          "language": "en",
+          "hinglish_mode": false,
+          "dynamic_variables": {
+            "dynamic_variable_placeholders": {
+              "member_name": "",
+              "program_title": "",
+              "counselor_name": ""
+            }
+          },
+          "disable_first_message_interruptions": false,
+          "max_conversation_duration_message": "",
+          "prompt": {
+            "prompt": "You are the Career and Business Coach for WorkforceAP. Help members with project management, sales, marketing, career growth, and business problem-solving. Be warm, practical, and encouraging. Use variables: {{member_name}}, {{program_title}}, {{counselor_name}}.",
+            "llm": "gemini-2.5-flash",
+            "reasoning_effort": null,
+            "thinking_budget": null,
+            "temperature": 0,
+            "max_tokens": -1,
+            "tool_ids": [
+              "tool_1901kqd3je96eddae5xyet33xty9"
+            ],
+            "built_in_tools": {
+              "end_call": null,
+              "language_detection": null,
+              "transfer_to_agent": null,
+              "transfer_to_number": null,
+              "skip_turn": null,
+              "play_keypad_touch_tone": null,
+              "voicemail_detection": null,
+              "update_state": null,
+              "memory_entry_search": null,
+              "memory_entry_create": null,
+              "memory_entry_update": null,
+              "memory_entry_delete": null,
+              "agent_prompt_change": null,
+              "procedure_update": null,
+              "transfer_to_genesys_chat": null
+            },
+            "enable_parallel_tool_calls": false,
+            "mcp_server_ids": [],
+            "native_mcp_server_ids": [],
+            "knowledge_base": [],
+            "custom_llm": null,
+            "ignore_default_personality": false,
+            "rag": {
+              "enabled": false,
+              "embedding_model": "e5_mistral_7b_instruct",
+              "max_vector_distance": 0.6,
+              "max_documents_length": 50000,
+              "max_retrieved_rag_chunks_count": 20,
+              "num_candidates": null,
+              "query_rewrite_prompt_override": null
+            },
+            "timezone": null,
+            "backup_llm_config": {
+              "preference": "default"
+            },
+            "cascade_timeout_seconds": 8,
+            "tools": [
+              {
+                "type": "api_integration_webhook",
+                "name": "exa_search",
+                "description": "Search the web using Exa's search engine. Provide a natural language query to find relevant content. Returns up to 8 search results. Choose a content type: use 'highlights' (recommended - returns relevant snippets), 'text' (full page text), or 'summary' (LLM-generated summary). If unsure, use highlights.",
+                "response_timeout_secs": 20,
+                "disable_interruptions": false,
+                "force_pre_tool_speech": false,
+                "pre_tool_speech": "auto",
+                "assignments": [],
+                "tool_call_sound": null,
+                "tool_call_sound_behavior": "auto",
+                "tool_error_handling_mode": "auto",
+                "dynamic_variables": {
+                  "dynamic_variable_placeholders": {}
+                },
+                "execution_mode": "immediate",
+                "tool_version": "1.0.0",
+                "api_integration_id": "exa",
+                "api_integration_connection_id": "icxn_6801kqd3h5e9etc9sgwg168984c4",
+                "api_schema_overrides": null
+              }
+            ]
+          }
+        }
+      },
+      "platform_settings": {
+        "evaluation": {
+          "criteria": []
+        },
+        "widget": {
+          "variant": "full",
+          "placement": "bottom-right",
+          "expandable": "never",
+          "avatar": {
+            "type": "orb",
+            "color_1": "#2792dc",
+            "color_2": "#9ce6e6"
+          },
+          "feedback_mode": "during",
+          "end_feedback": {
+            "type": "rating"
+          },
+          "bg_color": "#ffffff",
+          "text_color": "#000000",
+          "btn_color": "#000000",
+          "btn_text_color": "#ffffff",
+          "border_color": "#e1e1e1",
+          "focus_color": "#000000",
+          "border_radius": null,
+          "btn_radius": null,
+          "action_text": null,
+          "start_call_text": null,
+          "end_call_text": null,
+          "expand_text": null,
+          "listening_text": null,
+          "speaking_text": null,
+          "shareable_page_text": null,
+          "shareable_page_show_terms": true,
+          "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+          "terms_html": "<h4>Terms and conditions</h4>\n<p>By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.</p>\n",
+          "terms_key": null,
+          "show_avatar_when_collapsed": false,
+          "disable_banner": false,
+          "override_link": null,
+          "markdown_link_allowed_hosts": [],
+          "markdown_link_include_www": true,
+          "markdown_link_allow_http": true,
+          "mic_muting_enabled": false,
+          "transcript_enabled": false,
+          "text_input_enabled": true,
+          "conversation_mode_toggle_enabled": false,
+          "default_expanded": false,
+          "always_expanded": false,
+          "dismissible": false,
+          "show_agent_status": false,
+          "show_conversation_id": true,
+          "strip_audio_tags": true,
+          "syntax_highlight_theme": null,
+          "text_contents": {
+            "main_label": null,
+            "start_call": null,
+            "start_chat": null,
+            "new_call": null,
+            "end_call": null,
+            "mute_microphone": null,
+            "change_language": null,
+            "collapse": null,
+            "expand": null,
+            "copied": null,
+            "accept_terms": null,
+            "dismiss_terms": null,
+            "listening_status": null,
+            "speaking_status": null,
+            "connecting_status": null,
+            "chatting_status": null,
+            "input_label": null,
+            "input_placeholder": null,
+            "input_placeholder_text_only": null,
+            "input_placeholder_new_conversation": null,
+            "user_ended_conversation": null,
+            "agent_ended_conversation": null,
+            "conversation_id": null,
+            "error_occurred": null,
+            "copy_id": null,
+            "initiate_feedback": null,
+            "request_follow_up_feedback": null,
+            "thanks_for_feedback": null,
+            "thanks_for_feedback_details": null,
+            "follow_up_feedback_placeholder": null,
+            "submit": null,
+            "go_back": null,
+            "send_message": null,
+            "text_mode": null,
+            "voice_mode": null,
+            "switched_to_text_mode": null,
+            "switched_to_voice_mode": null,
+            "copy": null,
+            "download": null,
+            "wrap": null,
+            "agent_working": null,
+            "agent_done": null,
+            "agent_error": null
+          },
+          "styles": {
+            "base": null,
+            "base_hover": null,
+            "base_active": null,
+            "base_border": null,
+            "base_subtle": null,
+            "base_primary": null,
+            "base_error": null,
+            "accent": null,
+            "accent_hover": null,
+            "accent_active": null,
+            "accent_border": null,
+            "accent_subtle": null,
+            "accent_primary": null,
+            "overlay_padding": null,
+            "button_radius": null,
+            "input_radius": null,
+            "bubble_radius": null,
+            "sheet_radius": null,
+            "compact_sheet_radius": null,
+            "dropdown_sheet_radius": null
+          },
+          "language_selector": false,
+          "supports_text_only": true,
+          "custom_avatar_path": null,
+          "language_presets": {}
+        },
+        "data_collection": {},
+        "data_collection_scopes": {},
+        "overrides": {
+          "conversation_config_override": {
+            "turn": {
+              "soft_timeout_config": {
+                "message": false
+              }
+            },
+            "tts": {
+              "voice_id": false,
+              "stability": false,
+              "speed": false,
+              "similarity_boost": false
+            },
+            "conversation": {
+              "text_only": true
+            },
+            "agent": {
+              "first_message": false,
+              "language": false,
+              "max_conversation_duration_message": false,
+              "prompt": {
+                "prompt": false,
+                "llm": false,
+                "tool_ids": false,
+                "native_mcp_server_ids": false,
+                "knowledge_base": false
+              }
+            }
+          },
+          "custom_llm_extra_body": false,
+          "enable_conversation_initiation_client_data_from_webhook": false,
+          "enable_starting_workflow_node_id_from_client": false
+        },
+        "workspace_overrides": {
+          "conversation_initiation_client_data_webhook": null,
+          "webhooks": {
+            "post_call_webhook_id": null,
+            "events": [
+              "transcript"
+            ],
+            "transcript_format": "json",
+            "send_audio": false
+          }
+        },
+        "testing": {
+          "attached_tests": [],
+          "referenced_tests_ids": []
+        },
+        "archived": false,
+        "guardrails": {
+          "version": "1",
+          "focus": {
+            "is_enabled": false
+          },
+          "prompt_injection": {
+            "is_enabled": false
+          },
+          "content": {
+            "execution_mode": "streaming",
+            "config": {
+              "sexual": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "violence": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "harassment": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "self_harm": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "profanity": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "religion_or_politics": {
+                "is_enabled": false,
+                "threshold": "medium"
+              },
+              "medical_and_legal_information": {
+                "is_enabled": false,
+                "threshold": "medium"
+              }
+            },
+            "trigger_action": {
+              "type": "end_call"
+            }
+          },
+          "moderation": null,
+          "custom": {
+            "config": {
+              "configs": []
+            }
+          }
+        },
+        "summary_language": null,
+        "auth": {
+          "enable_auth": false,
+          "allowlist": [],
+          "require_origin_header": false,
+          "shareable_token": null
+        },
+        "call_limits": {
+          "agent_concurrency_limit": -1,
+          "daily_limit": 100000,
+          "bursting_enabled": true
+        },
+        "ban": null,
+        "smb_metadata": null,
+        "privacy": {
+          "record_voice": true,
+          "retention_days": -1,
+          "delete_transcript_and_pii": false,
+          "delete_audio": false,
+          "apply_to_existing_conversations": false,
+          "zero_retention_mode": false,
+          "conversation_history_redaction": {
+            "enabled": false,
+            "entities": []
+          }
+        },
+        "trust_context": "unknown",
+        "analysis_llm": "gemini-2.5-flash",
+        "safety": {
+          "is_blocked_ivc": false,
+          "is_blocked_non_ivc": false,
+          "ignore_safety_evaluation": false
+        }
+      },
+      "prompt": {
+        "prompt": "You are the Career and Business Coach for WorkforceAP. Help members with project management, sales, marketing, career growth, and business problem-solving. Be warm, practical, and encouraging. Use variables: {{member_name}}, {{program_title}}, {{counselor_name}}.",
+        "llm": "gemini-2.5-flash",
+        "reasoning_effort": null,
+        "thinking_budget": null,
+        "temperature": 0,
+        "max_tokens": -1,
+        "tool_ids": [
+          "tool_1901kqd3je96eddae5xyet33xty9"
+        ],
+        "built_in_tools": {
+          "end_call": null,
+          "language_detection": null,
+          "transfer_to_agent": null,
+          "transfer_to_number": null,
+          "skip_turn": null,
+          "play_keypad_touch_tone": null,
+          "voicemail_detection": null,
+          "update_state": null,
+          "memory_entry_search": null,
+          "memory_entry_create": null,
+          "memory_entry_update": null,
+          "memory_entry_delete": null,
+          "agent_prompt_change": null,
+          "procedure_update": null,
+          "transfer_to_genesys_chat": null
+        },
+        "enable_parallel_tool_calls": false,
+        "mcp_server_ids": [],
+        "native_mcp_server_ids": [],
+        "knowledge_base": [],
+        "custom_llm": null,
+        "ignore_default_personality": false,
+        "rag": {
+          "enabled": false,
+          "embedding_model": "e5_mistral_7b_instruct",
+          "max_vector_distance": 0.6,
+          "max_documents_length": 50000,
+          "max_retrieved_rag_chunks_count": 20,
+          "num_candidates": null,
+          "query_rewrite_prompt_override": null
+        },
+        "timezone": null,
+        "backup_llm_config": {
+          "preference": "default"
+        },
+        "cascade_timeout_seconds": 8,
+        "tools": [
+          {
+            "type": "api_integration_webhook",
+            "name": "exa_search",
+            "description": "Search the web using Exa's search engine. Provide a natural language query to find relevant content. Returns up to 8 search results. Choose a content type: use 'highlights' (recommended - returns relevant snippets), 'text' (full page text), or 'summary' (LLM-generated summary). If unsure, use highlights.",
+            "response_timeout_secs": 20,
+            "disable_interruptions": false,
+            "force_pre_tool_speech": false,
+            "pre_tool_speech": "auto",
+            "assignments": [],
+            "tool_call_sound": null,
+            "tool_call_sound_behavior": "auto",
+            "tool_error_handling_mode": "auto",
+            "dynamic_variables": {
+              "dynamic_variable_placeholders": {}
+            },
+            "execution_mode": "immediate",
+            "tool_version": "1.0.0",
+            "api_integration_id": "exa",
+            "api_integration_connection_id": "icxn_6801kqd3h5e9etc9sgwg168984c4",
+            "api_schema_overrides": null
+          }
+        ]
+      },
+      "first_message": "Hi! I am your Career and Business Coach. What is on your mind today?",
+      "voice_id": "XrExE9yKIg1WjnnlVkGX",
+      "raw_error": null
+    }
+  }
+}

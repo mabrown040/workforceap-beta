@@ -17,7 +17,7 @@ const TOOL_CARDS = {
   elevatorPitch: { label: 'AI Elevator Introduction', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
   readinessCoach: { label: 'AI Readiness Coach', href: '/dashboard/readiness', icon: 'psychology' },
   resumeCoach: { label: 'Resume & Experience Enhancer', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
-  voiceInterview: { label: 'Voice Job/Role Interviewer', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
+  voiceInterview: { label: 'Voice Interview Practice', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
   careerBusiness: { label: 'Career & Business Coach', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },
   resumeRewriter: { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter', icon: 'description' },
   resumeAnalysis: { label: 'Resume Analysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check' },
@@ -86,7 +86,7 @@ export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
     tools: [TOOL_CARDS.resumeRewriter, TOOL_CARDS.resumeAnalysis, TOOL_CARDS.coverLetter],
   },
   {
-    title: 'Step 2: Practice interviews and target the right roles',
+    title: 'Step 2: Pre-interview prep and role targeting',
     tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper],
   },
   {

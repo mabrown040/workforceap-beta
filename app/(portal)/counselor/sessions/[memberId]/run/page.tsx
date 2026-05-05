@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import PageHeader from '@/components/portal/PageHeader';
 import SessionRunClient from '@/components/portal/sessions/SessionRunClient';
+import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -104,7 +105,11 @@ export default async function SessionRunPage({
           { label: member.fullName ?? member.email },
         ]}
       />
+      <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+        <CourseraProgressCard userId={member.id} />
+      </div>
       <SessionRunClient
+        key={member.id}
         memberId={member.id}
         memberFullName={member.fullName ?? member.email}
         memberEmail={member.email}

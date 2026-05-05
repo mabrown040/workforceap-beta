@@ -35,10 +35,10 @@ export default function VoiceCoachLauncherCard({
         <Link
           href={href}
           style={{
+            position: 'relative',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.45rem',
             width: '100%',
             minHeight: '2.75rem',
             borderRadius: '0.8rem',
@@ -48,10 +48,12 @@ export default function VoiceCoachLauncherCard({
             color: '#fff',
             background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
             boxShadow: '0 8px 24px rgba(173,44,77,0.2)',
+            textAlign: 'center',
+            padding: '0.65rem 2.5rem 0.65rem 1rem',
           }}
         >
-          {ctaLabel}
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
+          <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>{ctaLabel}</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem', position: 'absolute', right: '0.9rem' }} aria-hidden>
             arrow_forward
           </span>
         </Link>

@@ -2,7 +2,8 @@ import 'server-only';
 
 import { CourseProgressStatus } from '@prisma/client';
 
-import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 
@@ -135,7 +136,7 @@ export type MemberProgressAuditResult =
     };
 
 function catalogCourseCountForProgram(programSlug: string): number {
-  const disc = getDiscoveredProgram(programSlug);
+  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
   const program = getProgramBySlug(programSlug);
   return disc?.courses.length ?? program?.courses.length ?? 0;
 }

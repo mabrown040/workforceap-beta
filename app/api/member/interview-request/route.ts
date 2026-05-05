@@ -6,6 +6,7 @@ export async function POST() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  try {
   const row = await prisma.user.findUnique({
     where: { id: user.id },
     select: {
@@ -42,4 +43,7 @@ export async function POST() {
   });
 
   return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: 'Failed to process interview request' }, { status: 500 });
+  }
 }

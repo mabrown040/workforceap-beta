@@ -3,6 +3,26 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+const VALID_BARRIER_TYPES = [
+  'justice_involved',
+  'employment_gap',
+  'limited_work_history',
+  'disability',
+  'housing_instability',
+  'domestic_violence',
+  'homelessness',
+  'substance_recovery',
+  'other',
+] as const;
+
+const VALID_EMPLOYMENT_STATUS_AT_ENROLL = [
+  'employed_full_time',
+  'employed_part_time',
+  'unemployed',
+  'underemployed',
+  'not_looking',
+] as const;
+
 const updateSchema = z.object({
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1, 'Last name is required.').max(100),
@@ -24,6 +44,9 @@ const updateSchema = z.object({
   bio: z.string().max(2000).nullable(),
   financialAidInterest: z.boolean().optional(),
   referralSource: z.string().max(200).optional().nullable(),
+  hasEmploymentBarrier: z.boolean().optional(),
+  barrierTypes: z.array(z.enum(VALID_BARRIER_TYPES)).optional(),
+  employmentStatusAtEnroll: z.enum(VALID_EMPLOYMENT_STATUS_AT_ENROLL).optional().nullable(),
 });
 
 export async function PATCH(request: Request) {
@@ -42,8 +65,22 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const { firstName, lastName, phone, address, city, state, zip, linkedin, bio, financialAidInterest, referralSource } =
-    parsed.data;
+  const {
+    firstName,
+    lastName,
+    phone,
+    address,
+    city,
+    state,
+    zip,
+    linkedin,
+    bio,
+    financialAidInterest,
+    referralSource,
+    hasEmploymentBarrier,
+    barrierTypes,
+    employmentStatusAtEnroll,
+  } = parsed.data;
   const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
 
   await prisma.$transaction(async (tx) => {
@@ -64,6 +101,9 @@ export async function PATCH(request: Request) {
         profileBio: bio || null,
         ...(financialAidInterest !== undefined ? { financialAidInterest } : {}),
         ...(referralSource !== undefined ? { referralSource: referralSource?.trim() || null } : {}),
+        ...(hasEmploymentBarrier !== undefined ? { hasEmploymentBarrier } : {}),
+        ...(barrierTypes !== undefined ? { barrierTypes } : {}),
+        ...(employmentStatusAtEnroll !== undefined ? { employmentStatusAtEnroll: employmentStatusAtEnroll ?? null } : {}),
       },
       update: {
         profilePhone: phone || null,
@@ -75,6 +115,9 @@ export async function PATCH(request: Request) {
         profileBio: bio || null,
         ...(financialAidInterest !== undefined ? { financialAidInterest } : {}),
         ...(referralSource !== undefined ? { referralSource: referralSource?.trim() || null } : {}),
+        ...(hasEmploymentBarrier !== undefined ? { hasEmploymentBarrier } : {}),
+        ...(barrierTypes !== undefined ? { barrierTypes } : {}),
+        ...(employmentStatusAtEnroll !== undefined ? { employmentStatusAtEnroll: employmentStatusAtEnroll ?? null } : {}),
       },
     });
   });

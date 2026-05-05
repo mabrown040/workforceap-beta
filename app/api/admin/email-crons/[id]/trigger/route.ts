@@ -25,7 +25,12 @@ export async function POST(
   if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
 
   const secret = process.env.CRON_SECRET;
-  if (!secret) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
+  if (!secret) {
+    return NextResponse.json({
+      error: 'CRON_SECRET not configured',
+      fix: 'Add CRON_SECRET to Vercel environment variables (Production) and redeploy.',
+    }, { status: 503 });
+  }
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.workforceap.org';
   const url = `${origin}${cron.apiPath}`;

@@ -6,6 +6,14 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 const BUCKET = 'member-resumes';
 
+function storageErrorMessage(error: { message?: string } | null): string {
+  const message = error?.message ?? '';
+  if (/not found|does not exist|Bucket/i.test(message)) {
+    return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
+  }
+  return 'Could not create resume download link';
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -29,12 +37,20 @@ export async function GET(
     let enhancedUrl: string | null = null;
 
     if (originalPath) {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
-      originalUrl = data?.signedUrl ?? null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error('[admin/members/[id]/resume-urls] createSignedUrl original failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error) }, { status: 502 });
+      }
+      originalUrl = data.signedUrl;
     }
     if (enhancedPath) {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
-      enhancedUrl = data?.signedUrl ?? null;
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
+      if (error || !data?.signedUrl) {
+        console.error('[admin/members/[id]/resume-urls] createSignedUrl enhanced failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error) }, { status: 502 });
+      }
+      enhancedUrl = data.signedUrl;
     }
 
     return NextResponse.json({

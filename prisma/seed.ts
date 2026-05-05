@@ -33,6 +33,12 @@ const PUBLIC_DEMO_JOB_EMAIL = 'public-job-demo@example.com';
 const PUBLIC_DEMO_EMPLOYER_NAME = 'Capital Area Employer Network';
 const PUBLIC_DEMO_JOB_TITLE_PREFIX = '[Demo] ';
 
+// Always-seeded preview employer so super-admins can open /employer portal without SEED_TEST_ACCOUNTS.
+// Uses reserved example.com domain — no real inbox, no Supabase auth needed (cookie impersonation).
+const PREVIEW_EMPLOYER_EMAIL = 'employer-preview@example.com';
+const PREVIEW_EMPLOYER_NAME = 'WorkforceAP Example Employer';
+const PREVIEW_JOB_PREFIX = '[Preview] ';
+
 /**
  * Ensures a few live jobs exist for the public /jobs board without SEED_TEST_ACCOUNTS.
  * Idempotent: skips if enough [Demo] live jobs already exist for the demo employer.
@@ -175,6 +181,100 @@ async function seedPublicDemoJobs(organizationId: string) {
   console.log('Seeded public demo jobs:', specs.length, 'for', PUBLIC_DEMO_EMPLOYER_NAME);
 }
 
+/**
+ * Always-seeded preview employer for super-admin portal testing.
+ * Active status guaranteed on every seed run — no SEED_TEST_ACCOUNTS flag required.
+ * No Supabase auth account needed; super-admins preview via cookie impersonation.
+ */
+async function seedPreviewEmployer(organizationId: string) {
+  const user = await prisma.user.upsert({
+    where: { email: PREVIEW_EMPLOYER_EMAIL },
+    create: {
+      id: randomUUID(),
+      organizationId,
+      email: PREVIEW_EMPLOYER_EMAIL,
+      fullName: 'Preview Employer Seed',
+    },
+    update: {},
+  });
+
+  const employer = await prisma.employer.upsert({
+    where: { userId: user.id },
+    create: {
+      organizationId,
+      userId: user.id,
+      companyName: PREVIEW_EMPLOYER_NAME,
+      contactName: 'WorkforceAP',
+      contactEmail: PREVIEW_EMPLOYER_EMAIL,
+      tier: 'basic',
+      status: 'active',
+    },
+    update: {
+      companyName: PREVIEW_EMPLOYER_NAME,
+      status: 'active', // re-activate if ever deactivated
+    },
+  });
+
+  const livePreviewCount = await prisma.job.count({
+    where: {
+      employerId: employer.id,
+      status: 'live',
+      title: { startsWith: PREVIEW_JOB_PREFIX },
+    },
+  });
+
+  if (livePreviewCount >= 2) {
+    console.log('Preview employer jobs: already seeded (', livePreviewCount, 'live), skipping');
+    return;
+  }
+
+  await prisma.job.deleteMany({
+    where: { employerId: employer.id, title: { startsWith: PREVIEW_JOB_PREFIX } },
+  });
+
+  const previewJobs: Array<{
+    title: string;
+    description: string;
+    location: string;
+    locationType: 'remote' | 'hybrid' | 'onsite';
+    jobType: 'fulltime' | 'parttime' | 'contract';
+  }> = [
+    {
+      title: `${PREVIEW_JOB_PREFIX}Administrative Coordinator`,
+      description: 'Preview-only seed job for super-admin employer portal testing.',
+      location: 'Austin, TX',
+      locationType: 'onsite',
+      jobType: 'fulltime',
+    },
+    {
+      title: `${PREVIEW_JOB_PREFIX}Workforce Trainer`,
+      description: 'Preview-only seed job for super-admin employer portal testing.',
+      location: 'Remote',
+      locationType: 'remote',
+      jobType: 'parttime',
+    },
+  ];
+
+  for (const j of previewJobs) {
+    await prisma.job.create({
+      data: {
+        organizationId,
+        employerId: employer.id,
+        title: j.title,
+        description: j.description,
+        location: j.location,
+        locationType: j.locationType,
+        jobType: j.jobType,
+        status: 'live',
+        requirements: [],
+        preferredCertifications: [],
+      },
+    });
+  }
+
+  console.log('Seeded preview employer:', PREVIEW_EMPLOYER_NAME, 'with', previewJobs.length, 'live jobs');
+}
+
 async function main() {
   const defaultOrgId = await ensureDefaultOrgId();
 
@@ -243,7 +343,7 @@ async function main() {
   for (const p of partnerSeeds) {
     await prisma.partner.upsert({
       where: { slug: p.slug },
-      update: { referralCode: p.slug },
+      update: { referralCode: p.slug, active: true }, // re-activate if deactivated in prod
       create: { ...p, referralCode: p.slug, organizationId: defaultOrgId },
     });
   }
@@ -262,6 +362,7 @@ async function main() {
   }
 
   await seedPublicDemoJobs(defaultOrgId);
+  await seedPreviewEmployer(defaultOrgId);
 
   if (process.env.SEED_TEST_ACCOUNTS === 'true') {
     const memberRole = await prisma.role.findUnique({ where: { name: 'member' } });

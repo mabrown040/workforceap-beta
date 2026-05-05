@@ -16,14 +16,17 @@ export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
   { ext: 'docx', bytes: [0x50, 0x4B, 0x03, 0x04] }, // PK (ZIP/DOCX)
 ];
 
-export function validateFileType(buffer: Buffer, mimeType: string, fileName: string): boolean {
+export function validateFileType(
+  buffer: Buffer,
+  mimeType: string,
+  fileName: string,
+  options?: { allowTxt?: boolean }
+): boolean {
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
 
-  // For txt files, skip magic bytes check as text files do not have standard magic bytes
   if (ext === 'txt') {
-    // Bypass strict MIME type checks to accommodate ambiguous browser MIME types
-    return true;
+    return options?.allowTxt === true;
   }
 
   if (buffer.length < 4) return false;
@@ -35,7 +38,23 @@ export function validateFileType(buffer: Buffer, mimeType: string, fileName: str
 
   return MAGIC_BYTES.some((m) => {
     if (m.ext !== ext) return false;
-    const searchBytes = Buffer.from(m.bytes);
-    return Buffer.from(searchArea).indexOf(searchBytes) !== -1;
+
+    const seq = m.bytes;
+    const seqLen = seq.length;
+
+    // Safely search for byte sequences by implementing a custom manual loop (byte-by-byte comparison)
+    // to avoid edge polyfill indexOf issues with arrays
+    for (let i = 0; i <= searchArea.length - seqLen; i++) {
+      let match = true;
+      for (let j = 0; j < seqLen; j++) {
+        if (searchArea[i + j] !== seq[j]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) return true;
+    }
+
+    return false;
   });
 }

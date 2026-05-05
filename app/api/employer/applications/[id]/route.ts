@@ -1,83 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { getEmployerForUser } from '@/lib/auth/roles';
+import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { canTransitionJobApplicationStatus } from '@/lib/employer/applicationStatus';
-import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
-import type { JobPostingApplicationStatus } from '@prisma/client';
+import { z } from 'zod';
 
-const patchSchema = z.object({
-  status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']).optional(),
-  employerNotes: z.string().max(20000).nullable().optional(),
-  interviewScheduledAt: z.string().datetime().nullable().optional(),
-  interviewNotes: z.string().max(2000).nullable().optional(),
+const updateSchema = z.object({
+  status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),
+  employerNotes: z.string().optional(),
+  interviewScheduledAt: z.string().datetime().optional().nullable(),
 });
 
-export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+/**
+ * PATCH /api/employer/applications/[id]
+ * Employer updates an applicant's status and notes.
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const employerCtx = await getEmployerForUser(user.id);
-  if (!employerCtx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const superAdmin = await isSuperAdmin(user.id);
+  const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await ctx.params;
-  const body = await request.json().catch(() => null);
-  const parsed = patchSchema.safeParse(body);
+  const { id } = await params;
+
+  // Verify this application belongs to this employer
+  const application = await prisma.jobPostingApplication.findFirst({
+    where: { id, job: { employerId: ctx.employerId } },
+    select: { id: true, status: true },
+  });
+  if (!application) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  let body: Record<string, unknown>;
+  try { body = await request.json(); } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+
+  const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid body', details: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid data', details: parsed.error.errors }, { status: 400 });
   }
 
-  const existing = await prisma.jobPostingApplication.findFirst({
-    where: { id, job: { employerId: employerCtx.employerId } },
-  });
-  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  const updates: {
+    status?: typeof parsed.data.status;
+    employerNotes?: string;
+    interviewScheduledAt?: Date | null;
+    statusUpdatedAt?: Date;
+  } = {};
 
-  const { status: nextStatus, employerNotes, interviewScheduledAt, interviewNotes } = parsed.data;
-  if (nextStatus !== undefined && nextStatus !== existing.status) {
-    if (!canTransitionJobApplicationStatus(existing.status, nextStatus as JobPostingApplicationStatus)) {
-      return NextResponse.json({ error: 'Invalid status transition' }, { status: 400 });
-    }
+  if (parsed.data.status) {
+    updates.status = parsed.data.status;
+    updates.statusUpdatedAt = new Date();
+  }
+  if (parsed.data.employerNotes !== undefined) {
+    updates.employerNotes = parsed.data.employerNotes;
+  }
+  if (parsed.data.interviewScheduledAt !== undefined) {
+    updates.interviewScheduledAt = parsed.data.interviewScheduledAt ? new Date(parsed.data.interviewScheduledAt) : null;
   }
 
   const updated = await prisma.jobPostingApplication.update({
     where: { id },
-    data: {
-      ...(nextStatus !== undefined ? { status: nextStatus as JobPostingApplicationStatus } : {}),
-      ...(employerNotes !== undefined ? { employerNotes } : {}),
-      ...(interviewScheduledAt !== undefined ? { interviewScheduledAt } : {}),
-      ...(interviewNotes !== undefined ? { interviewNotes } : {}),
-      ...(nextStatus !== undefined && nextStatus !== existing.status
-        ? { statusUpdatedAt: new Date() }
-        : {}),
-    },
-    include: {
-      job: { select: { id: true, title: true } },
-      student: { select: { id: true, fullName: true, email: true } },
-    },
+    data: updates,
   });
 
-  if (nextStatus !== undefined && nextStatus !== existing.status) {
-    await recordEmployerWorkflowEvent({
-      employerId: employerCtx.employerId,
-      actorUserId: user.id,
-      kind: 'application_status',
-      headline: `Candidate status → ${nextStatus} · ${updated.job.title}`,
-      detail: updated.student.fullName,
-      entityType: 'JobPostingApplication',
-      entityId: id,
-    });
-  } else if (employerNotes !== undefined && employerNotes !== existing.employerNotes) {
-    await recordEmployerWorkflowEvent({
-      employerId: employerCtx.employerId,
-      actorUserId: user.id,
-      kind: 'application_note',
-      headline: `Notes updated · ${updated.job.title}`,
-      detail: updated.student.fullName,
-      entityType: 'JobPostingApplication',
-      entityId: id,
-    });
-  }
-
-  return NextResponse.json(updated);
+  return NextResponse.json({ ok: true, application: updated });
 }

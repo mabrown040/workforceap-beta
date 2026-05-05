@@ -25,6 +25,7 @@ test('buildNextBestActions prioritizes counselor unread when application exists'
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    completedCourseCount: 0,
     starterProfileReviewRequired: false,
     hasResume: true,
     hasCompletedInterviewPractice: false,
@@ -42,6 +43,7 @@ test('buildNextBestActions suggests tracker when eligible and no applications', 
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    completedCourseCount: 1,
     starterProfileReviewRequired: false,
     hasResume: true,
     hasCompletedInterviewPractice: false,
@@ -59,6 +61,7 @@ test('buildNextBestActions adds state-D readiness actions', () => {
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    completedCourseCount: 2,
     starterProfileReviewRequired: false,
     hasResume: true,
     hasCompletedInterviewPractice: false,
@@ -78,6 +81,7 @@ test('buildNextBestActions routes missing resume to resume rewriter', () => {
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    completedCourseCount: 2,
     starterProfileReviewRequired: false,
     hasResume: false,
     hasCompletedInterviewPractice: false,
@@ -97,6 +101,7 @@ test('buildNextBestActions prioritizes starter profile review for counselor-crea
     noApplicationOnFile: false,
     enrolledProgram: 'it-support',
     assessmentCompleted: false,
+    completedCourseCount: 0,
     starterProfileReviewRequired: true,
     starterProfileMissingFields: ['ZIP code', 'referral source'],
     hasResume: false,
@@ -117,6 +122,7 @@ test('buildNextBestActions hides interview practice after true completion', () =
     noApplicationOnFile: false,
     enrolledProgram: 'ai-software',
     assessmentCompleted: true,
+    completedCourseCount: 2,
     starterProfileReviewRequired: false,
     hasResume: true,
     hasCompletedInterviewPractice: true,
@@ -127,4 +133,24 @@ test('buildNextBestActions hides interview practice after true completion', () =
   });
 
   assert.ok(!actions.some((a) => a.id === 'interview_practice'));
+});
+
+test('buildNextBestActions adds first-course launch guidance before training starts', () => {
+  const actions = buildNextBestActions({
+    state: 'C',
+    noApplicationOnFile: false,
+    enrolledProgram: 'it-support',
+    assessmentCompleted: true,
+    completedCourseCount: 0,
+    starterProfileReviewRequired: false,
+    hasResume: true,
+    hasCompletedInterviewPractice: false,
+    profileCompletenessPct: 70,
+    jobApplicationCount: 0,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+  });
+
+  assert.ok(actions.some((a) => a.id === 'launch_first_course'));
+  assert.ok(actions.some((a) => a.id === 'see_training_plan'));
 });

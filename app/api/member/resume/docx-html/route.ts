@@ -6,6 +6,14 @@ import mammoth from 'mammoth';
 
 const BUCKET = 'member-resumes';
 
+function storageErrorMessage(error: { message?: string } | null): string {
+  const message = error?.message ?? '';
+  if (/not found|does not exist|Bucket/i.test(message)) {
+    return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
+  }
+  return 'Could not load resume file';
+}
+
 /**
  * Converts stored DOC/DOCX to HTML for same-origin inline preview (iframe srcDoc + sandbox).
  * POST /api/member/resume/docx-html?variant=original|enhanced
@@ -35,7 +43,8 @@ export async function POST(req: NextRequest) {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase.storage.from(BUCKET).download(path);
   if (error || !data) {
-    return NextResponse.json({ error: 'Could not load file' }, { status: 502 });
+    console.error('[member/resume/docx-html] download failed:', error);
+    return NextResponse.json({ error: storageErrorMessage(error) }, { status: 502 });
   }
 
   const buf = Buffer.from(await data.arrayBuffer());

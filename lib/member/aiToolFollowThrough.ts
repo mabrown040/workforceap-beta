@@ -80,8 +80,8 @@ export function getAIToolFollowThrough(params: {
     return {
       title: 'Practice this pitch where it counts',
       body: 'Use your elevator introduction with counselors, interviews, and networking so it becomes natural before employer conversations.',
-      href: '/dashboard/readiness',
-      cta: 'Open readiness plan',
+      href: '/dashboard/ai-tools/voice-interview',
+      cta: 'Practice with voice interview',
     };
   }
 

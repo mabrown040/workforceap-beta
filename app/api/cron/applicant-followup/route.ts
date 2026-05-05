@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendApplicantFollowupEmail, sendAdminPendingApplicantsEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
@@ -11,13 +12,7 @@ import { logCronRun } from '@/lib/admin/logCronRun';
  * Run daily (e.g. via Vercel Cron: "0 11 * * *" for 11 AM CT).
  * Protected with CRON_SECRET header.
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+async function handle(_request: Request) {
   const now = new Date();
   const threeDaysAgo = new Date(now);
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
@@ -92,3 +87,6 @@ export async function GET(request: Request) {
   await logCronRun('cron_applicant_followup', runResult);
   return NextResponse.json(runResult);
 }
+
+export const GET = withCronLogging('cron_applicant_followup', handle);
+export const POST = withCronLogging('cron_applicant_followup', handle);

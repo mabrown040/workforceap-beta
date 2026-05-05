@@ -12,8 +12,12 @@ export type PartnerForEdit = {
   contactPhone: string | null;
   active: boolean;
   notes: string | null;
+  logoUrl: string | null;
+  brandColor: string | null;
   subgroups?: { id: string; name: string }[];
 };
+
+const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
 
 type SubgroupOpt = { id: string; name: string; type: string; partnerId: string | null };
 
@@ -31,6 +35,8 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
   const [contactPhone, setContactPhone] = useState(partner.contactPhone ?? '');
   const [active, setActive] = useState(partner.active);
   const [notes, setNotes] = useState(partner.notes ?? '');
+  const [logoUrl, setLogoUrl] = useState(partner.logoUrl ?? '');
+  const [brandColor, setBrandColor] = useState(partner.brandColor ?? '');
   const [subgroupIds, setSubgroupIds] = useState<string[]>(() =>
     subgroups.filter((s) => s.type === 'partner' && s.partnerId === partner.id).map((s) => s.id)
   );
@@ -46,6 +52,11 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const trimmedColor = brandColor.trim();
+    if (trimmedColor && !HEX_COLOR_RE.test(trimmedColor)) {
+      setError('Brand color must be a 6-digit hex (e.g. #1E3A8A)');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -59,6 +70,8 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           contactPhone: contactPhone.trim() || null,
           active,
           notes: notes.trim() || null,
+          logoUrl: logoUrl.trim() || null,
+          brandColor: trimmedColor || null,
           subgroupIds,
         }),
       });
@@ -172,6 +185,51 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
               style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
               disabled={saving}
             />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+              Logo URL
+            </label>
+            <input
+              type="url"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://example.org/logo.svg"
+              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px' }}
+              disabled={saving}
+            />
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+              Shown in the partner portal header. Falls back to WorkforceAP branding if blank.
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+              Brand color
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="color"
+                value={HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : '#1E3A8A'}
+                onChange={(e) => setBrandColor(e.target.value)}
+                disabled={saving}
+                aria-label="Brand color picker"
+                style={{ width: 44, height: 36, padding: 0, border: '1px solid var(--outline-variant)', borderRadius: '6px', background: 'transparent', cursor: 'pointer' }}
+              />
+              <input
+                type="text"
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
+                placeholder="#1E3A8A"
+                pattern="#[0-9A-Fa-f]{6}"
+                style={{ flex: 1, padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: '6px', fontFamily: 'monospace' }}
+                disabled={saving}
+              />
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
+              6-digit hex (e.g. #1E3A8A). Used as the partner-scoped accent in the portal header.
+            </div>
           </div>
 
           {partnerSubgroups.length > 0 && (

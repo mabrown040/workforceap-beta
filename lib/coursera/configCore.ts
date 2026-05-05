@@ -1,5 +1,4 @@
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
-import { getDiscoveredProgram } from '@/lib/content/programs';
 
 type StringMap = Record<string, string>;
 type StringArrayMap = Record<string, string[]>;
@@ -147,12 +146,9 @@ export function buildCourseraLaunchUrl(args: {
 
   // If we have a course ID map and a current course index, deep-link to that specific course
   const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;
-  const discoveredCourseIds =
-    args.programSlug ? getDiscoveredProgram(args.programSlug)?.courses.map((course) => course.courseId) : undefined;
-  const effectiveCourseIds = courseIds?.length ? courseIds : discoveredCourseIds;
   const currentCourseId =
-    effectiveCourseIds && args.currentCourseIndex != null
-      ? effectiveCourseIds[args.currentCourseIndex]
+    courseIds && args.currentCourseIndex != null
+      ? courseIds[args.currentCourseIndex]
       : undefined;
 
   if (currentCourseId && config.courseUrlTemplate) {

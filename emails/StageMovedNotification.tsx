@@ -33,7 +33,7 @@ export const StageMovedNotification = ({
       </Text>
       
       <Text style={text}>
-        Great news! Your WorkforceAP application status has been updated from <strong>{previousStage}</strong> to <strong style={{ color: "#ad2c4d" }}>{newStage}</strong>.
+        Great news! Your WorkforceAP application status has been updated from <strong>{previousStage}</strong> to <strong style={{ color: "#C41E3A" }}>{newStage}</strong>.
       </Text>
       
       <Text style={text}>
@@ -80,7 +80,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: "#ad2c4d",
+  backgroundColor: "#C41E3A",
   borderRadius: "6px",
   color: "#fff",
   fontSize: "16px",

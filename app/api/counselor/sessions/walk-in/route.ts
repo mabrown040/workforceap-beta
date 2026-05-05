@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
+import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 
 /**
  * Walk-in session API — creates a brand-new member and starts an in-office
@@ -108,8 +109,7 @@ export async function POST(request: Request) {
     !existingPrisma // no active Prisma user — auth row is an orphan
   ) {
     try {
-      const list = await supabase.auth.admin.listUsers();
-      const orphan = list.data?.users?.find((u) => u.email?.toLowerCase() === email);
+      const orphan = await findSupabaseAuthUserByEmail(supabase, email);
       if (orphan) {
         await supabase.auth.admin.deleteUser(orphan.id);
         const retry = await supabase.auth.admin.inviteUserByEmail(email, {

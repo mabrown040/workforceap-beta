@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,10 +28,10 @@ const HELP_ITEMS = [
   },
   {
     icon: 'auto_awesome',
-    title: 'AI Tools',
-    body: 'Use our suite of AI-powered tools to build your resume, prep for interviews, and match to jobs.',
+    title: 'Career Toolkit',
+    body: 'Use our suite of tools to build your resume, prep for interviews, and match to jobs.',
     href: '/dashboard/ai-tools',
-    cta: 'Open AI tools',
+    cta: 'Open Career Toolkit',
   },
 ];
 
@@ -155,9 +154,6 @@ export default async function DashboardHelpPage() {
             </Link>
           </p>
         </div>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

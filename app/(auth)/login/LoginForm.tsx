@@ -600,14 +600,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
           </form>
 
           {/* Trust bar — reassurance at the moment of login friction */}
-          <p style={{ ...s.trustBar, fontSize: '0.8125rem', opacity: 0.85 }} aria-label="Program credentials">
-            <span className="material-symbols-outlined" style={{ fontSize: 15, verticalAlign: 'middle', marginRight: 'var(--space-1)' }} aria-hidden="true">lock</span>
-            Secure login
+          <div style={{ ...s.trustBar, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.2rem 0.75rem', alignItems: 'center', fontSize: '0.8125rem', opacity: 0.85 }} aria-label="Program credentials">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">lock</span>
+              Secure login
+            </span>
             <span style={s.trustDot} aria-hidden="true">·</span>
-            No-cost to members
+            <span style={{ whiteSpace: 'nowrap' }}>No-cost to members</span>
             <span style={s.trustDot} aria-hidden="true">·</span>
-            Funded by grants and partnerships
-          </p>
+            <span style={{ whiteSpace: 'nowrap' }}>Grants &amp; partner funded</span>
+          </div>
 
           {/* Bottom links */}
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)' }}>

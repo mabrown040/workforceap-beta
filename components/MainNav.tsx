@@ -75,6 +75,10 @@ export default function MainNav() {
       'FAQ': tNav('faq'),
       'Member dashboard': tNav('dashboard'),
       'Account settings': tNav('myAccount'),
+      'Account': tNav('myAccount'),
+      'Employer portal': tNav('employer'),
+      'Partner portal': tNav('partner'),
+      'Partner': tNav('partner'),
     };
     if (label in navMap) return navMap[label];
     const ctaMap: Record<string, string> = {

@@ -17,6 +17,7 @@ const STATUSES: JobApplicationStatus[] = [
   "PHONE_SCREEN",
   "INTERVIEWING",
   "OFFER",
+  "ACCEPTED",
   "REJECTED",
 ];
 
@@ -25,6 +26,7 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   PHONE_SCREEN: "Phone Screen",
   INTERVIEWING: "Interviewing",
   OFFER: "Offer",
+  ACCEPTED: "Accepted",
   SAVED: "Saved",
   REJECTED: "Rejected",
 };
@@ -34,6 +36,7 @@ const STATUS_BADGE_CLASSES: Record<JobApplicationStatus, string> = {
   PHONE_SCREEN: "wa-bg-blue-100 wa-text-blue-700",
   INTERVIEWING: "wa-bg-amber-100 wa-text-amber-700",
   OFFER: "wa-bg-green-100 wa-text-green-700",
+  ACCEPTED: "wa-bg-emerald-100 wa-text-emerald-800",
   SAVED: "wa-bg-slate-200 wa-text-slate-800",
   REJECTED: "wa-bg-red-100 wa-text-red-700",
 };
@@ -45,6 +48,7 @@ const STATUS_ACCENTS: Record<JobApplicationStatus, string> = {
   PHONE_SCREEN: "#2563eb",
   INTERVIEWING: "#d97706",
   OFFER: "#16a34a",
+  ACCEPTED: "#059669",
   REJECTED: "#dc2626",
 };
 

@@ -15,13 +15,14 @@ type JobApplication = {
   url: string | null;
 };
 
-const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED'];
+const STATUS_OPTIONS = ['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'ACCEPTED', 'REJECTED'];
 const STATUS_LABELS: Record<string, string> = {
   SAVED: 'Saved',
   APPLIED: 'Applied',
   PHONE_SCREEN: 'Phone Screen',
   INTERVIEWING: 'Interviewing',
   OFFER: 'Offer',
+  ACCEPTED: 'Accepted',
   REJECTED: 'Rejected',
 };
 
@@ -88,6 +89,7 @@ export default function ApplicationTrackerTable() {
     { value: 'applied', label: 'Applied', count: () => countByStatus('APPLIED') },
     { value: 'interview', label: 'Interview', count: () => countByStatus('interview') },
     { value: 'offer', label: 'Offer', count: () => countByStatus('OFFER') },
+    { value: 'ACCEPTED', label: 'Accepted', count: () => countByStatus('ACCEPTED') },
     { value: 'rejected', label: 'Rejected', count: () => countByStatus('REJECTED') },
     { value: 'saved', label: 'Saved', count: () => countByStatus('SAVED') },
   ];

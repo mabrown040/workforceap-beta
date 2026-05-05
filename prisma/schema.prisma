@@ -365,6 +365,7 @@ enum JobApplicationStatus {
   PHONE_SCREEN
   INTERVIEWING
   OFFER
+  ACCEPTED
   REJECTED
 }
 

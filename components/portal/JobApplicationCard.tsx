@@ -16,6 +16,7 @@ const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   PHONE_SCREEN: "Phone Screen",
   INTERVIEWING: "Interviewing",
   OFFER: "Offer",
+  ACCEPTED: "Accepted",
   SAVED: "Saved",
   REJECTED: "Rejected",
 };
@@ -26,6 +27,7 @@ const CARD_ACCENT: Record<JobApplicationStatus, string> = {
   PHONE_SCREEN: "#2563eb",
   INTERVIEWING: "#d97706",
   OFFER: "#16a34a",
+  ACCEPTED: "#059669",
   REJECTED: "#dc2626",
 };
 

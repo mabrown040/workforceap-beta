@@ -202,11 +202,11 @@ export default async function HomePage() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
               {t('heroCta')}
             </Link>
-            <Link href="/programs" className="btn btn-outline btn-large home-hero-outline-cta" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.15rem)' }}>
+            <Link href="/programs" className="home-hero-outline-cta" style={{ fontSize: '0.95rem', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.88))', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
               {t('browsePrograms')}
             </Link>
           </div>

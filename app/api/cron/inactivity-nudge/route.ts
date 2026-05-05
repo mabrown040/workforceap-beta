@@ -3,8 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
-import { isCronEnabled } from '@/lib/cron/isCronEnabled';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * POST /api/cron/inactivity-nudge
@@ -14,15 +13,7 @@ import { isCronEnabled } from '@/lib/cron/isCronEnabled';
  *
  * Deploy with Vercel Cron: schedule "0 10 * * 3" (Wednesday 10AM UTC)
  */
-async function handle(req: NextRequest) {
-  const unauthorized = authorizeCronRequest(req);
-  if (unauthorized) return unauthorized;
-
-  if (!(await isCronEnabled('cron_inactivity_nudge'))) {
-    await logCronRun('cron_inactivity_nudge', { skipped: true, reason: 'disabled' }, 'ok');
-    return NextResponse.json({ skipped: true, reason: 'disabled' });
-  }
-
+async function handle(_req: NextRequest) {
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
@@ -67,5 +58,5 @@ async function handle(req: NextRequest) {
   return NextResponse.json(runResult);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_inactivity_nudge', handle);
+export const POST = withCronLogging('cron_inactivity_nudge', handle);

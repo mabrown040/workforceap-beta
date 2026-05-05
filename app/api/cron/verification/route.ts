@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
-import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Daily verification that member-facing cron jobs actually executed.
@@ -10,10 +9,7 @@ import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
  * Alerts if any of the 7 critical crons never ran.
  */
 
-async function handle(request: Request) {
-  const unauthorized = authorizeCronRequest(request);
-  if (unauthorized) return unauthorized;
-
+async function handle(_request: Request) {
   const now = new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
@@ -52,5 +48,5 @@ async function handle(request: Request) {
   return Response.json(runResult);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_verification', handle);
+export const POST = withCronLogging('cron_verification', handle);

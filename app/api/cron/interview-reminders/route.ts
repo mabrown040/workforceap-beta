@@ -3,18 +3,13 @@ import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { sendInterviewDebriefPromptEmail, sendInterviewPrepReminderEmail } from '@/lib/email';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Daily: (1) ~24h before nextInterviewDate — prep reminder; (2) ~24h after — debrief prompt.
  * Uses JobApplication.nextInterviewDate. Protected with CRON_SECRET.
  */
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+async function handle(_request: NextRequest) {
   const now = new Date();
   const preStart = new Date(now.getTime() + 18 * 60 * 60 * 1000);
   const preEnd = new Date(now.getTime() + 30 * 60 * 60 * 1000);
@@ -92,3 +87,5 @@ export async function GET(request: NextRequest) {
   await logCronRun('cron_interview_reminders', runResult);
   return NextResponse.json(runResult);
 }
+
+export const GET = withCronLogging('cron_interview_reminders', handle);

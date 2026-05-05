@@ -10,6 +10,7 @@ export type JobApplicationDbStatus =
   | 'PHONE_SCREEN'
   | 'INTERVIEWING'
   | 'OFFER'
+  | 'ACCEPTED'
   | 'REJECTED';
 
 export type JobApplicationKanbanItem = {
@@ -24,6 +25,7 @@ export function getJobApplicationStage(status: JobApplicationDbStatus): JobAppli
     case 'INTERVIEWING':
       return 'INTERVIEWING';
     case 'OFFER':
+    case 'ACCEPTED':
       return 'OFFER';
     case 'REJECTED':
       return 'CLOSED';

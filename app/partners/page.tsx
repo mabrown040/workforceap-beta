@@ -5,93 +5,19 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('marketing.partners');
   return buildPageMetadataAsync({
-  title: 'Community & Employer Partners',
-  description:
-    'Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each.',
-  path: '/partners',
-});
+    title: t('title'),
+    description: t('description'),
+    path: '/partners',
+  });
 }
 
-const PARTNER_TYPES = [
-  {
-    Icon: UsersRound,
-    type: 'Referral Partners',
-    who: 'Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.',
-    why: 'Refer clients who need career training. We follow up within 1-2 business days. There is no cost to refer. You get updates when referred individuals complete programs.',
-    nextStep: { text: 'Contact to Refer', href: '/contact?topic=partnership' },
-    colSpan: 8,
-  },
-  {
-    Icon: GraduationCap,
-    type: 'Training Centers',
-    who: 'Educational institutions, community colleges, vocational schools, digital literacy centers.',
-    why: 'Co-deliver employer-recognized certification programs. We bring the employer pipeline; you bring the learning environment.',
-    nextStep: { text: 'Explore Co-Delivery', href: '/contact?topic=partnership' },
-    colSpan: 4,
-  },
-  {
-    Icon: Building2,
-    type: 'Public Agencies',
-    who: 'Workforce Solutions, TWC, WIOA providers, government workforce programs.',
-    why: 'Align your participants with employer-recognized in-demand certifications. We handle training and placement; you strengthen outcomes for your population.',
-    nextStep: { text: 'Discuss Alignment', href: '/contact?topic=partnership' },
-    colSpan: 5,
-  },
-  {
-    Icon: Heart,
-    type: 'Philanthropic Funders',
-    who: 'Foundations, corporate giving, impact investors, individual donors.',
-    why: 'Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We\'re growing nationwide and building toward national scale.',
-    nextStep: { text: 'Learn How to Support', href: '/contact?topic=partnership' },
-    colSpan: 7,
-  },
-];
-
-const PLATFORM_FEATURES = [
-  {
-    Icon: Bot,
-    title: 'Smart Intake',
-    desc: 'Structured enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.',
-  },
-  {
-    Icon: BarChart3,
-    title: 'Real-Time Dashboards',
-    desc: 'Partners access live data on referral status, enrollment progress, certification completions, and placement outcomes.',
-  },
-  {
-    Icon: ShieldCheck,
-    title: 'Verification & Reporting',
-    desc: 'Automated credential verification and WIOA-compliant reporting ensures accountability across every partnership.',
-  },
-];
-
-const FAQ_ITEMS = [
-  {
-    q: 'Who can become a partner?',
-    a: 'Employers, workforce development boards, non-profit services, churches, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.',
-  },
-  {
-    q: 'Is there a cost to refer candidates?',
-    a: 'No. There is no cost to refer someone. We welcome partners who want to connect individuals in their network with our career training programs that are offered at no cost to members.',
-  },
-  {
-    q: 'How do I refer someone?',
-    a: 'Contact us at info@workforceap.org or (512) 777-1808 with the candidate\'s name and contact information. You can also use our contact form and select "Partnership" as the topic.',
-  },
-  {
-    q: 'Can I hire WorkforceAP graduates?',
-    a: 'Yes. We actively connect employers with job-ready graduates. Reach out to discuss your hiring needs and we can share candidate profiles and schedule introductions.',
-  },
-  {
-    q: 'What reporting do partners receive?',
-    a: 'Partners receive regular updates on referral status, program completion rates, and placement outcomes. Our digital platform provides real-time dashboards for tracking progress.',
-  },
-];
-
 export default async function PartnersPage() {
+  const t = await getTranslations('marketing.partners');
   const locale = await getRequestLocale();
   const partnershipContactHref = `${withLocalePrefix('/contact', locale)}?topic=partnership`;
   const employersMarketingHref = withLocalePrefix('/employers', locale);
@@ -146,7 +72,7 @@ export default async function PartnersPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
               handshake
             </span>
-            A Legacy of Opportunity
+            {t('eyebrow')}
           </span>
 
           <h1
@@ -160,7 +86,7 @@ export default async function PartnersPage() {
               marginBottom: '2rem',
             }}
           >
-            Build Your Community&rsquo;s{' '}
+            {t('heroHeadline')}{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',
@@ -169,7 +95,7 @@ export default async function PartnersPage() {
                 backgroundClip: 'text',
               }}
             >
-              Future
+              {t('heroHeadlineAccent')}
             </span>
           </h1>
 
@@ -182,8 +108,7 @@ export default async function PartnersPage() {
               marginBottom: '2.5rem',
             }}
           >
-            Refer candidates, hire graduates, or align your workforce programs.
-            Each partnership has a clear path and real outcomes.
+            {t('heroCopy')}
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
@@ -201,7 +126,7 @@ export default async function PartnersPage() {
                 textDecoration: 'none',
               }}
             >
-              Request partnership info
+              {t('heroCta')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
             </Link>
             <Link
@@ -217,7 +142,7 @@ export default async function PartnersPage() {
                 textUnderlineOffset: '4px',
               }}
             >
-              Browse partnership types
+              {t('heroCta2')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
             </Link>
           </div>
@@ -246,7 +171,7 @@ export default async function PartnersPage() {
               >
                 <img
                   src="/images/hero-people.jpg"
-                  alt="Community partners collaborating"
+                  alt={t('imgAlt')}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -263,8 +188,8 @@ export default async function PartnersPage() {
                   marginBottom: '1.5rem',
                 }}
               >
-                Empowering Those Who{' '}
-                <span style={{ color: 'var(--color-accent)' }}>Empower Others</span>
+                {t('narrativeHeadline')}{' '}
+                <span style={{ color: 'var(--color-accent)' }}>{t('narrativeHeadlineAccent')}</span>
               </h2>
 
               <blockquote
@@ -278,22 +203,18 @@ export default async function PartnersPage() {
                   lineHeight: 1.7,
                 }}
               >
-                &ldquo;We partner with employers who hire, orgs who refer, workforce boards who align,
-                and funders who scale. Each partnership type has a clear path &mdash; because building a
-                skilled workforce takes all of us working together.&rdquo;
+                &ldquo;{t('narrativeQuote')}&rdquo;
               </blockquote>
 
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                Referral partners send us candidates who may benefit from career training offered at no cost to members.
-                We reach out within 24&ndash;48 hours and walk them through the process.
-                We welcome referrals of individuals motivated to improve the quality of their life and interested in training in technology, healthcare, manufacturing, or skilled trades.
+                {t('narrativeCopy')}
               </p>
 
               <ul style={{ paddingLeft: '1.25rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.8 }}>
-                <li>Submit a referral via our contact form or partner portal</li>
-                <li>We contact the candidate within 24&ndash;48 hours</li>
-                <li>Accepted members receive training, certificates, and job placement support</li>
-                <li>You receive updates when referred individuals complete programs</li>
+                <li>{t('narrativeLi1')}</li>
+                <li>{t('narrativeLi2')}</li>
+                <li>{t('narrativeLi3')}</li>
+                <li>{t('narrativeLi4')}</li>
               </ul>
             </div>
           </div>
@@ -312,8 +233,8 @@ export default async function PartnersPage() {
                 color: 'var(--color-on-surface)',
               }}
             >
-              Partnership{' '}
-              <span style={{ color: 'var(--color-accent)' }}>Pathways</span>
+              {t('pathwaysTitle')}{' '}
+              <span style={{ color: 'var(--color-accent)' }}>{t('pathwaysTitleAccent')}</span>
             </h2>
           </div>
 
@@ -324,68 +245,249 @@ export default async function PartnersPage() {
               gap: '1.5rem',
             }}
           >
-            {PARTNER_TYPES.map((pt) => (
-              <div
-                key={pt.type}
-                className="portal-card portal-card--flat"
+            {/* Referral Partners */}
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 8',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span
                 style={{
-                  gridColumn: `span ${pt.colSpan}`,
-                  padding: '2.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                  background: 'var(--surface-container)',
-                  borderRadius: 'var(--radius-xl)',
-                  transition: 'var(--transition-base)',
+                  width: '2rem',
+                  height: '2rem',
+                  color: 'var(--color-accent)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-hidden="true"
+              >
+                <UsersRound size={28} strokeWidth={2} />
+              </span>
+              <h3
+                style={{
+                  fontSize: '1.375rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface)',
+                  letterSpacing: '-0.01em',
                 }}
               >
-                <span
-                  style={{
-                    width: '2rem',
-                    height: '2rem',
-                    color: 'var(--color-accent)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  aria-hidden="true"
-                >
-                  <pt.Icon size={28} strokeWidth={2} />
-                </span>
-                <h3
-                  style={{
-                    fontSize: '1.375rem',
-                    fontWeight: 700,
-                    color: 'var(--color-on-surface)',
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {pt.type}
-                </h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  <strong>You are:</strong> {pt.who}
-                </p>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
-                  {pt.why}
-                </p>
-                <Link
-                  href={pt.nextStep.href}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    color: 'var(--color-accent)',
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    textDecoration: 'none',
-                    marginTop: '0.5rem',
-                  }}
-                >
-                  {pt.nextStep.text}
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-                </Link>
-              </div>
-            ))}
+                {t('referralType')}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                <strong>{t('typeYouAre')}</strong> {t('referralWho')}
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
+                {t('referralWhy')}
+              </p>
+              <Link
+                href={partnershipContactHref}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  marginTop: '0.5rem',
+                }}
+              >
+                {t('referralCta')}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </Link>
+            </div>
+
+            {/* Training Centers */}
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 4',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span
+                style={{
+                  width: '2rem',
+                  height: '2rem',
+                  color: 'var(--color-accent)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-hidden="true"
+              >
+                <GraduationCap size={28} strokeWidth={2} />
+              </span>
+              <h3
+                style={{
+                  fontSize: '1.375rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface)',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {t('trainingType')}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                <strong>{t('typeYouAre')}</strong> {t('trainingWho')}
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
+                {t('trainingWhy')}
+              </p>
+              <Link
+                href={partnershipContactHref}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  marginTop: '0.5rem',
+                }}
+              >
+                {t('trainingCta')}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </Link>
+            </div>
+
+            {/* Public Agencies */}
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 5',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span
+                style={{
+                  width: '2rem',
+                  height: '2rem',
+                  color: 'var(--color-accent)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-hidden="true"
+              >
+                <Building2 size={28} strokeWidth={2} />
+              </span>
+              <h3
+                style={{
+                  fontSize: '1.375rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface)',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {t('agencyType')}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                <strong>{t('typeYouAre')}</strong> {t('agencyWho')}
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
+                {t('agencyWhy')}
+              </p>
+              <Link
+                href={partnershipContactHref}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  marginTop: '0.5rem',
+                }}
+              >
+                {t('agencyCta')}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </Link>
+            </div>
+
+            {/* Philanthropic Funders */}
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 7',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span
+                style={{
+                  width: '2rem',
+                  height: '2rem',
+                  color: 'var(--color-accent)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-hidden="true"
+              >
+                <Heart size={28} strokeWidth={2} />
+              </span>
+              <h3
+                style={{
+                  fontSize: '1.375rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface)',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {t('funderType')}
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                <strong>{t('typeYouAre')}</strong> {t('funderWho')}
+              </p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
+                {t('funderWhy')}
+              </p>
+              <Link
+                href={partnershipContactHref}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'var(--color-accent)',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  marginTop: '0.5rem',
+                }}
+              >
+                {t('funderCta')}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -413,46 +515,112 @@ export default async function PartnersPage() {
                   marginBottom: '2rem',
                 }}
               >
-                Digital Integration,{' '}
-                <span style={{ color: 'var(--color-accent)' }}>Human Impact</span>
+                {t('platformTitle')}{' '}
+                <span style={{ color: 'var(--color-accent)' }}>{t('platformTitleAccent')}</span>
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {PLATFORM_FEATURES.map((f) => (
-                  <div
-                    key={f.title}
+                {/* Smart Intake */}
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '1rem',
+                    padding: '1.5rem',
+                    background: 'var(--surface-container)',
+                    borderRadius: 'var(--radius-lg)',
+                  }}
+                >
+                  <span
                     style={{
-                      display: 'flex',
-                      gap: '1rem',
-                      padding: '1.5rem',
-                      background: 'var(--surface-container)',
-                      borderRadius: 'var(--radius-lg)',
+                      width: '1.75rem',
+                      height: '1.75rem',
+                      color: 'var(--color-accent)',
+                      flexShrink: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
+                    aria-hidden="true"
                   >
-                    <span
-                      style={{
-                        width: '1.75rem',
-                        height: '1.75rem',
-                        color: 'var(--color-accent)',
-                        flexShrink: 0,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                      aria-hidden="true"
-                    >
-                      <f.Icon size={24} strokeWidth={2} />
-                    </span>
-                    <div>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.35rem' }}>
-                        {f.title}
-                      </h3>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                        {f.desc}
-                      </p>
-                    </div>
+                    <Bot size={24} strokeWidth={2} />
+                  </span>
+                  <div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.35rem' }}>
+                      {t('platformFeature1Title')}
+                    </h3>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      {t('platformFeature1Desc')}
+                    </p>
                   </div>
-                ))}
+                </div>
+
+                {/* Real-Time Dashboards */}
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '1rem',
+                    padding: '1.5rem',
+                    background: 'var(--surface-container)',
+                    borderRadius: 'var(--radius-lg)',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '1.75rem',
+                      height: '1.75rem',
+                      color: 'var(--color-accent)',
+                      flexShrink: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <BarChart3 size={24} strokeWidth={2} />
+                  </span>
+                  <div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.35rem' }}>
+                      {t('platformFeature2Title')}
+                    </h3>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      {t('platformFeature2Desc')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Verification & Reporting */}
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '1rem',
+                    padding: '1.5rem',
+                    background: 'var(--surface-container)',
+                    borderRadius: 'var(--radius-lg)',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '1.75rem',
+                      height: '1.75rem',
+                      color: 'var(--color-accent)',
+                      flexShrink: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <ShieldCheck size={24} strokeWidth={2} />
+                  </span>
+                  <div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.35rem' }}>
+                      {t('platformFeature3Title')}
+                    </h3>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      {t('platformFeature3Desc')}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -495,17 +663,31 @@ export default async function PartnersPage() {
                 color: 'var(--color-on-surface)',
               }}
             >
-              Partner FAQ
+              {t('faqTitle')}
             </h2>
           </div>
 
           <div className="faq-list">
-            {FAQ_ITEMS.map((item) => (
-              <details key={item.q} className="faq-item" style={{ marginBottom: '0.75rem' }}>
-                <summary style={{ fontWeight: 600 }}>{item.q}</summary>
-                <p>{item.a}</p>
-              </details>
-            ))}
+            <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
+              <summary style={{ fontWeight: 600 }}>{t('faq1q')}</summary>
+              <p>{t('faq1a')}</p>
+            </details>
+            <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
+              <summary style={{ fontWeight: 600 }}>{t('faq2q')}</summary>
+              <p>{t('faq2a')}</p>
+            </details>
+            <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
+              <summary style={{ fontWeight: 600 }}>{t('faq3q')}</summary>
+              <p>{t('faq3a')}</p>
+            </details>
+            <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
+              <summary style={{ fontWeight: 600 }}>{t('faq4q')}</summary>
+              <p>{t('faq4a')}</p>
+            </details>
+            <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
+              <summary style={{ fontWeight: 600 }}>{t('faq5q')}</summary>
+              <p>{t('faq5a')}</p>
+            </details>
           </div>
         </div>
       </section>
@@ -541,7 +723,7 @@ export default async function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Start a Partnership
+              {t('ctaTitle')}
             </h2>
             <p
               style={{
@@ -552,7 +734,7 @@ export default async function PartnersPage() {
                 position: 'relative',
               }}
             >
-              Clear next steps, real outcomes, and a team that follows up within 1–2 business days.
+              {t('ctaCopy')}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -569,7 +751,7 @@ export default async function PartnersPage() {
                   textDecoration: 'none',
                 }}
               >
-                Request partnership info
+                {t('ctaCta')}
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
@@ -587,7 +769,7 @@ export default async function PartnersPage() {
                   textDecoration: 'none',
                 }}
               >
-                I am hiring (employers)
+                {t('ctaCta2')}
               </Link>
             </div>
           </div>

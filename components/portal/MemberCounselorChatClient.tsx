@@ -87,7 +87,7 @@ export default function MemberCounselorChatClient({
     try {
       const supabase = createSupabaseBrowserClient();
       const channel = supabase
-        .channel(`member-thread:${threadId}`)
+        .channel(`member-thread:${threadId}:desktop`)
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}` },

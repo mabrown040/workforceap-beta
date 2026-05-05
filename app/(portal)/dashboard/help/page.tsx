@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -155,9 +154,6 @@ export default async function DashboardHelpPage() {
             </Link>
           </p>
         </div>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

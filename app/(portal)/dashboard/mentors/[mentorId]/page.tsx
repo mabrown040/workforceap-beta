@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import MentorSessionForm from '@/components/portal/MentorSessionForm';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -28,9 +27,7 @@ export default async function MentorProfilePage({ params }: { params: Promise<{ 
           <a href={mentor.linkedinUrl} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '0.75rem', color: 'var(--color-accent)' }}>LinkedIn Profile</a>
         ) : null}
 
-        <MentorSessionForm mentorId={mentor.id} />
-        <MobileBottomNav variant="portal" />
-      </div>
+        <MentorSessionForm mentorId={mentor.id} />      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem', maxWidth: '52rem' }}>

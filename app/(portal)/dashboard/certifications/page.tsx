@@ -8,7 +8,6 @@ import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import {
   CertificationEarnedRowMobile,
   CertificationDownloadOneButton,
@@ -314,10 +313,7 @@ export default async function DashboardCertificationsPage() {
               </a>
             </div>
           </div>
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
 
       {/* ── DESKTOP ── */}
       <div className="wa-hidden md:wa-block">

@@ -15,7 +15,6 @@ import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
@@ -568,7 +567,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   return (
     <>
-      <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
+      <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
 
       {/* ΓöÇΓöÇ Recent in-office session card — shown to both mobile + desktop
           when a counselor or admin ran tools on the member's behalf in the
@@ -619,10 +618,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </div>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-                    Member dashboard
+                    {noApplicationOnFile ? 'WorkforceAP' : 'Member dashboard'}
                   </p>
                   <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    Welcome back, {firstName}
+                    {noApplicationOnFile ? `Welcome, ${firstName}` : `Welcome back, ${firstName}`}
                   </h2>
                 </div>
                 {program && (
@@ -1074,8 +1073,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </PortalEntryErrorBoundary>
       </div>
 
-      {/* Bottom nav ΓÇö mobile only */}
-      <MobileBottomNav variant="portal" />
-    </>
+      {/* Bottom nav ΓÇö mobile only */}    </>
   );
 }

@@ -7,7 +7,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -144,9 +143,7 @@ export default async function DashboardResumePage() {
             hasOriginal={!!profile?.resumeOriginalPath}
             hasEnhanced={!!profile?.resumeEnhancedPath}
           />
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
 
       {/* ── Desktop ── */}
       <div

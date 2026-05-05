@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ResumeRewriterClient from './ResumeRewriterClient';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -283,10 +282,7 @@ export default async function ResumeRewriterPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
       <style>{`
         @media (max-width: 640px) {
           .resume-rewriter-knowledge-card {

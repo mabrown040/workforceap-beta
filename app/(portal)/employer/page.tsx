@@ -20,7 +20,6 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -543,8 +542,6 @@ export default async function EmployerDashboardPage() {
         )}
       </section>
       </div>{/* end desktop */}
-    </PortalPageFrame>
-    <MobileBottomNav variant="portal" />
-    </PortalEntryClient>
+    </PortalPageFrame>    </PortalEntryClient>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ElevatorPitchClient from '@/components/portal/tools/ElevatorPitchClient';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -43,9 +42,7 @@ export default async function ElevatorPitchPage() {
             emptyMessage="No saved elevator pitches yet. Generate your first one above."
           />
           <ElevatorPitchDeploymentLogger />
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </div>
   );
 }

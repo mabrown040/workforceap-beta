@@ -14,7 +14,6 @@ import StartTourButton from "@/components/onboarding/StartTourButton";
 import ResumeClient from "@/app/(portal)/dashboard/resume/ResumeClient";
 import ResumeCoachWorkspace from "@/components/portal/ResumeCoachWorkspace";
 import { getProfileCompleteness } from "@/lib/resume/profileCompleteness";
-import MobileBottomNav from "@/components/MobileBottomNav";
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
@@ -708,9 +707,6 @@ export default async function DashboardProfilePage() {
             </div>
           </div>
         </div>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

@@ -6,7 +6,6 @@ import { getScoreBreakdownSafe } from '@/lib/readiness/score';
 import PageHeader from '@/components/portal/PageHeader';
 import ReadinessMemberClient from './ReadinessMemberClient';
 import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCard';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
 import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturnButton';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
@@ -109,9 +108,7 @@ export default async function DashboardReadinessPage() {
           <CompactReadinessCoach />
         </div>
 
-        <ReadinessCoachReturnButton />
-        <MobileBottomNav variant="portal" />
-      </div>
+        <ReadinessCoachReturnButton />      </div>
 
       {/* ── DESKTOP ── */}
       <div className="wa-hidden md:wa-block">

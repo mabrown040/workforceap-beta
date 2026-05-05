@@ -10,7 +10,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { TOTAL_POINTS } from '@/lib/assessment/answer-key';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -889,9 +888,6 @@ export default async function SkillsAssessmentPage() {
             resources. Results are used only to support your success.
           </p>
         </div>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

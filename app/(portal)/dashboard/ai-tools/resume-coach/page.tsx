@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeCoachWorkspace from '@/components/portal/ResumeCoachWorkspace';
 import VoiceSessionIntroStrip from '@/components/portal/tools/VoiceSessionIntroStrip';
@@ -49,10 +48,7 @@ export default async function ResumeCoachPage() {
           />
 
           <ResumeCoachWorkspace />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </div>
   );
 }

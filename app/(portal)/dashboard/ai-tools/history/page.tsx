@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AIHistoryList from '@/components/portal/AIHistoryList';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
@@ -160,8 +159,6 @@ export default async function AIHistoryPage({ searchParams }: Props) {
           <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
         )}
       </div>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

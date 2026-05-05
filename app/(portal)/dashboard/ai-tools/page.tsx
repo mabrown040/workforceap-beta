@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
@@ -184,9 +183,7 @@ export default async function AIToolsPage() {
         </div>
       </section>
 
-      <div className="wa-block md:wa-hidden">
-        <MobileBottomNav variant="portal" />
-      </div>
+      <div className="wa-block md:wa-hidden">      </div>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -50,9 +49,7 @@ export default async function MentorsBrowsePage() {
               </Link>
             </div>
           ))}
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem' }}>

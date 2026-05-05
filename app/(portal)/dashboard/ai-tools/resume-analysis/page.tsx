@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import ResumeStrengthForm from '@/components/portal/tools/ResumeStrengthForm';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -56,10 +55,7 @@ export default async function ResumeAnalysisPage() {
           <ResumeStrengthForm />
 
           <ToolHistoryPanel userId={user.id} toolType="resume_analysis" />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </>
   );
 }

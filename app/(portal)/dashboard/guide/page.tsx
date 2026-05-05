@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
@@ -323,8 +322,6 @@ export default async function MemberGuidePage() {
           </p>
         </div>
       </section>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

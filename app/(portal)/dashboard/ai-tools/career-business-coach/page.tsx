@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
@@ -86,9 +85,7 @@ export default async function CareerBusinessCoachPage() {
         </VoiceAgentSurface>
       </div>
 
-      <div className="wa-block md:wa-hidden">
-        <MobileBottomNav variant="portal" />
-      </div>
+      <div className="wa-block md:wa-hidden">      </div>
     </div>
   );
 }

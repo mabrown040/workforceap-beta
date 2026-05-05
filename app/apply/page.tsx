@@ -8,8 +8,6 @@ import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
-import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
-import { prisma } from '@/lib/db/prisma';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
 
@@ -182,8 +180,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const programSlug = resolveApplyProgramSlug(sp.program);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
   const t = await getTranslations('apply');
-  const placementMetrics = await getPlacementPublicMetrics(prisma).catch(() => null);
-
   return (
     <div style={sPage.wrapper}>
       {/* ── Hero ── */}
@@ -271,7 +267,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         </aside>
 
         {/* Main form area (8-col) */}
-        <div style={sPage.mainCard}>
+        <div className="apply-main-form" style={sPage.mainCard}>
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
           <Suspense fallback={<ApplyPageSkeleton />}>
@@ -306,17 +302,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             </p>
           </div>
         </div>
-        {placementMetrics && placementMetrics.placedCount > 0 ? (
-          <div style={sPage.suppCard}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-gold)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">workspace_premium</span>
-            <div>
-              <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard3Title')}</h4>
-              <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-                <strong style={{ color: 'var(--color-on-surface)' }}>{placementMetrics.placedCount}</strong> {placementMetrics.placedCount === 1 ? t('suppCard3Body') : t('suppCard3BodyPlural')}{placementMetrics.withRetentionNote > 0 ? `, ${t('suppCard3Retention')} ${placementMetrics.withRetentionNote}` : ''}. {placementMetrics.asOfLabel}
-              </p>
-            </div>
-          </div>
-        ) : null}
       </div>
 
       <Footer />
@@ -329,6 +314,10 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           }
           .apply-sidebar {
             position: static !important;
+            order: 1;
+          }
+          .apply-main-form {
+            order: 0;
           }
           .apply-supp-row {
             grid-template-columns: 1fr !important;

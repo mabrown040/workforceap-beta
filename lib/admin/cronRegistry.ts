@@ -166,9 +166,9 @@ export const CRON_REGISTRY: CronDef[] = [
   },
   {
     id: 'coursera-training-sync',
-    name: 'Coursera / xAPI training sync',
+    name: 'xAPI replay → course progress',
     description:
-      'Replays pending xAPI rows into course progress and probes Coursera Enterprise skillset API (telemetry until skillset→course mapping lands).',
+      'Replays pending xAPI rows into CourseProgress for any statements that arrived without a known userId/courseSlug.',
     schedule: '0 * * * *',
     scheduleLabel: 'Hourly at :00 UTC',
     apiPath: '/api/cron/coursera-training-sync',
@@ -177,6 +177,20 @@ export const CRON_REGISTRY: CronDef[] = [
     category: 'admin',
     audienceDescription: 'Internal data sync (no outbound email)',
     workflowKey: 'cron_coursera_training_sync',
+  },
+  {
+    id: 'coursera-sync',
+    name: 'Coursera skillset progress sync',
+    description:
+      'Polls Coursera Enterprise per-learner skillset progress for every active member and upserts a snapshot row per (userId, skillsetId) into coursera_skillset_progress.',
+    schedule: '0 */6 * * *',
+    scheduleLabel: 'Every 6 hours',
+    apiPath: '/api/cron/coursera-sync',
+    method: 'GET',
+    icon: 'school',
+    category: 'admin',
+    audienceDescription: 'Internal data sync (no outbound email)',
+    workflowKey: 'cron_coursera_sync',
   },
   {
     id: 'stale-training-check',

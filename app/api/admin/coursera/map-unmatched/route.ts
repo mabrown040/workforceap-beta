@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import { replayPendingXapiStatementsForEmail } from '@/lib/coursera/replayPendingXapi';
 
 /**
  * Inline "Map to WAP user" action used from the Coursera-only learners list.
@@ -47,10 +48,15 @@ export async function POST(request: Request) {
 
     const backfill = await backfillUserIdForCourseraEmail(courseraEmail, userId);
 
+    // Immediately process any pending xAPI statements so member progress
+    // reflects on their dashboard right away instead of waiting for the hourly cron.
+    const xapiReplay = await replayPendingXapiStatementsForEmail(courseraEmail);
+
     return NextResponse.json({
       ok: true,
       mapping,
       backfill,
+      xapiReplay,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to map learner';

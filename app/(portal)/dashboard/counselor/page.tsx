@@ -126,7 +126,7 @@ export default async function CounselorPage() {
         </div>
       </div>
 
-      <MobileBottomNav />
+      <MobileBottomNav variant="portal" />
     </div>
   );
 }

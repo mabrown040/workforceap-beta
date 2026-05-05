@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import CareerCounselor from '@/components/portal/tools/CareerCounselor';
@@ -116,7 +115,6 @@ export default async function CounselorPage() {
           </VoiceAgentSurface>
         </div>
         {historySection}
-        <MobileBottomNav variant="portal" />
       </div>
 
       {/* Desktop */}

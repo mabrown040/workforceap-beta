@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import GapAnalyzerForm from '@/components/portal/tools/GapAnalyzerForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -46,10 +45,7 @@ export default async function GapAnalyzerPage() {
           </div>
 
           <ToolHistoryPanel userId={user.id} toolType="gap_analyzer" />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
       </div>
     </>
   );

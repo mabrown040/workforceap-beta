@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { buildPageMetadata } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import { getUser } from '@/lib/auth/server';
@@ -17,6 +18,7 @@ export default async function CounselorSessionDetailPage({ params }: { params: P
   const { id } = await params;
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/counselor');
+  const tCommon = await getTranslations('marketing.common');
 
   const session = await prisma.aIToolResult.findUnique({
     where: { id, userId: user.id, toolType: 'career_counselor' },
@@ -32,7 +34,7 @@ export default async function CounselorSessionDetailPage({ params }: { params: P
         subtitle={`${new Date(session.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`}
         breadcrumbs={[
           { label: 'Member Portal', href: '/dashboard' },
-          { label: 'AI Career Counselor', href: '/dashboard/counselor' },
+          { label: tCommon('aiCounselor'), href: '/dashboard/counselor' },
           { label: 'Session Details' },
         ]}
       />
@@ -43,7 +45,7 @@ export default async function CounselorSessionDetailPage({ params }: { params: P
         </div>
         <div style={{ marginTop: '1.5rem' }}>
           <Link href="/dashboard/counselor" className="wa-btn wa-btn--secondary" style={{ display: 'inline-block' }}>
-            ← Back to AI Career Counselor
+            ← Back to {tCommon('aiCounselor')}
           </Link>
         </div>
       </div>
@@ -54,7 +56,7 @@ export default async function CounselorSessionDetailPage({ params }: { params: P
         </div>
         <div style={{ marginTop: '1.5rem' }}>
           <Link href="/dashboard/counselor" className="wa-btn wa-btn--secondary" style={{ display: 'inline-block' }}>
-            ← Back to AI Career Counselor
+            ← Back to {tCommon('aiCounselor')}
           </Link>
         </div>
       </div>

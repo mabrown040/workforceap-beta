@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import InterviewCoach from '@/components/portal/tools/InterviewCoach';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -44,9 +43,7 @@ export default async function InterviewCoachPage() {
         <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <InterviewCoach />
           <ToolHistoryPanel userId={user.id} toolType="interview_coach" />
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </div>
   );
 }

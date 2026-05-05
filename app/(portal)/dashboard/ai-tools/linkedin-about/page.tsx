@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import LinkedInAboutForm from '@/components/portal/tools/LinkedInAboutForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -46,8 +45,6 @@ export default async function LinkedInAboutPage() {
         </div>
         <ToolHistoryPanel userId={user.id} toolType="linkedin_about" />
       </div>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

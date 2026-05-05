@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { buildPageMetadata } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import InterviewPrepBundle from '@/components/portal/InterviewPrepBundle';
 
@@ -40,9 +39,7 @@ export default async function InterviewPrepBundlePage() {
           >
             <InterviewPrepBundle />
           </Suspense>
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </div>
   );
 }

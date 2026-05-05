@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
@@ -104,7 +103,7 @@ export default async function CounselorPage() {
       <PageHeader
         title={tCommon('aiCounselor')}
         subtitle="Your session is private. Speak naturally — I'm here to help."
-        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'AI Career Counselor' }]}
+        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: tCommon('aiCounselor') }]}
       />
 
       {/* Mobile */}
@@ -114,9 +113,7 @@ export default async function CounselorPage() {
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
         </div>
-        {historySection}
-        <MobileBottomNav variant="portal" />
-      </div>
+        {historySection}      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block">

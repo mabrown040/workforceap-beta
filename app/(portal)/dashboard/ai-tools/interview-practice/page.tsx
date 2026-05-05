@@ -7,7 +7,6 @@ import { prisma } from '@/lib/db/prisma';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
 import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -91,10 +90,7 @@ export default async function InterviewPracticePage() {
           </div>
 
           <InterviewPracticeSaved results={savedResults} />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </>
   );
 }

@@ -5,7 +5,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -78,8 +77,6 @@ export default async function WeeklyRecapPage() {
             weekStart={weekStart.toISOString()}
           />
         )}
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

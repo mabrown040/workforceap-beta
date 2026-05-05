@@ -7,7 +7,6 @@ import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messag
 import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -74,9 +73,7 @@ export default async function MemberMessagesPage() {
             lastMsgTime,
             unreadCount,
           }}
-        />
-        <MobileBottomNav variant="portal" />
-      </div>
+        />      </div>
 
       {/* ── Desktop view ── */}
       <div className="wa-hidden md:wa-block">

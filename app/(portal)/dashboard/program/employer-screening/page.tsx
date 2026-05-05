@@ -7,7 +7,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Employer screening',
@@ -76,8 +75,6 @@ export default async function EmployerScreeningMemberPage() {
             Back to Path to certification
           </Link>
         </div>
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

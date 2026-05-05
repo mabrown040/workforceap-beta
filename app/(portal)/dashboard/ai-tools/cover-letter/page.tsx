@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import CoverLetterForm from '@/components/portal/tools/CoverLetterForm';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,10 +52,7 @@ export default async function CoverLetterPage() {
           </div>
 
           <ToolHistoryPanel userId={user.id} toolType="cover_letter" />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </>
   );
 }

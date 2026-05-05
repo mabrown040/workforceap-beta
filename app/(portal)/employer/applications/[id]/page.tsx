@@ -9,7 +9,6 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalCard from '@/components/portal/ui/PortalCard';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplicationStatusUpdater from '@/components/employer/ApplicationStatusUpdater';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -249,9 +248,6 @@ export default async function EmployerApplicationPage({
             </div>
           </PortalCard>
         )}
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </PortalPageFrame>
+      </div>    </PortalPageFrame>
   );
 }

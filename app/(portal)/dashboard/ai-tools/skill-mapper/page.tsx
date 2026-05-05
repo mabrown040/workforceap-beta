@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SkillMapperClient from '@/components/portal/tools/SkillMapperClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -49,10 +48,7 @@ export default async function SkillMapperPage() {
             toolType="skill_assessment"
             title="Recent Skill Mapper Lookups"
           />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
       </div>
     </>
   );

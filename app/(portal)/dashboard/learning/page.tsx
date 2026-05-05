@@ -14,7 +14,6 @@ import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledC
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { readinessVoiceSurface } from '@/lib/portal/voice';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -465,9 +464,6 @@ export default async function LearningPage() {
       )}
 
     </div> {/* end hidden md:block */}
-    </div>
-
-    <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

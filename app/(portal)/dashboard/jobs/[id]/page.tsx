@@ -9,7 +9,6 @@ import JobApplyButton from './JobApplyButton';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -124,8 +123,6 @@ export default async function JobDetailPage({ params }: Props) {
           <JobApplyButton jobId={job.id} authenticated={!!user} />
         </div>
       </section>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

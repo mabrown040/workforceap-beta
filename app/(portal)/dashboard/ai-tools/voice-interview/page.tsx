@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import VoiceInterviewScaffold from '@/components/portal/tools/VoiceInterviewScaffold';
 import VoiceSessionIntroStrip from '@/components/portal/tools/VoiceSessionIntroStrip';
@@ -55,9 +54,7 @@ export default async function VoiceInterviewPage() {
             title="Recent saved interview recordings"
             emptyMessage="No saved recordings yet. If you just finished a session and it does not appear, try refreshing in a few minutes."
           />
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </div>
   );
 }

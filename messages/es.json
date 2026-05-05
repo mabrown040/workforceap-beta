@@ -161,6 +161,7 @@
     }
   },
   "training": {
+    "myTraining": "Mi Entrenamiento",
     "course": "Curso",
     "module": "Módulo",
     "lesson": "Lección",

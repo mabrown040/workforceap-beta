@@ -8,7 +8,6 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import ResourcesClient from './ResourcesClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -196,9 +195,6 @@ export default async function DashboardResourcesPage() {
             </div>
           </div>
         </section>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

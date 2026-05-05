@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
@@ -168,8 +167,6 @@ export default async function ProgramStartPage() {
             </Link>
           </div>
         </div>
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

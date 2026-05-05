@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import Link from 'next/link';
 import { getCourseraReadiness } from '@/lib/coursera/config';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
 import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
@@ -12,7 +13,6 @@ import TrainingDataFlowStrip from '@/components/portal/TrainingDataFlowStrip';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
@@ -29,6 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TrainingPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
+  const tTraining = await getTranslations('training');
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -40,7 +41,18 @@ export default async function TrainingPage() {
   });
 
   if (!dbUser?.enrolledProgram) {
-    redirect('/dashboard/program');
+    return (
+      <div className="portal-main-content">
+        <div className="content-card" style={{ maxWidth: '36rem', margin: '2rem auto', textAlign: 'center', padding: '2rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>school</span>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>Training starts after enrollment</h1>
+          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+            Your counselor will enroll you in a funded program before your Coursera courses unlock. Once enrolled, this page becomes your training hub.
+          </p>
+          <Link href="/dashboard/program" className="btn btn-primary">Choose my program</Link>
+        </div>
+      </div>
+    );
   }
 
   if (!dbUser.assessmentCompleted) {
@@ -97,7 +109,7 @@ export default async function TrainingPage() {
     <>
       <div className="portal-main-content">
         <PageHeader
-          title="My Training"
+          title={tTraining('myTraining')}
           subtitle={
             <>
               <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
@@ -106,7 +118,7 @@ export default async function TrainingPage() {
           }
           breadcrumbs={[
             { label: 'Member Portal', href: '/dashboard' },
-            { label: 'My Training' },
+            { label: tTraining('myTraining') },
           ]}
         />
 
@@ -165,9 +177,7 @@ export default async function TrainingPage() {
                 Readiness
               </a>
             </div>
-          </div>
-          <MobileBottomNav variant="portal" />
-        </div>
+          </div>        </div>
 
         {/* Desktop */}
         <div className="wa-hidden md:wa-block">

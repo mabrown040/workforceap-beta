@@ -10,7 +10,6 @@ import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunch
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getCourseraReadiness } from '@/lib/coursera/config';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -239,8 +238,6 @@ export default async function CourseraIntegrationPage() {
           Questions? Email <a href="mailto:info@workforceap.org">info@workforceap.org</a> or message your counselor from{' '}
           <Link href="/dashboard/messages">Messages</Link>.
         </p>
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

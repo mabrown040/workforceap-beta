@@ -10,7 +10,6 @@ import PageHeader from '@/components/portal/PageHeader';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -391,8 +390,6 @@ export default async function JobsPage() {
           )}
         </div>
       </section>
-    </div>
-    <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

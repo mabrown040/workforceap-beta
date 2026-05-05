@@ -10,7 +10,6 @@ import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
@@ -67,9 +66,7 @@ export default async function ProgramPage() {
             breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'My Program' }]}
           />
           <ProgramPicker programs={pickerPrograms.length ? pickerPrograms : []} />
-        </div>
-        <MobileBottomNav variant="portal" />
-      </>
+        </div>      </>
     );
   }
 
@@ -208,8 +205,6 @@ export default async function ProgramPage() {
           </div>
         </PortalCard>
 
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

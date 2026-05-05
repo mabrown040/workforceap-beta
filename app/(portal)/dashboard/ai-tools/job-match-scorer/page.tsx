@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -105,10 +104,7 @@ export default async function JobMatchScorerPage() {
               </p>
             </div>
           </div>
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </>
   );
 }

@@ -340,6 +340,8 @@
       "employerCardCta": "Resumen para empleadores",
       "aboutEyebrow": "Sobre nosotros",
       "aboutTitle": "Capacitación alineada a empleadores. Apoyo profesional en todo el camino.",
+      "aboutBody1": "WorkforceAP es una organización sin fines de lucro 501(c)(3) creada en Austin sobre más de 25 años de experiencia en desarrollo laboral y una Visión recurrente dada a Michael Brown por Dios para servir a Su pueblo. WorkforceAP combina capacitación alineada con empleadores, preparación laboral con IA y apoyo en habilidades blandas, formación ocupacional y orientación profesional en un modelo construido para funcionar y escalar — sin costo para los miembros calificados.",
+      "aboutBody2": "Nuestro liderazgo aporta experiencia de la Texas Workforce Commission, Workforce Solutions, la ciudad de Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement y African American Youth Harvest Foundation. A través de subvenciones y vías respaldadas por socios, apoyamos a los miembros con ayuda en el currículo, preparación para entrevistas, orientación en la búsqueda de empleo y apoyo profesional desde el primer paso hasta la colocación.",
       "statLearners": "Personas Alcanzadas",
       "statPrograms": "Programas",
       "statMemberCost": "Costo para el miembro",
@@ -473,7 +475,10 @@
       "quickStartBody": "Empieza con la ruta que mejor se adapte a ti.",
       "notSure": "¿No estás seguro? Haz la guía de 2 minutos",
       "howToChoose": "Cómo elegir un programa",
-      "fromEnrollment": "De la inscripción al empleo"
+      "fromEnrollment": "De la inscripción al empleo",
+      "cardStartingRange": "Rango inicial:",
+      "cardSalaryDisclaimer": "El rango salarial es una estimación del mercado de Austin (Lightcast/BLS, enero 2026). El salario real depende de la experiencia y del empleador.",
+      "cardBestFor": "Ideal para:"
     },
     "faq": {
       "knowledgeBase": "Centro de ayuda",

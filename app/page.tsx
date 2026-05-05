@@ -394,10 +394,10 @@ export default async function HomePage() {
               {t('aboutTitle')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '680px' }}>
-              WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a reoccurring Vision given to Michael Brown by God for serving His people. WorkforceAP combines employer-aligned training, AI workforce readiness and soft-skill support, occupational training, and career guidance in a model built to work and scale — with no cost to qualifying members.
+              {t('aboutBody1')}
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, maxWidth: '680px' }}>
-              Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we support members with resume help, interview prep, job-search guidance, and career support from first step to placement.
+              {t('aboutBody2')}
             </p>
           </div>
 

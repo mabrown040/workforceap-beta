@@ -202,9 +202,17 @@ export default async function ProgramPage() {
                 );
               })}
             </ul>
-            <Link href="/dashboard/training" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-              Go to Training
-            </Link>
+            <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+              <Link href="/dashboard/training" className="btn btn-primary">
+                Go to Training
+              </Link>
+              <Link
+                href="/dashboard/program/change"
+                style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+              >
+                Request a program change
+              </Link>
+            </div>
           </div>
         </PortalCard>
 

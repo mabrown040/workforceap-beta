@@ -340,6 +340,8 @@
       "employerCardCta": "Employer Overview",
       "aboutEyebrow": "About Us",
       "aboutTitle": "Employer-Aligned Training. Career Support Throughout the Journey.",
+      "aboutBody1": "WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a reoccurring Vision given to Michael Brown by God for serving His people. WorkforceAP combines employer-aligned training, AI workforce readiness and soft-skill support, occupational training, and career guidance in a model built to work and scale — with no cost to qualifying members.",
+      "aboutBody2": "Our leadership brings experience from the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation. Through grants and partner-backed pathways, we support members with resume help, interview prep, job-search guidance, and career support from first step to placement.",
       "statLearners": "Learners Reached",
       "statPrograms": "Programs",
       "statMemberCost": "Member Cost",
@@ -473,7 +475,10 @@
       "quickStartBody": "Start with the lane that fits you best.",
       "notSure": "Not sure? Take the 2-minute pathfinder",
       "howToChoose": "How to choose a program",
-      "fromEnrollment": "From enrollment to employment"
+      "fromEnrollment": "From enrollment to employment",
+      "cardStartingRange": "Starting range:",
+      "cardSalaryDisclaimer": "Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.",
+      "cardBestFor": "Best for:"
     },
     "faq": {
       "knowledgeBase": "Knowledge Base",

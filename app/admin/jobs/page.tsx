@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import PageHeader from '@/components/portal/PageHeader';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -101,13 +102,26 @@ export default async function AdminJobsPage({
       metadata: { filter: currentFilter, queueCount: jobs.length },
     });
   } catch (error) {
-    console.error('Error fetching jobs:', error);
+    captureApiError(error, { route: 'admin/jobs' });
     return (
       <div>
         <PageHeader title="Jobs" subtitle="Employer submits → Admin reviews → Approve/Reject → Live. Manage job postings." />
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-error)' }}>
-          <h2>Error loading jobs</h2>
-          <p>There was a problem loading the job postings. Please try again later.</p>
+        <div
+          role="alert"
+          style={{
+            margin: '1.5rem',
+            padding: '1.25rem 1.5rem',
+            borderRadius: '0.75rem',
+            background: 'rgba(220, 38, 38, 0.08)',
+            border: '1px solid #b91c1c',
+            color: '#b91c1c',
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Error loading jobs</h2>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+            The query failed and the list above is empty as a result. Sentry has been notified.
+            Refresh the page or check server logs if this persists.
+          </p>
         </div>
       </div>
     );

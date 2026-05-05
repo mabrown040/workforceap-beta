@@ -54,6 +54,7 @@ export default function AdminMemberCounselorChatClient({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const realtimeInstanceRef = useRef(0);
 
   const markRead = useCallback(async () => {
     try {
@@ -74,8 +75,9 @@ export default function AdminMemberCounselorChatClient({
     let cancelled = false;
     try {
       const supabase = createSupabaseBrowserClient();
+      realtimeInstanceRef.current += 1;
       const channel = supabase
-        .channel(`staff-thread:${threadId}`)
+        .channel(`staff-thread:${threadId}:${realtimeInstanceRef.current}`)
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}` },

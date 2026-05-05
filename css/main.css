@@ -6672,7 +6672,7 @@ img.img-fade.loaded { opacity: 1; }
 
     .program-filters {
         gap: 0.375rem;
-        padding: 0 3rem 0.5rem 1rem;
+        padding: 0.5rem 3rem 0.5rem 1rem;
         margin-left: -1rem;
         margin-right: -1rem;
         overflow-x: auto;
@@ -6680,6 +6680,13 @@ img.img-fade.loaded { opacity: 1; }
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         scroll-padding-left: 1rem;
+        position: sticky;
+        top: var(--nav-height-default, 64px);
+        z-index: 10;
+        background: var(--color-background-dark, #121416);
+    }
+    html:not(.dark) .program-filters {
+        background: var(--color-background, #ffffff);
     }
     .program-filters::after {
         width: 3rem;

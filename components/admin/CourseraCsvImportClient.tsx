@@ -19,6 +19,8 @@ type CourseImportResult = {
   unresolved: number;
   errors: string[];
   unresolvedRows: UnresolvedCourseRow[];
+  promoted?: number;
+  promotionErrors?: number;
 };
 
 type BadgeImportResult = {
@@ -224,7 +226,28 @@ export default function CourseraCsvImportClient() {
             <Stat label="Updated" value={result.updated} />
             <Stat label="Resolved to users" value={result.resolvedToUsers} />
             <Stat label="Unresolved" value={result.unresolved} />
+            {result.kind === 'course-activity' && typeof result.promoted === 'number' ? (
+              <Stat label="Promoted to course_progress" value={result.promoted} />
+            ) : null}
           </div>
+
+          {result.kind === 'course-activity' && (result.promotionErrors ?? 0) > 0 ? (
+            <div
+              style={{
+                marginTop: '1rem',
+                padding: '0.75rem 1rem',
+                border: '1px solid #b91c1c',
+                background: 'rgba(220, 38, 38, 0.08)',
+                borderRadius: '0.5rem',
+                color: '#b91c1c',
+                fontSize: '0.9rem',
+              }}
+            >
+              <strong>Promotion to course_progress failed.</strong> CSV rows were saved but the
+              member dashboard will not show them until this is resolved. Check server logs for
+              <code> [promoteCsvProgressToCanonical] failed</code>.
+            </div>
+          ) : null}
 
           {result.unresolved > 0 ? (
             <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem' }}>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   PROGRAMS,
   WORKFORCEAP_PROGRAM_CATALOG_SIZE,
@@ -44,6 +45,7 @@ const CATEGORY_BORDER: Record<string, string> = {
 };
 
 function ProgramCard({ program }: { program: Program }) {
+  const t = useTranslations('marketing.programs');
   const [open, setOpen] = useState(false);
   const extra = getProgramExtra(program.slug);
   const count = program.courses.length;
@@ -63,7 +65,7 @@ function ProgramCard({ program }: { program: Program }) {
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>
       {extra?.bestFor && (
         <p className="program-card-best-for">
-          <strong>Best for:</strong> {extra.bestFor}
+          <strong>{t('cardBestFor')}</strong> {extra.bestFor}
         </p>
       )}
       <div style={{ marginBottom: '.75rem' }}>
@@ -72,10 +74,10 @@ function ProgramCard({ program }: { program: Program }) {
           style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.25rem', fontSize: '0.9rem' }}
         >
           <span>⏱ {program.duration}</span>
-          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
+          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{t('cardStartingRange')} {salaryRangeDisplay(program)}</span>
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.
+          {t('cardSalaryDisclaimer')}
         </p>
         {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
           <p className="program-card-outcomes">

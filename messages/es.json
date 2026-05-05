@@ -340,6 +340,8 @@
       "employerCardCta": "Resumen para empleadores",
       "aboutEyebrow": "Sobre nosotros",
       "aboutTitle": "Capacitación alineada a empleadores. Apoyo profesional en todo el camino.",
+      "aboutBody1": "WorkforceAP es una organización sin fines de lucro 501(c)(3) creada en Austin sobre más de 25 años de experiencia en desarrollo laboral y una Visión recurrente dada a Michael Brown por Dios para servir a Su pueblo. WorkforceAP combina capacitación alineada con empleadores, preparación laboral con IA y apoyo en habilidades blandas, formación ocupacional y orientación profesional en un modelo construido para funcionar y escalar — sin costo para los miembros calificados.",
+      "aboutBody2": "Nuestro liderazgo aporta experiencia de la Texas Workforce Commission, Workforce Solutions, la ciudad de Austin, ReWork America Alliance, Consulting Solutions.Net, Goodwill Central Texas, Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement y African American Youth Harvest Foundation. A través de subvenciones y vías respaldadas por socios, apoyamos a los miembros con ayuda en el currículo, preparación para entrevistas, orientación en la búsqueda de empleo y apoyo profesional desde el primer paso hasta la colocación.",
       "statLearners": "Personas Alcanzadas",
       "statPrograms": "Programas",
       "statMemberCost": "Costo para el miembro",
@@ -460,10 +462,7 @@
       "heroHeadlineAccent": "Fuerza Laboral del Futuro.",
       "governanceBody": "Nuestro equipo de gobernanza combina décadas de liderazgo en desarrollo laboral, credibilidad tecnológica del lado del empleador, disciplina militar y de operaciones, y profundas raíces comunitarias — conectando la capacitación laboral con resultados reales en todo el país.",
       "established": "Establecido en 2025",
-      "quote": "Este no es un equipo genérico de organización sin fines de lucro. Son personas que han ejecutado programas a gran escala, han liderado en Goodwill y Urban League, construido sistemas en IBM y Microsoft, comandado en el Ejército y en AWS — y que trabajan a nivel nacional.",
-      "outcomesEyebrow": "Señal de resultados (agregado)",
-      "outcomesTitle": "Registros de colocación en sistemas de WorkforceAP",
-      "outcomesDisclaimer": "Esto no es una garantía de resultados individuales. Los programas pueden estar disponibles sin costo inicial para miembros que califiquen a través de WorkforceAP y vías respaldadas por socios."
+      "quote": "Este no es un equipo genérico de organización sin fines de lucro. Son personas que han ejecutado programas a gran escala, han liderado en Goodwill y Urban League, construido sistemas en IBM y Microsoft, comandado en el Ejército y en AWS — y que trabajan a nivel nacional."
     },
     "programs": {
       "heroTitle": "Elige tu camino",
@@ -473,7 +472,10 @@
       "quickStartBody": "Empieza con la ruta que mejor se adapte a ti.",
       "notSure": "¿No estás seguro? Haz la guía de 2 minutos",
       "howToChoose": "Cómo elegir un programa",
-      "fromEnrollment": "De la inscripción al empleo"
+      "fromEnrollment": "De la inscripción al empleo",
+      "cardStartingRange": "Rango inicial:",
+      "cardSalaryDisclaimer": "El rango salarial es una estimación del mercado de Austin (Lightcast/BLS, enero 2026). El salario real depende de la experiencia y del empleador.",
+      "cardBestFor": "Ideal para:"
     },
     "faq": {
       "knowledgeBase": "Centro de ayuda",

@@ -210,7 +210,19 @@ export async function ingestCourseActivityRows(
   }
 
   const promotion = await promoteCsvProgressToCanonical();
-  return { inserted, updated, resolvedToUsers, unresolved, errors, unresolvedRows, promoted: promotion.upserted };
+  if (promotion.errors > 0) {
+    errors.push(`Promotion to course_progress failed for ${promotion.errors} batch — see server logs`);
+  }
+  return {
+    inserted,
+    updated,
+    resolvedToUsers,
+    unresolved,
+    errors,
+    unresolvedRows,
+    promoted: promotion.upserted,
+    promotionErrors: promotion.errors,
+  };
 }
 
 /**

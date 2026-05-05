@@ -12,6 +12,8 @@ import { getCourseraReadiness } from '@/lib/coursera/config';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
+import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
+import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -51,6 +53,7 @@ export default async function CourseraIntegrationPage() {
       ? Math.round((completedCount / program.courses.length) * 100)
       : 0);
   const readiness = getCourseraReadiness(enrolledProgram);
+  const skillsetProgress = await loadMemberSkillsetProgress(user.id);
 
   const doneSlugsSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
   const orderedIncompleteCourses = program?.courses.filter((c) => !doneSlugsSet.has(c.slug)) ?? [];
@@ -215,6 +218,16 @@ export default async function CourseraIntegrationPage() {
               </div>
 
               <CourseraSyncCard enabled={readiness.canSync} />
+
+              <SkillsetProgressList
+                rows={skillsetProgress}
+                variant="member"
+                emptyHint={
+                  readiness.canSync
+                    ? 'Skillset progress will appear here once your first sync runs (every 6 hours).'
+                    : undefined
+                }
+              />
 
               <p className="coursera-footnote">
                 {readiness.canDeepLink

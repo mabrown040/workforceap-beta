@@ -112,10 +112,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <JsonLd />
         <ChunkLoadRecovery />
         <NextIntlClientProvider messages={messages}>
-        <ClientLocaleProvider>
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
-        </ClientLocaleProvider>
         </NextIntlClientProvider>
         <ScrollAnimationsWrapper />
         <ConversionMetrics />

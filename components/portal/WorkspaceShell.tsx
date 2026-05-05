@@ -29,7 +29,7 @@ import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 import LanguageToggle from '@/components/portal/LanguageToggle';
-import { useTranslatedLabel } from '@/components/portal/useTranslatedLabel';
+import { useTranslations } from 'next-intl';
 
 // Map non-member portal roles to MobileBottomNav variants. Member uses
 // MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
@@ -111,7 +111,59 @@ export default function WorkspaceShell({
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
   const fetchedIsSuperAdmin = useIsSuperAdmin();
   const isSuperAdmin = superAdmin ?? fetchedIsSuperAdmin;
-  const translateLabel = useTranslatedLabel();
+  const tNav = useTranslations('nav');
+  const tWorkspace = useTranslations('workspace');
+  const tGroup = useTranslations('group');
+  /**
+   * Translates a nav label string using the appropriate namespace.
+   * Falls back to the original English string if no key is found.
+   */
+  const translateLabel = (label: string): string => {
+    // Workspace labels
+    const wsMap: Record<string, string> = {
+      'WorkforceAP site': tWorkspace('publicSite'),
+      'Member portal': tWorkspace('member'),
+      'Employer portal': tWorkspace('employer'),
+      'Partner portal': tWorkspace('partner'),
+      'Counselor portal': tWorkspace('counselor'),
+      'Admin workspace': tWorkspace('admin'),
+    };
+    if (label in wsMap) return wsMap[label];
+    // Group labels
+    const grpMap: Record<string, string> = {
+      'Workflows': tGroup('workflows'),
+      'Insights': tGroup('insights'),
+      'Manage': tGroup('manage'),
+    };
+    if (label in grpMap) return grpMap[label];
+    // Nav labels
+    const navMap: Record<string, string> = {
+      'Home': tNav('dashboard'),
+      'My Program': tNav('myProgram'),
+      'My Classes': tNav('training'),
+      'My Certificates': tNav('myCertificates'),
+      'My Career Plan': tNav('careerPlan'),
+      'WIOA Qualification': tNav('wioaQualification'),
+      'Job Board': tNav('jobBoard'),
+      'Job Applications': tNav('jobApplications'),
+      'Resume': tNav('resume'),
+      'My Progress': tNav('myProgress'),
+      'Career Toolkit': tNav('careerToolkit'),
+      'AI Counselor': tNav('aiCounselor'),
+      'Learning Hub': tNav('learningHub'),
+      'Find your career': tNav('findYourCareer'),
+      'Training Preassessment': tNav('trainingPreassessment'),
+      'Weekly Recap': tNav('weeklyRecap'),
+      'Counselor Chat': tNav('counselorChat'),
+      'Resources': tNav('resources'),
+      'Help & Support': tNav('help'),
+      'Member Guide': tNav('memberGuide'),
+      'Profile & Account': tNav('myAccount'),
+      'Sign out': tNav('signOut'),
+    };
+    if (label in navMap) return navMap[label];
+    return label;
+  };
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);

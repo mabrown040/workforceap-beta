@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState } from 'react';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
-import { useTranslatedLabel } from '@/components/portal/useTranslatedLabel';
+import { useTranslations } from 'next-intl';
 
 type FieldKey = 'first_name' | 'last_name' | 'email' | 'topic' | 'message';
 
@@ -59,7 +59,9 @@ function validateContactFields(data: {
 }
 
 export default function ContactFormClient({ initialTopic = '' }: { initialTopic?: string }) {
-  const tLabel = useTranslatedLabel();
+  const tForm = useTranslations('form');
+  const tMessages = useTranslations('messages');
+  const tCommon = useTranslations('common');
   const formId = useId();
   const [selectedTopic, setSelectedTopic] = useState(initialTopic);
 
@@ -198,7 +200,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
       )}
       <div className="form-row contact-form-name-row">
         <div className="form-group">
-          <label htmlFor={`${formId}-first_name`}>{tLabel('First Name *')}</label>
+          <label htmlFor={`${formId}-first_name`}>{tForm('firstNameRequired')}</label>
           <input
             id={`${formId}-first_name`}
             type="text"
@@ -221,7 +223,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
           )}
         </div>
         <div className="form-group">
-          <label htmlFor={`${formId}-last_name`}>{tLabel('Last Name *')}</label>
+          <label htmlFor={`${formId}-last_name`}>{tForm('lastNameRequired')}</label>
           <input
             id={`${formId}-last_name`}
             type="text"
@@ -245,7 +247,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
         </div>
       </div>
       <div className="form-group">
-        <label htmlFor={`${formId}-email`}>{tLabel('Email Address *')}</label>
+        <label htmlFor={`${formId}-email`}>{tForm('emailRequired')}</label>
         <input
           id={`${formId}-email`}
           type="email"
@@ -268,7 +270,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
         )}
       </div>
       <div className="form-group">
-        <label htmlFor={`${formId}-phone`}>{tLabel('Phone Number')}</label>
+        <label htmlFor={`${formId}-phone`}>{tForm('phoneNumber')}</label>
         <input
           id={`${formId}-phone`}
           type="tel"
@@ -328,7 +330,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
         )}
       </div>
       <div className="form-group">
-        <label htmlFor={`${formId}-message`}>{tLabel('Your Message *')}</label>
+        <label htmlFor={`${formId}-message`}>{tMessages('yourMessageRequired')}</label>
         <textarea
           id={`${formId}-message`}
           name="message"
@@ -355,7 +357,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
         style={{ width: '100%', padding: '1rem' }}
         disabled={status === 'sending'}
       >
-        {status === 'sending' ? tLabel('Sending…') : tLabel('Send Message')}
+        {status === 'sending' ? tCommon('sending') : tMessages('sendMessage')}
       </button>
       <p className="contact-form-footnote">A WorkforceAP team member responds within 1–2 business days.</p>
     </form>

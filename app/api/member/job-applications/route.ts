@@ -38,7 +38,7 @@ const createApplicationSchema = z.object({
   source: z.enum(['INDEED', 'LINKEDIN', 'DIRECT', 'OTHER']).default('OTHER'),
   nextInterviewDate: z.string().datetime().nullable().optional(),
   notes: z.string().optional().nullable(),
-  status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'REJECTED']).default('APPLIED'),
+  status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'ACCEPTED', 'REJECTED']).default('APPLIED'),
 });
 
 export async function POST(request: NextRequest) {

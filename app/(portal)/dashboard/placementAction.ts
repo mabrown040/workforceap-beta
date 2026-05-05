@@ -18,8 +18,8 @@ export async function confirmPlacement(jobApplicationId: string) {
     throw new Error('Application not found');
   }
 
-  if (application.status !== 'OFFER') {
-    throw new Error('Only offer-stage applications can be confirmed');
+  if (application.status !== 'OFFER' && application.status !== 'ACCEPTED') {
+    throw new Error('Only offer or accepted applications can be confirmed as a placement');
   }
 
   const now = new Date();

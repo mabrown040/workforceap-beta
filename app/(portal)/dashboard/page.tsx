@@ -179,7 +179,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 2,
     }),
     prisma.jobApplication.findMany({
-      where: { userId: user.id, status: 'OFFER' },
+      where: { userId: user.id, status: { in: ['OFFER', 'ACCEPTED'] } },
     }),
     getMemberPoints(user.id),
     prisma.pointsTransaction.findMany({

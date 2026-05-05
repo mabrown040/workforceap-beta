@@ -24,6 +24,28 @@ export async function replayPendingXapiStatements(limit = 150): Promise<ReplayPe
     take: limit,
   });
 
+  return _replayRows(rows);
+}
+
+/**
+ * Replay all pending xAPI statements for a specific actor email.
+ * Called immediately after mapping an unmatched Coursera learner so their
+ * progress is reflected without waiting for the next hourly cron run.
+ */
+export async function replayPendingXapiStatementsForEmail(
+  actorEmail: string,
+): Promise<ReplayPendingXapiResult> {
+  const rows = await prisma.xapiStatement.findMany({
+    where: { processed: false, actorEmail },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return _replayRows(rows);
+}
+
+async function _replayRows(
+  rows: Awaited<ReturnType<typeof prisma.xapiStatement.findMany>>,
+): Promise<ReplayPendingXapiResult> {
   let replayed = 0;
   let skippedUnparsed = 0;
   let completionsEmitted = 0;

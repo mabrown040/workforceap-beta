@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import InterviewCoach from '@/components/portal/tools/InterviewCoach';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -9,10 +8,10 @@ import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Interview Coach',
-  description: 'Run a text-based mock interview and get instant AI feedback.',
-  path: '/dashboard/ai-tools/interview-coach',
-});
+    title: 'AI Interview Coach',
+    description: 'Run a text-based mock interview and get instant AI feedback.',
+    path: '/dashboard/ai-tools/interview-coach',
+  });
 }
 
 export default async function InterviewCoachPage() {
@@ -31,11 +30,11 @@ export default async function InterviewCoachPage() {
         }}
       >
         <PageHeader
-          title="AI Interview Coach"
-          subtitle="Run a text-based mock interview and get instant AI feedback."
+          title="Interview Coach"
+          subtitle="Run a text-based mock interview and get instant feedback."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'AI Interview Coach' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Interview Coach' },
           ]}
         />
       </div>
@@ -44,9 +43,7 @@ export default async function InterviewCoachPage() {
         <div style={{ maxWidth: 980, margin: '0 auto', padding: '1rem 1rem 2rem' }}>
           <InterviewCoach />
           <ToolHistoryPanel userId={user.id} toolType="interview_coach" />
-        </div>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { uploadMockInterviewVideo } from '@/lib/portal/mockInterviewVideoUpload';
 import type { VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 
+import ToolFollowThrough from './ToolFollowThrough';
+
 function pickMimeType(): string | undefined {
   if (typeof MediaRecorder === 'undefined') return undefined;
   const candidates = [
@@ -48,6 +50,8 @@ export default function MockInterviewVideoRecorder({
   const mimeRef = useRef('');
   const prevPhaseRef = useRef<VoiceSessionPhase | null>(null);
   const uploadGenRef = useRef(0);
+  const startAttemptRef = useRef(0);
+  const startInFlightRef = useRef(false);
   const onUploadCompleteRef = useRef(onUploadComplete);
   const onErrorRef = useRef(onError);
 
@@ -68,12 +72,14 @@ export default function MockInterviewVideoRecorder({
   useEffect(() => {
     return () => {
       uploadGenRef.current += 1;
+      startAttemptRef.current += 1;
       try {
         recorderRef.current?.stop();
       } catch {
         /* ignore */
       }
       recorderRef.current = null;
+      startInFlightRef.current = false;
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
       if (videoRef.current) videoRef.current.srcObject = null;
@@ -102,11 +108,17 @@ export default function MockInterviewVideoRecorder({
 
     if (phase === 'active' && prev !== 'active') {
       void (async () => {
+        const startAttempt = ++startAttemptRef.current;
         setUploadStatus('idle');
         setUploadHint('');
         chunksRef.current = [];
         mimeRef.current = pickMimeType() || '';
         try {
+          if (startInFlightRef.current || (recorderRef.current && recorderRef.current.state !== 'inactive')) {
+            return;
+          }
+          startInFlightRef.current = true;
+
           let stream: MediaStream;
           const pre = externalStreamRef?.current;
           if (pre && pre.getVideoTracks().length > 0) {
@@ -131,6 +143,12 @@ export default function MockInterviewVideoRecorder({
               }
             }
           }
+
+          if (startAttempt !== startAttemptRef.current || phase !== 'active') {
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+
           streamRef.current = stream;
           if (externalStreamRef && stream === pre) {
             externalStreamRef.current = null;
@@ -140,6 +158,12 @@ export default function MockInterviewVideoRecorder({
             el.srcObject = stream;
             await el.play().catch(() => {});
           }
+
+          if (startAttempt !== startAttemptRef.current || phase !== 'active') {
+            cleanupStream();
+            return;
+          }
+
           const mime = mimeRef.current;
           const rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
           mimeRef.current = rec.mimeType || mime || 'video/webm';
@@ -147,8 +171,30 @@ export default function MockInterviewVideoRecorder({
           rec.ondataavailable = (e) => {
             if (e.data.size > 0) chunksRef.current.push(e.data);
           };
+          rec.onstart = () => {
+            startInFlightRef.current = false;
+          };
+          rec.onstop = () => {
+            startInFlightRef.current = false;
+          };
+          rec.onerror = () => {
+            startInFlightRef.current = false;
+          };
           startedAtRef.current = Date.now();
-          rec.start(1000);
+          if (rec.state === 'inactive') {
+            try {
+              rec.start(1000);
+            } catch (err) {
+              startInFlightRef.current = false;
+              const message = err instanceof Error ? err.message : String(err);
+              if (/state is 'recording'/i.test(message)) {
+                return;
+              }
+              throw err;
+            }
+          } else {
+            startInFlightRef.current = false;
+          }
         } catch (e) {
           const raw = e instanceof Error ? e.message : String(e);
           const msg =
@@ -157,6 +203,7 @@ export default function MockInterviewVideoRecorder({
               : raw || 'Camera access failed';
           onErrorRef.current?.(msg);
           cleanupStream();
+          startInFlightRef.current = false;
         }
       })();
     }
@@ -166,6 +213,7 @@ export default function MockInterviewVideoRecorder({
         const gen = ++uploadGenRef.current;
         const rec = recorderRef.current;
         recorderRef.current = null;
+        startInFlightRef.current = false;
         cleanupStream();
 
         if (!rec) return;
@@ -220,12 +268,14 @@ export default function MockInterviewVideoRecorder({
 
     if (phase === 'pre' && prev !== 'pre') {
       uploadGenRef.current += 1;
+      startAttemptRef.current += 1;
       try {
         recorderRef.current?.stop();
       } catch {
         /* ignore */
       }
       recorderRef.current = null;
+      startInFlightRef.current = false;
       cleanupStream();
       chunksRef.current = [];
     }
@@ -294,6 +344,7 @@ export default function MockInterviewVideoRecorder({
           {uploadHint}
         </p>
       ) : null}
+      <ToolFollowThrough toolType="interview_practice" />
     </div>
   );
 }

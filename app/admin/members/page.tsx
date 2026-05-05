@@ -36,7 +36,12 @@ export default async function AdminMembersPage() {
 
   // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
   // can time out or fail under load; degrading aggregates must not hide the member list.
-  const [membersResult, lastEventsResult, recentEventsResult] = await Promise.allSettled([
+  const [
+    membersResult,
+    lastEventsResult,
+    recentEventsResult,
+    canonicalCompletionsResult,
+  ] = await Promise.allSettled([
     prisma.user.findMany({
       where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
       orderBy: { createdAt: 'desc' },
@@ -86,6 +91,14 @@ export default async function AdminMembersPage() {
       where: { createdAt: { gte: thirtyDaysAgo } },
       _count: { _all: true },
     }),
+    // Canonical completed-course count from `course_progress` (includes CSV-promoted
+    // Coursera rows). Falls back to legacy `User.coursesCompleted` JSON if this fails
+    // or the canonical count is lower (preserves history).
+    prisma.courseProgress.groupBy({
+      by: ['userId'],
+      where: { status: 'COMPLETED' },
+      _count: { _all: true },
+    }),
   ]);
 
   if (membersResult.status === 'rejected') {
@@ -121,6 +134,15 @@ export default async function AdminMembersPage() {
   const eventAggregatesOk =
     lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
 
+  const canonicalCompletionMap: Map<string, number> = new Map();
+  if (canonicalCompletionsResult.status === 'fulfilled') {
+    for (const row of canonicalCompletionsResult.value) {
+      canonicalCompletionMap.set(row.userId, row._count._all);
+    }
+  } else {
+    console.error('[admin/members] canonical course_progress count failed', canonicalCompletionsResult.reason);
+  }
+
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({
       enrolledProgram: m.enrolledProgram,
@@ -140,10 +162,20 @@ export default async function AdminMembersPage() {
         })
       : undefined;
 
+    const legacyCourses = parseCourseSlugList(m.coursesCompleted);
+    const canonicalCount = canonicalCompletionMap.get(m.id) ?? 0;
+    // Prefer canonical truth from course_progress when it exceeds the legacy JSON
+    // (CSV-promoted rows are not reflected in the legacy field). The display only
+    // uses .length, so a length-stub list is sufficient for higher canonical counts.
+    const coursesCompletedDisplay =
+      canonicalCount > legacyCourses.length
+        ? new Array(canonicalCount).fill('') as string[]
+        : legacyCourses;
+
     return {
       ...m,
       programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
-      coursesCompleted: parseCourseSlugList(m.coursesCompleted),
+      coursesCompleted: coursesCompletedDisplay,
       totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,

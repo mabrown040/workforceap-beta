@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import LocalizedLink from '@/components/LocalizedLink';
+import { Linkedin } from 'lucide-react';
 
 export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inner' }) {
   return (
@@ -32,7 +33,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
           </p>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
             <a href="https://www.linkedin.com/company/workforce-advancement-project" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }} aria-hidden="true">public</span>
+              <Linkedin size={18} color="var(--color-on-surface-variant)" aria-hidden="true" />
             </a>
             <a href="mailto:info@workforceap.org" aria-label="Email">
               <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', cursor: 'pointer' }} aria-hidden="true">alternate_email</span>

@@ -5,10 +5,10 @@ import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Readiness Coach',
-  description: 'Talk through your career readiness plan with an AI coach — interviews, certifications, and next steps.',
-  path: '/dashboard/ai-tools/readiness-coach',
-});
+    title: 'AI Readiness Coach',
+    description: 'Talk through your career readiness plan with an AI coach — interviews, certifications, and next steps.',
+    path: '/dashboard/ai-tools/readiness-coach',
+  });
 }
 
 export default async function ReadinessCoachPage() {

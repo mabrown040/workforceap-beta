@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
@@ -56,9 +55,7 @@ export default async function MentorDashboardPage() {
           style={{ marginTop: '0.9rem' }}
         >
           Download Volunteer Letter
-        </Link>
-        <MobileBottomNav variant="portal" />
-      </div>
+        </Link>      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem', maxWidth: '64rem' }}>

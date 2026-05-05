@@ -12,6 +12,8 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
+import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 
 type Props = {
   params: Promise<{ memberId: string }>;
@@ -49,6 +51,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   const referral = await prisma.partnerReferral.findFirst({
     where: { partnerId: ctx.partnerId, memberId },
+    select: { id: true, referredAt: true },
   });
   if (!referral) notFound();
 
@@ -67,6 +70,9 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
           startDate: true,
           salaryOffered: true,
           placedAt: true,
+          retentionStatus: true,
+          retentionDecision: true,
+          onboardingWindowEnd: true,
         },
       },
       userCertifications: { select: { certName: true, earnedAt: true }, orderBy: { earnedAt: 'desc' } },
@@ -75,7 +81,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   if (!member) notFound();
 
-  const [recentEvents, outreachLogs] = await Promise.all([
+  const [recentEvents, outreachLogs, placementConfirmations] = await Promise.all([
     prisma.memberEvent.findMany({
       where: { userId: memberId },
       orderBy: { createdAt: 'desc' },
@@ -89,16 +95,66 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
         createdBy: { select: { fullName: true } },
       },
     }),
+    prisma.memberEvent.findMany({
+      where: { userId: memberId, eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+      select: { metadata: true, createdAt: true },
+    }),
   ]);
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesDone = (member.coursesCompleted as string[] | null) ?? [];
   const progressPct = memberProgramProgressPct(member.enrolledProgram, member.coursesCompleted);
+  const skillsetProgress = await loadMemberSkillsetProgress(memberId);
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
   const placed = !!member.placementRecord;
+  const pendingPlacement = placementConfirmations[0] ?? null;
   const recentEvent = recentEvents[0] ?? null;
-  const memberStatus = placed ? 'Placed' : progressPct >= 80 ? 'Course-complete' : 'In training';
+  const memberStatus = placed ? 'Placed' : pendingPlacement ? 'Offer reported — review pending' : progressPct >= 80 ? 'Course-complete' : 'In training';
+
+  const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
+  const allCoursesDone =
+    program && program.courses.length > 0 && program.courses.every((c) => coursesDone.includes(c.slug));
+  const certPhaseLabel = certificateCount > 0 || allCoursesDone ? 'In progress or complete' : 'Pending';
+
+  const journey = [
+    { key: 'intake', label: 'Intake', detail: 'Referral on file', date: referral?.referredAt ?? null, done: !!referral },
+    {
+      key: 'training',
+      label: 'Training',
+      detail: program?.title ?? 'Program',
+      date: member.enrolledAt,
+      done: !!member.enrolledAt,
+    },
+    {
+      key: 'cert',
+      label: 'Certification',
+      detail: certPhaseLabel,
+      date: lastCertAt,
+      done: certificateCount > 0 || allCoursesDone,
+    },
+    {
+      key: 'placement',
+      label: 'Placement',
+      detail: member.placementRecord ? `${member.placementRecord.jobTitle} @ ${member.placementRecord.employerName}` : 'Not placed yet',
+      date: member.placementRecord?.placedAt ?? null,
+      done: placed,
+    },
+    {
+      key: 'retention',
+      label: 'Retention / follow-up',
+      detail:
+        member.placementRecord?.retentionDecision ??
+        member.placementRecord?.retentionStatus ??
+        (member.placementRecord?.onboardingWindowEnd
+          ? `Onboarding window through ${formatDate(member.placementRecord.onboardingWindowEnd)}`
+          : 'Recorded after placement'),
+      date: member.placementRecord?.onboardingWindowEnd ?? null,
+      done: !!(member.placementRecord?.retentionStatus || member.placementRecord?.retentionDecision),
+    },
+  ];
 
   function formatEventLabel(event: (typeof recentEvents)[number]) {
     if (event.metadata && typeof event.metadata === 'object' && event.metadata !== null && 'label' in event.metadata) {
@@ -124,6 +180,55 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] wa-gap-4 md:wa-gap-6">
           <div className="wa-grid wa-grid-cols-1 wa-gap-4">
+            <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              {sectionHeading('Member journey')}
+              <p style={{ margin: '0.5rem 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                Intake through training, certification, placement, and retention follow-up. Dates show the latest signal we have in each phase.
+              </p>
+              <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.65rem' }}>
+                {journey.map((step, idx) => (
+                  <li
+                    key={step.key}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'auto 1fr',
+                      gap: '0.65rem',
+                      alignItems: 'flex-start',
+                      padding: '0.65rem 0.75rem',
+                      borderRadius: '0.75rem',
+                      background: step.done ? 'color-mix(in srgb, var(--color-green) 10%, var(--surface-container-low))' : 'var(--surface-container-low)',
+                      border: `1px solid ${step.done ? 'color-mix(in srgb, var(--color-green) 35%, transparent)' : 'var(--outline-variant)'}`,
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        width: '1.75rem',
+                        height: '1.75rem',
+                        borderRadius: '999px',
+                        background: step.done ? 'var(--color-green)' : 'var(--surface-container-highest)',
+                        color: step.done ? '#fff' : 'var(--color-on-surface-variant)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      {step.done ? '✓' : idx + 1}
+                    </span>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 800 }}>{step.label}</p>
+                      <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{step.detail}</p>
+                      {step.date ? (
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(step.date)}</p>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
             <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
               <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                 Member snapshot
@@ -191,6 +296,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                     </li>
                   ))}
                 </ul>
+                <SkillsetProgressList rows={skillsetProgress} variant="compact" />
               </section>
             ) : null}
 
@@ -215,6 +321,28 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                     <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
                       {member.placementRecord.salaryOffered != null ? `$${member.placementRecord.salaryOffered.toLocaleString()}` : '—'}
                     </p>
+                  </div>
+                </div>
+              ) : pendingPlacement ? (
+                <div style={{ marginTop: '0.75rem' }}>
+                  <div
+                    style={{
+                      background: 'rgba(255,193,7,0.08)',
+                      border: '1px solid rgba(255,193,7,0.2)',
+                      borderRadius: '0.75rem',
+                      padding: '0.875rem 1rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.625rem',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', flexShrink: 0 }}>pending</span>
+                    <div>
+                      <p style={{ margin: '0 0 0.25rem', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Offer reported — under review</p>
+                      <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                        This member self-reported accepting a job offer. WorkforceAP staff are reviewing the report before finalizing the placement.
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : (

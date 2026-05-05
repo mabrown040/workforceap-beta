@@ -15,7 +15,7 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
-  career_counselor: 'Career Counselor',
+  career_counselor: 'Career Coach',
   skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
@@ -23,6 +23,7 @@ export async function GET(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  try {
   const { searchParams } = new URL(request.url);
   const toolType = searchParams.get('tool');
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
@@ -53,4 +54,7 @@ export async function GET(request: Request) {
       createdAt: r.createdAt,
     })),
   });
+  } catch {
+    return NextResponse.json({ error: 'Failed to load AI history' }, { status: 500 });
+  }
 }

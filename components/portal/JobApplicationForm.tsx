@@ -102,7 +102,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               onChange={handleChange}
               required
               aria-describedby={error ? errorId : undefined}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8B0000] focus:border-transparent"
               placeholder="e.g., Software Engineer"
             />
           </div>
@@ -117,7 +117,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               value={formData.company}
               onChange={handleChange}
               required
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8B0000] focus:border-transparent"
               placeholder="e.g., Techvera"
             />
           </div>
@@ -132,7 +132,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               value={formData.appliedAt}
               onChange={handleChange}
               required
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8B0000] focus:border-transparent"
             />
           </div>
 
@@ -144,7 +144,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               name="source"
               value={formData.source}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8B0000] focus:border-transparent"
             >
               <option value="INDEED">Indeed</option>
               <option value="LINKEDIN">LinkedIn</option>
@@ -162,7 +162,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               name="nextInterviewDate"
               value={formData.nextInterviewDate}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8B0000] focus:border-transparent"
             />
           </div>
 
@@ -174,7 +174,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
               name="notes"
               value={formData.notes}
               onChange={handleChange}
-              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8c0f37] focus:border-transparent"
+              className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded-lg focus:wa-ring-2 focus:wa-ring-[#8B0000] focus:border-transparent"
               rows={3}
               placeholder="Any notes about this application..."
             />
@@ -185,7 +185,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
             <button
               type="submit"
               disabled={isSubmitting}
-              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-[#8c0f37] wa-text-white wa-font-medium wa-rounded-lg hover:wa-bg-[#6b0a2a] disabled:wa-opacity-50 disabled:wa-cursor-not-allowed wa-transition-colors"
+              className="wa-flex-1 wa-px-4 wa-py-2 wa-bg-[#8B0000] wa-text-white wa-font-medium wa-rounded-lg hover:wa-bg-[#6b0a2a] disabled:wa-opacity-50 disabled:wa-cursor-not-allowed wa-transition-colors"
             >
               {isSubmitting ? 'Adding...' : 'Add Application'}
             </button>

@@ -28,12 +28,12 @@ export default async function WalkInSessionPage() {
   return (
     <>
       <PageHeader
-        title="Walk-in session"
+        title="Walk-In Session"
         subtitle="Brand new member sitting with you. Start with their basics — we'll create their account and walk through resume, cover letter, and interview prep together."
         breadcrumbs={[
           { label: 'Counselor', href: '/counselor' },
-          { label: 'In-office sessions', href: '/counselor/sessions' },
-          { label: 'Walk-in' },
+          { label: 'In-Office Sessions', href: '/counselor/sessions' },
+          { label: 'Walk-In Session' },
         ]}
       />
       <WalkInSessionClient counselorName={user.email ?? 'your counselor'} />

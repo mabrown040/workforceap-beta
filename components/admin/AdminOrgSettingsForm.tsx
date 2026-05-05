@@ -91,7 +91,7 @@ export default function AdminOrgSettingsForm({
         ) : null}
         <input id="logo" type="file" accept="image/*" onChange={(e) => void onLogo(e)} disabled={logoUploading} />
         <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
-          {logoUploading ? 'Uploading…' : 'Public URL stored on the organization. Uses Supabase bucket organization-branding.'}
+          {logoUploading ? 'Uploading…' : 'Stored in Supabase bucket organization-branding and resolved at render time.'}
         </p>
       </div>
       <div className="form-group">
@@ -141,8 +141,22 @@ export default function AdminOrgSettingsForm({
           Shown on the public &ldquo;How it works&rdquo; page for the Overview step. Leave blank to use text only.
         </p>
       </div>
-      <button type="submit" className="btn btn-primary" disabled={loading || logoUploading}>
-        {loading ? 'Saving…' : 'Save settings'}
+      <button type="submit" className="btn btn-primary" disabled={loading || logoUploading} aria-busy={loading || logoUploading}>
+        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          {loading ? (
+            <>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+              Saving…
+            </>
+          ) : logoUploading ? (
+             <>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+              Uploading logo…
+            </>
+          ) : (
+            'Save settings'
+          )}
+        </span>
       </button>
     </form>
   );

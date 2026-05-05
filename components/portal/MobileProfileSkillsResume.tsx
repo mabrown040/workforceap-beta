@@ -59,7 +59,7 @@ export default function MobileProfileSkillsResume({
       {hasResume ? (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="material-symbols-outlined" style={{ color: '#8c0f37', fontSize: '24px' }} aria-hidden="true">description</span>
+            <span className="material-symbols-outlined" style={{ color: '#8B0000', fontSize: '24px' }} aria-hidden="true">description</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p className="wa-text-sm wa-font-semibold wa-truncate" style={{ color: '#1c1b1b' }}>
                 {fileName}
@@ -68,13 +68,13 @@ export default function MobileProfileSkillsResume({
             </div>
             <button type="button"
               className="wa-text-xs wa-font-bold"
-              style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#fff1f2', color: '#8c0f37' }}
+              style={{ padding: '0.375rem 0.75rem', borderRadius: '9999px', background: '#fff1f2', color: '#8B0000' }}
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
             >
               {uploading ? 'Uploading…' : 'Replace'}
             </button>
-            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" onChange={onFileChange} style={{ display: 'none' }} />
+            <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ display: 'none' }} />
           </div>
 
           {/* Inline preview toggle */}
@@ -90,7 +90,7 @@ export default function MobileProfileSkillsResume({
                 borderRadius: '0.5rem',
                 border: '1px solid #debfc2',
                 background: '#fff',
-                color: '#8c0f37',
+                color: '#8B0000',
                 fontWeight: 700,
                 fontSize: '0.8125rem',
                 cursor: loadingPreview ? 'wait' : 'pointer',
@@ -114,14 +114,14 @@ export default function MobileProfileSkillsResume({
         <label
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '1.5rem 0', borderRadius: '0.75rem', border: '2px dashed #debfc2', background: '#f6f3f2', cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1 }}
         >
-          <span className="material-symbols-outlined" style={{ color: '#ad2c4d', fontSize: '1.875rem' }} aria-hidden="true">
+          <span className="material-symbols-outlined" style={{ color: '#C41E3A', fontSize: '1.875rem' }} aria-hidden="true">
             {uploading ? 'hourglass_top' : 'upload_file'}
           </span>
           <p className="wa-text-sm wa-font-semibold" style={{ color: '#1c1b1b' }}>
             {uploading ? 'Uploading…' : 'Upload Resume'}
           </p>
-          <p className="wa-text-[10px]" style={{ color: '#584144' }}>PDF, DOC or TXT · Max 5MB</p>
-          <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={onFileChange} style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }} />
+          <p className="wa-text-[10px]" style={{ color: '#584144' }}>PDF, DOC, or DOCX · Max 5MB</p>
+          <input type="file" accept=".pdf,.doc,.docx" onChange={onFileChange} style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }} />
         </label>
       )}
 

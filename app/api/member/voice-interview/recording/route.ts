@@ -17,12 +17,12 @@ function isValidRecordingPath(userId: string, path: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(webm|mp4)$/i.test(rest);
 }
 
-function storageErrorMessage(error: { message?: string } | null): string {
+function storageErrorMessage(error: { message?: string } | null, action: 'prepare' | 'sign'): string {
   const m = error?.message ?? '';
   if (/not found|does not exist|Bucket/i.test(m)) {
     return 'Storage is not configured. Create the member-resumes bucket in Supabase (Storage).';
   }
-  return 'Failed to prepare upload';
+  return action === 'prepare' ? 'Failed to prepare upload' : 'Could not create recording playback link';
 }
 
 /** POST JSON: prepare | complete. GET: signed download URL for own recording. */
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
     if (error || !data?.signedUrl) {
       console.error('[voice-interview/recording GET]', error);
-      return NextResponse.json({ error: 'Could not create download link' }, { status: 500 });
+      return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
     }
 
     return NextResponse.json({ url: data.signedUrl, expiresIn: 3600 });
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
       if (error || !data) {
         console.error('Mock interview video prepare:', error);
-        return NextResponse.json({ error: storageErrorMessage(error) }, { status: 500 });
+        return NextResponse.json({ error: storageErrorMessage(error, 'prepare') }, { status: 500 });
       }
 
       return NextResponse.json({
@@ -133,12 +133,16 @@ export async function POST(request: Request) {
       }
 
       const supabase = getSupabaseAdmin();
-      const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
+      const { data: signed, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
+      if (error || !signed?.signedUrl) {
+        console.error('[voice-interview/recording complete] createSignedUrl failed:', error);
+        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+      }
 
       return NextResponse.json({
         ok: true,
         path,
-        playbackUrl: signed?.signedUrl ?? null,
+        playbackUrl: signed.signedUrl,
       });
     }
 

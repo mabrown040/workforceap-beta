@@ -5,6 +5,14 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 const BUCKET = 'member-resumes';
 
+function storageErrorMessage(error: { message?: string } | null): string {
+  const message = error?.message ?? '';
+  if (/not found|does not exist|Bucket/i.test(message)) {
+    return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
+  }
+  return 'Could not load resume file';
+}
+
 /**
  * Same-origin PDF/DOC binary for inline preview (avoids cross-origin iframe issues with signed Supabase URLs).
  * GET /api/member/resume/preview?variant=original|enhanced
@@ -29,7 +37,8 @@ export async function GET(req: NextRequest) {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase.storage.from(BUCKET).download(path);
   if (error || !data) {
-    return NextResponse.json({ error: 'Could not load file' }, { status: 502 });
+    console.error('[member/resume/preview] download failed:', error);
+    return NextResponse.json({ error: storageErrorMessage(error) }, { status: 502 });
   }
 
   const buf = Buffer.from(await data.arrayBuffer());

@@ -81,7 +81,7 @@ export const NAV_TAB_META: Record<NavTab, { label: string; icon: string }> = {
   journey: { label: 'Home', icon: 'home' },
   program: { label: 'My Program', icon: 'school' },
   jobs: { label: 'Jobs', icon: 'work' },
-  me: { label: 'AI Toolkit', icon: 'auto_awesome' },
+  me: { label: 'Career Toolkit', icon: 'auto_awesome' },
 };
 
 export const NAV_TAB_ORDER: NavTab[] = ['journey', 'program', 'jobs', 'me'];
@@ -105,6 +105,13 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard', label: 'Home', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
   { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  {
+    href: '/dashboard/program/start',
+    label: 'Path to certification',
+    group: 'insights',
+    tab: 'program',
+    Icon: GitBranch,
+  },
   { href: '/dashboard/training', label: 'My Classes', group: 'primary', tab: 'program', Icon: GraduationCap },
   { href: '/dashboard/certifications', label: 'My Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
   { href: '/dashboard/career-brief', label: 'My Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
@@ -140,7 +147,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'AI Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/ai-tools', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Counselor', group: 'workflows', tab: 'me', Icon: Mic },
   {
     href: '/dashboard/learning',
@@ -291,6 +298,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── People — everyone in the system ──
   { href: '/admin/members', label: 'Members', group: 'people', Icon: Users },
+  { href: '/admin/members/duplicates', label: 'Duplicate members', group: 'people', Icon: AlertTriangle },
   { href: '/admin/users', label: 'Users', group: 'people', Icon: User },
   { href: '/admin/employers', label: 'Employers', group: 'people', Icon: Building2 },
   { href: '/admin/partners', label: 'Partners', group: 'people', Icon: Handshake },
@@ -320,6 +328,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/assessments', label: 'Assessments', group: 'pipeline', Icon: ClipboardCheck },
   { href: '/admin/wioa-screening', label: 'Funding eligibility', group: 'pipeline', Icon: ClipboardList },
   { href: '/admin/career-mappings', label: 'Career paths', group: 'pipeline', Icon: Target },
+  { href: '/admin/employer-screening-packs', label: 'Employer screening', group: 'pipeline', Icon: ListChecks },
   { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
 
   // ── Workflows — admin-as-counselor force multiplier ──
@@ -337,6 +346,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
   // ── Insights — metrics and reporting ──
   { href: '/admin/board', label: 'Board outcomes', group: 'insights', Icon: TrendingUp },
+  { href: '/admin/outcomes', label: 'Placement outcomes', group: 'insights', Icon: LineChart },
   { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
   { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },

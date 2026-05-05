@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { postMemberEvent } from '@/lib/events/client';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -27,7 +28,18 @@ export default function MemberNextStepsStrip({
     }
   }, []);
 
+  const trackClick = useCallback((id: string, href: string) => {
+    void postMemberEvent({
+      eventName: 'member_dashboard_action_clicked',
+      entityType: 'next_best_action',
+      entityId: UUID_RE.test(id) ? id : undefined,
+      metadata: { action_id: id, href },
+      sourcePage: '/dashboard',
+    });
+  }, []);
+
   const completeAndOpen = useCallback(async (id: string, href: string) => {
+    trackClick(id, href);
     if (!UUID_RE.test(id)) {
       router.push(href);
       return;
@@ -45,7 +57,7 @@ export default function MemberNextStepsStrip({
       // Navigate anyway — tracking should never block the member.
     }
     router.push(href);
-  }, [router]);
+  }, [router, trackClick]);
 
   const visible = actions.filter((a) => !dismissed.has(a.id));
   if (visible.length === 0) return null;
@@ -185,7 +197,10 @@ export default function MemberNextStepsStrip({
               href={a.href}
               className="btn btn-primary"
               onClick={(e) => {
-                if (!UUID_RE.test(a.id)) return;
+                if (!UUID_RE.test(a.id)) {
+                  trackClick(a.id, a.href);
+                  return;
+                }
                 e.preventDefault();
                 void completeAndOpen(a.id, a.href);
               }}

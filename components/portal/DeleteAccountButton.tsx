@@ -101,8 +101,11 @@ export default function DeleteAccountButton() {
                 style={{ background: 'var(--color-error)', color: 'white' }}
                 onClick={handleDelete}
                 disabled={confirmText.trim().toUpperCase() !== 'DELETE' || loading}
+                aria-busy={loading}
               >
-                {loading ? 'Deleting...' : 'Delete'}
+                <span aria-live="polite">
+                  {loading ? 'Deleting...' : 'Delete'}
+                </span>
               </button>
             </div>
           </div>

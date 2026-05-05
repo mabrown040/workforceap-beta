@@ -176,7 +176,7 @@ export default async function CounselorPortalPage() {
                 title="No members assigned yet"
                 description="Members will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
                 icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-                primaryAction={{ label: 'Counselor guide', href: '/counselor/guide' }}
+                primaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
                 secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
               />
             ) : (
@@ -295,8 +295,8 @@ export default async function CounselorPortalPage() {
                 title="No members assigned yet"
                 description="Members will appear here once assigned by an administrator."
                 icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-                primaryAction={{ label: 'Contact admin for assignments', href: 'mailto:info@workforceap.org?subject=Member%20assignments%20for%20counselor%20portal' }}
-                secondaryAction={{ label: 'Counselor resources', href: '/counselor/resources' }}
+                primaryAction={{ label: 'Contact Admin for Assignments', href: 'mailto:info@workforceap.org?subject=Member%20assignments%20for%20counselor%20portal' }}
+                secondaryAction={{ label: 'Counselor Resources', href: '/counselor/resources' }}
               />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
@@ -362,7 +362,7 @@ export default async function CounselorPortalPage() {
               <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>AI Assistant</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Assistant</p>
                     <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Available</p>
                   </div>
                   <StatusBadge label="Online" variant="success" />
@@ -404,6 +404,7 @@ export default async function CounselorPortalPage() {
             <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
+                { href: '/counselor/queue', icon: 'pending_actions', title: 'Work Queue', desc: 'Members waiting >24h for a reply', accent: 'accent' },
                 { href: '/counselor/students', icon: 'groups', title: 'My Members', desc: 'View roster and member details', accent: 'accent' },
                 { href: '/counselor/placements', icon: 'work', title: 'Placements', desc: 'Track job placements', accent: 'green' },
                 { href: '/counselor/inactive-members', icon: 'notifications_paused', title: 'Inactive Members', desc: 'Members who need re-engagement', accent: 'error' },

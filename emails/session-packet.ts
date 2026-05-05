@@ -68,7 +68,7 @@ export function sessionPacketHtml(params: {
     <p>Here&rsquo;s the packet from your session with <strong>${escapeHtml(counselorName)}</strong> on ${escapeHtml(sessionDate)}. Everything we built together is below — and you can sign in to your member portal anytime to refine it, run more practice questions, or apply to jobs.</p>
     ${renderedSections.join('\n')}
     <p style="margin-top: 32px;">When you&rsquo;re ready, sign in to your portal to keep going:</p>
-    <p style="margin: 8px 0 24px;"><a href="${escapeHtml(portalUrl)}" style="color: #ad2c4d; font-weight: 600;">${escapeHtml(portalUrl)}</a></p>
+    <p style="margin: 8px 0 24px;"><a href="${escapeHtml(portalUrl)}" style="color: #C41E3A; font-weight: 600;">${escapeHtml(portalUrl)}</a></p>
     <p>You&rsquo;ve got this.</p>
     <p style="margin-top: 24px; color: #737373; font-size: 14px;">— The WorkforceAP team</p>
   `.trim();

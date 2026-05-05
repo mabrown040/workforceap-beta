@@ -5,15 +5,15 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import AIHistoryList from '@/components/portal/AIHistoryList';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
+import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI Tool History',
-  description: 'View your past AI tool results.',
-  path: '/dashboard/ai-tools/history',
-});
+    title: 'AI Tool History',
+    description: 'View your past AI tool results.',
+    path: '/dashboard/ai-tools/history',
+  });
 }
 
 const TOOL_LABELS: Record<string, string> = {
@@ -26,9 +26,9 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
   gap_analyzer: 'Gap Analyzer',
-  interview_coach: 'AI Interview Coach',
+  interview_coach: 'Interview Coach',
   voice_interview_video: 'Mock Interview Video',
-  career_counselor: 'Career Counselor',
+  career_counselor: 'Career Coach',
   skill_assessment: 'Skill Mapper / Skill Assessment',
 };
 
@@ -36,7 +36,7 @@ function getHistoryToolLabel(toolType: string, output: string): string {
   if (toolType === 'career_counselor') {
     try {
       const parsed = JSON.parse(output) as { type?: string };
-      if (parsed?.type === 'elevator_pitch') return 'AI Elevator Introduction';
+      if (parsed?.type === 'elevator_pitch') return 'Elevator Pitch';
     } catch {
       // ignore
     }
@@ -67,6 +67,14 @@ export default async function AIHistoryPage({ searchParams }: Props) {
     ...r,
     toolLabel: getHistoryToolLabel(r.toolType, r.output),
   }));
+  const latestResult = withLabels[0] ?? null;
+  const followThrough = latestResult
+    ? getAIToolFollowThrough({
+        toolType: latestResult.toolType,
+        inputSummary: latestResult.inputSummary,
+        output: latestResult.output,
+      })
+    : null;
 
   return (
     <>
@@ -79,10 +87,10 @@ export default async function AIHistoryPage({ searchParams }: Props) {
         }}
       >
         <PageHeader
-          title="My AI results"
+          title="Activity History"
           subtitle="Revisit your past resume rewrites, cover letters, interview questions, voice coach sessions, and headlines."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'History' },
           ]}
         />
@@ -90,6 +98,25 @@ export default async function AIHistoryPage({ searchParams }: Props) {
 
       {/* Main content */}
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+        {followThrough && latestResult ? (
+          <div
+            className="portal-card portal-card--flat"
+            style={{ padding: '1.125rem', marginBottom: '1rem', borderLeft: '4px solid var(--color-accent)' }}
+          >
+            <p style={{ margin: '0 0 0.35rem', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+              Do this next
+            </p>
+            <h2 style={{ margin: '0 0 0.35rem', fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+              {followThrough.title}
+            </h2>
+            <p style={{ margin: '0 0 0.85rem', fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>
+              Based on your latest {latestResult.toolLabel.toLowerCase()} result: {followThrough.body}
+            </p>
+            <Link href={followThrough.href} className="btn btn-primary">
+              {followThrough.cta}
+            </Link>
+          </div>
+        ) : null}
         {withLabels.length === 0 ? (
           <div
             className="portal-card portal-card--flat"
@@ -132,8 +159,6 @@ export default async function AIHistoryPage({ searchParams }: Props) {
           <AIHistoryList results={withLabels} initialFilter={tool ?? ''} />
         )}
       </div>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

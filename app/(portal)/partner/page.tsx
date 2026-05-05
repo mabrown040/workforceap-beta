@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
+import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
@@ -40,10 +41,9 @@ export default async function PartnerDashboardPage() {
   if (!user) redirect('/login?redirectTo=/partner');
 
   const superAdmin = await isSuperAdmin(user.id);
-  const fallbackForUnlinked = superAdmin ? '/admin/partners' : '/dashboard';
 
-  const ctx = await getPartnerForUser(user.id);
-  if (!ctx) redirect(fallbackForUnlinked);
+  const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
+  if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
   const partnerRow = await prisma.partner.findUnique({
     where: { id: ctx.partnerId },
@@ -59,14 +59,15 @@ export default async function PartnerDashboardPage() {
     },
   });
 
-  if (!partnerRow) redirect(fallbackForUnlinked);
+  if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
 
-  const { members, pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(ctx.partnerId);
   const memberIds = members.map((m) => m.id);
+  const pendingPlacementCount = pendingPlacements.length;
 
   /** Distinct referred members who have at least one intake application tied to this partner link (apples-to-apples vs. total referrals). */
   const referredMembersAppliedViaLink =
@@ -113,11 +114,13 @@ export default async function PartnerDashboardPage() {
 
   const nextAction = total === 0
     ? { label: 'Share workforceap.org/apply with your community', href: '/partner/guide', tip: 'Ask applicants to list your organization when asked how they heard about us.' }
-    : placements === 0 && inTraining > 0
-      ? { label: `${inTraining} member${inTraining !== 1 ? 's' : ''} in training — encourage completion`, href: '/partner', tip: 'Check in with members who are close to finishing their program.' }
-      : placements > 0
-        ? { label: 'Celebrate placements, share more referrals', href: '/partner/guide', tip: 'Your referrals are landing jobs. Keep the pipeline full.' }
-        : { label: 'Review member progress', href: '/partner', tip: 'Members are moving through the journey — track their outcomes.' };
+    : pendingPlacementCount > 0
+      ? { label: `${pendingPlacementCount} member${pendingPlacementCount !== 1 ? 's' : ''} reported a job offer — review needed`, href: '/partner/outcomes', tip: 'WorkforceAP is reviewing these offers. You will see verified placements once confirmed.' }
+      : placements === 0 && inTraining > 0
+        ? { label: `${inTraining} member${inTraining !== 1 ? 's' : ''} in training — encourage completion`, href: '/partner', tip: 'Check in with members who are close to finishing their program.' }
+        : placements > 0
+          ? { label: 'Celebrate placements, share more referrals', href: '/partner/guide', tip: 'Your referrals are landing jobs. Keep the pipeline full.' }
+          : { label: 'Review member progress', href: '/partner', tip: 'Members are moving through the journey — track their outcomes.' };
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 
@@ -169,7 +172,7 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
       <h1 className="wa-sr-only">
-        Partner overview — {ctx.partner.name}
+        Partner Overview — {ctx.partner.name}
       </h1>
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block md:wa-hidden portal-mobile-content">
@@ -194,7 +197,7 @@ export default async function PartnerDashboardPage() {
         <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
         <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
         <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
-        <PortalKpiCard accent="accent" label="Needs Review" value={needsReviewCount} hint="Applied/enrolled or stalled" />
+        <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
       </div>
 
       {/* Next Step Guidance */}
@@ -232,7 +235,7 @@ export default async function PartnerDashboardPage() {
             <VoiceAgentSurface {...partnerVoiceSurface}>
               <PortalVoiceSession
                 sessionEndpoint="/api/partner/voice-session"
-                title="Partner voice assistant"
+                title="Partner Assistant"
                 description="Ask about referrals, member progress, or using the partner portal."
                 accent="var(--color-amber)"
                 accentDark="var(--color-amber)"
@@ -357,7 +360,7 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Header ── */}
       <PageHeader
-        title="Partner overview"
+        title="Partner Overview"
         titleHeadingLevel={2}
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
         action={
@@ -378,7 +381,7 @@ export default async function PartnerDashboardPage() {
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/partner/voice-session"
-            title="Partner voice assistant"
+            title="Partner Assistant"
             description="Ask about referrals, member progress, or using the partner portal."
             accent="var(--color-amber)"
             accentDark="var(--color-amber)"

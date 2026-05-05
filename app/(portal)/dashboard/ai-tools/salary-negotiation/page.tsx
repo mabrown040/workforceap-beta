@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SalaryNegotiationForm from '@/components/portal/tools/SalaryNegotiationForm';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,7 +34,7 @@ export default async function SalaryNegotiationPage() {
           title="Salary Negotiation Script"
           subtitle="You got an offer -- now negotiate. Enter your numbers and get an exact script for a phone call or email."
           breadcrumbs={[
-            { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+            { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
             { label: 'Salary Negotiation' },
           ]}
         />
@@ -48,8 +47,6 @@ export default async function SalaryNegotiationPage() {
         </div>
         <ToolHistoryPanel userId={user.id} toolType="salary_negotiation" />
       </div>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

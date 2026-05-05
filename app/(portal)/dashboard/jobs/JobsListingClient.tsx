@@ -238,7 +238,6 @@ export default function JobsListingClient({
   const [loading, setLoading] = useState(!hasInitialData);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [hasFetchedInitially, setHasFetchedInitially] = useState(hasInitialData);
 
   const qParam = searchParams.get('q') ?? '';
   const [qLocal, setQLocal] = useState(qParam);
@@ -306,8 +305,7 @@ export default function JobsListingClient({
     if (ageGroup) params.set('ageGroup', ageGroup);
     
     // Skip the first fetch if we have SSR data and no filters are active
-    if (!hasFetchedInitially && !hasActiveFilters) {
-      setHasFetchedInitially(true);
+    if (initialJobs.length > 0 && !hasActiveFilters) {
       return;
     }
     
@@ -316,7 +314,7 @@ export default function JobsListingClient({
       .then((r) => r.json())
       .then((data) => { if (Array.isArray(data)) setJobs(data); })
       .finally(() => setLoading(false));
-  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasFetchedInitially, hasActiveFilters]);
+  }, [q, locationType, jobType, program, salaryMin, salaryMax, sort, ageGroup, hasActiveFilters]);
 
   useEffect(() => {
     if (!isAuthenticated) return;

@@ -7,6 +7,7 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ExportPdfButton from './ExportPdfButton';
+import ToolFollowThrough from './ToolFollowThrough';
 
 export default function SalaryNegotiationForm() {
   const [currentOffer, setCurrentOffer] = useState('');
@@ -151,6 +152,7 @@ export default function SalaryNegotiationForm() {
             <ExportPdfButton text={output} title="Salary Negotiation Script" toolName="Salary Negotiation" />
           </div>
           <pre className="resume-rewriter-output-content">{output}</pre>
+          <ToolFollowThrough toolType="salary_negotiation" />
           <p className="ai-result-saved">
             Saved to your history. <Link href="/dashboard/ai-tools/history">View all results</Link>
           </p>

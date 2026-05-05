@@ -6,6 +6,7 @@ import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
+import ToolFollowThrough from './ToolFollowThrough';
 
 interface ParsedMatchOutput {
   matchScore: number;
@@ -365,16 +366,19 @@ export default function JobMatchScorerForm() {
       </button>
 
       {output && parsedOutput && (
-        <ResumeAnalysisPanel
-          resumePreview={resume}
-          scorePercent={scorePercent}
-          matchedSkills={matchedSkills}
-          missingSkills={missingSkills}
-          analysisText={output}
-          sectionAuditCards={sectionAuditCards}
-          missingMetrics={missingMetrics}
-          bulletSuggestions={bulletSuggestions}
-        />
+        <>
+          <ResumeAnalysisPanel
+            resumePreview={resume}
+            scorePercent={scorePercent}
+            matchedSkills={matchedSkills}
+            missingSkills={missingSkills}
+            analysisText={output}
+            sectionAuditCards={sectionAuditCards}
+            missingMetrics={missingMetrics}
+            bulletSuggestions={bulletSuggestions}
+          />
+          <ToolFollowThrough toolType="job_match_scorer" />
+        </>
       )}
 
       {/* Floating analyze button — mobile */}

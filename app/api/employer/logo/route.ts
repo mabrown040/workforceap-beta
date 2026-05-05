@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 const BUCKET = 'employer-logos';
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
@@ -45,13 +46,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  const logoUrl = pub.publicUrl;
-
   await prisma.employer.update({
     where: { id: ctx.employerId },
-    data: { logoUrl },
+    data: { logoUrl: path },
   });
 
-  return NextResponse.json({ ok: true, logoUrl });
+  return NextResponse.json({ ok: true, logoUrl: resolveSupabasePublicAssetUrl(BUCKET, path) });
 }

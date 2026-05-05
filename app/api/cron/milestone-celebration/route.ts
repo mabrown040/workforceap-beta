@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 
+import { withCronLogging } from '@/lib/cron/withCronLogging';
+
 /**
  * GET /api/cron/milestone-celebration
  *
@@ -11,13 +13,7 @@ import { logCronRun } from '@/lib/admin/logCronRun';
  *
  * Deploy with Vercel Cron: schedule "0 11 * * *" (daily 11AM UTC)
  */
-export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+async function handle(_req: NextRequest) {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   yesterday.setHours(0, 0, 0, 0);
@@ -53,3 +49,6 @@ export async function GET(req: NextRequest) {
   await logCronRun('cron_milestone_celebration', runResult);
   return NextResponse.json(runResult);
 }
+
+export const GET = withCronLogging('cron_milestone_celebration', handle);
+export const POST = withCronLogging('cron_milestone_celebration', handle);

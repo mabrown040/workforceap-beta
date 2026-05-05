@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Conversation } from '@elevenlabs/client';
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
+      import ToolFollowThrough from './ToolFollowThrough';
+
 const ACCENT = '#db2777';
 const ACCENT_DARK = '#be185d';
 const ACCENT_BG = 'rgba(219, 39, 119, 0.1)';
@@ -404,6 +406,8 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
           </button>
         ))}
       </div>
+
+      <ToolFollowThrough toolType="career_business_coach" />
 
       {/* Quick links to portal tools */}
       <div style={{

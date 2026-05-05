@@ -23,7 +23,7 @@ export async function GET() {
           canAccessMemberDashboard: false,
           availablePortals: [],
         },
-        { status: 200 }
+        { status: 200, headers: { 'Cache-Control': 'no-store' } }
       );
     }
 
@@ -39,7 +39,7 @@ export async function GET() {
           canAccessMemberDashboard: false,
           availablePortals: [],
         },
-        { status: 200 }
+        { status: 200, headers: { 'Cache-Control': 'no-store' } }
       );
     }
 

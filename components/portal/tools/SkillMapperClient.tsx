@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, Search, BookOpen, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import ToolFollowThrough from './ToolFollowThrough';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
@@ -19,7 +20,7 @@ function renderRadarSvgString(data: { axis: string; value: number }[], size = 32
   });
   const gridLevels = [0.25, 0.5, 0.75, 1];
   const gridColor = '#333537';
-  const accentColor = '#ad2c4d';
+  const accentColor = '#C41E3A';
   const labelColor = '#a3a3a3';
 
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
@@ -75,7 +76,7 @@ function renderDualRadarSvgString(
 
   const gridLevels = [0.25, 0.5, 0.75, 1];
   const gridColor = '#333537';
-  const accentColor = '#ad2c4d';
+  const accentColor = '#C41E3A';
   const blueColor = '#2b7bb9';
   const labelColor = '#a3a3a3';
   const shortTitle = occupationTitle.length > 22 ? occupationTitle.slice(0, 22) + '…' : occupationTitle;
@@ -902,6 +903,7 @@ export default function SkillMapperClient() {
                 </div>
               </div>
               <AxisLegend axes={radarData.map(d => d.axis)} />
+              <ToolFollowThrough toolType="skill_mapper" />
 
               {/* Export + profile compare prompt */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem', marginBottom: '0.5rem' }}>

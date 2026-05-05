@@ -118,6 +118,7 @@ export async function POST(request: Request) {
   const dashboardUrl = `${siteUrl}/dashboard`;
 
   let memberEmailSent = false;
+  let adminEmailSent = false;
   if (resendKey) {
     const resend = new Resend(resendKey);
 
@@ -137,6 +138,7 @@ export async function POST(request: Request) {
           `View full results: ${adminLink}`,
         ].join('\n'),
       });
+      adminEmailSent = true;
     } catch (err) {
       console.error('Assessment admin email failed:', err);
     }
@@ -169,6 +171,7 @@ export async function POST(request: Request) {
     rawScore: raw,
     scorePct: pct,
     emailsSent: memberEmailSent,
+    adminEmailSent,
   });
 }
 

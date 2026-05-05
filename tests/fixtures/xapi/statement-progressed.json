@@ -1,0 +1,18 @@
+{
+  "id": "urn:uuid:e2e-fixture-statement-001",
+  "actor": {
+    "mbox": "mailto:xapi-fixture-member@example.com"
+  },
+  "verb": {
+    "id": "http://adlnet.gov/expapi/verbs/progressed"
+  },
+  "object": {
+    "id": "https://www.coursera.org/learn/technical-support-fundamentals",
+    "definition": {
+      "name": { "en-US": "Technical Support Fundamentals" }
+    }
+  },
+  "result": {
+    "progress": 0.42
+  }
+}

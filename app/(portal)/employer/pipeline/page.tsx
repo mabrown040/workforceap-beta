@@ -17,10 +17,10 @@ import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Candidate pipeline',
-  description: 'AI-suggested matches for your open roles.',
-  path: '/employer/pipeline',
-});
+    title: 'Candidate pipeline',
+    description: 'AI-suggested matches for your open roles.',
+    path: '/employer/pipeline',
+  });
 }
 
 export default async function EmployerPipelinePage() {
@@ -79,10 +79,10 @@ export default async function EmployerPipelinePage() {
     <PortalPageFrame>
       <PageHeader
         title="Candidate Pipeline"
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Candidate pipeline' }]}
+        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Candidate Pipeline' }]}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">AI-matched candidates across your open roles</span>
+            <span className="wa-block md:wa-hidden">Suggested candidates across your open roles</span>
             <span className="wa-hidden md:wa-block">Suggested matches from WorkforceAP. Update status as you progress intros and decisions.</span>
           </>
         }
@@ -102,7 +102,7 @@ export default async function EmployerPipelinePage() {
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>account_tree</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No pipeline yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post a job to receive AI-matched candidates.</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post a job to receive matched candidates.</p>
               <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
               </Link>
@@ -111,7 +111,7 @@ export default async function EmployerPipelinePage() {
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>psychology</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>AI matches will appear once your jobs are live.</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Matches will appear once your jobs are live.</p>
               <Link href="/employer/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
                 View Your Jobs
               </Link>
@@ -156,13 +156,13 @@ export default async function EmployerPipelinePage() {
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
             <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job to receive AI-matched candidates here.</p>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job to receive matched candidates here.</p>
             <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Post your first job</Link>
           </div>
         ) : allMatches.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>psychology</span>
-            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No AI-suggested matches yet</h3>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Matches appear here after admin runs job–candidate matching.</p>
             <Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>View Your Jobs</Link>
           </div>

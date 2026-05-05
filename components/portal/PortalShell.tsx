@@ -17,11 +17,17 @@ function hasDedicatedShell(path: string) {
   return DEDICATED_SHELL_PREFIXES.some((p) => path.startsWith(p));
 }
 
+// Strip locale prefix so /en/dashboard is treated the same as /dashboard
+function stripLocale(path: string) {
+  return path.replace(/^\/(en|es|fr|pt)(?=\/|$)/, '');
+}
+
 export default function PortalShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? '';
-  const isDashboard = pathname.startsWith('/dashboard');
-  const isPartnerPortal = pathname.startsWith('/partner');
-  const isDedicatedShell = hasDedicatedShell(pathname);
+  const normalizedPath = stripLocale(pathname);
+  const isDashboard = normalizedPath.startsWith('/dashboard');
+  const isPartnerPortal = normalizedPath.startsWith('/partner');
+  const isDedicatedShell = hasDedicatedShell(normalizedPath);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userRoles, setUserRoles] = useState<{ role: PortalRole; roleLabel: string; homeHref: string }[]>([]);
   const [currentRole, setCurrentRole] = useState<PortalRole>('member');
@@ -40,12 +46,13 @@ export default function PortalShell({ children }: { children: React.ReactNode })
         
         const roles = data.availablePortals ?? [];
 
-        // Determine current portal based on pathname
+        // Determine current portal based on pathname (strip locale prefix first)
+        const np = stripLocale(pathname);
         let current: PortalRole = 'member';
-        if (pathname.startsWith('/employer')) current = 'employer';
-        else if (pathname.startsWith('/partner')) current = 'partner';
-        else if (pathname.startsWith('/counselor')) current = 'counselor';
-        else if (pathname.startsWith('/admin')) current = 'admin';
+        if (np.startsWith('/employer')) current = 'employer';
+        else if (np.startsWith('/partner')) current = 'partner';
+        else if (np.startsWith('/counselor')) current = 'counselor';
+        else if (np.startsWith('/admin')) current = 'admin';
         
         setUserRoles(roles);
         setCurrentRole(current);

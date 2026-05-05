@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import JobMatchScorerForm from '@/components/portal/tools/JobMatchScorerForm';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -34,7 +33,7 @@ export default async function JobMatchScorerPage() {
             title="Job Match Scorer"
             subtitle="Paste a job description and your resume. Get a match score and specific gaps to address."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Job Match Scorer' },
             ]}
           />
@@ -105,10 +104,7 @@ export default async function JobMatchScorerPage() {
               </p>
             </div>
           </div>
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
     </>
   );
 }

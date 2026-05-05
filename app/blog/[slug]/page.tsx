@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import PageHero from '@/components/PageHero';
@@ -29,7 +30,7 @@ export async function generateStaticParams() {
     });
     return posts.map((p) => ({ slug: p.slug }));
   } catch (error) {
-    console.error('Failed to fetch blog posts for static params:', error);
+    captureApiError(error, { route: 'blog/[slug] generateStaticParams' });
     return [];
   }
 }
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       where: { slug },
     });
   } catch (error) {
-    console.error('Failed to fetch blog post for metadata:', error);
+    captureApiError(error, { route: 'blog/[slug] generateMetadata', extra: { slug } });
     post = null;
   }
   if (!post || (!post.published && (!post.scheduledAt || post.scheduledAt > now))) return {};

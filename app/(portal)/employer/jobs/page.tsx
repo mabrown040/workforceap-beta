@@ -119,11 +119,11 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   return (
     <>
-      <h1 className="wa-sr-only">My Jobs</h1>
+      <h1 className="wa-sr-only">Job Postings</h1>
       {/* ── Mobile section ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
-          title="My Jobs"
+          title="Job Postings"
           subtitle="Manage your job postings and review candidate activity."
           action={(
             <Link
@@ -178,7 +178,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No jobs yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving AI-matched candidates.</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving matched candidates.</p>
               <Link
                 href="/employer/jobs/new"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
@@ -235,7 +235,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
-            title="My Jobs"
+            title="Job Postings"
             subtitle="Manage your job postings, review drafts, and track live roles."
             action={(
               <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -276,7 +276,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>work_outline</span>
               <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No jobs yet</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '28rem', marginInline: 'auto' }}>
-                Post a single role or import multiple jobs to start receiving AI-matched candidates.
+                Post a single role or import multiple jobs to start receiving matched candidates.
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
                 <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>

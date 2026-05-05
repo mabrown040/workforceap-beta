@@ -12,7 +12,9 @@ import MemberPreScreeningForm from '@/components/portal/MemberPreScreeningForm';
 import MemberInterviewRequestButton from '@/components/portal/MemberInterviewRequestButton';
 import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
 import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
+import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import PortalMetricCard from '@/components/portal/ui/PortalMetricCard';
 
@@ -47,6 +49,11 @@ type DashboardHomeClientProps = {
   };
   checklistAllDone: boolean;
   recommendedActions: Array<{ label: string; href: string }>;
+  /** Primary dashboard CTA — also removed from the horizontal strip when present to avoid duplication. */
+  dominantNextAction?: NextBestAction | null;
+  showStuckCounselorStrip?: boolean;
+  /** When set (from `CourseProgress` / rollup), drives hero % and metric cards instead of completion ratio alone. */
+  blendedTrainingProgressPct?: number;
   nextBestActions?: NextBestAction[];
   aiToolsUsedCount?: number;
   jobSearchUrl?: string | null;
@@ -76,6 +83,9 @@ export default function DashboardHomeClient({
   checklist,
   checklistAllDone,
   recommendedActions,
+  dominantNextAction = null,
+  showStuckCounselorStrip = false,
+  blendedTrainingProgressPct,
   nextBestActions = [],
   aiToolsUsedCount = 0,
   jobSearchUrl,
@@ -124,7 +134,19 @@ export default function DashboardHomeClient({
     });
   };
 
-  const progressPct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  const progressPct =
+    typeof blendedTrainingProgressPct === 'number' && Number.isFinite(blendedTrainingProgressPct)
+      ? Math.max(0, Math.min(100, Math.round(blendedTrainingProgressPct)))
+      : totalCourses > 0
+        ? Math.round((completedCount / totalCourses) * 100)
+        : 0;
+
+  const nextStripActions = useMemo(() => {
+    const list = nextBestActions ?? [];
+    if (!dominantNextAction || list.length === 0) return list;
+    if (list[0]?.id === dominantNextAction.id) return list.slice(1);
+    return list;
+  }, [dominantNextAction, nextBestActions]);
 
   const checklistItems = [
     {
@@ -161,7 +183,7 @@ export default function DashboardHomeClient({
         ? 'Training preassessment required'
         : completedCount === 0
           ? 'Your first course is next'
-          : `Current training step: ${nextMilestone ?? programTitle}`;
+          : `Up next in training: ${nextMilestone ?? programTitle}`;
 
   const progressCardSummary =
     state === 'D'
@@ -181,6 +203,19 @@ export default function DashboardHomeClient({
     return `Week of ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   }, []);
 
+  const showPreassessmentScore = assessmentScorePct != null && completedCount === 0 && state !== 'D';
+  const showPreassessmentPhase = state === 'A' || state === 'B';
+  const applicationSupportCopy =
+    state === 'A'
+      ? (noApplicationOnFile
+          ? 'Start your application to begin your career path. All programs are offered at no cost to members.'
+          : 'Choose a program to get started on your career path. All programs are offered at no cost to members.')
+      : state === 'B'
+        ? `Complete your Training Preassessment to start your ${programTitle} training.`
+        : state === 'C'
+          ? `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`
+          : 'Focus on career readiness: resume, interview practice, and job applications.';
+
   /* ── Metric cards data ── */
   const metricCards = [
     {
@@ -191,7 +226,7 @@ export default function DashboardHomeClient({
       accent: 'accent' as const,
       href: '/dashboard/training',
     },
-    ...(assessmentScorePct != null
+    ...(showPreassessmentScore
       ? [{
           label: 'Preassessment Score',
           value: `${assessmentScorePct}%`,
@@ -231,8 +266,16 @@ export default function DashboardHomeClient({
         </p>
       </header>
 
+      {showStuckCounselorStrip && state === 'C' ? (
+        <div style={{ padding: '0 2rem', marginBottom: '1.25rem' }}>
+          <MemberStuckCounselorStrip />
+        </div>
+      ) : null}
+
+      {dominantNextAction && state !== 'A' ? <MemberDoThisNextCard action={dominantNextAction} /> : null}
+
       {/* ── 1. STATUS CARD — where am I, what's next ── */}
-      {(noApplicationOnFile || applicationStatus) && (
+      {((state === 'A' || state === 'B') && (noApplicationOnFile || applicationStatus)) && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
           <section
             className="portal-card portal-card--flat"
@@ -311,15 +354,10 @@ export default function DashboardHomeClient({
                   )}
                   <div className="portal-card portal-card--flat portal-card--padded-sm">
                     <p style={{ fontSize: '0.875rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                      {state === 'A' && (noApplicationOnFile
-                        ? "Start your application to begin your career path. All programs are offered at no cost to members."
-                        : "Choose a program to get started on your career path. All programs are offered at no cost to members.")}
-                      {state === 'B' && `Complete your Training Preassessment to start your ${programTitle} training.`}
-                      {state === 'C' && `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`}
-                      {state === 'D' && 'Focus on career readiness: resume, interview practice, and job applications.'}
+                      {applicationSupportCopy}
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {assessmentScorePct != null && (
+                      {showPreassessmentScore && (
                         <span style={{ padding: '0.25rem 0.625rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', borderRadius: '9999px', fontWeight: 600 }}>
                           Preassessment: {assessmentScorePct}%
                         </span>
@@ -338,10 +376,10 @@ export default function DashboardHomeClient({
         </div>
       )}
 
-      {/* ── 2. PRIMARY NEXT ACTION — first nextBestAction ── */}
-      {nextBestActions.length > 0 && (
+      {/* ── 2. MORE NEXT STEPS — remaining actions after dominant card ── */}
+      {nextStripActions.length > 0 && (
         <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
-          <MemberNextStepsStrip actions={nextBestActions.slice(0, 3)} />
+          <MemberNextStepsStrip actions={nextStripActions.slice(0, 3)} />
         </div>
       )}
 
@@ -656,7 +694,7 @@ export default function DashboardHomeClient({
                 Talk to AI coach
               </Link>
               <Link href="/dashboard/ai-tools" className="btn btn-outline" onClick={() => handleDashboardAction('ai_tools_clicked')}>
-                Open job search tools
+                Open career tools
               </Link>
             </div>
           </div>
@@ -674,7 +712,7 @@ export default function DashboardHomeClient({
                 { href: '/dashboard/ai-tools', label: 'Job Search Tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
                 { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-                { href: '/dashboard/skills-assessment', label: 'Training Preassessment', desc: 'Program readiness', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/skills-assessment', label: showPreassessmentPhase ? 'Training Preassessment' : 'Assessment Results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
               ].map((item) => (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}

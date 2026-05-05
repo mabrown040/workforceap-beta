@@ -3,11 +3,11 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -20,6 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
+  const tBlog = await getTranslations('marketing.blog');
+  const tCommon = await getTranslations('marketing.common');
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
@@ -27,7 +29,7 @@ export default async function AIToolsPage() {
         <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
             { label: 'Member Portal', href: '/dashboard' },
-            { label: 'AI Toolkit' },
+            { label: 'Career Toolkit' },
           ]} />
         </div>
         <section
@@ -48,7 +50,7 @@ export default async function AIToolsPage() {
               marginBottom: '0.5rem',
             }}
           >
-            Included for members
+            {tBlog('includedForMembers')}
           </p>
           <span
             style={{
@@ -64,10 +66,10 @@ export default async function AIToolsPage() {
               marginBottom: '1rem',
             }}
           >
-            Beta Access
+            {tBlog('betaAccess')}
           </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
-            AI Toolkit
+            {tBlog('careerToolkit')}
           </h1>
           <p
             style={{
@@ -78,7 +80,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            Start with your AI coach cards below — bigger, simpler, and focused on the tools you actually use.
+            Start with the tool cards below — bigger, simpler, and focused on the tools you actually use.
           </p>
           <Link
             href="/dashboard/ai-tools/history"
@@ -87,10 +89,39 @@ export default async function AIToolsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               history
             </span>
-            View my past results
+            {tCommon('viewMyPastResults')}
+          </Link>
+          <Link
+            href="/dashboard/ai-tools/interview-prep"
+            className="btn btn-outline"
+            style={{ marginLeft: '0.5rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+              library_books
+            </span>
+            {tCommon('prepBundle')}
           </Link>
         </section>
       </div>
+
+      <section style={{ maxWidth: '1100px', margin: '0 auto 1.25rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+        <PortalCard className="portal-card--flat">
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                Start here
+              </p>
+              <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.05rem', fontWeight: 800 }}>Path to certification</h2>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.55 }}>
+                See how staff enrolls you in Coursera, workspace email, exams, and job support — before you dive into AI tools.
+              </p>
+            </div>
+            <Link href="/dashboard/program/start" className="btn btn-primary">
+              Open enrollment guide
+            </Link>
+          </div>
+        </PortalCard>
+      </section>
 
       {/* Voice coaches */}
       <div style={{ marginBottom: '1.5rem' }}>
@@ -102,7 +133,7 @@ export default async function AIToolsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            Guided Job Search Steps
+            {tCommon('guidedJobSearch')}
           </h2>
         </div>
 
@@ -113,7 +144,7 @@ export default async function AIToolsPage() {
             </p>
             <div style={{ marginTop: '0.875rem' }}>
               <Link href="/dashboard/job-applications" className="btn btn-outline">
-                Open Application Tracker
+                {tCommon('openTracker')}
               </Link>
             </div>
           </PortalCard>
@@ -152,9 +183,7 @@ export default async function AIToolsPage() {
         </div>
       </section>
 
-      <div className="wa-block md:wa-hidden">
-        <MobileBottomNav variant="portal" />
-      </div>
+      <div className="wa-block md:wa-hidden">      </div>
     </div>
   );
 }

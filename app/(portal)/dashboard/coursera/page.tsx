@@ -5,12 +5,14 @@ import { ExternalLink } from 'lucide-react';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
+import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getCourseraReadiness } from '@/lib/coursera/config';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
+import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
+import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -35,14 +37,25 @@ export default async function CourseraIntegrationPage() {
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const completedCount = program
-    ? completedSlugs.filter((slug) => program.courses.some((course) => course.slug === slug)).length
-    : 0;
-  const progressPct = program?.courses.length
-    ? Math.round((completedCount / program.courses.length) * 100)
-    : 0;
+  const trainingView =
+    enrolledProgram && program
+      ? await loadMemberProgramTrainingView({
+          userId: user.id,
+          programSlug: enrolledProgram,
+          coursesCompletedJson: dbUser?.coursesCompleted,
+        })
+      : null;
+  const completedCount = trainingView?.completedCount ?? 0;
+  const progressPct =
+    trainingView?.progressPercentDisplay ??
+    (program?.courses.length
+      ? Math.round((completedCount / program.courses.length) * 100)
+      : 0);
   const readiness = getCourseraReadiness(enrolledProgram);
+  const skillsetProgress = await loadMemberSkillsetProgress(user.id);
+
+  const doneSlugsSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
+  const orderedIncompleteCourses = program?.courses.filter((c) => !doneSlugsSet.has(c.slug)) ?? [];
 
   return (
     <>
@@ -95,10 +108,11 @@ export default async function CourseraIntegrationPage() {
 
               {/* Course pathway list */}
               <div style={{ marginBottom: '1rem' }}>
-                {program.courses.map((course, i) => {
-                  const done = i < completedCount;
-                  const current = i === completedCount;
-                  const locked = i > completedCount;
+                {program.courses.map((course) => {
+                  const done = doneSlugsSet.has(course.slug);
+                  const currentSlug = orderedIncompleteCourses[0]?.slug ?? null;
+                  const current = course.slug === currentSlug;
+                  const locked = !done && !current;
                   return (
                     <div
                       key={course.slug}
@@ -149,39 +163,72 @@ export default async function CourseraIntegrationPage() {
               <div className="coursera-callout">
                 <h4 className="coursera-callout__title">
                   {readiness.canDeepLink
-                    ? 'Direct course access is configured'
+                    ? 'You’re ready to launch'
                     : readiness.canLaunch
-                      ? 'Launch configured — course deep-linking pending'
-                      : 'Launch setup pending'}
+                      ? 'You’re ready to launch'
+                      : 'Almost ready'}
                 </h4>
                 <p className="coursera-callout__text">
                   {readiness.canDeepLink
-                    ? 'You will be taken directly to your current course. Complete it to unlock the next one. The full library becomes available after you finish all assigned courses.'
-                    : 'You will be taken to your program page on Coursera. Course-by-course deep-linking will be enabled once course IDs are mapped.'}
+                    ? 'Click Launch and we’ll drop you straight into your current course. Finish it to unlock the next one — your whole library opens up once you complete the program.'
+                    : readiness.canLaunch
+                      ? 'Click Launch and we’ll send you to your Coursera program page. From there, choose any course in your library to start.'
+                      : 'Your counselor is finishing up your enrollment. Once that’s done, the Launch button below will take you straight into your courses.'}
                 </p>
                 <ul className="coursera-callout__list">
-                  <li>Launch from portal: {statusLabel(readiness.canLaunch, 'waiting on launch mapping')}</li>
-                  <li>Course deep-linking: {statusLabel(readiness.canDeepLink, 'waiting on course ID mapping')}</li>
-                  <li>Course progress sync: {statusLabel(readiness.canSync, 'waiting on API credentials')}</li>
+                  <li>Launch from portal: {statusLabel(readiness.canLaunch, 'finalizing with your counselor')}</li>
+                  <li>Direct-to-course launch: {statusLabel(readiness.canDeepLink, 'coming with your enrollment')}</li>
+                  <li>Live progress sync: {statusLabel(readiness.canSync, 'updates within 6 hours of activity')}</li>
                 </ul>
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-                <a
+                {completedCount >= program.courses.length && (
+                  <div
+                    style={{
+                      width: '100%',
+                      background: 'rgba(74,155,79,0.08)',
+                      border: '1px solid rgba(74,155,79,0.2)',
+                      borderRadius: '0.75rem',
+                      padding: '0.875rem 1rem',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.375rem' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', '--ms-fill': 1 }}>
+                        workspace_premium
+                      </span>
+                      <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>All courses complete</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                      Certificates from completed courses sync automatically to your profile. View them in <Link href="/dashboard/certifications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>My Certificates</Link>. Official PDFs are issued by Coursera and must be downloaded from their platform.
+                    </p>
+                  </div>
+                )}
+                <TrackedCourseraLaunchLink
                   href="/api/member/coursera/launch"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="btn btn-primary coursera-btn-external"
+                  courseSlug={orderedIncompleteCourses[0]?.slug}
                 >
                   {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
                   <ExternalLink size={16} aria-hidden />
-                </a>
+                </TrackedCourseraLaunchLink>
                 <Link href="/dashboard/training" className="btn btn-outline">
                   Open training tracker
                 </Link>
               </div>
 
               <CourseraSyncCard enabled={readiness.canSync} />
+
+              <SkillsetProgressList
+                rows={skillsetProgress}
+                variant="member"
+                emptyHint={
+                  readiness.canSync
+                    ? 'Skillset progress will appear here once your first sync runs (every 6 hours).'
+                    : undefined
+                }
+              />
 
               <p className="coursera-footnote">
                 {readiness.canDeepLink
@@ -206,8 +253,6 @@ export default async function CourseraIntegrationPage() {
           Questions? Email <a href="mailto:info@workforceap.org">info@workforceap.org</a> or message your counselor from{' '}
           <Link href="/dashboard/messages">Messages</Link>.
         </p>
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

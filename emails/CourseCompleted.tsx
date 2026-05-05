@@ -69,7 +69,7 @@ const highlightBox = {
 };
 
 const highlightTitle = {
-  color: "#ad2c4d",
+  color: "#C41E3A",
   fontSize: "14px",
   fontWeight: "600",
   textTransform: "uppercase" as const,
@@ -89,7 +89,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: "#ad2c4d",
+  backgroundColor: "#C41E3A",
   borderRadius: "6px",
   color: "#fff",
   fontSize: "16px",

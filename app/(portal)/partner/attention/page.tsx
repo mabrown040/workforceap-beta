@@ -49,9 +49,9 @@ export default async function PartnerAttentionPage({
     <PortalPageFrame>
       <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
         <PageHeader
-          title="Attention queue"
+          title="Attention Queue"
           subtitle="Risk-tiered queue with next best actions, owners, and a live workflow timeline."
-          breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Attention queue' }]}
+          breadcrumbs={[{ label: 'Partner Portal', href: '/partner' }, { label: 'Attention Queue' }]}
         />
         <PartnerWorkflowTimeline events={events} />
         <PartnerAttentionClient initialTier={initialTier} />

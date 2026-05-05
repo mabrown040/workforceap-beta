@@ -86,7 +86,7 @@ export default function ElevatorPitchDeploymentLogger() {
             Track every time you use your elevator pitch. Your counselor can see this and help you follow up.
           </p>
         </div>
-        <button
+        <button type="button"
           onClick={() => setShowModal(true)}
           style={{
             display: 'inline-flex',

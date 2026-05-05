@@ -16,52 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const BENTO_ITEMS = [
-  {
-    icon: 'school',
-    title: 'Employer-Influenced Curricula',
-    desc: 'Training programs shaped with employer input ΓÇö Google, IBM, AWS, Microsoft, CompTIA ΓÇö so credentials map to real hiring needs.',
-    span: 'tall',
-  },
-  {
-    icon: 'lock_open',
-    title: 'Zero-Barrier Access',
-    desc: 'No cost for qualifying members. No prerequisites. Funding comes from grants and partnerships that can cover access for eligible participants.',
-    span: 'large',
-  },
-  {
-    icon: 'verified',
-    title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.',
-    span: 'small',
-  },
-  {
-    icon: 'hub',
-    title: 'Regional Scalability',
-    desc: 'A repeatable model built to serve communities nationwide ΓÇö not just one local market.',
-    span: 'small',
-  },
-];
-
-const VALUES = [
-  {
-    num: '01',
-    title: 'Access as Foundation',
-    desc: 'Fair access to opportunity. We work with community organizations, public partners, and employers so more people can reach training and careers.',
-  },
-  {
-    num: '02',
-    title: 'Outcome Focus',
-    desc: 'Every program, partnership, and investment is designed to expand opportunities, strengthen skills, and deliver meaningful life and career outcomes.',
-  },
-  {
-    num: '03',
-    title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches ΓÇö we bring the right people together so members don\'t have to figure it out alone.',
-  },
-];
 
 export default async function WhatWeDoPage() {
+  const t = await getTranslations('marketing.whatWeDo');
   let placementMetrics = {
     placedCount: 0,
     withRetentionNote: 0,

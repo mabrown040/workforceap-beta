@@ -243,20 +243,22 @@ export default async function HowItWorksPage() {
             <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
               <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ maxWidth: 'min(42rem, 100%)' }}>
-                  <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Loaner Laptop Program</h2>
+                  <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('laptopTitle')}</h2>
                   <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
-                    Access to technology shouldn&rsquo;t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.
+                    {t('laptopBody')}
                   </p>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {['Pre-configured with all necessary software', 'Technical support included'].map((item) => (
-                      <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                        {item}
-                      </li>
-                    ))}
                     <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
                       <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                      No upfront program cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', marginLeft: '0.25rem' }}>qualifying members</Link>
+                      {t('laptopItem1')}
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                      {t('laptopItem2')}
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
+                      {t('laptopItem3')}
                     </li>
                   </ul>
                 </div>
@@ -270,22 +272,24 @@ export default async function HowItWorksPage() {
                   <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '2rem', '--ms-fill': 1 }}>calendar_today</span>
                   </div>
-                  <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>150-Day Post-Hire Support</h2>
+                  <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>{t('support150Title')}</h2>
                   <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
-                    We don&rsquo;t just find you a job; we help you keep it. Our support continues for five months after your start date.
+                    {t('support150Body')}
                   </p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  {[
-                    { label: 'Benefit 01', text: 'Monthly Check-ins' },
-                    { label: 'Benefit 02', text: 'Conflict Resolution' },
-                    { label: 'Benefit 03', text: 'Advancement Coaching' },
-                  ].map((b) => (
-                    <div key={b.label} style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{b.label}</p>
-                      <p style={{ fontWeight: 500 }}>{b.text}</p>
-                    </div>
-                  ))}
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit01Label')}</p>
+                    <p style={{ fontWeight: 500 }}>{t('benefit01Text')}</p>
+                  </div>
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit02Label')}</p>
+                    <p style={{ fontWeight: 500 }}>{t('benefit02Text')}</p>
+                  </div>
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit03Label')}</p>
+                    <p style={{ fontWeight: 500 }}>{t('benefit03Text')}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -293,24 +297,44 @@ export default async function HowItWorksPage() {
             {/* Career Training Benefits */}
             <div style={{ gridColumn: 'span 12' }}>
               <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
-                <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>Career Training Benefits</h2>
+                <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>{t('trainingTitle')}</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
-                  {[
-                    { icon: 'school', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
-                    { icon: 'groups', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
-                    { icon: 'work', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
-                    { icon: 'psychology', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
-                  ].map((b) => (
-                    <div key={b.title} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>{b.icon}</span>
-                        </div>
-                        <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{b.title}</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>school</span>
                       </div>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{b.desc}</p>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training1Title')}</h4>
                     </div>
-                  ))}
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training1Desc')}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>groups</span>
+                      </div>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training2Title')}</h4>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training2Desc')}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>work</span>
+                      </div>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training3Title')}</h4>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training3Desc')}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>psychology</span>
+                      </div>
+                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training4Title')}</h4>
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training4Desc')}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -337,10 +361,10 @@ export default async function HowItWorksPage() {
           overflow: 'hidden',
         }}>
           <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
-            Ready to take the first step?
+            {t('ctaTitle')}
           </h2>
           <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            The application takes about ten minutes. It&rsquo;s a conversation, not an exam — and there&rsquo;s no application fee.
+            {t('ctaBody')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
             <Link
@@ -355,7 +379,7 @@ export default async function HowItWorksPage() {
                 textDecoration: 'none',
               }}
             >
-              Apply For Next Cohort
+              {t('ctaApply')}
             </Link>
             <Link
               href="/contact"
@@ -369,7 +393,7 @@ export default async function HowItWorksPage() {
                 textDecoration: 'none',
               }}
             >
-              Speak with an Advisor
+              {t('ctaContact')}
             </Link>
           </div>
         </div>

@@ -12,6 +12,8 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
+import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 
 type Props = {
   params: Promise<{ memberId: string }>;
@@ -104,6 +106,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesDone = (member.coursesCompleted as string[] | null) ?? [];
   const progressPct = memberProgramProgressPct(member.enrolledProgram, member.coursesCompleted);
+  const skillsetProgress = await loadMemberSkillsetProgress(memberId);
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
   const placed = !!member.placementRecord;
@@ -293,6 +296,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                     </li>
                   ))}
                 </ul>
+                <SkillsetProgressList rows={skillsetProgress} variant="compact" />
               </section>
             ) : null}
 

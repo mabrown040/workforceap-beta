@@ -27,6 +27,8 @@ import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import PointsWidget from '@/components/portal/PointsWidget';
 import AwardPointsButton from '@/components/portal/AwardPointsButton';
 import { getMemberPoints } from '@/lib/member/points';
+import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
+import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -152,6 +154,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   const progressPct = programCourses.length > 0
     ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
     : 0;
+  const skillsetProgress = await loadMemberSkillsetProgress(member.id);
 
   type PitchOutcome = 'interview' | 'no_response' | 'pending' | 'other';
   type PitchMeta = { employer: string; usedAt: string; outcome: PitchOutcome };
@@ -359,6 +362,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     </div>
                   );
                 })}
+                <SkillsetProgressList rows={skillsetProgress} variant="compact" />
               </>
             )}
           </div>

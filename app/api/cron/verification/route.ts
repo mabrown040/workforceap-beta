@@ -54,7 +54,9 @@ async function handle(_request: Request) {
     const ageHours = (now.getTime() - lastRun.createdAt.getTime()) / (60 * 60 * 1000);
     return ageHours > cron.maxAgeHours;
   });
-  const failures = runs.filter((r: { status: string }) => r.status === 'error');
+  const failures = Array.from(lastRunByWorkflow.values()).filter(
+    (run: { status: string }) => run.status === 'error',
+  );
 
   const runResult = {
     ok: staleOrMissing.length === 0 && failures.length === 0,

@@ -97,12 +97,7 @@ export default async function LeadershipPage() {
                   lineHeight: 1.75,
                 }}
               >
-                Our governance team combines{' '}
-                <strong>decades of workforce development leadership</strong>,{' '}
-                <strong>employer-side tech credibility</strong>,{' '}
-                <strong>military and operations discipline</strong>, and{' '}
-                <strong>deep community roots</strong> — connecting workforce
-                training to real outcomes across the nation.
+                {t('governanceBody')}
               </p>
             </div>
 
@@ -133,7 +128,7 @@ export default async function LeadershipPage() {
                   className="text-label-upper"
                   style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}
                 >
-                  Established 2025
+                  {t('established')}
                 </span>
               </div>
 
@@ -149,10 +144,7 @@ export default async function LeadershipPage() {
                   opacity: 0.85,
                 }}
               >
-                &ldquo;This isn&rsquo;t a generic nonprofit team. These are
-                people who&rsquo;ve run programs at scale, led at Goodwill and
-                Urban League, built systems at IBM and Microsoft, commanded in
-                the Army and at AWS &mdash; and who show up nationwide.&rdquo;
+                &ldquo;{t('quote')}&rdquo;
               </p>
             </div>
           </div>
@@ -162,14 +154,14 @@ export default async function LeadershipPage() {
       <section className="content-section" style={{ background: 'var(--surface-container-low)', paddingTop: '2.5rem', paddingBottom: '2.5rem' }}>
         <div className="container" style={{ maxWidth: 900 }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '0.75rem' }}>
-            Outcomes signal (aggregate)
+            {t('outcomesEyebrow')}
           </span>
           <h2 className="text-display-sm" style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>
-            Placement records in WorkforceAP systems
+            {t('outcomesTitle')}
           </h2>
           <PlacementTrustCallout metrics={placementMetrics} variant="inline" />
           <p style={{ margin: '1rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-            This is not a guarantee of individual outcomes. Programs may be available at no upfront cost for qualifying members through WorkforceAP and partner-backed pathways.
+            {t('outcomesDisclaimer')}
           </p>
         </div>
       </section>

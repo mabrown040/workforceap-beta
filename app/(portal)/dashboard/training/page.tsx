@@ -6,7 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getCourseraReadiness } from '@/lib/coursera/config';
-import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import { getDiscoveredProgram, getProgramBySlug, type ProgramCourse } from '@/lib/content/programs';
 import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 import TrainingDataFlowStrip from '@/components/portal/TrainingDataFlowStrip';
@@ -67,7 +67,7 @@ export default async function TrainingPage() {
   const discovered = getDiscoveredProgram(program);
   const coursesWithIds = program.courses.map((c) => ({
     ...c,
-    courseraCourseId: discovered?.courses.find((dc) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
+    courseraCourseId: discovered?.courses.find((dc: ProgramCourse) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
   }));
 
   const [progressRows, programRollup] = await Promise.all([

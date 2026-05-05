@@ -4,14 +4,15 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('marketing.accessibility');
   return buildPageMetadataAsync({
-  title: 'Accessibility Statement',
-  description:
-    'Read Workforce Advancement Project accessibility commitments and how to request help using the site.',
-  path: '/accessibility',
-});
+    title: t('title'),
+    description: t('description'),
+    path: '/accessibility',
+  });
 }
 
 const sectionStyle: CSSProperties = {
@@ -20,37 +21,38 @@ const sectionStyle: CSSProperties = {
   padding: '0 1.25rem',
 };
 
-export default function AccessibilityPage() {
+export default async function AccessibilityPage() {
+  const t = await getTranslations('marketing.accessibility');
+
   return (
     <div className="inner-page marketing-mobile-pb-for-bottom-nav">
       <section className="content-section">
         <div style={sectionStyle}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-            Accessibility
+            {t('eyebrow')}
           </span>
-          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Accessibility Statement</h1>
+          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>{t('heading')}</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem' }}>
-            Workforce Advancement Project works to make this site easier to use for members, partners, employers, and community supporters.
-            We aim to provide clear content, readable layouts, keyboard-usable navigation, and mobile-friendly access on slow devices and limited connections.
+            {t('intro')}
           </p>
           <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>If you need help using this site</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>{t('helpTitle')}</h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '0.75rem' }}>
-              If you run into a barrier while using WorkforceAP.org, contact us and we will do our best to provide the information or support you need in another format.
+              {t('helpCopy')}
             </p>
             <ul style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, paddingLeft: '1.25rem', margin: 0 }}>
-              <li>Email: <a href="mailto:info@workforceap.org">info@workforceap.org</a></li>
-              <li>Phone: <a href="tel:+15127771808">(512) 777-1808</a></li>
-              <li><Link href="/contact">Contact form</Link></li>
+              <li>{t('helpEmail')} <a href="mailto:info@workforceap.org">info@workforceap.org</a></li>
+              <li>{t('helpPhone')} <a href="tel:+15127771808">(512) 777-1808</a></li>
+              <li><Link href="/contact">{t('helpForm')}</Link></li>
             </ul>
           </div>
           <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>Ongoing improvements</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>{t('improvementsTitle')}</h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '0.75rem' }}>
-              We continue improving content clarity, color contrast, tap targets, and responsive behavior across public and member-facing pages.
+              {t('improvementsCopy1')}
             </p>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, margin: 0 }}>
-              If something is hard to read, navigate, or complete, please tell us. That feedback helps us improve access for the people this work is meant to serve.
+              {t('improvementsCopy2')}
             </p>
           </div>
         </div>

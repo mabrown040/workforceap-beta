@@ -176,19 +176,6 @@ const sPage = {
   } as React.CSSProperties,
 };
 
-const STEPS = [
-  { label: 'Personal Info', icon: 'person' },
-  { label: 'Background', icon: 'work' },
-  { label: 'Program Selection', icon: 'school' },
-];
-
-const NEXT_STEPS = [
-  'Submit your application and tell us what kind of work or training you want.',
-  'A WorkforceAP advisor reviews your information and follows up within 1–2 business days in most cases.',
-  'We talk through fit, eligibility, and the best next step for your situation.',
-  'If needed, we guide you to screening, documentation, interview, or program-readiness steps.',
-  'You get a clearer recommendation for training, support, and job-readiness next steps.',
-];
 
 export default async function ApplyPage({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
@@ -203,25 +190,25 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       <section style={sPage.hero}>
         <div style={sPage.heroLabel}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">assured_workload</span>
-          Member Application
+          {t('heroLabel')}
         </div>
-        <h1 style={sPage.heroHeading}>Start Your Application</h1>
+        <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
         <p style={sPage.heroDesc}>
-          This is your first step toward a WorkforceAP program. Share a little about yourself, pick a program that interests you — or tell us you&rsquo;re not sure yet — and a member advisor will follow up within 1–2 business days to walk you through your options.
-          <strong> Programs are offered at no cost to qualifying members, funded by grants and partnerships.</strong>
-          <span> No prior experience required. We&rsquo;ll help you confirm fit and eligibility for next steps.</span>
+          {t('heroDesc')}
+          <strong> {t('heroDescHighlight')}</strong>
+          <span> {t('heroDescSuffix')}</span>
         </p>
         <div style={sPage.heroFallback}>
-          <p style={sPage.heroFallbackTitle}>Need help getting started?</p>
+          <p style={sPage.heroFallbackTitle}>{t('helpTitle')}</p>
           <p style={sPage.heroFallbackText}>
-            You can still reach us directly. Call a counselor or send a message, and we&rsquo;ll help you start the application manually and explain the funding path, eligibility, and next step before you commit.
+            {t('helpBody')}
           </p>
           <div style={sPage.heroFallbackActions}>
             <Link href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
-              Contact a counselor
+              {t('helpCta1')}
             </Link>
             <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
-              Call (512) 777-1808
+              {t('helpCta2')}
             </a>
           </div>
         </div>
@@ -237,8 +224,12 @@ export default async function ApplyPage({ searchParams }: PageProps) {
               {t('applicationProgress')}
             </h3>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {STEPS.map((step, i) => (
-                <li key={step.label} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) 0', borderBottom: i < STEPS.length - 1 ? '1px solid var(--outline-variant)' : 'none' }}>
+              {[
+                { labelKey: 'stepPersonalInfo', icon: 'person' },
+                { labelKey: 'stepBackground', icon: 'work' },
+                { labelKey: 'stepProgramSelection', icon: 'school' },
+              ].map((step, i) => (
+                <li key={step.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) 0', borderBottom: i < 2 ? '1px solid var(--outline-variant)' : 'none' }}>
                   <span style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -256,7 +247,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
                   </span>
                   <div>
                     <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: 'middle', marginRight: 4, color: i === 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)' }} aria-hidden="true">{step.icon}</span>
-                    <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: i === 0 ? 700 : 500, color: i === 0 ? 'var(--color-on-surface)' : 'var(--color-on-surface-variant)' }}>{step.label}</span>
+                    <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: i === 0 ? 700 : 500, color: i === 0 ? 'var(--color-on-surface)' : 'var(--color-on-surface-variant)' }}>{t(step.labelKey as Parameters<typeof t>[0])}</span>
                   </div>
                 </li>
               ))}
@@ -267,12 +258,14 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div style={sPage.infoCard}>
             <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h4>
             <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
-              {NEXT_STEPS.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
+              <li>{t('nextStep1')}</li>
+              <li>{t('nextStep2')}</li>
+              <li>{t('nextStep3')}</li>
+              <li>{t('nextStep4')}</li>
+              <li>{t('nextStep5')}</li>
             </ol>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
-              Questions? Call <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
+              {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
             </p>
           </div>
         </aside>

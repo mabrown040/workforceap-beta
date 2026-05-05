@@ -154,14 +154,14 @@ export default async function LeadershipPage() {
       <section className="content-section" style={{ background: 'var(--surface-container-low)', paddingTop: '2.5rem', paddingBottom: '2.5rem' }}>
         <div className="container" style={{ maxWidth: 900 }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '0.75rem' }}>
-            Outcomes signal (aggregate)
+            {t('outcomesEyebrow')}
           </span>
           <h2 className="text-display-sm" style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>
-            Placement records in WorkforceAP systems
+            {t('outcomesTitle')}
           </h2>
           <PlacementTrustCallout metrics={placementMetrics} variant="inline" />
           <p style={{ margin: '1rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-            This is not a guarantee of individual outcomes. Programs may be available at no upfront cost for qualifying members through WorkforceAP and partner-backed pathways.
+            {t('outcomesDisclaimer')}
           </p>
         </div>
       </section>

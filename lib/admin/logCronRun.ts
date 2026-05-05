@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { Prisma } from '@prisma/client';
 
 export async function logCronRun(
   workflowKey: string,
@@ -11,7 +12,7 @@ export async function logCronRun(
       status,
       method: 'scheduled',
       summary: `Scheduled run: ${JSON.stringify(result).slice(0, 200)}`,
-      metadata: result,
+      metadata: result as Prisma.InputJsonValue,
     },
   }).catch(() => {});
 }

@@ -76,6 +76,12 @@ const TRUST_SIGNALS = [
   },
 ] as const;
 
+const WHILE_YOU_WAIT: readonly string[] = [
+  'Check your inbox (and spam folder) for follow-up instructions.',
+  'Gather any documents you may need for eligibility verification.',
+  'Create your member account so you can track status and messages.',
+];
+
 export default function ApplyConfirmationPage() {
   return (
     <div className="inner-page">

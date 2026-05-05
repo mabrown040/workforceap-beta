@@ -4,7 +4,10 @@
  * Icons are Lucide icon names — rendered by components that import from lucide-react.
  */
 
-import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import {
+  DISCOVERED_COURSERA_PROGRAMS,
+  type CourseraDiscoveredCourse,
+} from '@/lib/content/courseraDiscoveredCatalog';
 
 function slugify(s: string): string {
   return s
@@ -54,7 +57,13 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
   if (brandedSuffix && recognizedCredentialBrands.has(brandedSuffix)) return brandedSuffix;
   if (title.startsWith('CompTIA ')) return 'CompTIA';
 
-  const partners = Array.from(new Set(discovered.courses.map((course) => course.partner).filter(Boolean)));
+  const partners = Array.from(
+    new Set(
+      discovered.courses
+        .map((course: CourseraDiscoveredCourse) => course.partner)
+        .filter((p): p is string => Boolean(p))
+    )
+  );
   if (partners.length === 1) return partners[0] ?? null;
 
   return 'Coursera partners';
@@ -102,7 +111,7 @@ function mkProgram(
   const canonicalCategoryColor = PROGRAM_CATEGORY_COLORS[category] ?? categoryColor;
   const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
   const courses: ProgramCourse[] = discoveredCourses?.length
-    ? discoveredCourses.map((course) => ({
+    ? discoveredCourses.map((course: CourseraDiscoveredCourse) => ({
         slug: course.slug,
         name: course.name,
         estimatedHours: course.estimatedHours ?? defaultHours,

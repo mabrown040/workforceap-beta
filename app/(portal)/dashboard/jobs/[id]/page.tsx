@@ -7,8 +7,8 @@ import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
 import JobApplyButton from './JobApplyButton';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -49,6 +49,7 @@ export default async function JobDetailPage({ params }: Props) {
   const job = await getJob(id);
   if (!job) notFound();
 
+  const employerLogoUrl = resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl);
   const salaryLine = formatJobSalaryRange(job.salaryMin, job.salaryMax);
 
   const LOCATION_LABELS: Record<string, string> = {
@@ -76,11 +77,11 @@ export default async function JobDetailPage({ params }: Props) {
         title={job.title}
         subtitle={`${job.employer.companyName} · ${job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType} · ${JOB_TYPE_LABELS[job.jobType] ?? job.jobType}`}
       >
-        {job.employer.logoUrl ? (
+        {employerLogoUrl ? (
           <div style={{ marginTop: '0.75rem' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={job.employer.logoUrl}
+              src={employerLogoUrl}
               alt=""
               width={72}
               height={72}
@@ -122,8 +123,6 @@ export default async function JobDetailPage({ params }: Props) {
           <JobApplyButton jobId={job.id} authenticated={!!user} />
         </div>
       </section>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

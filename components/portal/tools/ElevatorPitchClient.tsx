@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDraftAutosave } from '@/hooks/useDraftAutosave';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
+import ToolFollowThrough from './ToolFollowThrough';
 
 type Step = 'form' | 'pitch' | 'rehearse';
 
@@ -216,6 +217,8 @@ export default function ElevatorPitchClient() {
           </button>
           {recordingError && <p style={{ color: 'var(--color-accent)', fontSize: '0.875rem', margin: 0 }}>{recordingError}</p>}
         </div>
+
+        <ToolFollowThrough toolType="elevator_pitch" output={pitch} />
       </div>
     );
   }

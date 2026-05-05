@@ -4,18 +4,13 @@ import { sendPartnerWeeklyDigestEmail } from '@/lib/email';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
  * Protected with CRON_SECRET. Vercel schedule: Monday 8am CT (see vercel.json).
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+async function handle(_request: Request) {
   const now = new Date();
   const weekStart = new Date(now);
   weekStart.setDate(weekStart.getDate() - 7);
@@ -134,7 +129,12 @@ export async function GET(request: Request) {
   }
 
   const sent = results.filter(r => r.emailSent).length;
-  const runResult = { ok: true, checkedAt: now.toISOString(), sent, total: results.length };
-  await logCronRun('cron_partner_digest', runResult, sent === 0 && results.length > 0 ? 'error' : 'ok');
-  return NextResponse.json({ ok: true, checkedAt: now.toISOString(), results });
+  const skipped = results.filter(r => r.error === 'no_contact_email').length;
+  const failed = results.filter(r => r.error && r.error !== 'no_contact_email').length;
+  const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length };
+  await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');
+  return NextResponse.json({ ok: failed === 0, checkedAt: now.toISOString(), results });
 }
+
+export const GET = withCronLogging('cron_partner_digest', handle);
+export const POST = withCronLogging('cron_partner_digest', handle);

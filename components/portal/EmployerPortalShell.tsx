@@ -35,7 +35,7 @@ export default function EmployerPortalShell({
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}
       portalRoles={portalRoles}
-      superAdminBackHref={superAdmin ? '/admin/employers' : undefined}
+      superAdminBackHref={superAdmin ? '/employer' : undefined}
       superAdminBackLabel="Switch company"
       footer={<DashboardFooter />}
     >

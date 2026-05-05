@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
+import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
 
 /**
  * Log an external job application — Member Apply Loop.
@@ -119,10 +120,17 @@ export async function POST(req: NextRequest) {
       console.error('[apply-loop:log-external] counselor notify failed', notifyErr);
     }
 
+    const recentTools = await findRecentAiToolsForApplicationFeedback(prisma, user.id);
+    const promptAiFeedback = recentTools.length > 0;
+
     return NextResponse.json({
       ok: true,
       applicationId: application.id,
       appliedAt: application.appliedAt,
+      promptAiFeedback,
+      recentTools: promptAiFeedback
+        ? recentTools.map((t) => ({ id: t.id, label: t.label, createdAt: t.createdAt.toISOString() }))
+        : [],
     });
   } catch (error) {
     captureApiError(error, { route: 'POST /api/member/job-applications/log-external' });

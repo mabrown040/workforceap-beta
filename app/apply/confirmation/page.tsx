@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 import ShareButtons from '@/components/apply/ShareButtons';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -94,7 +95,7 @@ export default function ApplyConfirmationPage() {
                   width: '5.5rem',
                   height: '5.5rem',
                   borderRadius: '9999px',
-                  background: 'linear-gradient(135deg, #8c0f37, #ad2c4d)',
+                  background: 'linear-gradient(135deg, #8B0000, #C41E3A)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -122,7 +123,22 @@ export default function ApplyConfirmationPage() {
               </div>
             </div>
 
-            <Suspense fallback={<div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading next steps...</div>}>
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  style={{
+                    display: 'grid',
+                    gap: '0.75rem',
+                    padding: '1rem 0',
+                  }}
+                >
+                  <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.55 }} />
+                  <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.35 }} />
+                  <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>Loading next steps…</span>
+                </div>
+              }
+            >
               <ApplyConfirmationCta />
             </Suspense>
 
@@ -164,12 +180,21 @@ export default function ApplyConfirmationPage() {
               </div>
             </section>
 
+            <div style={{ marginBottom: '1.5rem' }}>
+              <ProgramCommitmentPanel variant="compact" />
+            </div>
+
             <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--surface-container)', borderRadius: '0.875rem', padding: '1.25rem' }}>
-                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>What to do while you wait</h2>
-                <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-                  {WHILE_YOU_WAIT.map((item) => (
-                    <li key={item} style={{ marginBottom: '0.5rem' }}>{item}</li>
+                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>What you can do now</h2>
+                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+                  {WHAT_YOU_CAN_DO_NOW.map((item) => (
+                    <li key={item.label} style={{ marginBottom: '0.75rem' }}>
+                      <Link href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                        {item.label}
+                      </Link>
+                      <span style={{ display: 'block', marginTop: '0.25rem', fontSize: '0.9375rem' }}>{item.desc}</span>
+                    </li>
                   ))}
                 </ul>
               </div>

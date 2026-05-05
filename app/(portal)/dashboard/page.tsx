@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+﻿import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -15,20 +15,28 @@ import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
+import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { buildNextBestActions } from '@/lib/member/nextBestActions';
+import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
+import {
+  isTrainingStaleForCounselorEscalation,
+  loadMemberProgramTrainingView,
+} from '@/lib/member/memberProgramTrainingView';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
@@ -82,6 +90,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       preScreeningResponse: { select: { id: true } },
       onboardingCompletedAt: true,
       tourCompletedAt: true,
+      assessmentCompletedAt: true,
       fullName: true,
       phone: true,
       programInterest: true,
@@ -99,7 +108,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           isMinor: true,
         },
       },
-      courseEnrollment: { select: { enrolledByAdminId: true } },
+      courseEnrollment: { select: { enrolledByAdminId: true, id: true } },
+      placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
     },
   });
   const profilePromise = prisma.profile.findUnique({
@@ -169,7 +179,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 2,
     }),
     prisma.jobApplication.findMany({
-      where: { userId: user.id, status: 'OFFER' },
+      where: { userId: user.id, status: { in: ['OFFER', 'ACCEPTED'] } },
     }),
     getMemberPoints(user.id),
     prisma.pointsTransaction.findMany({
@@ -178,7 +188,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 4,
       select: { id: true, event: true, points: true, note: true, createdAt: true },
     }),
-    // In-office session events — see lib/auth/actAsSubject.ts. Pulls every
+    // In-office session events ΓÇö see lib/auth/actAsSubject.ts. Pulls every
     // ai_tool_run_completed event in the last 30 days where a counselor or
     // admin acted on behalf of this member, so the dashboard can render a
     // "Your session with {actor} on {date}" card.
@@ -261,6 +271,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const latestSession =
     [...sessionMap.values()].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0] ?? null;
 
+  const latestTool = recentTools[0] ?? null;
+  const latestToolFollowThrough = latestTool
+    ? getAIToolFollowThrough({
+        toolType: latestTool.toolType,
+        inputSummary: latestTool.inputSummary,
+      })
+    : null;
+
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
     intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
@@ -298,11 +316,45 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const totalCourses = program?.courses.length ?? 0;
-  const completedCount = program
-    ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length
-    : 0;
-  const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
+  const trainingView =
+    enrolledProgram && program
+      ? await loadMemberProgramTrainingView({
+          userId: user.id,
+          programSlug: enrolledProgram,
+          coursesCompletedJson: dbUser.coursesCompleted,
+        })
+      : null;
+
+  const completedCount =
+    trainingView?.completedCount ??
+    (program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0);
+  const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
+  const allCoursesComplete =
+    trainingView?.allCoursesComplete ??
+    (totalCourses > 0 && completedCount >= totalCourses);
+  const progressPercentDisplay =
+    trainingView?.progressPercentDisplay ??
+    (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
+
+  let trainingEligibleSince: Date | null = null;
+  if (enrolledProgram && assessmentCompleted) {
+    const enrolledMs = dbUser.enrolledAt?.getTime() ?? 0;
+    const assessMs = intakeExtra?.assessmentCompletedAt?.getTime() ?? 0;
+    const mx = Math.max(enrolledMs, assessMs);
+    trainingEligibleSince = mx > 0 ? new Date(mx) : null;
+  }
+
+  const hasPlacementRecord = !!intakeExtra?.placementRecord?.placedAt;
+
+  const progressStripProps = {
+    intake:
+      intakeExtra?.onboardingCompletedAt != null ||
+      intakeExtra?.preScreeningResponse != null,
+    assessment: assessmentCompleted,
+    trainingStarted: coursesCompleted.length > 0,
+    certsComplete: allCoursesComplete,
+    employed: hasPlacementRecord,
+  };
 
   const dashboardState: 'A' | 'B' | 'C' | 'D' = !enrolledProgram
     ? 'A'
@@ -311,6 +363,16 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       : allCoursesComplete
         ? 'D'
         : 'C';
+
+  const showStuckCounselor =
+    dashboardState === 'C' &&
+    trainingView != null &&
+    isTrainingStaleForCounselorEscalation({
+      trainingView,
+      trainingEligibleSince,
+      allCoursesComplete,
+      dashboardInTraining: true,
+    });
 
   const completenessUser = {
     fullName: dbUser.fullName,
@@ -346,6 +408,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     jobApplicationCount: engagementSignals.jobApplicationCount,
     counselorUnreadCount: engagementSignals.counselorUnreadCount,
     weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
+    courseEnrollmentActive: intakeExtra ? !!intakeExtra.courseEnrollment?.id : undefined,
+    placementPlacedAt: intakeExtra?.placementRecord?.placedAt ?? null,
+    placementRetentionDecision: intakeExtra?.placementRecord?.retentionDecision ?? null,
+    trainingCoursesIncomplete: !!(trainingView && !trainingView.allCoursesComplete && trainingView.totalCourses > 0),
+    nextIncompleteCourseName: trainingView?.nextIncompleteCourseName ?? null,
   });
 
   for (const dbAction of dynamicNextActions.reverse()) {
@@ -360,16 +427,19 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     });
   }
   nextBestActions = nextBestActions.slice(0, 4);
+  const dominantNextAction = nextBestActions[0] ?? null;
+  const mobileStripActions =
+    dominantNextAction && nextBestActions[0]?.id === dominantNextAction.id
+      ? nextBestActions.slice(1)
+      : nextBestActions;
 
   const checklist = {
     createAccount: true,
     chooseProgram: !!enrolledProgram,
     completeAssessment: assessmentCompleted,
-    // Audit #8: previously checked "training unlocked" (program enrolled +
-    // assessment done), so "Start training ✓" appeared while 0/16 courses
-    // were complete. Now ties to actual course completion progress.
-    startFirstCourse: completedCount >= 1,
-    completeFirstCourse: completedCount >= 1,
+    // Milestones follow `CourseProgress` / xAPI when present, fall back to raw count.
+    startFirstCourse: trainingView ? trainingView.hasStartedTraining : completedCount >= 1,
+    completeFirstCourse: trainingView ? trainingView.hasCompletedFirstCourse : completedCount >= 1,
   };
   const checklistAllDone = Object.values(checklist).every(Boolean);
 
@@ -383,9 +453,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   recentActivity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   const lastThree = recentActivity.slice(0, 3);
 
-  const nextIncompleteCourse = program
-    ? program.courses.find((c) => !coursesCompleted.includes(c.slug))
-    : null;
+  const nextIncompleteCourse =
+    program && trainingView?.nextIncompleteCourseSlug
+      ? program.courses.find((c) => c.slug === trainingView.nextIncompleteCourseSlug) ?? null
+      : program
+        ? program.courses.find((c) => !coursesCompleted.includes(c.slug)) ?? null
+        : null;
 
   const recommendedActions = careerBrief.recommendedActions;
   const jobSearchUrl = careerBrief.jobSearchUrl;
@@ -398,8 +471,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     console.error('[dashboard] isSuperAdmin failed', e);
   }
 
-  /* Mobile progress percentage for orb */
-  const mobilePct = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
+  /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
+  const mobilePct = progressPercentDisplay;
   const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
   const mobileProgressSummary = totalCourses > 0
     ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
@@ -408,7 +481,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
   const AI_TOOL_LABELS: Record<string, string> = {
-    job_match_scorer: 'Job Match Scorer',
+    job_match_scorer: 'See how you match a job',
     resume_analysis: 'Resume Analysis',
     resume_rewriter: 'Resume Rewriter',
     cover_letter: 'Cover Letter',
@@ -416,7 +489,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     linkedin_headline: 'LinkedIn Headline',
     linkedin_about: 'LinkedIn About',
     salary_negotiation: 'Salary Negotiation',
-    gap_analyzer: 'Gap Analyzer',
+    gap_analyzer: 'See what is missing for a job',
     interview_coach: 'AI Interview Coach',
     career_counselor: 'Career Counselor',
   };
@@ -428,7 +501,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
 
-  /* Journey timeline — complete / active (next) / locked (future) */
+  /* Journey timeline ΓÇö complete / active (next) / locked (future) */
   const journeySteps = [
     {
       label: 'Program selected',
@@ -494,11 +567,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   return (
     <>
-      <h1 className="wa-sr-only">Welcome back, {firstName}</h1>
+      <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
 
-      {/* ── Recent in-office session card — shown to both mobile + desktop
+      {/* ΓöÇΓöÇ Recent in-office session card — shown to both mobile + desktop
           when a counselor or admin ran tools on the member's behalf in the
-          last 30 days. See lib/auth/actAsSubject.ts. ── */}
+          last 30 days. See lib/auth/actAsSubject.ts. ΓöÇΓöÇ */}
       {latestSession ? (
         <MemberSessionCard
           actorName={latestSession.actorName}
@@ -507,10 +580,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         />
       ) : null}
 
-      {/* ── Mobile-only dashboard (≤767px) ── */}
+      {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">
 
-        {/* ── Hero: greeting + progress ring ── */}
+        {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
         <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
           <div
             style={{
@@ -545,10 +618,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </div>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-                    Member dashboard
+                    {noApplicationOnFile ? 'WorkforceAP' : 'Member dashboard'}
                   </p>
                   <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    Welcome back, {firstName}
+                    {noApplicationOnFile ? `Welcome, ${firstName}` : `Welcome back, ${firstName}`}
                   </h2>
                 </div>
                 {program && (
@@ -560,8 +633,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 )}
               </div>
 
-              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
-              {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+              {/* Progress ring — only shown once training has actually started (state C/D); 0% next to "Getting started" reads as failure */}
+              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
                 <div
                   className="portal-progress-ring"
                   style={{
@@ -609,17 +682,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>}
             </div>
 
-            {dashboardState !== 'A' && (
+            {(dashboardState === 'C' || dashboardState === 'D') && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                Training progress is based on completed courses. Your application steps are shown below.
+                Training progress blends Coursera activity (xAPI) with courses you mark complete. Application steps are below.
               </p>
             </div>
             )}
           </div>
         </section>
 
-        {/* ── State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ── */}
+        {/* ΓöÇΓöÇ State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ΓöÇΓöÇ */}
         {dashboardState === 'A' && (
           <section style={{ padding: '0 1.25rem 1.25rem' }}>
             <Link
@@ -655,19 +728,34 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberDashboardVoiceSectionLazy />
-        </section>
-
-        {dashboardState !== 'A' && nextBestActions.length > 0 && (
-          <section style={{ padding: '0 1.25rem 1rem' }}>
-            <MemberNextStepsStrip actions={nextBestActions} compact fillRow />
+        {showStuckCounselor && (
+          <section style={{ padding: '0 1.25rem 0.75rem' }}>
+            <MemberStuckCounselorStrip />
           </section>
         )}
 
-        {/* ── Priority next-step card ── */}
+        {dashboardState !== 'A' && dominantNextAction ? (
+          <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
+        ) : null}
+
+        <section style={{ padding: '0 1.5rem 1.25rem' }}>
+          <MemberDashboardVoiceSectionLazy />
+        </section>
+        {(dashboardState === 'C' || dashboardState === 'D') && (
+          <section style={{ padding: '0 1.5rem 1.25rem' }}>
+            <MemberProgressStrip {...progressStripProps} />
+          </section>
+        )}
+
+        {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
+          <section style={{ padding: '0 1.25rem 1rem' }}>
+            <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
+          </section>
+        )}
+
+        {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
         <PlacementConfirmationStrip offers={jobOffers} />
-        {applicationStatus?.nextStep && (
+        {!dominantNextAction && applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -694,52 +782,64 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* ── Career path ── */}
+        {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
         <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
           <LogCertificationModal />
         </div>
 
-        {/* ── Application journey timeline ── */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Application Journey</h3>
-          </div>
-          <div className="portal-journey-timeline">
-            {journeySteps.map((step, i) => {
-              const locked = 'locked' in step && step.locked;
-              return (
-                <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
-                  <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
-                    {step.done && (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
-                    )}
-                    {step.active && !step.done && <div className="portal-dot-pulse" />}
+        {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
+          <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
+            <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              Application journey
+            </summary>
+            <div className="portal-journey-timeline" style={{ marginTop: '1rem' }}>
+              {journeySteps.map((step, i) => {
+                const locked = 'locked' in step && step.locked;
+                return (
+                  <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
+                    <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
+                      {step.done && (
+                        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
+                      )}
+                      {step.active && !step.done && <div className="portal-dot-pulse" />}
+                    </div>
+                    <div className="portal-journey-step__content">
+                      <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
+                        {step.label}
+                      </p>
+                      {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
+                    </div>
                   </div>
-                  <div className="portal-journey-step__content">
-                    <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
-                      {step.label}
-                    </p>
-                    {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </details>
         </section>
 
-        {/* ── Points widget ── */}
-        {memberPoints && memberPoints.total > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+        {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+          {memberPoints && memberPoints.total > 0 ? (
             <PointsWidget
               total={memberPoints.total}
               level={memberPoints.level}
               recent={recentTx}
             />
-          </section>
-        )}
+          ) : (
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Your first points are waiting.</p>
+              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+                Earn points by uploading a resume, completing training steps, and using career tools. Start with one small action.
+              </p>
+              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Upload or improve your resume
+              </Link>
+            </div>
+          )}
+        </section>
 
-        {/* Recommended programs (only when not enrolled) OR “keep going” actions (when enrolled) */}
+        {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
           <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
@@ -835,7 +935,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </section>
         )}
 
-        {/* ── Quick Actions 2x2 ── */}
+        {/* ΓöÇΓöÇ Quick Actions 2x2 ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-dash-section-header__title">Quick Actions</h3>
@@ -857,13 +957,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
-        {/* ── Recent AI Activity — mobile ── */}
-        {recentTools.length > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
-            <div className="portal-dash-section-header">
-              <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
-              <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
-            </div>
+        {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
+          <div className="portal-dash-section-header">
+            <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
+            {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>}
+          </div>
+          {recentTools.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {recentTools.map((r) => (
                 <div key={r.id} className="portal-activity-item">
@@ -886,11 +986,21 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>You have not used a career tool yet.</p>
+              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+                Try one short tool today. The resume tool is a good first step and only takes a few minutes.
+              </p>
+              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Try the resume tool
+              </Link>
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* ── Desktop view (hidden on mobile) ── */}
+      {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}
       <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
           <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
@@ -915,7 +1025,19 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
               </div>
+              <div
+                style={{
+                  maxWidth: 1200,
+                  margin: '0 auto',
+                  padding: '0 2rem 1.25rem',
+                }}
+              >
+                <MemberProgressStrip {...progressStripProps} />
+              </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <ProgramCommitmentPanel variant="compact" />
+                </div>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
                   <div style={{ maxWidth: '300px' }}>
@@ -934,6 +1056,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   jobSearchUrl={jobSearchUrl}
                   aiToolsUsedCount={recentTools.length}
                   firstName={firstName}
+                  dominantNextAction={dominantNextAction}
+                  showStuckCounselorStrip={showStuckCounselor}
+                  blendedTrainingProgressPct={progressPercentDisplay}
                   nextBestActions={nextBestActions}
                   assessmentDone={assessmentCompleted}
                   preScreeningDone={!!intakeExtra?.preScreeningResponse}
@@ -964,7 +1089,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <MatchedRoles />
                 </Suspense>
               )}
-              {/* Recent AI Activity is rendered in the mobile view above —
+              {/* Recent AI Activity is rendered in the mobile view above ΓÇö
                   suppressed here so the same data doesn't appear twice in the DOM
                   on wider viewports. DashboardHomeClient surfaces activity inline. */}
             </PortalEntryClient>
@@ -972,8 +1097,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </PortalEntryErrorBoundary>
       </div>
 
-      {/* Bottom nav — mobile only */}
-      <MobileBottomNav variant="portal" />
-    </>
+      {/* Bottom nav ΓÇö mobile only */}    </>
   );
 }

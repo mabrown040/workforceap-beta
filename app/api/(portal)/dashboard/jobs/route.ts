@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
+import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
@@ -102,9 +103,17 @@ export async function GET(request: NextRequest) {
         employer: { select: { companyName: true, logoUrl: true } },
       },
     });
-    const visible = jobs.filter(
-      (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
-    );
+    const visible = jobs
+      .filter(
+        (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+      )
+      .map((job) => ({
+        ...job,
+        employer: {
+          ...job.employer,
+          logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+        },
+      }));
     return NextResponse.json(visible);
   } catch (err) {
     captureApiError(err, { route: 'GET /api/jobs' });

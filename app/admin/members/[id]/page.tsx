@@ -20,6 +20,7 @@ import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounse
 import AdminMemberCounselorAssign from '@/components/admin/AdminMemberCounselorAssign';
 import AdminMemberPlacedOutcomeForm from '@/components/admin/AdminMemberPlacedOutcomeForm';
 import AdminMemberEnrollmentFundingForm from '@/components/admin/AdminMemberEnrollmentFundingForm';
+import AdminMemberWorkspaceEmail from '@/components/admin/AdminMemberWorkspaceEmail';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
@@ -29,6 +30,8 @@ import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
+import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import { parseCourseSlugList as parseAdminCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import '@/css/counselor.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -170,6 +173,12 @@ export default async function AdminMemberDetailPage({
         workspaceEmailProvisioned: true,
       },
     }).catch(() => null),
+    prisma.memberEvent.findMany({
+      where: { userId: id, eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+      select: { metadata: true, createdAt: true },
+    }).catch(() => []),
   ] as const;
 
   let member: any;
@@ -181,9 +190,10 @@ export default async function AdminMemberDetailPage({
   let activeCounselorAssign: any;
   let placedOutcomeRow: any;
   let courseEnrollment: any;
+  let pendingPlacementEvents: any;
 
   try {
-    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
+    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
       await Promise.all([
         prisma.user.findUnique({ where: { id }, select: fullMemberSelect }),
         ...sharedQueries(),
@@ -199,7 +209,7 @@ export default async function AdminMemberDetailPage({
 
     console.error('[admin/member-detail] falling back after optional data query failed', error);
 
-    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment] =
+    [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
       await Promise.all([
         prisma.user.findUnique({ where: { id }, select: fallbackMemberSelect }),
         ...sharedQueries(),
@@ -256,6 +266,20 @@ export default async function AdminMemberDetailPage({
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
+
+  // Progress strip props for admin view
+  const adminCoursesCompleted = parseAdminCourseSlugList(member.coursesCompleted);
+  const adminAllCoursesComplete =
+    program != null &&
+    program.courses.length > 0 &&
+    program.courses.every((c) => adminCoursesCompleted.includes(c.slug));
+  const adminProgressStripProps = {
+    intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
+    assessment: !!member.assessmentCompleted,
+    trainingStarted: adminCoursesCompleted.length > 0,
+    certsComplete: adminAllCoursesComplete,
+    employed: !!placedOutcomeRow,
+  };
   const chatThread = await getOrCreateMemberCounselorThread(member.id);
   const chatMsgs = await prisma.message.findMany({
     where: { threadId: chatThread.id },
@@ -313,6 +337,11 @@ export default async function AdminMemberDetailPage({
         }
       />
 
+      {/* ── Member journey progress strip ── */}
+      <div style={{ maxWidth: '800px', marginBottom: '1.5rem' }}>
+        <MemberProgressStrip {...adminProgressStripProps} />
+      </div>
+
       <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '800px' }}>
         {/* Admin DB actions — password reset, profile edit */}
         <section className="portal-profile-section-card">
@@ -349,6 +378,37 @@ export default async function AdminMemberDetailPage({
           </p>
           <p><strong>LinkedIn:</strong> {member.profile?.profileLinkedin ? <a href={member.profile.profileLinkedin} target="_blank" rel="noopener noreferrer">{member.profile.profileLinkedin}</a> : '—'}</p>
           <p><strong>Bio:</strong> {member.profile?.profileBio ?? '—'}</p>
+          <p>
+            <strong>Employment status at enrollment:</strong>{' '}
+            {member.profile?.employmentStatusAtEnroll
+              ? (member.profile.employmentStatusAtEnroll as string).replace(/_/g, ' ')
+              : '—'}
+          </p>
+          {member.profile?.hasEmploymentBarrier && member.profile.barrierTypes && (member.profile.barrierTypes as string[]).length > 0 && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <strong>Employment barriers:</strong>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.375rem' }}>
+                {(member.profile.barrierTypes as string[]).map((bt: string) => (
+                  <span
+                    key={bt}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      padding: '0.15rem 0.5rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
+                      color: '#92400e',
+                      border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                    }}
+                  >
+                    {bt.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {wioaSnap && (
@@ -479,6 +539,31 @@ export default async function AdminMemberDetailPage({
 
         <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
           <h2 className="portal-section-heading">Placement record</h2>
+          {pendingPlacementEvents && pendingPlacementEvents.length > 0 && !placedOutcomeRow && (
+            <div
+              style={{
+                marginBottom: '1rem',
+                padding: '0.875rem 1rem',
+                background: 'rgba(255,193,7,0.08)',
+                border: '1px solid rgba(255,193,7,0.2)',
+                borderRadius: '0.75rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)' }}>pending</span>
+                <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Pending member-reported placement</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                This member self-reported accepting a job offer on{' '}
+                {new Date(pendingPlacementEvents[0].createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+                . Review and verify to create an official placement record.
+              </p>
+            </div>
+          )}
           <AdminMemberPlacedOutcomeForm
             memberId={member.id}
             initial={
@@ -498,6 +583,15 @@ export default async function AdminMemberDetailPage({
                   }
                 : null
             }
+          />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>Workspace email</h2>
+          <AdminMemberWorkspaceEmail
+            memberId={member.id}
+            workspaceEmail={member.workspaceEmail ?? null}
+            workspaceEmailProvisioned={!!member.workspaceEmailProvisioned}
           />
         </section>
 

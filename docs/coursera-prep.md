@@ -50,3 +50,124 @@ COURSERA_PROGRAM_ID_MAP={"it-support-professional-certificate-ibm":"abc123"}
 - WAP now supports either a pre-minted bearer token or Coursera OAuth app key/secret exchange.
 - Webhook completion handling supports either `courseSlug` or exact `courseName` matching against the member's enrolled program.
 - The launch route falls back to public Coursera until launch credentials are configured.
+
+## CSV import (backfill + ongoing redundancy)
+
+The xAPI bridge handles realtime course progress, but xAPI cannot backfill events that
+fired before the credential fix. The Coursera "Learner activity & progress" export gives
+us a per-learner-per-course snapshot that fills that gap and acts as redundancy if xAPI
+ever drops events.
+
+### Where to download the CSV
+
+Coursera admin console → **Analytics → Reports → Learner activity & progress** →
+**Customise & Generate**. The download is a ZIP with six CSVs; the importer
+consumes two of them:
+
+- `CourseActivity workforce-advancement - CourseraEnterpriseExport ... .csv` —
+  per-learner-per-course progress. Backs the `coursera_course_progress` table.
+- `LearningPathActivity workforce-advancement - CourseraEnterpriseExport ... .csv` —
+  per-learner-per-badge progress (a.k.a. specializations). Backs the
+  `coursera_badge_progress` table.
+- `ProgramActivity ...` — supplementary program-level rollup. Not used.
+- `ActivityByBusinessUnit`, `ActivityByCountry`, `ActivityByCity` — aggregate-only
+  and ignored.
+
+### Schedule daily delivery
+
+From the same Customise & Generate screen, schedule daily email delivery to
+`michael.brown2@workforceap.org` so the latest export is always one inbox-search away.
+
+### Importing
+
+1. Sign in as an admin and visit `/admin/coursera/csv-import`.
+2. Upload either the `CourseActivity ... .csv` or
+   `LearningPathActivity ... .csv` file (5 MB cap). The importer auto-detects
+   which kind you uploaded by inspecting the header row.
+3. For **CourseActivity** the importer parses the file, upserts each row into
+   `coursera_course_progress` keyed on `(lower(email), coursera_course_id)`,
+   and resolves the `user_id` via:
+   - Direct match on `lower(users.email)` first.
+   - Falls back to the existing `coursera_identity_mappings` table.
+4. For **LearningPathActivity** the importer parses the file, groups rows by
+   `(lower(email), badge_slug)` (the source CSV emits one row per
+   course-within-badge), and upserts one record per learner+badge into
+   `coursera_badge_progress`. Per group it counts `coursesCompleted` from rows
+   where `Is Course Completed = "Yes"`, picks `currentCourseName` as the most
+   recently enrolled in-progress course, and takes `MAX(lastActivityTime)`.
+   `user_id` is resolved using the same email-then-mapping ladder as
+   CourseActivity.
+5. The result page shows inserted/updated/resolved/unresolved counts plus a
+   downloadable CSV of unresolved learners.
+
+### Endpoint
+
+`POST /api/admin/coursera/csv-import` — admin-only. Accepts either:
+
+- `multipart/form-data` with a `csv` file field, or
+- `Content-Type: text/csv` with the raw CSV body.
+
+Returns JSON. The shape varies slightly by `kind`:
+
+```json
+{
+  "ok": true,
+  "kind": "course-activity",
+  "filename": "CourseActivity ... .csv",
+  "parsed": 3,
+  "inserted": 3,
+  "updated": 0,
+  "resolvedToUsers": 2,
+  "unresolved": 1,
+  "errors": [],
+  "unresolvedRows": [{ "email": "...", "name": "...", "courseId": "...", "course": "..." }]
+}
+```
+
+```json
+{
+  "ok": true,
+  "kind": "learning-path-activity",
+  "filename": "LearningPathActivity ... .csv",
+  "parsed": 3,
+  "inserted": 3,
+  "updated": 0,
+  "resolvedToUsers": 2,
+  "unresolved": 1,
+  "errors": [],
+  "unresolvedRows": [{ "email": "...", "name": "...", "badgeSlug": "...", "badgeTitle": "..." }]
+}
+```
+
+The endpoint is idempotent — re-uploading the same CSV updates rows in place.
+
+## Coursera-only learner mapping
+
+When a learner shows up on Coursera with an email we don't have in the `users`
+table (common before WIOA enrollment is complete or when the learner used a
+different email at signup), the importer still records their progress with a
+`null` `user_id`. The admin page at `/admin/coursera` surfaces these in a
+dedicated **"Coursera-only learners (unmatched)"** section that lists distinct
+external emails from both `coursera_course_progress` and
+`coursera_badge_progress` where `user_id IS NULL`.
+
+Each row has a **"Map to WAP user…"** action that opens an inline dropdown of
+WAP members. On submit it calls `POST /api/admin/coursera/map-unmatched` which:
+
+1. Upserts a `coursera_identity_mappings` row binding `userId ↔ courseraEmail`
+   so future ingest runs and live xAPI events resolve automatically.
+2. Backfills `user_id` on existing `coursera_course_progress` and
+   `coursera_badge_progress` rows for that lower-cased email — no re-import
+   needed.
+
+Per-learner drill-down pages live at:
+
+- `/admin/coursera/learners/[userId]` — for matched WAP users; shows xAPI
+  progress card, CSV-imported courses, badges, and identity mappings.
+- `/admin/coursera/learners/unmatched/[externalEmail]` — for unmatched Coursera
+  learners; shows their CSV course + badge progress keyed by raw external
+  email.
+
+## Active pull cron
+
+While Coursera-side webhooks aren't subscribed yet, `/api/cron/coursera-sync` (registered in `vercel.json` on `0 */6 * * *`, every 6 hours) is the self-serve backfill path. On each run it pulls every active WAP member (`role='member'`, `deletedAt IS NULL`, non-empty email), resolves their `programId` and `skillsetIds` via `resolveCourseraProgramId` / `resolveCourseraSkillsetIds`, calls `fetchCourseraLearnerSkillsetProgress` (4-in-flight concurrency, 250ms gap between batches), and upserts one row per `(userId, skillsetId)` into `coursera_skillset_progress`. Per-member errors are caught and logged via `captureApiError` so one bad member never aborts the run. If no skillset IDs are configured for any program — the current production state — the cron short-circuits with `{ ok: true, skipped: 'no_skillsets_configured', members: 0 }` and makes zero Coursera API calls. Disable the cron by inserting a `WorkflowDiagnostic` toggle row for `cron_coursera_sync` with `metadata.enabled = false` (matches the existing `isCronEnabled` pattern); the admin readout at `/admin/coursera` surfaces row count, last sync, and top 10 members by progress.

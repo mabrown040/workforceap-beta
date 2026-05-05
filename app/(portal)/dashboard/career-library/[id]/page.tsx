@@ -12,7 +12,6 @@ import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import ResourceViewTracker from '@/components/portal/ResourceViewTracker';
 import ResourceProgressActions from '@/components/portal/ResourceProgressActions';
 import ResourceDownloadButton from '@/components/portal/ResourceDownloadButton';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -105,8 +104,6 @@ export default async function DashboardCareerLibraryDetailPage({ params }: Props
           </div>
         </section>
 
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

@@ -1,67 +1,41 @@
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { getTranslations } from 'next-intl/server';
+import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('marketing.whatWeDo');
   return buildPageMetadataAsync({
-  title: 'Workforce Development Training & Industry Certificates',
-  description:
-    'WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.',
-  path: '/what-we-do',
-});
+    title: t('title'),
+    description: t('description'),
+    path: '/what-we-do',
+  });
 }
 
-const BENTO_ITEMS = [
-  {
-    icon: 'school',
-    title: 'Employer-Influenced Curricula',
-    desc: 'Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.',
-    span: 'tall',
-  },
-  {
-    icon: 'lock_open',
-    title: 'Zero-Barrier Access',
-    desc: 'No cost for qualifying members. No prerequisites. Funding comes from grants and partnerships that can cover access for eligible participants.',
-    span: 'large',
-  },
-  {
-    icon: 'verified',
-    title: 'Validated Outcomes',
-    desc: 'Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.',
-    span: 'small',
-  },
-  {
-    icon: 'hub',
-    title: 'Regional Scalability',
-    desc: 'A repeatable model built to serve communities nationwide — not just one local market.',
-    span: 'small',
-  },
-];
 
-const VALUES = [
-  {
-    num: '01',
-    title: 'Access as Foundation',
-    desc: 'Fair access to opportunity. We work with community organizations, public partners, and employers so more people can reach training and careers.',
-  },
-  {
-    num: '02',
-    title: 'Outcome Focus',
-    desc: 'Every program, partnership, and investment is designed to expand opportunities, strengthen skills, and deliver meaningful life and career outcomes.',
-  },
-  {
-    num: '03',
-    title: 'Key Partnerships',
-    desc: 'Government, Employers, Non-profit & Community Organizations, and Churches — we bring the right people together so members don\'t have to figure it out alone.',
-  },
-];
+export default async function WhatWeDoPage() {
+  const t = await getTranslations('marketing.whatWeDo');
 
-export default function WhatWeDoPage() {
+  let pipelineEmployers: { id: string; companyName: string; logoUrl: string | null; industry: string | null }[] = [];
+  try {
+    pipelineEmployers = await prisma.employer.findMany({
+      where: { hiringPipelineActive: true, status: 'active' },
+      select: { id: true, companyName: true, logoUrl: true, industry: true },
+      take: 12,
+      orderBy: { updatedAt: 'desc' },
+    });
+  } catch {
+    // Column may not exist yet if migration hasn't been applied — section renders empty until then
+  }
+
+
   return (
     <div className="inner-page">
-      {/* ── Hero ── */}
+      {/* ΓöÇΓöÇ Hero ΓöÇΓöÇ */}
       <section
         className="wwd-photo-hero"
         style={{
@@ -128,7 +102,7 @@ export default function WhatWeDoPage() {
             >
               history_edu
             </span>
-            Built on Decades of Workforce Experience
+            {t('heroEyebrow')}
           </span>
 
           <h1
@@ -144,8 +118,8 @@ export default function WhatWeDoPage() {
               textShadow: '0 2px 32px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)',
             }}
           >
-            Creating{' '}
-            <span style={{ color: '#ffb2bc' }}>Opportunity</span>
+            {t('heroHeadline')}{' '}
+            <span style={{ color: '#ffb2bc' }}>{t('heroHeadlineAccent')}</span>
           </h1>
 
           <p
@@ -159,8 +133,7 @@ export default function WhatWeDoPage() {
               textShadow: '0 1px 18px rgba(0,0,0,0.5)',
             }}
           >
-            Employer-aligned training. No cost for qualifying members. Career support throughout the journey.
-            A model that works — and scales.
+            {t('heroCopy')}
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
@@ -181,7 +154,7 @@ export default function WhatWeDoPage() {
                 boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
               }}
             >
-              Explore Our Impact
+              {t('heroCta1')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
                 arrow_forward
               </span>
@@ -209,7 +182,7 @@ export default function WhatWeDoPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
                 handshake
               </span>
-              Partner With Us
+              {t('heroCta2')}
             </Link>
           </div>
         </div>
@@ -217,10 +190,10 @@ export default function WhatWeDoPage() {
 
       {/* Find Your Path CTA */}
       <section style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--color-light)' }}>
-        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>Not sure where to start?</p>
+        <p style={{ fontSize: '1.1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>{t('findPathPrompt')}</p>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.75rem' }}>
           <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
-            Find Your Path
+            {t('findPathCta')}
           </a>
           <Link href="/wioa-qualification" className="btn btn-secondary btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
             Check WIOA Options
@@ -228,7 +201,7 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── Legacy Section ── */}
+      {/* ΓöÇΓöÇ Legacy Section ΓöÇΓöÇ */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -248,12 +221,15 @@ export default function WhatWeDoPage() {
                   overflow: 'hidden',
                   aspectRatio: '3 / 4',
                   background: 'var(--surface-container)',
+                  position: 'relative',
                 }}
               >
-                <img
+              <Image
                   src="/images/hero-people.jpg"
                   alt="Diverse team collaborating on workforce development"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
               <div
@@ -335,31 +311,17 @@ export default function WhatWeDoPage() {
                     WorkforceAP is a national nonprofit and 501(c)(3) organization serving communities nationwide.
                   </div>
                 </div>
-                <div
-                  style={{
-                    padding: '1.5rem',
-                    background: 'var(--surface-container)',
-                    borderRadius: 'var(--radius-lg)',
-                    borderLeft: '3px solid var(--color-accent)',
-                  }}
-                >
-                  <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-                    2,000+
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Trained through workforce development programs (historical).
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Making an impact — Bento Grid ── */}
+      {/* Making an impact — Bento Grid */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+            <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '0.75rem' }}>{t('valuesEyebrow')}</span>
             <h2
               style={{
                 fontSize: 'clamp(2rem, 3.5vw, 3rem)',
@@ -368,8 +330,7 @@ export default function WhatWeDoPage() {
                 color: 'var(--color-on-surface)',
               }}
             >
-              Making an{' '}
-              <span style={{ color: 'var(--color-accent)' }}>impact</span>
+              {t('valuesTitle')}
             </h2>
           </div>
 
@@ -382,86 +343,103 @@ export default function WhatWeDoPage() {
               gap: '1.5rem',
             }}
           >
-            {BENTO_ITEMS.map((item, i) => {
-              const spanStyles: Record<string, React.CSSProperties> = {
-                tall: { gridColumn: 'span 4', gridRow: 'span 2' },
-                large: { gridColumn: 'span 8', gridRow: 'span 1' },
-                small: { gridColumn: 'span 4', gridRow: 'span 1' },
-              };
-              return (
-                <div
-                  key={item.title}
-                  className="portal-card portal-card--flat"
-                  style={{
-                    ...spanStyles[item.span],
-                    padding: '2.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    gap: '1rem',
-                    background: i === 0
-                      ? 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))'
-                      : 'var(--surface-container)',
-                    borderRadius: 'var(--radius-xl)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    transition: 'var(--transition-base)',
-                  }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      fontSize: '2.5rem',
-                      color: i === 0 ? 'rgba(255,255,255,0.9)' : 'var(--color-accent)',
-                      '--ms-fill': 1,
-                    }}
-                   aria-hidden="true">
-                    {item.icon}
-                  </span>
-                  <h3
-                    style={{
-                      fontSize: item.span === 'small' ? '1.125rem' : '1.5rem',
-                      fontWeight: 700,
-                      color: i === 0 ? '#fff' : 'var(--color-on-surface)',
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: '0.875rem',
-                      color: i === 0 ? 'rgba(255,255,255,0.8)' : 'var(--color-on-surface-variant)',
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {item.desc}
-                  </p>
-                </div>
-              );
-            })}
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 4',
+                gridRow: 'span 2',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                gap: '1rem',
+                background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
+                borderRadius: 'var(--radius-xl)',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'rgba(255,255,255,0.9)', '--ms-fill': 1 }} aria-hidden="true">school</span>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>{t('bento1Title')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>{t('bento1Desc')}</p>
+            </div>
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 8',
+                gridRow: 'span 1',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }} aria-hidden="true">lock_open</span>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('bento2Title')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>{t('bento2Desc')}</p>
+            </div>
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 4',
+                gridRow: 'span 1',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }} aria-hidden="true">verified</span>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('bento3Title')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>{t('bento3Desc')}</p>
+            </div>
+            <div
+              className="portal-card portal-card--flat"
+              style={{
+                gridColumn: 'span 4',
+                gridRow: 'span 1',
+                padding: '2.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                gap: '1rem',
+                background: 'var(--surface-container)',
+                borderRadius: 'var(--radius-xl)',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'var(--transition-base)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', '--ms-fill': 1 }} aria-hidden="true">hub</span>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('bento4Title')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>{t('bento4Desc')}</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Values Section ── */}
+      {/* Values Section */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-on-surface)',
-              }}
-            >
-              What We Stand For
-            </h2>
-          </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }} className="wwd-values-grid">
-            {VALUES.map((v) => (
+            {[
+              { num: '01', titleKey: 'value1Title', descKey: 'value1Desc' },
+              { num: '02', titleKey: 'value2Title', descKey: 'value2Desc' },
+              { num: '03', titleKey: 'value3Title', descKey: 'value3Desc' },
+            ].map((v) => (
               <div
                 key={v.num}
                 style={{
@@ -511,7 +489,7 @@ export default function WhatWeDoPage() {
                     letterSpacing: '-0.01em',
                   }}
                 >
-                  {v.title}
+                  {t(v.titleKey as Parameters<typeof t>[0])}
                 </h3>
                 <p
                   style={{
@@ -520,7 +498,7 @@ export default function WhatWeDoPage() {
                     fontSize: '0.9rem',
                   }}
                 >
-                  {v.desc}
+                  {t(v.descKey as Parameters<typeof t>[0])}
                 </p>
               </div>
             ))}
@@ -528,7 +506,7 @@ export default function WhatWeDoPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
@@ -559,7 +537,7 @@ export default function WhatWeDoPage() {
                 position: 'relative',
               }}
             >
-              Ready to Build the Future?
+              {t('ctaTitle')}
             </h2>
             <p
               style={{
@@ -570,7 +548,7 @@ export default function WhatWeDoPage() {
                 position: 'relative',
               }}
             >
-              Join individuals who are launching new careers through employer-aligned training and certifications.
+              {t('ctaBody')}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
@@ -587,7 +565,7 @@ export default function WhatWeDoPage() {
                   textDecoration: 'none',
                 }}
               >
-                Apply Now
+                {t('ctaApply')}
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
               </Link>
               <Link
@@ -605,23 +583,7 @@ export default function WhatWeDoPage() {
                   textDecoration: 'none',
                 }}
               >
-                Explore Programs
-              </Link>
-              <Link
-                href="/leadership"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: 'var(--color-gold)',
-                  color: 'var(--color-on-surface)',
-                  padding: '1rem 2.5rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                }}
-              >
-                Meet Our Team
+                {t('ctaPrograms')}
               </Link>
             </div>
           </div>
@@ -643,7 +605,7 @@ export default function WhatWeDoPage() {
 
       <MobileBottomNav />
       <Footer />
-      {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}
+      {/* Spacer for mobile bottom nav ΓÇö ensures footer content is not hidden */}
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );

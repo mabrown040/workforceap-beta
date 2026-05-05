@@ -14,7 +14,25 @@ const referralMemberSelect = {
   deletedAt: true,
   assessmentCompleted: true,
   placementRecord: {
-    select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
+    select: {
+      employerName: true,
+      jobTitle: true,
+      salaryOffered: true,
+      placedAt: true,
+      onboardingWindowEnd: true,
+      retentionDecision: true,
+    },
+  },
+  profile: {
+    select: {
+      city: true,
+      state: true,
+      zip: true,
+      ethnicity: true,
+      veteranStatus: true,
+      employmentStatus: true,
+      educationLevel: true,
+    },
   },
   userCertifications: { select: { certName: true, earnedAt: true } },
   applications: { select: { status: true, submittedAt: true } },
@@ -34,6 +52,17 @@ export type ReferralMember = {
     jobTitle: string;
     salaryOffered: number | null;
     placedAt: Date | null;
+    onboardingWindowEnd: Date | null;
+    retentionDecision: string | null;
+  } | null;
+  profile: {
+    city: string | null;
+    state: string | null;
+    zip: string | null;
+    ethnicity: string | null;
+    veteranStatus: string | null;
+    employmentStatus: string | null;
+    educationLevel: string | null;
   } | null;
   userCertifications: { certName: string; earnedAt: Date | null }[];
   applications: { status: string; submittedAt: Date | null }[];
@@ -55,6 +84,34 @@ export async function loadPartnerReferralBundle(partnerId: string) {
     },
     orderBy: { referredAt: 'desc' },
   });
+
+  const memberIds = referrals.map((r) => r.member.id);
+
+  // Load pending placement confirmations (self-reported by members, not yet reviewed)
+  const pendingPlacements =
+    memberIds.length === 0
+      ? []
+      : await prisma.memberEvent.findMany({
+          where: {
+            userId: { in: memberIds },
+            eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',
+          },
+          orderBy: { createdAt: 'desc' },
+          select: {
+            userId: true,
+            eventName: true,
+            metadata: true,
+            createdAt: true,
+          },
+        });
+
+  // Group by userId for quick lookup
+  const pendingByUserId = new Map<string, typeof pendingPlacements[number]>();
+  for (const p of pendingPlacements) {
+    if (!pendingByUserId.has(p.userId)) {
+      pendingByUserId.set(p.userId, p);
+    }
+  }
 
   const pipelineMembers: PipelineRow[] = [];
 
@@ -86,7 +143,7 @@ export async function loadPartnerReferralBundle(partnerId: string) {
 
   const members = pipelineMembers.map((p) => p.member);
 
-  return { referrals, members, pipelineMembers };
+  return { referrals, members, pipelineMembers, pendingPlacements };
 }
 
 export function toPartnerMembersListRows(pipelineMembers: PipelineRow[]) {

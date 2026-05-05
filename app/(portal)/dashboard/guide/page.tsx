@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
-import MobileBottomNav from '@/components/MobileBottomNav';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
@@ -20,41 +21,41 @@ const JOURNEY_STEPS = [
   {
     num: 1,
     title: 'Complete your profile',
-    desc: 'Add your resume, skills, and career goals so we can match you to the right opportunities.',
+    desc: 'Add your contact info, resume, and goals so WorkforceAP can tailor support to you.',
     href: '/dashboard/profile',
     cta: 'Build your profile',
     icon: 'person',
   },
   {
     num: 2,
-    title: 'Get assessment ready',
-    desc: 'Take the career readiness assessment — it helps us understand where you are and where you want to go.',
+    title: 'Complete your Training Preassessment',
+    desc: 'This short assessment helps place you into the right training flow before Coursera unlocks.',
     href: '/dashboard/skills-assessment',
-    cta: 'Start assessment',
+    cta: 'Start preassessment',
     icon: 'assignment',
   },
   {
     num: 3,
-    title: 'Build your materials',
-    desc: 'Use our AI tools to rewrite your resume, write a cover letter, and practice your interview skills.',
+    title: 'Start Coursera training',
+    desc: 'Open your assigned Coursera courses and finish them in order. Certificates from Coursera sync automatically to your profile as you complete each course — and those certificates are what employers see on your WorkforceAP record. Your cert progress is directly tied to job eligibility in the employer pipeline.',
+    href: '/dashboard/coursera',
+    cta: 'Open Coursera',
+    icon: 'school',
+  },
+  {
+    num: 4,
+    title: 'Build job-ready materials',
+    desc: 'Use AI help for your resume, elevator pitch, interview prep, and readiness planning while training is underway.',
     href: '/dashboard/ai-tools',
     cta: 'Open AI tools',
     icon: 'auto_awesome',
   },
   {
-    num: 4,
-    title: 'Practice interviews',
-    desc: "Practice with our AI Interview Coach — it's like a real interview, but you get feedback every time.",
-    href: '/dashboard/ai-tools/interview-coach',
-    cta: 'Practice now',
-    icon: 'mic',
-  },
-  {
     num: 5,
-    title: 'Connect with a counselor',
-    desc: "Your counselor is here to help — book a 1-on-1 to talk through your job search and next moves.",
-    href: '/dashboard/messages',
-    cta: 'Message your counselor',
+    title: 'Apply with counselor support',
+    desc: 'Use your counselor, job board, and application tracker together so training turns into real opportunities.',
+    href: '/dashboard/jobs',
+    cta: 'Open jobs',
     icon: 'support_agent',
   },
 ];
@@ -76,8 +77,8 @@ const FAQS = [
     a: 'WorkforceAP is available at no cost to members. Tools, resources, and counselor access are included through funded pathways.',
   },
   {
-    q: 'When will I get matched with a job?',
-    a: 'Once you complete your profile and assessment, our system starts matching you to open roles from our employer network. You can also browse the job board anytime.',
+    q: 'When does job help start?',
+    a: 'Job help starts before you finish everything. As you move through training, WorkforceAP helps you strengthen your resume, practice interviews, and prepare for applications. The strongest matches usually come after your profile, assessment, and early training progress are in place.',
   },
   {
     q: 'Who is my counselor and how do I reach them?',
@@ -99,17 +100,27 @@ export default async function MemberGuidePage() {
       fullName: true,
       enrolledProgram: true,
       assessmentCompleted: true,
+      coursesCompleted: true,
       profile: { select: { city: true } },
     },
   });
   if (!dbUser) redirect('/login');
+
+  const enrolledProgram = dbUser.enrolledProgram ?? null;
+  const coursesCompletedSlugs = parseCourseSlugList(dbUser.coursesCompleted);
+  const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+  const completedCourses = program
+    ? coursesCompletedSlugs.filter((s) => program.courses.some((c) => c.slug === s)).length
+    : 0;
 
   // Determine which step the member is on (0-indexed)
   const activeStep = !dbUser.profile?.city
     ? 0
     : !dbUser.assessmentCompleted
     ? 1
-    : 2;
+    : completedCourses === 0
+    ? 2
+    : 3;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
 
@@ -311,8 +322,6 @@ export default async function MemberGuidePage() {
           </p>
         </div>
       </section>
-    </div>
-      <MobileBottomNav variant="portal" />
-    </>
+    </div>    </>
   );
 }

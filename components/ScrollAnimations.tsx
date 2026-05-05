@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 
 const animatableSelectors = [
   '.animate-on-scroll',
-  '.program-card',
   '.mv-card',
   '.value-card',
   '.track',

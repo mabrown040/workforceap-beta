@@ -28,6 +28,8 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
+import LanguageToggle from '@/components/portal/LanguageToggle';
+import { useTranslations } from 'next-intl';
 
 // Map non-member portal roles to MobileBottomNav variants. Member uses
 // MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
@@ -56,6 +58,8 @@ export default function WorkspaceShell({
   marketingSiteLabel,
   showResumeUploadHint,
   portalRoles,
+  attributionLabel,
+  partnerAccentColor,
   children,
 }: {
   portalRole: PortalRole;
@@ -82,6 +86,17 @@ export default function WorkspaceShell({
   showResumeUploadHint?: boolean;
   /** Optional set of role-switch targets for authenticated multi-role users */
   portalRoles?: PortalSwitcherRole[];
+  /**
+   * Small "Powered by …" attribution shown on the right of the header.
+   * Used in white-labeled partner portals where the partner brand owns the left side.
+   */
+  attributionLabel?: string;
+  /**
+   * Optional partner-scoped accent color (hex). When provided, exposed as the
+   * `--partner-accent` CSS variable on the shell root so partner-specific UI
+   * can opt in without overriding the global `--color-accent`.
+   */
+  partnerAccentColor?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -96,6 +111,59 @@ export default function WorkspaceShell({
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
   const fetchedIsSuperAdmin = useIsSuperAdmin();
   const isSuperAdmin = superAdmin ?? fetchedIsSuperAdmin;
+  const tNav = useTranslations('nav');
+  const tWorkspace = useTranslations('workspace');
+  const tGroup = useTranslations('group');
+  /**
+   * Translates a nav label string using the appropriate namespace.
+   * Falls back to the original English string if no key is found.
+   */
+  const translateLabel = (label: string): string => {
+    // Workspace labels
+    const wsMap: Record<string, string> = {
+      'WorkforceAP site': tWorkspace('publicSite'),
+      'Member portal': tWorkspace('member'),
+      'Employer portal': tWorkspace('employer'),
+      'Partner portal': tWorkspace('partner'),
+      'Counselor portal': tWorkspace('counselor'),
+      'Admin workspace': tWorkspace('admin'),
+    };
+    if (label in wsMap) return wsMap[label];
+    // Group labels
+    const grpMap: Record<string, string> = {
+      'Workflows': tGroup('workflows'),
+      'Insights': tGroup('insights'),
+      'Manage': tGroup('manage'),
+    };
+    if (label in grpMap) return grpMap[label];
+    // Nav labels
+    const navMap: Record<string, string> = {
+      'Home': tNav('dashboard'),
+      'My Program': tNav('myProgram'),
+      'My Classes': tNav('training'),
+      'My Certificates': tNav('myCertificates'),
+      'My Career Plan': tNav('careerPlan'),
+      'WIOA Qualification': tNav('wioaQualification'),
+      'Job Board': tNav('jobBoard'),
+      'Job Applications': tNav('jobApplications'),
+      'Resume': tNav('resume'),
+      'My Progress': tNav('myProgress'),
+      'Career Toolkit': tNav('careerToolkit'),
+      'AI Counselor': tNav('aiCounselor'),
+      'Learning Hub': tNav('learningHub'),
+      'Find your career': tNav('findYourCareer'),
+      'Training Preassessment': tNav('trainingPreassessment'),
+      'Weekly Recap': tNav('weeklyRecap'),
+      'Counselor Chat': tNav('counselorChat'),
+      'Resources': tNav('resources'),
+      'Help & Support': tNav('help'),
+      'Member Guide': tNav('memberGuide'),
+      'Profile & Account': tNav('myAccount'),
+      'Sign out': tNav('signOut'),
+    };
+    if (label in navMap) return navMap[label];
+    return label;
+  };
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(drawerOpen, closeDrawer);
@@ -235,8 +303,13 @@ export default function WorkspaceShell({
 
   const firstHref = navItems[0]?.href ?? '/';
 
+  const rootStyle =
+    partnerAccentColor && /^#[0-9A-Fa-f]{6}$/.test(partnerAccentColor)
+      ? ({ ['--partner-accent' as string]: partnerAccentColor } as React.CSSProperties)
+      : undefined;
+
   return (
-    <div className="workspace-shell-root">
+    <div className="workspace-shell-root" style={rootStyle}>
       <header
         ref={headerRef}
         className={`workspace-shell-header${minimalMobileHeader ? ' workspace-shell-header--minimal-mobile' : ''}`}
@@ -254,7 +327,7 @@ export default function WorkspaceShell({
             <Link href={firstHref} className="workspace-shell-brand">
               WorkforceAP
             </Link>
-            <span className="workspace-shell-tagline">{workspaceLabel}</span>
+            <span className="workspace-shell-tagline">{translateLabel(workspaceLabel)}</span>
             {marketingSiteHref ? (
               <Link
                 href={marketingSiteHref}
@@ -305,6 +378,20 @@ export default function WorkspaceShell({
             </div>
           )}
           <PortalHeaderActions badges={badges} />
+          {attributionLabel ? (
+            <span
+              className="workspace-shell-attribution"
+              style={{
+                fontSize: '0.7rem',
+                color: 'var(--color-on-surface-variant)',
+                whiteSpace: 'nowrap',
+                marginLeft: '0.25rem',
+              }}
+              aria-label={attributionLabel}
+            >
+              {attributionLabel}
+            </span>
+          ) : null}
         </div>
       </header>
 
@@ -351,7 +438,7 @@ export default function WorkspaceShell({
                   onClick={closeDrawer}
                 >
                   <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
-                  <span className="workspace-tab-label">{meta.label}</span>
+                  <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
                 </Link>
               );
             })}
@@ -366,7 +453,7 @@ export default function WorkspaceShell({
         >
           <div className="workspace-sidebar-inner">
             <div className="workspace-sidebar-toolbar">
-              <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? NAV_TAB_META[activeTab].label : workspaceLabel}</div>
+              <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? translateLabel(NAV_TAB_META[activeTab].label) : translateLabel(workspaceLabel)}</div>
               {wide ? (
                 <button
                   type="button"
@@ -379,7 +466,7 @@ export default function WorkspaceShell({
                 </button>
               ) : null}
             </div>
-            <nav aria-label={`${workspaceLabel} navigation`} className="workspace-sidebar-nav">
+            <nav aria-label={`${translateLabel(workspaceLabel)} navigation`} className="workspace-sidebar-nav">
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {
                   const list = wide ? desktopNavItems : mobileDrawerNavItems;
@@ -389,7 +476,7 @@ export default function WorkspaceShell({
                   return (
                     <li key={group} className="workspace-sidebar-group">
                       {groupLabel && !isCollapsedDesktop ? (
-                        <div className="workspace-sidebar-group-label">{groupLabel}</div>
+                        <div className="workspace-sidebar-group-label">{translateLabel(groupLabel)}</div>
                       ) : null}
                       <ul className="workspace-sidebar-list">
                         {inGroup.map((item) => {
@@ -404,7 +491,7 @@ export default function WorkspaceShell({
                                 href={item.href}
                                 className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
                                 onClick={closeDrawer}
-                                title={isCollapsedDesktop ? item.label : undefined}
+                                title={isCollapsedDesktop ? translateLabel(item.label) : undefined}
                                 {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
                               >
                                 {Icon ? (
@@ -415,7 +502,7 @@ export default function WorkspaceShell({
                                 <span
                                   className={`workspace-sidebar-link-label${isCollapsedDesktop ? ' sr-only' : ''}`}
                                 >
-                                  {item.label}
+                                  {translateLabel(item.label)}
                                 </span>
                                 {b > 0 ? (
                                   <span className="workspace-nav-badge">{b > 99 ? '99+' : b}</span>
@@ -440,11 +527,14 @@ export default function WorkspaceShell({
                 </span>
                 <SuperAdminViewSwitcher initialIsSuperAdmin={isSuperAdmin} />
               </div>
-              <Link href="/" className="workspace-sidebar-home-link" onClick={closeDrawer}>
-                {PRODUCT_COPY.publicSiteLabel}
+              <Link href="/" prefetch={false} className="workspace-sidebar-home-link" onClick={closeDrawer}>
+                {translateLabel(PRODUCT_COPY.publicSiteLabel)}
               </Link>
+              <div style={{ padding: '0.5rem 0', display: 'flex', justifyContent: 'center' }}>
+                <LanguageToggle />
+              </div>
               <SignOutButton className="workspace-sidebar-signout" onSignOutStart={closeDrawer}>
-                Sign out
+                {translateLabel('Sign out')}
               </SignOutButton>
             </div>
           </div>

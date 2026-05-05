@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 const TOOL_LABELS: Record<string, string> = {
-  job_match_scorer: 'Job Match Scorer',
+  job_match_scorer: 'See how you match a job',
   resume_analysis: 'Resume Analysis',
   resume_rewriter: 'Resume Rewriter',
   cover_letter: 'Cover Letter',
@@ -14,15 +14,16 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_headline: 'LinkedIn Headline',
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
-  gap_analyzer: 'Gap Analyzer',
-  career_counselor: 'Career Counselor',
-  skill_assessment: 'Skill Mapper / Skill Assessment',
+  gap_analyzer: 'See what is missing for a job',
+  career_counselor: 'Career Coach',
+  skill_assessment: 'Find skills employers want / Skill Assessment',
 };
 
 export async function GET(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  try {
   const { searchParams } = new URL(request.url);
   const toolType = searchParams.get('tool');
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
@@ -53,4 +54,7 @@ export async function GET(request: Request) {
       createdAt: r.createdAt,
     })),
   });
+  } catch {
+    return NextResponse.json({ error: 'Failed to load AI history' }, { status: 500 });
+  }
 }

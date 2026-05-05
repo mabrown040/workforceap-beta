@@ -19,6 +19,7 @@ export type NextBestActionsContext = {
   noApplicationOnFile: boolean;
   enrolledProgram: string | null;
   assessmentCompleted: boolean;
+  completedCourseCount?: number;
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
   hasResume: boolean;
@@ -28,6 +29,13 @@ export type NextBestActionsContext = {
   jobApplicationCount: number;
   counselorUnreadCount: number;
   weeklyRecapUnopened: boolean;
+  /** True when a CourseEnrollment row exists (Coursera / training seat provisioned). */
+  courseEnrollmentActive?: boolean;
+  placementPlacedAt?: Date | null;
+  placementRetentionDecision?: string | null;
+  /** When true, surfaces “continue training” ahead of lower-priority chores. */
+  trainingCoursesIncomplete?: boolean;
+  nextIncompleteCourseName?: string | null;
 };
 
 export function buildNextBestActions(ctx: NextBestActionsContext): NextBestAction[] {
@@ -57,6 +65,23 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     });
   }
 
+  if (
+    (ctx.state === 'C' || ctx.state === 'D') &&
+    !!ctx.enrolledProgram &&
+    ctx.assessmentCompleted &&
+    ctx.courseEnrollmentActive === false
+  ) {
+    out.push({
+      id: 'path_to_cert',
+      title: 'See your path to certification',
+      body: 'Understand how staff enrolls you in Coursera, what happens before your first class, and how exams fit in.',
+      href: '/dashboard/program/start',
+      cta: 'Open enrollment guide',
+      variant: 'default',
+      weight: 86,
+    });
+  }
+
   if (ctx.state === 'B') {
     if (ctx.starterProfileReviewRequired) {
       const missing = ctx.starterProfileMissingFields?.slice(0, 3) ?? [];
@@ -83,6 +108,24 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     }
   }
 
+  if (
+    ctx.state === 'C' &&
+    ctx.assessmentCompleted &&
+    !!ctx.enrolledProgram &&
+    ctx.trainingCoursesIncomplete &&
+    (ctx.nextIncompleteCourseName ?? '').length > 0
+  ) {
+    out.push({
+      id: 'continue_training',
+      title: `Continue training: ${ctx.nextIncompleteCourseName}`,
+      body: 'Open My Training for Coursera links, xAPI sync status, and your course checklist.',
+      href: '/dashboard/training',
+      cta: 'Open My Training',
+      variant: 'urgent',
+      weight: 86,
+    });
+  }
+
   if (ctx.counselorUnreadCount > 0) {
     out.push({
       id: 'counselor_messages',
@@ -98,6 +141,33 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     });
   }
 
+  if (
+    ctx.assessmentCompleted &&
+    !!ctx.enrolledProgram &&
+    (ctx.completedCourseCount ?? 0) === 0 &&
+    (ctx.state === 'C' || ctx.state === 'D')
+  ) {
+    out.push({
+      id: 'launch_first_course',
+      title: 'Launch your first Coursera course',
+      body: 'Start training now so your first certificate, resume work, and job-readiness steps stay in motion together.',
+      href: '/dashboard/coursera',
+      cta: 'Open Coursera',
+      variant: 'urgent',
+      weight: 86,
+    });
+
+    out.push({
+      id: 'see_training_plan',
+      title: 'See how training leads to job help',
+      body: 'Get the simple step-by-step: preassessment, Coursera training, certificates, AI coaching, and counselor support.',
+      href: '/dashboard/guide',
+      cta: 'View guide',
+      variant: 'default',
+      weight: 79,
+    });
+  }
+
   if ((ctx.state === 'C' || ctx.state === 'D') && !ctx.hasResume) {
     out.push({
       id: 'upload_resume',
@@ -108,6 +178,31 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       variant: 'default',
       weight: 80,
     });
+  }
+
+  if (ctx.placementPlacedAt && !ctx.placementRetentionDecision) {
+    const days = (Date.now() - ctx.placementPlacedAt.getTime()) / 86400000;
+    if (days >= 85 && days <= 130) {
+      out.push({
+        id: 'placement_retention_window_90',
+        title: 'Quick check-in on your new role',
+        body: 'You have been placed for a few months. If anything changed at work, message your counselor so grant reporting stays accurate.',
+        href: '/dashboard/messages',
+        cta: 'Message counselor',
+        variant: 'default',
+        weight: 74,
+      });
+    } else if (days >= 175 && days <= 230) {
+      out.push({
+        id: 'placement_retention_window_180',
+        title: 'Six-month placement follow-up',
+        body: 'Counselors use your updates for retention reporting. Send a short note in Counselor Chat if you have not already.',
+        href: '/dashboard/messages',
+        cta: 'Open Counselor Chat',
+        variant: 'default',
+        weight: 73,
+      });
+    }
   }
 
   if (ctx.state === 'D' && !ctx.hasCompletedInterviewPractice) {
@@ -174,6 +269,18 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       weight: 40,
     });
   }
+
+  // Always offer at least one default — never let a fresh member see a
+  // blank "what's next" surface.
+  out.push({
+    id: 'default_counselor',
+    title: 'Talk to your counselor',
+    body: 'Not sure what to do next? Send a quick message — your counselor can suggest the best step from here.',
+    href: '/dashboard/messages',
+    cta: 'Message counselor',
+    variant: 'default',
+    weight: 1,
+  });
 
   out.sort((a, b) => b.weight - a.weight);
 

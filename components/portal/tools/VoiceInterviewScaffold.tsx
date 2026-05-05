@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import ToolFollowThrough from './ToolFollowThrough';
 import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
@@ -320,6 +321,7 @@ export default function VoiceInterviewScaffold() {
                 <span style={{ color: 'var(--color-on-surface-variant)' }}>(link expires in about an hour)</span>
               </p>
             ) : null}
+            <ToolFollowThrough toolType="voice_interview" />
             <button
               type="button"
               className="btn btn-outline btn-sm"

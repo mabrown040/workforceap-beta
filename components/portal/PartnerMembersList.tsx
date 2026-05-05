@@ -71,7 +71,21 @@ export default function PartnerMembersList({ members }: { members: PartnerMember
           </Link>
         ))}
       </div>
-      {filtered.length === 0 ? <p className="partner-activity-empty" style={{ marginTop: '1rem' }}>No members match this filter yet.</p> : null}
+      {filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.5rem' }} aria-hidden="true">
+            search_off
+          </span>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+            No members match this filter.
+          </p>
+          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem' }}>
+            {members.length === 0
+              ? "You haven't referred any members yet. Use the Invite Member button to start."
+              : "Try clearing your search or changing the stage filter."}
+          </p>
+        </div>
+      ) : null}
     </section>
   );
 }

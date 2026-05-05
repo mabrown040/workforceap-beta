@@ -24,6 +24,7 @@
     "db:create-employer-michael-brown": "node scripts/prisma-env.js npx tsx scripts/create-employer-michael-brown.ts",
     "db:sync-test-auth": "node scripts/prisma-env.js npx tsx scripts/sync-portal-test-auth.ts",
     "db:migrate:resolve-failed": "node scripts/resolve-failed-migration.cjs",
+    "test": "npm run test:unit",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "repo:sync-master": "powershell -ExecutionPolicy Bypass -File scripts/auto-sync-master.ps1",
@@ -58,6 +59,7 @@
     "mammoth": "^1.12.0",
     "next": "15.5.15",
     "next-i18next": "^16.0.5",
+    "next-intl": "^4.11.0",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "react": "^19",
@@ -75,6 +77,7 @@
     "@xmldom/xmldom": "^0.9.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@playwright/test": "^1.49.1",
     "@react-email/preview-server": "^5.2.10",
     "@types/node": "^22",

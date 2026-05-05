@@ -2,13 +2,12 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
+import { sendInactiveNudgeEmail } from '@/lib/email';
 
 /**
  * POST /api/counselor/remind-member
- * Logs a reminder action for an inactive member.
+ * Sends an inactive-nudge email to the member and logs the action.
  * Body: { userId, daysInactive }
- *
- * Future: Can integrate with email/SMS service to actually send reminders.
  */
 export async function POST(request: Request) {
   const user = await getUser();
@@ -29,7 +28,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Log the reminder action as a member event
+  const member = await prisma.user.findUnique({
+    where: { id: memberId },
+    select: { email: true, fullName: true },
+  });
+
+  if (!member?.email) {
+    return NextResponse.json({ error: 'Member has no email on file' }, { status: 400 });
+  }
+
+  const emailResult = await sendInactiveNudgeEmail({
+    to: member.email,
+    fullName: member.fullName ?? '',
+  });
+
   await prisma.$executeRaw`
     INSERT INTO member_events (id, user_id, event_name, entity_type, entity_id, metadata, created_at)
     VALUES (
@@ -38,13 +50,23 @@ export async function POST(request: Request) {
       'reminder_sent',
       'counselor_action',
       ${user.id},
-      ${JSON.stringify({ daysInactive, sentBy: user.id, sentAt: new Date().toISOString() })},
+      ${JSON.stringify({
+        daysInactive,
+        sentBy: user.id,
+        sentAt: new Date().toISOString(),
+        emailDelivered: emailResult.ok,
+        emailError: emailResult.error ?? null,
+      })},
       NOW()
     )
   `;
 
-  // TODO: Integrate with email service (Resend, SendGrid, etc.) to send actual reminder
-  // TODO: Integrate with SMS if member has phone and sms_opt_in
+  if (!emailResult.ok) {
+    return NextResponse.json(
+      { ok: false, message: 'Reminder logged but email failed to send.', error: emailResult.error ?? 'Email not configured' },
+      { status: 502 }
+    );
+  }
 
-  return NextResponse.json({ ok: true, message: 'Reminder logged. Email/SMS integration pending.' });
+  return NextResponse.json({ ok: true, message: 'Reminder email sent.' });
 }

@@ -14,7 +14,6 @@ import StartTourButton from "@/components/onboarding/StartTourButton";
 import ResumeClient from "@/app/(portal)/dashboard/resume/ResumeClient";
 import ResumeCoachWorkspace from "@/components/portal/ResumeCoachWorkspace";
 import { getProfileCompleteness } from "@/lib/resume/profileCompleteness";
-import MobileBottomNav from "@/components/MobileBottomNav";
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
@@ -62,6 +61,9 @@ export default async function DashboardProfilePage() {
         financialAidInterest: true,
         resumeEnhancedPath: true,
         resumeOriginalPath: true,
+        hasEmploymentBarrier: true,
+        barrierTypes: true,
+        employmentStatusAtEnroll: true,
       },
     },
     courseEnrollment: {
@@ -306,6 +308,13 @@ export default async function DashboardProfilePage() {
               defaultBio={dbUser.profile?.profileBio ?? ""}
               defaultFinancialAidInterest={
                 dbUser.profile?.financialAidInterest ?? null
+              }
+              defaultHasEmploymentBarrier={
+                dbUser.profile?.hasEmploymentBarrier ?? false
+              }
+              defaultBarrierTypes={dbUser.profile?.barrierTypes ?? []}
+              defaultEmploymentStatusAtEnroll={
+                dbUser.profile?.employmentStatusAtEnroll ?? null
               }
               starterProfileReviewRequired={starterProfileReview.required}
               starterProfileMissingFields={starterProfileMissingLabels}
@@ -698,9 +707,6 @@ export default async function DashboardProfilePage() {
             </div>
           </div>
         </div>
-      </div>
-
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

@@ -14,6 +14,8 @@ type Partner = {
   contactPhone: string | null;
   active: boolean;
   notes: string | null;
+  logoUrl: string | null;
+  brandColor: string | null;
   _count: { counselors: number; referrals: number };
 };
 

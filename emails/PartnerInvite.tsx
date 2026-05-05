@@ -84,7 +84,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: "#ad2c4d",
+  backgroundColor: "#C41E3A",
   borderRadius: "6px",
   color: "#fff",
   fontSize: "16px",
@@ -102,7 +102,7 @@ const linkText = {
 };
 
 const link = {
-  color: "#ad2c4d",
+  color: "#C41E3A",
   textDecoration: "underline",
   wordBreak: "break-all" as const,
 };

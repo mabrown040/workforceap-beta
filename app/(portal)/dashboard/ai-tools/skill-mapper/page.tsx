@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import SkillMapperClient from '@/components/portal/tools/SkillMapperClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
@@ -31,11 +30,11 @@ export default async function SkillMapperPage() {
           }}
         >
           <PageHeader
-            title="Skill mapper"
+            title="Skill Mapper"
             subtitle="Search any occupation to see its top skills and competency radar chart."
             breadcrumbs={[
-              { label: 'AI Career Toolkit', href: '/dashboard/ai-tools' },
-              { label: 'Skill mapper' },
+              { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
+              { label: 'Skill Mapper' },
             ]}
           />
         </div>
@@ -47,12 +46,9 @@ export default async function SkillMapperPage() {
           <ToolHistoryPanel
             userId={user.id}
             toolType="skill_assessment"
-            title="Recent skill mapper lookups"
+            title="Recent Skill Mapper Lookups"
           />
-        </div>
-
-        <MobileBottomNav variant="portal" />
-      </div>
+        </div>      </div>
       </div>
     </>
   );

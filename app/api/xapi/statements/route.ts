@@ -1,17 +1,22 @@
+/**
+ * xAPI ingest (Coursera → WorkforceAP)
+ *
+ * Ops quick ref (set `ENABLE_ANALYTICS_LOGS=true` for batch console lines from `trackXapiBatchProcessed`):
+ * - **Progress not updating:** verify bearer token, actor maps to a member (`resolveXapiUser` in pipeline),
+ *   and the activity object matches a course in the member’s enrolled program.
+ * - **Unmatched / no member:** LRS actor mbox should match the portal account email.
+ * - **Wrong program:** member `enrolled_program` must match the catalog slug statements are matched against.
+ * - **Manual course / program fixes:** training “Mark complete” in the member portal; program changes via admin flows.
+ */
 import { NextResponse } from 'next/server';
-import { completeMemberCourse } from '@/lib/member/courseCompletion';
-import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
-import { prisma } from '@/lib/db/prisma';
-import {
-  recordXapiEvent,
-  resolveXapiUser,
-} from '@/lib/xapi/mappings';
+
+import { trackXapiBatchProcessed } from '@/lib/analytics/track';
+import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import {
   flattenXapiStatementPayload,
-  isXapiCompletionVerb,
   parseXapiStatement,
 } from '@/lib/xapi/statements';
-import { markXapiStatementProcessed, persistXapiStatement } from '@/lib/xapi/storage';
+import { persistXapiStatement } from '@/lib/xapi/storage';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 
 function tailFromObjectId(objectId: string | null | undefined): string | null {
@@ -55,11 +60,10 @@ export async function POST(request: Request) {
   for (const raw of rawStatements) {
     const parsed = parseXapiStatement(raw);
     if (!parsed) continue;
-    statementsHandled += 1;
 
     const verb = parsed.verbId?.trim() || 'unknown';
 
-    await persistXapiStatement({
+    const persisted = await persistXapiStatement({
       statementId: parsed.statementId,
       actorEmail: parsed.email,
       verb,
@@ -71,154 +75,18 @@ export async function POST(request: Request) {
       resultSuccess: parsed.resultSuccess,
     });
 
-    const identity = {
-      email: parsed.email,
-      actorIdentifier: parsed.actorIdentifier,
-      actorHomePage: parsed.actorHomePage,
-    };
+    // Duplicate statementId (retries / races): row exists — skip completion side effects.
+    if (persisted === 'skipped') continue;
 
-    const resolvedUser = await resolveXapiUser(identity);
-
-    if (!resolvedUser) {
-      await recordXapiEvent({
-        statementId: parsed.statementId,
-        identity,
-        courseSlug: parsed.courseSlug,
-        courseName: parsed.courseName,
-        verbId: parsed.verbId,
-        completionStatus: 'unmatched',
-        error: 'No matching member identity found',
-        rawPayload: parsed.rawStatement,
-      });
-
-      if (isXapiCompletionVerb(parsed)) {
-        completions.push({
-          email: parsed.email,
-          actorIdentifier: parsed.actorIdentifier,
-          statementId: parsed.statementId,
-          ok: false,
-          error: 'Member not found',
-        });
-      }
-
-      await markXapiStatementProcessed(parsed.statementId);
-      continue;
-    }
-
-    const dbUser = await prisma.user.findUnique({
-      where: { id: resolvedUser.userId },
-      select: { enrolledProgram: true },
-    });
-    const enrolledProgram = dbUser?.enrolledProgram ?? null;
-
-    if (!enrolledProgram) {
-      const message = 'No program enrolled';
-      await recordXapiEvent({
-        statementId: parsed.statementId,
-        identity,
-        courseSlug: parsed.courseSlug,
-        courseName: parsed.courseName,
-        verbId: parsed.verbId,
-        matchedUserId: resolvedUser.userId,
-        mappingMethod: resolvedUser.mappingMethod,
-        completionStatus: isXapiCompletionVerb(parsed) ? 'error' : 'ignored',
-        error: isXapiCompletionVerb(parsed) ? message : undefined,
-        rawPayload: parsed.rawStatement,
-      });
-      if (isXapiCompletionVerb(parsed)) {
-        completions.push({
-          email: parsed.email,
-          actorIdentifier: parsed.actorIdentifier,
-          statementId: parsed.statementId,
-          matchedUserId: resolvedUser.userId,
-          mappingMethod: resolvedUser.mappingMethod,
-          ok: false,
-          error: message,
-        });
-      }
-      await markXapiStatementProcessed(parsed.statementId);
-      continue;
-    }
-
-    await upsertCourseProgressFromXapiStatement({
-      userId: resolvedUser.userId,
-      enrolledProgramSlug: enrolledProgram,
-      parsed,
-    });
-
-    if (!isXapiCompletionVerb(parsed)) {
-      await recordXapiEvent({
-        statementId: parsed.statementId,
-        identity,
-        courseSlug: parsed.courseSlug,
-        courseName: parsed.courseName,
-        verbId: parsed.verbId,
-        matchedUserId: resolvedUser.userId,
-        mappingMethod: resolvedUser.mappingMethod,
-        completionStatus: 'ignored',
-        rawPayload: parsed.rawStatement,
-      });
-      await markXapiStatementProcessed(parsed.statementId);
-      continue;
-    }
-
-    try {
-      const result = await completeMemberCourse({
-        userId: resolvedUser.userId,
-        courseSlug: parsed.courseSlug,
-        courseName: parsed.courseName,
-        source: 'coursera-webhook',
-      });
-
-      await recordXapiEvent({
-        statementId: parsed.statementId,
-        identity,
-        courseSlug: parsed.courseSlug,
-        courseName: parsed.courseName,
-        verbId: parsed.verbId,
-        matchedUserId: resolvedUser.userId,
-        mappingMethod: resolvedUser.mappingMethod,
-        completionStatus: 'completed',
-        rawPayload: parsed.rawStatement,
-      });
-
-      completions.push({
-        email: parsed.email,
-        actorIdentifier: parsed.actorIdentifier,
-        statementId: parsed.statementId,
-        matchedUserId: resolvedUser.userId,
-        mappingMethod: resolvedUser.mappingMethod,
-        ...result,
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to process statement';
-
-      await recordXapiEvent({
-        statementId: parsed.statementId,
-        identity,
-        courseSlug: parsed.courseSlug,
-        courseName: parsed.courseName,
-        verbId: parsed.verbId,
-        matchedUserId: resolvedUser.userId,
-        mappingMethod: resolvedUser.mappingMethod,
-        completionStatus: 'error',
-        error: message,
-        rawPayload: parsed.rawStatement,
-      });
-
-      completions.push({
-        email: parsed.email,
-        actorIdentifier: parsed.actorIdentifier,
-        statementId: parsed.statementId,
-        matchedUserId: resolvedUser.userId,
-        mappingMethod: resolvedUser.mappingMethod,
-        ok: false,
-        error: message,
-      });
-    }
-
-    await markXapiStatementProcessed(parsed.statementId);
+    statementsHandled += 1;
+    const { completions: batch } = await handleInboundParsedStatement(parsed);
+    completions.push(...batch);
   }
+
+  trackXapiBatchProcessed({
+    statementsHandled,
+    completionCount: completions.filter((c) => (c as { ok?: boolean }).ok === true).length,
+  });
 
   return NextResponse.json({
     received: true,

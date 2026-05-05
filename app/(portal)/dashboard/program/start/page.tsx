@@ -1,0 +1,172 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { buildPageMetadata } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramEnrollmentSteps } from '@/lib/content/programEnrollmentSteps';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalCard from '@/components/portal/ui/PortalCard';
+import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Path to certification',
+  description: 'How WorkforceAP enrolls you in training, Coursera access, exams, and job support.',
+  path: '/dashboard/program/start',
+});
+
+export default async function ProgramStartPage() {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/dashboard/program/start');
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      enrolledProgram: true,
+      fullName: true,
+      workspaceEmail: true,
+      workspaceEmailProvisioned: true,
+    },
+  });
+
+  const enrolledSlug = dbUser?.enrolledProgram ?? null;
+  if (!enrolledSlug) {
+    redirect('/dashboard/program');
+  }
+
+  const program = getProgramBySlug(enrolledSlug);
+  const enrollment = await prisma.courseEnrollment.findUnique({
+    where: { userId: user.id },
+    select: {
+      workspaceEmail: true,
+      workspaceEmailProvisioned: true,
+      enrolledAt: true,
+    },
+  });
+
+  const steps = getProgramEnrollmentSteps(enrolledSlug);
+  const screeningPack = await prisma.employerScreeningPack.findFirst({
+    where: { programSlug: enrolledSlug, isActive: true },
+    select: { id: true, packTitle: true, employerLabel: true },
+  });
+
+  const courseraReady =
+    !!enrollment &&
+    (enrollment.workspaceEmailProvisioned ||
+      !!enrollment.workspaceEmail ||
+      !!dbUser?.workspaceEmailProvisioned ||
+      !!dbUser?.workspaceEmail);
+
+  return (
+    <>
+      <div className="portal-pad-x" style={{ paddingBottom: '6rem' }}>
+        <PageHeader
+          title="Your path to certification"
+          subtitle={
+            program
+              ? `${program.title} — how enrollment, Coursera, and exams fit together.`
+              : 'How enrollment and training access work for your program.'
+          }
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'My Program', href: '/dashboard/program' },
+            { label: 'Path to certification' },
+          ]}
+        />
+
+        <div style={{ display: 'grid', gap: '1.25rem', maxWidth: '720px' }}>
+          {courseraReady ? (
+            <PortalCard>
+              <p style={{ fontWeight: 700, color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>You are on file for training access</p>
+              <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                Your enrollment is connected. Continue in{' '}
+                <Link href="/dashboard/training" className="wa-text-[var(--color-accent-dark)] wa-font-semibold">
+                  My Classes
+                </Link>{' '}
+                or{' '}
+                <Link href="/dashboard/program" className="wa-text-[var(--color-accent-dark)] wa-font-semibold">
+                  My Program
+                </Link>
+                .
+              </p>
+              {(enrollment?.workspaceEmail || dbUser?.workspaceEmail) && (
+                <p style={{ margin: '0.75rem 0 0', fontSize: '0.875rem' }}>
+                  <strong>Training email:</strong> {enrollment?.workspaceEmail ?? dbUser?.workspaceEmail}
+                </p>
+              )}
+            </PortalCard>
+          ) : (
+            <PortalCard>
+              <p style={{ fontWeight: 700, margin: '0 0 0.5rem' }}>What happens next</p>
+              <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                Staff enrolls members into Coursera tracks manually so funding and program fit stay accurate. If you just
+                accepted your invite, watch your email — a counselor may message you in{' '}
+                <Link href="/dashboard/messages">Counselor Chat</Link> before Coursera access appears.
+              </p>
+            </PortalCard>
+          )}
+
+          <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.75rem' }}>
+            {steps.map((step, i) => (
+              <li key={step.id}>
+                <PortalCard>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <span
+                      aria-hidden
+                      style={{
+                        flexShrink: 0,
+                        width: '2rem',
+                        height: '2rem',
+                        borderRadius: '999px',
+                        background: 'var(--color-accent)',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                    <div>
+                      <h2 className="portal-section-heading" style={{ fontSize: '1rem', margin: '0 0 0.35rem' }}>
+                        {step.title}
+                      </h2>
+                      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </PortalCard>
+              </li>
+            ))}
+          </ol>
+
+          <ProgramCommitmentPanel variant="compact" />
+
+          {screeningPack ? (
+            <PortalCard>
+              <p style={{ margin: 0, fontWeight: 700 }}>Employer screening ({screeningPack.employerLabel})</p>
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                {screeningPack.packTitle} — review the questions your training partner may ask near completion.
+              </p>
+              <Link href="/dashboard/program/employer-screening" className="btn btn-outline" style={{ marginTop: '0.75rem' }}>
+                View screening questions
+              </Link>
+            </PortalCard>
+          ) : null}
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <Link href="/dashboard/program" className="btn btn-primary">
+              Back to My Program
+            </Link>
+            <Link href="/dashboard/training" className="btn btn-outline">
+              Open My Classes
+            </Link>
+          </div>
+        </div>
+      </div>    </>
+  );
+}

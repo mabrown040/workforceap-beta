@@ -1159,3 +1159,133 @@ export async function sendAssessmentResetNotificationEmail(params: {
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }
+
+/** Send a pre-interview prep bundle containing latest AI tool results */
+export async function sendInterviewPrepBundleEmail(params: {
+  to: string;
+  memberName: string;
+  bundle: {
+    items: { toolType: string; title: string; content: string; createdAt: Date }[];
+    generatedAt: Date;
+  };
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendInterviewPrepBundleEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+
+  const to = params.to.trim().toLowerCase();
+  if (!to) return { ok: false, error: 'No recipient configured' };
+
+  const sectionsHtml = params.bundle.items
+    .map(
+      (item) => `
+      <div style="margin-bottom:24px;border:1px solid #eadfdb;border-radius:12px;overflow:hidden;">
+        <div style="padding:10px 14px;background:#f8f5f3;border-bottom:1px solid #eadfdb;font-size:0.85rem;font-weight:700;color:#584144;">
+          ${escapeHtml(item.title)}
+        </div>
+        <div style="padding:14px;font-size:0.85rem;line-height:1.65;color:#231f20;white-space:pre-wrap;">
+          ${escapeHtml(item.content)}
+        </div>
+      </div>
+    `,
+    )
+    .join('');
+
+  const bodyHtml = `
+    <p>Hi ${escapeHtml(params.memberName)},</p>
+    <p>Here is your pre-interview prep bundle — everything you have generated with our AI tools, pulled together so you can review before your next interview.</p>
+    ${sectionsHtml}
+    <p style="margin-top:1rem;">Good luck. You have done the work — now go show them what you can do.</p>
+  `;
+
+  const html = brandedEmailLayout({
+    title: 'Your Pre-Interview Prep Bundle',
+    bodyHtml,
+    ctaText: 'Open AI Toolkit',
+    ctaUrl: `${SITE_URL}/dashboard/ai-tools/interview-prep`,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to,
+      subject: sanitizeEmailSubjectLine('Your Pre-Interview Prep Bundle — WorkforceAP'),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendInterviewPrepBundleEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** ~24h before a logged interview — nudge member to review STAR answers in Interview Practice. */
+export async function sendInterviewPrepReminderEmail(params: {
+  to: string;
+  firstName: string;
+  company: string;
+  role: string;
+  interviewWhenLabel: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) return { ok: false, error: 'Email not configured' };
+  const first = params.firstName.trim().split(/\s+/)[0] || 'there';
+  const html = brandedEmailLayout({
+    title: 'Interview coming up',
+    bodyHtml: `
+      <p>Hi ${escapeHtml(first)},</p>
+      <p>You have <strong>${escapeHtml(params.role)}</strong> at <strong>${escapeHtml(params.company)}</strong> on your tracker, with an interview noted for <strong>${escapeHtml(params.interviewWhenLabel)}</strong>.</p>
+      <p>Open <strong>Interview Practice</strong> in your WorkforceAP portal to rehearse STAR answers and tighten your talking points before you go in.</p>
+    `,
+    ctaText: 'Open Interview Practice',
+    ctaUrl: `${SITE_URL}/dashboard/ai-tools/interview-practice`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Reminder: interview prep for ${params.company}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendInterviewPrepReminderEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Day after interview — lightweight self-report prompt (accountability loop). */
+export async function sendInterviewDebriefPromptEmail(params: {
+  to: string;
+  firstName: string;
+  company: string;
+  role: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) return { ok: false, error: 'Email not configured' };
+  const first = params.firstName.trim().split(/\s+/)[0] || 'there';
+  const html = brandedEmailLayout({
+    title: 'How did your interview go?',
+    bodyHtml: `
+      <p>Hi ${escapeHtml(first)},</p>
+      <p>Yesterday you had <strong>${escapeHtml(params.role)}</strong> at <strong>${escapeHtml(params.company)}</strong> on your calendar.</p>
+      <p>Reply to your counselor in <strong>Counselor Chat</strong> with a quick note (went well / waiting on next steps / need help). Updating your application tracker helps your team support you.</p>
+    `,
+    ctaText: 'Open Counselor Chat',
+    ctaUrl: `${SITE_URL}/dashboard/messages`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Quick check-in: ${params.company} interview`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendInterviewDebriefPromptEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}

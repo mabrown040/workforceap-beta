@@ -41,6 +41,9 @@ export default async function PartnerExportsPage() {
         <a href="/api/partner/export/referrals?preset=outcomes" className="btn btn-secondary">
           Outcomes preset (placement columns)
         </a>
+        <a href="/api/partner/export/referrals?preset=demographics" className="btn btn-secondary">
+          Demographics + placement (funder reporting)
+        </a>
       </div>
       <div className="md:wa-hidden">
         <MobileBottomNav variant="partner" />

@@ -8,7 +8,6 @@ import { getMemberResources } from '@/lib/content/memberResources';
 import { SignOutButton } from '@/components/portal/SignOutButton';
 import PageHeader from '@/components/portal/PageHeader';
 import ResourcesClient from '@/app/(portal)/resources/ResourcesClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -65,8 +64,6 @@ export default async function DashboardCareerLibraryPage() {
           </div>
         </section>
 
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

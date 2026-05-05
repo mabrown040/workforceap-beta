@@ -74,6 +74,8 @@ model User {
   workspaceEmailProvisioned    Boolean             @default(false) @map("workspace_email_provisioned")
   /// Set when career quiz indicates no reliable computer; counselors can follow up.
   needsComputerSupportFollowUp Boolean             @default(false) @map("needs_computer_support_follow_up")
+  /// Daily cron: Coursera course progress stale for this member (see stale-training-check cron).
+  staleTrainingDetectedAt      DateTime?           @map("stale_training_detected_at")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
   careerRecommendationJson     Json?               @map("career_recommendation_json")
   /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
@@ -92,6 +94,7 @@ model User {
   readinessChecklist     ReadinessChecklist[]
   applications           Application[]
   jobApplications        JobApplication[]
+  applicationAiFeedbacks ApplicationAiFeedback[]
   benefitRequests        BenefitRequest[]
   learningProgress       LearningProgress[]
   aiToolResults          AIToolResult[]
@@ -155,12 +158,17 @@ model User {
   courseProgress           CourseProgress[]
   memberProgramProgress    MemberProgramProgress[]
 
+  courseraCourseProgress   CourseraCourseProgress[]
+  courseraBadgeProgress    CourseraBadgeProgress[]
+  courseraSkillsetProgress CourseraSkillsetProgress[]
+
   @@index([organizationId])
   @@index([wioaReviewStatus])
   @@index([enrolledProgram])
   @@index([createdAt])
   @@index([deletedAt])
   @@index([email])
+  @@index([staleTrainingDetectedAt])
   @@map("users")
 }
 
@@ -192,6 +200,11 @@ model Profile {
   consentCommunications Boolean   @default(false) @map("consent_communications")
   smsOptIn              Boolean   @default(false) @map("sms_opt_in")
   financialAidInterest  Boolean?  @map("financial_aid_interest")
+
+  // WIOA grant reporting — self-reported employment barriers and status at enroll
+  hasEmploymentBarrier     Boolean  @default(false) @map("has_employment_barrier")
+  barrierTypes             String[] @default([]) @map("barrier_types")
+  employmentStatusAtEnroll String?  @map("employment_status_at_enroll")
 
   // Minor (under 18) data handling for high school partnerships
   isMinor              Boolean   @default(false) @map("is_minor")
@@ -328,15 +341,21 @@ model JobApplication {
   url               String?
   /// When set, this row is linked to a curated employer job on the member job board.
   curatedJobId      String?              @map("curated_job_id")
+  /// Cron: pre-interview reminder email sent (idempotency).
+  interviewPreReminderSentAt DateTime? @map("interview_pre_reminder_sent_at")
+  /// Cron: day-after interview self-report prompt sent.
+  interviewPostFollowUpSentAt DateTime? @map("interview_post_follow_up_sent_at")
   createdAt         DateTime             @default(now()) @map("created_at")
   updatedAt         DateTime             @updatedAt @map("updated_at")
 
   user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
   curatedJob Job? @relation(fields: [curatedJobId], references: [id], onDelete: SetNull)
+  applicationAiFeedback ApplicationAiFeedback?
 
   @@index([userId])
   @@index([status])
   @@index([curatedJobId])
+  @@index([nextInterviewDate])
   @@map("job_applications")
 }
 
@@ -346,6 +365,7 @@ enum JobApplicationStatus {
   PHONE_SCREEN
   INTERVIEWING
   OFFER
+  ACCEPTED
   REJECTED
 }
 
@@ -619,10 +639,37 @@ model AIToolResult {
   createdAt    DateTime   @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  primaryForApplicationFeedbacks ApplicationAiFeedback[] @relation("PrimaryAiToolResult")
 
   @@index([userId])
   @@index([userId, toolType])
   @@map("ai_tool_results")
+}
+
+/// Member self-report: after logging a job application, did they use AI-prepared materials?
+model ApplicationAiFeedback {
+  id                    String                       @id @default(uuid())
+  jobApplicationId      String                       @unique @map("job_application_id")
+  userId                String                       @map("user_id")
+  howUsed               ApplicationAiFeedbackHowUsed @map("how_used")
+  primaryAiToolResultId String?                      @map("primary_ai_tool_result_id")
+  createdAt             DateTime                     @default(now()) @map("created_at")
+
+  jobApplication      JobApplication @relation(fields: [jobApplicationId], references: [id], onDelete: Cascade)
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  primaryAiToolResult AIToolResult?  @relation("PrimaryAiToolResult", fields: [primaryAiToolResultId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("application_ai_feedback")
+}
+
+enum ApplicationAiFeedbackHowUsed {
+  YES
+  ADJUSTED
+  NO
+  SKIPPED
+
+  @@map("application_ai_feedback_how_used")
 }
 
 enum AIToolType {
@@ -685,6 +732,7 @@ model Partner {
   slug           String   @unique // e.g. "workforce-solutions-austin"
   referralCode   String   @unique @map("referral_code")
   logoUrl        String?  @map("logo_url")
+  brandColor     String?  @map("brand_color") // hex string (e.g. #1E3A8A); partner-scoped accent in portal header
   contactName    String?  @map("contact_name")
   contactEmail   String?  @map("contact_email")
   contactPhone   String?  @map("contact_phone")
@@ -932,6 +980,10 @@ model PlacementRecord {
   programSlug         String? @map("program_slug")
   wageAtFollowUp      Int?    @map("wage_at_follow_up") // annual, 90/180-day follow-up
   retentionStatus     String? @map("retention_status") // e.g. "retained_90d", "retained_180d", "separated"
+  /// End of employer/program onboarding window (e.g. 6 months from placement).
+  onboardingWindowEnd DateTime? @db.Date @map("onboarding_window_end")
+  /// Counselor-recorded outcome after window: retained | not_retained | pending
+  retentionDecision   String?   @map("retention_decision")
   startDateVerified   Boolean @default(false) @map("start_date_verified")
   fundingSource       String? @map("funding_source") // e.g. "WIOA_Adult", "WIOA_Youth", "TAA"
   grantReportingNotes String? @map("grant_reporting_notes") @db.Text
@@ -1062,33 +1114,73 @@ model Invitation {
 // --- Employer Portal & Job Management ---
 
 model Employer {
-  id                    String    @id @default(uuid())
-  organizationId        String    @map("organization_id")
-  userId                String    @unique @map("user_id")
-  tier                  String    @default("basic") @map("tier")
-  companyName           String    @map("company_name")
-  companyWebsite        String?   @map("company_website")
-  companyDescription    String?   @map("company_description")
-  companySize           String?   @map("company_size")
-  industry              String?   @map("industry")
-  logoUrl               String?   @map("logo_url")
-  contactName           String    @map("contact_name")
-  contactEmail          String    @map("contact_email")
-  contactPhone          String?   @map("contact_phone")
-  status                String    @default("active") // active, inactive
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-  onboardingCompletedAt DateTime? @map("onboarding_completed_at")
-  tourCompletedAt       DateTime? @map("tour_completed_at")
+  id                       String    @id @default(uuid())
+  organizationId           String    @map("organization_id")
+  userId                   String    @unique @map("user_id")
+  tier                     String    @default("basic") @map("tier")
+  companyName              String    @map("company_name")
+  companyWebsite           String?   @map("company_website")
+  companyDescription       String?   @map("company_description")
+  companySize              String?   @map("company_size")
+  industry                 String?   @map("industry")
+  logoUrl                  String?   @map("logo_url")
+  contactName              String    @map("contact_name")
+  contactEmail             String    @map("contact_email")
+  contactPhone             String?   @map("contact_phone")
+  status                   String    @default("active") // active, inactive
+  hiringPipelineActive     Boolean   @default(false) @map("hiring_pipeline_active")
+  targetCertifications     String[]  @default([]) @map("target_certifications")
+  placementAgreementSigned Boolean   @default(false) @map("placement_agreement_signed")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+  onboardingCompletedAt    DateTime? @map("onboarding_completed_at")
+  tourCompletedAt          DateTime? @map("tour_completed_at")
 
   user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   jobs           Job[]
   workflowEvents PortalWorkflowEvent[]
   messageThread  MessageThread?
+  hiringIntents  EmployerHiringIntent[]
 
   @@index([organizationId])
   @@map("employers")
+}
+
+/// Employer-signed cohort hiring intent (MOU / pipeline).
+model EmployerHiringIntent {
+  id          String    @id @default(uuid())
+  employerId  String    @map("employer_id")
+  programSlug String    @map("program_slug")
+  seatCount   Int       @map("seat_count")
+  startBy     DateTime? @map("start_by")
+  signedAt    DateTime? @map("signed_at")
+  mouUrl      String?   @map("mou_url")
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  employer Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+
+  @@index([employerId])
+  @@index([programSlug])
+  @@map("employer_hiring_intents")
+}
+
+/// Optional employer-designed screening questions shown to members (end of training).
+model EmployerScreeningPack {
+  id             String   @id @default(uuid())
+  programSlug    String   @map("program_slug")
+  employerLabel  String   @map("employer_label")
+  packTitle      String   @map("pack_title")
+  questionsJson  Json     @map("questions_json")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([programSlug])
+  @@index([isActive])
+  @@map("employer_screening_packs")
 }
 
 enum JobLocationType {
@@ -1720,4 +1812,101 @@ model PointsTransaction {
   @@index([userId])
   @@index([createdAt])
   @@map("points_transactions")
+}
+
+// --- Coursera CSV / xAPI ingestion ---
+
+/// Per-learner-per-course progress imported from the Coursera "Learner activity & progress"
+/// CSV report (CourseActivity tab). Used as a backfill + ongoing-redundancy path alongside
+/// the realtime xAPI bridge. Idempotent on (externalEmail, courseraCourseId).
+model CourseraCourseProgress {
+  id                   String    @id @default(uuid())
+  userId               String?   @map("user_id")
+  externalEmail        String    @map("external_email")
+  externalName         String?   @map("external_name")
+  courseraCourseId     String    @map("coursera_course_id")
+  courseraCourseSlug   String?   @map("coursera_course_slug")
+  courseName           String    @map("course_name")
+  university           String?   @map("university")
+  collectionName       String?   @map("collection_name")
+  collectionId         String?   @map("collection_id")
+  programSlug          String    @map("program_slug")
+  programName          String?   @map("program_name")
+  enrollmentTime       DateTime? @map("enrollment_time")
+  classStartTime       DateTime? @map("class_start_time")
+  classEndTime         DateTime? @map("class_end_time")
+  lastActivityTime     DateTime? @map("last_activity_time")
+  completionTime       DateTime? @map("completion_time")
+  overallProgress      Decimal   @map("overall_progress") @db.Decimal(5, 2)
+  learningHours        Decimal   @map("learning_hours") @db.Decimal(8, 2)
+  isCompleted          Boolean   @default(false) @map("is_completed")
+  isRemovedFromProgram Boolean   @default(false) @map("is_removed_from_program")
+  courseGrade          String?   @map("course_grade")
+  certificateUrl       String?   @map("certificate_url")
+  contractName         String?   @map("contract_name")
+  contractActive       Boolean?  @map("contract_active")
+  source               String    @default("csv_import") @map("source")
+  lastSyncedAt         DateTime  @default(now()) @updatedAt @map("last_synced_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([externalEmail, courseraCourseId])
+  @@index([userId])
+  @@index([programSlug])
+  @@index([courseraCourseId])
+  @@map("coursera_course_progress")
+}
+
+/// Per-learner-per-badge (specialization) progress imported from the Coursera
+/// "Learner activity & progress" CSV report (LearningPathActivity tab). The raw
+/// CSV has one row per (learner, course-within-badge); the ingester deduplicates
+/// to one row per (learner, badgeSlug). Idempotent on (externalEmail, badgeSlug).
+model CourseraBadgeProgress {
+  id                  String    @id @default(uuid())
+  userId              String?   @map("user_id")
+  externalEmail       String    @map("external_email")
+  externalName        String?   @map("external_name")
+  badgeSlug           String    @map("badge_slug")
+  badgeTitle          String    @map("badge_title")
+  badgeLink           String?   @map("badge_link")
+  numberOfCourses     Int       @map("number_of_courses")
+  progressPercent     Decimal   @map("progress_percent") @db.Decimal(5, 2)
+  coursesCompleted    Int       @default(0) @map("courses_completed")
+  currentCourseName   String?   @map("current_course_name")
+  badgeCompleted      Boolean   @default(false) @map("badge_completed")
+  badgeCompletionTime DateTime? @map("badge_completion_time")
+  lastActivityTime    DateTime? @map("last_activity_time")
+  totalLearningHours  Decimal   @map("total_learning_hours") @db.Decimal(8, 2)
+  collectionId        String?   @map("collection_id")
+  collectionName      String?   @map("collection_name")
+  source              String    @default("csv_import") @map("source")
+  lastSyncedAt        DateTime  @default(now()) @updatedAt @map("last_synced_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([externalEmail, badgeSlug])
+  @@index([userId])
+  @@index([badgeSlug])
+  @@map("coursera_badge_progress")
+}
+
+// --- Coursera Active-Pull Sync ---
+
+/// Snapshot of Coursera Enterprise skillset progress for a member, written
+/// by the `coursera-sync` cron. One row per (userId, skillsetId).
+model CourseraSkillsetProgress {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  skillsetId   String   @map("skillset_id")
+  skillsetName String   @map("skillset_name")
+  progressPct  Int      @map("progress_pct") // 0-100
+  programId    String   @map("program_id")
+  programSlug  String?  @map("program_slug")
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillsetId])
+  @@index([programId])
+  @@map("coursera_skillset_progress")
 }

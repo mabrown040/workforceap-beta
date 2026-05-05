@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import WioaQualificationClient from '@/components/portal/WioaQualificationClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
@@ -43,9 +42,7 @@ export default async function WioaQualificationPage() {
           <PortalRouteFallback
             title="WIOA screening is not enabled yet"
             description="This WorkforceAP environment does not have WIOA screening storage enabled yet. If you need WIOA guidance right now, message your counselor and we'll help you with the next steps."
-          />
-          <MobileBottomNav variant="portal" />
-        </>
+          />        </>
       );
     }
     throw error;
@@ -53,8 +50,6 @@ export default async function WioaQualificationPage() {
 
   return (
     <>
-      <WioaQualificationClient initialSnapshot={initial} />
-      <MobileBottomNav variant="portal" />
-    </>
+      <WioaQualificationClient initialSnapshot={initial} />    </>
   );
 }

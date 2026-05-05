@@ -150,10 +150,19 @@ export default function AdminMemberDbActions({
                 style={{ width: '100%', padding: '0.45rem 0.7rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', resize: 'vertical', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button type="submit" disabled={saving} className="btn btn-primary btn-sm">
-                {saving ? 'Saving…' : 'Save changes'}
+              <button type="submit" disabled={saving} aria-busy={saving} className="btn btn-primary btn-sm">
+                <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  {saving ? (
+                    <>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                      Saving…
+                    </>
+                  ) : (
+                    'Save changes'
+                  )}
+                </span>
               </button>
-              <button type="button" onClick={() => { setEditOpen(false); setSaveMsg(null); }} className="btn btn-outline btn-sm">
+              <button type="button" onClick={() => { setEditOpen(false); setSaveMsg(null); }} className="btn btn-outline btn-sm" disabled={saving}>
                 Cancel
               </button>
             </div>

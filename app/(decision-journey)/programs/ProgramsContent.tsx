@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   PROGRAMS,
   WORKFORCEAP_PROGRAM_CATALOG_SIZE,
@@ -24,6 +25,12 @@ import {
 // Do not reintroduce dropdown/accordion browsing for the main public catalog without approval.
 const programs = PROGRAMS;
 
+const STARTER_PROGRAM_SLUGS = [
+  'digital-literacy-empowerment-class',
+  'it-support-professional-certificate-ibm',
+  'project-management-professional-certificate-ibm',
+];
+
 function subgroupCounts(): Record<ProgramSubgroupId, number> {
   const m = {} as Record<ProgramSubgroupId, number>;
   for (const p of PROGRAMS) {
@@ -44,6 +51,7 @@ const CATEGORY_BORDER: Record<string, string> = {
 };
 
 function ProgramCard({ program }: { program: Program }) {
+  const t = useTranslations('marketing.programs');
   const [open, setOpen] = useState(false);
   const extra = getProgramExtra(program.slug);
   const count = program.courses.length;
@@ -63,7 +71,7 @@ function ProgramCard({ program }: { program: Program }) {
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>
       {extra?.bestFor && (
         <p className="program-card-best-for">
-          <strong>Best for:</strong> {extra.bestFor}
+          <strong>{t('cardBestFor')}</strong> {extra.bestFor}
         </p>
       )}
       <div style={{ marginBottom: '.75rem' }}>
@@ -72,10 +80,10 @@ function ProgramCard({ program }: { program: Program }) {
           style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.25rem', fontSize: '0.9rem' }}
         >
           <span>⏱ {program.duration}</span>
-          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Starting range: {salaryRangeDisplay(program)}</span>
+          <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{t('cardStartingRange')} {salaryRangeDisplay(program)}</span>
         </div>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-          Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.
+          {t('cardSalaryDisclaimer')}
         </p>
         {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
           <p className="program-card-outcomes">
@@ -165,6 +173,10 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
     return chips;
   }, [counts, subgroupOrder]);
 
+  const starterPrograms = useMemo(() => STARTER_PROGRAM_SLUGS
+    .map((slug) => programs.find((p) => p.slug === slug))
+    .filter((p): p is Program => Boolean(p)), []);
+
   const filtered = useMemo(() => {
     const bySubgroup =
       activeSubgroup === 'all'
@@ -206,6 +218,27 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
 
         {activeSubgroup === 'all' && searchQuery.trim() === '' ? (
           <div style={{ marginBottom: '2.5rem' }}>
+            <section className="programs-starter-section" aria-labelledby="programs-starter-heading">
+              <div className="programs-starter-heading-row">
+                <div>
+                  <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.35rem' }}>Start here</p>
+                  <h3 id="programs-starter-heading" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
+                    Not sure which one fits? Start with these three.
+                  </h3>
+                </div>
+                <Link href="/find-your-path" className="btn btn-primary">Take the 2-minute quiz</Link>
+              </div>
+              <p style={{ fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', maxWidth: '44rem', lineHeight: 1.6, margin: '0.75rem 0 1rem' }}>
+                These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.
+              </p>
+              <div className="programs-grid">
+                {starterPrograms.map((p) => (
+                  <ProgramCard key={p.slug} program={p} />
+                ))}
+              </div>
+              <a href="#all-programs" className="programs-see-all-link">See all {WORKFORCEAP_PROGRAM_CATALOG_SIZE} programs ↓</a>
+            </section>
+            <div id="all-programs" style={{ scrollMarginTop: '6rem' }} />
             {/* Product stake: keep program groups fully expanded so members can browse visually without understanding dropdowns. */}
             {subgroupOrder.map((sgId) => {
               const meta = PROGRAM_SUBGROUPS.find((s) => s.id === sgId);
@@ -250,6 +283,32 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
               );
             })}
             <style>{`
+
+              .programs-starter-section {
+                margin-bottom: 2rem;
+                padding: 1rem;
+                border: 1px solid var(--outline-variant);
+                border-radius: var(--radius-xl);
+                background: var(--surface-container-low);
+              }
+              .programs-starter-heading-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                flex-wrap: wrap;
+              }
+              .programs-see-all-link {
+                display: inline-flex;
+                margin-top: 1rem;
+                color: var(--color-accent);
+                font-weight: 800;
+                text-decoration: underline;
+                text-underline-offset: 4px;
+              }
+              .programs-quiz-sticky {
+                display: none;
+              }
               .programs-subgroup-heading {
                 display: flex;
                 align-items: baseline;
@@ -257,12 +316,11 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                 flex-wrap: wrap;
                 padding: 0 0 0.35rem;
               }
-              /* Mobile (< 768px): strip secondary card info, enforce touch targets */
+              /* Mobile (< 768px): enforce touch targets */
               @media (max-width: 767px) {
-                .program-card-skills { display: none !important; }
-                .program-card-courses { display: none !important; }
-                .program-card-outcomes { display: none !important; }
-                .program-card-meta-row span:not(:first-child) { display: none !important; }
+                .programs-starter-section { margin-left: -0.25rem; margin-right: -0.25rem; }
+                .programs-quiz-sticky { display: flex; position: sticky; bottom: 0.75rem; z-index: 20; margin: 1.25rem 0 0; justify-content: center; }
+                .programs-quiz-sticky a { box-shadow: 0 10px 30px rgba(0,0,0,0.22); width: min(100%, 24rem); justify-content: center; }
                 .program-card .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
                 .program-card-footer { flex-direction: column; align-items: stretch; }
                 .program-card-footer > div { flex-direction: column; }
@@ -305,6 +363,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           ))}
         </div>
         )}
+        <div className="programs-quiz-sticky"><Link href="/find-your-path" className="btn btn-primary">Not sure? Take the 2-minute quiz</Link></div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>

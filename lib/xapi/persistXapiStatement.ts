@@ -1,0 +1,112 @@
+import { Prisma } from '@prisma/client';
+
+import { prisma } from '@/lib/db/prisma';
+
+export type PersistXapiStatementInput = {
+  statementId?: string | null;
+  actorEmail?: string | null;
+  verb: string;
+  courseId?: string | null;
+  courseName?: string | null;
+  resultScoreScaled?: number | null;
+  resultScoreRaw?: number | null;
+  resultCompletion?: boolean | null;
+  resultSuccess?: boolean | null;
+};
+
+/**
+ * Persist a single xAPI row. When `statementId` is set and already exists, returns `skipped` (idempotent).
+ */
+export async function persistXapiStatement(
+  input: PersistXapiStatementInput
+): Promise<'inserted' | 'skipped'> {
+  const statementId = input.statementId?.trim() || null;
+
+  try {
+    await prisma.xapiStatement.create({
+      data: {
+        statementId,
+        actorEmail: input.actorEmail?.trim().toLowerCase() || null,
+        verb: input.verb,
+        courseId: input.courseId?.trim() || null,
+        courseName: input.courseName?.trim() || null,
+        resultScoreScaled: input.resultScoreScaled ?? null,
+        resultScoreRaw: input.resultScoreRaw ?? null,
+        resultCompletion: input.resultCompletion ?? null,
+        resultSuccess: input.resultSuccess ?? null,
+      },
+    });
+    return 'inserted';
+  } catch (error) {
+    if (
+      statementId &&
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return 'skipped';
+    }
+    throw error;
+  }
+}
+
+export async function markXapiStatementProcessed(statementId: string | null | undefined) {
+  const sid = statementId?.trim();
+  if (!sid) return;
+  await prisma.xapiStatement.updateMany({
+    where: { statementId: sid },
+    data: { processed: true, processedAt: new Date() },
+  });
+}
+
+const COURSERA_REST_WEBHOOK_VERB = 'coursera.rest.webhook';
+
+/**
+ * Idempotency for `/api/webhooks/coursera` deliveries (Coursera retries non-2xx).
+ * Uses `XapiStatement.statementId` as a synthetic delivery key (prefix `wh:rest:`).
+ *
+ * - `already_processed`: safe to return 200 without re-running side effects.
+ * - `retry_processing`: same delivery failed mid-flight; continue processing.
+ * - `fresh`: new delivery row created; proceed then call `markXapiStatementProcessed` on success.
+ */
+export async function claimCourseraRestWebhookStatement(
+  statementId: string
+): Promise<'already_processed' | 'retry_processing' | 'fresh'> {
+  const sid = statementId.trim();
+  if (!sid) return 'fresh';
+
+  const existing = await prisma.xapiStatement.findUnique({
+    where: { statementId: sid },
+    select: { processed: true },
+  });
+
+  if (existing?.processed) return 'already_processed';
+  if (existing) return 'retry_processing';
+
+  try {
+    await prisma.xapiStatement.create({
+      data: {
+        statementId: sid,
+        actorEmail: null,
+        verb: COURSERA_REST_WEBHOOK_VERB,
+        courseId: null,
+        courseName: null,
+        resultScoreScaled: null,
+        resultScoreRaw: null,
+        resultCompletion: null,
+        resultSuccess: null,
+        processed: false,
+      },
+    });
+    return 'fresh';
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const row = await prisma.xapiStatement.findUnique({
+        where: { statementId: sid },
+        select: { processed: true },
+      });
+      if (row?.processed) return 'already_processed';
+      return 'retry_processing';
+    }
+    throw error;
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 type ProfileFormProps = {
   initialUser: { email: string; fullName: string; phone: string | null };
@@ -13,6 +14,8 @@ type ProfileFormProps = {
 };
 
 export default function ProfileForm({ initialUser, initialProfile }: ProfileFormProps) {
+  const tForm = useTranslations('form');
+  const tProfile = useTranslations('profile');
   const [fullName, setFullName] = useState(initialUser.fullName);
   const [phone, setPhone] = useState(initialUser.phone ?? '');
   const [address, setAddress] = useState(initialProfile?.address ?? '');
@@ -87,12 +90,12 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
   return (
     <form onSubmit={handleSubmit} className="apply-form">
       <div className="form-group">
-        <label htmlFor="email">Email</label>
+        <label htmlFor="email">{tForm('email')}</label>
         <input id="email" type="email" value={initialUser.email} disabled className="input-disabled" />
         <p className="form-hint">Email cannot be changed here. Use account settings.</p>
       </div>
       <div className="form-group">
-        <label htmlFor="fullName">Full name *</label>
+        <label htmlFor="fullName">{tForm('fullName')}</label>
         <input
           id="fullName"
           type="text"
@@ -103,7 +106,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
         />
       </div>
       <div className="form-group">
-        <label htmlFor="phone">Phone</label>
+        <label htmlFor="phone">{tForm('phone')}</label>
         <input
           id="phone"
           type="tel"
@@ -113,7 +116,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
         />
       </div>
       <div className="form-group">
-        <label htmlFor="address">Address</label>
+        <label htmlFor="address">{tForm('address')}</label>
         <input
           id="address"
           type="text"
@@ -125,7 +128,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="city">
-            City
+            {tForm('city')}
             {zipLookupLoading ? (
               <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                 (auto-filling...)
@@ -141,7 +144,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           />
         </div>
         <div className="form-group">
-          <label htmlFor="state">State</label>
+          <label htmlFor="state">{tForm('state')}</label>
           <input
             id="state"
             type="text"
@@ -152,7 +155,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           />
         </div>
         <div className="form-group">
-          <label htmlFor="zip">ZIP</label>
+          <label htmlFor="zip">{tForm('zip')}</label>
           <input
             id="zip"
             type="text"
@@ -182,8 +185,8 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           {message.text}
         </div>
       )}
-      <button type="submit" className="btn btn-primary" disabled={saving}>
-        {saving ? 'Saving…' : 'Save changes'}
+      <button type="submit" className="btn btn-primary" disabled={saving} aria-busy={saving}>
+        <span aria-live="polite">{saving ? 'Saving…' : tProfile('saveChanges')}</span>
       </button>
     </form>
   );

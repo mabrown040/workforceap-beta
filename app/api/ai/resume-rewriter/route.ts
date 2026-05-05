@@ -8,6 +8,8 @@ import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
+import { inferResumeFramework, resumeFrameworkPromptBlock } from '@/lib/resume/inferResumeFramework';
+import { prisma } from '@/lib/db/prisma';
 
 export async function POST(request: Request) {
   const user = await getUser();
@@ -39,7 +41,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const { resume, jobTarget, targetSalary, targetLocation, language, subjectMemberId, sessionId } = parsed.data;
+  const { resume, jobTarget, targetSalary, targetLocation, language, subjectMemberId, sessionId, resumeFramework } =
+    parsed.data;
 
   // Resolve subject (In-Office Session: counselor/admin on behalf of member).
   // Default: actor IS subject (legacy member self-serve path).
@@ -48,6 +51,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   }
 
+  let framework = resumeFramework;
+  if (framework === 'auto') {
+    const profile = await prisma.profile.findUnique({
+      where: { userId: onBehalf.subjectUserId },
+      select: { employmentStatus: true, educationLevel: true },
+    });
+    framework = inferResumeFramework({
+      employmentStatus: profile?.employmentStatus,
+      educationLevel: profile?.educationLevel,
+    });
+  }
+  const frameworkBlock = resumeFrameworkPromptBlock(framework);
+
   // Build context string for salary/location signals
   const goalContext = [
     targetSalary ? `Target salary range: ${targetSalary}` : null,
@@ -55,6 +71,8 @@ export async function POST(request: Request) {
   ].filter(Boolean).join('\n');
 
   const systemPrompt = `You are a career positioning coach and professional resume writer. Your job is to help job seekers frame and position their existing experience toward a specific goal — without inventing, fabricating, or exaggerating anything.
+
+${frameworkBlock}
 
 ${aiResponseLanguageInstruction(language)}
 

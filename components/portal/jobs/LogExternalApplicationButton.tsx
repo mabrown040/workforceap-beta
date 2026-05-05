@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, ExternalLink, Loader2 } from 'lucide-react';
+import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
+import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
 
 /**
  * "I applied somewhere else — log it" CTA + modal form.
@@ -29,6 +31,8 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
   const [submitting, setSubmitting] = useState(false);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [feedbackAppId, setFeedbackAppId] = useState<string | null>(null);
+  const [feedbackTools, setFeedbackTools] = useState<RecentToolOption[]>([]);
 
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
@@ -59,6 +63,8 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
     setNotes('');
     setSavedAt(null);
     setError(null);
+    setFeedbackAppId(null);
+    setFeedbackTools([]);
   };
 
   const close = () => {
@@ -90,6 +96,13 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
         return;
       }
       setSavedAt(data.appliedAt ? new Date(data.appliedAt) : new Date());
+      if (data.promptAiFeedback && data.applicationId && Array.isArray(data.recentTools) && data.recentTools.length) {
+        setFeedbackAppId(data.applicationId as string);
+        setFeedbackTools(data.recentTools as RecentToolOption[]);
+      } else {
+        setFeedbackAppId(null);
+        setFeedbackTools([]);
+      }
       setSubmitting(false);
     } catch (err) {
       console.error('[log-external]', err);
@@ -140,6 +153,20 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
                 {' '}{savedAt.toLocaleDateString()}. Your counselor was notified and can offer interview
                 prep or follow-up support.
               </p>
+              {feedbackAppId && feedbackTools.length > 0 ? (
+                <ApplicationAiFeedbackPrompt
+                  jobApplicationId={feedbackAppId}
+                  recentTools={feedbackTools}
+                  onDone={() => {
+                    setFeedbackAppId(null);
+                    setFeedbackTools([]);
+                  }}
+                  onSkip={() => {
+                    setFeedbackAppId(null);
+                    setFeedbackTools([]);
+                  }}
+                />
+              ) : null}
               <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-secondary btn-small" onClick={close}>
                   Done

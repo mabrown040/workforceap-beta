@@ -16,7 +16,7 @@ function ActionItems({ onItemClick, badges }: { onItemClick?: () => void; badges
       <NotificationBell badges={badges} />
       <ThemeToggle variant="portal" />
       <DevViewToggle />
-      <Link href="/" className="btn btn-outline btn-sm" onClick={onItemClick}>
+      <Link href="/" prefetch={false} className="btn btn-outline btn-sm" onClick={onItemClick}>
         {PRODUCT_COPY.publicSiteLabel}
       </Link>
       <SignOutButton className="btn btn-outline btn-sm" onSignOutStart={onItemClick} />

@@ -1,15 +1,23 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getCourseraReadiness } from '@/lib/coursera/config';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
+import type { CourseraDiscoveredCourse } from '@/lib/content/courseraDiscoveredCatalog';
 import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import TrainingDataFlowStrip from '@/components/portal/TrainingDataFlowStrip';
+import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
+import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
+import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
+import { trackTrainingTabViewed } from '@/lib/analytics/track';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -22,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TrainingPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
+  const tTraining = await getTranslations('training');
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -33,12 +42,25 @@ export default async function TrainingPage() {
   });
 
   if (!dbUser?.enrolledProgram) {
-    redirect('/dashboard/program');
+    return (
+      <div className="portal-main-content">
+        <div className="content-card" style={{ maxWidth: '36rem', margin: '2rem auto', textAlign: 'center', padding: '2rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>school</span>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>Training starts after enrollment</h1>
+          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
+            Your counselor will enroll you in a funded program before your Coursera courses unlock. Once enrolled, this page becomes your training hub.
+          </p>
+          <Link href="/dashboard/program" className="btn btn-primary">Choose my program</Link>
+        </div>
+      </div>
+    );
   }
 
   if (!dbUser.assessmentCompleted) {
     redirect('/dashboard/assessment?redirect=/dashboard/training');
   }
+
+  trackTrainingTabViewed(user.id);
 
   const program = getProgramBySlug(dbUser.enrolledProgram);
   if (!program) redirect('/dashboard/program');
@@ -46,7 +68,7 @@ export default async function TrainingPage() {
   const discovered = getDiscoveredProgram(program);
   const coursesWithIds = program.courses.map((c) => ({
     ...c,
-    courseraCourseId: discovered?.courses.find((dc) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
+    courseraCourseId: discovered?.courses.find((dc: CourseraDiscoveredCourse) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
   }));
 
   const [progressRows, programRollup] = await Promise.all([
@@ -82,11 +104,13 @@ export default async function TrainingPage() {
         ? Math.round((completedFromRows / program.courses.length) * 100)
         : 0;
 
+  const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
+
   return (
     <>
       <div className="portal-main-content">
         <PageHeader
-          title="My Training"
+          title={tTraining('myTraining')}
           subtitle={
             <>
               <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
@@ -95,7 +119,7 @@ export default async function TrainingPage() {
           }
           breadcrumbs={[
             { label: 'Member Portal', href: '/dashboard' },
-            { label: 'My Training' },
+            { label: tTraining('myTraining') },
           ]}
         />
 
@@ -128,16 +152,14 @@ export default async function TrainingPage() {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', marginTop: '0.75rem', marginBottom: '1rem' }}>
-            <a
+            <TrackedCourseraLaunchLink
               href="/api/member/coursera/launch"
-              target="_blank"
-              rel="noopener noreferrer"
               className="btn btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.65rem 1rem' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
               Open Coursera
-            </a>
+            </TrackedCourseraLaunchLink>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
               <a
                 href="/dashboard/certifications"
@@ -156,9 +178,7 @@ export default async function TrainingPage() {
                 Readiness
               </a>
             </div>
-          </div>
-          <MobileBottomNav variant="portal" />
-        </div>
+          </div>        </div>
 
         {/* Desktop */}
         <div className="wa-hidden md:wa-block">
@@ -200,10 +220,8 @@ export default async function TrainingPage() {
               flexWrap: 'wrap',
             }}
           >
-            <a
+            <TrackedCourseraLaunchLink
               href="/api/member/coursera/launch"
-              target="_blank"
-              rel="noopener noreferrer"
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',
@@ -214,7 +232,7 @@ export default async function TrainingPage() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
               Open Coursera
-            </a>
+            </TrackedCourseraLaunchLink>
             <a
               href="/dashboard/certifications"
               className="btn btn-outline"
@@ -244,6 +262,55 @@ export default async function TrainingPage() {
           </div>
         </div>
 
+        <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
+          <CourseraProgressCard userId={user.id} />
+        </div>
+
+        <div style={{ padding: '0 1rem' }}>
+          <TrainingDataFlowStrip />
+          <details className="training-sync-details">
+            <summary>Optional: refresh progress &amp; Coursera tools</summary>
+            <div className="training-sync-details__body">
+              <p style={{ margin: '0 0 var(--space-4)', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
+                Pull the latest completion data from Coursera, or open the full Coursera hub for launches and partner notes.
+              </p>
+              <CourseraSyncCard enabled={courseraReadiness.canSync} />
+              <p style={{ margin: 'var(--space-4) 0 0' }}>
+                <Link href="/dashboard/coursera" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>hub</span>
+                  Open Coursera hub
+                </Link>
+              </p>
+            </div>
+          </details>
+
+          <section
+            className="portal-card portal-card--flat"
+            style={{ borderLeft: '4px solid var(--color-blue)', marginTop: '1.25rem' }}
+          >
+            <div className="portal-card__body">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-blue)', '--ms-fill': 1 }}>
+                  route
+                </span>
+                <h2 className="portal-section-heading" style={{ margin: 0, fontSize: '1rem' }}>What happens after I start?</h2>
+              </div>
+              <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.875rem', lineHeight: 1.6 }}>
+                Finish your courses in order. As you progress, WorkforceAP uses that momentum to support certificates, resume upgrades, interview prep, and job applications.
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                <li>Start with your current Coursera course.</li>
+                <li>Certificates from Coursera appear automatically in your vault as you complete courses.</li>
+                <li>Use readiness + AI tools alongside training so job help starts earlier.</li>
+              </ul>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem', marginTop: '1rem' }}>
+                <a href="/dashboard/guide" className="btn btn-outline">View full guide</a>
+                <a href="/dashboard/certifications" className="btn btn-outline">Open certificates</a>
+              </div>
+            </div>
+          </section>
+        </div>
+
         {/* Shared course list - rendered once to avoid duplication */}
         <div style={{ padding: '0 1rem' }}>
           <section>
@@ -254,7 +321,7 @@ export default async function TrainingPage() {
               <h2 className="portal-section-heading" style={{ margin: 0 }}>Your Courses</h2>
             </div>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)' }}>
-              {program.title} on Coursera (our online partner). Complete courses in order and mark each one done as you finish.
+              {program.title} on Coursera (our online partner). Complete courses in order; progress updates when Coursera sends activity, and you can still mark a course done manually if needed.
             </p>
             <TrainingCourseList
               courses={coursesWithIds}

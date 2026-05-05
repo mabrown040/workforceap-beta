@@ -89,8 +89,17 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
               {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
-          <button type="submit" className="btn btn-primary btn-sm" disabled={saving} style={{ alignSelf: 'flex-start' }}>
-            {saving ? 'Adding…' : 'Add Counselor'}
+          <button type="submit" className="btn btn-primary btn-sm" disabled={saving} aria-busy={saving} style={{ alignSelf: 'flex-start' }}>
+            <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              {saving ? (
+                <>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                  Adding…
+                </>
+              ) : (
+                'Add Counselor'
+              )}
+            </span>
           </button>
         </form>
       </div>

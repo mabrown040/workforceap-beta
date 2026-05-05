@@ -285,4 +285,22 @@ From call notes #16, #18, #19 — a signup flow audit was flagged as needed. Thi
 
 ---
 
-*Document owner: Forge ⚙️ | Last updated: 2026-03-29*
+## 2026-04-29 addendum — preview-first portal rollout
+
+For the current portal hardening / QA pass, use:
+- `docs/plans/2026-04-29-portal-preview-rollout.md`
+
+Why this exists:
+- keep rollout scope small enough to avoid breaking the site
+- favor preview/staging over prod for design and shell changes
+- prioritize the highest-confidence fixes first: copy, audit harness, targeted shell cleanup
+
+Recommended order for this sprint:
+1. employer / partner / counselor sub-pages
+2. member AI tools
+3. admin heading cleanup
+4. broader shell refactor only after preview confidence is high
+
+---
+
+*Document owner: Forge ⚙️ | Last updated: 2026-04-29*

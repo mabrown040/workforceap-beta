@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
+import ToolFollowThrough from './ToolFollowThrough';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
 function parseOverallScore(text: string): number {
@@ -196,19 +197,22 @@ export default function ResumeStrengthForm() {
       </button>
 
       {output && (
-        <ResumeAnalysisPanel
-          resumePreview={resume}
-          scorePercent={scorePercent}
-          gaugeLabel="Overall strength"
-          matchedSkills={['ATS-friendly structure', 'Clear sections', 'Action-oriented language']}
-          missingSkills={['See priority improvements in analysis']}
-          analysisText={output}
-          sectionAuditCards={sectionAuditCards}
-          missingMetrics={missingMetrics}
-          bulletSuggestions={bulletSuggestions}
-          exportTitle="Resume Strength Analysis"
-          pdfToolName="Resume Analysis"
-        />
+        <>
+          <ResumeAnalysisPanel
+            resumePreview={resume}
+            scorePercent={scorePercent}
+            gaugeLabel="Overall strength"
+            matchedSkills={['ATS-friendly structure', 'Clear sections', 'Action-oriented language']}
+            missingSkills={['See priority improvements in analysis']}
+            analysisText={output}
+            sectionAuditCards={sectionAuditCards}
+            missingMetrics={missingMetrics}
+            bulletSuggestions={bulletSuggestions}
+            exportTitle="Resume Strength Analysis"
+            pdfToolName="Resume Analysis"
+          />
+          <ToolFollowThrough toolType="resume_rewriter" />
+        </>
       )}
       {showFloating && (
         <div

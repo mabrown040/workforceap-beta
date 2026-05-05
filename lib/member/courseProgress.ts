@@ -7,6 +7,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
+import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
 import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
@@ -26,21 +27,6 @@ function matchCourseSlugFromObjectId(programSlug: string, objectId: string | nul
   return null;
 }
 
-function inferNextStatus(parsed: ParsedXapiStatement): CourseProgressStatus | null {
-  if (!isXapiCourseProgressVerb(parsed)) return null;
-  if (isXapiCompletionVerb(parsed)) return CourseProgressStatus.COMPLETED;
-  const verbId = (parsed.verbId ?? '').toLowerCase();
-  if (
-    verbId.includes('started')
-    || verbId.includes('registered')
-    || verbId.includes('initialized')
-    || verbId.includes('progressed')
-  ) {
-    return CourseProgressStatus.IN_PROGRESS;
-  }
-  return null;
-}
-
 function mergePercent(current: number, incoming: number | null | undefined): number {
   if (incoming == null || !Number.isFinite(incoming)) return current;
   const clamped = Math.max(0, Math.min(100, Math.round(incoming)));
@@ -54,10 +40,11 @@ export async function refreshMemberProgramProgressRollup(userId: string, program
 
   const rows = await prisma.courseProgress.findMany({
     where: { userId, programSlug },
-    select: { status: true, percentComplete: true },
+    select: { status: true, percentComplete: true, courseSlug: true },
   });
 
-  const completed = rows.filter((r) => r.status === CourseProgressStatus.COMPLETED).length;
+  const completedRows = rows.filter((r) => r.status === CourseProgressStatus.COMPLETED);
+  const completed = completedRows.length;
   const sumPercent = rows.reduce((acc, r) => acc + r.percentComplete, 0);
   const averagePercent = totalCourses > 0 ? Math.round(sumPercent / totalCourses) : 0;
 
@@ -76,6 +63,31 @@ export async function refreshMemberProgramProgressRollup(userId: string, program
       averagePercent,
     },
   });
+
+  // Sync legacy User.coursesCompleted JSON. Counselor and partner views still
+  // read this field directly; without this sync, xAPI-driven completions are
+  // invisible to those audiences while the member sees fresh data — the same
+  // member would show different completion counts on different portals. Union
+  // with existing JSON to preserve any slugs added before CourseProgress
+  // existed.
+  const completedFromCourseProgress = completedRows.map((r) => r.courseSlug);
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { coursesCompleted: true },
+  });
+  const legacy = Array.isArray(existingUser?.coursesCompleted)
+    ? (existingUser.coursesCompleted as unknown[]).filter((s): s is string => typeof s === 'string')
+    : [];
+  const merged = Array.from(new Set([...legacy, ...completedFromCourseProgress]));
+  if (
+    merged.length !== legacy.length ||
+    merged.some((slug) => !legacy.includes(slug))
+  ) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { coursesCompleted: merged },
+    });
+  }
 }
 
 export async function markCourseProgressCompleted(args: {
@@ -142,7 +154,7 @@ export async function upsertCourseProgressFromXapiStatement(args: {
 
   if (!matched) return;
 
-  const nextStatus = inferNextStatus(parsed);
+  const nextStatus = inferCourseProgressStatusFromXapiVerb(parsed);
   if (!nextStatus) return;
 
   const meta = discoveredMetaForSlug(enrolledProgramSlug, matched.slug);

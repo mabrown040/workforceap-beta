@@ -8,7 +8,6 @@ import { buildScoreBreakdownFromRelations } from '@/lib/readiness/score';
 import { fetchCareerBriefRelations } from '@/lib/content/careerBriefPersonalization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { parseProgramSalaryRange, salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -406,8 +405,6 @@ export default async function CareerBriefPage() {
             ))}
           </div>
         </div>
-      </div>
-      <MobileBottomNav variant="portal" />
-    </>
+      </div>    </>
   );
 }

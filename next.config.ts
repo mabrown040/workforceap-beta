@@ -2,7 +2,10 @@ import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { withSentryConfig } from '@sentry/nextjs';
+import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -61,15 +64,21 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/admin/:path*',
+        source: '/_next/static/:path*',
         headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=31536000' },
         ],
       },
     ];
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     qualities: [85],
     localPatterns: [
       {
@@ -186,6 +195,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withNextIntl(nextConfig), {
   silent: true,
 });

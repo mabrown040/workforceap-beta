@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     if (discoveredProg) {
       const discoveredCourse = discoveredProg.courses.find((c) => c.slug === requestedSlug);
       if (discoveredCourse) {
-        const programSlugFromUrl = discoveredProg.publicProgramUrl.match(/\/programs\/([^/?#]+)/)?.[1];
+        const programSlugFromUrl = (discoveredProg.publicProgramUrl ?? '').match(/\/programs\/([^/?#]+)/)?.[1];
         if (programSlugFromUrl) {
           return NextResponse.redirect(
             `https://www.coursera.org/programs/${programSlugFromUrl}/learn/${discoveredCourse.slug}`

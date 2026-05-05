@@ -33,9 +33,9 @@ export async function POST(request: Request) {
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    if (!validateFileType(buffer, file.type || '', file.name)) {
+    if (!validateFileType(buffer, file.type || '', file.name, { allowTxt: true })) {
       return NextResponse.json(
-        { error: 'Invalid file type. Use PDF, DOCX, or TXT.' },
+        { error: 'Invalid file type. Use PDF, DOC, DOCX, or TXT.' },
         { status: 400 }
       );
     }

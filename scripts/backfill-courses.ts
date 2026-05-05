@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { DISCOVERED_COURSERA_PROGRAMS } from '../lib/content/courseraDiscoveredCatalog';
-import { PROGRAMS } from '../lib/content/programs';
+import { getDiscoveredProgram, PROGRAMS } from '../lib/content/programs';
 
 const prisma = new PrismaClient();
 
@@ -25,12 +24,12 @@ async function main() {
     let orgCoursesBackfilled = 0;
 
     for (const program of PROGRAMS) {
-      const discovered = DISCOVERED_COURSERA_PROGRAMS[program.slug];
+      const discovered = getDiscoveredProgram(program.slug);
       if (!discovered) continue;
 
       for (let i = 0; i < program.courses.length; i++) {
         const pCourse = program.courses[i];
-        const dCourse = discovered.courses.find((c) => c.slug === pCourse.slug || c.name === pCourse.name);
+        const dCourse = discovered.courses.find((course) => course.slug === pCourse.slug || course.name === pCourse.name);
         const urlType = 'learn';
 
         await prisma.course.upsert({

@@ -4,8 +4,7 @@ import { sendWeeklyRecapEmail } from '@/lib/email';
 import { generateWeeklyRecap } from '@/lib/recap/generate';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
-import { isCronEnabled } from '@/lib/cron/isCronEnabled';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * GET /api/cron/weekly-recap
@@ -17,15 +16,7 @@ import { isCronEnabled } from '@/lib/cron/isCronEnabled';
  *
  * Or trigger manually from admin at /admin/weekly-recap.
  */
-async function handle(request: Request) {
-  const unauthorized = authorizeCronRequest(request);
-  if (unauthorized) return unauthorized;
-
-  if (!(await isCronEnabled('cron_weekly_recap'))) {
-    await logCronRun('cron_weekly_recap', { skipped: true, reason: 'disabled' }, 'ok');
-    return NextResponse.json({ skipped: true, reason: 'disabled' });
-  }
-
+async function handle(_request: Request) {
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
   weekStart.setHours(0, 0, 0, 0);
@@ -87,5 +78,5 @@ async function handle(request: Request) {
   return NextResponse.json(runResult);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_weekly_recap', handle);
+export const POST = withCronLogging('cron_weekly_recap', handle);

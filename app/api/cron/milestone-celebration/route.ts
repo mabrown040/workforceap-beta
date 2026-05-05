@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
-import { isCronEnabled } from '@/lib/cron/isCronEnabled';
+
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * GET /api/cron/milestone-celebration
@@ -13,15 +13,7 @@ import { isCronEnabled } from '@/lib/cron/isCronEnabled';
  *
  * Deploy with Vercel Cron: schedule "0 11 * * *" (daily 11AM UTC)
  */
-async function handle(req: NextRequest) {
-  const unauthorized = authorizeCronRequest(req);
-  if (unauthorized) return unauthorized;
-
-  if (!(await isCronEnabled('cron_milestone_celebration'))) {
-    await logCronRun('cron_milestone_celebration', { skipped: true, reason: 'disabled' }, 'ok');
-    return NextResponse.json({ skipped: true, reason: 'disabled' });
-  }
-
+async function handle(_req: NextRequest) {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   yesterday.setHours(0, 0, 0, 0);
@@ -58,5 +50,5 @@ async function handle(req: NextRequest) {
   return NextResponse.json(runResult);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_milestone_celebration', handle);
+export const POST = withCronLogging('cron_milestone_celebration', handle);

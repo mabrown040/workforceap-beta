@@ -16,5 +16,7 @@ export async function logCronRun(
       summary: `Scheduled run: ${JSON.stringify(result).slice(0, 200)}`,
       metadata,
     },
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error(`[logCronRun] Failed to write workflowDiagnostic for ${workflowKey}:`, err);
+  });
 }

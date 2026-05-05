@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
@@ -232,12 +233,15 @@ export default async function WhatWeDoPage() {
                   overflow: 'hidden',
                   aspectRatio: '3 / 4',
                   background: 'var(--surface-container)',
+                  position: 'relative',
                 }}
               >
-                <img
+              <Image
                   src="/images/hero-people.jpg"
                   alt="Diverse team collaborating on workforce development"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
               <div

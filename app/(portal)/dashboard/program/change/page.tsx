@@ -84,6 +84,17 @@ export default async function ProgramChangePage() {
               </p>
             </div>
           </PortalCard>
+        ) : otherPrograms.length === 0 ? (
+          <PortalCard>
+            <div style={{ padding: '1rem', display: 'grid', gap: '0.5rem' }}>
+              <p style={{ margin: 0, fontWeight: 700 }}>
+                No alternative programs are available right now.
+              </p>
+              <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                You are already enrolled in the only active program in our catalog. If you would like to discuss your fit or pause enrollment, contact a counselor through Counselor Chat.
+              </p>
+            </div>
+          </PortalCard>
         ) : (
           <PortalCard>
             <div style={{ padding: '1rem' }}>

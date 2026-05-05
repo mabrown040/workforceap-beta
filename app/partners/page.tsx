@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldCheck } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -169,10 +170,12 @@ export default async function PartnersPage() {
                   aspectRatio: '3 / 4',
                 }}
               >
-                <img
+                <Image
                   src="/images/hero-people.jpg"
                   alt={t('imgAlt')}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
             </div>
@@ -635,12 +638,13 @@ export default async function PartnersPage() {
                   position: 'relative',
                 }}
               >
-                <img
+                <Image
                   src="/images/hero-people.jpg"
                   alt=""
+                  fill
                   aria-hidden="true"
-                  loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
+                  style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </figure>
             </div>

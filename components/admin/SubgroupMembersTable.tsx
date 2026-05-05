@@ -238,6 +238,9 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
           onClick={() => setShowAddModal(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-member-dialog-title"
             style={{
               background: 'white',
               padding: '1.5rem',
@@ -249,7 +252,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ margin: '0 0 1rem' }}>Add member to subgroup</h3>
+            <h3 id="add-member-dialog-title" style={{ margin: '0 0 1rem' }}>Add member to subgroup</h3>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
               <input
                 type="text"

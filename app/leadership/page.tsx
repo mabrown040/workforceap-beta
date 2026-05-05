@@ -97,12 +97,7 @@ export default async function LeadershipPage() {
                   lineHeight: 1.75,
                 }}
               >
-                Our governance team combines{' '}
-                <strong>decades of workforce development leadership</strong>,{' '}
-                <strong>employer-side tech credibility</strong>,{' '}
-                <strong>military and operations discipline</strong>, and{' '}
-                <strong>deep community roots</strong> — connecting workforce
-                training to real outcomes across the nation.
+                {t('governanceBody')}
               </p>
             </div>
 
@@ -133,7 +128,7 @@ export default async function LeadershipPage() {
                   className="text-label-upper"
                   style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}
                 >
-                  Established 2025
+                  {t('established')}
                 </span>
               </div>
 
@@ -149,10 +144,7 @@ export default async function LeadershipPage() {
                   opacity: 0.85,
                 }}
               >
-                &ldquo;This isn&rsquo;t a generic nonprofit team. These are
-                people who&rsquo;ve run programs at scale, led at Goodwill and
-                Urban League, built systems at IBM and Microsoft, commanded in
-                the Army and at AWS &mdash; and who show up nationwide.&rdquo;
+                &ldquo;{t('quote')}&rdquo;
               </p>
             </div>
           </div>

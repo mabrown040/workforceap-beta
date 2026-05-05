@@ -168,6 +168,7 @@ export default async function PartnersPage() {
                   borderRadius: 'var(--radius-xl)',
                   overflow: 'hidden',
                   aspectRatio: '3 / 4',
+                  position: 'relative',
                 }}
               >
                 <Image

@@ -233,6 +233,7 @@ export default async function WhatWeDoPage() {
                   overflow: 'hidden',
                   aspectRatio: '3 / 4',
                   background: 'var(--surface-container)',
+                  position: 'relative',
                 }}
               >
               <Image

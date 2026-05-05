@@ -9,13 +9,12 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           {variant === 'inner' ? (
             <Image
-              src="/images/wap_logo.png"
+              src="/images/logo-tight.svg"
               alt="WorkforceAP"
               className="footer-logo"
-              width={1930}
-              height={985}
+              width={640}
+              height={240}
               sizes="(max-width: 768px) 140px, 210px"
-              quality={85}
               loading="lazy"
               style={{ maxWidth: '180px', height: 'auto', marginBottom: '1rem' }}
             />

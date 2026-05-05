@@ -61,9 +61,9 @@ export const LEADERS: Leader[] = [
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:
-      'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a Vision given and a reoccurring Dream given to Michael Brown for years. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
+      'Michael Brown, PMP, is a highly accomplished business executive with a distinguished career spanning several decades. WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a reoccurring Vision given to Michael Brown by God for serving His people. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
     missionRelevance:
-      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a Vision given and a reoccurring Dream given to Michael Brown for years — the barrier-breaking experience that built WorkforceAP.',
+      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a reoccurring Vision given to Michael Brown by God for serving His people — the barrier-breaking experience that built WorkforceAP.',
     bioBlocks: [
       {
         type: 'paragraph',
@@ -73,7 +73,7 @@ export const LEADERS: Leader[] = [
       {
         type: 'paragraph',
         text:
-          'WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a Vision given and a reoccurring Dream given to Michael Brown for years.',
+          'WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and reoccurring Vision given to Michael Brown by God for serving His people.',
       },
       {
         type: 'paragraph',

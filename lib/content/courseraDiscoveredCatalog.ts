@@ -1,4 +1,21 @@
-export const DISCOVERED_COURSERA_PROGRAMS = {
+export type DiscoveredCourseraCourse = {
+  courseId: string;
+  slug: string;
+  name: string;
+  partner: string | null;
+  estimatedHours?: number;
+};
+
+export type DiscoveredCourseraProgram = {
+  courseraProgramId: string;
+  title: string;
+  courses: DiscoveredCourseraCourse[];
+  courseraCollectionTitle?: string;
+  /** Optional public/enterprise learner program URL. */
+  publicProgramUrl?: string;
+};
+
+export const DISCOVERED_COURSERA_PROGRAMS: Record<string, DiscoveredCourseraProgram> = {
   "comptia-a-plus": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "CompTIA A+ Professional Certificate",

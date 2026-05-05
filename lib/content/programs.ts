@@ -48,7 +48,7 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return null;
 
-  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle);
+  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
   const brandedSuffix = title.match(/\(([^)]+)\)\s*$/)?.[1]?.trim();
   const recognizedCredentialBrands = new Set(['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA']);
   if (brandedSuffix && recognizedCredentialBrands.has(brandedSuffix)) return brandedSuffix;
@@ -63,7 +63,7 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
 export function getProgramDisplayTitle(program: Program | string): string {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return typeof program === 'string' ? program : program.title;
-  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle);
+  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
 }
 
 export function getProgramDisplayPartner(program: Program | string): string {
@@ -105,7 +105,7 @@ function mkProgram(
     ? discoveredCourses.map((course) => ({
         slug: course.slug,
         name: course.name,
-        estimatedHours: course.estimatedHours || defaultHours,
+        estimatedHours: course.estimatedHours ?? defaultHours,
       }))
     : courseNames.map((name, i) => ({
         slug: `${slug}-course-${i + 1}`,

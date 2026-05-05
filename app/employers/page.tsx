@@ -239,9 +239,9 @@ export default async function EmployersPage() {
         <h2 className="text-display-sm" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>{t('processTitle')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           {[
-            { step: '1', icon: 'work', title: 'Post a Role or Browse', desc: 'Tell us what you need — or browse our pipeline of trained, job-ready candidates.' },
-            { step: '2', icon: 'groups', title: 'We Match You', desc: 'Our team connects you with vetted graduates whose skills align with your requirements.' },
-            { step: '3', icon: 'handshake', title: 'Hire When Ready', desc: 'Interview on your timeline with support from our team when you need it.' },
+            { step: '1', icon: 'work', title: t('introStep1Title'), desc: t('introStep1Desc') },
+            { step: '2', icon: 'groups', title: t('introStep2Title'), desc: t('introStep2Desc') },
+            { step: '3', icon: 'handshake', title: t('introStep3Title'), desc: t('introStep3Desc') },
           ].map((item) => (
             <div key={item.step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
               <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.25rem', flexShrink: 0 }}>{item.step}</div>
@@ -281,8 +281,7 @@ export default async function EmployersPage() {
                   {t('valueTitle')}
                 </h2>
                 <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                  Every candidate in our network completes structured training aligned with our
-                  academic and professional partners.
+                  {t('valueIntro')}
                 </p>
                 <div
                   style={{
@@ -298,8 +297,7 @@ export default async function EmployersPage() {
                     psychology
                   </span>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem', margin: 0, lineHeight: 1.5 }}>
-                    <strong>Guided career tools and counselor support:</strong> Members work through resumes,
-                    interview prep, and applications with structured tools and one-on-one counselor guidance.
+                    <strong>{t('valueGuidedTitle')}</strong> {t('valueGuidedBody')}
                   </p>
                 </div>
               </div>
@@ -420,10 +418,10 @@ export default async function EmployersPage() {
               className="emp-cohort-card"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'rgba(255,255,255,0.9)', '--ms-fill': 1 }}>computer</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff' }}>IT Support</h3>
-              <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)' }}>IBM Professional Certificate</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff' }}>{t('cohortItTitle')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)' }}>{t('cohortItSubtitle')}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.15)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{t('cohortLevel')} Entry-level</span>
+                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{t('cohortLevel')} {t('cohortLevelEntry')}</span>
                 <span style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>{t('cohortSalary')} $55K-$72K</span>
               </div>
             </div>
@@ -442,10 +440,10 @@ export default async function EmployersPage() {
               className="emp-cohort-card"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>security</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Cybersecurity</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>Google / CompTIA pathway</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('cohortCyberTitle')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortCyberSubtitle')}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} Entry to mid</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} {t('cohortLevelEntryToMid')}</span>
                 <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{t('cohortSalary')} $75K-$112K</span>
               </div>
             </div>
@@ -464,10 +462,10 @@ export default async function EmployersPage() {
               className="emp-cohort-card"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>cloud_queue</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>AWS Cloud</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>AWS Cloud Technology</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('cohortAwsTitle')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortAwsSubtitle')}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} Entry to mid</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} {t('cohortLevelEntryToMid')}</span>
                 <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{t('cohortSalary')} $95K-$145K</span>
               </div>
             </div>
@@ -486,10 +484,10 @@ export default async function EmployersPage() {
               className="emp-cohort-card"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>analytics</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Data Analytics</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>Google Data Analytics</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('cohortDataTitle')}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortDataSubtitle')}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} Entry-level</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} {t('cohortLevelEntry')}</span>
                 <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{t('cohortSalary')} $72K-$102K</span>
               </div>
             </div>
@@ -510,10 +508,10 @@ export default async function EmployersPage() {
                 marginBottom: '0.75rem',
               }}
             >
-              How Hiring{' '}
-              <span style={{ color: 'var(--color-accent)' }}>Experience</span>
+              {t('hiringSectionTitle')}{' '}
+              <span style={{ color: 'var(--color-accent)' }}>{t('hiringSectionTitleAccent')}</span>
             </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>Submit the employer intake and we will review it within 1–2 business days.</p>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>{t('hiringSectionSubtitle')}</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0', position: 'relative' }} className="emp-process-grid">
@@ -578,7 +576,7 @@ export default async function EmployersPage() {
             >
               {t('tiersTitle')}
             </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>Choose the level that fits your hiring needs</p>
+            <p style={{ color: 'var(--color-on-surface-variant)' }}>{t('tiersSubtitle')}</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }} className="emp-tiers-grid">
@@ -624,7 +622,7 @@ export default async function EmployersPage() {
               }}
             >
               <span style={{ position: 'absolute', top: '-0.75rem', left: '50%', transform: 'translateX(-50%)', background: 'var(--color-accent)', color: '#fff', padding: '0.25rem 1rem', borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                Most Popular
+                {t('tierMostPopular')}
               </span>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('tierStrategic')}</h3>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
@@ -671,7 +669,7 @@ export default async function EmployersPage() {
       </section>
 
       {/* ── Contact Form Section ── */}
-      <section id="employer-contact" style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
+      <section id="employer-contact-form" style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
             style={{
@@ -715,19 +713,19 @@ export default async function EmployersPage() {
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>schedule</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                    Response time: 1–2 business days after submission.
+                    {t('formResponseTime')}
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>groups</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                    For employers hiring now, building a pipeline, or planning an upskill program.
+                    {t('formAudience')}
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                   <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '1.1rem', marginTop: '0.15rem' }}>fact_check</span>
                   <p style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                    We review your use case, hiring volume, timeline, and role requirements before the first follow-up.
+                    {t('formReview')}
                   </p>
                 </div>
               </div>
@@ -740,7 +738,7 @@ export default async function EmployersPage() {
                   border: '1px solid rgba(255,255,255,0.15)',
                 }}
               >
-                <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>Direct contact</p>
+                <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>{t('formDirectContact')}</p>
                 <p style={{ marginBottom: '0.25rem', color: 'rgba(255,255,255,0.9)' }}>
                   <strong>Michael Brown</strong>
                 </p>

@@ -9,8 +9,7 @@ import CareerCounselor from '@/components/portal/tools/CareerCounselor';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 function parseActionPlan(output: string | null): string[] {
   if (!output) return [];
@@ -40,8 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CounselorPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/counselor');
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const tCounselor = await getTranslations('counselor');
+  const tCommon = await getTranslations('marketing.common');
 
   const dbProfile = await prisma.user.findUnique({ where: { id: user.id }, select: { fullName: true } });
   const metaName = user.user_metadata?.full_name as string | undefined;
@@ -56,7 +55,7 @@ export default async function CounselorPage() {
 
   const historySection = pastSessions.length > 0 ? (
     <section style={{ padding: '1.5rem 1rem 2rem' }}>
-      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>{t('Past sessions')}</h2>
+      <h2 className="portal-section-heading" style={{ marginBottom: '1rem' }}>{tCounselor('pastSessions')}</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {pastSessions.map((session) => {
           const steps = parseActionPlan(session.output as string | null);
@@ -103,7 +102,7 @@ export default async function CounselorPage() {
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>
       <PageHeader
-        title={t('AI Career Counselor')}
+        title={tCommon('aiCounselor')}
         subtitle="Your session is private. Speak naturally — I'm here to help."
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'AI Career Counselor' }]}
       />

@@ -6,23 +6,19 @@ import './leadership.css';
 import { prisma } from '@/lib/db/prisma';
 import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
 import PlacementTrustCallout from '@/components/marketing/PlacementTrustCallout';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.leadership');
   return buildPageMetadataAsync({
-    title: t('Board & Leadership'),
-    description:
-      t("Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact."),
+    title: t('title'),
+    description: t('description'),
     path: '/leadership',
   });
 }
 
 export default async function LeadershipPage() {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.leadership');
   let placementMetrics = {
     placedCount: 0,
     withRetentionNote: 0,
@@ -69,7 +65,7 @@ export default async function LeadershipPage() {
                   letterSpacing: '0.08em',
                 }}
               >
-                {t('Our Leadership')}
+                {t('heroLabel')}
               </span>
 
               <h1
@@ -80,7 +76,7 @@ export default async function LeadershipPage() {
                   lineHeight: 1.08,
                 }}
               >
-                {t('Stewards of the')}{' '}
+                {t('heroHeadline1')}{' '}
                 <span
                   style={{
                     background:
@@ -89,7 +85,7 @@ export default async function LeadershipPage() {
                     WebkitTextFillColor: 'transparent',
                   }}
                 >
-                  {t('Future Workforce.')}
+                  {t('heroHeadlineAccent')}
                 </span>
               </h1>
 

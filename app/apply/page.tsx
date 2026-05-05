@@ -7,7 +7,7 @@ import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
-import { makeServerTAsync } from '@/lib/i18n/serverLabels';
+import { getTranslations } from 'next-intl/server';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
 
@@ -192,7 +192,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   const programSlug = resolveApplyProgramSlug(sp.program);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
-  const t = await makeServerTAsync();
+  const t = await getTranslations('apply');
 
   return (
     <div style={sPage.wrapper}>
@@ -231,7 +231,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           {/* Progress steps */}
           <div style={sPage.sidebarSteps}>
             <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
-              {t('Application Progress')}
+              {t('applicationProgress')}
             </h3>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {STEPS.map((step, i) => (
@@ -262,7 +262,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           {/* Info card */}
           <div style={sPage.infoCard}>
-            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('What happens next?')}</h4>
+            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h4>
             <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
               {NEXT_STEPS.map((step) => (
                 <li key={step}>{step}</li>
@@ -282,17 +282,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <ApplyRefCapture />
           </Suspense>
 
-          <noscript>
-            <div style={sPage.ssrFallback}>
-              <h2 style={sPage.ssrFallbackHeading}>{t('Start your application')}</h2>
-              <p style={sPage.ssrFallbackText}>
-                {t('If the form doesn’t load, call')}{' '}
-                <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
-                {' '}{t('or email')}{' '}
-                <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>.
-              </p>
-            </div>
-          </noscript>
+          <noscript dangerouslySetInnerHTML={{ __html: `<div><h2>Start your application</h2><p>If the form doesn’t load, call <a href="tel:+15127771808">(512) 777-1808</a> or email <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>` }} />
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />

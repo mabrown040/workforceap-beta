@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
 import LanguageToggle from '@/components/portal/LanguageToggle';
-import { useTranslatedLabel } from '@/components/portal/useTranslatedLabel';
+import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
@@ -57,7 +57,37 @@ export default function MainNav() {
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navContainerRef = useRef<HTMLDivElement>(null);
-  const translateLabel = useTranslatedLabel();
+  const tNav = useTranslations('nav');
+  const tCta = useTranslations('cta');
+  const translateLabel = (label: string): string => {
+    const navMap: Record<string, string> = {
+      'Programs': tNav('programs'),
+      'Check Eligibility': tNav('checkEligibility'),
+      'Find Your Path': tNav('findYourPath'),
+      'Partners': tNav('partners'),
+      'Employers': tNav('employers'),
+      'Blog': tNav('blog'),
+      'Contact Us': tNav('contactUs'),
+      'About Us': tNav('aboutUs'),
+      'What We Do': tNav('whatWeDo'),
+      'How It Works': tNav('howItWorks'),
+      'Leadership': tNav('leadership'),
+      'FAQ': tNav('faq'),
+      'Member dashboard': tNav('dashboard'),
+      'Account settings': tNav('myAccount'),
+    };
+    if (label in navMap) return navMap[label];
+    const ctaMap: Record<string, string> = {
+      'Apply Now': tCta('applyNow'),
+      'Login': tCta('logIn'),
+      'Counselor sign in': tCta('logIn'),
+      'Partner sign in': tCta('logIn'),
+      'Employer sign in': tCta('logIn'),
+      'Member sign in': tCta('logIn'),
+    };
+    if (label in ctaMap) return ctaMap[label];
+    return label;
+  };
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);

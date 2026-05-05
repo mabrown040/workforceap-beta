@@ -8,8 +8,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -22,8 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MemberMessagesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/messages');
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('messages');
 
   const thread = await getOrCreateMemberCounselorThread(user.id);
 
@@ -56,7 +54,7 @@ export default async function MemberMessagesPage() {
 
   return (
     <>
-      <h1 className="wa-sr-only">{t('Messages')}</h1>
+      <h1 className="wa-sr-only">{t('inbox')}</h1>
       {/* ── Mobile-only messages view (≤md) ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <MemberMessagesMobileClient
@@ -83,9 +81,9 @@ export default async function MemberMessagesPage() {
       {/* ── Desktop view ── */}
       <div className="wa-hidden md:wa-block">
         <PageHeader
-          title={t('Messages')}
+          title={t('inbox')}
           titleHeadingLevel={2}
-          breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: t('Messages') }]}
+          breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: t('inbox') }]}
         />
         <MemberCounselorChatClient
           initial={{

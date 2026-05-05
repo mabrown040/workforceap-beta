@@ -12,8 +12,7 @@ import { getUser } from '@/lib/auth/server';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMembersMobile';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -26,8 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PartnerReferredMembersPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner/referred-members');
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('partner');
 
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
@@ -38,7 +36,7 @@ export default async function PartnerReferredMembersPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title={t('Referred Members')}
+        title={t('referredMembers')}
         subtitle="Search and filter everyone your organization has referred to WorkforceAP."
         action={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -65,7 +63,7 @@ export default async function PartnerReferredMembersPage() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              {t('Export CSV')}
+              {t('exportCsv')}
             </a>
           </div>
         }

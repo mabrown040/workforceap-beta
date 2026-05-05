@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from '@/components/portal/LocaleContext';
+import { useLocale, useTranslations } from 'next-intl';
 
 export type CourseraProgressRow = {
   id: string;
@@ -69,9 +69,11 @@ export default function CourseraProgressCardView({
   programHomeUrl,
   launchUrl,
 }: CourseraProgressCardViewProps) {
-  const { locale, t } = useLocale();
+  const rawLocale = useLocale();
+  const locale = rawLocale === 'es' ? 'es' : 'en';
+  const t = useTranslations('courseraProgress');
 
-  const title = t('courseraProgress.title', 'Coursera progress');
+  const title = t('title');
 
   if (rows.length === 0) {
     return (
@@ -93,10 +95,7 @@ export default function CourseraProgressCardView({
             </h2>
           </div>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.875rem', lineHeight: 1.6 }}>
-            {t(
-              'courseraProgress.empty',
-              'Coursera progress will appear here once you start a course in the program.'
-            )}
+            {t('empty')}
           </p>
           <a
             href={launchUrl}
@@ -108,7 +107,7 @@ export default function CourseraProgressCardView({
             <span className="material-symbols-outlined" style={{ fontSize: '1.05rem' }} aria-hidden>
               open_in_new
             </span>
-            {t('courseraProgress.launch', 'Launch Coursera')}
+            {t('launch')}
           </a>
         </div>
       </section>
@@ -141,7 +140,7 @@ export default function CourseraProgressCardView({
             </h2>
           </div>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-            {rows.length} {t('courseraProgress.courses', 'courses')}
+            {rows.length} {t('courses')}
           </span>
         </div>
 
@@ -194,7 +193,7 @@ export default function CourseraProgressCardView({
                       <span className="material-symbols-outlined" style={{ fontSize: '0.95rem' }} aria-hidden>
                         check_circle
                       </span>
-                      {t('courseraProgress.completed', 'Completed')}
+                      {t('completed')}
                     </span>
                   ) : null}
                 </div>
@@ -231,7 +230,7 @@ export default function CourseraProgressCardView({
                 >
                   <span>
                     <strong style={{ color: 'var(--color-on-surface)' }}>{pct}%</strong> ·{' '}
-                    {row.learningHours.toFixed(1)} {t('courseraProgress.hours', 'h')}
+                    {row.learningHours.toFixed(1)} {t('hours')}
                   </span>
                   <span>{formatRelative(locale, row.lastActivityTime)}</span>
                 </div>
@@ -248,7 +247,7 @@ export default function CourseraProgressCardView({
                       <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
                         open_in_new
                       </span>
-                      {t('courseraProgress.viewOnCoursera', 'View on Coursera')}
+                      {t('viewOnCoursera')}
                     </a>
                   ) : null}
                   {row.isCompleted && row.certificateUrl ? (
@@ -262,7 +261,7 @@ export default function CourseraProgressCardView({
                       <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden>
                         workspace_premium
                       </span>
-                      {t('courseraProgress.viewCertificate', 'View certificate')}
+                      {t('viewCertificate')}
                     </a>
                   ) : null}
                 </div>

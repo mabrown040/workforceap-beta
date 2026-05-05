@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale } from '@/lib/i18n/config';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
-import ClientLocaleProvider from '@/components/portal/ClientLocaleProvider';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ChunkLoadRecovery from '@/components/ChunkLoadRecovery';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
@@ -53,6 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const h = await headers();
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
+  const messages = await getMessages();
   return (
     <html lang={htmlLang}>
       <head>
@@ -109,10 +111,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         )}
         <JsonLd />
         <ChunkLoadRecovery />
-        <ClientLocaleProvider>
+        <NextIntlClientProvider messages={messages}>
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
-        </ClientLocaleProvider>
+        </NextIntlClientProvider>
         <ScrollAnimationsWrapper />
         <ConversionMetrics />
         <PortalMetrics />

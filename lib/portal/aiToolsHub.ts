@@ -24,12 +24,12 @@ const TOOL_CARDS = {
   coverLetter: { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft' },
   interviewPractice: { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice', icon: 'record_voice_over' },
   interviewCoach: { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent' },
-  jobMatchScorer: { label: 'Job Match Scorer', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
-  skillMapper: { label: 'Skill Mapper', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree' },
+  jobMatchScorer: { label: 'See how you match a job', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
+  skillMapper: { label: 'Find skills employers want', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree' },
   linkedInHeadline: { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline', icon: 'badge' },
-  linkedInAbout: { label: 'LinkedIn About', href: '/dashboard/ai-tools/linkedin-about', icon: 'person' },
-  gapAnalyzer: { label: 'Gap Analyzer', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot' },
-  salaryNegotiation: { label: 'Salary Negotiation', href: '/dashboard/ai-tools/salary-negotiation', icon: 'payments' },
+  linkedInAbout: { label: 'Write your LinkedIn story', href: '/dashboard/ai-tools/linkedin-about', icon: 'person' },
+  gapAnalyzer: { label: 'See what is missing for a job', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot' },
+  salaryNegotiation: { label: 'Practice asking for better pay', href: '/dashboard/ai-tools/salary-negotiation', icon: 'payments' },
 } as const satisfies Record<string, AiToolkitToolCard>;
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [

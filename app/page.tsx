@@ -597,19 +597,19 @@ export default async function HomePage() {
       {/* ===== Final CTA ===== */}
       <section className="footer-cta" style={{ background: 'var(--color-accent)', padding: 'clamp(3rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>Your Next Step</h2>
+          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>{t('ctaTitle')}</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-            About 10 minutes to apply. We respond within 1–2 business days. Industry-recognized certificates and placement support. No-cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link>.
+            {t('ctaCopy')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
             <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
-              Find Your Path
+              {t('ctaFind')}
             </Link>
             <Link href="/apply" className="btn btn-large" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.5)', fontWeight: 700 }}>
-              Start Your Application
+              {t('ctaApply')}
             </Link>
             <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.35)', fontWeight: 600 }}>
-              View Program Details
+              {t('ctaViewPrograms')}
             </Link>
           </div>
         </div>

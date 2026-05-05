@@ -16,6 +16,7 @@ import { getDefaultImage } from '@/lib/blog/defaultImages';
 import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 type Props = { params: Promise<{ slug: string }> };
 

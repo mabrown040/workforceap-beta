@@ -6,8 +6,10 @@ import PageHero from '@/components/PageHero';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import BlogListingClient from './BlogListingClient';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BlogPage() {
+  const t = await getTranslations('marketing.blog');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let posts: any[] = [];
   if (!shouldSkipOptionalDbQueriesAtBuild()) {
@@ -56,7 +59,7 @@ export default async function BlogPage() {
     <div className="inner-page blog-page">
       <PageHero
         className="blog-page-hero"
-        title={hasPosts ? 'Blog' : 'Career Resources'}
+        title={hasPosts ? t('blog') : t('careerResources')}
         subtitle={
           hasPosts
             ? 'Career tips, program spotlights, success stories, and local insights.'

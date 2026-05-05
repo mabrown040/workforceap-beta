@@ -4,7 +4,10 @@
  * Icons are Lucide icon names — rendered by components that import from lucide-react.
  */
 
-import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import {
+  DISCOVERED_COURSERA_PROGRAMS,
+  type CourseraDiscoveredCourse,
+} from '@/lib/content/courseraDiscoveredCatalog';
 
 function slugify(s: string): string {
   return s
@@ -48,13 +51,19 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return null;
 
-  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle);
+  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
   const brandedSuffix = title.match(/\(([^)]+)\)\s*$/)?.[1]?.trim();
   const recognizedCredentialBrands = new Set(['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA']);
   if (brandedSuffix && recognizedCredentialBrands.has(brandedSuffix)) return brandedSuffix;
   if (title.startsWith('CompTIA ')) return 'CompTIA';
 
-  const partners = Array.from(new Set(discovered.courses.map((course) => course.partner).filter(Boolean)));
+  const partners = Array.from(
+    new Set(
+      discovered.courses
+        .map((course: CourseraDiscoveredCourse) => course.partner)
+        .filter((p): p is string => Boolean(p))
+    )
+  );
   if (partners.length === 1) return partners[0] ?? null;
 
   return 'Coursera partners';
@@ -63,7 +72,7 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
 export function getProgramDisplayTitle(program: Program | string): string {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return typeof program === 'string' ? program : program.title;
-  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle);
+  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
 }
 
 export function getProgramDisplayPartner(program: Program | string): string {
@@ -102,10 +111,10 @@ function mkProgram(
   const canonicalCategoryColor = PROGRAM_CATEGORY_COLORS[category] ?? categoryColor;
   const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
   const courses: ProgramCourse[] = discoveredCourses?.length
-    ? discoveredCourses.map((course) => ({
+    ? discoveredCourses.map((course: CourseraDiscoveredCourse) => ({
         slug: course.slug,
         name: course.name,
-        estimatedHours: course.estimatedHours || defaultHours,
+        estimatedHours: course.estimatedHours ?? defaultHours,
       }))
     : courseNames.map((name, i) => ({
         slug: `${slug}-course-${i + 1}`,

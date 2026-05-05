@@ -633,8 +633,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 )}
               </div>
 
-              {/* Progress ring — hidden for pre-enrollment (state A) since 0% is misleading */}
-              {dashboardState !== 'A' && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+              {/* Progress ring — only shown once training has actually started (state C/D); 0% next to "Getting started" reads as failure */}
+              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
                 <div
                   className="portal-progress-ring"
                   style={{
@@ -682,7 +682,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>}
             </div>
 
-            {dashboardState !== 'A' && (
+            {(dashboardState === 'C' || dashboardState === 'D') && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
                 Training progress blends Coursera activity (xAPI) with courses you mark complete. Application steps are below.

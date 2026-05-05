@@ -9,6 +9,7 @@ import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getTranslations } from 'next-intl/server';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 function parseActionPlan(output: string | null): string[] {
   if (!output) return [];
@@ -113,7 +114,8 @@ export default async function CounselorPage() {
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
         </div>
-        {historySection}      </div>
+        {historySection}
+      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block">
@@ -124,6 +126,8 @@ export default async function CounselorPage() {
           {historySection}
         </div>
       </div>
+
+      <MobileBottomNav variant="portal" />
     </div>
   );
 }

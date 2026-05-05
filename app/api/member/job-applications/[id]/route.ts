@@ -20,15 +20,21 @@ const DB_STATUSES: JobApplicationDbStatus[] = [
   'PHONE_SCREEN',
   'INTERVIEWING',
   'OFFER',
+  'ACCEPTED',
   'REJECTED',
 ];
+
+const KANBAN_STAGES = ['APPLIED', 'INTERVIEWING', 'OFFER', 'CLOSED'] as const;
 
 function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
   if (typeof rawStatus !== 'string') return undefined;
   if ((DB_STATUSES as readonly string[]).includes(rawStatus)) {
     return rawStatus as JobApplicationDbStatus;
   }
-  return getDbStatusForStage(rawStatus as ReturnType<typeof getJobApplicationStage>);
+  if ((KANBAN_STAGES as readonly string[]).includes(rawStatus)) {
+    return getDbStatusForStage(rawStatus as ReturnType<typeof getJobApplicationStage>);
+  }
+  return undefined;
 }
 
 export async function PATCH(request: Request, { params }: Props) {

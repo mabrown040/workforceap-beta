@@ -3,9 +3,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 import './leadership.css';
-import { prisma } from '@/lib/db/prisma';
-import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
-import PlacementTrustCallout from '@/components/marketing/PlacementTrustCallout';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,17 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LeadershipPage() {
   const t = await getTranslations('marketing.leadership');
-  let placementMetrics = {
-    placedCount: 0,
-    withRetentionNote: 0,
-    lastPlacedAt: null as Date | null,
-    asOfLabel: 'Outcomes data unavailable',
-  };
-  try {
-    placementMetrics = await getPlacementPublicMetrics(prisma);
-  } catch {
-    // keep defaults
-  }
 
   return (
     <div className="inner-page">
@@ -148,21 +134,6 @@ export default async function LeadershipPage() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="content-section" style={{ background: 'var(--surface-container-low)', paddingTop: '2.5rem', paddingBottom: '2.5rem' }}>
-        <div className="container" style={{ maxWidth: 900 }}>
-          <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '0.75rem' }}>
-            {t('outcomesEyebrow')}
-          </span>
-          <h2 className="text-display-sm" style={{ fontSize: '1.35rem', marginBottom: '0.75rem' }}>
-            {t('outcomesTitle')}
-          </h2>
-          <PlacementTrustCallout metrics={placementMetrics} variant="inline" />
-          <p style={{ margin: '1rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-            {t('outcomesDisclaimer')}
-          </p>
         </div>
       </section>
 

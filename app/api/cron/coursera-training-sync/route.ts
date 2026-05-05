@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { replayPendingXapiStatements } from '@/lib/coursera/replayPendingXapi';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -11,13 +12,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * is pulled by `/api/cron/coursera-sync` on a 6h schedule.
  * Secured with `Authorization: Bearer ${CRON_SECRET}` (same as other crons).
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+async function handle(_request: Request) {
   try {
     const xapi = await replayPendingXapiStatements(200);
     const runResult = { xapi };
@@ -33,3 +28,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Cron failed' }, { status: 500 });
   }
 }
+
+export const GET = withCronLogging('cron_coursera_training_sync', handle);

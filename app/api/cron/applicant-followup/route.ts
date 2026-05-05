@@ -3,8 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendApplicantFollowupEmail, sendAdminPendingApplicantsEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
-import { isCronEnabled } from '@/lib/cron/isCronEnabled';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
@@ -13,15 +12,7 @@ import { isCronEnabled } from '@/lib/cron/isCronEnabled';
  * Run daily (e.g. via Vercel Cron: "0 11 * * *" for 11 AM CT).
  * Protected with CRON_SECRET header.
  */
-async function handle(request: Request) {
-  const unauthorized = authorizeCronRequest(request);
-  if (unauthorized) return unauthorized;
-
-  if (!(await isCronEnabled('cron_applicant_followup'))) {
-    await logCronRun('cron_applicant_followup', { skipped: true, reason: 'disabled' }, 'ok');
-    return NextResponse.json({ skipped: true, reason: 'disabled' });
-  }
-
+async function handle(_request: Request) {
   const now = new Date();
   const threeDaysAgo = new Date(now);
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
@@ -97,5 +88,5 @@ async function handle(request: Request) {
   return NextResponse.json(runResult);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_applicant_followup', handle);
+export const POST = withCronLogging('cron_applicant_followup', handle);

@@ -1,11 +1,11 @@
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import { prisma } from '@/lib/db/prisma';
-import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
 import { getTranslations } from 'next-intl/server';
+import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.whatWeDo');
@@ -19,17 +19,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function WhatWeDoPage() {
   const t = await getTranslations('marketing.whatWeDo');
-  let placementMetrics = {
-    placedCount: 0,
-    withRetentionNote: 0,
-    lastPlacedAt: null as Date | null,
-    asOfLabel: 'Outcomes data unavailable',
-  };
-  try {
-    placementMetrics = await getPlacementPublicMetrics(prisma);
-  } catch {
-    // keep defaults
-  }
 
   let pipelineEmployers: { id: string; companyName: string; logoUrl: string | null; industry: string | null }[] = [];
   try {
@@ -232,12 +221,15 @@ export default async function WhatWeDoPage() {
                   overflow: 'hidden',
                   aspectRatio: '3 / 4',
                   background: 'var(--surface-container)',
+                  position: 'relative',
                 }}
               >
-                <img
+              <Image
                   src="/images/hero-people.jpg"
                   alt="Diverse team collaborating on workforce development"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
               <div
@@ -318,24 +310,6 @@ export default async function WhatWeDoPage() {
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
                     WorkforceAP is a national nonprofit and 501(c)(3) organization serving communities nationwide.
                   </div>
-                </div>
-                <div
-                  style={{
-                    padding: '1.5rem',
-                    background: 'var(--surface-container)',
-                    borderRadius: 'var(--radius-lg)',
-                    borderLeft: '3px solid var(--color-accent)',
-                  }}
-                >
-                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1.2 }}>
-                    {placementMetrics.placedCount}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>
-                    Placements on file in WorkforceAP systems (n). {placementMetrics.asOfLabel}
-                  </div>
-                  <p style={{ margin: '0.65rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
-                    Historical training reach through workforce partnerships remains 2,000+ — a separate figure from this portal placement counter.
-                  </p>
                 </div>
               </div>
             </div>

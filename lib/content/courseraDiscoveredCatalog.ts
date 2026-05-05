@@ -1,4 +1,4 @@
-export const DISCOVERED_COURSERA_PROGRAMS = {
+const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "comptia-a-plus": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "CompTIA A+ Professional Certificate",
@@ -145,4 +145,16 @@ export const DISCOVERED_COURSERA_PROGRAMS = {
   },
 };
 
-export type CourseraProgramSlug = keyof typeof DISCOVERED_COURSERA_PROGRAMS;
+export type CourseraProgramSlug = keyof typeof DISCOVERED_COURSERA_PROGRAMS_INNER;
+type CourseraDiscoveredProgramInner = (typeof DISCOVERED_COURSERA_PROGRAMS_INNER)[CourseraProgramSlug];
+type CourseraDiscoveredCourseInner = CourseraDiscoveredProgramInner['courses'][number];
+
+/** Optional fields referenced by launch URLs and program builders; not all rows define them. */
+export type CourseraDiscoveredProgram = CourseraDiscoveredProgramInner & {
+  courseraCollectionTitle?: string;
+  publicProgramUrl?: string;
+};
+export type CourseraDiscoveredCourse = CourseraDiscoveredCourseInner & { estimatedHours?: number };
+
+export const DISCOVERED_COURSERA_PROGRAMS: Record<string, CourseraDiscoveredProgram> =
+  DISCOVERED_COURSERA_PROGRAMS_INNER;

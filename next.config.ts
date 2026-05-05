@@ -64,15 +64,21 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/admin/:path*',
+        source: '/_next/static/:path*',
         headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=31536000' },
         ],
       },
     ];
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
     qualities: [85],
     localPatterns: [
       {

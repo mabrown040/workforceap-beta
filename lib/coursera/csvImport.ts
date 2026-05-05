@@ -71,6 +71,8 @@ export type IngestResult = {
   unresolved: number;
   errors: string[];
   unresolvedRows: Array<{ email: string; name: string; courseId: string; course: string }>;
+  promoted?: number;
+  promotionErrors?: number;
 };
 
 /**

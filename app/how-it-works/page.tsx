@@ -232,6 +232,17 @@ export default async function HowItWorksPage() {
               </div>
             </div>
           ))}
+
+          {/* Post-timeline CTA — prevent dead-end after long scroll */}
+          <div style={{ marginTop: '3rem', textAlign: 'center', padding: '2.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', fontSize: '1rem' }}>
+              {t('ctaBody')}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+              <Link href="/apply" className="btn btn-primary">{t('ctaApply')}</Link>
+              <Link href="/find-your-path" className="btn btn-secondary">{t('heroCta1')}</Link>
+            </div>
+          </div>
         </div>
       </section>
 

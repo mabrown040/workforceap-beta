@@ -49,6 +49,7 @@ export default function MemberCounselorChatClient({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const realtimeInstanceRef = useRef(0);
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -86,8 +87,9 @@ export default function MemberCounselorChatClient({
     let cancelled = false;
     try {
       const supabase = createSupabaseBrowserClient();
+      realtimeInstanceRef.current += 1;
       const channel = supabase
-        .channel(`member-thread:${threadId}`)
+        .channel(`member-thread:${threadId}:${realtimeInstanceRef.current}`)
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}` },

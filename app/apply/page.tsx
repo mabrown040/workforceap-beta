@@ -282,17 +282,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <ApplyRefCapture />
           </Suspense>
 
-          <noscript>
-            <div style={sPage.ssrFallback}>
-              <h2 style={sPage.ssrFallbackHeading}>{t(‘startYourApplication’)}</h2>
-              <p style={sPage.ssrFallbackText}>
-                {t(‘ifFormDoesntLoad’)}{‘ ‘}
-                <a href="tel:+15127771808" style={{ color: ‘var(--color-accent)’, fontWeight: 600 }}>(512) 777-1808</a>
-                {‘ ‘}{t(‘orEmail’)}{‘ ‘}
-                <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>.
-              </p>
-            </div>
-          </noscript>
+          <noscript dangerouslySetInnerHTML={{ __html: `<div><h2>Start your application</h2><p>If the form doesn’t load, call <a href="tel:+15127771808">(512) 777-1808</a> or email <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>` }} />
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />

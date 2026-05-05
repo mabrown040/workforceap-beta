@@ -35,12 +35,28 @@ function normalizeRoute(filePath) {
   return `/${route}`.replace(/\/+/g, '/');
 }
 
+/** Same roots as middleware PORTAL_PATHS member-facing segments (not partner/employer/counselor). */
+const MEMBER_PORTAL_PREFIXES = [
+  '/dashboard',
+  '/resources',
+  '/help',
+  '/applications',
+  '/account',
+  '/profile',
+  '/certifications',
+];
+
+function pathMatchesSegment(route, segment) {
+  const base = `/${segment}`;
+  return route === base || route.startsWith(`${base}/`);
+}
+
 function roleFromRoute(route) {
-  if (route.startsWith('/admin')) return 'admin';
-  if (route.startsWith('/counselor')) return 'counselor';
-  if (route.startsWith('/partner')) return 'partner';
-  if (route.startsWith('/employer')) return 'employer';
-  if (route.startsWith('/dashboard') || route.startsWith('/account') || route.startsWith('/applications')) return 'member';
+  if (pathMatchesSegment(route, 'admin')) return 'admin';
+  if (pathMatchesSegment(route, 'counselor')) return 'counselor';
+  if (pathMatchesSegment(route, 'partner')) return 'partner';
+  if (pathMatchesSegment(route, 'employer')) return 'employer';
+  if (MEMBER_PORTAL_PREFIXES.some((p) => route === p || route.startsWith(`${p}/`))) return 'member';
   if (route.startsWith('/login') || route.startsWith('/signup') || route.startsWith('/forgot-password')) return 'auth-public';
   return 'public';
 }

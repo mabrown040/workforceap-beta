@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { ensureCourseraMappingTables } from '@/lib/xapi/mappings';
 
@@ -208,7 +209,8 @@ export async function ingestCourseActivityRows(
     }
   }
 
-  return { inserted, updated, resolvedToUsers, unresolved, errors, unresolvedRows };
+  const promotion = await promoteCsvProgressToCanonical();
+  return { inserted, updated, resolvedToUsers, unresolved, errors, unresolvedRows, promoted: promotion.upserted };
 }
 
 /**
@@ -493,8 +495,81 @@ export async function backfillUserIdForCourseraEmail(
       AND user_id IS NULL
   `;
 
+  // Immediately promote the newly-linked rows into course_progress so the
+  // member dashboard reflects the historical CSV data without waiting for xAPI.
+  await promoteCsvProgressToCanonical({ userId });
+
   return {
     courseRowsUpdated: Number(courseRowsUpdated) || 0,
     badgeRowsUpdated: Number(badgeRowsUpdated) || 0,
   };
+}
+
+/**
+ * Promote all `coursera_course_progress` rows that have a resolved `user_id`
+ * into the canonical `course_progress` table that feeds the member training
+ * dashboard. Idempotent — safe to call on every CSV import and after every
+ * identity mapping. Uses GREATEST/COALESCE so it never downgrades existing
+ * xAPI-sourced progress.
+ *
+ * @param options.userId - When provided, only promotes rows for that member
+ *   (used after a new identity mapping is saved).
+ */
+export async function promoteCsvProgressToCanonical(
+  options: { userId?: string } = {}
+): Promise<{ upserted: number; errors: number }> {
+  const userFilter = options.userId
+    ? Prisma.sql`AND ccp.user_id = ${options.userId}`
+    : Prisma.sql``;
+
+  try {
+    const upserted = await prisma.$executeRaw`
+      INSERT INTO course_progress (
+        id,
+        user_id,
+        program_slug,
+        course_slug,
+        course_id,
+        status,
+        percent_complete,
+        started_at,
+        completed_at
+      )
+      SELECT
+        gen_random_uuid(),
+        ccp.user_id,
+        ccp.program_slug,
+        ccp.coursera_course_slug,
+        ccp.coursera_course_id,
+        CASE
+          WHEN ccp.is_completed          THEN 'COMPLETED'::"CourseProgressStatus"
+          WHEN ccp.overall_progress > 0  THEN 'IN_PROGRESS'::"CourseProgressStatus"
+          ELSE                                'NOT_STARTED'::"CourseProgressStatus"
+        END,
+        LEAST(ROUND(ccp.overall_progress::numeric)::int, 100),
+        COALESCE(ccp.class_start_time, ccp.enrollment_time),
+        ccp.completion_time
+      FROM coursera_course_progress ccp
+      WHERE ccp.user_id IS NOT NULL
+        AND ccp.coursera_course_slug IS NOT NULL
+        AND ccp.is_removed_from_program = false
+        ${userFilter}
+      ON CONFLICT (user_id, program_slug, course_slug) DO UPDATE SET
+        status          = CASE
+                            WHEN EXCLUDED.status = 'COMPLETED'::"CourseProgressStatus"
+                              THEN 'COMPLETED'::"CourseProgressStatus"
+                            WHEN course_progress.status = 'COMPLETED'::"CourseProgressStatus"
+                              THEN 'COMPLETED'::"CourseProgressStatus"
+                            ELSE EXCLUDED.status
+                          END,
+        percent_complete = GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete),
+        started_at       = COALESCE(course_progress.started_at, EXCLUDED.started_at),
+        completed_at     = COALESCE(EXCLUDED.completed_at, course_progress.completed_at),
+        course_id        = COALESCE(EXCLUDED.course_id, course_progress.course_id)
+    `;
+    return { upserted: Number(upserted) || 0, errors: 0 };
+  } catch (error) {
+    console.error('[promoteCsvProgressToCanonical] failed', error);
+    return { upserted: 0, errors: 1 };
+  }
 }

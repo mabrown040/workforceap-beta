@@ -161,20 +161,22 @@ export default async function CourseraIntegrationPage() {
               <div className="coursera-callout">
                 <h4 className="coursera-callout__title">
                   {readiness.canDeepLink
-                    ? 'Direct course access is configured'
+                    ? 'You’re ready to launch'
                     : readiness.canLaunch
-                      ? 'Launch configured — course deep-linking pending'
-                      : 'Launch setup pending'}
+                      ? 'You’re ready to launch'
+                      : 'Almost ready'}
                 </h4>
                 <p className="coursera-callout__text">
                   {readiness.canDeepLink
-                    ? 'You will be taken directly to your current course. Complete it to unlock the next one. The full library becomes available after you finish all assigned courses.'
-                    : 'You will be taken to your program page on Coursera. Course-by-course deep-linking will be enabled once course IDs are mapped.'}
+                    ? 'Click Launch and we’ll drop you straight into your current course. Finish it to unlock the next one — your whole library opens up once you complete the program.'
+                    : readiness.canLaunch
+                      ? 'Click Launch and we’ll send you to your Coursera program page. From there, choose any course in your library to start.'
+                      : 'Your counselor is finishing up your enrollment. Once that’s done, the Launch button below will take you straight into your courses.'}
                 </p>
                 <ul className="coursera-callout__list">
-                  <li>Launch from portal: {statusLabel(readiness.canLaunch, 'waiting on launch mapping')}</li>
-                  <li>Course deep-linking: {statusLabel(readiness.canDeepLink, 'waiting on course ID mapping')}</li>
-                  <li>Course progress sync: {statusLabel(readiness.canSync, 'waiting on API credentials')}</li>
+                  <li>Launch from portal: {statusLabel(readiness.canLaunch, 'finalizing with your counselor')}</li>
+                  <li>Direct-to-course launch: {statusLabel(readiness.canDeepLink, 'coming with your enrollment')}</li>
+                  <li>Live progress sync: {statusLabel(readiness.canSync, 'updates within 6 hours of activity')}</li>
                 </ul>
               </div>
 

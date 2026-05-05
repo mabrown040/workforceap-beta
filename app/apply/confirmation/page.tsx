@@ -117,7 +117,22 @@ export default function ApplyConfirmationPage() {
               </div>
             </div>
 
-            <Suspense fallback={<div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading next steps...</div>}>
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  style={{
+                    display: 'grid',
+                    gap: '0.75rem',
+                    padding: '1rem 0',
+                  }}
+                >
+                  <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.55 }} />
+                  <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.35 }} />
+                  <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>Loading next steps…</span>
+                </div>
+              }
+            >
               <ApplyConfirmationCta />
             </Suspense>
 

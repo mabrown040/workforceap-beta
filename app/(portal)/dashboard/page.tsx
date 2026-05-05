@@ -741,11 +741,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberProgressStrip {...progressStripProps} />
-        </section>
+        {(dashboardState === 'C' || dashboardState === 'D') && (
+          <section style={{ padding: '0 1.5rem 1.25rem' }}>
+            <MemberProgressStrip {...progressStripProps} />
+          </section>
+        )}
 
-        {dashboardState !== 'A' && mobileStripActions.length > 0 && (
+        {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
           </section>
@@ -753,7 +755,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
         {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
         <PlacementConfirmationStrip offers={jobOffers} />
-        {applicationStatus?.nextStep && (
+        {!dominantNextAction && applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -787,31 +789,33 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </div>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Application Journey</h3>
-          </div>
-          <div className="portal-journey-timeline">
-            {journeySteps.map((step, i) => {
-              const locked = 'locked' in step && step.locked;
-              return (
-                <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
-                  <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
-                    {step.done && (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
-                    )}
-                    {step.active && !step.done && <div className="portal-dot-pulse" />}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
+          <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
+            <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              Application journey
+            </summary>
+            <div className="portal-journey-timeline" style={{ marginTop: '1rem' }}>
+              {journeySteps.map((step, i) => {
+                const locked = 'locked' in step && step.locked;
+                return (
+                  <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
+                    <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
+                      {step.done && (
+                        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
+                      )}
+                      {step.active && !step.done && <div className="portal-dot-pulse" />}
+                    </div>
+                    <div className="portal-journey-step__content">
+                      <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
+                        {step.label}
+                      </p>
+                      {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
+                    </div>
                   </div>
-                  <div className="portal-journey-step__content">
-                    <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
-                      {step.label}
-                    </p>
-                    {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </details>
         </section>
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}

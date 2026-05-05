@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useTranslatedLabel } from './useTranslatedLabel';
+import { useTranslations } from 'next-intl';
 
 type SignOutButtonProps = {
   className?: string;
@@ -12,7 +12,7 @@ type SignOutButtonProps = {
 
 export function SignOutButton({ className, children, onSignOutStart }: SignOutButtonProps) {
   const router = useRouter();
-  const tLabel = useTranslatedLabel();
+  const t = useTranslations('nav');
 
   const handleSignOut = async () => {
     onSignOutStart?.();
@@ -45,7 +45,7 @@ export function SignOutButton({ className, children, onSignOutStart }: SignOutBu
             }
       }
     >
-      {children ?? tLabel('Sign out')}
+      {children ?? t('signOut')}
     </button>
   );
 }

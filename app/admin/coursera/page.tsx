@@ -7,6 +7,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
+import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -250,21 +251,24 @@ export default async function AdminCourseraPage({
               CSV report. Use this for backfill and as a redundant feed alongside the realtime xAPI bridge.
             </span>
           </div>
-          <Link
-            href="/admin/coursera/csv-import"
-            style={{
-              padding: '0.55rem 0.9rem',
-              borderRadius: '0.65rem',
-              border: '1px solid var(--outline-variant)',
-              background: 'var(--surface-container)',
-              color: 'var(--color-on-surface)',
-              textDecoration: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-            }}
-          >
-            Import CSV →
-          </Link>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <CourseraSyncProgressButton />
+            <Link
+              href="/admin/coursera/csv-import"
+              style={{
+                padding: '0.55rem 0.9rem',
+                borderRadius: '0.65rem',
+                border: '1px solid var(--outline-variant)',
+                background: 'var(--surface-container)',
+                color: 'var(--color-on-surface)',
+                textDecoration: 'none',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+              }}
+            >
+              Import CSV →
+            </Link>
+          </div>
         </div>
 
         {courseProgress ? (

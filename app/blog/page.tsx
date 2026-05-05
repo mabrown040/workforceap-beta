@@ -9,6 +9,7 @@ import BlogListingClient from './BlogListingClient';
 import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {

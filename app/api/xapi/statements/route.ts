@@ -60,11 +60,10 @@ export async function POST(request: Request) {
   for (const raw of rawStatements) {
     const parsed = parseXapiStatement(raw);
     if (!parsed) continue;
-    statementsHandled += 1;
 
     const verb = parsed.verbId?.trim() || 'unknown';
 
-    await persistXapiStatement({
+    const persisted = await persistXapiStatement({
       statementId: parsed.statementId,
       actorEmail: parsed.email,
       verb,
@@ -76,6 +75,10 @@ export async function POST(request: Request) {
       resultSuccess: parsed.resultSuccess,
     });
 
+    // Duplicate statementId (retries / races): row exists — skip completion side effects.
+    if (persisted === 'skipped') continue;
+
+    statementsHandled += 1;
     const { completions: batch } = await handleInboundParsedStatement(parsed);
     completions.push(...batch);
   }

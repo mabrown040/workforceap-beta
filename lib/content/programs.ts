@@ -51,7 +51,7 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return null;
 
-  const title = normalizeDiscoveredProgramTitle(discovered.title ?? '');
+  const title = normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
   const brandedSuffix = title.match(/\(([^)]+)\)\s*$/)?.[1]?.trim();
   const recognizedCredentialBrands = new Set(['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA']);
   if (brandedSuffix && recognizedCredentialBrands.has(brandedSuffix)) return brandedSuffix;
@@ -72,7 +72,7 @@ function inferDiscoveredPartnerLabel(program: Program | string): string | null {
 export function getProgramDisplayTitle(program: Program | string): string {
   const discovered = getDiscoveredProgram(program);
   if (!discovered) return typeof program === 'string' ? program : program.title;
-  return normalizeDiscoveredProgramTitle(discovered.title ?? '');
+  return normalizeDiscoveredProgramTitle(discovered.courseraCollectionTitle ?? discovered.title ?? '');
 }
 
 export function getProgramDisplayPartner(program: Program | string): string {

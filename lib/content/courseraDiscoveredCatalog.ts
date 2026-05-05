@@ -150,7 +150,10 @@ type CourseraDiscoveredProgramInner = (typeof DISCOVERED_COURSERA_PROGRAMS_INNER
 type CourseraDiscoveredCourseInner = CourseraDiscoveredProgramInner['courses'][number];
 
 /** Optional fields referenced by launch URLs and program builders; not all rows define them. */
-export type CourseraDiscoveredProgram = CourseraDiscoveredProgramInner & { publicProgramUrl?: string };
+export type CourseraDiscoveredProgram = CourseraDiscoveredProgramInner & {
+  courseraCollectionTitle?: string;
+  publicProgramUrl?: string;
+};
 export type CourseraDiscoveredCourse = CourseraDiscoveredCourseInner & { estimatedHours?: number };
 
 export const DISCOVERED_COURSERA_PROGRAMS: Record<string, CourseraDiscoveredProgram> =

@@ -291,18 +291,18 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Secure Data Handling</h4>
+            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              Your information is sent over encrypted connections and protected with access controls. We do not sell your personal information, and any limited sharing follows our <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>Privacy Policy</Link>.
+              {t('suppCard1Body')} <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>{t('privacyPolicy')}</Link>.
             </p>
           </div>
         </div>
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">bolt</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Someone Will Follow Up</h4>
+            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard2Title')}</h4>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              A member advisor reviews every application within 1–2 business days in most cases and reaches out to help you find the right program fit.
+              {t('suppCard2Body')}
             </p>
           </div>
         </div>
@@ -310,9 +310,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div style={sPage.suppCard}>
             <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-gold)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">workspace_premium</span>
             <div>
-              <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>Real Outcomes On File</h4>
+              <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard3Title')}</h4>
               <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-                <strong style={{ color: 'var(--color-on-surface)' }}>{placementMetrics.placedCount}</strong> member{placementMetrics.placedCount === 1 ? '' : 's'} placed into roles through this portal{placementMetrics.withRetentionNote > 0 ? `, with ${placementMetrics.withRetentionNote} tracked through retention` : ''}. {placementMetrics.asOfLabel}
+                <strong style={{ color: 'var(--color-on-surface)' }}>{placementMetrics.placedCount}</strong> {placementMetrics.placedCount === 1 ? t('suppCard3Body') : t('suppCard3BodyPlural')}{placementMetrics.withRetentionNote > 0 ? `, ${t('suppCard3Retention')} ${placementMetrics.withRetentionNote}` : ''}. {placementMetrics.asOfLabel}
               </p>
             </div>
           </div>

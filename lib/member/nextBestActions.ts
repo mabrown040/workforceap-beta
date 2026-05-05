@@ -270,6 +270,18 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
     });
   }
 
+  // Always offer at least one default — never let a fresh member see a
+  // blank "what's next" surface.
+  out.push({
+    id: 'default_counselor',
+    title: 'Talk to your counselor',
+    body: 'Not sure what to do next? Send a quick message — your counselor can suggest the best step from here.',
+    href: '/dashboard/messages',
+    cta: 'Message counselor',
+    variant: 'default',
+    weight: 1,
+  });
+
   out.sort((a, b) => b.weight - a.weight);
 
   const seen = new Set<string>();

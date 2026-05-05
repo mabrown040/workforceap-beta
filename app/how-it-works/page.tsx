@@ -90,23 +90,21 @@ export default async function HowItWorksPage() {
                   marginBottom: '1.5rem',
                 }}
               >
-                Member Experience
+                {t('heroEyebrow')}
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                Your path{' '}
-                <span style={{ color: 'var(--color-accent)' }}>starts here.</span>
+                {t('heroHeadline')}{' '}
+                <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span>
               </h1>
               <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                No gatekeeping. Clear, grant- and partner-funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).
+                {t('heroCopy')}
               </p>
               <div style={{ marginBottom: '2.5rem', padding: '1.125rem 1.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', borderLeft: '3px solid var(--color-accent)', maxWidth: '36rem' }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>Who can apply</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{t('whoCanApplyTitle')}</p>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
-                  WorkforceAP is designed for adults who face barriers to employment — including low-income individuals, people with employment gaps,
-                  those with limited or no formal work history, justice-involved individuals, dislocated workers, veterans, and adult learners
-                  seeking a career change. WIOA eligibility can unlock additional funding.{' '}
+                  {t('whoCanApplyBody')}{' '}
                   <Link href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                    Check WIOA options →
+                    {t('wioaLink')}
                   </Link>
                 </p>
               </div>
@@ -124,7 +122,7 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Find your career
+                  {t('heroCta1')}
                 </Link>
                 <Link
                   href="/apply"
@@ -139,7 +137,7 @@ export default async function HowItWorksPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  Apply now
+                  {t('heroCta2')}
                 </Link>
                 <Link
                   href="/programs"
@@ -155,7 +153,7 @@ export default async function HowItWorksPage() {
                     border: '2px solid var(--color-accent)',
                   }}
                 >
-                  View programs
+                  {t('heroCta3')}
                 </Link>
               </div>
             </div>
@@ -168,10 +166,10 @@ export default async function HowItWorksPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              What Happens After You Apply
+              {t('journeyTitle')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-              Ten steps, three phases. Every step has a purpose — and a person supporting you through it.
+              {t('journeySubtitle')}
             </p>
           </div>
 
@@ -194,7 +192,7 @@ export default async function HowItWorksPage() {
                       }}
                     >
                       <span className="text-label-upper" style={{ color: isHighlight ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>
-                        Phase {String(step.num).padStart(2, '0')}
+                        {t('phaseLabel')} {String(step.num).padStart(2, '0')}
                       </span>
                       <h4 style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{step.title}</h4>
                       {step.num === 2 && overviewVideoEmbed ? (
@@ -218,14 +216,14 @@ export default async function HowItWorksPage() {
                             />
                           </div>
                           <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
-                            Prefer to read? The summary below is always available.
+                            {t('videoCaption')}
                           </p>
                         </div>
                       ) : null}
                       <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.desc}</p>
                       {step.why && (
                         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', fontStyle: 'italic', opacity: 0.8 }}>
-                          Why: {step.why}
+                          {t('whyPrefix')} {step.why}
                         </p>
                       )}
                     </div>

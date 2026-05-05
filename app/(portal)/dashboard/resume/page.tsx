@@ -8,8 +8,7 @@ import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -22,8 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardResumePage() {
   const user = await getUser();
   if (!user) redirect("/login?redirectTo=/dashboard/resume");
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('profile');
 
   const profile = await prisma.profile.findUnique({
     where: { userId: user.id },
@@ -116,7 +114,7 @@ export default async function DashboardResumePage() {
                   color: "var(--color-on-surface)",
                 }}
               >
-                {t('Resume')}
+                {t('resume')}
               </h1>
               <p
                 style={{
@@ -163,7 +161,7 @@ export default async function DashboardResumePage() {
           }}
         >
           <PageHeader
-            title={t('Resume')}
+            title={t('resume')}
             subtitle="Upload your resume, review it inline, or build one from your profile."
             breadcrumbs={[
               { label: "Member Portal", href: "/dashboard" },

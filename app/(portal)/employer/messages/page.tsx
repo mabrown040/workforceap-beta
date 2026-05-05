@@ -11,8 +11,7 @@ import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
 import { buildEmployerInbox } from '@/lib/messages/employerInbox';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,8 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EmployerMessagesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/messages');
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('messages');
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
@@ -43,7 +41,7 @@ export default async function EmployerMessagesPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title={t('Messages')}
+        title={t('inbox')}
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">Candidates and WorkforceAP team</span>

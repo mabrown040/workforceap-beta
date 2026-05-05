@@ -9,25 +9,22 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.howItWorks');
   return buildPageMetadataAsync({
-    title: t('How It Works'),
-    description:
-      t('Your path from application through certification and job placement. Ten clear steps — each designed to set you up for success.'),
+    title: t('title'),
+    description: t('description'),
     path: '/how-it-works',
   });
 }
 
-const PHASES = (t: (label: string) => string) => [
+const PHASES = (t: (key: string) => string) => [
   {
     id: 1,
-    label: t('Phase 1 — Get Started'),
-    title: t('Get Started'),
+    label: t('phase1Label'),
+    title: t('phase1Title'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num <= 3).map((s) => ({
       num: s.num,
       title: s.title,
@@ -37,8 +34,8 @@ const PHASES = (t: (label: string) => string) => [
   },
   {
     id: 2,
-    label: t('Phase 2 — Build Your Future'),
-    title: t('Build Your Future'),
+    label: t('phase2Label'),
+    title: t('phase2Title'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 4 && s.num <= 6).map((s) => ({
       num: s.num,
       title: s.title,
@@ -48,8 +45,8 @@ const PHASES = (t: (label: string) => string) => [
   },
   {
     id: 3,
-    label: t('Phase 3 — Launch Your Career'),
-    title: t('Launch Your Career'),
+    label: t('phase3Label'),
+    title: t('phase3Title'),
     steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 7).map((s) => ({
       num: s.num,
       title: s.title,
@@ -60,8 +57,7 @@ const PHASES = (t: (label: string) => string) => [
 ];
 
 export default async function HowItWorksPage() {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.howItWorks');
   let overviewVideoEmbed: string | null = null;
   if (!shouldSkipOptionalDbQueriesAtBuild()) {
     try {

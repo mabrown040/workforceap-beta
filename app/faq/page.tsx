@@ -4,8 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -48,8 +47,7 @@ const faqHighlights = [
 ];
 
 export default async function FAQPage() {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.faq');
   return (
     <div className="inner-page">
       <section className="content-section" style={{ paddingBottom: 0 }}>
@@ -67,7 +65,7 @@ export default async function FAQPage() {
                   fontSize: '0.65rem',
                 }}
               >
-                {t('Knowledge Base')}
+                {t('knowledgeBase')}
               </span>
             </div>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1rem' }}>
@@ -92,7 +90,7 @@ export default async function FAQPage() {
           >
             <div style={{ marginBottom: '1rem' }}>
               <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-                {t('Quick answers')}
+                {t('quickAnswers')}
               </p>
               <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--color-on-surface)' }}>
                 Start with the questions people ask most.

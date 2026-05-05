@@ -4,8 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
   const raw = Array.isArray(topicParam) ? topicParam[0] : topicParam;
@@ -101,8 +100,7 @@ export default async function ContactPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const initialTopic = getPrefilledTopic(resolvedSearchParams?.topic);
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.contact');
 
   return (
     <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">
@@ -110,7 +108,7 @@ export default async function ContactPage({
         <div className="container" style={{ maxWidth: 1400 }}>
           <div style={{ marginBottom: '2.5rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              {t('Get in Touch')}
+              {t('getInTouch')}
             </span>
             <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.25rem' }}>
               We&rsquo;re here for <span style={{ color: 'var(--color-accent)' }}>members, employers, and partners</span> alike.
@@ -126,7 +124,7 @@ export default async function ContactPage({
             <div>
               <div className="portal-card portal-card--flat" style={{ padding: 'clamp(1.25rem, 3vw, 2.5rem)' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', color: 'var(--color-on-surface)' }}>
-                  {t('Send Us a Message')}
+                  {t('sendUsMessage')}
                 </h2>
                 <ContactFormClient initialTopic={initialTopic} />
               </div>
@@ -155,7 +153,7 @@ export default async function ContactPage({
                   background: 'var(--surface-container-low)',
                 }}
               >
-                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{t('Austin-based team')}</p>
+                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{t('austinTeam')}</p>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>Built in Austin, supporting members nationwide</h3>
                 <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                   We work from Austin, Texas and support members, partners, and employers across the country. Use the form,
@@ -175,7 +173,7 @@ export default async function ContactPage({
             &ldquo;We believe everyone deserves a clear path to a meaningful career. That starts with being available and responsive to the people we serve.&rdquo;
           </p>
           <p className="text-label-upper" style={{ color: 'var(--color-accent)', marginTop: '1.5rem' }}>
-            {t('Workforce Advancement Project Team')}
+            {t('teamName')}
           </p>
         </div>
       </section>

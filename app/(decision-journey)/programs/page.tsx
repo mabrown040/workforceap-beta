@@ -6,8 +6,7 @@ import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -18,8 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProgramsPage() {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.programs');
   const mobileBrowseChips = [
     { href: '#program-catalog', label: 'All' },
     ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
@@ -44,7 +42,7 @@ export default async function ProgramsPage() {
                 className="text-label-upper"
                 style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}
               >
-                {t('Choose Your Path')}
+                {t('heroTitle')}
               </span>
               <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>
                 Find the right program{' '}
@@ -132,14 +130,14 @@ export default async function ProgramsPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem' }}>
               <div>
                 <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-                  {t('Quick start')}
+                  {t('quickStart')}
                 </p>
                 <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
-                  {t('Start with the lane that fits you best.')}
+                  {t('quickStartBody')}
                 </h2>
               </div>
               <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
-                {t('Not sure? Take the 2-minute pathfinder')}
+                {t('notSure')}
               </Link>
             </div>
 
@@ -230,7 +228,7 @@ export default async function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">psychology</span>
-              {t('Find Your Path — Take the Quiz')}
+              {t('notSure')}
             </Link>
             <Link
               href="/program-comparison"
@@ -248,7 +246,7 @@ export default async function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">compare_arrows</span>
-              {t('Compare Programs')}
+              Compare Programs
             </Link>
             <Link
               href="/salary-guide"
@@ -266,7 +264,7 @@ export default async function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">payments</span>
-              {t('View Salary Guide')}
+              View Salary Guide
             </Link>
           </div>
         </div>
@@ -290,7 +288,7 @@ export default async function ProgramsPage() {
                 marginBottom: '0.5rem',
               }}
             >
-              {t('How to choose a program')}
+              {t('howToChoose')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.75rem', maxWidth: '44rem' }}>
               The right program depends on where you are now and where you want to go. Consider these
@@ -349,7 +347,7 @@ export default async function ProgramsPage() {
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              {t('From enrollment to employment')}
+              {t('fromEnrollment')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '32rem', margin: '0 auto' }}>
               WorkforceAP supports members at every step — from choosing a program through landing a job in their field.
@@ -430,7 +428,7 @@ export default async function ProgramsPage() {
             className="text-display-sm"
             style={{ color: 'var(--color-white, #fff)', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
           >
-            {t('Ready to take the next step?')}
+            Ready to take the next step?
           </h2>
           <p
             style={{
@@ -470,7 +468,7 @@ export default async function ProgramsPage() {
                 textDecoration: 'none',
               }}
             >
-              {t('Start Application')}
+              Start Application
             </Link>
             <Link
               href="/contact"
@@ -484,7 +482,7 @@ export default async function ProgramsPage() {
                 textDecoration: 'none',
               }}
             >
-              {t('Talk to an Advisor')}
+              Talk to an Advisor
             </Link>
           </div>
         </div>

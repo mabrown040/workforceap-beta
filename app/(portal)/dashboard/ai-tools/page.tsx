@@ -8,8 +8,7 @@ import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -22,8 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AIToolsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools');
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const tBlog = await getTranslations('marketing.blog');
+  const tCommon = await getTranslations('marketing.common');
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
@@ -52,7 +51,7 @@ export default async function AIToolsPage() {
               marginBottom: '0.5rem',
             }}
           >
-            {t('Included for members')}
+            {tBlog('includedForMembers')}
           </p>
           <span
             style={{
@@ -68,10 +67,10 @@ export default async function AIToolsPage() {
               marginBottom: '1rem',
             }}
           >
-            {t('Beta Access')}
+            {tBlog('betaAccess')}
           </span>
           <h1 className="text-display-sm" style={{ margin: '0 0 0.5rem' }}>
-            {t('Career Toolkit')}
+            {tBlog('careerToolkit')}
           </h1>
           <p
             style={{
@@ -91,7 +90,7 @@ export default async function AIToolsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               history
             </span>
-            {t('View my past results')}
+            {tCommon('viewMyPastResults')}
           </Link>
           <Link
             href="/dashboard/ai-tools/interview-prep"
@@ -101,7 +100,7 @@ export default async function AIToolsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
               library_books
             </span>
-            {t('Prep bundle')}
+            {tCommon('prepBundle')}
           </Link>
         </section>
       </div>
@@ -135,7 +134,7 @@ export default async function AIToolsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>apps</span>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-            {t('Guided Job Search Steps')}
+            {tCommon('guidedJobSearch')}
           </h2>
         </div>
 
@@ -146,7 +145,7 @@ export default async function AIToolsPage() {
             </p>
             <div style={{ marginTop: '0.875rem' }}>
               <Link href="/dashboard/job-applications" className="btn btn-outline">
-                {t('Open Application Tracker')}
+                {tCommon('openTracker')}
               </Link>
             </div>
           </PortalCard>

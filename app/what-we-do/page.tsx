@@ -5,16 +5,13 @@ import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { prisma } from '@/lib/db/prisma';
 import { getPlacementPublicMetrics } from '@/lib/outcomes/placementPublicMetrics';
-import { makeServerT } from '@/lib/i18n/serverLabels';
-import { getLocale } from '@/lib/i18n/serverLocale';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = makeServerT(locale);
+  const t = await getTranslations('marketing.whatWeDo');
   return buildPageMetadataAsync({
-    title: t('Workforce Development Training & Industry Certificates'),
-    description:
-      t('WorkforceAP is built on 25+ years of workforce development leadership. Employer-aligned training, career support, and grant- and partner-funded access for qualifying members.'),
+    title: t('title'),
+    description: t('description'),
     path: '/what-we-do',
   });
 }

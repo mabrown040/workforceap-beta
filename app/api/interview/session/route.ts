@@ -4,7 +4,7 @@ import { chatCompletion } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
-import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { aiResponseLanguageInstruction, firstInterviewPromptForLanguage, nextInterviewPromptForLanguage, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
@@ -76,9 +76,9 @@ export async function POST(req: NextRequest) {
       messages.push({ role: 'assistant', content: entry.question });
       messages.push({ role: 'user', content: entry.answer });
     }
-    messages.push({ role: 'user', content: language === 'es' ? 'Siguiente pregunta, por favor.' : 'Next question please.' });
+    messages.push({ role: 'user', content: nextInterviewPromptForLanguage(language) });
   } else {
-    messages.push({ role: 'user', content: language === 'es' ? 'Haz la primera pregunta de entrevista, por favor.' : 'Please ask your first interview question.' });
+    messages.push({ role: 'user', content: firstInterviewPromptForLanguage(language) });
   }
 
   const question = await chatCompletion(messages, { maxTokens: 200 });

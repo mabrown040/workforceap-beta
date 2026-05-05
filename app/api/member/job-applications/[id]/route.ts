@@ -4,35 +4,31 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
-import { getDbStatusForStage, getJobApplicationStage, type JobApplicationSource } from '@/lib/member/jobApplicationKanban';
+import {
+  getDbStatusForStage,
+  getJobApplicationStage,
+  type JobApplicationDbStatus,
+  type JobApplicationSource,
+} from '@/lib/member/jobApplicationKanban';
 import { updateJobApplicationSchema } from '@/lib/validation/jobApplication';
 
 type Props = { params: Promise<{ id: string }> };
 
-function serializeApplication(application: {
-  id: string;
-  role: string;
-  company: string;
-  appliedAt: Date | null;
-  source: JobApplicationSource;
-  status: ReturnType<typeof getDbStatusForStage>;
-  nextInterviewDate: Date | null;
-  notes: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
-  return {
-    id: application.id,
-    jobTitle: application.role,
-    company: application.company,
-    applicationDate: application.appliedAt?.toISOString() ?? null,
-    source: application.source,
-    status: getJobApplicationStage(application.status),
-    nextInterviewDate: application.nextInterviewDate?.toISOString() ?? null,
-    notes: application.notes,
-    createdAt: application.createdAt.toISOString(),
-    updatedAt: application.updatedAt.toISOString(),
-  };
+const DB_STATUSES: JobApplicationDbStatus[] = [
+  'SAVED',
+  'APPLIED',
+  'PHONE_SCREEN',
+  'INTERVIEWING',
+  'OFFER',
+  'REJECTED',
+];
+
+function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
+  if (typeof rawStatus !== 'string') return undefined;
+  if ((DB_STATUSES as readonly string[]).includes(rawStatus)) {
+    return rawStatus as JobApplicationDbStatus;
+  }
+  return getDbStatusForStage(rawStatus as ReturnType<typeof getJobApplicationStage>);
 }
 
 export async function PATCH(request: Request, { params }: Props) {
@@ -41,9 +37,21 @@ export async function PATCH(request: Request, { params }: Props) {
 
   const { id } = await params;
   const body = await request.json().catch(() => null);
-  const parsed = updateJobApplicationSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+  const maybeBody = body as Record<string, unknown> | null;
+  const hasLegacyFields = Boolean(
+    maybeBody &&
+      ('jobTitle' in maybeBody ||
+        'applicationDate' in maybeBody ||
+        'nextInterviewDate' in maybeBody),
+  );
+  const legacyParsed = hasLegacyFields
+    ? updateJobApplicationSchema.safeParse(body)
+    : null;
+  if (hasLegacyFields && legacyParsed && !legacyParsed.success) {
+    return NextResponse.json(
+      { error: legacyParsed.error.errors[0]?.message ?? 'Validation failed' },
+      { status: 400 },
+    );
   }
 
   try {
@@ -68,15 +76,59 @@ export async function PATCH(request: Request, { params }: Props) {
       notes?: string | null;
     } = {};
 
-    if (parsed.data.jobTitle !== undefined) data.role = parsed.data.jobTitle;
-    if (parsed.data.company !== undefined) data.company = parsed.data.company;
-    if (parsed.data.applicationDate !== undefined) data.appliedAt = parsed.data.applicationDate ? new Date(parsed.data.applicationDate) : null;
-    if (parsed.data.source !== undefined) data.source = parsed.data.source;
-    if (parsed.data.status !== undefined) data.status = getDbStatusForStage(parsed.data.status);
-    if (parsed.data.nextInterviewDate !== undefined) {
-      data.nextInterviewDate = parsed.data.nextInterviewDate ? new Date(parsed.data.nextInterviewDate) : null;
+    if (hasLegacyFields && legacyParsed?.success) {
+      const legacyData = legacyParsed.data;
+      if (legacyData.jobTitle !== undefined) data.role = legacyData.jobTitle;
+      if (legacyData.company !== undefined) data.company = legacyData.company;
+      if (legacyData.applicationDate !== undefined) {
+        data.appliedAt = legacyData.applicationDate
+          ? new Date(legacyData.applicationDate)
+          : null;
+      }
+      if (legacyData.source !== undefined) data.source = legacyData.source;
+      if (legacyData.status !== undefined) {
+        data.status = getDbStatusForStage(legacyData.status);
+      }
+      if (legacyData.nextInterviewDate !== undefined) {
+        data.nextInterviewDate = legacyData.nextInterviewDate
+          ? new Date(legacyData.nextInterviewDate)
+          : null;
+      }
+      if (legacyData.notes !== undefined) data.notes = legacyData.notes || null;
+    } else {
+      if (typeof maybeBody?.role === 'string' && maybeBody.role.trim().length > 0) {
+        data.role = maybeBody.role.trim();
+      }
+      if (typeof maybeBody?.company === 'string' && maybeBody.company.trim().length > 0) {
+        data.company = maybeBody.company.trim();
+      }
+      if ('appliedAt' in (maybeBody ?? {})) {
+        if (maybeBody?.appliedAt === null) {
+          data.appliedAt = null;
+        } else if (typeof maybeBody?.appliedAt === 'string') {
+          data.appliedAt = new Date(maybeBody.appliedAt);
+        }
+      }
+      if (typeof maybeBody?.source === 'string') {
+        data.source = maybeBody.source as JobApplicationSource;
+      }
+      const dbStatus = parseStatus(maybeBody?.status);
+      if (dbStatus) data.status = dbStatus;
+      if ('nextInterviewDate' in (maybeBody ?? {})) {
+        if (maybeBody?.nextInterviewDate === null) {
+          data.nextInterviewDate = null;
+        } else if (typeof maybeBody?.nextInterviewDate === 'string') {
+          data.nextInterviewDate = new Date(maybeBody.nextInterviewDate);
+        }
+      }
+      if ('notes' in (maybeBody ?? {})) {
+        if (typeof maybeBody?.notes === 'string') {
+          data.notes = maybeBody.notes;
+        } else if (maybeBody?.notes === null) {
+          data.notes = null;
+        }
+      }
     }
-    if (parsed.data.notes !== undefined) data.notes = parsed.data.notes || null;
 
     const application = await prisma.jobApplication.update({
       where: { id },
@@ -105,7 +157,7 @@ export async function PATCH(request: Request, { params }: Props) {
       });
     }
 
-    return NextResponse.json(serializeApplication(application));
+    return NextResponse.json(application);
   } catch (error) {
     console.error('[PATCH /api/member/job-applications/:id]', error);
     const message = error instanceof Error ? error.message : 'Database error';

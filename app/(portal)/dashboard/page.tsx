@@ -481,7 +481,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
   const AI_TOOL_LABELS: Record<string, string> = {
-    job_match_scorer: 'Job Match Scorer',
+    job_match_scorer: 'See how you match a job',
     resume_analysis: 'Resume Analysis',
     resume_rewriter: 'Resume Rewriter',
     cover_letter: 'Cover Letter',
@@ -489,7 +489,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     linkedin_headline: 'LinkedIn Headline',
     linkedin_about: 'LinkedIn About',
     salary_negotiation: 'Salary Negotiation',
-    gap_analyzer: 'Gap Analyzer',
+    gap_analyzer: 'See what is missing for a job',
     interview_coach: 'AI Interview Coach',
     career_counselor: 'Career Counselor',
   };
@@ -815,15 +815,25 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </section>
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
-        {memberPoints && memberPoints.total > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+          {memberPoints && memberPoints.total > 0 ? (
             <PointsWidget
               total={memberPoints.total}
               level={memberPoints.level}
               recent={recentTx}
             />
-          </section>
-        )}
+          ) : (
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Your first points are waiting.</p>
+              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+                Earn points by uploading a resume, completing training steps, and using career tools. Start with one small action.
+              </p>
+              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Upload or improve your resume
+              </Link>
+            </div>
+          )}
+        </section>
 
         {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
@@ -944,12 +954,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </section>
 
         {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}
-        {recentTools.length > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
-            <div className="portal-dash-section-header">
-              <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
-              <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
-            </div>
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
+          <div className="portal-dash-section-header">
+            <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
+            {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>}
+          </div>
+          {recentTools.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {recentTools.map((r) => (
                 <div key={r.id} className="portal-activity-item">
@@ -972,8 +982,18 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>You have not used a career tool yet.</p>
+              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+                Try one short tool today. The resume tool is a good first step and only takes a few minutes.
+              </p>
+              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Try the resume tool
+              </Link>
+            </div>
+          )}
+        </section>
       </div>
 
       {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}

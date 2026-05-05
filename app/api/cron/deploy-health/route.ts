@@ -1,31 +1,57 @@
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Hourly Vercel deploy health check.
  *
  * Queries the Vercel API to verify the latest production deployment
- * is in READY state, not ERROR or CANCELED.
+ * is in READY state. If the Vercel API token is missing/invalid,
+ * degrades to a live-site health check instead of failing the cron.
  */
 
-async function handle(request: Request) {
-  const unauthorized = authorizeCronRequest(request);
-  if (unauthorized) return unauthorized;
+async function fallbackSiteHealth(reason: string, status?: number) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+  const res = await fetch(siteUrl, { cache: 'no-store' });
+  const result = {
+    ok: res.ok,
+    degraded: true,
+    fallback: 'site-health',
+    reason,
+    status,
+    siteStatus: res.status,
+    siteUrl,
+    checkedAt: new Date().toISOString(),
+  };
 
+  await logCronRun('cron_deploy_health', result, result.ok ? 'ok' : 'error');
+  return Response.json(result, { status: result.ok ? 200 : 502 });
+}
+
+async function handle(_request: Request) {
   const projectId = process.env.VERCEL_PROJECT_ID || 'prj_pfOpwxedCID96oF2hlaE5J7kbNid';
   const teamId = process.env.VERCEL_TEAM_ID || 'team_zTfMkbIIH6ADgy5Hy43MCM5K';
   const token = process.env.VERCEL_TOKEN;
 
   if (!token) {
-    return Response.json({ ok: false, error: 'VERCEL_TOKEN missing' }, { status: 500 });
+    return fallbackSiteHealth('VERCEL_TOKEN missing');
+  }
+
+  const params = new URLSearchParams({
+    projectId,
+    target: 'production',
+    limit: '1',
+  });
+  if (teamId) {
+    params.set('teamId', teamId);
   }
 
   const res = await fetch(
-    `https://api.vercel.com/v6/deployments?projectId=${projectId}&target=production&limit=1`,
-    { headers: { Authorization: `Bearer ${token}` } }
+    `https://api.vercel.com/v6/deployments?${params.toString()}`,
+    { headers: { Authorization: `Bearer ${token}` } },
   );
 
   if (!res.ok) {
-    return Response.json({ ok: false, error: 'Vercel API error', status: res.status }, { status: 502 });
+    return fallbackSiteHealth('Vercel API error', res.status);
   }
 
   const data = await res.json();
@@ -39,10 +65,10 @@ async function handle(request: Request) {
     checkedAt: new Date().toISOString(),
   };
 
-  // Log to stdout for cron run tracking
   console.log(JSON.stringify(result));
+  await logCronRun('cron_deploy_health', result, result.ok ? 'ok' : 'error');
   return Response.json(result);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_deploy_health', handle);
+export const POST = withCronLogging('cron_deploy_health', handle);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { runStaleCourseraTrainingCheck } from '@/lib/member/staleTrainingCron';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -11,13 +12,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * get `User.staleTrainingDetectedAt` set once; cleared when progress updates
  * or program rollup hits 100% average.
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+async function handle(_request: Request) {
   try {
     const result = await runStaleCourseraTrainingCheck();
     await logCronRun('cron_stale_training_check', result, 'ok');
@@ -32,3 +27,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Cron failed' }, { status: 500 });
   }
 }
+
+export const GET = withCronLogging('cron_stale_training_check', handle);

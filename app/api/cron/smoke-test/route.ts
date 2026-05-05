@@ -1,4 +1,5 @@
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 
 /**
  * Hourly public endpoint smoke test.
@@ -16,10 +17,7 @@ const ENDPOINTS = [
   { path: '/faq', name: 'faq' },
 ];
 
-async function handle(request: Request) {
-  const unauthorized = authorizeCronRequest(request);
-  if (unauthorized) return unauthorized;
-
+async function handle(_request: Request) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.workforceap.org';
   const results: Record<string, { ok: boolean; status: number; bytes: number }> = {};
 
@@ -55,8 +53,9 @@ async function handle(request: Request) {
   };
 
   console.log(JSON.stringify(result));
+  await logCronRun('cron_smoke_test', result, allOk ? 'ok' : 'error');
   return Response.json(result);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging('cron_smoke_test', handle);
+export const POST = withCronLogging('cron_smoke_test', handle);

@@ -5,42 +5,69 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
 /**
  * Daily verification that member-facing cron jobs actually executed.
  *
- * Checks the cron run log for activity in the last 24 hours.
- * Alerts if any of the 7 critical crons never ran.
+ * Checks cron run logs against schedule-aware freshness windows.
+ * Daily crons get a 30h window; weekly crons get an 8-day window.
  */
+
+type CriticalCron = {
+  workflow: string;
+  schedule: 'daily' | 'weekly';
+  maxAgeHours: number;
+};
 
 async function handle(_request: Request) {
   const now = new Date();
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  const criticalCrons = [
-    'cron_applicant_followup',
-    'cron_inactive_nudge',
-    'cron_inactivity_nudge',
-    'cron_milestone_celebration',
-    'cron_partner_outcome_digest',
-    'cron_weekly_recap_email',
-    'cron_weekly_recap',
+  const criticalCrons: CriticalCron[] = [
+    { workflow: 'cron_applicant_followup', schedule: 'daily', maxAgeHours: 30 },
+    { workflow: 'cron_inactive_nudge', schedule: 'daily', maxAgeHours: 30 },
+    { workflow: 'cron_milestone_celebration', schedule: 'daily', maxAgeHours: 30 },
+    { workflow: 'cron_inactivity_nudge', schedule: 'weekly', maxAgeHours: 8 * 24 },
+    { workflow: 'cron_partner_digest', schedule: 'weekly', maxAgeHours: 8 * 24 },
+    { workflow: 'cron_weekly_recap_email', schedule: 'weekly', maxAgeHours: 8 * 24 },
+    { workflow: 'cron_weekly_recap', schedule: 'weekly', maxAgeHours: 8 * 24 },
   ];
+  const criticalKeys = criticalCrons.map((cron) => cron.workflow);
+  const oldestWindow = new Date(
+    now.getTime() - Math.max(...criticalCrons.map((cron) => cron.maxAgeHours)) * 60 * 60 * 1000,
+  );
 
   const runs = await prisma.workflowDiagnostic.findMany({
     where: {
-      workflow: { in: criticalCrons },
-      createdAt: { gte: oneDayAgo },
+      workflow: { in: criticalKeys },
+      createdAt: { gte: oldestWindow },
     },
+    orderBy: { createdAt: 'desc' },
     select: { workflow: true, createdAt: true, status: true },
   });
 
-  const ranSet = new Set(runs.map((r: { workflow: string }) => r.workflow));
-  const neverRan = criticalCrons.filter((name: string) => !ranSet.has(name));
+  const lastRunByWorkflow = new Map<string, (typeof runs)[number]>();
+  for (const run of runs) {
+    if (!lastRunByWorkflow.has(run.workflow)) {
+      lastRunByWorkflow.set(run.workflow, run);
+    }
+  }
+
+  const staleOrMissing = criticalCrons.filter((cron) => {
+    const lastRun = lastRunByWorkflow.get(cron.workflow);
+    if (!lastRun) return true;
+    const ageHours = (now.getTime() - lastRun.createdAt.getTime()) / (60 * 60 * 1000);
+    return ageHours > cron.maxAgeHours;
+  });
   const failures = runs.filter((r: { status: string }) => r.status === 'error');
 
   const runResult = {
-    ok: neverRan.length === 0 && failures.length === 0,
+    ok: staleOrMissing.length === 0 && failures.length === 0,
     checked: criticalCrons.length,
-    ran: ranSet.size,
-    neverRan,
+    ran: lastRunByWorkflow.size,
+    staleOrMissing: staleOrMissing.map((cron) => cron.workflow),
     failures: failures.map((f: { workflow: string }) => f.workflow),
+    windows: criticalCrons.map((cron) => ({
+      workflow: cron.workflow,
+      schedule: cron.schedule,
+      maxAgeHours: cron.maxAgeHours,
+      lastRunAt: lastRunByWorkflow.get(cron.workflow)?.createdAt.toISOString() ?? null,
+    })),
     checkedAt: now.toISOString(),
   };
 

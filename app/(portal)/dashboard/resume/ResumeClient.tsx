@@ -52,6 +52,8 @@ export default function ResumeClient({
   const [uploadError, setUploadError] = useState("");
   const [generateError, setGenerateError] = useState("");
   const [dragover, setDragover] = useState(false);
+  const [originalPdfFailed, setOriginalPdfFailed] = useState(false);
+  const [enhancedPdfFailed, setEnhancedPdfFailed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -380,17 +382,34 @@ export default function ResumeClient({
             </div>
             {resumeData?.previewOriginalPath &&
               resumeData.originalExt === "pdf" && (
-                <iframe
-                  title="Original resume preview"
-                  src={resumeData.previewOriginalPath}
-                  style={{
-                    width: "100%",
-                    minHeight: "480px",
-                    border: "none",
-                    display: "block",
-                    background: "#525659",
-                  }}
-                />
+                originalPdfFailed ? (
+                  <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--surface-container)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }}>picture_as_pdf</span>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
+                    {resumeData.originalUrl && (
+                      <a href={resumeData.originalUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>Download to view ↗</a>
+                    )}
+                  </div>
+                ) : (
+                  <iframe
+                    title="Original resume preview"
+                    src={resumeData.previewOriginalPath}
+                    onError={() => setOriginalPdfFailed(true)}
+                    onLoad={(e) => {
+                      try {
+                        const doc = (e.target as HTMLIFrameElement).contentDocument;
+                        if (!doc || doc.title === '404' || doc.body?.innerHTML === '') setOriginalPdfFailed(true);
+                      } catch { /* cross-origin — assume ok */ }
+                    }}
+                    style={{
+                      width: "100%",
+                      minHeight: "480px",
+                      border: "none",
+                      display: "block",
+                      background: "#525659",
+                    }}
+                  />
+                )
               )}
             {["doc", "docx"].includes(resumeData?.originalExt ?? "") && (
               <div style={{ background: "var(--surface-container)" }}>
@@ -488,17 +507,34 @@ export default function ResumeClient({
             </div>
             {resumeData?.previewEnhancedPath &&
               resumeData.enhancedExt === "pdf" && (
-                <iframe
-                  title="Enhanced resume preview"
-                  src={resumeData.previewEnhancedPath}
-                  style={{
-                    width: "100%",
-                    minHeight: "480px",
-                    border: "none",
-                    display: "block",
-                    background: "#525659",
-                  }}
-                />
+                enhancedPdfFailed ? (
+                  <div style={{ padding: '1.25rem', textAlign: 'center', background: 'var(--surface-container)' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }}>picture_as_pdf</span>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>PDF preview isn't available in this browser.</p>
+                    {resumeData.enhancedUrl && (
+                      <a href={resumeData.enhancedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline" style={{ fontSize: '0.875rem' }}>Download to view ↗</a>
+                    )}
+                  </div>
+                ) : (
+                  <iframe
+                    title="Enhanced resume preview"
+                    src={resumeData.previewEnhancedPath}
+                    onError={() => setEnhancedPdfFailed(true)}
+                    onLoad={(e) => {
+                      try {
+                        const doc = (e.target as HTMLIFrameElement).contentDocument;
+                        if (!doc || doc.title === '404' || doc.body?.innerHTML === '') setEnhancedPdfFailed(true);
+                      } catch { /* cross-origin — assume ok */ }
+                    }}
+                    style={{
+                      width: "100%",
+                      minHeight: "480px",
+                      border: "none",
+                      display: "block",
+                      background: "#525659",
+                    }}
+                  />
+                )
               )}
             {["doc", "docx"].includes(resumeData?.enhancedExt ?? "") && (
               <div style={{ background: "var(--surface-container)" }}>

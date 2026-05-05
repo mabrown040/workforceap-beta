@@ -257,12 +257,8 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                 flex-wrap: wrap;
                 padding: 0 0 0.35rem;
               }
-              /* Mobile (< 768px): strip secondary card info, enforce touch targets */
+              /* Mobile (< 768px): enforce touch targets */
               @media (max-width: 767px) {
-                .program-card-skills { display: none !important; }
-                .program-card-courses { display: none !important; }
-                .program-card-outcomes { display: none !important; }
-                .program-card-meta-row span:not(:first-child) { display: none !important; }
                 .program-card .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
                 .program-card-footer { flex-direction: column; align-items: stretch; }
                 .program-card-footer > div { flex-direction: column; }

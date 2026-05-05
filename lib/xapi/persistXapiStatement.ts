@@ -21,29 +21,32 @@ export async function persistXapiStatement(
   input: PersistXapiStatementInput
 ): Promise<'inserted' | 'skipped'> {
   const statementId = input.statementId?.trim() || null;
-  if (statementId) {
-    const existing = await prisma.xapiStatement.findUnique({
-      where: { statementId },
-      select: { id: true },
+
+  try {
+    await prisma.xapiStatement.create({
+      data: {
+        statementId,
+        actorEmail: input.actorEmail?.trim().toLowerCase() || null,
+        verb: input.verb,
+        courseId: input.courseId?.trim() || null,
+        courseName: input.courseName?.trim() || null,
+        resultScoreScaled: input.resultScoreScaled ?? null,
+        resultScoreRaw: input.resultScoreRaw ?? null,
+        resultCompletion: input.resultCompletion ?? null,
+        resultSuccess: input.resultSuccess ?? null,
+      },
     });
-    if (existing) return 'skipped';
+    return 'inserted';
+  } catch (error) {
+    if (
+      statementId &&
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      return 'skipped';
+    }
+    throw error;
   }
-
-  await prisma.xapiStatement.create({
-    data: {
-      statementId,
-      actorEmail: input.actorEmail?.trim().toLowerCase() || null,
-      verb: input.verb,
-      courseId: input.courseId?.trim() || null,
-      courseName: input.courseName?.trim() || null,
-      resultScoreScaled: input.resultScoreScaled ?? null,
-      resultScoreRaw: input.resultScoreRaw ?? null,
-      resultCompletion: input.resultCompletion ?? null,
-      resultSuccess: input.resultSuccess ?? null,
-    },
-  });
-
-  return 'inserted';
 }
 
 export async function markXapiStatementProcessed(statementId: string | null | undefined) {

@@ -235,7 +235,7 @@ export default async function HomePage() {
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
               <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                Ready to apply? Start your application →
+                {t('readyToApply')}
               </Link>
             </p>
           </div>
@@ -247,7 +247,11 @@ export default async function HomePage() {
             gap: '0.875rem',
             maxWidth: '980px',
           }}>
-            {HERO_TRUST_SIGNALS.map((item) => (
+            {([
+              { icon: 'group', title: t('trustReviewed'), desc: t('trustReviewedDetail') },
+              { icon: 'verified_user', title: t('trustYears'), desc: t('trustYearsDetail') },
+              { icon: 'work', title: t('trustEmployer'), desc: t('trustEmployerDetail') },
+            ] as const).map((item) => (
               <div
                 key={item.title}
                 style={{
@@ -277,7 +281,7 @@ export default async function HomePage() {
       <section className="home-credibility-bar" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
-            Certifications recognized by employers — powered by
+            {t('credBarLabel')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.65 }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
@@ -294,9 +298,9 @@ export default async function HomePage() {
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-              Partnerships
+              {t('partnershipsEyebrow')}
             </span>
-            <h2 className="text-display-sm">A Network Built for Success</h2>
+            <h2 className="text-display-sm">{t('networkTitle')}</h2>
           </div>
           <div style={{
             display: 'grid',
@@ -314,28 +318,28 @@ export default async function HomePage() {
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(173,44,77,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">person</span>
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Members</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>{t('memberCardTitle')}</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  No-cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link>
+                  {t('memberCardNoCost')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} high-demand career tracks
+                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} {t('statTracks')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  Resume, interview, and job search support
+                  {t('memberCardResume')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">check_circle</span>
-                  Job-search guidance and employer-facing support
+                  {t('memberCardJobs')}
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                <Link href="/apply" className="btn btn-primary btn-small">Apply Now</Link>
-                <Link href="/wioa-qualification" className="btn btn-secondary btn-small">Interview / Pre-qualification</Link>
+                <Link href="/apply" className="btn btn-primary btn-small">{t('memberCardCta')}</Link>
+                <Link href="/wioa-qualification" className="btn btn-secondary btn-small">{t('memberCardCta2')}</Link>
               </div>
             </div>
 
@@ -344,23 +348,23 @@ export default async function HomePage() {
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(43,123,185,0.12)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-blue, #2b7bb9)', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">handshake</span>
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Partners</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>{t('partnerCardTitle')}</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-blue, #2b7bb9)' }} aria-hidden="true">check_circle</span>
-                  Educational resource sharing
+                  {t('partnerCardSharing')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-blue, #2b7bb9)' }} aria-hidden="true">check_circle</span>
-                  Refer members and track their progress
+                  {t('partnerCardRefer')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-blue, #2b7bb9)' }} aria-hidden="true">check_circle</span>
-                  See the difference your referrals make
+                  {t('partnerCardImpact')}
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/partners" className="btn btn-primary btn-small">Partner With Us</Link>
+                <Link href="/partners" className="btn btn-primary btn-small">{t('partnerCardCta')}</Link>
               </div>
             </div>
 
@@ -369,23 +373,23 @@ export default async function HomePage() {
               <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">business</span>
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>Employers</h3>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>{t('employerCardTitle')}</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
-                  Trained candidates ready to hire
+                  {t('employerCardCandidates')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
-                  Training aligned to your open roles
+                  {t('employerCardTraining')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
-                  We introduce qualified graduates to your team
+                  {t('employerCardGrads')}
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/employers" className="btn btn-primary btn-small">Employer Overview</Link>
+                <Link href="/employers" className="btn btn-primary btn-small">{t('employerCardCta')}</Link>
               </div>
             </div>
           </div>
@@ -398,10 +402,10 @@ export default async function HomePage() {
           {/* Text block (2/3) */}
           <div>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}>
-              About Us
+              {t('aboutEyebrow')}
             </span>
             <h2 className="text-display-sm" style={{ marginBottom: '1.5rem' }}>
-              Employer-Aligned Training. Career Support Throughout the Journey.
+              {t('aboutTitle')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, marginBottom: '1.5rem', maxWidth: '680px' }}>
               WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a Vision given and a reoccurring Dream given to Michael Brown for years. WorkforceAP combines employer-aligned training, AI workforce readiness and soft-skill support, occupational training, and career guidance in a model built to work and scale — with no cost to qualifying members.
@@ -420,7 +424,7 @@ export default async function HomePage() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
               <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>{placementMetrics.placedCount}</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Placements tracked (portal)</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('statPlacements')}</span>
               <span style={{ fontSize: '0.68rem', color: 'var(--color-on-surface-variant)', marginTop: '0.45rem', lineHeight: 1.45, maxWidth: '14rem' }}>
                 n={placementMetrics.placedCount}. {placementMetrics.asOfLabel} Historical training reach remains 2,000+ through partner programs nationwide — a different count than this portal placement file.
               </span>
@@ -430,7 +434,7 @@ export default async function HomePage() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
               <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>{programCount}</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Programs</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('statPrograms')}</span>
             </div>
             {/* Accent card spanning full width */}
             <div className="portal-card portal-card--flat" style={{
@@ -439,7 +443,7 @@ export default async function HomePage() {
               textAlign: 'center',
             }}>
               <span style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>$0</span>
-              <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>Member Cost</span>
+              <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>{t('statMemberCost')}</span>
             </div>
           </div>
         </div>
@@ -448,9 +452,9 @@ export default async function HomePage() {
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
       <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
-          <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Journey to Success</h2>
+          <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>{t('journeyTitle')}</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-            From first application through training and job readiness, WorkforceAP breaks the process into clear steps so you know what happens next.
+            {t('journeySubtitle')}
           </p>
         </div>
         <div style={{
@@ -484,7 +488,7 @@ export default async function HomePage() {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <Link href="/how-it-works" className="btn btn-secondary">See Full Process</Link>
+          <Link href="/how-it-works" className="btn btn-secondary">{t('journeyCta')}</Link>
         </div>
       </section>
 
@@ -492,11 +496,11 @@ export default async function HomePage() {
       <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '3rem' }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-            Available Programs
+            {t('programsEyebrow')}
           </span>
-          <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>Explore Our {programCount} Programs</h2>
+          <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>{t('programsTitle', { count: programCount })}</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>
-            Career training that prepares you for jobs employers are hiring for right now.
+            {t('programsSubtitle')}
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
@@ -557,7 +561,7 @@ export default async function HomePage() {
                     fontSize: '0.75rem', fontWeight: 600,
                   }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">verified</span>
-                    Certificate track
+                    {t('programsCertBadge')}
                   </span>
                 </div>
               </div>
@@ -566,7 +570,7 @@ export default async function HomePage() {
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <Link href="/programs" className="btn btn-secondary">
-            View All {programCount} Programs
+            {t('programsCta', { count: programCount })}
           </Link>
         </div>
       </section>
@@ -574,19 +578,19 @@ export default async function HomePage() {
       {/* ===== AI-Powered Career Support ===== */}
       <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-          AI Toolkit
+          {t('aiEyebrow')}
         </span>
         <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
-          Resume Feedback in Minutes, Not Days
+          {t('aiTitle')}
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-          Members get AI tools that sharpen your resume, build your elevator speech, practice interviews with questions specific to your target role, and track progress inside the member portal.
+          {t('aiCopy')}
         </p>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
-          Voice coaching powered by <strong>ElevenLabs</strong>
+          {t('aiVoice')}
         </p>
         <Link href="/apply" className="btn btn-primary">
-          Apply for Member Tools
+          {t('aiCta')}
         </Link>
       </section>
 

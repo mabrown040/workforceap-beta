@@ -162,6 +162,7 @@ export default function CourseraMappingsAdmin({
   const [notes, setNotes] = useState('');
   const [message, setMessage] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
   const [reprocessResult, setReprocessResult] = useState<{ processed: number; matched: number } | null>(null);
+  const [isAutoHealing, setIsAutoHealing] = useState(false);
 
   // Sort/filter state for xAPI attention
   const [xapiFilter, setXapiFilter] = useState('');
@@ -754,9 +755,36 @@ export default function CourseraMappingsAdmin({
               <strong>Create mapping</strong> to load actor email into the form, pick the member, then save.
             </p>
           </div>
-          <a href="#coursera-mapping-form-top" className="btn btn-primary coursera-unmatched-cta" style={{ textDecoration: 'none' }}>
-            Jump to mapping form
-          </a>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn btn-primary coursera-unmatched-cta"
+              disabled={isAutoHealing}
+              onClick={() => {
+                setIsAutoHealing(true);
+                fetch('/api/admin/coursera/auto-heal', { method: 'POST', credentials: 'include' })
+                  .then(async (res) => {
+                    const payload = await res.json().catch(() => ({}));
+                    if (res.ok && payload.result) {
+                      setMessage({
+                        kind: 'success',
+                        text: `Auto-heal complete: ${payload.result.matched} of ${payload.result.processed} unmatched events matched to members.`,
+                      });
+                      router.refresh();
+                    } else {
+                      setMessage({ kind: 'error', text: payload.error || 'Auto-heal failed.' });
+                    }
+                  })
+                  .catch(() => setMessage({ kind: 'error', text: 'Network error during auto-heal.' }))
+                  .finally(() => setIsAutoHealing(false));
+              }}
+            >
+              {isAutoHealing ? 'Healing…' : 'Auto-heal all'}
+            </button>
+            <a href="#coursera-mapping-form-top" className="btn btn-primary coursera-unmatched-cta" style={{ textDecoration: 'none' }}>
+              Jump to mapping form
+            </a>
+          </div>
         </div>
 
         <div className="coursera-unmatched-controls" style={{ display: 'grid', gap: '0.75rem', marginBottom: '0.5rem' }}>

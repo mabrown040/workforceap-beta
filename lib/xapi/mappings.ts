@@ -228,6 +228,20 @@ export async function resolveXapiUser(identity: XapiIdentity): Promise<ResolvedX
 
   if (!user) return null;
 
+  // Auto-save a mapping so future xAPI events resolve via the fast path
+  try {
+    await upsertCourseraIdentityMapping({
+      userId: user.id,
+      courseraEmail: email,
+      actorIdentifier: identity.actorIdentifier ?? null,
+      actorHomePage: identity.actorHomePage ?? null,
+      source: 'auto-direct-email',
+    });
+  } catch (mappingError) {
+    // Non-fatal: direct match still works even if mapping save fails
+    console.warn('[resolveXapiUser] auto-mapping failed:', mappingError);
+  }
+
   return {
     userId: user.id,
     email: user.email,

@@ -168,6 +168,10 @@ export default function CourseraMappingsAdmin({
   const [xapiSort, setXapiSort] = useState<'newest' | 'email' | 'verb'>('newest');
   const [showOnlyUnprocessed, setShowOnlyUnprocessed] = useState(false);
 
+  // Sort/filter state for saved mappings
+  const [mappingFilter, setMappingFilter] = useState('');
+  const [mappingSort, setMappingSort] = useState<'newest' | 'member' | 'courseraEmail'>('newest');
+
   const filteredXapiAttention = useMemo(() => {
     let rows = [...xapiAttention];
 
@@ -200,6 +204,32 @@ export default function CourseraMappingsAdmin({
 
     return rows;
   }, [xapiAttention, xapiFilter, xapiSort, showOnlyUnprocessed]);
+
+  const filteredMappings = useMemo(() => {
+    let rows = [...mappings];
+    if (mappingFilter.trim()) {
+      const q = mappingFilter.toLowerCase();
+      rows = rows.filter(
+        (r) =>
+          r.userFullName.toLowerCase().includes(q) ||
+          r.userEmail.toLowerCase().includes(q) ||
+          (r.courseraEmail ?? '').toLowerCase().includes(q)
+      );
+    }
+    switch (mappingSort) {
+      case 'member':
+        rows.sort((a, b) => a.userFullName.localeCompare(b.userFullName));
+        break;
+      case 'courseraEmail':
+        rows.sort((a, b) => (a.courseraEmail ?? '').localeCompare(b.courseraEmail ?? ''));
+        break;
+      case 'newest':
+      default:
+        rows.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        break;
+    }
+    return rows;
+  }, [mappings, mappingSort, mappingFilter]);
 
   const selectedMember = useMemo(
     () => members.find((member) => member.id === userId) ?? null,
@@ -641,6 +671,25 @@ export default function CourseraMappingsAdmin({
           </p>
         </div>
 
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <input
+            type="text"
+            value={mappingFilter}
+            onChange={(e) => setMappingFilter(e.target.value)}
+            placeholder="Filter by member name, email, or Coursera email..."
+            style={{ ...inputStyle, flex: '1 1 200px', minWidth: '180px' }}
+          />
+          <select
+            value={mappingSort}
+            onChange={(e) => setMappingSort(e.target.value as 'newest' | 'member' | 'courseraEmail')}
+            style={{ ...inputStyle, width: 'auto', minWidth: '120px' }}
+          >
+            <option value="newest">Newest first</option>
+            <option value="member">Member A→Z</option>
+            <option value="courseraEmail">Coursera email A→Z</option>
+          </select>
+        </div>
+
         <div className="coursera-unmatched-table-wrap">
           <table className="coursera-unmatched-table coursera-admin-data-table" style={{ minWidth: '760px' }}>
             <thead>
@@ -654,7 +703,7 @@ export default function CourseraMappingsAdmin({
               </tr>
             </thead>
             <tbody>
-              {mappings.length === 0 ? (
+              {filteredMappings.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="coursera-empty-row">
                     <div className="coursera-empty-row__inner">
@@ -663,7 +712,7 @@ export default function CourseraMappingsAdmin({
                     </div>
                   </td>
                 </tr>
-              ) : mappings.map((mapping) => (
+              ) : filteredMappings.map((mapping) => (
                 <tr key={mapping.id}>
                   <td style={{ verticalAlign: 'top' }}>
                     <div style={{ fontWeight: 700 }}>{mapping.userFullName}</div>

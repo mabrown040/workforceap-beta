@@ -1,0 +1,137 @@
+import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/db/prisma';
+import { isAdmin } from '@/lib/auth/roles';
+import { parseXapiStatement, isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statementModel';
+import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
+
+export async function POST(request: Request) {
+  const { userId } = await auth();
+  if (!userId || !(await isAdmin(userId))) {
+    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 403 });
+  }
+
+  let body: { email?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const email = body.email?.trim().toLowerCase();
+  if (!email) {
+    return NextResponse.json({ ok: false, error: 'email required' }, { status: 400 });
+  }
+
+  const member = await prisma.user.findFirst({
+    where: { email: { mode: 'insensitive', equals: email } },
+    select: { id: true, email: true, fullName: true, enrolledProgram: true },
+  });
+  if (!member) {
+    return NextResponse.json({ ok: false, error: 'Member not found' }, { status: 404 });
+  }
+  if (!member.enrolledProgram) {
+    return NextResponse.json({ ok: false, error: 'Member has no enrolled program' }, { status: 400 });
+  }
+
+  const statements = await prisma.xapiStatement.findMany({
+    where: { actorEmail: email },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  if (statements.length === 0) {
+    return NextResponse.json({ ok: false, error: 'No xAPI statements found' }, { status: 404 });
+  }
+
+  const results: Array<{
+    statementId: string | null;
+    verb: string;
+    courseSlug: string | null;
+    matched: boolean;
+    status: string;
+    error?: string;
+  }> = [];
+
+  for (const stmt of statements) {
+    const parsed = parseXapiStatement({
+      id: stmt.statementId,
+      actor: {
+        mbox: stmt.actorEmail ? `mailto:${stmt.actorEmail}` : '',
+      },
+      verb: { id: stmt.verb },
+      object: {
+        id: stmt.courseId ?? undefined,
+        definition: stmt.courseName ? { name: stmt.courseName } : undefined,
+      },
+      result: {
+        score: stmt.resultScoreScaled != null || stmt.resultScoreRaw != null
+          ? { scaled: stmt.resultScoreScaled ?? undefined, raw: stmt.resultScoreRaw ?? undefined }
+          : undefined,
+        completion: stmt.resultCompletion ?? undefined,
+        success: stmt.resultSuccess ?? undefined,
+      },
+    } as Record<string, unknown>);
+
+    if (!parsed) {
+      results.push({
+        statementId: stmt.statementId,
+        verb: stmt.verb,
+        courseSlug: null,
+        matched: false,
+        status: 'parse_failed',
+        error: 'Could not parse xAPI statement',
+      });
+      continue;
+    }
+
+    if (!isXapiCourseProgressVerb(parsed)) {
+      results.push({
+        statementId: stmt.statementId,
+        verb: stmt.verb,
+        courseSlug: parsed.courseSlug ?? null,
+        matched: false,
+        status: 'not_progress_verb',
+      });
+      continue;
+    }
+
+    try {
+      await upsertCourseProgressFromXapiStatement({
+        userId: member.id,
+        enrolledProgramSlug: member.enrolledProgram,
+        parsed,
+      });
+      results.push({
+        statementId: stmt.statementId,
+        verb: stmt.verb,
+        courseSlug: parsed.courseSlug ?? null,
+        matched: true,
+        status: isXapiCompletionVerb(parsed) ? 'completed' : 'progress_updated',
+      });
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unknown error';
+      results.push({
+        statementId: stmt.statementId,
+        verb: stmt.verb,
+        courseSlug: parsed.courseSlug ?? null,
+        matched: false,
+        status: 'error',
+        error,
+      });
+    }
+  }
+
+  const progressUpdated = results.filter((r) => r.status === 'progress_updated').length;
+  const completed = results.filter((r) => r.status === 'completed').length;
+  const failed = results.filter((r) => r.status === 'error' || r.status === 'parse_failed').length;
+
+  return NextResponse.json({
+    ok: true,
+    member: { id: member.id, email: member.email, fullName: member.fullName, program: member.enrolledProgram },
+    totalStatements: statements.length,
+    progressUpdated,
+    completed,
+    failed,
+    results,
+  });
+}

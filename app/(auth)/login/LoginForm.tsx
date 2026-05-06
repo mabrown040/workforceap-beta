@@ -43,6 +43,45 @@ function portalTitleForPath(path: string): string {
   return PORTAL_DESTINATIONS.find((o) => o.redirectTo === '/dashboard')!.title;
 }
 
+/** Hero headline + subtitle shown on the login page brand panel.
+ *  Defaults to member-focused copy; staff/employer/partner sign-ins get
+ *  audience-appropriate copy so we don't tell employers their "career starts here". */
+function portalHeroCopyForPath(path: string): { headline: string; subtitle: string } {
+  if (path === '/employer' || path.startsWith('/employer/')) {
+    return {
+      headline: 'Find Job-Ready Talent',
+      subtitle:
+        'Sign in to post roles, review WorkforceAP candidates, and run hiring workflows for your company.',
+    };
+  }
+  if (path === '/partner' || path.startsWith('/partner/')) {
+    return {
+      headline: 'Connect Your Community',
+      subtitle:
+        'Sign in to track referrals, follow member progress, and review accountability views for your organization.',
+    };
+  }
+  if (path === '/counselor' || path.startsWith('/counselor/')) {
+    return {
+      headline: 'Support Members at Every Step',
+      subtitle:
+        'Sign in to access your member roster, messaging, and counseling resources.',
+    };
+  }
+  if (path === '/admin' || path.startsWith('/admin/')) {
+    return {
+      headline: 'Operations Workspace',
+      subtitle:
+        'Sign in for member oversight, organizational tools, and back-office workflows.',
+    };
+  }
+  return {
+    headline: 'Your Career Starts Here',
+    subtitle:
+      'Workforce Advancement Project — career training, certificates, and job placement support at no cost for qualifying members.',
+  };
+}
+
 /* ─── styles ─── */
 const s = {
   wrapper: {
@@ -391,10 +430,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             Trusted &amp; Secure
           </div>
           <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
-            Your Career Starts Here
+            {portalHeroCopyForPath(redirectTo).headline}
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.8, lineHeight: 'var(--line-height-normal)' }}>
-            Workforce Advancement Project — career training, certificates, and job placement support at no cost for qualifying members.
+            {portalHeroCopyForPath(redirectTo).subtitle}
           </p>
         </div>
       </div>

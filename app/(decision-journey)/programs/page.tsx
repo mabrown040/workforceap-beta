@@ -99,16 +99,18 @@ export default async function ProgramsPage() {
                   src="/images/hero-people.jpg"
                   alt="Professionals collaborating on certification programs"
                   fill
+                  sizes="(min-width: 1024px) 40vw, 90vw"
                   style={{ objectFit: 'cover' }}
                   priority
                 />
-                {/* Gradient overlay */}
+                {/* Gradient overlay — kept light so the photo reads through */}
                 <div
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 60%)',
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.30) 0%, transparent 55%)',
                     borderRadius: 'var(--radius-xl)',
+                    pointerEvents: 'none',
                   }}
                 />
               </div>

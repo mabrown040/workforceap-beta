@@ -101,7 +101,10 @@ export default async function HomePage() {
           }))
         )
         .slice(0, 4);
-  const programCount = activePrograms.length > 0 ? activePrograms.length : WORKFORCEAP_PROGRAM_CATALOG_SIZE;
+  // Always display the canonical catalog size so the headline count matches
+  // /programs, /salary-guide, /blog. The DB-driven activePrograms count is
+  // only used to pick which 4 cards to feature in the showcase below.
+  const programCount = WORKFORCEAP_PROGRAM_CATALOG_SIZE;
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
@@ -585,13 +588,13 @@ export default async function HomePage() {
             {t('ctaCopy')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
-            <Link href="/find-your-path" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
-              {t('ctaFind')}
-            </Link>
-            <Link href="/apply" className="btn btn-large" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.5)', fontWeight: 700 }}>
+            <Link href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
               {t('ctaApply')}
             </Link>
-            <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.35)', fontWeight: 600 }}>
+            <Link href="/find-your-path" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '2px solid white', fontWeight: 700 }}>
+              {t('ctaFind')}
+            </Link>
+            <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.55)', fontWeight: 600 }}>
               {t('ctaViewPrograms')}
             </Link>
           </div>

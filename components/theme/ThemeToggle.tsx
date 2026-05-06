@@ -30,8 +30,10 @@ export default function ThemeToggle({
   variant?: 'marketing' | 'portal';
 }) {
   const [dark, setDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
       const stored =
         localStorage.getItem(STORAGE_KEY) ??
@@ -87,8 +89,14 @@ export default function ThemeToggle({
       className={className ?? (variant === 'portal' ? portalClasses : marketingClasses)}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={`${modeLabel} — click to switch theme`}
+      suppressHydrationWarning
     >
-      {dark ? (
+      {!mounted ? (
+        // Render an invisible placeholder until mounted to avoid SSR/CSR icon mismatch.
+        // ThemeInitScript already applies the .dark class pre-hydration, so the rest of
+        // the page paints correctly; only this button's icon needs to wait for mount.
+        <span aria-hidden style={{ width: 20, height: 20, display: 'inline-block' }} />
+      ) : dark ? (
         <Sun size={20} strokeWidth={2} className="wa-shrink-0" aria-hidden />
       ) : (
         <Moon size={20} strokeWidth={2} className="wa-shrink-0 wa-text-slate-900 dark:wa-text-white" aria-hidden />

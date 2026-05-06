@@ -5,9 +5,9 @@ import WioaQualificationClient from '@/components/portal/WioaQualificationClient
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'WIOA Eligibility Screener',
+  title: 'WIOA Qualification Assessment',
   description:
-    'See whether WIOA-funded training may be a fit. Complete a quick public eligibility screener and WorkforceAP can follow up with next steps.',
+    'See whether WIOA-funded training may be a fit. Complete a quick public qualification assessment and WorkforceAP can follow up with next steps.',
   path: '/wioa-qualification',
 });
 }

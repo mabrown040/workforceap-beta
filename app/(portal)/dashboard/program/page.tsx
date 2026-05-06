@@ -115,8 +115,8 @@ export default async function ProgramPage() {
               <Link href="/dashboard/program/start" className="btn btn-outline btn-small">
                 Path to certification
               </Link>
-              <Link href="/dashboard/coursera" className="btn btn-primary btn-small">
-                Open Coursera hub
+              <Link href="/dashboard/training" className="btn btn-primary btn-small">
+                Open Training
               </Link>
             </div>
           </div>

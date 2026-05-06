@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const user = await getUser();
   if (!user) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirectTo', '/dashboard/coursera');
+    loginUrl.searchParams.set('redirectTo', '/dashboard/training');
     return NextResponse.redirect(loginUrl);
   }
 
@@ -112,7 +112,7 @@ export async function GET(request: Request) {
     null;
 
   if (!resolvedUrl) {
-    const errorUrl = new URL('/dashboard/coursera', request.url);
+    const errorUrl = new URL('/dashboard/training', request.url);
     errorUrl.searchParams.set('error', 'launch_failed');
     return NextResponse.redirect(errorUrl);
   }

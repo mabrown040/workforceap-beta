@@ -27,7 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function TrainingPage() {
+export default async function TrainingPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+  const launchError = params?.error === 'launch_failed';
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
   const dbUserPromise = prisma.user.findUnique({
@@ -114,6 +120,41 @@ export default async function TrainingPage() {
 
   const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
 
+  const isZeroState = completedCount === 0;
+
+  const zeroStateBanner = (
+    <div
+      style={{
+        background: 'rgba(74,155,79,0.08)',
+        border: '1px solid rgba(74,155,79,0.2)',
+        borderRadius: '0.75rem',
+        padding: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        flexWrap: 'wrap',
+      }}
+    >
+      <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.5rem', '--ms-fill': 1 } as object}>
+        flag
+      </span>
+      <div style={{ flex: 1, minWidth: '12rem' }}>
+        <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>Your path starts here</p>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+          Course 1 of {program.courses.length} is unlocked and ready.
+        </p>
+      </div>
+      <TrackedCourseraLaunchLink
+        href="/api/member/coursera/launch"
+        className="btn btn-primary"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1rem', fontSize: '0.875rem', whiteSpace: 'nowrap' }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>open_in_new</span>
+        Start Course 1
+      </TrackedCourseraLaunchLink>
+    </div>
+  );
+
   return (
     <>
       <div className="portal-main-content">
@@ -130,6 +171,36 @@ export default async function TrainingPage() {
             { label: tTraining('myTraining') },
           ]}
         />
+
+        {launchError && (
+          <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+            <div
+              style={{
+                background: 'rgba(173,44,77,0.08)',
+                border: '1px solid rgba(173,44,77,0.2)',
+                borderRadius: '0.75rem',
+                padding: '0.875rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>error_outline</span>
+              <div>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem' }}>We couldn&rsquo;t open Coursera right now.</p>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  Try again in a moment, or <Link href="/dashboard/messages">message your counselor</Link>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isZeroState && (
+          <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+            {zeroStateBanner}
+          </div>
+        )}
 
         {/* Mobile */}
         <div className="md:wa-hidden" style={{ padding: '0.75rem 1rem 6rem' }}>
@@ -280,15 +351,9 @@ export default async function TrainingPage() {
             <summary>Optional: refresh progress &amp; Coursera tools</summary>
             <div className="training-sync-details__body">
               <p style={{ margin: '0 0 var(--space-4)', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
-                Pull the latest completion data from Coursera, or open the full Coursera hub for launches and partner notes.
+                Pull the latest completion data from Coursera, then keep using this Training page as your single hub for launches and progress.
               </p>
               <CourseraSyncCard enabled={courseraReadiness.canSync} />
-              <p style={{ margin: 'var(--space-4) 0 0' }}>
-                <Link href="/dashboard/coursera" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>hub</span>
-                  Open Coursera hub
-                </Link>
-              </p>
             </div>
           </details>
 

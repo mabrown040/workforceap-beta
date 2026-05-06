@@ -12,15 +12,15 @@ test('interview tools route into readiness follow-through', () => {
   assert.equal(result.href, '/dashboard/readiness');
 });
 
-test('skill assessment routes into coursera follow-through', () => {
+test('skill assessment routes into training follow-through', () => {
   const result = getAIToolFollowThrough({ toolType: 'skill_assessment' });
-  assert.equal(result.href, '/dashboard/coursera');
+  assert.equal(result.href, '/dashboard/training');
 });
 
-test('career counselor elevator pitch routes into readiness follow-through', () => {
+test('career counselor elevator pitch routes into voice interview practice', () => {
   const result = getAIToolFollowThrough({
     toolType: 'career_counselor',
     inputSummary: 'Need an elevator pitch for IT support roles',
   });
-  assert.equal(result.href, '/dashboard/readiness');
+  assert.equal(result.href, '/dashboard/ai-tools/voice-interview');
 });

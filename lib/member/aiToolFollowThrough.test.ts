@@ -17,10 +17,10 @@ test('skill assessment routes into training follow-through', () => {
   assert.equal(result.href, '/dashboard/training');
 });
 
-test('career counselor elevator pitch routes into readiness follow-through', () => {
+test('career counselor elevator pitch routes into voice interview practice', () => {
   const result = getAIToolFollowThrough({
     toolType: 'career_counselor',
     inputSummary: 'Need an elevator pitch for IT support roles',
   });
-  assert.equal(result.href, '/dashboard/readiness');
+  assert.equal(result.href, '/dashboard/ai-tools/voice-interview');
 });

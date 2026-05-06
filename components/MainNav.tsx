@@ -390,9 +390,11 @@ export default function MainNav() {
               </ul>
             ) : null}
           </li>
+          {pathnameWithoutLocale !== '/apply' && pathnameWithoutLocale !== '/find-your-path' && (
           <li>
             <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
           </li>
+          )}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <LanguageToggle />

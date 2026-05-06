@@ -95,6 +95,7 @@ function buildCourseraConfig() {
   const explicitProgramId = process.env.COURSERA_PROGRAM_ID?.trim() || '';
   const envProgramIdMap = parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP);
   const envCourseIdMap = parseStringArrayMap(process.env.COURSERA_COURSE_ID_MAP);
+  const envLearningPathIdMap = parseStringMap(process.env.COURSERA_LEARNING_PATH_ID_MAP);
 
   return {
     apiBaseUrl: process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL,
@@ -109,12 +110,16 @@ function buildCourseraConfig() {
     programIdMap: { ...DISCOVERED_PROGRAM_ID_MAP, ...envProgramIdMap },
     programHomeUrl,
     programUrlTemplate: process.env.COURSERA_PROGRAM_URL_TEMPLATE?.trim() || '',
-    /** Template for deep-linking to individual courses: {courseId}, {programId}, {userId}, {email} */
+    /** Template for deep-linking to individual courses: {courseId}, {programId}, {programSlug}, {userId}, {email} */
     courseUrlTemplate: process.env.COURSERA_COURSE_URL_TEMPLATE?.trim() || '',
+    /** Template for deep-linking to a learning path: {learningPathId}, {programId}, {programSlug}, {userId}, {email} */
+    learningPathUrlTemplate: process.env.COURSERA_LEARNING_PATH_URL_TEMPLATE?.trim() || '',
     defaultSkillsetIds: parseCsv(process.env.COURSERA_DEFAULT_SKILLSET_IDS),
     skillsetIdMap: parseStringArrayMap(process.env.COURSERA_SKILLSET_ID_MAP),
     /** Map of programSlug → courseIndex → Coursera course ID */
     courseIdMap: { ...DISCOVERED_COURSE_ID_MAP, ...envCourseIdMap },
+    /** Map of programSlug → Coursera learning path ID */
+    learningPathIdMap: envLearningPathIdMap,
     webhookSecret:
       process.env.COURSERA_WEBHOOK_SECRET?.trim() || process.env.WEBHOOK_SECRET?.trim() || '',
     platformUrl: DEFAULT_PLATFORM_URL,
@@ -143,6 +148,12 @@ export function resolveCourseraSkillsetIds(programSlug: string | null | undefine
   return config.defaultSkillsetIds;
 }
 
+export function resolveCourseraLearningPathId(programSlug: string | null | undefined): string | undefined {
+  const config = getCourseraConfig();
+  if (programSlug && config.learningPathIdMap[programSlug]) return config.learningPathIdMap[programSlug];
+  return undefined;
+}
+
 export function buildCourseraLaunchUrl(args: {
   programSlug?: string | null;
   userId: string;
@@ -154,8 +165,21 @@ export function buildCourseraLaunchUrl(args: {
 }): string | null {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(args.programSlug);
+  const learningPathId = resolveCourseraLearningPathId(args.programSlug);
 
-  // If we have a course ID map and a current course index, deep-link to that specific course
+  // Priority 1: Learning path deep-link (best UX — lands member at their specific program track)
+  if (learningPathId && config.learningPathUrlTemplate) {
+    const learningPathUrl = interpolateTemplate(config.learningPathUrlTemplate, {
+      learningPathId,
+      programId,
+      programSlug: args.programSlug ?? '',
+      userId: args.userId,
+      email: args.email,
+    });
+    if (learningPathUrl) return learningPathUrl;
+  }
+
+  // Priority 2: Course-level deep-link (lands member directly in the first/next course)
   const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;
   const fromIndex =
     courseIds && args.currentCourseIndex != null && args.currentCourseIndex >= 0
@@ -174,6 +198,7 @@ export function buildCourseraLaunchUrl(args: {
     if (courseUrl) return courseUrl;
   }
 
+  // Priority 3: Program-level link (generic program home)
   if (config.programUrlTemplate) {
     return interpolateTemplate(config.programUrlTemplate, {
       programId,
@@ -192,6 +217,7 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
   const programId = resolveCourseraProgramId(programSlug);
   const skillsetIds = resolveCourseraSkillsetIds(programSlug);
   const courseIds = programSlug ? config.courseIdMap[programSlug] : undefined;
+  const learningPathId = resolveCourseraLearningPathId(programSlug);
   const launchUrl = buildCourseraLaunchUrl({
     programSlug,
     userId: 'template-user',
@@ -200,14 +226,17 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
   });
 
   const launchMissing: string[] = [];
-  if (!config.programHomeUrl && !config.programUrlTemplate && !config.courseUrlTemplate) {
-    launchMissing.push('program or course launch URL template');
+  if (!config.programHomeUrl && !config.programUrlTemplate && !config.courseUrlTemplate && !config.learningPathUrlTemplate) {
+    launchMissing.push('program, course, or learning path launch URL template');
   }
   if (config.programUrlTemplate.includes('{programId}') && !programId) {
     launchMissing.push('Coursera program ID mapping');
   }
   if (config.courseUrlTemplate && (!courseIds || courseIds.length === 0)) {
     launchMissing.push('course ID mapping for deep-linking');
+  }
+  if (config.learningPathUrlTemplate && !learningPathId) {
+    launchMissing.push('learning path ID mapping for deep-linking');
   }
 
   const syncMissing: string[] = [];
@@ -222,7 +251,10 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
 
   return {
     canLaunch: Boolean(launchUrl),
-    canDeepLink: Boolean(config.courseUrlTemplate && courseIds && courseIds.length > 0),
+    canDeepLink: Boolean(
+      (config.courseUrlTemplate && courseIds && courseIds.length > 0) ||
+      (config.learningPathUrlTemplate && learningPathId)
+    ),
     canSync: syncMissing.length === 0,
     canReceiveWebhooks: webhookMissing.length === 0,
     launchMissing,
@@ -231,6 +263,7 @@ export function getCourseraReadiness(programSlug: string | null | undefined) {
     programId,
     skillsetIds,
     courseIds,
+    learningPathId,
     platformUrl: config.platformUrl,
   };
 }

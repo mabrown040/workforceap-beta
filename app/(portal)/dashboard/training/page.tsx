@@ -120,7 +120,7 @@ export default async function TrainingPage({
 
   const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
 
-  const isZeroState = completedCount === 0;
+  const isZeroState = completedCount === 0 && !Object.values(progressBySlug).some((p) => p.status === 'IN_PROGRESS' || (p.percentComplete ?? 0) > 0);
 
   const zeroStateBanner = (
     <div
@@ -162,7 +162,7 @@ export default async function TrainingPage({
           title={tTraining('myTraining')}
           subtitle={
             <>
-              <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
+              <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and track your progress. Mark each course done as you finish.</span>
               <span className="wa-hidden md:wa-block">Complete your {program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.</span>
             </>
           }

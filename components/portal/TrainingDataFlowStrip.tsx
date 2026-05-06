@@ -67,8 +67,8 @@ export default function TrainingDataFlowStrip() {
           <div className="training-data-flow-strip__icon-wrap" aria-hidden>
             <StepIconXapi />
           </div>
-          <span className="training-data-flow-strip__step-label">Activity syncs via xAPI</span>
-          <span className="training-data-flow-strip__step-hint">Secure statements to WorkforceAP</span>
+          <span className="training-data-flow-strip__step-label">Your progress syncs automatically</span>
+          <span className="training-data-flow-strip__step-hint">Secure connection to WorkforceAP</span>
         </li>
         <ArrowBetween />
         <li className="training-data-flow-strip__step">

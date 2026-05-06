@@ -360,6 +360,31 @@ export async function listCourseraIdentityMappings() {
   `;
 }
 
+export async function listCourseraIdentityMappingsForUser(userId: string) {
+  await ensureCourseraMappingTables();
+
+  return prisma.$queryRaw<MappingRow[]>`
+    SELECT
+      cim.id,
+      cim.user_id AS "userId",
+      cim.coursera_email AS "courseraEmail",
+      cim.actor_identifier AS "actorIdentifier",
+      cim.actor_home_page AS "actorHomePage",
+      cim.source,
+      cim.notes,
+      cim.last_seen_at AS "lastSeenAt",
+      cim.created_at AS "createdAt",
+      cim.updated_at AS "updatedAt",
+      u.email AS "userEmail",
+      u.full_name AS "userFullName"
+    FROM coursera_identity_mappings cim
+    JOIN users u ON u.id = cim.user_id
+    WHERE cim.user_id = ${userId}
+    ORDER BY cim.updated_at DESC, cim.created_at DESC
+    LIMIT 10
+  `;
+}
+
 export type CourseraSkillsetProgressSummary = {
   totalRows: number;
   latestSyncedAt: Date | null;

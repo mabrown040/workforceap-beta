@@ -163,6 +163,44 @@ export default function CourseraMappingsAdmin({
   const [message, setMessage] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
   const [reprocessResult, setReprocessResult] = useState<{ processed: number; matched: number } | null>(null);
 
+  // Sort/filter state for xAPI attention
+  const [xapiFilter, setXapiFilter] = useState('');
+  const [xapiSort, setXapiSort] = useState<'newest' | 'email' | 'verb'>('newest');
+  const [showOnlyUnprocessed, setShowOnlyUnprocessed] = useState(false);
+
+  const filteredXapiAttention = useMemo(() => {
+    let rows = [...xapiAttention];
+
+    if (xapiFilter.trim()) {
+      const q = xapiFilter.toLowerCase();
+      rows = rows.filter(
+        (r) =>
+          (r.actorEmail ?? '').toLowerCase().includes(q) ||
+          (r.courseName ?? '').toLowerCase().includes(q) ||
+          r.verb.toLowerCase().includes(q)
+      );
+    }
+
+    if (showOnlyUnprocessed) {
+      rows = rows.filter((r) => !r.processed);
+    }
+
+    switch (xapiSort) {
+      case 'email':
+        rows.sort((a, b) => (a.actorEmail ?? '').localeCompare(b.actorEmail ?? ''));
+        break;
+      case 'verb':
+        rows.sort((a, b) => a.verb.localeCompare(b.verb));
+        break;
+      case 'newest':
+      default:
+        rows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+
+    return rows;
+  }, [xapiAttention, xapiFilter, xapiSort, showOnlyUnprocessed]);
+
   const selectedMember = useMemo(
     () => members.find((member) => member.id === userId) ?? null,
     [members, userId]
@@ -672,7 +710,39 @@ export default function CourseraMappingsAdmin({
           </a>
         </div>
 
-        {xapiAttention.length === 0 ? (
+        <div className="coursera-unmatched-controls" style={{ display: 'grid', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={xapiFilter}
+              onChange={(e) => setXapiFilter(e.target.value)}
+              placeholder="Filter by email, course, or verb..."
+              style={{ ...inputStyle, flex: '1 1 200px', minWidth: '180px' }}
+            />
+            <select
+              value={xapiSort}
+              onChange={(e) => setXapiSort(e.target.value as 'newest' | 'email' | 'verb')}
+              style={{ ...inputStyle, width: 'auto', minWidth: '120px' }}
+            >
+              <option value="newest">Newest first</option>
+              <option value="email">Email A→Z</option>
+              <option value="verb">Verb A→Z</option>
+            </select>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showOnlyUnprocessed}
+              onChange={(e) => setShowOnlyUnprocessed(e.target.checked)}
+            />
+            Show only unprocessed
+          </label>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+            Showing {filteredXapiAttention.length} of {xapiAttention.length} statements
+          </div>
+        </div>
+
+        {filteredXapiAttention.length === 0 ? (
           <div className="coursera-empty-row__inner" style={{ padding: '1.5rem 0' }}>
             <DataLandingEmptyArt />
             <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '28rem' }}>
@@ -682,7 +752,7 @@ export default function CourseraMappingsAdmin({
         ) : (
           <>
             <div className="coursera-unmatched-cards md:wa-hidden" style={{ marginBottom: '0.5rem' }}>
-              {xapiAttention.map((row) => (
+              {filteredXapiAttention.map((row) => (
                 <article key={`a-${row.id}`} className="coursera-unmatched-card">
                   <div className="coursera-unmatched-card__label">When · actor</div>
                   <div className="coursera-unmatched-card__value">
@@ -734,7 +804,7 @@ export default function CourseraMappingsAdmin({
                   </tr>
                 </thead>
                 <tbody>
-                  {xapiAttention.map((row) => (
+                  {filteredXapiAttention.map((row) => (
                     <tr key={row.id}>
                       <td style={{ whiteSpace: 'nowrap' }}>{fmtDate(row.createdAt)}</td>
                       <td>{row.actorEmail || '—'}</td>

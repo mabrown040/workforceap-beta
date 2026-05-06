@@ -1,0 +1,769 @@
+{
+  "program_slug": "workforce-advancement-project-8a3f0",
+  "program_name": "Workforce Advancement Project",
+  "curriculum_id": "iIor6DQVEfGUiRLJhGJyuw",
+  "org_id": "8R2W4McwOMWJp9cCBV1kvw",
+  "courses": [
+    {
+      "id": "GCTyHE2LEeyLIRLL9niz0w",
+      "slug": "introduction-to-digital-transformation-part-1",
+      "name": "Introduction to Digital Transformation Part 1",
+      "partnerIds": [
+        "1004"
+      ]
+    },
+    {
+      "id": "u3rsKNC_Ee6SjxKHxThXWw",
+      "slug": "project-management-performance-domains",
+      "name": "Project Management Performance Domains",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "hIyjm5CKEe63Ww6tPe9iow",
+      "slug": "generative-ai-elevate-your-data-science-career",
+      "name": " Generative AI: Elevate Your Data Science Career",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "mR7MlUaTEemuHQ4HpHozrA",
+      "slug": "introduction-to-ai",
+      "name": "Introduction to Artificial Intelligence (AI)",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "fYuElDEgEeiCvhLLCIZW_A",
+      "slug": "data-analysis-with-python",
+      "name": "Data Analysis with Python",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "g-0dF3JpEeys9RJMWW48Yw",
+      "slug": "foundations-of-digital-marketing-and-e-commerce",
+      "name": "Foundations of Digital Marketing and E-commerce",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "NRbkx_ZREe2OqwqhrYNGhQ",
+      "slug": "medical-terminology-anatomy-physiology-fundamentals",
+      "name": "Medical Terminology, Anatomy, and Physiology Fundamentals",
+      "partnerIds": [
+        "1382"
+      ]
+    },
+    {
+      "id": "UK7yonsIEey1tgpUmO8AYQ",
+      "slug": "satisfaction-guaranteed",
+      "name": "Satisfaction Guaranteed: Develop Customer Loyalty Online",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "4vJ2DufMEe-ccQr_xjRSew",
+      "slug": "the-billing-and-collection-process",
+      "name": "The Billing and Collection Process",
+      "partnerIds": [
+        "2075"
+      ]
+    },
+    {
+      "id": "uZZCOk-0Eei5shJ0GHcv-g",
+      "slug": "applied-data-science-capstone",
+      "name": "Applied Data Science Capstone",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "wtYRSE1kEeyLIRLL9niz0w",
+      "slug": "introduction-to-hardware-and-operating-systems",
+      "name": "Introduction to Hardware and Operating Systems",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "FOu5AXsIEeynSxJpnIcphQ",
+      "slug": "assess-for-success",
+      "name": "Assess for Success: Marketing Analytics and Measurement",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "ORAIlTLtEeizIBKbQHnlqg",
+      "slug": "python-for-data-visualization",
+      "name": "Data Visualization with Python",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "tI6I6GHOEeyipgpI5l_HwQ",
+      "slug": "career-guide-and-interview-prep-for-data-science-pc",
+      "name": "Data Scientist Career Guide and Interview Preparation",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "Se-fZQWhEfG28A6LLakGFQ",
+      "slug": "reconciliation-billing-and-collections-optimization",
+      "name": "Reconciliation, Billing, and Collections Optimization",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "HjlVBHJLEeys9RJMWW48Yw",
+      "slug": "from-likes-to-leads",
+      "name": "From Likes to Leads: Interact with Customers Online",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "mFu9FE1kEeyLIRLL9niz0w",
+      "slug": "introduction-software-programming-and-databases",
+      "name": "Introduction to Software, Programming, and Databases ",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "Z1XEYB-eEeulXwp2iaqDJw",
+      "slug": "health-it-fundamentals",
+      "name": "Health Information Technology Fundamentals",
+      "partnerIds": [
+        "8"
+      ]
+    },
+    {
+      "id": "w1jkc9spEfCQRRIzUgLPlQ",
+      "slug": "packt-chatgpt-foundations-amzvj",
+      "name": "ChatGPT - Foundations",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "DRKQhcn7EfCGDQr_wTYZuQ",
+      "slug": "packt-foundations-of-it-and-core-hardware-components-gavrv",
+      "name": "Foundations of IT and Core Hardware Components",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "Ci-CgAWfEfCd-gr_6GMchQ",
+      "slug": "packt-salesforce-certified-ai-associate-certification-a3r1f",
+      "name": "Salesforce Certified AI Associate Certification",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "oc80ZNm-EfCZihIC4LWgUw",
+      "slug": "sales-with-ai",
+      "name": "Sales with AI",
+      "partnerIds": [
+        "3751"
+      ]
+    },
+    {
+      "id": "RP5nqGeBEe-ZVAr_5CUYPw",
+      "slug": "packt-operating-systems-and-networking-fundamentals-bokjh",
+      "name": "Operating Systems and Networking Fundamentals",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "MvVSdbBHEfCsnQ73ldDVQw",
+      "slug": "aws-artificial-intelligence-practitioner",
+      "name": "AWS Artificial Intelligence Practitioner",
+      "partnerIds": [
+        "338"
+      ]
+    },
+    {
+      "id": "GDQMSxDWEeitFhJL4G-A_g",
+      "slug": "sql-data-science",
+      "name": "Databases and SQL for Data Science with Python",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "1-6HgCIEEey-7g6YTy-Atw",
+      "slug": "telehealth",
+      "name": "Foundations of Telehealth",
+      "partnerIds": [
+        "8"
+      ]
+    },
+    {
+      "id": "6y4eyrMCEfCVOAr_-ssqDQ",
+      "slug": "medical-coding-for-max-reimbursement",
+      "name": "Medical Coding for Max Reimbursement",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "XnYYsmbgEe-WbhKfqhh3sw",
+      "slug": "packt-advanced-networking-security-and-it-operations-fgrrb",
+      "name": "Advanced Networking, Security, and IT Operations",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "tQhqTtzuEfC6bA4wlNz8zQ",
+      "slug": "ai-for-marketing",
+      "name": "AI for Marketing",
+      "partnerIds": [
+        "3751"
+      ]
+    },
+    {
+      "id": "J6uAMWcgEe-ZVAr_5CUYPw",
+      "slug": "packt-foundations-of-computer-hardware-and-storage-fneta",
+      "name": "Foundations of Computer Hardware and Storage",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "P6EH-AfjEeqBYw5XkWz7vw",
+      "slug": "introduction-to-cloud",
+      "name": "Introduction to Cloud Computing",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "OUTGOrvTEeWuCAqiwoZfSw",
+      "slug": "excel-data-analysis",
+      "name": "Introduction to Data Analysis Using Excel",
+      "partnerIds": [
+        "13"
+      ]
+    },
+    {
+      "id": "h5dcezicEeyZlQoNyXy15Q",
+      "slug": "artificial-intelligence-an-overview",
+      "name": "Artificial Intelligence: An Overview",
+      "partnerIds": [
+        "405"
+      ]
+    },
+    {
+      "id": "dj1_WJClEe-jlw4NkAElrw",
+      "slug": "data-and-electronic-health-records",
+      "name": "Data and Electronic Health Records",
+      "partnerIds": [
+        "8"
+      ]
+    },
+    {
+      "id": "S3G1qWbiEe-EPwr_9XyAcQ",
+      "slug": "packt-networking-peripherals-and-wireless-technologies-fhkx1",
+      "name": "Networking, Peripherals, and Wireless Technologies",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "873t-sJ3EeyZlw5yhMZTYQ",
+      "slug": "technical-support-case-studies",
+      "name": "Technical Support (IT) Case Studies and Capstone",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "NGstiiJNEe-qLxJFbw2Hbw",
+      "slug": "pm4r-agile-mindset-in-development-projects",
+      "name": "PM4R Agile: Agile Mindset in Development Projects",
+      "partnerIds": [
+        "825"
+      ]
+    },
+    {
+      "id": "ByqSENDBEe6SjxKHxThXWw",
+      "slug": "pmp-application-process-and-practice-exam",
+      "name": "PMP Application Process and Practice Exam",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "ySI6pmchEe--dw7PPVphLw",
+      "slug": "packt-it-fundamentals-and-hardware-essentials-yqged",
+      "name": "IT Fundamentals and Hardware Essentials",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "z-d7VBReEe-r_Ar_6dbL9Q",
+      "slug": "ai-for-professional-communication",
+      "name": "AI for Professional Communication",
+      "partnerIds": [
+        "123"
+      ]
+    },
+    {
+      "id": "kyfEm7DIEfCsnQ73ldDVQw",
+      "slug": "register-patients--validate-data",
+      "name": "Register Patients & Validate Data",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "ORD0I55eEe2a0hItqNBhjQ",
+      "slug": "medical-billing-coding-essentials",
+      "name": "Medical Billing and Coding Essentials",
+      "partnerIds": [
+        "1382"
+      ]
+    },
+    {
+      "id": "aOsrKiujEe6mDAo3fVlzHw",
+      "slug": "python-data-science",
+      "name": "Python for Data Science",
+      "partnerIds": [
+        "1289"
+      ]
+    },
+    {
+      "id": "YlfzdXJKEeyKjA79ESMRTQ",
+      "slug": "introduction-to-cybersecurity-essentials",
+      "name": "Introduction to Cybersecurity Essentials",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "ZWYBq9zVEeqMbw6VbjEnNw",
+      "slug": "introduction-to-data-analytics",
+      "name": "Introduction to Data Analytics",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "CQXkoGIKEe6yuQ41HILERQ",
+      "slug": "ai-for-business-generation-and-prediction",
+      "name": "AI for Business: Generation & Prediction",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "6JQCyKqNEfCK2RJYz7KGmw",
+      "slug": "medical-billing-code-and-claim-cleanly",
+      "name": "Medical Billing: Code and Claim Cleanly",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "P0ciGZT0EeyHuA5cIqn4NQ",
+      "slug": "introduction-to-networking-and-storage",
+      "name": "Introduction to Networking and Storage",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "SaiktYS1Ee66wg5jL1EOqw",
+      "slug": "chatgpt-for-beginners-market-research-ai",
+      "name": "ChatGPT for Beginners: Using AI for Market Research",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "aqZafM_BEfCL0wr__9J4Qw",
+      "slug": "power-bi-data-analysis-reporting-connecting-lo095214",
+      "name": "Power BI: Data Analysis, Reporting, and Connecting",
+      "partnerIds": [
+        "4045"
+      ]
+    },
+    {
+      "id": "YUfX_FFcEemHkRLmf0JQJA",
+      "slug": "ai-ethics",
+      "name": "Artificial Intelligence: Ethics & Societal Challenges",
+      "partnerIds": [
+        "199"
+      ]
+    },
+    {
+      "id": "uRHCCWFiEeuu-xLe1JcYrQ",
+      "slug": "social-media-digital-marketing-fundamentals",
+      "name": "Social Media and Digital Marketing Fundamentals",
+      "partnerIds": [
+        "717"
+      ]
+    },
+    {
+      "id": "tYQTkiDCEe6zFgoHXpnxeQ",
+      "slug": "practice-exam-for-comptia-itf-plus-certification",
+      "name": "Practice Exam for CompTIA Tech+ Certification",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "lgy789C8Ee6SjxKHxThXWw",
+      "slug": "project-management-fundamentals-microsoft",
+      "name": "Project Management Fundamentals",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "KQ6GstDAEe6P2wphYfoNOQ",
+      "slug": "process-groups-and-processes-in-project-management",
+      "name": " Process Groups and Processes in Project Management",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "bbLUnmLQEe66xBLRCmM3Cw",
+      "slug": "practice-exam-for-comptia-a",
+      "name": "Practice Exams for CompTIA A+ Certification: Core 1 & Core 2",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "iLNlSQp9Eeun_RJEc0KNDw",
+      "slug": "visualize-data",
+      "name": "Share Data Through the Art of Visualization",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "R56tWWBoEe2TzA7_9n9MNw",
+      "slug": "tech-support-career-guide-and-interview-preparation",
+      "name": "Tech Support Career Guide and Interview Preparation",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "rNyuLa-pEeytqw64hz8ZCw",
+      "slug": "introduction-to-technical-support",
+      "name": "Introduction to Technical Support ",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "r0GnHOZaEees-Q6jQMxlrg",
+      "slug": "what-is-datascience",
+      "name": "What is Data Science? ",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "OFt7o_8IEee1YxLCJ0cSDA",
+      "slug": "data-science-methodology",
+      "name": "Data Science Methodology",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "ETzWTdC9Ee6SjxKHxThXWw",
+      "slug": "team-building-and-leadership-in-project-management",
+      "name": "Team Building and Leadership in Project Management",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "CUOh2pFrEe-KjBKlSS1PLQ",
+      "slug": "medical-administrative-assistants-and-office-procedures",
+      "name": "Medical Administrative Assistants and Office Procedures",
+      "partnerIds": [
+        "1382"
+      ]
+    },
+    {
+      "id": "kYlX_qm0EfCZ0RJy-KWDlw",
+      "slug": "medical-billing-code-claim-collect",
+      "name": "Medical Billing: Code, Claim, Collect",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "RekNoB1LEfGuBw5BLqxbOQ",
+      "slug": "digital-marketing-with-genai",
+      "name": "Digital Marketing with AI",
+      "partnerIds": [
+        "3321"
+      ]
+    },
+    {
+      "id": "MYbEugyHEfGWGg5tlkdcvw",
+      "slug": "retrieve--prep-data",
+      "name": "Retrieve & Prep Data",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "8UjeMk-mEeit4g4GsxE4dg",
+      "slug": "machine-learning-with-python",
+      "name": "Machine Learning with Python",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "ocXG5O4OEe6cohJOlykk1Q",
+      "slug": "pm4r-agile-5-steps-for-hybrid-management-of-projects",
+      "name": "PM4R Agile: 5 steps for hybrid management of projects",
+      "partnerIds": [
+        "825"
+      ]
+    },
+    {
+      "id": "uOyjBdflEeqckg5GnG0pSw",
+      "slug": "comptia-practice",
+      "name": "CompTIA Practice",
+      "partnerIds": [
+        "527"
+      ]
+    },
+    {
+      "id": "MBqC4XJLEeys9RJMWW48Yw",
+      "slug": "think-outside-the-inbox",
+      "name": "Think Outside the Inbox: Email Marketing",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "m0fACXB0EeulIxJCZb_vVQ",
+      "slug": "google-data-analytics-capstone",
+      "name": "Google Data Analytics Capstone: Complete a Case Study",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "vuAsldC-Ee6P2wphYfoNOQ",
+      "slug": "project-management-principles",
+      "name": "Project Management Principles",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "gtaaAQWpEfGgHhL0Iuu-6Q",
+      "slug": "seo-and-content-optimization-for-digital-marketing",
+      "name": "SEO and Content Optimization for Digital Marketing",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "ejOz7RDUEei99hK0xs-tsg",
+      "slug": "python-for-applied-data-science-ai",
+      "name": "Python for Data Science, AI & Development",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "ZEB-Lgp9Eeun_RJEc0KNDw",
+      "slug": "ask-questions-make-decisions",
+      "name": "Ask Questions to Make Data-Driven Decisions",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "dG13cHJKEeys9RJMWW48Yw",
+      "slug": "attract-and-engage-customers",
+      "name": "Attract and Engage Customers with Digital Marketing",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "SOTCddsLEfC1UxIkq1JqIw",
+      "slug": "understand-apply-artificial-intelligence-fundamentals",
+      "name": "Understand and Apply Artificial Intelligence Fundamentals",
+      "partnerIds": [
+        "1501"
+      ]
+    },
+    {
+      "id": "kvb6uMbTEeqZOA5eKDHL-w",
+      "slug": "foundations-data",
+      "name": "Foundations: Data, Data, Everywhere",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "MLjf49C-Ee6SjxKHxThXWw",
+      "slug": "pmp-formulas",
+      "name": "PMP Formulas",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "954g6F1WEe6iARI3FlRl8w",
+      "slug": "ai-strategy",
+      "name": "AI Concepts and Strategy",
+      "partnerIds": [
+        "67"
+      ]
+    },
+    {
+      "id": "q5bxtK88EfCvhhJvy8XwzQ",
+      "slug": "medical-records-protect-patient-privacy",
+      "name": "Medical Records: Protect Patient Privacy",
+      "partnerIds": [
+        "1342"
+      ]
+    },
+    {
+      "id": "ZruIud55Ee-L_Q47HwVgtw",
+      "slug": "ai-for-everyone-ai-fundamentals-with-claude",
+      "name": "AI Fundamentals with Claude",
+      "partnerIds": [
+        "575",
+        "3852"
+      ]
+    },
+    {
+      "id": "7sBiclFIEeetjQ5ppGVTyA",
+      "slug": "technical-support-fundamentals",
+      "name": "Technical Support Fundamentals",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "pG5HkGelEe--dw7PPVphLw",
+      "slug": "packt-advanced-networking-virtualization-and-it-security-pzolo",
+      "name": "Advanced Networking, Virtualization, and IT Security",
+      "partnerIds": [
+        "1734"
+      ]
+    },
+    {
+      "id": "YbrDRtC9Ee6SjxKHxThXWw",
+      "slug": "project-manager-engagement-with-stakeholders",
+      "name": "Project Manager Engagement with Stakeholders",
+      "partnerIds": [
+        "705"
+      ]
+    },
+    {
+      "id": "uDMpp-fMEe-mrRK-FPQYAw",
+      "slug": "introduction-to-certified-professional-biller",
+      "name": "Introduction to Certified Professional Biller",
+      "partnerIds": [
+        "2075"
+      ]
+    },
+    {
+      "id": "gawUVgp9EeuyHQ758rw-Yw",
+      "slug": "analyze-data",
+      "name": "Analyze Data to Answer Questions",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "0FyJ84IeEe-uPQ6cY8b-gw",
+      "slug": "social-media-content-and-strategy",
+      "name": "Social Media Content and Strategy",
+      "partnerIds": [
+        "496"
+      ]
+    },
+    {
+      "id": "SsanZuvgEfCEtA75x5Rx3w",
+      "slug": "digital-marketing-channels",
+      "name": "Strategic Digital Marketing: Digital Marketing Channels",
+      "partnerIds": [
+        "222"
+      ]
+    },
+    {
+      "id": "r8RBMXEzEe-uqRL6e5om0w",
+      "slug": "data-privacy-security-governance-risk-and-compliance",
+      "name": "Data Privacy, Security, Governance, Risk and Compliance",
+      "partnerIds": [
+        "829"
+      ]
+    },
+    {
+      "id": "bN9fcgp9Eeu0VAqNda9Xjw",
+      "slug": "data-preparation",
+      "name": "Prepare Data for Exploration",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "hVwck3epEfC1jRJm2R_Okw",
+      "slug": "ai-foundations-for-all",
+      "name": "AI For All",
+      "partnerIds": [
+        "3751"
+      ]
+    },
+    {
+      "id": "oCBU5_VYEeeBQA7SG0nILA",
+      "slug": "open-source-tools-for-data-science",
+      "name": "Tools for Data Science",
+      "partnerIds": [
+        "348"
+      ]
+    },
+    {
+      "id": "c9dt2Qp9Eeuf7w5EwYPThw",
+      "slug": "process-data",
+      "name": "Process Data from Dirty to Clean",
+      "partnerIds": [
+        "463"
+      ]
+    },
+    {
+      "id": "jb0fG5ClEe-KjBKlSS1PLQ",
+      "slug": "revenue-cycle-billing-and-coding",
+      "name": "Revenue Cycle, Billing, and Coding ",
+      "partnerIds": [
+        "8"
+      ]
+    }
+  ]
+}

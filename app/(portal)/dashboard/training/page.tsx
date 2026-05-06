@@ -194,9 +194,9 @@ export default async function TrainingPage({
             >
               <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>error_outline</span>
               <div>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem' }}>We couldn&rsquo;t open Coursera right now.</p>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem' }}>Your Coursera training access is being prepared.</p>
                 <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  Try again in a moment, or <Link href="/dashboard/messages">message your counselor</Link>.
+                  It can take a short time to set up after enrollment. If this message stays for more than a day, <Link href="/dashboard/messages">message your counselor</Link>.
                 </p>
               </div>
             </div>

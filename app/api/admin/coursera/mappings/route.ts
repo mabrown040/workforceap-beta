@@ -6,6 +6,7 @@ import {
   listRecentUnmatchedXapiEvents,
   upsertCourseraIdentityMapping,
 } from '@/lib/xapi/mappings';
+import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -82,7 +83,24 @@ export async function POST(request: Request) {
       source: 'manual-admin-api',
     });
 
-    return NextResponse.json({ ok: true, mapping });
+    // Re-process unmatched xAPI events that might now match this mapping
+    let reprocessResult;
+    try {
+      reprocessResult = await reprocessUnmatchedXapiEvents({
+        courseraEmail: body.courseraEmail,
+        actorIdentifier: body.actorIdentifier,
+        limit: 50,
+      });
+    } catch (reprocessError) {
+      console.error('[admin/coursera/mappings] reprocess failed:', reprocessError);
+      reprocessResult = { processed: 0, matched: 0, errors: 1 };
+    }
+
+    return NextResponse.json({ 
+      ok: true, 
+      mapping,
+      reprocessed: reprocessResult,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to save Coursera mapping';
     return NextResponse.json({ error: message }, { status: 400 });

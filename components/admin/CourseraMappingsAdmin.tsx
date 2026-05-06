@@ -161,6 +161,7 @@ export default function CourseraMappingsAdmin({
   const [actorHomePage, setActorHomePage] = useState('');
   const [notes, setNotes] = useState('');
   const [message, setMessage] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  const [reprocessResult, setReprocessResult] = useState<{ processed: number; matched: number } | null>(null);
 
   const selectedMember = useMemo(
     () => members.find((member) => member.id === userId) ?? null,
@@ -195,10 +196,17 @@ export default function CourseraMappingsAdmin({
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
           setMessage({ kind: 'error', text: payload.error || 'Unable to save mapping.' });
+          setReprocessResult(null);
           return;
         }
 
         setMessage({ kind: 'success', text: 'Coursera mapping saved.' });
+        if (payload.reprocessed) {
+          setReprocessResult({
+            processed: payload.reprocessed.processed ?? 0,
+            matched: payload.reprocessed.matched ?? 0,
+          });
+        }
         router.refresh();
       } catch {
         setMessage({ kind: 'error', text: 'Network error while saving mapping.' });
@@ -392,6 +400,11 @@ export default function CourseraMappingsAdmin({
               color: message.kind === 'success' ? 'var(--color-green, #15803d)' : 'var(--color-error, #b91c1c)',
             }}>
               {message.text}
+              {reprocessResult && message.kind === 'success' && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                  Re-processed {reprocessResult.processed} unmatched xAPI event{reprocessResult.processed === 1 ? '' : 's'} — {reprocessResult.matched} matched to this member.
+                </div>
+              )}
             </div>
           )}
 

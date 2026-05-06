@@ -8,7 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
 import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
-import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
+import { resolveProgramCourse, resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
@@ -147,7 +147,7 @@ export async function upsertCourseProgressFromXapiStatement(args: {
   if (!program) return;
 
   const slugFromObject = matchCourseSlugFromObjectId(enrolledProgramSlug, parsed.courseObjectId);
-  const matched = resolveProgramCourse(program, {
+  const matched = resolveProgramCourseWithCatalogFallback(program, {
     courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
     courseName: parsed.courseName,
   });

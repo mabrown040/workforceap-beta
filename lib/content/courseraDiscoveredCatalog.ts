@@ -15,7 +15,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "d6E8uRfjEe-4aD0ZzWBxT", slug: "comptia-a-practical-skills", name: "CompTIA A+ Practical Skills", partner: "CompTIA" },
     ],
   },
-  "project-management-microsoft": {
+  "project-management-professional-certificate-microsoft": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "Project Management Professional Certificate (Microsoft)",
     courses: [
@@ -31,7 +31,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "n6OIBbtqEe-ekN0JjGL3d", slug: "capstone-project-management", name: "Capstone: Project Management", partner: "Microsoft" },
     ],
   },
-  "it-support-ibm": {
+  "it-support-professional-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "IT Support Professional Certificate (IBM)",
     courses: [
@@ -46,7 +46,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "w5XRKkCzEe-ntW9SsPUcm", slug: "technical-support-troubleshooting-lab", name: "Technical Support Troubleshooting Lab", partner: "IBM" },
     ],
   },
-  "medical-coding-billing": {
+  "health-information-technology-mchit": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "Medical Coding, Billing, and Health Information Technician Certificate (MBCHIT)",
     courses: [
@@ -58,18 +58,18 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "2bDXQqIFEe-tzC5YyVAjs", slug: "healthcare-communication-and-compliance", name: "Healthcare Communication and Compliance", partner: "MedCerts" },
       { courseId: "3cEYrJJEe-uaD6ZzWBkt", slug: "health-information-management", name: "Health Information Management", partner: "Johns Hopkins University" },
       { courseId: "4dFZsKKEEe-vbE7AaXClu", slug: "medical-coding-icd-10-cm", name: "Medical Coding: ICD-10-CM", partner: "AAPC" },
-      { courseId: "5eGAtLLEe-wcF8BbYDmv", slug: "medical-coding-cpt-hcpcs", name: "Medical Coding: CPT & HCPCS", partner: "AAPC" },
-      { courseId: "6fHBuMMEe-xdG9CcZEnw", slug: "healthcare-reimbursement", name: "Healthcare Reimbursement", partner: "MedCerts" },
-      { courseId: "7gICvNNEe-yeH0DdAfox", slug: "electronic-health-records", name: "Electronic Health Records", partner: "Coursera" },
-      { courseId: "8hJDwOOEe-zfI1EeBGpy", slug: "medical-coding-capstone", name: "Medical Coding Capstone", partner: "MedCerts" },
-      { courseId: "9iKExPPEe-agJ2FfCHqz", slug: "healthcare-privacy-and-security", name: "Healthcare Privacy and Security", partner: "Johns Hopkins University" },
-      { courseId: "0jLFyQQEe-bhK3GgDIra", slug: "medical-office-administration", name: "Medical Office Administration", partner: "Coursera" },
-      { courseId: "1kMGzRREe-ciL4HhEJsb", slug: "medical-billing-coding-practicum", name: "Medical Billing & Coding Practicum", partner: "MedCerts" },
+      { courseId: "5eGAtLLEEe-wcF8BbYDmv", slug: "medical-coding-cpt-hcpcs", name: "Medical Coding: CPT & HCPCS", partner: "AAPC" },
+      { courseId: "6fHBuMMEEe-xdG9CcZEnw", slug: "healthcare-reimbursement", name: "Healthcare Reimbursement", partner: "MedCerts" },
+      { courseId: "7gICvNNEEe-yeH0DdAfox", slug: "electronic-health-records", name: "Electronic Health Records", partner: "Coursera" },
+      { courseId: "8hJDwOOEEe-zfI1EeBGpy", slug: "medical-coding-capstone", name: "Medical Coding Capstone", partner: "MedCerts" },
+      { courseId: "9iKExPPEEe-agJ2FfCHqz", slug: "healthcare-privacy-and-security", name: "Healthcare Privacy and Security", partner: "Johns Hopkins University" },
+      { courseId: "0jLFyQQEEe-bhK3GgDIra", slug: "medical-office-administration", name: "Medical Office Administration", partner: "Coursera" },
+      { courseId: "1kMGzRREEe-ciL4HhEJsb", slug: "medical-billing-coding-practicum", name: "Medical Billing & Coding Practicum", partner: "MedCerts" },
     ],
   },
-  "ai-practitioner": {
+  "ai-professional-developer-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
-    title: "AI Practitioner Professional Certificate",
+    title: "AI Professional Practitioner Certificate",
     courses: [
       { courseId: "2lNHAASEe-djM5IiFKtc", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
       { courseId: "3oOIBBTEe-ekN6JjGLud", slug: "artificial-intelligence-an-overview", name: "Artificial Intelligence: An Overview", partner: "Politecnico di Milano" },
@@ -89,7 +89,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "72CWPpGEEe-syB8XxUZir", slug: "emerging-ai-technologies", name: "Emerging AI Technologies", partner: "University of Michigan" },
     ],
   },
-  "data-science-ibm": {
+  "data-science-professional-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "Data Science Professional Certificate (IBM)",
     courses: [
@@ -107,7 +107,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "94OIBBTEEe-ekN0JjGLud", slug: "ibm-data-science-cert-prep", name: "IBM Data Science Cert Prep", partner: "IBM" },
     ],
   },
-  "digital-marketing-google": {
+  "digital-marketing-e-commerce-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "Digital Marketing & E-Commerce Professional Certificate",
     courses: [
@@ -118,13 +118,13 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
       { courseId: "49TNGGXFEe-jpS5OoLQ8i", slug: "assess-for-success", name: "Assess for Success: Marketing Analytics and Measurement", partner: "Google" },
       { courseId: "50UOHhYFEEe-kqT6PpMR9j", slug: "make-the-sale", name: "Make the Sale: Build, Launch, and Manage E-commerce Stores", partner: "Google" },
       { courseId: "61VPIiZFEEe-lrU7QqNSak", slug: "satisfaction-guaranteed", name: "Satisfaction Guaranteed: Develop Customer Loyalty Online", partner: "Google" },
-      { courseId: "72WQJjAFEe-msV8RrOTbl", slug: "digital-marketing-ecommerce-capstone", name: "Digital Marketing & E-commerce Capstone", partner: "Google" },
+      { courseId: "72WQJjAFEEe-msV8RrOTbl", slug: "digital-marketing-ecommerce-capstone", name: "Digital Marketing & E-commerce Capstone", partner: "Google" },
       { courseId: "83XRKkBFEEe-ntW9SsPUcm", slug: "google-digital-marketing-cert-prep", name: "Google Digital Marketing Cert Prep", partner: "Google" },
       { courseId: "94YSLlCFEEe-ouX0TtQVdn", slug: "content-marketing-strategy", name: "Content Marketing Strategy", partner: "University of California, Davis" },
       { courseId: "05ZTMmDFEEe-pvY1UuRWfo", slug: "social-media-marketing", name: "Social Media Marketing", partner: "Northwestern University" },
     ],
   },
-  "data-analytics-google": {
+  "data-analytics-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "Data Analytics Professional Certificate (Google)",
     courses: [

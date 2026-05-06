@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { markCourseProgressCompleted } from '@/lib/member/courseProgress';
-import { resolveProgramCourse } from '@/lib/member/programCourseMatch';
+import { resolveProgramCourse, resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
@@ -31,7 +31,7 @@ export async function completeMemberCourse(args: {
     throw new Error('Invalid program');
   }
 
-  const matchedCourse = resolveProgramCourse(program, {
+  const matchedCourse = resolveProgramCourseWithCatalogFallback(program, {
     courseSlug: args.courseSlug,
     courseName: args.courseName,
   });

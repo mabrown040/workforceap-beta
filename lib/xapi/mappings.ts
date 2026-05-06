@@ -274,17 +274,17 @@ export async function recordXapiEvent(args: {
         raw_payload,
         updated_at
       ) VALUES (
-        ${statementId},
-        ${actorEmail},
-        ${actorIdentifier},
-        ${actorHomePage},
-        ${courseSlug},
-        ${courseName},
-        ${verbId},
-        ${matchedUserId ? matchedUserId : null},
-        ${mappingMethod},
-        ${args.completionStatus},
-        ${error},
+        ${statementId}::text,
+        ${actorEmail}::text,
+        ${actorIdentifier}::text,
+        ${actorHomePage}::text,
+        ${courseSlug}::text,
+        ${courseName}::text,
+        ${verbId}::text,
+        ${matchedUserId ? matchedUserId : null}::text,
+        ${mappingMethod}::text,
+        ${args.completionStatus}::text,
+        ${error}::text,
         CAST(${rawPayload} AS jsonb),
         now()
       )
@@ -320,16 +320,16 @@ export async function recordXapiEvent(args: {
       raw_payload,
       updated_at
     ) VALUES (
-      ${actorEmail},
-      ${actorIdentifier},
-      ${actorHomePage},
-      ${courseSlug},
-      ${courseName},
-      ${verbId},
-      ${matchedUserId ? matchedUserId : null},
-      ${mappingMethod},
-      ${args.completionStatus},
-      ${error},
+      ${actorEmail}::text,
+      ${actorIdentifier}::text,
+      ${actorHomePage}::text,
+      ${courseSlug}::text,
+      ${courseName}::text,
+      ${verbId}::text,
+      ${matchedUserId ? matchedUserId : null}::text,
+      ${mappingMethod}::text,
+      ${args.completionStatus}::text,
+      ${error}::text,
       CAST(${rawPayload} AS jsonb),
       now()
     )
@@ -520,8 +520,8 @@ export async function upsertCourseraIdentityMapping(args: {
     ? await prisma.$queryRaw<Array<{ id: string }>>`
         SELECT id
         FROM coursera_identity_mappings
-        WHERE actor_identifier = ${actorIdentifier}
-          AND COALESCE(actor_home_page, '') = ${actorHomePage || ''}
+        WHERE actor_identifier = ${actorIdentifier}::text
+          AND COALESCE(actor_home_page, '') = COALESCE(${actorHomePage}::text, '')
         LIMIT 1
       `
     : [];
@@ -530,7 +530,7 @@ export async function upsertCourseraIdentityMapping(args: {
     ? await prisma.$queryRaw<Array<{ id: string }>>`
         SELECT id
         FROM coursera_identity_mappings
-        WHERE LOWER(coursera_email) = ${courseraEmail}
+        WHERE LOWER(coursera_email) = ${courseraEmail}::text
         LIMIT 1
       `
     : [];
@@ -541,13 +541,13 @@ export async function upsertCourseraIdentityMapping(args: {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
       SET
-        user_id = ${args.userId},
-        coursera_email = ${courseraEmail},
-        actor_identifier = ${actorIdentifier},
-        actor_home_page = ${actorHomePage},
-        notes = ${notes},
-        source = ${source},
-        created_by_user_id = COALESCE(created_by_user_id, ${createdByUserId ? createdByUserId : null}),
+        user_id = ${args.userId}::text,
+        coursera_email = ${courseraEmail}::text,
+        actor_identifier = ${actorIdentifier}::text,
+        actor_home_page = ${actorHomePage}::text,
+        notes = ${notes}::text,
+        source = ${source}::text,
+        created_by_user_id = COALESCE(created_by_user_id, ${createdByUserId ? createdByUserId : null}::text),
         updated_at = now(),
         last_seen_at = COALESCE(last_seen_at, now())
       WHERE id = ${existingId}::uuid
@@ -564,13 +564,13 @@ export async function upsertCourseraIdentityMapping(args: {
         created_by_user_id,
         last_seen_at
       ) VALUES (
-        ${args.userId},
-        ${courseraEmail},
-        ${actorIdentifier},
-        ${actorHomePage},
-        ${notes},
-        ${source},
-        ${createdByUserId ? createdByUserId : null},
+        ${args.userId}::text,
+        ${courseraEmail}::text,
+        ${actorIdentifier}::text,
+        ${actorHomePage}::text,
+        ${notes}::text,
+        ${source}::text,
+        ${createdByUserId ? createdByUserId : null}::text,
         now()
       )
     `;
@@ -592,10 +592,10 @@ export async function upsertCourseraIdentityMapping(args: {
       u.full_name AS "userFullName"
     FROM coursera_identity_mappings cim
     JOIN users u ON u.id = cim.user_id
-    WHERE cim.user_id = ${args.userId}
+    WHERE cim.user_id = ${args.userId}::text
       AND (
-        (${courseraEmail} IS NOT NULL AND LOWER(cim.coursera_email) = ${courseraEmail})
-        OR (${actorIdentifier} IS NOT NULL AND cim.actor_identifier = ${actorIdentifier} AND COALESCE(cim.actor_home_page, '') = ${actorHomePage || ''})
+        (${courseraEmail}::text IS NOT NULL AND LOWER(cim.coursera_email) = ${courseraEmail}::text)
+        OR (${actorIdentifier}::text IS NOT NULL AND cim.actor_identifier = ${actorIdentifier}::text AND COALESCE(cim.actor_home_page, '') = COALESCE(${actorHomePage}::text, ''))
       )
     ORDER BY cim.updated_at DESC
     LIMIT 1

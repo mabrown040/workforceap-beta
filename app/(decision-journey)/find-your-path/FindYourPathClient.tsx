@@ -186,7 +186,26 @@ function QuizResultsView({
           </button>
         </div>
       )}
-      <h2 className="quiz-results-title">
+      <style>{`
+        @media (max-width: 480px) {
+          .fyp-retake-sticky {
+            padding: 0.625rem 0.875rem !important;
+            gap: 0.5rem !important;
+            margin-bottom: 1rem !important;
+          }
+          .fyp-retake-sticky p:first-child {
+            font-size: 0.95rem !important;
+          }
+          .fyp-retake-sticky p:last-child {
+            font-size: 0.8rem !important;
+          }
+          .fyp-retake-sticky button {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.85rem !important;
+          }
+        }
+      `}</style>
+      <h2 className="quiz-results-title" style={{ scrollMarginTop: 'calc(var(--main-nav-layout-height, 72px) + 6rem)' }}>
         {isPrevious ? 'Your Previous Results' : 'Your career match results'}
       </h2>
       <p className="quiz-results-subtitle">

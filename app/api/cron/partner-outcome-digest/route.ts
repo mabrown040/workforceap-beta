@@ -129,9 +129,11 @@ async function handle(_request: Request) {
   }
 
   const sent = results.filter(r => r.emailSent).length;
-  const runResult = { ok: true, checkedAt: now.toISOString(), sent, total: results.length };
-  await logCronRun('cron_partner_digest', runResult, sent === 0 && results.length > 0 ? 'error' : 'ok');
-  return NextResponse.json({ ok: true, checkedAt: now.toISOString(), results });
+  const skipped = results.filter(r => r.error === 'no_contact_email').length;
+  const failed = results.filter(r => r.error && r.error !== 'no_contact_email').length;
+  const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length };
+  await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');
+  return NextResponse.json({ ok: failed === 0, checkedAt: now.toISOString(), results });
 }
 
 export const GET = withCronLogging('cron_partner_digest', handle);

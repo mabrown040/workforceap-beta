@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { logCronRun } from '@/lib/admin/logCronRun';
-import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { isCronEnabled } from '@/lib/cron/isCronEnabled';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { resolveCourseraProgramId, resolveCourseraSkillsetIds } from '@/lib/coursera/config';
@@ -16,7 +16,7 @@ import { fetchCourseraLearnerSkillsetProgress } from '@/lib/coursera/client';
  * Coursera-side webhooks aren't subscribed yet.
  *
  * Behavior:
- *  - Auth: Vercel cron user-agent (GET) or CRON_SECRET via Authorization/x-cron-secret.
+ *  - Auth: CRON_SECRET via Authorization/x-cron-secret.
  *  - Toggle: respects `isCronEnabled('cron_coursera_sync')`.
  *  - Empty-state: if no skillsets are configured for any program, returns early
  *    without making API calls (graceful no-op).
@@ -104,10 +104,7 @@ async function syncMember(member: MemberRow): Promise<MemberOutcome> {
   }
 }
 
-async function handle(req: NextRequest) {
-  const unauthorized = authorizeCronRequest(req);
-  if (unauthorized) return unauthorized;
-
+async function handle(_req: NextRequest) {
   const startedAt = Date.now();
 
   if (!(await isCronEnabled(WORKFLOW_KEY))) {
@@ -177,5 +174,5 @@ async function handle(req: NextRequest) {
   return NextResponse.json(result);
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = withCronLogging(WORKFLOW_KEY, handle);
+export const POST = withCronLogging(WORKFLOW_KEY, handle);

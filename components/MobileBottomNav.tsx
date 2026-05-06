@@ -9,6 +9,7 @@ import type { NavBadgeKey } from '@/lib/nav/portalNav';
  * Matches Tailwind md breakpoint (768px)
  */
 const MOBILE_NAV_BREAKPOINT = 768;
+const MOBILE_BOTTOM_NAV_CLEARANCE = 'calc(5.75rem + env(safe-area-inset-bottom, 0px))';
 
 const MARKETING_TABS = [
   { href: '/', label: 'Home', icon: 'home' },
@@ -81,8 +82,8 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
           .mobile-bottom-nav-root {
             display: flex !important;
           }
-          body:has(.mobile-bottom-nav-root) #main-content {
-            padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)) !important;
+          #main-content {
+            padding-bottom: ${MOBILE_BOTTOM_NAV_CLEARANCE} !important;
           }
         }
       `}</style>

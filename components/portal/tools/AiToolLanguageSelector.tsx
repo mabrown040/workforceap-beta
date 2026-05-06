@@ -1,12 +1,12 @@
 'use client';
 
-export type AiToolLanguage = 'en' | 'es';
+export type AiToolLanguage = 'en' | 'es' | 'fr' | 'pt';
 
 const OPTIONS = [
   { code: 'en', label: 'English', status: 'Available now', disabled: false },
   { code: 'es', label: 'Español', status: 'Available now', disabled: false },
-  { code: 'fr', label: 'Français', status: 'Coming later', disabled: true },
-  { code: 'pt', label: 'Português', status: 'Coming later', disabled: true },
+  { code: 'fr', label: 'Français', status: 'Available now', disabled: false },
+  { code: 'pt', label: 'Português', status: 'Available now', disabled: false },
 ] as const;
 
 type AiToolLanguageSelectorProps = {
@@ -37,7 +37,7 @@ export default function AiToolLanguageSelector({ value, onChange }: AiToolLangua
           Response language
         </p>
         <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
-          English · Spanish
+          English · Spanish · French · Portuguese
         </span>
       </div>
       <div role="group" aria-label="AI tool response language options" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -49,7 +49,7 @@ export default function AiToolLanguageSelector({ value, onChange }: AiToolLangua
             aria-pressed={option.code === value}
             title={option.disabled ? `${option.label} support is not live yet` : `Generate responses in ${option.label}`}
             onClick={() => {
-              if (!option.disabled && (option.code === 'en' || option.code === 'es')) onChange(option.code);
+              if (!option.disabled) onChange(option.code);
             }}
             className={option.code === value ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm'}
             style={{
@@ -64,7 +64,7 @@ export default function AiToolLanguageSelector({ value, onChange }: AiToolLangua
         ))}
       </div>
       <p style={{ margin: 0, fontSize: '0.78rem', lineHeight: 1.45, color: 'var(--color-on-surface-variant)' }}>
-        Choose English or Spanish for generated AI responses. French and Portuguese are still coming later.
+        Choose English, Spanish, French, or Portuguese for generated AI responses.
       </p>
     </section>
   );

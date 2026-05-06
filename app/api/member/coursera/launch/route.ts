@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
+import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     if (discoveredProg) {
       const discoveredCourse = discoveredProg.courses.find((c) => c.slug === requestedSlug);
       if (discoveredCourse) {
-        const programSlugFromUrl = discoveredProg.publicProgramUrl?.match(/\/programs\/([^/?#]+)/)?.[1];
+        const programSlugFromUrl = (discoveredProg.publicProgramUrl ?? '').match(/\/programs\/([^/?#]+)/)?.[1];
         if (programSlugFromUrl) {
           return NextResponse.redirect(
             `https://www.coursera.org/programs/${programSlugFromUrl}/learn/${discoveredCourse.slug}`
@@ -76,6 +76,12 @@ export async function GET(request: Request) {
 
   const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;
 
+  const courseIdMap = enrolledProgram ? getCourseraConfig().courseIdMap[enrolledProgram] : undefined;
+  const currentCourseId =
+    courseIdMap && currentCourseIndex != null && currentCourseIndex >= 0
+      ? courseIdMap[currentCourseIndex]
+      : undefined;
+
   // Prefer (1) a configured deep link when it is clearly program/course-specific,
   // then (2) the discovered learner program URL for the member's actual
   // enrollment, then (3) the generic Coursera platform root. This avoids
@@ -90,6 +96,7 @@ export async function GET(request: Request) {
     userId: user.id,
     email: user.email ?? '',
     currentCourseIndex,
+    currentCourseId,
   });
 
   const readiness = getCourseraReadiness(enrolledProgram);

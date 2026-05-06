@@ -51,3 +51,6 @@
 ## 2024-05-03 - [Button Component A11y]
 **Learning:** In reusable UI elements like buttons, dynamic loading states require explicit communication to assistive tech. The button element should adopt the `aria-busy` attribute, and its internal content can be wrapped in an `aria-live="polite"` region to inform users about state changes.
 **Action:** Always check the fundamental building blocks of a UI (like `Button.tsx`) for missing `aria-busy` states when the component accepts dynamic properties like `loading`.
+## 2025-05-05 - [Add Member to Subgroup Modal]
+**Learning:** Found an instance of a custom modal (Add Member to Subgroup in Admin Dashboard) missing basic `role="dialog"` and `aria-labelledby` properties, which prevents screen readers from understanding the popup context.
+**Action:** Always verify custom modal implementations (e.g., popup divs on overlays) have proper ARIA dialog attributes before considering them complete, especially in older or hastily built components.

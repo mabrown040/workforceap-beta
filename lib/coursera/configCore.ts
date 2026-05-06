@@ -149,16 +149,19 @@ export function buildCourseraLaunchUrl(args: {
   email: string;
   /** 0-based index of the current course the member should start */
   currentCourseIndex?: number;
+  /** When set, overrides the course ID taken from `courseIdMap` at `currentCourseIndex`. */
+  currentCourseId?: string | null;
 }): string | null {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(args.programSlug);
 
   // If we have a course ID map and a current course index, deep-link to that specific course
   const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;
-  const currentCourseId =
-    courseIds && args.currentCourseIndex != null
+  const fromIndex =
+    courseIds && args.currentCourseIndex != null && args.currentCourseIndex >= 0
       ? courseIds[args.currentCourseIndex]
       : undefined;
+  const currentCourseId = (args.currentCourseId?.trim() || fromIndex) ?? undefined;
 
   if (currentCourseId && config.courseUrlTemplate) {
     const courseUrl = interpolateTemplate(config.courseUrlTemplate, {

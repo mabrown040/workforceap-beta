@@ -481,7 +481,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
   const AI_TOOL_LABELS: Record<string, string> = {
-    job_match_scorer: 'Job Match Scorer',
+    job_match_scorer: 'See how you match a job',
     resume_analysis: 'Resume Analysis',
     resume_rewriter: 'Resume Rewriter',
     cover_letter: 'Cover Letter',
@@ -489,7 +489,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     linkedin_headline: 'LinkedIn Headline',
     linkedin_about: 'LinkedIn About',
     salary_negotiation: 'Salary Negotiation',
-    gap_analyzer: 'Gap Analyzer',
+    gap_analyzer: 'See what is missing for a job',
     interview_coach: 'AI Interview Coach',
     career_counselor: 'Career Counselor',
   };
@@ -741,11 +741,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         <section style={{ padding: '0 1.5rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberProgressStrip {...progressStripProps} />
-        </section>
+        {(dashboardState === 'C' || dashboardState === 'D') && (
+          <section style={{ padding: '0 1.5rem 1.25rem' }}>
+            <MemberProgressStrip {...progressStripProps} />
+          </section>
+        )}
 
-        {dashboardState !== 'A' && mobileStripActions.length > 0 && (
+        {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
           </section>
@@ -753,7 +755,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
         {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
         <PlacementConfirmationStrip offers={jobOffers} />
-        {applicationStatus?.nextStep && (
+        {!dominantNextAction && applicationStatus?.nextStep && (
           <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -787,43 +789,55 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </div>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Application Journey</h3>
-          </div>
-          <div className="portal-journey-timeline">
-            {journeySteps.map((step, i) => {
-              const locked = 'locked' in step && step.locked;
-              return (
-                <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
-                  <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
-                    {step.done && (
-                      <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
-                    )}
-                    {step.active && !step.done && <div className="portal-dot-pulse" />}
+        <section style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
+          <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
+            <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              Application journey
+            </summary>
+            <div className="portal-journey-timeline" style={{ marginTop: '1rem' }}>
+              {journeySteps.map((step, i) => {
+                const locked = 'locked' in step && step.locked;
+                return (
+                  <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
+                    <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
+                      {step.done && (
+                        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
+                      )}
+                      {step.active && !step.done && <div className="portal-dot-pulse" />}
+                    </div>
+                    <div className="portal-journey-step__content">
+                      <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
+                        {step.label}
+                      </p>
+                      {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
+                    </div>
                   </div>
-                  <div className="portal-journey-step__content">
-                    <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
-                      {step.label}
-                    </p>
-                    {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </details>
         </section>
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
-        {memberPoints && memberPoints.total > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+          {memberPoints && memberPoints.total > 0 ? (
             <PointsWidget
               total={memberPoints.total}
               level={memberPoints.level}
               recent={recentTx}
             />
-          </section>
-        )}
+          ) : (
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Your first points are waiting.</p>
+              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+                Earn points by uploading a resume, completing training steps, and using career tools. Start with one small action.
+              </p>
+              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Upload or improve your resume
+              </Link>
+            </div>
+          )}
+        </section>
 
         {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
@@ -944,12 +958,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         </section>
 
         {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}
-        {recentTools.length > 0 && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
-            <div className="portal-dash-section-header">
-              <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
-              <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>
-            </div>
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
+          <div className="portal-dash-section-header">
+            <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
+            {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>}
+          </div>
+          {recentTools.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {recentTools.map((r) => (
                 <div key={r.id} className="portal-activity-item">
@@ -972,8 +986,18 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>You have not used a career tool yet.</p>
+              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+                Try one short tool today. The resume tool is a good first step and only takes a few minutes.
+              </p>
+              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Try the resume tool
+              </Link>
+            </div>
+          )}
+        </section>
       </div>
 
       {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}

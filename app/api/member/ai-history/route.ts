@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 const TOOL_LABELS: Record<string, string> = {
-  job_match_scorer: 'Job Match Scorer',
+  job_match_scorer: 'See how you match a job',
   resume_analysis: 'Resume Analysis',
   resume_rewriter: 'Resume Rewriter',
   cover_letter: 'Cover Letter',
@@ -14,9 +14,9 @@ const TOOL_LABELS: Record<string, string> = {
   linkedin_headline: 'LinkedIn Headline',
   linkedin_about: 'LinkedIn About',
   salary_negotiation: 'Salary Negotiation',
-  gap_analyzer: 'Gap Analyzer',
+  gap_analyzer: 'See what is missing for a job',
   career_counselor: 'Career Coach',
-  skill_assessment: 'Skill Mapper / Skill Assessment',
+  skill_assessment: 'Find skills employers want / Skill Assessment',
 };
 
 export async function GET(request: Request) {

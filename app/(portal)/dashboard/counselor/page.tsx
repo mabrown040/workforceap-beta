@@ -114,7 +114,8 @@ export default async function CounselorPage() {
             <CareerCounselor firstName={firstName} />
           </VoiceAgentSurface>
         </div>
-        {historySection}      </div>
+        {historySection}
+      </div>
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block">
@@ -126,7 +127,7 @@ export default async function CounselorPage() {
         </div>
       </div>
 
-      <MobileBottomNav />
+      <MobileBottomNav variant="portal" />
     </div>
   );
 }

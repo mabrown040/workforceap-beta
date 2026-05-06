@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, HelpCircle, GraduationCap, Mail } from 'lucide-react';
 import { blogListingCardAlt, blogListingCardImage } from '@/lib/blog/blogListingImage';
+import { formatPublishedDate } from '@/lib/blog/formatPublishedDate';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 
 type Post = {
@@ -154,7 +155,7 @@ export default function BlogListingClient({
                   <div className="blog-card-meta">
                     {post.authorName}
                     {post.publishedAt && (
-                      <> · {new Date(post.publishedAt).toLocaleDateString('en-US')}</>
+                      <> · {formatPublishedDate(post.publishedAt)}</>
                     )}
                   </div>
                   <span className="blog-card-cta">{post.title ? `Read more: ${post.title}` : 'Read more'}</span>

@@ -81,7 +81,6 @@ test.describe('member routes — auth and load', () => {
       rows.push({ path, finalUrl, title });
     }
 
-    // eslint-disable-next-line no-console -- audit output
     console.log(JSON.stringify(rows, null, 2));
   });
 });

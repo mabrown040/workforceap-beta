@@ -20,19 +20,11 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-002: Training Page — "0% Progress" First-Visit Framing
+## ~~TODO-002: Training Page — "0% Progress" First-Visit Framing~~ ✓ COMPLETED
 
-**What:** When a member lands on `/dashboard/training` for the first time with `completedCount === 0`, replace the cold "0/7 courses — 0%" stat display with a warm starting-line framing: "Your path starts here — Course 1 of 7 is unlocked and ready." Add a clear primary CTA.
+**What:** ~~When a member lands on `/dashboard/training` for the first time with `completedCount === 0`, replace the cold "0/7 courses — 0%" stat display with a warm starting-line framing...~~
 
-**Why:** WorkforceAP's mission is to serve people who've often been overlooked by other systems. The onboarding moment should feel like a welcome and a green light, not a report card starting at zero. The current "0%" in large bold type is accurate but emotionally discouraging.
-
-**Pros:** Likely increases first-session Coursera launch rate; sets a positive emotional baseline that aligns with the platform's "empowering" voice.
-
-**Cons:** Minor copy + conditional rendering work. Risk: over-engineering a simple counter that members will quickly move past anyway.
-
-**Context:** From the design review: "5-sec visceral: Good — 'here's your program, here are your courses, go.' But the zero-state is the first thing a new member sees." The not-enrolled empty state (centered card, icon, warm copy) sets the right precedent — the zero-enrolled state should follow the same pattern.
-
-**Depends on / blocked by:** None.
+**Completed:** 2026-05-05 (commit `21811415 feat(training): canonical training truth`). The zero-state banner with "Your path starts here — Course 1 of N is unlocked and ready" and a "Start Course 1" CTA is already live in `app/(portal)/dashboard/training/page.tsx`.
 
 ---
 

@@ -41,6 +41,81 @@ type CourseProgressSummary = {
   }>;
 };
 
+type XapiCourseProgressSummary = {
+  totalRows: number;
+  latestUpdatedAt: Date | null;
+  topLearners: Array<{
+    id: string;
+    userId: string;
+    fullName: string;
+    email: string;
+    programSlug: string;
+    courseSlug: string;
+    courseId: string | null;
+    status: string;
+    percentComplete: number;
+    lastUpdatedAt: Date;
+  }>;
+};
+
+async function loadXapiCourseProgressSummary(): Promise<XapiCourseProgressSummary | null> {
+  try {
+    const summaryRows = await prisma.$queryRaw<Array<{ total: bigint; latest: Date | null }>>`
+      SELECT COUNT(*)::bigint AS total, MAX(last_updated_at) AS latest FROM course_progress
+    `;
+    const top = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        userId: string;
+        fullName: string;
+        email: string;
+        programSlug: string;
+        courseSlug: string;
+        courseId: string | null;
+        status: string;
+        percentComplete: number;
+        lastUpdatedAt: Date;
+      }>
+    >`
+      SELECT
+        cp.id,
+        cp.user_id AS "userId",
+        u.full_name AS "fullName",
+        u.email,
+        cp.program_slug AS "programSlug",
+        cp.course_slug AS "courseSlug",
+        cp.course_id AS "courseId",
+        cp.status::text AS "status",
+        cp.percent_complete AS "percentComplete",
+        cp.last_updated_at AS "lastUpdatedAt"
+      FROM course_progress cp
+      JOIN users u ON u.id = cp.user_id
+      ORDER BY cp.last_updated_at DESC
+      LIMIT 10
+    `;
+
+    return {
+      totalRows: Number(summaryRows[0]?.total ?? 0),
+      latestUpdatedAt: summaryRows[0]?.latest ?? null,
+      topLearners: top.map((row) => ({
+        id: row.id,
+        userId: row.userId,
+        fullName: row.fullName,
+        email: row.email,
+        programSlug: row.programSlug,
+        courseSlug: row.courseSlug,
+        courseId: row.courseId,
+        status: row.status,
+        percentComplete: row.percentComplete,
+        lastUpdatedAt: row.lastUpdatedAt,
+      })),
+    };
+  } catch (error) {
+    console.error('[admin/coursera] failed to load xAPI course progress summary:', error);
+    return null;
+  }
+}
+
 async function loadCourseProgressSummary(): Promise<CourseProgressSummary | null> {
   try {
     const summaryRows = await prisma.$queryRaw<Array<{ total: bigint | number; latest: Date | null }>>`
@@ -178,6 +253,7 @@ export default async function AdminCourseraPage({
   }
 
   const courseProgress = await loadCourseProgressSummary();
+  const xapiCourseProgress = await loadXapiCourseProgressSummary();
   const badgeProgress = await loadBadgeProgressSummary();
   const unmatchedLearners = await loadUnmatchedLearners(100);
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
@@ -340,6 +416,89 @@ export default async function AdminCourseraPage({
         ) : (
           <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
             Course progress data is unavailable right now.
+          </span>
+        )}
+      </section>
+
+      <section
+        className="content-card"
+        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Live xAPI course progress</h2>
+            <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              Real-time course progress from xAPI statements (Coursera webhook). This is what members see on My Training.
+            </span>
+          </div>
+        </div>
+
+        {xapiCourseProgress ? (
+          <>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              <span><strong>{xapiCourseProgress.totalRows}</strong> xAPI progress row(s)</span>
+              <span>•</span>
+              <span>Last updated: <strong>{fmtDateTime(xapiCourseProgress.latestUpdatedAt)}</strong></span>
+            </div>
+
+            {xapiCourseProgress.topLearners.length > 0 ? (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left' }}>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Program</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Status</th>
+                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {xapiCourseProgress.topLearners.map((learner) => (
+                      <tr key={learner.id}>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          <strong>{learner.fullName}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.email}</div>
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.programSlug}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.courseSlug}
+                          {learner.courseId ? (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{learner.courseId}</div>
+                          ) : null}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                          {learner.percentComplete}%
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {learner.status === 'COMPLETED' ? (
+                            <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                              completed
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>{learner.status}</span>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                          {fmtDateTime(learner.lastUpdatedAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                No xAPI progress recorded yet. Progress appears here when Coursera sends xAPI statements for enrolled members.
+              </span>
+            )}
+          </>
+        ) : (
+          <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+            xAPI progress data is unavailable right now.
           </span>
         )}
       </section>

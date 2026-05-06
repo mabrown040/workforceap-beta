@@ -87,13 +87,14 @@ export async function POST(request: Request) {
     let reprocessResult;
     try {
       reprocessResult = await reprocessUnmatchedXapiEvents({
+        userId: body.userId.trim(),
         courseraEmail: body.courseraEmail,
         actorIdentifier: body.actorIdentifier,
         limit: 50,
       });
     } catch (reprocessError) {
       console.error('[admin/coursera/mappings] reprocess failed:', reprocessError);
-      reprocessResult = { processed: 0, matched: 0, errors: 1 };
+      reprocessResult = { processed: 0, matched: 0, errors: 0, details: [] };
     }
 
     return NextResponse.json({ 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from './configCore';
+import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness, _resetCourseraConfigForTesting } from './configCore';
 
 const keysToRestore = [
   'COURSERA_COURSE_URL_TEMPLATE',
@@ -28,13 +28,15 @@ function restoreEnv(prev: Record<string, string | undefined>) {
 
 test('buildCourseraLaunchUrl: learn template uses coursera.org/learn with enroll', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
   process.env.COURSERA_COURSE_URL_TEMPLATE =
     'https://www.coursera.org/learn/{courseId}?enroll=true';
+  process.env.COURSERA_COURSE_ID_MAP = JSON.stringify({ 'test-program': ['course-enroll-001'] });
 
   const url = buildCourseraLaunchUrl({
-    programSlug: 'comptia-a-professional-certificate',
+    programSlug: 'test-program',
     userId: 'user-1',
     email: 'm@example.com',
     currentCourseIndex: 0,
@@ -48,12 +50,14 @@ test('buildCourseraLaunchUrl: learn template uses coursera.org/learn with enroll
 
 test('buildCourseraLaunchUrl: custom template interpolates courseId', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
   process.env.COURSERA_COURSE_URL_TEMPLATE = 'https://example.org/c/{courseId}';
+  process.env.COURSERA_COURSE_ID_MAP = JSON.stringify({ 'test-program': ['course-custom-001'] });
 
   const url = buildCourseraLaunchUrl({
-    programSlug: 'comptia-a-professional-certificate',
+    programSlug: 'test-program',
     userId: 'u',
     email: 'e@e.com',
     currentCourseIndex: 0,
@@ -63,7 +67,8 @@ test('buildCourseraLaunchUrl: custom template interpolates courseId', (t) => {
 
 test('getCourseraConfig: default API base', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   delete process.env.COURSERA_API_BASE_URL;
   const c = getCourseraConfig();
   assert.equal(c.apiBaseUrl, 'https://api.coursera.com/ent/api/rest/v1');
@@ -71,7 +76,8 @@ test('getCourseraConfig: default API base', (t) => {
 
 test('buildCourseraLaunchUrl: deep-links via course URL template when courseId is available', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
   process.env.COURSERA_COURSE_URL_TEMPLATE = 'https://www.coursera.org/learn/{courseId}';
   process.env.COURSERA_COURSE_ID_MAP = JSON.stringify({ 'test-program': ['course-abc-123'] });
@@ -88,7 +94,8 @@ test('buildCourseraLaunchUrl: deep-links via course URL template when courseId i
 
 test('buildCourseraLaunchUrl: falls back to program URL template when no course template or ID', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
   process.env.COURSERA_PROGRAM_URL_TEMPLATE = 'https://www.coursera.org/programs/{programId}';
   process.env.COURSERA_PROGRAM_ID = 'prog-xyz-789';
@@ -105,7 +112,8 @@ test('buildCourseraLaunchUrl: falls back to program URL template when no course 
 
 test('buildCourseraLaunchUrl: returns program home URL when only COURSERA_PROGRAM_HOME_URL is set', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
   process.env.COURSERA_PROGRAM_HOME_URL = 'https://www.coursera.org/programs/home-page';
 
@@ -119,7 +127,8 @@ test('buildCourseraLaunchUrl: returns program home URL when only COURSERA_PROGRA
 
 test('buildCourseraLaunchUrl: returns null when no URL configuration is set', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
 
   const url = buildCourseraLaunchUrl({
@@ -132,7 +141,8 @@ test('buildCourseraLaunchUrl: returns null when no URL configuration is set', (t
 
 test('getCourseraReadiness: canLaunch is false when no URL is configured', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
 
   const result = getCourseraReadiness(null);
@@ -141,7 +151,8 @@ test('getCourseraReadiness: canLaunch is false when no URL is configured', (t) =
 
 test('getCourseraReadiness: canDeepLink is true when course URL template and course IDs are available', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
   process.env.COURSERA_COURSE_URL_TEMPLATE = 'https://www.coursera.org/learn/{courseId}';
   process.env.COURSERA_COURSE_ID_MAP = JSON.stringify({ 'deep-link-program': ['course-id-001'] });
@@ -152,7 +163,8 @@ test('getCourseraReadiness: canDeepLink is true when course URL template and cou
 
 test('getCourseraReadiness: canSync is false when no API token or key is configured', (t) => {
   const prev = snapshotEnv();
-  t.after(() => restoreEnv(prev));
+  t.after(() => { restoreEnv(prev); _resetCourseraConfigForTesting(); });
+  _resetCourseraConfigForTesting();
   for (const k of keysToRestore) delete process.env[k];
 
   const result = getCourseraReadiness(null);

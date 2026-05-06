@@ -1,5 +1,3 @@
-import 'server-only';
-
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 
 type StringMap = Record<string, string>;
@@ -126,6 +124,11 @@ function buildCourseraConfig() {
 let _config: ReturnType<typeof buildCourseraConfig> | null = null;
 export function getCourseraConfig() {
   return (_config ??= buildCourseraConfig());
+}
+
+/** Reset the cached config — test-only. Call before mutating process.env in a test. */
+export function _resetCourseraConfigForTesting() {
+  _config = null;
 }
 
 export function resolveCourseraProgramId(programSlug: string | null | undefined): string {

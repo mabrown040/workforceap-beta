@@ -820,7 +820,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-          {memberPoints && memberPoints.total > 0 ? (
+          {memberPoints ? (
             <PointsWidget
               total={memberPoints.total}
               level={memberPoints.level}
@@ -1043,7 +1043,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   <div style={{ maxWidth: '300px' }}>
                     <LogCertificationModal />
                   </div>
-                  {memberPoints && memberPoints.total > 0 && (
+                  {memberPoints && (
                     <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
                       <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
                     </div>

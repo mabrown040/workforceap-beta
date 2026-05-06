@@ -24,6 +24,12 @@ export async function confirmPlacement(jobApplicationId: string) {
 
   const now = new Date();
 
+  // Update the job application status so the confirmation strip stops showing
+  await prisma.jobApplication.update({
+    where: { id: jobApplicationId },
+    data: { status: 'ACCEPTED', updatedAt: now },
+  });
+
   await prisma.memberEvent.create({
     data: {
       userId: user.id,

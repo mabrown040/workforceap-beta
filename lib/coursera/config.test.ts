@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildCourseraLaunchUrl, getCourseraConfig } from './configCore';
+import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from './configCore';
 
 const keysToRestore = [
   'COURSERA_COURSE_URL_TEMPLATE',
@@ -9,6 +9,9 @@ const keysToRestore = [
   'COURSERA_PROGRAM_ID',
   'COURSERA_PROGRAM_ID_MAP',
   'COURSERA_COURSE_ID_MAP',
+  'COURSERA_API_TOKEN',
+  'COURSERA_APP_KEY',
+  'COURSERA_APP_SECRET',
 ] as const;
 
 function snapshotEnv(): Record<string, string | undefined> {
@@ -64,4 +67,94 @@ test('getCourseraConfig: default API base', (t) => {
   delete process.env.COURSERA_API_BASE_URL;
   const c = getCourseraConfig();
   assert.equal(c.apiBaseUrl, 'https://api.coursera.com/ent/api/rest/v1');
+});
+
+test('buildCourseraLaunchUrl: deep-links via course URL template when courseId is available', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+  process.env.COURSERA_COURSE_URL_TEMPLATE = 'https://www.coursera.org/learn/{courseId}';
+  process.env.COURSERA_COURSE_ID_MAP = JSON.stringify({ 'test-program': ['course-abc-123'] });
+
+  const url = buildCourseraLaunchUrl({
+    programSlug: 'test-program',
+    userId: 'u1',
+    email: 'u@test.com',
+    currentCourseIndex: 0,
+  });
+  assert.ok(url);
+  assert.match(url!, /course-abc-123/);
+});
+
+test('buildCourseraLaunchUrl: falls back to program URL template when no course template or ID', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+  process.env.COURSERA_PROGRAM_URL_TEMPLATE = 'https://www.coursera.org/programs/{programId}';
+  process.env.COURSERA_PROGRAM_ID = 'prog-xyz-789';
+
+  const url = buildCourseraLaunchUrl({
+    programSlug: 'nonexistent-program',
+    userId: 'u1',
+    email: 'u@test.com',
+    currentCourseIndex: 0,
+  });
+  assert.ok(url);
+  assert.match(url!, /prog-xyz-789/);
+});
+
+test('buildCourseraLaunchUrl: returns program home URL when only COURSERA_PROGRAM_HOME_URL is set', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+  process.env.COURSERA_PROGRAM_HOME_URL = 'https://www.coursera.org/programs/home-page';
+
+  const url = buildCourseraLaunchUrl({
+    programSlug: null,
+    userId: 'u1',
+    email: 'u@test.com',
+  });
+  assert.equal(url, 'https://www.coursera.org/programs/home-page');
+});
+
+test('buildCourseraLaunchUrl: returns null when no URL configuration is set', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+
+  const url = buildCourseraLaunchUrl({
+    programSlug: null,
+    userId: 'u1',
+    email: 'u@test.com',
+  });
+  assert.equal(url, null);
+});
+
+test('getCourseraReadiness: canLaunch is false when no URL is configured', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+
+  const result = getCourseraReadiness(null);
+  assert.equal(result.canLaunch, false);
+});
+
+test('getCourseraReadiness: canDeepLink is true when course URL template and course IDs are available', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+  process.env.COURSERA_COURSE_URL_TEMPLATE = 'https://www.coursera.org/learn/{courseId}';
+  process.env.COURSERA_COURSE_ID_MAP = JSON.stringify({ 'deep-link-program': ['course-id-001'] });
+
+  const result = getCourseraReadiness('deep-link-program');
+  assert.equal(result.canDeepLink, true);
+});
+
+test('getCourseraReadiness: canSync is false when no API token or key is configured', (t) => {
+  const prev = snapshotEnv();
+  t.after(() => restoreEnv(prev));
+  for (const k of keysToRestore) delete process.env[k];
+
+  const result = getCourseraReadiness(null);
+  assert.equal(result.canSync, false);
 });

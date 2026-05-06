@@ -79,7 +79,11 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
-    qualities: [85],
+    // Allow Next.js's default q=75 in addition to the explicit q=85 used on
+    // hero images. Restricting to [85] alone caused every <Image> without an
+    // explicit quality prop to be rejected by the optimizer, producing blank
+    // cards on /blog, /programs, /find-your-path, etc.
+    qualities: [75, 85],
     localPatterns: [
       {
         pathname: '/images/**',

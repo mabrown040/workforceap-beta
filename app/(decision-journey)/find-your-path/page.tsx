@@ -171,12 +171,13 @@ export default function FindYourPathPage() {
                 src="/images/hero-people.jpg"
                 alt="Members collaborating on career training"
                 fill
-                sizes="300px"
+                sizes="(min-width: 1024px) 280px, 100vw"
                 style={{ objectFit: 'cover' }}
               />
               <div style={{
                 position: 'absolute', inset: 0,
-                background: 'linear-gradient(180deg, transparent 40%, rgba(18,20,22,0.85) 100%)',
+                background: 'linear-gradient(180deg, transparent 50%, rgba(18,20,22,0.7) 100%)',
+                pointerEvents: 'none',
               }} />
               <span style={{
                 position: 'absolute', bottom: '1rem', left: '1rem',

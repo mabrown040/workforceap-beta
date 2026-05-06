@@ -30,23 +30,14 @@ export default function LanguageToggle() {
   };
 
   return (
-    <div className="language-toggle" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-      <Globe size={16} aria-hidden style={{ color: 'var(--color-on-surface-variant)' }} />
+    <div className="language-toggle">
+      <Globe size={16} aria-hidden className="language-toggle-icon" />
       <select
         value={currentLocale}
         onChange={(e) => handleChange(e.target.value)}
         aria-label="Select language"
         className="language-toggle-select"
-        style={{
-          background: 'transparent',
-          border: '1px solid var(--outline-variant)',
-          borderRadius: '0.5rem',
-          padding: '0.25rem 0.5rem',
-          fontSize: '0.8125rem',
-          fontWeight: 600,
-          color: 'var(--color-on-surface)',
-          cursor: 'pointer',
-        }}
+        suppressHydrationWarning
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code}>

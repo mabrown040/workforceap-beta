@@ -27,7 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function TrainingPage() {
+export default async function TrainingPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+  const launchError = params?.error === 'launch_failed';
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
   const dbUserPromise = prisma.user.findUnique({
@@ -165,6 +171,30 @@ export default async function TrainingPage() {
             { label: tTraining('myTraining') },
           ]}
         />
+
+        {launchError && (
+          <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+            <div
+              style={{
+                background: 'rgba(173,44,77,0.08)',
+                border: '1px solid rgba(173,44,77,0.2)',
+                borderRadius: '0.75rem',
+                padding: '0.875rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>error_outline</span>
+              <div>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem' }}>We couldn&rsquo;t open Coursera right now.</p>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  Try again in a moment, or <Link href="/dashboard/messages">message your counselor</Link>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isZeroState && (
           <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
@@ -321,7 +351,7 @@ export default async function TrainingPage() {
             <summary>Optional: refresh progress &amp; Coursera tools</summary>
             <div className="training-sync-details__body">
               <p style={{ margin: '0 0 var(--space-4)', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
-                Pull the latest completion data from Coursera, or open the full Coursera hub for launches and partner notes.
+                Pull the latest completion data from Coursera, then keep using this Training page as your single hub for launches and progress.
               </p>
               <CourseraSyncCard enabled={courseraReadiness.canSync} />
             </div>

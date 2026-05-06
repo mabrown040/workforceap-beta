@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/db/prisma';
+import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
 import { parseXapiStatement, isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statementModel';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 
+async function requireAdminUser() {
+  const user = await getUser();
+  if (!user || !(await isAdmin(user.id))) {
+    return null;
+  }
+  return user;
+}
+
 export async function POST(request: Request) {
-  const { userId } = await auth();
-  if (!userId || !(await isAdmin(userId))) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 403 });
+  const user = await requireAdminUser();
+  if (!user) {
+    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   let body: { email?: string };

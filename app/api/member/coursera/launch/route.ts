@@ -5,8 +5,6 @@ import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/con
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
-import { cookies } from 'next/headers';
-import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 
 export async function GET(request: Request) {
   const user = await getUser();
@@ -15,9 +13,6 @@ export async function GET(request: Request) {
     loginUrl.searchParams.set('redirectTo', '/dashboard/coursera');
     return NextResponse.redirect(loginUrl);
   }
-
-  const cookieStore = await cookies();
-  const locale = getAppLocaleFromCookieStore(cookieStore);
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -95,7 +90,6 @@ export async function GET(request: Request) {
     userId: user.id,
     email: user.email ?? '',
     currentCourseIndex,
-    locale,
   });
 
   const readiness = getCourseraReadiness(enrolledProgram);
@@ -104,11 +98,17 @@ export async function GET(request: Request) {
     return /\/programs\//.test(url) || /\/learn\//.test(url) || /\/professional-certificates\//.test(url);
   };
 
-  const launchUrl =
+  const resolvedUrl =
     (isProgramSpecificLaunchUrl(configuredLaunchUrl) ? configuredLaunchUrl : null) ??
     discoveredProgramUrl ??
     configuredLaunchUrl ??
-    readiness.platformUrl;
+    null;
 
-  return NextResponse.redirect(launchUrl);
+  if (!resolvedUrl) {
+    const errorUrl = new URL('/dashboard/coursera', request.url);
+    errorUrl.searchParams.set('error', 'launch_failed');
+    return NextResponse.redirect(errorUrl);
+  }
+
+  return NextResponse.redirect(resolvedUrl);
 }

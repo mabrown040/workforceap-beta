@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
 export type BadgeProgressSummary = {
@@ -256,50 +257,70 @@ export async function loadLearnerProgressByUserId(userId: string): Promise<Learn
   }
 }
 
+type CourseProgressBaseRow = {
+  id: string;
+  courseName: string;
+  courseraCourseId: string;
+  courseraCourseSlug: string | null;
+  university: string | null;
+  programSlug: string;
+  programName: string | null;
+  overallProgress: string | number;
+  learningHours: string | number;
+  isCompleted: boolean;
+  enrollmentTime: Date | null;
+  lastActivityTime: Date | null;
+  completionTime: Date | null;
+  certificateUrl: string | null;
+  courseGrade: string | null;
+};
+
+const COURSE_PROGRESS_SELECT_COLUMNS = Prisma.sql`
+  id,
+  course_name AS "courseName",
+  coursera_course_id AS "courseraCourseId",
+  coursera_course_slug AS "courseraCourseSlug",
+  university,
+  program_slug AS "programSlug",
+  program_name AS "programName",
+  overall_progress AS "overallProgress",
+  learning_hours AS "learningHours",
+  is_completed AS "isCompleted",
+  enrollment_time AS "enrollmentTime",
+  last_activity_time AS "lastActivityTime",
+  completion_time AS "completionTime",
+  certificate_url AS "certificateUrl",
+  course_grade AS "courseGrade"
+`;
+
+function mapCourseProgressRow(row: CourseProgressBaseRow): LearnerCourseRow {
+  return {
+    id: row.id,
+    courseName: row.courseName,
+    courseraCourseId: row.courseraCourseId,
+    courseraCourseSlug: row.courseraCourseSlug,
+    university: row.university,
+    programSlug: row.programSlug,
+    programName: row.programName,
+    overallProgress: Number(row.overallProgress) || 0,
+    learningHours: Number(row.learningHours) || 0,
+    isCompleted: row.isCompleted,
+    enrollmentTime: row.enrollmentTime,
+    lastActivityTime: row.lastActivityTime,
+    completionTime: row.completionTime,
+    certificateUrl: row.certificateUrl,
+    courseGrade: row.courseGrade,
+  };
+}
+
 async function loadCoursesForUserId(userId: string): Promise<LearnerCourseRow[]> {
-  const rows = await prisma.$queryRaw<Array<{
-    id: string;
-    courseName: string;
-    courseraCourseId: string;
-    courseraCourseSlug: string | null;
-    university: string | null;
-    programSlug: string;
-    programName: string | null;
-    overallProgress: string | number;
-    learningHours: string | number;
-    isCompleted: boolean;
-    enrollmentTime: Date | null;
-    lastActivityTime: Date | null;
-    completionTime: Date | null;
-    certificateUrl: string | null;
-    courseGrade: string | null;
-  }>>`
-    SELECT
-      id,
-      course_name AS "courseName",
-      coursera_course_id AS "courseraCourseId",
-      coursera_course_slug AS "courseraCourseSlug",
-      university,
-      program_slug AS "programSlug",
-      program_name AS "programName",
-      overall_progress AS "overallProgress",
-      learning_hours AS "learningHours",
-      is_completed AS "isCompleted",
-      enrollment_time AS "enrollmentTime",
-      last_activity_time AS "lastActivityTime",
-      completion_time AS "completionTime",
-      certificate_url AS "certificateUrl",
-      course_grade AS "courseGrade"
+  const rows = await prisma.$queryRaw<CourseProgressBaseRow[]>`
+    SELECT ${COURSE_PROGRESS_SELECT_COLUMNS}
     FROM coursera_course_progress
     WHERE user_id = ${userId}
     ORDER BY last_activity_time DESC NULLS LAST, enrollment_time DESC NULLS LAST
   `;
-
-  return rows.map((row) => ({
-    ...row,
-    overallProgress: Number(row.overallProgress) || 0,
-    learningHours: Number(row.learningHours) || 0,
-  }));
+  return rows.map(mapCourseProgressRow);
 }
 
 async function loadBadgesForUserId(userId: string): Promise<LearnerBadgeRow[]> {
@@ -356,43 +377,11 @@ export async function loadLearnerProgressByExternalEmail(
   try {
     const lower = externalEmail.toLowerCase();
 
-    const courses = await prisma.$queryRaw<Array<{
-      id: string;
-      externalEmail: string;
-      externalName: string | null;
-      courseName: string;
-      courseraCourseId: string;
-      courseraCourseSlug: string | null;
-      university: string | null;
-      programSlug: string;
-      programName: string | null;
-      overallProgress: string | number;
-      learningHours: string | number;
-      isCompleted: boolean;
-      enrollmentTime: Date | null;
-      lastActivityTime: Date | null;
-      completionTime: Date | null;
-      certificateUrl: string | null;
-      courseGrade: string | null;
-    }>>`
+    const courses = await prisma.$queryRaw<Array<CourseProgressBaseRow & { externalEmail: string; externalName: string | null }>>`
       SELECT
-        id,
         external_email AS "externalEmail",
         external_name AS "externalName",
-        course_name AS "courseName",
-        coursera_course_id AS "courseraCourseId",
-        coursera_course_slug AS "courseraCourseSlug",
-        university,
-        program_slug AS "programSlug",
-        program_name AS "programName",
-        overall_progress AS "overallProgress",
-        learning_hours AS "learningHours",
-        is_completed AS "isCompleted",
-        enrollment_time AS "enrollmentTime",
-        last_activity_time AS "lastActivityTime",
-        completion_time AS "completionTime",
-        certificate_url AS "certificateUrl",
-        course_grade AS "courseGrade"
+        ${COURSE_PROGRESS_SELECT_COLUMNS}
       FROM coursera_course_progress
       WHERE LOWER(external_email) = ${lower}
       ORDER BY last_activity_time DESC NULLS LAST, enrollment_time DESC NULLS LAST
@@ -440,23 +429,7 @@ export async function loadLearnerProgressByExternalEmail(
       externalEmail: lower,
       externalName,
       user: null,
-      courses: courses.map((row) => ({
-        id: row.id,
-        courseName: row.courseName,
-        courseraCourseId: row.courseraCourseId,
-        courseraCourseSlug: row.courseraCourseSlug,
-        university: row.university,
-        programSlug: row.programSlug,
-        programName: row.programName,
-        overallProgress: Number(row.overallProgress) || 0,
-        learningHours: Number(row.learningHours) || 0,
-        isCompleted: row.isCompleted,
-        enrollmentTime: row.enrollmentTime,
-        lastActivityTime: row.lastActivityTime,
-        completionTime: row.completionTime,
-        certificateUrl: row.certificateUrl,
-        courseGrade: row.courseGrade,
-      })),
+      courses: courses.map(mapCourseProgressRow),
       badges: badges.map((row) => ({
         id: row.id,
         badgeTitle: row.badgeTitle,

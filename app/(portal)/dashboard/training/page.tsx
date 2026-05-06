@@ -30,9 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TrainingPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
-  const tTraining = await getTranslations('training');
-
-  const dbUser = await prisma.user.findUnique({
+  const dbUserPromise = prisma.user.findUnique({
     where: { id: user.id },
     select: {
       enrolledProgram: true,
@@ -40,6 +38,29 @@ export default async function TrainingPage() {
       coursesCompleted: true,
     },
   });
+
+  const [tTraining, dbUser, progressRows, programRollup] = await Promise.all([
+    getTranslations('training'),
+    dbUserPromise,
+    dbUserPromise.then((u) =>
+      u?.enrolledProgram
+        ? prisma.courseProgress.findMany({
+            where: { userId: user.id, programSlug: u.enrolledProgram },
+            select: { courseSlug: true, status: true, percentComplete: true },
+          })
+        : []
+    ),
+    dbUserPromise.then((u) =>
+      u?.enrolledProgram
+        ? prisma.memberProgramProgress.findUnique({
+            where: {
+              userId_programSlug: { userId: user.id, programSlug: u.enrolledProgram },
+            },
+            select: { coursesCompleted: true, averagePercent: true },
+          })
+        : null
+    ),
+  ]);
 
   if (!dbUser?.enrolledProgram) {
     return (
@@ -70,19 +91,6 @@ export default async function TrainingPage() {
     ...c,
     courseraCourseId: discovered?.courses.find((dc: CourseraDiscoveredCourse) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
   }));
-
-  const [progressRows, programRollup] = await Promise.all([
-    prisma.courseProgress.findMany({
-      where: { userId: user.id, programSlug: dbUser.enrolledProgram },
-      select: { courseSlug: true, status: true, percentComplete: true },
-    }),
-    prisma.memberProgramProgress.findUnique({
-      where: {
-        userId_programSlug: { userId: user.id, programSlug: dbUser.enrolledProgram },
-      },
-      select: { coursesCompleted: true, averagePercent: true },
-    }),
-  ]);
 
   const progressBySlug: Record<string, CourseProgressUi> = {};
   for (const row of progressRows) {

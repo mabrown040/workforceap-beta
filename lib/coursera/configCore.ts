@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 
 type StringMap = Record<string, string>;
@@ -51,6 +53,7 @@ function parseStringMap(raw: string | undefined): StringMap {
       )
     );
   } catch {
+    console.warn('[coursera/config] Failed to parse env var as JSON map — check the value. Falling back to empty map.');
     return {};
   }
 }
@@ -71,6 +74,7 @@ function parseStringArrayMap(raw: string | undefined): StringArrayMap {
       })
     );
   } catch {
+    console.warn('[coursera/config] Failed to parse env var as JSON map — check the value. Falling back to empty map.');
     return {};
   }
 }
@@ -88,7 +92,7 @@ function interpolateTemplate(template: string, values: Record<string, string | u
   return failed ? null : resolved;
 }
 
-export function getCourseraConfig() {
+function buildCourseraConfig() {
   const programHomeUrl = process.env.COURSERA_PROGRAM_HOME_URL?.trim() || '';
   const explicitProgramId = process.env.COURSERA_PROGRAM_ID?.trim() || '';
   const envProgramIdMap = parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP);
@@ -119,6 +123,11 @@ export function getCourseraConfig() {
   };
 }
 
+let _config: ReturnType<typeof buildCourseraConfig> | null = null;
+export function getCourseraConfig() {
+  return (_config ??= buildCourseraConfig());
+}
+
 export function resolveCourseraProgramId(programSlug: string | null | undefined): string {
   const config = getCourseraConfig();
   if (programSlug && config.programIdMap[programSlug]) return config.programIdMap[programSlug];
@@ -137,12 +146,9 @@ export function buildCourseraLaunchUrl(args: {
   email: string;
   /** 0-based index of the current course the member should start */
   currentCourseIndex?: number;
-  /** Optional locale for localized Coursera URLs */
-  locale?: string;
 }): string | null {
   const config = getCourseraConfig();
   const programId = resolveCourseraProgramId(args.programSlug);
-  void args.locale;
 
   // If we have a course ID map and a current course index, deep-link to that specific course
   const courseIds = args.programSlug ? config.courseIdMap[args.programSlug] : undefined;

@@ -13,6 +13,21 @@ async function requireAdminUser() {
   return user;
 }
 
+export async function GET(request: Request) {
+  const user = await requireAdminUser();
+  if (!user) {
+    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const url = new URL(request.url);
+  const email = url.searchParams.get('email')?.trim().toLowerCase();
+  if (!email) {
+    return NextResponse.json({ ok: false, error: 'email query param required' }, { status: 400 });
+  }
+
+  return runBackfill(email);
+}
+
 export async function POST(request: Request) {
   const user = await requireAdminUser();
   if (!user) {
@@ -31,7 +46,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'email required' }, { status: 400 });
   }
 
-  const member = await prisma.user.findFirst({
+  return runBackfill(email);
+}
+
+async function runBackfill(email: string) {  const member = await prisma.user.findFirst({
     where: { email: { mode: 'insensitive', equals: email } },
     select: { id: true, email: true, fullName: true, enrolledProgram: true },
   });

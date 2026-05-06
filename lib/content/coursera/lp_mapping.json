@@ -1,0 +1,754 @@
+{
+  "vaH4UkrHSKSh-FJKxxik4Q": {
+    "lp_id": "vaH4UkrHSKSh-FJKxxik4Q",
+    "lp_name": "Project Management Professional Certificate (Microsoft)",
+    "wap_program_slug": "project-management-professional-certificate-microsoft",
+    "matched_count": 10,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Project Management Fundamentals",
+        "slug": "project-management-fundamentals-microsoft",
+        "coursera_id": "lgy789C8Ee6SjxKHxThXWw",
+        "name": "Project Management Fundamentals"
+      },
+      {
+        "order": 1,
+        "lp_name": "Team Building and Leadership in Project Management",
+        "slug": "team-building-and-leadership-in-project-management",
+        "coursera_id": "ETzWTdC9Ee6SjxKHxThXWw",
+        "name": "Team Building and Leadership in Project Management"
+      },
+      {
+        "order": 2,
+        "lp_name": "Project Manager Engagement with Stakeholders",
+        "slug": "project-manager-engagement-with-stakeholders",
+        "coursera_id": "YbrDRtC9Ee6SjxKHxThXWw",
+        "name": "Project Manager Engagement with Stakeholders"
+      },
+      {
+        "order": 3,
+        "lp_name": "Process Groups and Processes in Project Management",
+        "slug": "process-groups-and-processes-in-project-management",
+        "coursera_id": "KQ6GstDAEe6P2wphYfoNOQ",
+        "name": " Process Groups and Processes in Project Management"
+      },
+      {
+        "order": 4,
+        "lp_name": "Project Management Principles",
+        "slug": "project-management-principles",
+        "coursera_id": "vuAsldC-Ee6P2wphYfoNOQ",
+        "name": "Project Management Principles"
+      },
+      {
+        "order": 5,
+        "lp_name": "Project Management Performance Domains",
+        "slug": "project-management-performance-domains",
+        "coursera_id": "u3rsKNC_Ee6SjxKHxThXWw",
+        "name": "Project Management Performance Domains"
+      },
+      {
+        "order": 6,
+        "lp_name": "PMP Formulas",
+        "slug": "pmp-formulas",
+        "coursera_id": "MLjf49C-Ee6SjxKHxThXWw",
+        "name": "PMP Formulas"
+      },
+      {
+        "order": 7,
+        "lp_name": "PM4R Agile: 5 steps for hybrid management of projects",
+        "slug": "pm4r-agile-5-steps-for-hybrid-management-of-projects",
+        "coursera_id": "ocXG5O4OEe6cohJOlykk1Q",
+        "name": "PM4R Agile: 5 steps for hybrid management of projects"
+      },
+      {
+        "order": 8,
+        "lp_name": "PM4R Agile: Agile Mindset in Development Projects",
+        "slug": "pm4r-agile-mindset-in-development-projects",
+        "coursera_id": "NGstiiJNEe-qLxJFbw2Hbw",
+        "name": "PM4R Agile: Agile Mindset in Development Projects"
+      },
+      {
+        "order": 9,
+        "lp_name": "PMP Application Process and Practice Exam",
+        "slug": "pmp-application-process-and-practice-exam",
+        "coursera_id": "ByqSENDBEe6SjxKHxThXWw",
+        "name": "PMP Application Process and Practice Exam"
+      }
+    ],
+    "unmatched": []
+  },
+  "C-5mIgyaSLGuZiIMmrixWg": {
+    "lp_id": "C-5mIgyaSLGuZiIMmrixWg",
+    "lp_name": "CompTIA A+ Professional Certificate",
+    "wap_program_slug": "comptia-a-professional-certificate",
+    "matched_count": 10,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Technical Support Fundamentals",
+        "slug": "technical-support-fundamentals",
+        "coursera_id": "7sBiclFIEeetjQ5ppGVTyA",
+        "name": "Technical Support Fundamentals"
+      },
+      {
+        "order": 1,
+        "lp_name": "IT Fundamentals and Hardware Essentials",
+        "slug": "packt-it-fundamentals-and-hardware-essentials-yqged",
+        "coursera_id": "ySI6pmchEe--dw7PPVphLw",
+        "name": "IT Fundamentals and Hardware Essentials"
+      },
+      {
+        "order": 2,
+        "lp_name": "Foundations of IT and Core Hardware Components",
+        "slug": "packt-foundations-of-it-and-core-hardware-components-gavrv",
+        "coursera_id": "DRKQhcn7EfCGDQr_wTYZuQ",
+        "name": "Foundations of IT and Core Hardware Components"
+      },
+      {
+        "order": 3,
+        "lp_name": "Foundations of Computer Hardware and Storage",
+        "slug": "packt-foundations-of-computer-hardware-and-storage-fneta",
+        "coursera_id": "J6uAMWcgEe-ZVAr_5CUYPw",
+        "name": "Foundations of Computer Hardware and Storage"
+      },
+      {
+        "order": 4,
+        "lp_name": "Operating Systems and Networking Fundamentals",
+        "slug": "packt-operating-systems-and-networking-fundamentals-bokjh",
+        "coursera_id": "RP5nqGeBEe-ZVAr_5CUYPw",
+        "name": "Operating Systems and Networking Fundamentals"
+      },
+      {
+        "order": 5,
+        "lp_name": "Networking, Peripherals, and Wireless Technologies",
+        "slug": "packt-networking-peripherals-and-wireless-technologies-fhkx1",
+        "coursera_id": "S3G1qWbiEe-EPwr_9XyAcQ",
+        "name": "Networking, Peripherals, and Wireless Technologies"
+      },
+      {
+        "order": 6,
+        "lp_name": "Advanced Networking, Security, and IT Operations",
+        "slug": "packt-advanced-networking-security-and-it-operations-fgrrb",
+        "coursera_id": "XnYYsmbgEe-WbhKfqhh3sw",
+        "name": "Advanced Networking, Security, and IT Operations"
+      },
+      {
+        "order": 7,
+        "lp_name": "Advanced Networking, Virtualization, and IT Security",
+        "slug": "packt-advanced-networking-virtualization-and-it-security-pzolo",
+        "coursera_id": "pG5HkGelEe--dw7PPVphLw",
+        "name": "Advanced Networking, Virtualization, and IT Security"
+      },
+      {
+        "order": 8,
+        "lp_name": "CompTIA Practice",
+        "slug": "comptia-practice",
+        "coursera_id": "uOyjBdflEeqckg5GnG0pSw",
+        "name": "CompTIA Practice"
+      },
+      {
+        "order": 9,
+        "lp_name": "Practice Exams for CompTIA A+ Certification: Core 1 & Core 2",
+        "slug": "practice-exam-for-comptia-a",
+        "coursera_id": "bbLUnmLQEe66xBLRCmM3Cw",
+        "name": "Practice Exams for CompTIA A+ Certification: Core 1 & Core 2"
+      }
+    ],
+    "unmatched": []
+  },
+  "o9PJJ-ReQ_KTySfkXuPyHw": {
+    "lp_id": "o9PJJ-ReQ_KTySfkXuPyHw",
+    "lp_name": "IT Support Professional Certificate (IBM)",
+    "wap_program_slug": "it-support-professional-certificate-ibm",
+    "matched_count": 9,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Introduction to Technical Support",
+        "slug": "introduction-to-technical-support",
+        "coursera_id": "rNyuLa-pEeytqw64hz8ZCw",
+        "name": "Introduction to Technical Support "
+      },
+      {
+        "order": 1,
+        "lp_name": "Introduction to Hardware and Operating Systems",
+        "slug": "introduction-to-hardware-and-operating-systems",
+        "coursera_id": "wtYRSE1kEeyLIRLL9niz0w",
+        "name": "Introduction to Hardware and Operating Systems"
+      },
+      {
+        "order": 2,
+        "lp_name": "Introduction to Software, Programming, and Databases",
+        "slug": "introduction-software-programming-and-databases",
+        "coursera_id": "mFu9FE1kEeyLIRLL9niz0w",
+        "name": "Introduction to Software, Programming, and Databases "
+      },
+      {
+        "order": 3,
+        "lp_name": "Introduction to Networking and Storage",
+        "slug": "introduction-to-networking-and-storage",
+        "coursera_id": "P0ciGZT0EeyHuA5cIqn4NQ",
+        "name": "Introduction to Networking and Storage"
+      },
+      {
+        "order": 4,
+        "lp_name": "Introduction to Cloud Computing",
+        "slug": "introduction-to-cloud",
+        "coursera_id": "P6EH-AfjEeqBYw5XkWz7vw",
+        "name": "Introduction to Cloud Computing"
+      },
+      {
+        "order": 5,
+        "lp_name": "Introduction to Cybersecurity Essentials",
+        "slug": "introduction-to-cybersecurity-essentials",
+        "coursera_id": "YlfzdXJKEeyKjA79ESMRTQ",
+        "name": "Introduction to Cybersecurity Essentials"
+      },
+      {
+        "order": 6,
+        "lp_name": "Technical Support (IT) Case Studies and Capstone",
+        "slug": "technical-support-case-studies",
+        "coursera_id": "873t-sJ3EeyZlw5yhMZTYQ",
+        "name": "Technical Support (IT) Case Studies and Capstone"
+      },
+      {
+        "order": 7,
+        "lp_name": "Practice Exam for CompTIA Tech+ Certification",
+        "slug": "practice-exam-for-comptia-itf-plus-certification",
+        "coursera_id": "tYQTkiDCEe6zFgoHXpnxeQ",
+        "name": "Practice Exam for CompTIA Tech+ Certification"
+      },
+      {
+        "order": 8,
+        "lp_name": "Tech Support Career Guide and Interview Preparation",
+        "slug": "tech-support-career-guide-and-interview-preparation",
+        "coursera_id": "R56tWWBoEe2TzA7_9n9MNw",
+        "name": "Tech Support Career Guide and Interview Preparation"
+      }
+    ],
+    "unmatched": []
+  },
+  "iMhjZsGTRkSIY2bBk-ZEhA": {
+    "lp_id": "iMhjZsGTRkSIY2bBk-ZEhA",
+    "lp_name": "Medical Coding, Billing, and Heath Information Technician Certificate (MBCHIT)",
+    "wap_program_slug": "health-information-technology-mchit",
+    "matched_count": 15,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Medical Terminology, Anatomy, and Physiology Fundamentals",
+        "slug": "medical-terminology-anatomy-physiology-fundamentals",
+        "coursera_id": "NRbkx_ZREe2OqwqhrYNGhQ",
+        "name": "Medical Terminology, Anatomy, and Physiology Fundamentals"
+      },
+      {
+        "order": 1,
+        "lp_name": "Register Patients & Validate Data",
+        "slug": "register-patients--validate-data",
+        "coursera_id": "kyfEm7DIEfCsnQ73ldDVQw",
+        "name": "Register Patients & Validate Data"
+      },
+      {
+        "order": 2,
+        "lp_name": "Revenue Cycle, Billing, and Coding",
+        "slug": "revenue-cycle-billing-and-coding",
+        "coursera_id": "jb0fG5ClEe-KjBKlSS1PLQ",
+        "name": "Revenue Cycle, Billing, and Coding "
+      },
+      {
+        "order": 3,
+        "lp_name": "The Billing and Collection Process",
+        "slug": "the-billing-and-collection-process",
+        "coursera_id": "4vJ2DufMEe-ccQr_xjRSew",
+        "name": "The Billing and Collection Process"
+      },
+      {
+        "order": 4,
+        "lp_name": "Medical Billing and Coding Essentials",
+        "slug": "medical-billing-coding-essentials",
+        "coursera_id": "ORD0I55eEe2a0hItqNBhjQ",
+        "name": "Medical Billing and Coding Essentials"
+      },
+      {
+        "order": 5,
+        "lp_name": "Medical Billing: Code, Claim, Collect",
+        "slug": "medical-billing-code-claim-collect",
+        "coursera_id": "kYlX_qm0EfCZ0RJy-KWDlw",
+        "name": "Medical Billing: Code, Claim, Collect"
+      },
+      {
+        "order": 6,
+        "lp_name": "Medical Billing: Code and Claim Cleanly",
+        "slug": "medical-billing-code-and-claim-cleanly",
+        "coursera_id": "6JQCyKqNEfCK2RJYz7KGmw",
+        "name": "Medical Billing: Code and Claim Cleanly"
+      },
+      {
+        "order": 7,
+        "lp_name": "Medical Coding for Max Reimbursement",
+        "slug": "medical-coding-for-max-reimbursement",
+        "coursera_id": "6y4eyrMCEfCVOAr_-ssqDQ",
+        "name": "Medical Coding for Max Reimbursement"
+      },
+      {
+        "order": 8,
+        "lp_name": "Reconciliation, Billing, and Collections Optimization",
+        "slug": "reconciliation-billing-and-collections-optimization",
+        "coursera_id": "Se-fZQWhEfG28A6LLakGFQ",
+        "name": "Reconciliation, Billing, and Collections Optimization"
+      },
+      {
+        "order": 9,
+        "lp_name": "Medical Records: Protect Patient Privacy",
+        "slug": "medical-records-protect-patient-privacy",
+        "coursera_id": "q5bxtK88EfCvhhJvy8XwzQ",
+        "name": "Medical Records: Protect Patient Privacy"
+      },
+      {
+        "order": 10,
+        "lp_name": "Data and Electronic Health Records",
+        "slug": "data-and-electronic-health-records",
+        "coursera_id": "dj1_WJClEe-jlw4NkAElrw",
+        "name": "Data and Electronic Health Records"
+      },
+      {
+        "order": 11,
+        "lp_name": "Health Information Technology Fundamentals",
+        "slug": "health-it-fundamentals",
+        "coursera_id": "Z1XEYB-eEeulXwp2iaqDJw",
+        "name": "Health Information Technology Fundamentals"
+      },
+      {
+        "order": 12,
+        "lp_name": "Foundations of Telehealth",
+        "slug": "telehealth",
+        "coursera_id": "1-6HgCIEEey-7g6YTy-Atw",
+        "name": "Foundations of Telehealth"
+      },
+      {
+        "order": 13,
+        "lp_name": "Medical Administrative Assistants and Office Procedures",
+        "slug": "medical-administrative-assistants-and-office-procedures",
+        "coursera_id": "CUOh2pFrEe-KjBKlSS1PLQ",
+        "name": "Medical Administrative Assistants and Office Procedures"
+      },
+      {
+        "order": 14,
+        "lp_name": "Introduction to Certified Professional Biller",
+        "slug": "introduction-to-certified-professional-biller",
+        "coursera_id": "uDMpp-fMEe-mrRK-FPQYAw",
+        "name": "Introduction to Certified Professional Biller"
+      }
+    ],
+    "unmatched": []
+  },
+  "vjCRy6uOReCwkcurjsXg3Q": {
+    "lp_id": "vjCRy6uOReCwkcurjsXg3Q",
+    "lp_name": "AI Practitioner Professional Certificate",
+    "wap_program_slug": null,
+    "matched_count": 16,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Introduction to Artificial Intelligence (AI)",
+        "slug": "introduction-to-ai",
+        "coursera_id": "mR7MlUaTEemuHQ4HpHozrA",
+        "name": "Introduction to Artificial Intelligence (AI)"
+      },
+      {
+        "order": 1,
+        "lp_name": "Artificial Intelligence: An Overview",
+        "slug": "artificial-intelligence-an-overview",
+        "coursera_id": "h5dcezicEeyZlQoNyXy15Q",
+        "name": "Artificial Intelligence: An Overview"
+      },
+      {
+        "order": 2,
+        "lp_name": "Introduction to Digital Transformation Part 1",
+        "slug": "introduction-to-digital-transformation-part-1",
+        "coursera_id": "GCTyHE2LEeyLIRLL9niz0w",
+        "name": "Introduction to Digital Transformation Part 1"
+      },
+      {
+        "order": 3,
+        "lp_name": "AI For All",
+        "slug": "ai-foundations-for-all",
+        "coursera_id": "hVwck3epEfC1jRJm2R_Okw",
+        "name": "AI For All"
+      },
+      {
+        "order": 4,
+        "lp_name": "AI Concepts and Strategy",
+        "slug": "ai-strategy",
+        "coursera_id": "954g6F1WEe6iARI3FlRl8w",
+        "name": "AI Concepts and Strategy"
+      },
+      {
+        "order": 5,
+        "lp_name": "AI for Professional Communication",
+        "slug": "ai-for-professional-communication",
+        "coursera_id": "z-d7VBReEe-r_Ar_6dbL9Q",
+        "name": "AI for Professional Communication"
+      },
+      {
+        "order": 6,
+        "lp_name": "Understand and Apply Artificial Intelligence Fundamentals",
+        "slug": "understand-apply-artificial-intelligence-fundamentals",
+        "coursera_id": "SOTCddsLEfC1UxIkq1JqIw",
+        "name": "Understand and Apply Artificial Intelligence Fundamentals"
+      },
+      {
+        "order": 7,
+        "lp_name": "AI for Business: Generation & Prediction",
+        "slug": "ai-for-business-generation-and-prediction",
+        "coursera_id": "CQXkoGIKEe6yuQ41HILERQ",
+        "name": "AI for Business: Generation & Prediction"
+      },
+      {
+        "order": 8,
+        "lp_name": "Artificial Intelligence: Ethics & Societal Challenges",
+        "slug": "ai-ethics",
+        "coursera_id": "YUfX_FFcEemHkRLmf0JQJA",
+        "name": "Artificial Intelligence: Ethics & Societal Challenges"
+      },
+      {
+        "order": 9,
+        "lp_name": "ChatGPT - Foundations",
+        "slug": "packt-chatgpt-foundations-amzvj",
+        "coursera_id": "w1jkc9spEfCQRRIzUgLPlQ",
+        "name": "ChatGPT - Foundations"
+      },
+      {
+        "order": 10,
+        "lp_name": "ChatGPT for Beginners: Using AI for Market Research",
+        "slug": "chatgpt-for-beginners-market-research-ai",
+        "coursera_id": "SaiktYS1Ee66wg5jL1EOqw",
+        "name": "ChatGPT for Beginners: Using AI for Market Research"
+      },
+      {
+        "order": 11,
+        "lp_name": "AI Fundamentals with Claude Advancing Women in Tech",
+        "slug": "ai-for-everyone-ai-fundamentals-with-claude",
+        "coursera_id": "ZruIud55Ee-L_Q47HwVgtw",
+        "name": "AI Fundamentals with Claude"
+      },
+      {
+        "order": 12,
+        "lp_name": "Sales with AI",
+        "slug": "sales-with-ai",
+        "coursera_id": "oc80ZNm-EfCZihIC4LWgUw",
+        "name": "Sales with AI"
+      },
+      {
+        "order": 13,
+        "lp_name": "AI for Marketing",
+        "slug": "ai-for-marketing",
+        "coursera_id": "tQhqTtzuEfC6bA4wlNz8zQ",
+        "name": "AI for Marketing"
+      },
+      {
+        "order": 14,
+        "lp_name": "Salesforce Certified AI Associate Certification",
+        "slug": "packt-salesforce-certified-ai-associate-certification-a3r1f",
+        "coursera_id": "Ci-CgAWfEfCd-gr_6GMchQ",
+        "name": "Salesforce Certified AI Associate Certification"
+      },
+      {
+        "order": 15,
+        "lp_name": "AWS Artificial Intelligence Practitioner",
+        "slug": "aws-artificial-intelligence-practitioner",
+        "coursera_id": "MvVSdbBHEfCsnQ73ldDVQw",
+        "name": "AWS Artificial Intelligence Practitioner"
+      }
+    ],
+    "unmatched": []
+  },
+  "Wj6KdjQrQfm-inY0K6H5xg": {
+    "lp_id": "Wj6KdjQrQfm-inY0K6H5xg",
+    "lp_name": "Data Science Professional Certificate (IBM)",
+    "wap_program_slug": "data-science-professional-certificate-ibm",
+    "matched_count": 12,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "What is Data Science?",
+        "slug": "what-is-datascience",
+        "coursera_id": "r0GnHOZaEees-Q6jQMxlrg",
+        "name": "What is Data Science? "
+      },
+      {
+        "order": 1,
+        "lp_name": "Tools for Data Science",
+        "slug": "open-source-tools-for-data-science",
+        "coursera_id": "oCBU5_VYEeeBQA7SG0nILA",
+        "name": "Tools for Data Science"
+      },
+      {
+        "order": 2,
+        "lp_name": "Data Science Methodology",
+        "slug": "data-science-methodology",
+        "coursera_id": "OFt7o_8IEee1YxLCJ0cSDA",
+        "name": "Data Science Methodology"
+      },
+      {
+        "order": 3,
+        "lp_name": "Python for Data Science, AI & Development",
+        "slug": "python-for-applied-data-science-ai",
+        "coursera_id": "ejOz7RDUEei99hK0xs-tsg",
+        "name": "Python for Data Science, AI & Development"
+      },
+      {
+        "order": 4,
+        "lp_name": "Python for Data Science",
+        "slug": "python-data-science",
+        "coursera_id": "aOsrKiujEe6mDAo3fVlzHw",
+        "name": "Python for Data Science"
+      },
+      {
+        "order": 5,
+        "lp_name": "Databases and SQL for Data Science with Python",
+        "slug": "sql-data-science",
+        "coursera_id": "GDQMSxDWEeitFhJL4G-A_g",
+        "name": "Databases and SQL for Data Science with Python"
+      },
+      {
+        "order": 6,
+        "lp_name": "Data Analysis with Python",
+        "slug": "data-analysis-with-python",
+        "coursera_id": "fYuElDEgEeiCvhLLCIZW_A",
+        "name": "Data Analysis with Python"
+      },
+      {
+        "order": 7,
+        "lp_name": "Data Visualization with Python",
+        "slug": "python-for-data-visualization",
+        "coursera_id": "ORAIlTLtEeizIBKbQHnlqg",
+        "name": "Data Visualization with Python"
+      },
+      {
+        "order": 8,
+        "lp_name": "Machine Learning with Python",
+        "slug": "machine-learning-with-python",
+        "coursera_id": "8UjeMk-mEeit4g4GsxE4dg",
+        "name": "Machine Learning with Python"
+      },
+      {
+        "order": 9,
+        "lp_name": "Applied Data Science Capstone",
+        "slug": "applied-data-science-capstone",
+        "coursera_id": "uZZCOk-0Eei5shJ0GHcv-g",
+        "name": "Applied Data Science Capstone"
+      },
+      {
+        "order": 10,
+        "lp_name": "Generative AI: Elevate Your Data Science Career",
+        "slug": "generative-ai-elevate-your-data-science-career",
+        "coursera_id": "hIyjm5CKEe63Ww6tPe9iow",
+        "name": " Generative AI: Elevate Your Data Science Career"
+      },
+      {
+        "order": 11,
+        "lp_name": "Data Scientist Career Guide and Interview Preparation",
+        "slug": "career-guide-and-interview-prep-for-data-science-pc",
+        "coursera_id": "tI6I6GHOEeyipgpI5l_HwQ",
+        "name": "Data Scientist Career Guide and Interview Preparation"
+      }
+    ],
+    "unmatched": []
+  },
+  "Xvd7I_wBSNO3eyP8AXjTfA": {
+    "lp_id": "Xvd7I_wBSNO3eyP8AXjTfA",
+    "lp_name": "Digital Marketing & E-Commerce Professional Certificate",
+    "wap_program_slug": "digital-marketing-e-commerce-google",
+    "matched_count": 11,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Foundations of Digital Marketing and E-commerce",
+        "slug": "foundations-of-digital-marketing-and-e-commerce",
+        "coursera_id": "g-0dF3JpEeys9RJMWW48Yw",
+        "name": "Foundations of Digital Marketing and E-commerce"
+      },
+      {
+        "order": 1,
+        "lp_name": "Attract and Engage Customers with Digital Marketing",
+        "slug": "attract-and-engage-customers",
+        "coursera_id": "dG13cHJKEeys9RJMWW48Yw",
+        "name": "Attract and Engage Customers with Digital Marketing"
+      },
+      {
+        "order": 2,
+        "lp_name": "From Likes to Leads: Interact with Customers Online",
+        "slug": "from-likes-to-leads",
+        "coursera_id": "HjlVBHJLEeys9RJMWW48Yw",
+        "name": "From Likes to Leads: Interact with Customers Online"
+      },
+      {
+        "order": 3,
+        "lp_name": "Think Outside the Inbox: Email Marketing",
+        "slug": "think-outside-the-inbox",
+        "coursera_id": "MBqC4XJLEeys9RJMWW48Yw",
+        "name": "Think Outside the Inbox: Email Marketing"
+      },
+      {
+        "order": 4,
+        "lp_name": "Assess for Success: Marketing Analytics and Measurement",
+        "slug": "assess-for-success",
+        "coursera_id": "FOu5AXsIEeynSxJpnIcphQ",
+        "name": "Assess for Success: Marketing Analytics and Measurement"
+      },
+      {
+        "order": 5,
+        "lp_name": "Social Media and Digital Marketing Fundamentals",
+        "slug": "social-media-digital-marketing-fundamentals",
+        "coursera_id": "uRHCCWFiEeuu-xLe1JcYrQ",
+        "name": "Social Media and Digital Marketing Fundamentals"
+      },
+      {
+        "order": 6,
+        "lp_name": "Social Media Content and Strategy",
+        "slug": "social-media-content-and-strategy",
+        "coursera_id": "0FyJ84IeEe-uPQ6cY8b-gw",
+        "name": "Social Media Content and Strategy"
+      },
+      {
+        "order": 7,
+        "lp_name": "Strategic Digital Marketing: Digital Marketing Channels",
+        "slug": "digital-marketing-channels",
+        "coursera_id": "SsanZuvgEfCEtA75x5Rx3w",
+        "name": "Strategic Digital Marketing: Digital Marketing Channels"
+      },
+      {
+        "order": 8,
+        "lp_name": "Satisfaction Guaranteed: Develop Customer Loyalty Online",
+        "slug": "satisfaction-guaranteed",
+        "coursera_id": "UK7yonsIEey1tgpUmO8AYQ",
+        "name": "Satisfaction Guaranteed: Develop Customer Loyalty Online"
+      },
+      {
+        "order": 9,
+        "lp_name": "SEO and Content Optimization for Digital Marketing",
+        "slug": "seo-and-content-optimization-for-digital-marketing",
+        "coursera_id": "gtaaAQWpEfGgHhL0Iuu-6Q",
+        "name": "SEO and Content Optimization for Digital Marketing"
+      },
+      {
+        "order": 10,
+        "lp_name": "Digital Marketing with AI",
+        "slug": "digital-marketing-with-genai",
+        "coursera_id": "RekNoB1LEfGuBw5BLqxbOQ",
+        "name": "Digital Marketing with AI"
+      }
+    ],
+    "unmatched": []
+  },
+  "Dz4BBgGAS1i-AQYBgLtYgA": {
+    "lp_id": "Dz4BBgGAS1i-AQYBgLtYgA",
+    "lp_name": "Data Analytics Professional Certificate (Google)",
+    "wap_program_slug": "data-analytics-professional-certificate-google",
+    "matched_count": 13,
+    "unmatched_count": 0,
+    "courses": [
+      {
+        "order": 0,
+        "lp_name": "Introduction to Data Analytics",
+        "slug": "introduction-to-data-analytics",
+        "coursera_id": "ZWYBq9zVEeqMbw6VbjEnNw",
+        "name": "Introduction to Data Analytics"
+      },
+      {
+        "order": 1,
+        "lp_name": "Foundations: Data, Data, Everywhere",
+        "slug": "foundations-data",
+        "coursera_id": "kvb6uMbTEeqZOA5eKDHL-w",
+        "name": "Foundations: Data, Data, Everywhere"
+      },
+      {
+        "order": 2,
+        "lp_name": "Ask Questions to Make Data-Driven Decisions",
+        "slug": "ask-questions-make-decisions",
+        "coursera_id": "ZEB-Lgp9Eeun_RJEc0KNDw",
+        "name": "Ask Questions to Make Data-Driven Decisions"
+      },
+      {
+        "order": 3,
+        "lp_name": "Prepare Data for Exploration",
+        "slug": "data-preparation",
+        "coursera_id": "bN9fcgp9Eeu0VAqNda9Xjw",
+        "name": "Prepare Data for Exploration"
+      },
+      {
+        "order": 4,
+        "lp_name": "Retrieve & Prep Data",
+        "slug": "retrieve--prep-data",
+        "coursera_id": "MYbEugyHEfGWGg5tlkdcvw",
+        "name": "Retrieve & Prep Data"
+      },
+      {
+        "order": 5,
+        "lp_name": "Process Data from Dirty to Clean",
+        "slug": "process-data",
+        "coursera_id": "c9dt2Qp9Eeuf7w5EwYPThw",
+        "name": "Process Data from Dirty to Clean"
+      },
+      {
+        "order": 6,
+        "lp_name": "Analyze Data to Answer Questions",
+        "slug": "analyze-data",
+        "coursera_id": "gawUVgp9EeuyHQ758rw-Yw",
+        "name": "Analyze Data to Answer Questions"
+      },
+      {
+        "order": 7,
+        "lp_name": "Share Data Through the Art of Visualization",
+        "slug": "visualize-data",
+        "coursera_id": "iLNlSQp9Eeun_RJEc0KNDw",
+        "name": "Share Data Through the Art of Visualization"
+      },
+      {
+        "order": 8,
+        "lp_name": "Data Analysis with R Programming",
+        "slug": "data-analysis-with-python",
+        "coursera_id": "fYuElDEgEeiCvhLLCIZW_A",
+        "name": "Data Analysis with Python"
+      },
+      {
+        "order": 9,
+        "lp_name": "Data Privacy, Security, Governance, Risk and Compliance",
+        "slug": "data-privacy-security-governance-risk-and-compliance",
+        "coursera_id": "r8RBMXEzEe-uqRL6e5om0w",
+        "name": "Data Privacy, Security, Governance, Risk and Compliance"
+      },
+      {
+        "order": 10,
+        "lp_name": "Introduction to Data Analysis Using Excel",
+        "slug": "excel-data-analysis",
+        "coursera_id": "OUTGOrvTEeWuCAqiwoZfSw",
+        "name": "Introduction to Data Analysis Using Excel"
+      },
+      {
+        "order": 11,
+        "lp_name": "Power BI: Data Analysis, Reporting, and Connecting",
+        "slug": "power-bi-data-analysis-reporting-connecting-lo095214",
+        "coursera_id": "aqZafM_BEfCL0wr__9J4Qw",
+        "name": "Power BI: Data Analysis, Reporting, and Connecting"
+      },
+      {
+        "order": 12,
+        "lp_name": "Google Data Analytics Capstone: Complete a Case Study",
+        "slug": "google-data-analytics-capstone",
+        "coursera_id": "m0fACXB0EeulIxJCZb_vVQ",
+        "name": "Google Data Analytics Capstone: Complete a Case Study"
+      }
+    ],
+    "unmatched": []
+  }
+}

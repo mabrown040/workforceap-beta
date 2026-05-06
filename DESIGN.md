@@ -266,6 +266,23 @@ Org-specific accent override (when set in DB) still maps to crimson family in de
 
 ---
 
+## Material You Surface Tokens (Portal UI)
+
+The portal UI uses Material You-style surface tokens defined in `css/main.css`. These are used alongside the WorkforceAP brand tokens above. Values shown are the **light mode** defaults; dark mode overrides are defined in the same file.
+
+| Variable | Light value | Role |
+|----------|-------------|------|
+| `--surface-container-lowest` | `#ffffff` | Lowest container surface — pure white, used for card backgrounds and course rows |
+| `--surface-container-low` | `#f7f8fa` | Slightly off-white surface for sidebar and subtle fills |
+| `--surface-container` | `#f0f1f3` | Default container surface for bento cards and input backgrounds |
+| `--surface-container-high` | `#e8e9eb` | Higher contrast container surface |
+| `--surface-container-highest` | `#e0e1e3` | Highest contrast container surface — dividers, strong fills |
+| `--color-on-surface` | `#1c1b1b` | Primary text and icon color on all surfaces |
+| `--color-on-surface-variant` | `#584144` | Muted/secondary text and icons — warm rose-mauve inherited from accent palette |
+| `--outline-variant` | `#debfc2` | Subtle pinkish-rose border and divider color |
+
+---
+
 ## Related Files
 
 - `css/main.css` — implementation

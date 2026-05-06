@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
     const loc = inferredLocale;
     const target = new URL(withLocalePrefix(pathname, loc), request.url);
     target.search = request.nextUrl.search;
-    return NextResponse.redirect(target);
+    return NextResponse.redirect(target, 308);
   }
 
   // Strip locale prefix internally (URL bar still shows /es/…)

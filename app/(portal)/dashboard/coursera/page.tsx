@@ -26,9 +26,16 @@ function statusLabel(ready: boolean, waitingText: string) {
   return ready ? 'Ready' : waitingText;
 }
 
-export default async function CourseraIntegrationPage() {
+export default async function CourseraIntegrationPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/coursera');
+
+  const params = await searchParams;
+  const launchError = params?.error === 'launch_failed';
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
@@ -63,7 +70,32 @@ export default async function CourseraIntegrationPage() {
         <PageHeader
           title="Coursera & course access"
           subtitle="Launch Coursera courses, track your progress, and access all your training from one place."
+          breadcrumbs={[
+            { label: 'Member Portal', href: '/dashboard' },
+            { label: 'Coursera & Course Access' },
+          ]}
         />
+
+        {launchError && (
+          <div style={{
+            background: 'rgba(173,44,77,0.08)',
+            border: '1px solid rgba(173,44,77,0.2)',
+            borderRadius: '0.75rem',
+            padding: '0.875rem 1rem',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+          }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }}>error_outline</span>
+            <div>
+              <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem' }}>We couldn&rsquo;t open Coursera right now.</p>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                Try again in a moment, or <Link href="/dashboard/messages">message your counselor</Link>.
+              </p>
+            </div>
+          </div>
+        )}
 
         {program ? (
           <>
@@ -107,20 +139,24 @@ export default async function CourseraIntegrationPage() {
               </p>
 
               {/* Course pathway list */}
-              <div style={{ marginBottom: '1rem' }}>
+              <ol role="list" aria-label={`Course pathway for ${program.title}`} style={{ marginBottom: '1rem', padding: 0, margin: '0 0 1rem' }}>
                 {program.courses.map((course) => {
                   const done = doneSlugsSet.has(course.slug);
                   const currentSlug = orderedIncompleteCourses[0]?.slug ?? null;
                   const current = course.slug === currentSlug;
                   const locked = !done && !current;
                   return (
-                    <div
+                    <li
                       key={course.slug}
+                      aria-label={`${course.name}, ${done ? 'completed' : current ? 'current course' : 'locked'}`}
+                      aria-disabled={locked ? 'true' : undefined}
                       style={{
+                        listStyle: 'none',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.75rem',
                         padding: '0.625rem 0.875rem',
+                        minHeight: '3rem',
                         borderRadius: '0.5rem',
                         marginBottom: '0.375rem',
                         background: current
@@ -134,6 +170,7 @@ export default async function CourseraIntegrationPage() {
                     >
                       <span
                         className="material-symbols-outlined"
+                        aria-hidden="true"
                         style={{
                           fontSize: '1.125rem',
                           color: done ? 'var(--color-green)' : current ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
@@ -151,72 +188,108 @@ export default async function CourseraIntegrationPage() {
                         </p>
                       </div>
                       {current && (
-                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-accent)', background: 'rgba(173,44,77,0.12)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                        <span aria-hidden="true" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', background: 'rgba(173,44,77,0.12)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
                           NOW
                         </span>
                       )}
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ol>
 
-              <div className="coursera-callout">
-                <h4 className="coursera-callout__title">
-                  {readiness.canDeepLink
-                    ? 'You’re ready to launch'
-                    : readiness.canLaunch
-                      ? 'You’re ready to launch'
-                      : 'Almost ready'}
-                </h4>
-                <p className="coursera-callout__text">
-                  {readiness.canDeepLink
-                    ? 'Click Launch and we’ll drop you straight into your current course. Finish it to unlock the next one — your whole library opens up once you complete the program.'
-                    : readiness.canLaunch
-                      ? 'Click Launch and we’ll send you to your Coursera program page. From there, choose any course in your library to start.'
-                      : 'Your counselor is finishing up your enrollment. Once that’s done, the Launch button below will take you straight into your courses.'}
-                </p>
-                <ul className="coursera-callout__list">
-                  <li>Launch from portal: {statusLabel(readiness.canLaunch, 'finalizing with your counselor')}</li>
-                  <li>Direct-to-course launch: {statusLabel(readiness.canDeepLink, 'coming with your enrollment')}</li>
-                  <li>Live progress sync: {statusLabel(readiness.canSync, 'updates within 6 hours of activity')}</li>
-                </ul>
-              </div>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-                {completedCount >= program.courses.length && (
-                  <div
-                    style={{
-                      width: '100%',
-                      background: 'rgba(74,155,79,0.08)',
-                      border: '1px solid rgba(74,155,79,0.2)',
-                      borderRadius: '0.75rem',
-                      padding: '0.875rem 1rem',
-                      marginBottom: '0.5rem',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.375rem' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', '--ms-fill': 1 }}>
-                        workspace_premium
-                      </span>
-                      <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>All courses complete</span>
+              {(readiness.canLaunch || readiness.canDeepLink) ? (
+                <>
+                  <div style={{
+                    background: 'rgba(74,155,79,0.08)',
+                    border: '1px solid rgba(74,155,79,0.2)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                  }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', fontSize: '1.5rem', '--ms-fill': 1 } as object}>
+                      workspace_premium
+                    </span>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>Your path is open</p>
+                      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                        {readiness.canDeepLink
+                          ? "Click Launch and we'll drop you straight into your current course."
+                          : "Click Launch and we'll send you to your Coursera program page."}
+                      </p>
                     </div>
-                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-                      Certificates from completed courses sync automatically to your profile. View them in <Link href="/dashboard/certifications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>My Certificates</Link>. Official PDFs are issued by Coursera and must be downloaded from their platform.
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                    {completedCount >= program.courses.length && (
+                      <div
+                        style={{
+                          width: '100%',
+                          background: 'rgba(74,155,79,0.08)',
+                          border: '1px solid rgba(74,155,79,0.2)',
+                          borderRadius: '0.75rem',
+                          padding: '0.875rem 1rem',
+                          marginBottom: '0.5rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.375rem' }}>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--color-green)', '--ms-fill': 1 } as object}>
+                            workspace_premium
+                          </span>
+                          <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>All courses complete</span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                          Certificates from completed courses sync automatically to your profile. View them in <Link href="/dashboard/certifications" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>My Certificates</Link>. Official PDFs are issued by Coursera and must be downloaded from their platform.
+                        </p>
+                      </div>
+                    )}
+                    <TrackedCourseraLaunchLink
+                      href="/api/member/coursera/launch"
+                      className="btn btn-primary coursera-btn-external"
+                      courseSlug={orderedIncompleteCourses[0]?.slug}
+                    >
+                      {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
+                      <ExternalLink size={16} aria-hidden />
+                    </TrackedCourseraLaunchLink>
+                    <Link href="/dashboard/training" className="btn btn-outline">
+                      Open training tracker
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="coursera-callout">
+                    <h4 className="coursera-callout__title">Almost ready</h4>
+                    <p className="coursera-callout__text">
+                      Your counselor is finishing up your enrollment. Once that&rsquo;s done, the Launch button below will take you straight into your courses.
+                    </p>
+                    <ul className="coursera-callout__list">
+                      <li>Launch from portal: {statusLabel(readiness.canLaunch, 'finalizing with your counselor')}</li>
+                      <li>Direct-to-course launch: {statusLabel(readiness.canDeepLink, 'coming with your enrollment')}</li>
+                      <li>Live progress sync: {statusLabel(readiness.canSync, 'updates within 6 hours of activity')}</li>
+                    </ul>
+                    <p style={{ margin: '0.75rem 0 0', fontSize: '0.875rem' }}>
+                      <Link href="/dashboard/messages">Message your counselor</Link>
                     </p>
                   </div>
-                )}
-                <TrackedCourseraLaunchLink
-                  href="/api/member/coursera/launch"
-                  className="btn btn-primary coursera-btn-external"
-                  courseSlug={orderedIncompleteCourses[0]?.slug}
-                >
-                  {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
-                  <ExternalLink size={16} aria-hidden />
-                </TrackedCourseraLaunchLink>
-                <Link href="/dashboard/training" className="btn btn-outline">
-                  Open training tracker
-                </Link>
-              </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <TrackedCourseraLaunchLink
+                      href="/api/member/coursera/launch"
+                      className="btn btn-primary coursera-btn-external"
+                      courseSlug={orderedIncompleteCourses[0]?.slug}
+                    >
+                      {completedCount < program.courses.length ? 'Launch Current Course' : 'Launch Coursera Library'}
+                      <ExternalLink size={16} aria-hidden />
+                    </TrackedCourseraLaunchLink>
+                    <Link href="/dashboard/training" className="btn btn-outline">
+                      Open training tracker
+                    </Link>
+                  </div>
+                </>
+              )}
 
               <CourseraSyncCard enabled={readiness.canSync} />
 

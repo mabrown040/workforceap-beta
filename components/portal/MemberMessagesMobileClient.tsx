@@ -106,7 +106,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
     try {
       const supabase = createSupabaseBrowserClient();
       const channel = supabase
-        .channel(`member-thread:${threadId}`)
+        .channel(`member-thread:${threadId}:mobile`)
         .on('postgres_changes', {
           event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}`,
         }, (payload) => {

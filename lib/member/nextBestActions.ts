@@ -151,7 +151,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       id: 'launch_first_course',
       title: 'Launch your first Coursera course',
       body: 'Start training now so your first certificate, resume work, and job-readiness steps stay in motion together.',
-      href: '/dashboard/coursera',
+      href: '/dashboard/training',
       cta: 'Open Coursera',
       variant: 'urgent',
       weight: 86,

@@ -12,12 +12,14 @@ import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 import TrainingDataFlowStrip from '@/components/portal/TrainingDataFlowStrip';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
+import CourseraAccountLinkCard from '@/components/portal/CourseraAccountLinkCard';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import { trackTrainingTabViewed } from '@/lib/analytics/track';
+import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -45,7 +47,7 @@ export default async function TrainingPage({
     },
   });
 
-  const [tTraining, dbUser, progressRows, programRollup] = await Promise.all([
+  const [tTraining, dbUser, progressRows, programRollup, courseraMappings] = await Promise.all([
     getTranslations('training'),
     dbUserPromise,
     dbUserPromise.then((u) =>
@@ -66,6 +68,10 @@ export default async function TrainingPage({
           })
         : null
     ),
+    listCourseraIdentityMappingsForUser(user.id).catch((error) => {
+      console.warn('[dashboard/training] unable to load Coursera identity mappings:', error);
+      return [];
+    }),
   ]);
 
   if (!dbUser?.enrolledProgram) {
@@ -119,8 +125,9 @@ export default async function TrainingPage({
         : 0;
 
   const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
+  const savedCourseraEmail = courseraMappings.find((mapping) => mapping.courseraEmail)?.courseraEmail ?? null;
 
-  const isZeroState = completedCount === 0;
+  const isZeroState = completedCount === 0 && !Object.values(progressBySlug).some((p) => p.status === 'IN_PROGRESS' || (p.percentComplete ?? 0) > 0);
 
   const zeroStateBanner = (
     <div
@@ -162,7 +169,7 @@ export default async function TrainingPage({
           title={tTraining('myTraining')}
           subtitle={
             <>
-              <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and mark each course done as you finish.</span>
+              <span className="wa-block md:wa-hidden">Complete your {program.title} courses on Coursera and track your progress. Mark each course done as you finish.</span>
               <span className="wa-hidden md:wa-block">Complete your {program.title} courses on Coursera (our online learning partner). Track your progress and mark courses done as you finish them.</span>
             </>
           }
@@ -343,6 +350,10 @@ export default async function TrainingPage({
 
         <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
           <CourseraProgressCard userId={user.id} />
+        </div>
+
+        <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
+          <CourseraAccountLinkCard portalEmail={user.email ?? ''} initialCourseraEmail={savedCourseraEmail} />
         </div>
 
         <div style={{ padding: '0 1rem' }}>

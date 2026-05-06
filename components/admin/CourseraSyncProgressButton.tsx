@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 type SyncResult = {
   xapi: { scanned: number; replayed: number; completionsEmitted: number };
+  csvPromotion?: { upserted: number; errors: number };
   rollups: { run: number; errors: number; total: number };
 };
 
@@ -54,6 +55,13 @@ export default function CourseraSyncProgressButton() {
           <br />
           ✓ Rollups: {result.rollups.run}/{result.rollups.total} members updated
           {result.rollups.errors > 0 && ` (${result.rollups.errors} errors)`}
+          {result.csvPromotion ? (
+            <>
+              <br />
+              ✓ CSV promotion: {result.csvPromotion.upserted} row{result.csvPromotion.upserted === 1 ? '' : 's'} promoted
+              {result.csvPromotion.errors > 0 && ` (${result.csvPromotion.errors} errors)`}
+            </>
+          ) : null}
         </div>
       )}
       {error && (

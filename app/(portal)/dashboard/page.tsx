@@ -29,7 +29,6 @@ import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
-import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
@@ -135,7 +134,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 2,
     }),
     prisma.jobApplication.findMany({
-      where: { userId: user.id, status: { in: ['OFFER', 'ACCEPTED'] } },
+      where: { userId: user.id, status: 'OFFER' },
     }),
     getMemberPoints(user.id),
     prisma.pointsTransaction.findMany({
@@ -938,34 +937,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
               }}
             >
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-                <MemberDashboardVoiceSectionLazy />
-              </div>
-              <div
-                style={{
-                  maxWidth: 1200,
-                  margin: '0 auto',
-                  padding: '0 2rem 1.25rem',
-                }}
-              >
-                <MemberProgressStrip {...progressStripProps} />
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <ProgramCommitmentPanel variant="compact" />
-                </div>
-                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
-                  <div style={{ maxWidth: '300px' }}>
-                    <LogCertificationModal />
-                  </div>
-                  {memberPoints && (
-                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
-                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
-                    </div>
-                  )}
-                </div>
-              </div>
               <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
                 <DashboardHomeClient
                   recommendedActions={recommendedActions}
@@ -1000,6 +971,31 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 />
               </Suspense>
               <PlacementConfirmationStrip offers={jobOffers} />
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+                <MemberDashboardVoiceSectionLazy />
+              </div>
+              <div
+                style={{
+                  maxWidth: 1200,
+                  margin: '0 auto',
+                  padding: '0 2rem 1.25rem',
+                }}
+              >
+                <MemberProgressStrip {...progressStripProps} />
+              </div>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
+                  <div style={{ maxWidth: '300px' }}>
+                    <LogCertificationModal />
+                  </div>
+                  {memberPoints && (
+                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
+                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
+                    </div>
+                  )}
+                </div>
+              </div>
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
                 <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
                   <MatchedRoles />

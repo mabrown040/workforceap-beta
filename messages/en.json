@@ -704,7 +704,13 @@
       "guidedJobSearch": "Guided Job Search Steps",
       "openTracker": "Open Application Tracker",
       "aiCounselor": "AI Career Counselor",
-      "pastSessions": "Past sessions"
+      "pastSessions": "Past sessions",
+      "startWithToolCards": "Start with the tool cards below — bigger, simpler, and focused on the tools you actually use.",
+      "startHere": "Start here",
+      "pathToCertification": "Path to certification",
+      "pathToCertificationDescription": "See how staff enrolls you in Coursera, workspace email, exams, and job support — before you dive into AI tools.",
+      "openEnrollmentGuide": "Open enrollment guide",
+      "applicationTrackerMoved": "Looking for your application tracker? It now lives under Jobs so your saved roles and application status stay with the rest of your job search workflow."
     },
     "partners": {
       "title": "Community & Employer Partners",

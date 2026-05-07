@@ -704,7 +704,13 @@
       "guidedJobSearch": "Pasos guiados para buscar empleo",
       "openTracker": "Abrir seguimiento de solicitudes",
       "aiCounselor": "Consejero profesional con IA",
-      "pastSessions": "Sesiones anteriores"
+      "pastSessions": "Sesiones anteriores",
+      "startWithToolCards": "Empieza con las tarjetas de herramientas de abajo — más grandes, más simples y enfocadas en las herramientas que realmente usas.",
+      "startHere": "Comienza aquí",
+      "pathToCertification": "Camino a la certificación",
+      "pathToCertificationDescription": "Mira cómo el personal te inscribe en Coursera, correo electrónico del espacio de trabajo, exámenes y apoyo laboral — antes de sumergirte en las herramientas de IA.",
+      "openEnrollmentGuide": "Abrir guía de inscripción",
+      "applicationTrackerMoved": "¿Buscas tu rastreador de aplicaciones? Ahora está bajo Empleos para que tus roles guardados y estado de aplicación permanezcan con el resto de tu flujo de búsqueda de empleo."
     },
     "partners": {
       "title": "Socios Comunitarios y Empleadores",

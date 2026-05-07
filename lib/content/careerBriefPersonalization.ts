@@ -291,7 +291,6 @@ export async function loadMemberCareerBriefBundleSafe(
             assessmentCompleted: true,
             assessmentCompletedAt: true,
             assessmentScorePct: true,
-            coursesCompleted: true,
             profile: true,
             applications: { orderBy: { createdAt: 'desc' }, take: 1 },
             jobApplications: true,

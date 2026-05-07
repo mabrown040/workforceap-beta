@@ -103,7 +103,7 @@ const statColumn = {
 };
 
 const statNumber = {
-  color: "#C41E3A",
+  color: "#ad2c4d",
   fontSize: "32px",
   fontWeight: "700",
   margin: "0 0 4px",
@@ -122,7 +122,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: "#C41E3A",
+  backgroundColor: "#ad2c4d",
   borderRadius: "6px",
   color: "#fff",
   fontSize: "16px",

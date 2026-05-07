@@ -14,7 +14,7 @@ export function counselorAssignedHtml(params: {
       <strong>${name}</strong> has been assigned as your career counselor. You can message them anytime from your member portal — they reply within 2 business days, no email threads needed.
     </p>
     <p style="margin: 0; line-height: 1.6;">
-      <a href="${url}" style="color: #C41E3A; font-weight: 600;">Open Messages</a>
+      <a href="${url}" style="color: #ad2c4d; font-weight: 600;">Open Messages</a>
     </p>
   `;
 }

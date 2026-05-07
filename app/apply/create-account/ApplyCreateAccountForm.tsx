@@ -389,12 +389,12 @@ export default function ApplyCreateAccountForm() {
   if (verifyEmailMode) {
     return (
       <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
-        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#C41E3A', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
         <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
           We sent a verification link to:
         </p>
-        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#C41E3A', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
+        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ad2c4d', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
           {verifyEmail}
         </p>
         <p style={{ fontSize: '0.9rem', color: '#584144', lineHeight: 1.6, marginBottom: '1.5rem' }}>
@@ -405,7 +405,7 @@ export default function ApplyCreateAccountForm() {
         </Link>
         <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
           Didn&rsquo;t get it? Check your spam folder, then call{' '}
-          <a href="tel:+15127771808" style={{ color: '#C41E3A', fontWeight: 600 }}>
+          <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
             (512) 777-1808
           </a>{' '}
           if you need help finishing your account.

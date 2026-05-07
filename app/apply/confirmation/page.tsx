@@ -8,6 +8,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import ApplyConfirmationCta from '@/components/apply/ApplyConfirmationCta';
 import ShareButtons from '@/components/apply/ShareButtons';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
+import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -41,7 +42,34 @@ const NEXT_STEPS = [
   },
 ];
 
-const WHAT_YOU_CAN_DO_NOW = [
+/**
+ * Two next-step lists: one for users who already have an account (e.g. the
+ * applicant just finished signup and has a session), one for users who only
+ * completed the eligibility quiz and don't have an account yet.
+ *
+ * Without this split, a logged-in user lands here and is told to "Create
+ * your member account" — they just did. Likewise the "Open your dashboard"
+ * link routes through `/login` instead of going straight to `/dashboard`.
+ */
+const WHAT_YOU_CAN_DO_NOW_SIGNED_IN = [
+  {
+    label: 'Open your dashboard',
+    href: '/dashboard',
+    desc: 'Your AI career tools, messages, training progress, and counselor inbox all live here.',
+  },
+  {
+    label: 'Browse programs and prep materials',
+    href: '/programs',
+    desc: 'Review program tracks and get oriented before your counselor follow-up.',
+  },
+  {
+    label: 'Check application status',
+    href: '/apply/status',
+    desc: 'See where your application is in review at any time.',
+  },
+] as const;
+
+const WHAT_YOU_CAN_DO_NOW_GUEST = [
   {
     label: 'Create your member account',
     href: '/apply/create-account',
@@ -83,7 +111,11 @@ const WHILE_YOU_WAIT: readonly string[] = [
   'Create your member account so you can track status and messages.',
 ];
 
-export default function ApplyConfirmationPage() {
+export default async function ApplyConfirmationPage() {
+  const user = await getUser();
+  const isAuthenticated = !!user;
+  const whatYouCanDoNow = isAuthenticated ? WHAT_YOU_CAN_DO_NOW_SIGNED_IN : WHAT_YOU_CAN_DO_NOW_GUEST;
+
   return (
     <div className="inner-page">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
@@ -123,24 +155,52 @@ export default function ApplyConfirmationPage() {
               </div>
             </div>
 
-            <Suspense
-              fallback={
-                <div
-                  aria-hidden="true"
-                  style={{
-                    display: 'grid',
-                    gap: '0.75rem',
-                    padding: '1rem 0',
-                  }}
-                >
-                  <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.55 }} />
-                  <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.35 }} />
-                  <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>Loading next steps…</span>
+            {isAuthenticated ? (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(173, 44, 77, 0.08), rgba(173, 44, 77, 0.02))',
+                  border: '1px solid rgba(173, 44, 77, 0.25)',
+                  borderRadius: '8px',
+                  padding: '1.35rem',
+                  marginBottom: '1.5rem',
+                }}
+              >
+                <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                  Recommended next step
+                </p>
+                <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>Open your dashboard</h2>
+                <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface)', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                  Your application is on file and your account is ready. Your dashboard is where you check application status, message your counselor, and pick up training when you&rsquo;re assigned.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+                  <Link href="/dashboard" className="btn btn-primary">
+                    Open dashboard
+                  </Link>
+                  <Link href="/apply/status" className="btn btn-outline">
+                    Check application status
+                  </Link>
                 </div>
-              }
-            >
-              <ApplyConfirmationCta />
-            </Suspense>
+              </div>
+            ) : (
+              <Suspense
+                fallback={
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      display: 'grid',
+                      gap: '0.75rem',
+                      padding: '1rem 0',
+                    }}
+                  >
+                    <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.55 }} />
+                    <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.35 }} />
+                    <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>Loading next steps…</span>
+                  </div>
+                }
+              >
+                <ApplyConfirmationCta />
+              </Suspense>
+            )}
 
             <section style={{ background: 'var(--surface-container-low)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1.25rem' }}>
@@ -188,7 +248,7 @@ export default function ApplyConfirmationPage() {
               <div style={{ background: 'var(--surface-container)', borderRadius: '0.875rem', padding: '1.25rem' }}>
                 <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>What you can do now</h2>
                 <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-                  {WHAT_YOU_CAN_DO_NOW.map((item) => (
+                  {whatYouCanDoNow.map((item) => (
                     <li key={item.label} style={{ marginBottom: '0.75rem' }}>
                       <Link href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                         {item.label}

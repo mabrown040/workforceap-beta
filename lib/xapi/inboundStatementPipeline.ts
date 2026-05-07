@@ -116,6 +116,7 @@ export async function handleInboundParsedStatement(
       userId: resolvedUser.userId,
       courseSlug: parsed.courseSlug,
       courseName: parsed.courseName,
+      courseraCourseId: parsed.courseraCourseId ?? null,
       source: 'coursera-webhook',
     });
 

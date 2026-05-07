@@ -8,7 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
 import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
-import { resolveProgramCourse, resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
+import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
@@ -148,6 +148,8 @@ export async function upsertCourseProgressFromXapiStatement(args: {
 
   const slugFromObject = matchCourseSlugFromObjectId(enrolledProgramSlug, parsed.courseObjectId);
   const matched = resolveProgramCourseWithCatalogFallback(program, {
+    courseraCourseId: parsed.courseraCourseId ?? null,
+    enrolledProgramSlug,
     courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,
     courseName: parsed.courseName,
   });
@@ -160,9 +162,19 @@ export async function upsertCourseProgressFromXapiStatement(args: {
   const meta = discoveredMetaForSlug(enrolledProgramSlug, matched.slug);
   const courseId = meta?.courseId ?? null;
 
-  const incomingPercent = isXapiCompletionVerb(parsed)
-    ? 100
-    : mergePercent(0, parsed.resultProgressPercent ?? undefined);
+  // Only course-level events (object.definition.type = activities/course)
+  // carry the rolled-up % for the whole course; item-level events report
+  // per-item progress that must not be applied as the course's percent.
+  // Without this guard a single lecture's `result.progress: 1` would mark the
+  // entire course 100% complete and inflate program rollups. Item-level
+  // events still bump status to IN_PROGRESS via inferCourseProgressStatus
+  // and update startedAt — they just don't drive percentComplete.
+  const isCourseLevel = parsed.activityType === 'course';
+  const incomingPercent = !isCourseLevel
+    ? null
+    : isXapiCompletionVerb(parsed)
+      ? 100
+      : mergePercent(0, parsed.resultProgressPercent ?? undefined);
 
   const existing = await prisma.courseProgress.findUnique({
     where: {
@@ -182,6 +194,8 @@ export async function upsertCourseProgressFromXapiStatement(args: {
   const percentComplete = (() => {
     if (status === CourseProgressStatus.COMPLETED) return 100;
     const base = existing?.percentComplete ?? 0;
+    // Item-level events leave percent untouched (incomingPercent=null).
+    if (incomingPercent == null) return base;
     return mergePercent(base, incomingPercent);
   })();
 

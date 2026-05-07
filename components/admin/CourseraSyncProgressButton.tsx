@@ -3,7 +3,17 @@
 import { useState } from 'react';
 
 type SyncResult = {
-  xapi: { scanned: number; replayed: number; completionsEmitted: number };
+  xapi: {
+    scanned: number;
+    replayed: number;
+    completionsEmitted: number;
+    breakdown?: {
+      completedOk: number;
+      errored: number;
+      ignored: number;
+      unmatched: number;
+    };
+  };
   csvPromotion?: { upserted: number; errors: number };
   rollups: { run: number; errors: number; total: number };
 };
@@ -51,7 +61,17 @@ export default function CourseraSyncProgressButton() {
       </button>
       {result && (
         <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-          ✓ xAPI: {result.xapi.replayed} replayed, {result.xapi.completionsEmitted} completions
+          ✓ xAPI: {result.xapi.replayed} replayed
+          {result.xapi.breakdown ? (
+            <>
+              {' '}— {result.xapi.breakdown.completedOk} completed
+              {result.xapi.breakdown.errored > 0 && `, ${result.xapi.breakdown.errored} errored`}
+              {result.xapi.breakdown.ignored > 0 && `, ${result.xapi.breakdown.ignored} progress signals`}
+              {result.xapi.breakdown.unmatched > 0 && `, ${result.xapi.breakdown.unmatched} unmatched`}
+            </>
+          ) : (
+            <>{', '}{result.xapi.completionsEmitted} completions</>
+          )}
           <br />
           ✓ Rollups: {result.rollups.run}/{result.rollups.total} members updated
           {result.rollups.errors > 0 && ` (${result.rollups.errors} errors)`}

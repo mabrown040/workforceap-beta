@@ -1336,6 +1336,12 @@ model XapiStatement {
   id                 String    @id @default(uuid())
   statementId        String?   @unique @map("statement_id")
   actorEmail         String?   @map("actor_email")
+  /// From actor.account.name — Coursera's external user identifier.
+  /// Required for events that arrive without actor.mbox (some xAPI endpoints
+  /// privacy-strip the email and only emit account.name).
+  actorAccountName   String?   @map("actor_account_name")
+  /// From actor.account.homePage — pairs with actorAccountName to scope it.
+  actorHomePage      String?   @map("actor_home_page")
   verb               String
   courseId           String?   @map("course_id")
   courseName         String?   @map("course_name")
@@ -1343,11 +1349,16 @@ model XapiStatement {
   resultScoreRaw     Float?    @map("result_score_raw")
   resultCompletion   Boolean?  @map("result_completion")
   resultSuccess      Boolean?  @map("result_success")
+  /// Full original xAPI payload as JSONB. Lets replay reconstruct the exact
+  /// statement (object.definition.type, context.extensions.courseId,
+  /// result.progress, etc.) instead of guessing from flat columns.
+  payload            Json?
   processed          Boolean   @default(false)
   processedAt        DateTime? @map("processed_at")
   createdAt          DateTime  @default(now()) @map("created_at")
 
   @@index([actorEmail])
+  @@index([actorAccountName, actorHomePage])
   @@index([createdAt])
   @@map("xapi_statements")
 }

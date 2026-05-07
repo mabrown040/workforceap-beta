@@ -3,10 +3,20 @@ import 'server-only';
 import type { XapiStatement } from '@prisma/client';
 
 /**
- * Reconstruct a minimal xAPI-shaped object from a persisted `XapiStatement` row
- * so `parseXapiStatement` can run during cron replay (full JSON is not stored).
+ * Reconstruct an xAPI-shaped object from a persisted `XapiStatement` row so
+ * `parseXapiStatement` can run during cron replay.
+ *
+ * Prefers the full original `payload` JSONB when available (rows persisted by
+ * the new write path — preserves `object.definition.type`,
+ * `context.extensions.courseId`, `result.progress`, etc.). Falls back to the
+ * flat-column reconstruction for legacy rows that pre-date the payload column.
  */
 export function xapiStatementRowToRawStatement(row: XapiStatement): Record<string, unknown> {
+  if (row.payload && typeof row.payload === 'object' && !Array.isArray(row.payload)) {
+    // Trust the persisted payload — it's the source of truth.
+    return row.payload as Record<string, unknown>;
+  }
+
   const objectId = row.courseId?.trim()
     ? `https://www.coursera.org/learn/${row.courseId.trim()}`
     : 'https://www.coursera.org/';
@@ -24,6 +34,12 @@ export function xapiStatementRowToRawStatement(row: XapiStatement): Record<strin
   const actor: Record<string, unknown> = {};
   if (row.actorEmail?.trim()) {
     actor.mbox = `mailto:${row.actorEmail.trim().toLowerCase()}`;
+  }
+  if (row.actorAccountName?.trim()) {
+    actor.account = {
+      name: row.actorAccountName.trim(),
+      ...(row.actorHomePage?.trim() ? { homePage: row.actorHomePage.trim() } : {}),
+    };
   }
 
   return {

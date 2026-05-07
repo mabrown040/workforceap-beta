@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { markCourseProgressCompleted } from '@/lib/member/courseProgress';
-import { resolveProgramCourse, resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
+import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
@@ -15,6 +15,11 @@ export async function completeMemberCourse(args: {
   userId: string;
   courseSlug?: string;
   courseName?: string;
+  /** Coursera's canonical courseId from xAPI context.extensions, when known.
+   *  Used as the primary join key against the catalog — required for xAPI
+   *  ingestion since URL-tail slug heuristics can't tell course IDs from
+   *  item IDs. */
+  courseraCourseId?: string | null;
   source: 'member' | 'coursera-webhook';
 }) {
   const dbUser = await prisma.user.findUnique({
@@ -32,6 +37,8 @@ export async function completeMemberCourse(args: {
   }
 
   const matchedCourse = resolveProgramCourseWithCatalogFallback(program, {
+    courseraCourseId: args.courseraCourseId ?? null,
+    enrolledProgramSlug: dbUser.enrolledProgram,
     courseSlug: args.courseSlug,
     courseName: args.courseName,
   });

@@ -19,7 +19,10 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     title: "Project Management Professional Certificate (Microsoft)",
     courses: [
-      { courseId: "e7F9vSkhEe-5bE1AaXCyU", slug: "project-management-fundamentals-microsoft", name: "Project Management Fundamentals", partner: "Microsoft" },
+      // courseId reverse-engineered from coursera_xapi_events.raw_payload —
+      // first real Coursera courseId seen for a Workforce Advancement learner
+      // (Drew Harris, 2026-05-06, all 130 events under this courseId).
+      { courseId: "lgy789C8Ee6SjxKHxThXWw", slug: "project-management-fundamentals-microsoft", name: "Project Management Fundamentals", partner: "Microsoft" },
       { courseId: "f8GAtTliEe-6cF2BbYDzV", slug: "team-building-and-leadership-in-project-management", name: "Team Building and Leadership in Project Management", partner: "Microsoft" },
       { courseId: "g9HBuUmjEe-7dG3CcZEwW", slug: "project-manager-engagement-with-stakeholders", name: "Project Manager Engagement with Stakeholders", partner: "Microsoft" },
       { courseId: "h0ICvVnkEe-8eH4DdAFxX", slug: "process-groups-and-processes-in-project-management", name: "Process Groups and Processes in Project Management", partner: "Microsoft" },

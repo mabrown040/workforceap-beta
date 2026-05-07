@@ -70,6 +70,8 @@ type DashboardHomeClientProps = {
   starterProfileMissingFields?: string[];
 };
 
+import { useTranslations } from 'next-intl';
+
 export default function DashboardHomeClient({
   firstName,
   state,
@@ -101,6 +103,7 @@ export default function DashboardHomeClient({
   age = null,
   isMinor = false,
 }: DashboardHomeClientProps) {
+  const t = useTranslations('dashboard');
   const primaryAction = recommendedActions[0];
 
   useEffect(() => {
@@ -151,48 +154,48 @@ export default function DashboardHomeClient({
   const checklistItems = [
     {
       done: checklist.createAccount,
-      doneLabel: 'Account ready',
-      pendingLabel: 'Create account',
+      doneLabel: t('checklistAccountReady'),
+      pendingLabel: t('checklistCreateAccount'),
     },
     {
       done: checklist.chooseProgram,
-      doneLabel: 'Program selected',
-      pendingLabel: noApplicationOnFile ? 'Start application' : 'Choose program',
+      doneLabel: t('checklistProgramSelected'),
+      pendingLabel: noApplicationOnFile ? t('checklistStartApplication') : t('checklistChooseProgram'),
     },
     {
       done: checklist.completeAssessment,
-      doneLabel: 'Training preassessment complete',
-      pendingLabel: 'Complete preassessment',
+      doneLabel: t('checklistPreassessmentComplete'),
+      pendingLabel: t('checklistCompletePreassessment'),
     },
     {
       done: checklist.startFirstCourse,
-      doneLabel: 'First course opened',
-      pendingLabel: 'Open your first course',
+      doneLabel: t('checklistFirstCourseOpened'),
+      pendingLabel: t('checklistOpenFirstCourse'),
     },
     {
       done: checklist.completeFirstCourse,
-      doneLabel: 'First course complete',
-      pendingLabel: 'Complete first course',
+      doneLabel: t('checklistFirstCourseComplete'),
+      pendingLabel: t('checklistCompleteFirstCourse'),
     },
   ];
 
   const progressCardTitle =
     state === 'D'
-      ? 'Training Complete'
+      ? t('trainingComplete')
       : state === 'B'
-        ? 'Training preassessment required'
+        ? t('preassessmentRequired')
         : completedCount === 0
-          ? 'Your first course is next'
-          : `Up next in training: ${nextMilestone ?? programTitle}`;
+          ? t('firstCourseIsNext')
+          : t('upNextInTraining', { milestone: nextMilestone ?? programTitle });
 
   const progressCardSummary =
     state === 'D'
-      ? `${completedCount} of ${totalCourses} courses marked complete.`
+      ? t('coursesMarkedComplete', { completed: completedCount, total: totalCourses })
       : state === 'B'
-        ? 'Complete your Training Preassessment to unlock your first course.'
+        ? t('completePreassessmentToUnlock')
         : completedCount === 0
-          ? 'No courses are marked complete yet. Open your first course to begin.'
-          : `${completedCount} of ${totalCourses} courses marked complete.`;
+          ? t('noCoursesCompleteYet')
+          : t('coursesMarkedComplete', { completed: completedCount, total: totalCourses });
 
   const weekEyebrow = useMemo(() => {
     const d = new Date();
@@ -208,38 +211,38 @@ export default function DashboardHomeClient({
   const applicationSupportCopy =
     state === 'A'
       ? (noApplicationOnFile
-          ? 'Start your application to begin your career path. All programs are offered at no cost to members.'
-          : 'Choose a program to get started on your career path. All programs are offered at no cost to members.')
+          ? t('startApplicationToBegin')
+          : t('chooseProgramToBegin'))
       : state === 'B'
-        ? `Complete your Training Preassessment to start your ${programTitle} training.`
+        ? t('completePreassessmentToStart', { program: programTitle })
         : state === 'C'
-          ? `Keep going! Finish ${nextMilestone ?? 'your next course'} to stay on track.`
-          : 'Focus on career readiness: resume, interview practice, and job applications.';
+          ? t('keepGoingFinishNext', { milestone: nextMilestone ?? 'your next course' })
+          : t('focusOnCareerReadiness');
 
   /* ── Metric cards data ── */
   const metricCards = [
     {
-      label: 'Training Progress',
+      label: t('trainingProgress'),
       value: `${progressPct}%`,
-      hint: `${completedCount}/${totalCourses} courses`,
+      hint: t('coursesHint', { completed: completedCount, total: totalCourses }),
       icon: 'menu_book',
       accent: 'accent' as const,
       href: '/dashboard/training',
     },
     ...(showPreassessmentScore
       ? [{
-          label: 'Preassessment Score',
+          label: t('preassessmentScore'),
           value: `${assessmentScorePct}%`,
-          hint: 'Training readiness benchmark',
+          hint: t('readinessBenchmark'),
           icon: 'psychology',
           accent: 'blue' as const,
           href: '/dashboard/skills-assessment',
         }]
       : []),
     {
-      label: 'AI Tools Used',
+      label: t('aiToolsUsed'),
       value: aiToolsUsedCount.toString(),
-      hint: aiToolsUsedCount > 0 ? 'Recent AI activity' : 'No recent AI activity',
+      hint: aiToolsUsedCount > 0 ? t('recentAiActivity') : t('noRecentAiActivity'),
       icon: 'auto_awesome',
       accent: 'gold' as const,
       href: '/dashboard/ai-tools',
@@ -256,13 +259,13 @@ export default function DashboardHomeClient({
           {weekEyebrow}{programTitle ? ` · ${programTitle}` : ''}
         </p>
         <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
-          Your next steps, {firstName}.
+          {t('yourNextSteps', { firstName })}
         </h2>
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
-          {state === 'A' && (isMinor && age ? "Let's explore career paths and build skills together." : "Let's build your career path. Programs are available at no cost to members.")}
-          {state === 'B' && `You're enrolled in ${programTitle ?? 'your program'}. Complete your Training Preassessment to start your training plan.`}
-          {state === 'C' && `You're ${progressPct}% through ${programTitle ?? 'your training plan'}. Keep going one step at a time.`}
-          {state === 'D' && `Your training plan is complete. Focus on job outcomes and career readiness.`}
+          {state === 'A' && (isMinor && age ? t('exploreCareerPaths') : t('letsBuildYourCareerPath'))}
+          {state === 'B' && t('enrolledCompletePreassessment', { program: programTitle ?? 'your program' })}
+          {state === 'C' && t('percentThroughTraining', { pct: progressPct, program: programTitle ?? 'your training plan' })}
+          {state === 'D' && t('trainingPlanComplete')}
         </p>
       </header>
 

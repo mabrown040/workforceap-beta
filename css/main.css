@@ -1869,7 +1869,7 @@ body.mobile-nav-open .main-nav::after {
 .nav-logo-image {
     height: 70px;
     width: auto;
-    max-width: 240px;
+    max-width: 210px;
     display: block;
     object-fit: contain;
     object-position: center;
@@ -6757,7 +6757,7 @@ img.img-fade.loaded { opacity: 1; }
     }
     .nav-logo-image {
         height: 60px;
-        max-width: 160px;
+        max-width: 142px;
     }
     .main-nav.scrolled .nav-logo-image {
         height: 48px;

@@ -52,7 +52,6 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
           fullName: true,
           enrolledProgram: true,
           enrolledAt: true,
-          coursesCompleted: true,
           updatedAt: true,
           deletedAt: true,
           assessmentCompleted: true,
@@ -96,11 +95,11 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
       enrolledProgram: m.enrolledProgram,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: m.assessmentCompleted,
-      coursesCompleted: m.coursesCompleted,
       deletedAt: m.deletedAt,
       placementRecord: m.placementRecord as PipelineStudent['placementRecord'],
       userCertifications: m.userCertifications as PipelineStudent['userCertifications'],
       applications: m.applications,
+      memberProgramProgress: m.memberProgramProgress,
     };
     const stage = getPipelineStage(student);
     if (stage !== 'applied' && stage !== 'enrolled') continue;

@@ -30,7 +30,6 @@ export async function GET() {
           fullName: true,
           enrolledProgram: true,
           enrolledAt: true,
-          coursesCompleted: true,
           deletedAt: true,
           placementRecord: { select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true } },
           userCertifications: { select: { certName: true, earnedAt: true } },
@@ -63,7 +62,6 @@ export async function GET() {
       enrolledProgram: m.enrolledProgram,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: false,
-      coursesCompleted: m.coursesCompleted,
       deletedAt: m.deletedAt,
       placementRecord: m.placementRecord,
       userCertifications: m.userCertifications,
@@ -73,7 +71,7 @@ export async function GET() {
     const stage = getPipelineStage(student);
 
     if (m.enrolledAt && m.enrolledProgram) enrolled++;
-    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) completed++;
+    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) completed++;
     if (m.placementRecord) placed++;
   }
 

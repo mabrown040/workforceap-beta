@@ -1,3 +1,7 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 type Props = {
   intake: boolean;
   assessment: boolean;
@@ -6,23 +10,24 @@ type Props = {
   employed: boolean;
 };
 
-const STEPS: { key: keyof Props; label: string }[] = [
-  { key: 'intake', label: 'Intake' },
-  { key: 'assessment', label: 'Assessment' },
-  { key: 'trainingStarted', label: 'Training' },
-  { key: 'certsComplete', label: 'Certs' },
-  { key: 'employed', label: 'Employed' },
+const STEP_KEYS: { key: keyof Props; labelKey: string }[] = [
+  { key: 'intake', labelKey: 'progressIntake' },
+  { key: 'assessment', labelKey: 'progressAssessment' },
+  { key: 'trainingStarted', labelKey: 'progressTraining' },
+  { key: 'certsComplete', labelKey: 'progressCerts' },
+  { key: 'employed', labelKey: 'progressEmployed' },
 ];
 
 export default function MemberProgressStrip(props: Props) {
+  const t = useTranslations('dashboard');
   // Determine which step is the current "active" one (first not done)
-  const doneValues = STEPS.map((s) => props[s.key]);
+  const doneValues = STEP_KEYS.map((s) => props[s.key]);
   const currentIndex = doneValues.findIndex((v) => !v);
 
   return (
     <div
       role="list"
-      aria-label="Member journey progress"
+      aria-label={t('memberJourneyProgress')}
       style={{
         display: 'flex',
         alignItems: 'flex-start',
@@ -34,10 +39,11 @@ export default function MemberProgressStrip(props: Props) {
         overflowX: 'auto',
       }}
     >
-      {STEPS.map((step, i) => {
+      {STEP_KEYS.map((step, i) => {
         const done = props[step.key];
         const isCurrent = !done && i === currentIndex;
         const isFuture = !done && i > currentIndex;
+        const label = t(step.labelKey);
 
         return (
           <div
@@ -70,7 +76,7 @@ export default function MemberProgressStrip(props: Props) {
             )}
 
             {/* Connector line — right half */}
-            {i < STEPS.length - 1 && (
+            {i < STEP_KEYS.length - 1 && (
               <div
                 aria-hidden
                 style={{
@@ -90,10 +96,10 @@ export default function MemberProgressStrip(props: Props) {
             <div
               aria-label={
                 done
-                  ? `${step.label}: complete`
+                  ? t('stepComplete', { label })
                   : isCurrent
-                    ? `${step.label}: in progress`
-                    : `${step.label}: upcoming`
+                    ? t('stepInProgress', { label })
+                    : t('stepUpcoming', { label })
               }
               style={{
                 width: '1.125rem',
@@ -171,7 +177,7 @@ export default function MemberProgressStrip(props: Props) {
                 paddingRight: '0.125rem',
               }}
             >
-              {step.label}
+              {label}
             </span>
           </div>
         );

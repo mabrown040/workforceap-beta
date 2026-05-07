@@ -17,9 +17,18 @@ type Props = {
   externalEmail: string;
   externalName: string | null;
   /**
+   * Explicit classification of the URL-key type, derived server-side from
+   * the loaded xAPI / CSV data. Don't infer from string shape — actor
+   * identifiers often contain `@` (account-name format), so a substring
+   * check would post the key as `courseraEmail` and the resolver would
+   * fail to resolve on replay because `resolveXapiUser` only uses email
+   * mappings when the parsed statement has an mbox/email.
+   */
+  keyType: 'email' | 'actor_identifier';
+  /**
    * The `actor_home_page` from the most-recent xAPI event for this learner,
-   * if any. Required when the key is an actor identifier (no email) — the
-   * server-side resolver matches `coursera_identity_mappings` on
+   * if any. Required when keyType is 'actor_identifier' — the server-side
+   * resolver matches `coursera_identity_mappings` on
    * `(actor_identifier, COALESCE(actor_home_page, ''))`, so omitting this
    * for stored events that DO have a home page would create a mapping that
    * never resolves on replay.
@@ -44,6 +53,7 @@ const REASON_LABEL: Record<Suggestion['matchReason'], string> = {
 export default function MapToUserActions({
   externalEmail,
   externalName,
+  keyType,
   actorHomePage,
   suggestions,
 }: Props) {
@@ -69,9 +79,8 @@ export default function MapToUserActions({
       //
       // The /mappings endpoint only does (1) and a partial (3); using it
       // here would leave CSV rows orphaned, per Codex P1 review on #1033.
-      const isEmail = externalEmail.includes('@');
       const body: Record<string, string> = { userId };
-      if (isEmail) {
+      if (keyType === 'email') {
         body.courseraEmail = externalEmail;
       } else {
         body.actorIdentifier = externalEmail;

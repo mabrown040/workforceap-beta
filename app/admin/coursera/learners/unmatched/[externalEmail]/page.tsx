@@ -44,10 +44,6 @@ export default async function AdminCourseraUnmatchedLearnerPage({
 
   const { externalEmail } = await params;
   const decoded = decodeURIComponent(externalEmail);
-  // The list-page key is `LOWER(COALESCE(actor_email, actor_identifier))`, so
-  // `decoded` is usually an email but can be an actor identifier (URL or ID)
-  // for actor-only xAPI events.
-  const isEmailKey = decoded.includes('@');
 
   // Run all three loaders in parallel — if CSV is empty, xAPI is the entire
   // story; if both are present, we render both side-by-side. Suggestions are
@@ -57,6 +53,24 @@ export default async function AdminCourseraUnmatchedLearnerPage({
     loadUnmatchedXapiEventsByExternalEmail(decoded, 100),
     suggestUserMatchesForExternalEmail(decoded, null, 5),
   ]);
+
+  // Classify the key from actual data, NOT from the string shape.
+  // - CSV always uses external_email, so a CSV hit means email-keyed.
+  // - For xAPI events, check whether the matched rows have actor_email set.
+  // Account-name actor_identifiers can contain '@' (e.g. an OpenID-style
+  // identifier), so a substring check would misclassify them.
+  const lowerDecoded = decoded.toLowerCase();
+  const csvHit = csvDetail !== null;
+  const xapiEmailHit = xapiEvents.some(
+    (e) => (e.actorEmail ?? '').toLowerCase() === lowerDecoded,
+  );
+  const xapiActorHit = xapiEvents.some(
+    (e) =>
+      e.actorEmail === null && (e.actorIdentifier ?? '').toLowerCase() === lowerDecoded,
+  );
+  const keyType: 'email' | 'actor_identifier' =
+    csvHit || xapiEmailHit ? 'email' : xapiActorHit ? 'actor_identifier' : 'email';
+  const isEmailKey = keyType === 'email';
 
   // The Coursera display name might come from the CSV or be inferred later.
   const externalName = csvDetail?.externalName ?? null;
@@ -124,6 +138,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
           <MapToUserActions
             externalEmail={decoded}
             externalName={externalName}
+            keyType={keyType}
             actorHomePage={recentActorHomePage}
             suggestions={suggestionsWithName}
           />

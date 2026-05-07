@@ -54,7 +54,7 @@ export default function LearningHubEnrolledCourses({
           </p>
           <Link
             href="/dashboard/program"
-            className={isMobile ? 'wa-inline-flex wa-items-center wa-gap-2 wa-bg-[#8B0000] wa-text-white wa-font-semibold wa-px-4 wa-py-3 wa-rounded-lg' : 'btn btn-primary'}
+            className={isMobile ? 'wa-inline-flex wa-items-center wa-gap-2 wa-bg-[#8c0f37] wa-text-white wa-font-semibold wa-px-4 wa-py-3 wa-rounded-lg' : 'btn btn-primary'}
             style={isMobile ? { textDecoration: 'none' } : undefined}
           >
             Go to My Program

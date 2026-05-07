@@ -24,8 +24,8 @@ const config: Config = {
         // Prefixed classes: wa-brand-* — keep in sync with DESIGN.md + css/main.css
         brand: {
           primary: '#1a1a1a',
-          accent: '#C41E3A',
-          'accent-dark': '#8B0000',
+          accent: '#ad2c4d',
+          'accent-dark': '#8c0f37',
           'accent-light': '#ffb2bc',
           blue: '#2b7bb9',
           gold: '#FFBB00',

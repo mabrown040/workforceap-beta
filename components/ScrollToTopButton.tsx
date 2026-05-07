@@ -52,9 +52,9 @@ export default function ScrollToTopButton() {
 
         .scroll-to-top-btn:hover {
           transform: scale(1.1);
-          background: var(--color-accent, #C41E3A);
+          background: var(--color-accent, #ad2c4d);
           color: #fff;
-          border-color: var(--color-accent, #C41E3A);
+          border-color: var(--color-accent, #ad2c4d);
         }
 
         .scroll-to-top-btn:active {

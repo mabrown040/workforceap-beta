@@ -14,7 +14,7 @@ import { getUser } from '@/lib/auth/server';
  * When chartImage (base64 data-URL PNG) is provided, it is embedded below the title.
  */
 
-const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #C41E3A
+const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #ad2c4d
 const DARK_TEXT = rgb(0.13, 0.13, 0.13);
 const MUTED = rgb(0.52, 0.52, 0.52);
 const RULE = rgb(0.87, 0.87, 0.87);

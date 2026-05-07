@@ -34,6 +34,16 @@ function dropdownMenuId(baseId: string, label: string) {
   return `${baseId}-${label.replace(/\s+/g, '-').toLowerCase()}`;
 }
 
+/**
+ * The user is already in the apply / pathfinder funnel — show the
+ * page's own CTAs and suppress the nav "Apply Now" so we don't compete
+ * with the form they're filling out.
+ */
+function isOnApplyFunnel(pathnameWithoutLocale: string): boolean {
+  if (pathnameWithoutLocale === '/find-your-path') return true;
+  return pathnameWithoutLocale === '/apply' || pathnameWithoutLocale.startsWith('/apply/');
+}
+
 export default function MainNav() {
   const pathname = usePathname() ?? '/';
   const { pathnameWithoutLocale } = splitLocalePrefix(pathname);
@@ -390,7 +400,7 @@ export default function MainNav() {
               </ul>
             ) : null}
           </li>
-          {pathnameWithoutLocale !== '/apply' && pathnameWithoutLocale !== '/find-your-path' && (
+          {!isOnApplyFunnel(pathnameWithoutLocale) && (
           <li>
             <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
           </li>

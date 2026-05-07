@@ -970,7 +970,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   isMinor={isMinor}
                 />
               </Suspense>
-              <PlacementConfirmationStrip offers={jobOffers} />
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
               </div>
@@ -996,6 +995,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   )}
                 </div>
               </div>
+              <PlacementConfirmationStrip offers={jobOffers} />
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
                 <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
                   <MatchedRoles />

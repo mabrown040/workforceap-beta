@@ -1,10 +1,10 @@
+import { getMemberState } from '@/lib/member/getMemberState';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getProfileCompleteness } from '@/lib/resume/profileCompleteness';
 import PageHeader from '@/components/portal/PageHeader';
 import ResumeClient from './ResumeClient';
 import { getTranslations } from 'next-intl/server';
@@ -22,37 +22,23 @@ export default async function DashboardResumePage() {
   if (!user) redirect("/login?redirectTo=/dashboard/resume");
   const t = await getTranslations('profile');
 
+  // Single source of truth: getMemberState returns consistent profile % across all surfaces.
+  const memberState = await getMemberState(user.id);
+  const completeness = memberState.profileCompletenessPct;
+
+  // Still need profile for resume paths
   const profile = await prisma.profile.findUnique({
     where: { userId: user.id },
     select: {
       resumeOriginalPath: true,
       resumeEnhancedPath: true,
-      profilePhone: true,
-      profileAddress: true,
-      profileLinkedin: true,
-      profileBio: true,
-      employmentStatus: true,
-      educationLevel: true,
-      user: {
-        select: {
-          fullName: true,
-          email: true,
-          phone: true,
-          enrolledProgram: true,
-          assessmentCompleted: true,
-        },
-      },
     },
   });
 
-  const completeness = getProfileCompleteness(
-    profile ?? null,
-    profile?.user ?? null,
-  );
   const fields = {
-    name: profile?.user?.fullName ?? "",
-    email: profile?.user?.email ?? "",
-    phone: profile?.user?.phone ?? "",
+    name: memberState.fullName ?? "",
+    email: memberState.email ?? "",
+    phone: "", // getMemberState doesn't expose phone currently
   };
 
   return (

@@ -43,7 +43,12 @@
     "employers": "Employers",
     "employer": "Employer portal",
     "blog": "Blog",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "memberPortal": "Member portal",
+    "openMenu": "Open menu",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "workspaceTabs": "Workspace tabs"
   },
   "cta": {
     "applyNow": "Apply Now",

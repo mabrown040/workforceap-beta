@@ -64,7 +64,6 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       phone: true,
       enrolledProgram: true,
       enrolledAt: true,
-      coursesCompleted: true,
       staleTrainingDetectedAt: true,
       memberProgramProgress: {
         select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
@@ -93,7 +92,7 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
     const program = getProgramBySlug(m.enrolledProgram);
     if (!program?.courses.length) continue;
 
-    const progress = computeTrainingProgress(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
+    const progress = computeTrainingProgress(m.enrolledProgram, null, m.memberProgramProgress);
     const matchingRollup = m.memberProgramProgress.find((row) => row.programSlug === m.enrolledProgram) ?? null;
     let lastTrainingActivityAt = matchingRollup?.lastUpdatedAt ?? null;
     for (const row of m.courseProgress) {

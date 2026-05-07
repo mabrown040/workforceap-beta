@@ -36,7 +36,13 @@ export default async function AdminMemberLifecyclePage({
         email: true,
         enrolledProgram: true,
         enrolledAt: true,
-        coursesCompleted: true,
+        memberProgramProgress: {
+          select: { programSlug: true, coursesCompleted: true },
+        },
+        courseProgress: {
+          where: { status: 'COMPLETED' },
+          select: { programSlug: true, courseSlug: true },
+        },
         assessmentCompleted: true,
         assessmentCompletedAt: true,
         createdAt: true,
@@ -78,7 +84,10 @@ export default async function AdminMemberLifecyclePage({
     (!member.enrolledProgram && enrollment) ||
     (member.enrolledProgram && enrollment && member.enrolledProgram !== enrollment.programSlug);
 
-  const completedCourses = (member.coursesCompleted as string[] | null) ?? [];
+  const completedCourseCount = member.enrolledProgram
+    ? member.memberProgramProgress.find((row) => row.programSlug === member.enrolledProgram)?.coursesCompleted
+      ?? member.courseProgress.filter((row) => row.programSlug === member.enrolledProgram).length
+    : 0;
 
   return (
     <div>
@@ -139,7 +148,7 @@ export default async function AdminMemberLifecyclePage({
         <div className="portal-card portal-card--flat portal-card--padded">
           <p className="portal-section-title" style={{ marginBottom: '0.5rem' }}>Progress</p>
           <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-            {completedCourses.length} course{completedCourses.length !== 1 ? 's' : ''} completed
+            {completedCourseCount} course{completedCourseCount !== 1 ? 's' : ''} completed
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
             Assessment: {member.assessmentCompleted ? 'Done' : 'Not done'}

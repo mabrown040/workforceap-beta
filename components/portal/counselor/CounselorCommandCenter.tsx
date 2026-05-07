@@ -67,7 +67,7 @@ export default function CounselorCommandCenter({ data }: { data: CommandCenter }
           accent="var(--color-accent)"
           title="Needs reply"
           count={data.totals.needsReplyCount}
-          empty="Inbox zero. Members get back to you and you'll see them here."
+          empty="Inbox zero. When members reply, you'll see them here."
         >
           {data.needsReply.map((row) => (
             <PriorityRow

@@ -146,6 +146,8 @@ model User {
   mentorProfile       Mentor?
   mentorSessions      MentorSession[] @relation("MentorSessionMember")
   membersWioaReviewed User[]          @relation("WioaReviewStaff")
+  courseraIdentityMappings    CourseraIdentityMapping[]
+  courseraXapiEventsMatched  CourseraXapiEvent[]       @relation("CourseraXapiMatchedUser")
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -1581,4 +1583,48 @@ model MemberNextBestAction {
 
   @@index([memberId, status, priority])
   @@map("member_next_best_actions")
+}
+
+/// Coursera learner ↔ member bindings used before direct email match on xAPI ingest.
+model CourseraIdentityMapping {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String    @map("user_id")
+  courseraEmail     String?   @map("coursera_email")
+  actorIdentifier   String?   @map("actor_identifier")
+  actorHomePage     String?   @map("actor_home_page")
+  source            String    @default("manual")
+  notes             String?
+  createdByUserId   String?   @map("created_by_user_id")
+  lastSeenAt        DateTime? @map("last_seen_at") @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("coursera_identity_mappings")
+}
+
+/// Raw Coursera xAPI ingest audit trail (supports unmatched rows for admin triage).
+model CourseraXapiEvent {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  statementId      String?   @unique @map("statement_id")
+  actorEmail       String?   @map("actor_email")
+  actorIdentifier  String?   @map("actor_identifier")
+  actorHomePage    String?   @map("actor_home_page")
+  courseSlug       String?   @map("course_slug")
+  courseName       String?   @map("course_name")
+  verbId           String?   @map("verb_id")
+  matchedUserId    String?   @map("matched_user_id")
+  mappingMethod    String?   @map("mapping_method")
+  completionStatus String    @default("received") @map("completion_status")
+  error            String?
+  rawPayload       Json      @map("raw_payload")
+  receivedAt       DateTime  @default(now()) @map("received_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  matchedUser User? @relation("CourseraXapiMatchedUser", fields: [matchedUserId], references: [id], onDelete: SetNull)
+
+  @@index([completionStatus, receivedAt(sort: Desc)])
+  @@map("coursera_xapi_events")
 }

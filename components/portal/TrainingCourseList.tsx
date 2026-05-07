@@ -7,9 +7,11 @@ import type { ProgramCourse } from '@/lib/content/programs';
 type TrainingCourseListProps = {
   courses: ProgramCourse[];
   completedSlugs: string[];
+  /** Workforce catalog slug — used only for analytics/target hooks (Coursera links use course slugs). */
+  programSlug: string;
 };
 
-export default function TrainingCourseList({ courses, completedSlugs }: TrainingCourseListProps) {
+export default function TrainingCourseList({ courses, completedSlugs, programSlug }: TrainingCourseListProps) {
   const router = useRouter();
   const [marking, setMarking] = useState<string | null>(null);
   const completedSet = new Set(completedSlugs);
@@ -38,7 +40,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
   const firstNotStartedSlug = courses.find((c) => !completedSet.has(c.slug))?.slug ?? null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div data-program-slug={programSlug} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {courses.map((c) => {
         const status = getStatus(c.slug);
         const isComplete = status === 'complete';
@@ -87,7 +89,7 @@ export default function TrainingCourseList({ courses, completedSlugs }: Training
                 {isComplete ? 'Complete' : 'Not Started'}
               </span>
               <a
-                href="https://coursera.org"
+                href={`https://www.coursera.org/learn/${encodeURIComponent(c.slug)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-primary"

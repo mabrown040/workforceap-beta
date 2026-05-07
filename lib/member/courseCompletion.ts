@@ -3,6 +3,7 @@ import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug, type Program } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import { COURSERA_TITLE_LOOSE_MIN_LEN, normalizeTitleForMatch } from '@/lib/member/courseraSkillsetMerge';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
@@ -42,6 +43,18 @@ function resolveProgramCourse(
       normalizeText(course.name) === target || normalizeSlug(course.name) === targetSlug
     );
     if (byName) return { slug: byName.slug, name: byName.name };
+
+    const looseTarget = normalizeTitleForMatch(args.courseName);
+    if (looseTarget.length >= COURSERA_TITLE_LOOSE_MIN_LEN) {
+      const loose = program.courses.find((course) => {
+        const cn = normalizeTitleForMatch(course.name);
+        return (
+          cn.length >= COURSERA_TITLE_LOOSE_MIN_LEN &&
+          (looseTarget.includes(cn) || cn.includes(looseTarget))
+        );
+      });
+      if (loose) return { slug: loose.slug, name: loose.name };
+    }
   }
 
   return null;
@@ -51,7 +64,12 @@ export async function completeMemberCourse(args: {
   userId: string;
   courseSlug?: string;
   courseName?: string;
-  source: 'member' | 'coursera-webhook';
+  source: 'member' | 'coursera-webhook' | 'coursera-enterprise-sync';
+  /**
+   * When false, skip milestone emails and career workflows (bulk Coursera API reconciliation).
+   * Still writes courses_completed and records analytics.
+   */
+  notify?: boolean;
 }) {
   const dbUser = await prisma.user.findUnique({
     where: { id: args.userId },
@@ -89,6 +107,7 @@ export async function completeMemberCourse(args: {
   }
 
   const updated = [...completed, matchedCourse.slug];
+  const shouldNotify = args.notify ?? args.source !== 'coursera-enterprise-sync';
 
   await prisma.user.update({
     where: { id: args.userId },
@@ -108,19 +127,21 @@ export async function completeMemberCourse(args: {
     },
   }).catch(() => {});
 
-  sendPartnerMilestoneEmail(args.userId, 'Course completed', {
-    Course: matchedCourse.name,
-  }).catch((error) => console.error('Partner milestone email failed:', error));
+  if (shouldNotify) {
+    sendPartnerMilestoneEmail(args.userId, 'Course completed', {
+      Course: matchedCourse.name,
+    }).catch((error) => console.error('Partner milestone email failed:', error));
 
-  sendCourseCompletedEmail({
-    to: dbUser.email,
-    fullName: dbUser.fullName,
-    courseName: matchedCourse.name,
-  }).catch((error) => console.error('Course completed email failed:', error));
+    sendCourseCompletedEmail({
+      to: dbUser.email,
+      fullName: dbUser.fullName,
+      courseName: matchedCourse.name,
+    }).catch((error) => console.error('Course completed email failed:', error));
 
-  handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
-    console.error('[career-os] learning completion workflow failed:', error)
-  );
+    handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
+      console.error('[career-os] learning completion workflow failed:', error)
+    );
+  }
 
   return {
     ok: true,

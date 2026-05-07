@@ -8,6 +8,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { buildPageMetadata } from '@/app/seo';
 import { getCourseraReadiness } from '@/lib/coursera/config';
+import { countCompletedInProgram, getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
@@ -34,9 +35,9 @@ export default async function CourseraIntegrationPage() {
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const completedCount = program
-    ? completedSlugs.filter((slug) => program.courses.some((course) => course.slug === slug)).length
-    : 0;
+  const completedSet = new Set(completedSlugs);
+  const completedCount = program ? countCompletedInProgram(program, completedSlugs) : 0;
+  const firstIncompleteIdx = program ? getFirstIncompleteCourseIndex(program, completedSlugs) : undefined;
   const progressPct = program?.courses.length
     ? Math.round((completedCount / program.courses.length) * 100)
     : 0;
@@ -73,13 +74,13 @@ export default async function CourseraIntegrationPage() {
               <div className="content-card">
                 <p className="coursera-footnote" style={{ marginTop: 0, marginBottom: '0.35rem' }}>Current course</p>
                 <h3 className="coursera-panel__title" style={{ marginBottom: '0.2rem' }}>
-                  {completedCount < program.courses.length
-                    ? program.courses[completedCount]?.name ?? 'Next course'
+                  {firstIncompleteIdx !== undefined
+                    ? program.courses[firstIncompleteIdx]?.name ?? 'Next course'
                     : 'All courses complete'}
                 </h3>
                 <p className="coursera-footnote" style={{ marginBottom: 0 }}>
-                  {completedCount < program.courses.length
-                    ? `Course ${completedCount + 1} of ${program.courses.length}`
+                  {firstIncompleteIdx !== undefined
+                    ? `Course ${firstIncompleteIdx + 1} of ${program.courses.length} (next in your pathway)`
                     : 'Full library unlocked'}
                 </p>
               </div>
@@ -94,9 +95,9 @@ export default async function CourseraIntegrationPage() {
               {/* Course pathway list */}
               <div style={{ marginBottom: '1rem' }}>
                 {program.courses.map((course, i) => {
-                  const done = i < completedCount;
-                  const current = i === completedCount;
-                  const locked = i > completedCount;
+                  const done = completedSet.has(course.slug);
+                  const current = firstIncompleteIdx !== undefined && i === firstIncompleteIdx;
+                  const locked = firstIncompleteIdx !== undefined && !done && i > firstIncompleteIdx;
                   return (
                     <div
                       key={course.slug}

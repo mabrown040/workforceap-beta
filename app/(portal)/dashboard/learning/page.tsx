@@ -102,6 +102,7 @@ export default async function LearningPage() {
       <LearningHubEnrolledCourses
         variant="mobile"
         programTitle={programMeta?.title ?? null}
+        programSlug={programMeta?.slug ?? null}
         courses={coursesForMember}
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
@@ -256,6 +257,7 @@ export default async function LearningPage() {
       <LearningHubEnrolledCourses
         variant="desktop"
         programTitle={programMeta?.title ?? null}
+        programSlug={programMeta?.slug ?? null}
         courses={coursesForMember}
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}

@@ -6,6 +6,8 @@ import type { ProgramCourse } from '@/lib/content/programs';
 
 type LearningHubEnrolledCoursesProps = {
   programTitle: string | null;
+  /** Workforce catalog slug when enrolled (used for analytics hooks on course cards). */
+  programSlug?: string | null;
   courses: ProgramCourse[];
   completedSlugs: string[];
   assessmentCompleted: boolean;
@@ -14,6 +16,7 @@ type LearningHubEnrolledCoursesProps = {
 
 export default function LearningHubEnrolledCourses({
   programTitle,
+  programSlug = null,
   courses,
   completedSlugs,
   assessmentCompleted,
@@ -121,7 +124,7 @@ export default function LearningHubEnrolledCourses({
           </p>
         ) : null}
 
-        <TrainingCourseList courses={courses} completedSlugs={completedSlugs} />
+        <TrainingCourseList courses={courses} completedSlugs={completedSlugs} programSlug={programSlug ?? ''} />
       </div>
     </section>
   );

@@ -1,0 +1,434 @@
+{
+  "digital-literacy-empowerment-class": [
+    {
+      "slug": "orientation-informational-session",
+      "name": "Orientation & Informational Session",
+      "estimatedHours": 5
+    },
+    {
+      "slug": "device-distribution-setup-browser-search-engines",
+      "name": "Device Distribution & Setup + Browser & Search Engines",
+      "estimatedHours": 5
+    },
+    {
+      "slug": "introduction-to-emails-advanced-email-techniques",
+      "name": "Introduction to Emails & Advanced Email Techniques",
+      "estimatedHours": 5
+    },
+    {
+      "slug": "avoiding-online-scams-introduction-to-financial-literacy",
+      "name": "Avoiding Online Scams + Introduction to Financial Literacy",
+      "estimatedHours": 5
+    },
+    {
+      "slug": "pcc-portal-connect-atx-navigation",
+      "name": "PCC Portal & Connect ATX Navigation",
+      "estimatedHours": 5
+    },
+    {
+      "slug": "graduation-exit-surveys-etp-forms",
+      "name": "Graduation, Exit Surveys & ETP Forms",
+      "estimatedHours": 5
+    }
+  ],
+  "aws-cloud-technology-amazon": [
+    {
+      "slug": "introduction-to-information-technology-and-aws-cloud",
+      "name": "Introduction to Information Technology and AWS Cloud",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "providing-technical-support-for-aws-workloads",
+      "name": "Providing Technical Support for AWS Workloads",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "developing-applications-in-python-on-aws",
+      "name": "Developing Applications in Python on AWS",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "skills-for-working-as-an-aws-cloud-consultant",
+      "name": "Skills for Working as an AWS Cloud Consultant",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "devops-on-aws-and-project-management",
+      "name": "DevOps on AWS and Project Management",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "automation-in-the-aws-cloud",
+      "name": "Automation in the AWS Cloud",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "data-analytics-and-databases-on-aws",
+      "name": "Data Analytics and Databases on AWS",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "capstone-following-the-aws-well-architected-framework",
+      "name": "Capstone: Following the AWS Well Architected Framework",
+      "estimatedHours": 10
+    }
+  ],
+  "software-developer-professional-certificate-ibm": [
+    {
+      "slug": "introduction-to-software-engineering",
+      "name": "Introduction to Software Engineering",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "introduction-to-html-css-javascript",
+      "name": "Introduction to HTML, CSS, & JavaScript",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "getting-started-with-git-and-github",
+      "name": "Getting Started with Git and GitHub",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "python-for-data-science-ai-development",
+      "name": "Python for Data Science, AI & Development",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "developing-front-end-apps-with-react",
+      "name": "Developing Front-End Apps with React",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "developing-back-end-apps-with-node-js-and-express",
+      "name": "Developing Back-End Apps with Node.js and Express",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "django-application-development-with-sql-and-databases",
+      "name": "Django Application Development with SQL and Databases",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "introduction-to-containers-w-docker-kubernetes-openshift",
+      "name": "Introduction to Containers w/ Docker, Kubernetes & OpenShift",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "application-development-using-microservices-and-serverless",
+      "name": "Application Development using Microservices and Serverless",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "software-developer-career-guide-interview-preparation",
+      "name": "Software Developer Career Guide & Interview Preparation",
+      "estimatedHours": 10
+    }
+  ],
+  "it-automation-with-python-google": [
+    {
+      "slug": "crash-course-on-python",
+      "name": "Crash Course on Python",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "using-python-to-interact-with-the-operating-system",
+      "name": "Using Python to Interact with the Operating System",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "introduction-to-git-and-github",
+      "name": "Introduction to Git and GitHub",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "troubleshooting-and-debugging-techniques",
+      "name": "Troubleshooting and Debugging Techniques",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "configuration-management-and-the-cloud",
+      "name": "Configuration Management and the Cloud",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "automating-real-world-tasks-with-python",
+      "name": "Automating Real-World Tasks with Python",
+      "estimatedHours": 10
+    }
+  ],
+  "comptia-network-professional-certificate": [
+    {
+      "slug": "introduction-to-networking",
+      "name": "Introduction to Networking",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "networking-fundamentals",
+      "name": "Networking Fundamentals",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "introduction-to-contemporary-operating-systems-and-hardware",
+      "name": "Introduction to Contemporary Operating Systems and Hardware",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "introduction-to-networking-and-storage",
+      "name": "Introduction to Networking and Storage",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "basics-of-cisco-networking",
+      "name": "Basics of Cisco Networking",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "ccna-foundations",
+      "name": "CCNA Foundations",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "tcp-ip-and-advanced-topics",
+      "name": "TCP/IP and Advanced Topics",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "operating-systems-and-networking-fundamentals",
+      "name": "Operating Systems and Networking Fundamentals",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "network-foundations-and-addressing",
+      "name": "Network Foundations and Addressing",
+      "estimatedHours": 10
+    }
+  ],
+  "comptia-security-professional-certificate": [
+    {
+      "slug": "network-security",
+      "name": "Network Security",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "introduction-to-network-security",
+      "name": "Introduction to Network Security",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "system-and-network-security",
+      "name": "System and Network Security",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "computer-networks-and-network-security",
+      "name": "Computer Networks and Network Security",
+      "estimatedHours": 10
+    }
+  ],
+  "cybersecurity-professional-certificate-google": [
+    {
+      "slug": "foundations-of-cybersecurity",
+      "name": "Foundations of Cybersecurity",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "play-it-safe-manage-security-risks",
+      "name": "Play It Safe: Manage Security Risks",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "connect-and-protect-networks-and-network-security",
+      "name": "Connect and Protect: Networks and Network Security",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "tools-of-the-trade-linux-and-sql",
+      "name": "Tools of the Trade: Linux and SQL",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "assets-threats-and-vulnerabilities",
+      "name": "Assets, Threats, and Vulnerabilities",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "sound-the-alarm-detection-and-response",
+      "name": "Sound the Alarm: Detection and Response",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "automate-cybersecurity-tasks-with-python",
+      "name": "Automate Cybersecurity Tasks with Python",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "put-it-to-work-prepare-for-cybersecurity-jobs",
+      "name": "Put It to Work: Prepare for Cybersecurity Jobs",
+      "estimatedHours": 10
+    }
+  ],
+  "ux-design-professional-certificate-google": [
+    {
+      "slug": "foundations-of-user-experience-ux-design",
+      "name": "Foundations of User Experience (UX) Design",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "start-the-ux-design-process-empathize-define-and-ideate",
+      "name": "Start the UX Design Process: Empathize, Define, and Ideate",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "build-wireframes-and-low-fidelity-prototypes",
+      "name": "Build Wireframes and Low-Fidelity Prototypes",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "conduct-ux-research-and-test-early-concepts",
+      "name": "Conduct UX Research and Test Early Concepts",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "create-high-fidelity-designs-and-prototypes-in-figma",
+      "name": "Create High-Fidelity Designs and Prototypes in Figma",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "responsive-web-design-in-adobe-xd",
+      "name": "Responsive Web Design in Adobe XD",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "design-a-user-experience-for-social-good-prepare-for-jobs",
+      "name": "Design a User Experience for Social Good & Prepare for Jobs",
+      "estimatedHours": 10
+    }
+  ],
+  "certified-production-technician-cpt": [
+    {
+      "slug": "introduction-to-manufacturing",
+      "name": "Introduction to Manufacturing",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "blueprint-reading-and-technical-drawing",
+      "name": "Blueprint Reading and Technical Drawing",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "machining-and-cnc-operations",
+      "name": "Machining and CNC Operations",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "welding-fundamentals",
+      "name": "Welding Fundamentals",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "quality-control-and-inspection",
+      "name": "Quality Control and Inspection",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "safety-and-osha-compliance",
+      "name": "Safety and OSHA Compliance",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "lean-manufacturing-principles",
+      "name": "Lean Manufacturing Principles",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "production-technology-capstone",
+      "name": "Production Technology Capstone",
+      "estimatedHours": 10
+    }
+  ],
+  "certified-logistics-technician-clt": [
+    {
+      "slug": "introduction-to-supply-chain-management",
+      "name": "Introduction to Supply Chain Management",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "inventory-management-and-control",
+      "name": "Inventory Management and Control",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "transportation-and-distribution",
+      "name": "Transportation and Distribution",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "warehouse-operations",
+      "name": "Warehouse Operations",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "procurement-and-vendor-management",
+      "name": "Procurement and Vendor Management",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "supply-chain-technology-and-sap",
+      "name": "Supply Chain Technology and SAP",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "global-supply-chain-and-trade",
+      "name": "Global Supply Chain and Trade",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "clt-certification-preparation",
+      "name": "CLT Certification Preparation",
+      "estimatedHours": 10
+    }
+  ],
+  "core-construction-training-certificate": [
+    {
+      "slug": "introduction-to-construction-industry",
+      "name": "Introduction to Construction Industry",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "blueprint-reading-and-construction-math",
+      "name": "Blueprint Reading and Construction Math",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "construction-safety-and-osha-10",
+      "name": "Construction Safety and OSHA-10",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "hand-and-power-tools",
+      "name": "Hand and Power Tools",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "concrete-and-masonry-fundamentals",
+      "name": "Concrete and Masonry Fundamentals",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "carpentry-and-framing-basics",
+      "name": "Carpentry and Framing Basics",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "electrical-and-plumbing-basics",
+      "name": "Electrical and Plumbing Basics",
+      "estimatedHours": 10
+    },
+    {
+      "slug": "construction-readiness-capstone",
+      "name": "Construction Readiness Capstone",
+      "estimatedHours": 10
+    }
+  ]
+}

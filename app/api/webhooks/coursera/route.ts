@@ -52,7 +52,13 @@ export async function POST(request: Request) {
 
   const member = parsed.data.externalUserId
     ? await prisma.user.findUnique({ where: { id: parsed.data.externalUserId }, select: { id: true } })
-    : await prisma.user.findUnique({ where: { email: parsed.data.email }, select: { id: true } });
+    : await prisma.user.findFirst({
+        where: {
+          email: { equals: parsed.data.email!.trim(), mode: 'insensitive' },
+          deletedAt: null,
+        },
+        select: { id: true },
+      });
 
   if (!member) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });

@@ -1,0 +1,29 @@
+{
+  "digital-literacy-empowerment-class": [
+    { "slug": "", "name": "Orientation & Informational Session", "estimatedHours": 5 },
+    { "slug": "", "name": "Device Distribution & Setup + Browser & Search Engines", "estimatedHours": 5 },
+    { "slug": "", "name": "Introduction to Emails & Advanced Email Techniques", "estimatedHours": 5 },
+    { "slug": "", "name": "Avoiding Online Scams + Introduction to Financial Literacy", "estimatedHours": 5 },
+    { "slug": "", "name": "PCC Portal & Connect ATX Navigation", "estimatedHours": 5 },
+    { "slug": "", "name": "Graduation, Exit Surveys & ETP Forms", "estimatedHours": 5 }
+  ],
+  "aws-cloud-technology-amazon": [
+    { "slug": "", "name": "Introduction to Information Technology and AWS Cloud", "estimatedHours": 10 },
+    { "slug": "", "name": "Providing Technical Support for AWS Workloads", "estimatedHours": 10 },
+    { "slug": "", "name": "Developing Applications in Python on AWS", "estimatedHours": 10 },
+    { "slug": "", "name": "Skills for Working as an AWS Cloud Consultant", "estimatedHours": 10 },
+    { "slug": "", "name": "DevOps on AWS and Project Management", "estimatedHours": 10 },
+    { "slug": "", "name": "Automation in the AWS Cloud", "estimatedHours": 10 },
+    { "slug": "", "name": "Data Analytics and Databases on AWS", "estimatedHours": 10 },
+    { "slug": "", "name": "Capstone: Following the AWS Well Architected Framework", "estimatedHours": 10 }
+  ],
+  "software-developer-professional-certificate-ibm": [],
+  "it-automation-with-python-google": [],
+  "comptia-network-professional-certificate": [],
+  "comptia-security-professional-certificate": [],
+  "cybersecurity-professional-certificate-google": [],
+  "ux-design-professional-certificate-google": [],
+  "certified-production-technician-cpt": [],
+  "certified-logistics-technician-clt": [],
+  "core-construction-training-certificate": []
+}

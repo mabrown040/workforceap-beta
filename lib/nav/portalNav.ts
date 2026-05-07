@@ -105,6 +105,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Program tab ──
   { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
   { href: '/dashboard/training', label: 'My Classes', group: 'primary', tab: 'program', Icon: GraduationCap },
+  { href: '/dashboard/coursera', label: 'Coursera', group: 'primary', tab: 'program', Icon: Library },
   { href: '/dashboard/certifications', label: 'My Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
   { href: '/dashboard/career-brief', label: 'My Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE

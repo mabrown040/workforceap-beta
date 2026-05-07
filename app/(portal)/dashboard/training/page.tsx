@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -40,7 +41,7 @@ export default async function TrainingPage() {
   const program = getProgramBySlug(dbUser.enrolledProgram);
   if (!program) redirect('/dashboard/program');
 
-  const coursesCompleted = (dbUser.coursesCompleted as string[] | null) ?? [];
+  const coursesCompleted = parseCourseSlugList(dbUser.coursesCompleted);
   const completedSet = new Set(coursesCompleted);
   const completedCount = program.courses.filter((c) => completedSet.has(c.slug)).length;
   const progressPct = program.courses.length > 0 ? Math.round((completedCount / program.courses.length) * 100) : 0;
@@ -133,7 +134,11 @@ export default async function TrainingPage() {
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
               Complete courses in order and mark each one done.
             </p>
-            <TrainingCourseList courses={program.courses} completedSlugs={coursesCompleted} />
+            <TrainingCourseList
+              courses={program.courses}
+              completedSlugs={coursesCompleted}
+              programSlug={program.slug}
+            />
           </section>
 
           <MobileBottomNav variant="portal" />
@@ -237,6 +242,7 @@ export default async function TrainingPage() {
             <TrainingCourseList
               courses={program.courses}
               completedSlugs={coursesCompleted}
+              programSlug={program.slug}
             />
           </section>
         </div>

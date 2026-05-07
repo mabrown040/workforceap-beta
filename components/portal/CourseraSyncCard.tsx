@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type SyncResult = {
   syncedAt: string;
@@ -14,9 +15,17 @@ type SyncResult = {
       progressPercent: number;
     }>;
   };
+  merged?: {
+    coursesAttempted: number;
+    completedCoursesInProgram: number;
+    totalCoursesInProgram: number;
+    details?: Array<{ courseSlug: string; ok: boolean; alreadyCompleted?: boolean; error?: string }>;
+    unmatchedCompletedSkillsets?: Array<{ skillsetId: string; skillsetName: string }>;
+  };
 };
 
 export default function CourseraSyncCard({ enabled }: { enabled: boolean }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SyncResult | null>(null);
@@ -32,6 +41,7 @@ export default function CourseraSyncCard({ enabled }: { enabled: boolean }) {
         throw new Error(detail);
       }
       setResult(payload as SyncResult);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sync failed');
     } finally {
@@ -69,6 +79,16 @@ export default function CourseraSyncCard({ enabled }: { enabled: boolean }) {
           <p className="coursera-footnote" style={{ marginTop: 0 }}>
             Last checked {new Date(result.syncedAt).toLocaleString()} · {result.progress.completedSkillsets}/
             {result.progress.totalSkillsets} skillsets complete · {result.progress.averagePercent}% avg.
+            {result.merged ? (
+              <>
+                {' '}
+                · Portal courses recorded: {result.merged.completedCoursesInProgram}/{result.merged.totalCoursesInProgram}
+                {result.merged.coursesAttempted ? ` (${result.merged.coursesAttempted} merged from Coursera)` : null}
+                {result.merged.unmatchedCompletedSkillsets && result.merged.unmatchedCompletedSkillsets.length > 0 ? (
+                  <> · {result.merged.unmatchedCompletedSkillsets.length} Coursera skillset(s) not mapped to catalog</>
+                ) : null}
+              </>
+            ) : null}
           </p>
           {result.progress.elements.slice(0, 4).map((item) => (
             <div

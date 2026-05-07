@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
+import { buildCourseraLaunchUrl, getCourseraReadiness, resolveCourseraPublicProgramUrl } from '@/lib/coursera/config';
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
 
 export async function GET(request: Request) {
   const user = await getUser();
@@ -20,15 +21,15 @@ export async function GET(request: Request) {
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const completedCount = program
-    ? completedSlugs.filter((slug) => program.courses.some((course) => course.slug === slug)).length
-    : 0;
 
-  // Current course = first incomplete course (0-based index)
-  const currentCourseIndex = program && completedCount < program.courses.length
-    ? completedCount
-    : undefined;
+  if (!enrolledProgram || !program) {
+    const programUrl = new URL('/dashboard/program', request.url);
+    return NextResponse.redirect(programUrl);
+  }
+
+  const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
+  const currentCourseIndex = getFirstIncompleteCourseIndex(program, completedSlugs);
+  const currentCourseSlug = program.courses[currentCourseIndex]?.slug;
 
   const launchUrl =
     buildCourseraLaunchUrl({
@@ -36,7 +37,10 @@ export async function GET(request: Request) {
       userId: user.id,
       email: user.email ?? '',
       currentCourseIndex,
-    }) ?? getCourseraReadiness(enrolledProgram).platformUrl;
+      currentCourseSlug,
+    }) ??
+    resolveCourseraPublicProgramUrl(enrolledProgram) ??
+    getCourseraReadiness(enrolledProgram).platformUrl;
 
   return NextResponse.redirect(launchUrl);
 }

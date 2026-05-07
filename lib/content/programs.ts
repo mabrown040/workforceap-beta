@@ -13,6 +13,40 @@ function slugify(s: string): string {
     .replace(/^-|-$/g, '');
 }
 
+function parseProgramCourseOverrides(
+  raw: string | undefined
+): Record<string, ProgramCourse[]> {
+  if (!raw?.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const out: Record<string, ProgramCourse[]> = {};
+    for (const [programSlug, value] of Object.entries(parsed)) {
+      if (!Array.isArray(value)) continue;
+      const courses = value.flatMap((entry) => {
+        if (!entry || typeof entry !== 'object') return [];
+        const row = entry as Record<string, unknown>;
+        const slug = typeof row.slug === 'string' ? row.slug.trim() : '';
+        const name = typeof row.name === 'string' ? row.name.trim() : '';
+        if (!slug || !name) return [];
+        const estimatedHours =
+          typeof row.estimatedHours === 'number' && Number.isFinite(row.estimatedHours)
+            ? Math.max(1, Math.round(row.estimatedHours))
+            : 10;
+        return [{ slug, name, estimatedHours }];
+      });
+      if (courses.length > 0) out[programSlug] = courses;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export function isPlaceholderProgramCourseSlug(slug: string): boolean {
+  return /-course-\d+$/i.test(slug.trim());
+}
+
 export interface ProgramCourse {
   slug: string;
   name: string;
@@ -33,6 +67,10 @@ export interface Program {
   courses: ProgramCourse[];
   partner: string;
 }
+
+const PROGRAM_COURSE_OVERRIDES = parseProgramCourseOverrides(
+  process.env.NEXT_PUBLIC_COURSERA_PROGRAM_COURSES_MAP || process.env.COURSERA_PROGRAM_COURSES_MAP
+);
 
 function normalizeDiscoveredProgramTitle(title: string): string {
   return title.replace('Heath Information', 'Health Information').trim();
@@ -88,8 +126,11 @@ function mkProgram(
   slugOverride?: string
 ): Program {
   const slug = slugOverride ?? slugify(title);
+  const overrideCourses = PROGRAM_COURSE_OVERRIDES[slug];
   const discoveredCourses = DISCOVERED_COURSERA_PROGRAMS[slug]?.courses;
-  const courses: ProgramCourse[] = discoveredCourses?.length
+  const courses: ProgramCourse[] = overrideCourses?.length
+    ? overrideCourses
+    : discoveredCourses?.length
     ? discoveredCourses.map((course) => ({
         slug: course.slug,
         name: course.name,
@@ -113,6 +154,29 @@ function mkProgram(
     skills,
     courses,
     partner,
+  };
+}
+
+export function getProgramCourseCatalogHealth(program: Program | string): {
+  totalCourses: number;
+  placeholderCourseSlugs: number;
+  hasPlaceholderCourseSlugs: boolean;
+} {
+  const entry = typeof program === 'string' ? PROGRAMS.find((p) => p.slug === program) : program;
+  if (!entry) {
+    return {
+      totalCourses: 0,
+      placeholderCourseSlugs: 0,
+      hasPlaceholderCourseSlugs: false,
+    };
+  }
+  const placeholderCourseSlugs = entry.courses.filter((course) =>
+    isPlaceholderProgramCourseSlug(course.slug)
+  ).length;
+  return {
+    totalCourses: entry.courses.length,
+    placeholderCourseSlugs,
+    hasPlaceholderCourseSlugs: placeholderCourseSlugs > 0,
   };
 }
 

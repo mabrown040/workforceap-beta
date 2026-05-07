@@ -89,6 +89,7 @@ async function loadMemberCore(userId: string) {
       needsComputerSupportFollowUp: true,
       workspaceEmail: true,
       workspaceEmailProvisioned: true,
+      preScreeningResponse: { select: { id: true } },
       profile: {
         select: {
           profilePhone: true,
@@ -199,11 +200,20 @@ export async function getMemberState(userId: string): Promise<MemberState> {
     : null;
 
   const application = latestApplication
-    ? buildMemberApplicationStatusView(latestApplication, {
-        enrolledProgram: user.enrolledProgram,
-        enrolledAt: user.enrolledAt,
-        assessmentCompleted: user.assessmentCompleted,
-      })
+    ? buildMemberApplicationStatusView(
+        latestApplication,
+        {
+          enrolledProgram: user.enrolledProgram,
+          enrolledAt: user.enrolledAt,
+          assessmentCompleted: user.assessmentCompleted,
+        },
+        {
+          preScreeningDone: !!user.preScreeningResponse,
+          interviewEligible: user.interviewEligible ?? false,
+          interviewRequested: !!user.interviewRequestedAt,
+          interviewCompleted: !!user.interviewCompletedAt,
+        }
+      )
     : null;
 
   const profileCompletenessPct = getProfileCompleteness(profile, {

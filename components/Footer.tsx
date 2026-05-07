@@ -45,11 +45,11 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Programs</h6>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <li><LocalizedLink href="/programs" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>All Programs</LocalizedLink></li>
-            <li><LocalizedLink href="/find-your-path" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Find Your Path</LocalizedLink></li>
-            <li><LocalizedLink href="/program-comparison" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Compare Programs</LocalizedLink></li>
-            <li><LocalizedLink href="/salary-guide" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Salary Guide</LocalizedLink></li>
-            <li><LocalizedLink href="/apply" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Apply Now</LocalizedLink></li>
+            <li><LocalizedLink href="/programs" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>All Programs</LocalizedLink></li>
+            <li><LocalizedLink href="/find-your-path" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Find Your Path</LocalizedLink></li>
+            <li><LocalizedLink href="/program-comparison" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Compare Programs</LocalizedLink></li>
+            <li><LocalizedLink href="/salary-guide" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Salary Guide</LocalizedLink></li>
+            <li><LocalizedLink href="/apply" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Apply Now</LocalizedLink></li>
           </ul>
         </div>
 
@@ -57,11 +57,11 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>About</h6>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <li><LocalizedLink href="/what-we-do" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>What We Do</LocalizedLink></li>
-            <li><LocalizedLink href="/how-it-works" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>How It Works</LocalizedLink></li>
-            <li><LocalizedLink href="/leadership" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Leadership Team</LocalizedLink></li>
-            <li><LocalizedLink href="/employers" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>For Employers</LocalizedLink></li>
-            <li><LocalizedLink href="/partners" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Partners</LocalizedLink></li>
+            <li><LocalizedLink href="/what-we-do" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>What We Do</LocalizedLink></li>
+            <li><LocalizedLink href="/how-it-works" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>How It Works</LocalizedLink></li>
+            <li><LocalizedLink href="/leadership" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Leadership Team</LocalizedLink></li>
+            <li><LocalizedLink href="/employers" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>For Employers</LocalizedLink></li>
+            <li><LocalizedLink href="/partners" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Partners</LocalizedLink></li>
           </ul>
         </div>
 
@@ -69,12 +69,12 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>Support</h6>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <li><LocalizedLink href="/contact" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Contact Us</LocalizedLink></li>
-            <li><LocalizedLink href="/faq" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>FAQ</LocalizedLink></li>
-            <li><LocalizedLink href="/blog" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Blog</LocalizedLink></li>
-            <li><LocalizedLink href="/privacy" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Privacy Policy</LocalizedLink></li>
-            <li><LocalizedLink href="/terms" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Terms of Service</LocalizedLink></li>
-            <li><LocalizedLink href="/accessibility" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none' }}>Accessibility Statement</LocalizedLink></li>
+            <li><LocalizedLink href="/contact" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Contact Us</LocalizedLink></li>
+            <li><LocalizedLink href="/faq" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>FAQ</LocalizedLink></li>
+            <li><LocalizedLink href="/blog" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Blog</LocalizedLink></li>
+            <li><LocalizedLink href="/privacy" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Privacy Policy</LocalizedLink></li>
+            <li><LocalizedLink href="/terms" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Terms of Service</LocalizedLink></li>
+            <li><LocalizedLink href="/accessibility" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>Accessibility Statement</LocalizedLink></li>
           </ul>
         </div>
       </div>

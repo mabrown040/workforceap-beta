@@ -457,7 +457,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           : interviewEligibleFlag
             ? 'Request or attend your interview'
             : preScreeningDone
-              ? 'Awaiting counselor review'
+              ? 'Pre-screening submitted — awaiting counselor review'
               : 'Submit pre-screening below',
     },
     {

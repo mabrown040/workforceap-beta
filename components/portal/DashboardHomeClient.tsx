@@ -166,7 +166,7 @@ export default function DashboardHomeClient({
     },
     {
       done: checklist.startFirstCourse,
-      doneLabel: 'Training started',
+      doneLabel: 'First course opened',
       pendingLabel: 'Open your first course',
     },
     {

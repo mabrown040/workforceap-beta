@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import QueryToast from '@/components/portal/QueryToast';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 import { getTranslations } from 'next-intl/server';
 
@@ -25,6 +26,7 @@ export default async function AIToolsPage() {
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
+      <QueryToast />
       <div className="wa-pb-24 md:wa-pb-0">
         <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[

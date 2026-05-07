@@ -1,6 +1,7 @@
 const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "comptia-a-plus": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "C-5mIgyaSLGuZiIMmrixWg",
     title: "CompTIA A+ Professional Certificate",
     courses: [
       { courseId: "7sBiclFIEeetjQ5ppGVTyA", slug: "technical-support-fundamentals", name: "Technical Support Fundamentals", partner: "Google" },
@@ -17,6 +18,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "project-management-professional-certificate-microsoft": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "vaH4UkrHSKSh-FJKxxik4Q",
     title: "Project Management Professional Certificate (Microsoft)",
     courses: [
       // courseId reverse-engineered from coursera_xapi_events.raw_payload —
@@ -36,6 +38,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "it-support-professional-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "o9PJJ-ReQ_KTySfkXuPyHw",
     title: "IT Support Professional Certificate (IBM)",
     courses: [
       { courseId: "o7PJCcurEe-flO1KkHM4e", slug: "introduction-to-technical-support", name: "Introduction to Technical Support", partner: "IBM" },
@@ -51,6 +54,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "health-information-technology-mchit": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "iMhjZsGTRkSIY2bBk-ZEhA",
     title: "Medical Coding, Billing, and Health Information Technician Certificate (MBCHIT)",
     courses: [
       { courseId: "x6YSLlDAEe-ouX0TtQVdn", slug: "medical-terminology-anatomy-physiology-fundamentals", name: "Medical Terminology, Anatomy, and Physiology Fundamentals", partner: "MedCerts" },
@@ -72,6 +76,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "ai-professional-developer-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "vjCRy6uOReCwkcurjsXg3Q",
     title: "AI Professional Practitioner Certificate",
     courses: [
       { courseId: "2lNHAASEe-djM5IiFKtc", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
@@ -94,6 +99,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "data-science-professional-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "Wj6KdjQrQfm-inY0K6H5xg",
     title: "Data Science Professional Certificate (IBM)",
     courses: [
       { courseId: "83DXQqHEEe-tzC9YyVAjs", slug: "what-is-datascience", name: "What is Data Science?", partner: "IBM" },
@@ -112,6 +118,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "digital-marketing-e-commerce-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "Xvd7I_wBSNO3eyP8AXjTfA",
     title: "Digital Marketing & E-Commerce Professional Certificate",
     courses: [
       { courseId: "05PJCCTEEe-flO1KkHMve", slug: "foundations-of-digital-marketing-and-e-commerce", name: "Foundations of Digital Marketing and E-commerce", partner: "Google" },
@@ -129,6 +136,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   },
   "data-analytics-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
+    learningPathId: "Dz4BBgGAS1i-AQYBgLtYgA",
     title: "Data Analytics Professional Certificate (Google)",
     courses: [
       { courseId: "16AUNnEFEEe-qwZ2VvSXgp", slug: "introduction-to-data-analytics", name: "Introduction to Data Analytics", partner: "IBM" },
@@ -156,6 +164,14 @@ type CourseraDiscoveredCourseInner = CourseraDiscoveredProgramInner['courses'][n
 export type CourseraDiscoveredProgram = CourseraDiscoveredProgramInner & {
   courseraCollectionTitle?: string;
   publicProgramUrl?: string;
+  /** Coursera Learning Path identifier — distinct from `courseraProgramId`
+   *  (which is the Coursera *Program* container; one per org) and from
+   *  course-level IDs. Captured from the admin URL pattern
+   *  `/o/<org>/admin/content/<programSlug>/learning-path/<learningPathId>`.
+   *  Used for cross-checks against the live Coursera LP catalog and as the
+   *  join key for any future Coursera Business API calls scoped to a
+   *  specific Learning Path. */
+  learningPathId?: string;
 };
 export type CourseraDiscoveredCourse = CourseraDiscoveredCourseInner & { estimatedHours?: number };
 

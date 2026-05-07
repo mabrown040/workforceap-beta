@@ -9,7 +9,6 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import MembersTable from '@/components/admin/MembersTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
@@ -58,7 +57,6 @@ export default async function AdminMembersPage() {
         assessmentScorePct: true,
         assessmentCompleted: true,
         programInterest: true,
-        coursesCompleted: true,
         updatedAt: true,
         createdAt: true,
         profile: {
@@ -93,9 +91,7 @@ export default async function AdminMembersPage() {
       where: { createdAt: { gte: thirtyDaysAgo } },
       _count: { _all: true },
     }),
-    // Canonical completed-course count from `course_progress` (includes CSV-promoted
-    // Coursera rows). Falls back to legacy `User.coursesCompleted` JSON if this fails
-    // or the canonical count is lower (preserves history).
+    // Canonical completed-course count from `course_progress` (includes CSV-promoted Coursera rows).
     prisma.courseProgress.groupBy({
       by: ['userId'],
       where: { status: 'COMPLETED' },
@@ -200,15 +196,9 @@ export default async function AdminMembersPage() {
         })
       : undefined;
 
-    const legacyCourses = parseCourseSlugList(m.coursesCompleted);
     const canonicalCount = canonicalCompletionMap.get(m.id) ?? 0;
-    // Prefer canonical truth from course_progress when it exceeds the legacy JSON
-    // (CSV-promoted rows are not reflected in the legacy field). The display only
-    // uses .length, so a length-stub list is sufficient for higher canonical counts.
-    const coursesCompletedDisplay =
-      canonicalCount > legacyCourses.length
-        ? new Array(canonicalCount).fill('') as string[]
-        : legacyCourses;
+    // The table only uses .length when no live rollup exists, so a length-stub list is sufficient.
+    const coursesCompletedDisplay = new Array(canonicalCount).fill('') as string[];
 
     const programTitle = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null;
     const totalCourses = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0;

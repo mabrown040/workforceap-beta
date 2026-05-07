@@ -71,7 +71,6 @@ export default async function AdminPipelinePage() {
         enrolledProgram: true,
         enrolledAt: true,
         assessmentCompleted: true,
-        coursesCompleted: true,
         deletedAt: true,
         createdAt: true,
         pipelineBoardStage: true,

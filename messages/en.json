@@ -84,7 +84,19 @@
     "faq": "FAQ",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
-    "accessibilityStatement": "Accessibility Statement"
+    "accessibilityStatement": "Accessibility Statement",
+    "workforceAdvancementProject": "Workforce Advancement Project",
+    "builtInAustin": "Built in Austin. Available nationwide.",
+    "nonprofitDisclaimer": "A national nonprofit and 501(c)(3) organization. EIN: 41-2612389. Contributions are tax-deductible.",
+    "comparePrograms": "Compare Programs",
+    "forEmployers": "For Employers",
+    "blog": "Blog",
+    "experienceAcrossEcosystem": "Experience across the workforce ecosystem",
+    "communityOrganizations": "Community organizations",
+    "workforceBoards": "Workforce boards",
+    "employerPartners": "Employer partners",
+    "copyright": "© {year} Workforce Advancement Project. Career training and job-readiness support with no upfront program cost for qualifying members.",
+    "onetAttribution": "This site incorporates information from O*NET Web Services by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® is a trademark of USDOL/ETA."
   },
   "form": {
     "fullName": "Full name",
@@ -277,7 +289,11 @@
     "notUsedCareerToolYet": "You have not used a career tool yet.",
     "tryOneShortTool": "Try one short tool today. The resume tool is a good first step and only takes a few minutes.",
     "tryResumeTool": "Try the resume tool",
-    "yourCounselor": "your counselor"
+    "yourCounselor": "your counselor",
+    "yourInOfficeSession": "Your in-office session",
+    "youAndActorBuiltThis": "You and {actorName} built this on {dateLabel}.",
+    "toolCountTogether": "{count} {count, plural, =1 {thing} other {things}} we made together. Pick up where you left off, or build on top of it.",
+    "seeWhatWeBuilt": "See what we built"
   },
   "apply": {
     "step1": "Personal info",

@@ -84,7 +84,19 @@
     "faq": "Preguntas frecuentes",
     "privacyPolicy": "Política de privacidad",
     "termsOfService": "Términos de servicio",
-    "accessibilityStatement": "Declaración de accesibilidad"
+    "accessibilityStatement": "Declaración de accesibilidad",
+    "workforceAdvancementProject": "Workforce Advancement Project",
+    "builtInAustin": "Construido en Austin. Disponible en todo el país.",
+    "nonprofitDisclaimer": "Una organización nacional sin fines de lucro y 501(c)(3). EIN: 41-2612389. Las contribuciones son deducibles de impuestos.",
+    "comparePrograms": "Comparar programas",
+    "forEmployers": "Para empleadores",
+    "blog": "Blog",
+    "experienceAcrossEcosystem": "Experiencia en todo el ecosistema laboral",
+    "communityOrganizations": "Organizaciones comunitarias",
+    "workforceBoards": "Junta de workforce",
+    "employerPartners": "Socios empleadores",
+    "copyright": "© {year} Workforce Advancement Project. Entrenamiento profesional y apoyo de preparación laboral sin costo inicial para miembros calificados.",
+    "onetAttribution": "Este sitio incorpora información de O*NET Web Services del Departamento de Trabajo de EE.UU., Administración de Empleo y Capacitación (USDOL/ETA). O*NET® es una marca registrada de USDOL/ETA."
   },
   "form": {
     "fullName": "Nombre completo",
@@ -277,7 +289,11 @@
     "notUsedCareerToolYet": "Aún no has usado una herramienta profesional.",
     "tryOneShortTool": "Prueba una herramienta corta hoy. La herramienta de currículum es un buen primer paso y solo toma unos minutos.",
     "tryResumeTool": "Probar la herramienta de currículum",
-    "yourCounselor": "tu consejero"
+    "yourCounselor": "tu consejero",
+    "yourInOfficeSession": "Tu sesión en la oficina",
+    "youAndActorBuiltThis": "Tú y {actorName} construyeron esto el {dateLabel}.",
+    "toolCountTogether": "{count} {count, plural, =1 {cosa} other {cosas}} que hicimos juntos. Continúa donde lo dejaste o construye sobre eso.",
+    "seeWhatWeBuilt": "Ver lo que construimos"
   },
   "apply": {
     "step1": "Información personal",

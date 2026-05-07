@@ -54,10 +54,15 @@ function HealthDot({ status }: { status: HealthStatus }) {
   return <span title={label} style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: color, marginRight: '0.35rem', verticalAlign: 'middle' }} />;
 }
 
-function formatTraining(m: Member): string {
+function formatTraining(m: Member, variant: 'table' | 'card' = 'table'): string {
   if (m.liveTraining) {
-    const active = m.liveTraining.coursesActive > 0 ? ` · ${m.liveTraining.coursesActive} active` : '';
-    return `${m.liveTraining.percent}% overall · ${m.liveTraining.coursesCompleted}/${m.liveTraining.totalCourses} done${active}`;
+    const active = m.liveTraining.coursesActive > 0
+      ? ` · ${m.liveTraining.coursesActive} active`
+      : '';
+    if (variant === 'card') {
+      return `${m.liveTraining.percent}% program${active}`;
+    }
+    return `${m.liveTraining.percent}% program · ${m.liveTraining.coursesCompleted}/${m.liveTraining.totalCourses} done${active}`;
   }
   if (m.assessmentCompleted) return `${m.coursesCompleted.length}/${m.totalCourses}`;
   return '—';
@@ -126,7 +131,7 @@ export default function MembersTable({ members }: MembersTableProps) {
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Program</span> {m.programTitle ?? '—'}</p>
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Partner</span> {m.partnerName ?? '—'}</p>
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Fit</span> {m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</p>
-            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Training</span> {formatTraining(m)}</p>
+            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Training</span> {formatTraining(m, 'card')}</p>
             <p className="admin-portal-card__meta">Last active {lastActive}</p>
             <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
               <Link

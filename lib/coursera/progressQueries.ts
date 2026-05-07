@@ -509,18 +509,28 @@ export type UnmatchedXapiEventRow = {
 };
 
 /**
- * Load every unmatched / errored xAPI event for a given external email,
- * regardless of whether it ever made it into the CSV-imported tables.
+ * Load every unmatched / errored xAPI event for a given external key.
  *
- * Used by the unmatched-learner detail page so the admin sees the underlying
- * activity even when CSV is empty.
+ * The unmatched-list page groups rows by `COALESCE(actor_email, actor_identifier)`
+ * and then encodes that key in the detail-page URL. So `key` here is usually
+ * an email, but can be an `actor_identifier` for actor-only xAPI events
+ * (account-based actors with no `mbox`). The loader matches on either:
+ *
+ *   1. `LOWER(actor_email) = key` — the email path
+ *   2. `actor_identifier = key` AND `actor_email IS NULL` — the actor path
+ *
+ * Without the second clause, opening the detail page for an actor-only
+ * learner returned zero xAPI rows even though the list showed an unresolved
+ * count for that actor (Codex P2 review on #1033).
  */
 export async function loadUnmatchedXapiEventsByExternalEmail(
-  externalEmail: string,
+  externalKey: string,
   limit = 100,
 ): Promise<UnmatchedXapiEventRow[]> {
-  const lower = externalEmail.trim().toLowerCase();
-  if (!lower) return [];
+  const trimmed = externalKey.trim();
+  if (!trimmed) return [];
+  const lower = trimmed.toLowerCase();
+  const looksLikeEmail = trimmed.includes('@');
 
   try {
     return await prisma.$queryRaw<UnmatchedXapiEventRow[]>`
@@ -537,8 +547,11 @@ export async function loadUnmatchedXapiEventsByExternalEmail(
         error,
         received_at AS "receivedAt"
       FROM coursera_xapi_events
-      WHERE LOWER(actor_email) = ${lower}
-        AND completion_status IN ('unmatched', 'error')
+      WHERE completion_status IN ('unmatched', 'error')
+        AND (
+          (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
+          OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
+        )
       ORDER BY received_at DESC
       LIMIT ${limit}
     `;
@@ -587,7 +600,11 @@ export async function suggestUserMatchesForExternalEmail(
   const lower = externalEmail.trim().toLowerCase();
   if (!lower) return [];
 
-  const localPart = lower.split('@')[0];
+  // If the key isn't an email (it's an actor_identifier from an actor-only
+  // xAPI event), the email-based heuristics don't apply. Fall back to name
+  // matching only.
+  const isEmailKey = lower.includes('@');
+  const localPart = isEmailKey ? lower.split('@')[0] : null;
   const cleanLocal = localPart && localPart.length >= 3 ? localPart : null;
 
   const nameTokens = (externalName ?? '')
@@ -597,10 +614,12 @@ export async function suggestUserMatchesForExternalEmail(
 
   try {
     const [exactMatch, localPartMatches, nameMatches] = await Promise.all([
-      prisma.user.findFirst({
-        where: { deletedAt: null, email: { equals: lower, mode: 'insensitive' } },
-        select: { id: true, email: true, fullName: true, enrolledProgram: true },
-      }),
+      isEmailKey
+        ? prisma.user.findFirst({
+            where: { deletedAt: null, email: { equals: lower, mode: 'insensitive' } },
+            select: { id: true, email: true, fullName: true, enrolledProgram: true },
+          })
+        : Promise.resolve(null),
       cleanLocal
         ? prisma.user.findMany({
             where: {

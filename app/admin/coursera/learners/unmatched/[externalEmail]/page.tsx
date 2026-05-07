@@ -44,6 +44,10 @@ export default async function AdminCourseraUnmatchedLearnerPage({
 
   const { externalEmail } = await params;
   const decoded = decodeURIComponent(externalEmail);
+  // The list-page key is `LOWER(COALESCE(actor_email, actor_identifier))`, so
+  // `decoded` is usually an email but can be an actor identifier (URL or ID)
+  // for actor-only xAPI events.
+  const isEmailKey = decoded.includes('@');
 
   // Run all three loaders in parallel — if CSV is empty, xAPI is the entire
   // story; if both are present, we render both side-by-side. Suggestions are
@@ -99,8 +103,12 @@ export default async function AdminCourseraUnmatchedLearnerPage({
           >
             <dt style={{ color: 'var(--color-on-surface-variant)' }}>Coursera name</dt>
             <dd style={{ margin: 0 }}>{externalName ?? '— (not in CSV)'}</dd>
-            <dt style={{ color: 'var(--color-on-surface-variant)' }}>Coursera email</dt>
-            <dd style={{ margin: 0 }}>{decoded}</dd>
+            <dt style={{ color: 'var(--color-on-surface-variant)' }}>
+              {isEmailKey ? 'Coursera email' : 'Coursera actor identifier'}
+            </dt>
+            <dd style={{ margin: 0, wordBreak: 'break-all' }}>
+              <code style={{ fontSize: '0.85rem' }}>{decoded}</code>
+            </dd>
             <dt style={{ color: 'var(--color-on-surface-variant)' }}>Unmatched xAPI events</dt>
             <dd style={{ margin: 0 }}>
               <strong>{xapiEvents.length}</strong>

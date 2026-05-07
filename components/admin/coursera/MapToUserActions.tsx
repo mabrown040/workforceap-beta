@@ -44,16 +44,29 @@ export default function MapToUserActions({ externalEmail, externalName, suggesti
     setError(null);
     setSuccess(null);
     try {
-      const res = await fetch('/api/admin/coursera/mappings', {
+      // Use /map-unmatched (not /mappings) so the side effects include:
+      //   1. coursera_identity_mappings upsert
+      //   2. backfillUserIdForCourseraEmail — sets user_id on any existing
+      //      coursera_course_progress / coursera_badge_progress rows so the
+      //      learner drops out of the unmatched CSV count immediately
+      //   3. replayUnresolvedXapiStatementsForIdentity — replays xAPI
+      //      statements (including ones already marked processed as
+      //      unmatched/error) so live training progress flows in
+      //
+      // The /mappings endpoint only does (1) and a partial (3); using it
+      // here would leave CSV rows orphaned, per Codex P1 review on #1033.
+      const isEmail = externalEmail.includes('@');
+      const body: Record<string, string> = { userId };
+      if (isEmail) {
+        body.courseraEmail = externalEmail;
+      } else {
+        body.actorIdentifier = externalEmail;
+      }
+
+      const res = await fetch('/api/admin/coursera/map-unmatched', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          courseraEmail: externalEmail,
-          notes: externalName
-            ? `Mapped from unmatched-learner detail page; Coursera display name was "${externalName}"`
-            : 'Mapped from unmatched-learner detail page',
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -63,12 +76,19 @@ export default function MapToUserActions({ externalEmail, externalName, suggesti
 
       const data = (await res.json()) as {
         ok: boolean;
-        reprocessed?: { processed?: number; matched?: number };
+        backfill?: { courseRowsUpdated?: number; badgeRowsUpdated?: number };
+        xapiReplay?: { matched?: number; processed?: number };
       };
+      const backfilled =
+        (data.backfill?.courseRowsUpdated ?? 0) + (data.backfill?.badgeRowsUpdated ?? 0);
+      const replayMatched = data.xapiReplay?.matched ?? 0;
       setSuccess({
         userId,
-        reprocessed: data.reprocessed?.matched ?? 0,
+        reprocessed: backfilled + replayMatched,
       });
+      // ack ref to externalName so unused-prop lint stays happy when notes
+      // aren't sent on actor-identifier mappings
+      void externalName;
       startTransition(() => router.refresh());
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Map failed';

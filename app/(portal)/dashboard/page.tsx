@@ -653,9 +653,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
         ) : null}
 
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberDashboardVoiceSectionLazy />
-        </section>
         {(dashboardState === 'C' || dashboardState === 'D') && (
           <section style={{ padding: '0 1.5rem 1.25rem' }}>
             <MemberProgressStrip {...progressStripProps} />
@@ -870,6 +867,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </a>
             ))}
           </div>
+        </section>
+
+        <section style={{ padding: '0 1.25rem 1.25rem' }}>
+          <MemberDashboardVoiceSectionLazy />
         </section>
 
         {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}

@@ -13,9 +13,12 @@ type MemberOption = {
 export type UnmatchedLearnerView = {
   externalEmail: string;
   externalName: string | null;
+  actorIdentifier: string | null;
+  actorHomePage: string | null;
   badges: Array<{ badgeSlug: string; badgeTitle: string; progressPercent: number }>;
   courseCount: number;
   badgeCount: number;
+  xapiCount: number;
   lastActivityTime: Date | string | null;
 };
 
@@ -66,7 +69,12 @@ export default function CourseraUnmatchedLearners({
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ courseraEmail: externalEmail, userId }),
+          body: JSON.stringify({
+            courseraEmail: externalEmail.includes('@') ? externalEmail : undefined,
+            actorIdentifier: learners.find((l) => l.externalEmail === externalEmail)?.actorIdentifier ?? undefined,
+            actorHomePage: learners.find((l) => l.externalEmail === externalEmail)?.actorHomePage ?? undefined,
+            userId,
+          }),
         });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -119,8 +127,7 @@ export default function CourseraUnmatchedLearners({
       <section style={cardStyle}>
         <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera-only learners (unmatched)</h2>
         <p style={{ marginTop: '0.4rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-          No unmatched Coursera learners. Every email in <code>coursera_course_progress</code> and{' '}
-          <code>coursera_badge_progress</code> resolves to a WAP user.
+          No orphaned Coursera learners. Every CSV learner and unresolved xAPI actor resolves to a WAP user.
         </p>
       </section>
     );
@@ -128,11 +135,10 @@ export default function CourseraUnmatchedLearners({
 
   return (
     <section style={cardStyle}>
-      <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera-only learners (unmatched)</h2>
+      <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera activity not tied to members</h2>
       <p style={{ margin: '0.4rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-        These learners exist on Coursera but are not bound to a WAP user. Map each to a WAP member
-        — the action creates a <code>coursera_identity_mappings</code> row and backfills{' '}
-        <code>user_id</code> on existing course/badge progress rows for the same email.
+        These learners have Coursera CSV progress or unresolved xAPI activity but are not fully bound to a WAP member. Map each to a WAP member
+        — the action creates a <code>coursera_identity_mappings</code> row, backfills CSV rows, and replays unresolved xAPI for that learner.
       </p>
 
       <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
@@ -157,6 +163,7 @@ export default function CourseraUnmatchedLearners({
                     <strong>{learner.externalName || learner.externalEmail}</strong>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                       {learner.externalEmail}
+                      {learner.actorIdentifier && learner.actorIdentifier !== learner.externalEmail ? ` · actor ${learner.actorIdentifier}` : ''}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.2rem' }}>
                       <a href={`/admin/coursera/learners/unmatched/${hash}`}>view detail →</a>
@@ -181,7 +188,8 @@ export default function CourseraUnmatchedLearners({
                   <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
                     <span style={{ color: 'var(--color-on-surface-variant)' }}>
                       {learner.courseCount} course{learner.courseCount === 1 ? '' : 's'} ·{' '}
-                      {learner.badgeCount} badge{learner.badgeCount === 1 ? '' : 's'}
+                      {learner.badgeCount} badge{learner.badgeCount === 1 ? '' : 's'} ·{' '}
+                      {learner.xapiCount} unresolved xAPI
                     </span>
                   </td>
                   <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>

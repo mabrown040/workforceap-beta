@@ -56,6 +56,47 @@ export async function replayPendingXapiStatementsForEmail(
   return _replayRows(rows);
 }
 
+
+/**
+ * Replay xAPI statements that previously landed as unmatched/error for an identity.
+ * These rows may already be marked processed, so this intentionally queries the
+ * authoritative coursera_xapi_events table instead of only processed=false rows.
+ */
+export async function replayUnresolvedXapiStatementsForIdentity(args: {
+  courseraEmail?: string | null;
+  actorIdentifier?: string | null;
+}): Promise<ReplayPendingXapiResult> {
+  const email = args.courseraEmail?.trim().toLowerCase() || null;
+  const actor = args.actorIdentifier?.trim() || null;
+  if (!email && !actor) {
+    return _replayRows([]);
+  }
+
+  const rows = await prisma.xapiStatement.findMany({
+    where: {
+      OR: [
+        ...(email ? [{ actorEmail: email }] : []),
+        ...(actor ? [{ actorAccountName: actor }] : []),
+      ],
+      statementId: {
+        in: await prisma.$queryRaw<Array<{ statementId: string }>>`
+          SELECT statement_id AS "statementId"
+          FROM coursera_xapi_events
+          WHERE completion_status IN ('unmatched', 'error')
+            AND statement_id IS NOT NULL
+            AND (
+              (${email}::text IS NOT NULL AND LOWER(actor_email) = ${email}::text)
+              OR (${actor}::text IS NOT NULL AND actor_identifier = ${actor}::text)
+            )
+        `.then((result) => result.map((row) => row.statementId)),
+      },
+    },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return _replayRows(rows);
+}
+
 async function _replayRows(
   rows: Awaited<ReturnType<typeof prisma.xapiStatement.findMany>>,
 ): Promise<ReplayPendingXapiResult> {

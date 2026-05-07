@@ -95,9 +95,12 @@ export async function loadBadgeProgressSummary(): Promise<BadgeProgressSummary |
 export type UnmatchedLearner = {
   externalEmail: string;
   externalName: string | null;
+  actorIdentifier: string | null;
+  actorHomePage: string | null;
   badges: Array<{ badgeSlug: string; badgeTitle: string; progressPercent: number }>;
   courseCount: number;
   badgeCount: number;
+  xapiCount: number;
   lastActivityTime: Date | null;
 };
 
@@ -113,6 +116,9 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
       externalName: string | null;
       courseCount: bigint | number;
       badgeCount: bigint | number;
+      xapiCount: bigint | number;
+      actorIdentifier: string | null;
+      actorHomePage: string | null;
       lastActivityTime: Date | null;
     };
 
@@ -123,7 +129,10 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
           MAX(external_name) AS name,
           MAX(last_activity_time) AS last_activity_time,
           COUNT(*) AS course_count,
-          0::bigint AS badge_count
+          0::bigint AS badge_count,
+          0::bigint AS xapi_count,
+          NULL::text AS actor_identifier,
+          NULL::text AS actor_home_page
         FROM coursera_course_progress
         WHERE user_id IS NULL
         GROUP BY LOWER(external_email)
@@ -133,16 +142,36 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
           MAX(external_name) AS name,
           MAX(last_activity_time) AS last_activity_time,
           0::bigint AS course_count,
-          COUNT(*) AS badge_count
+          COUNT(*) AS badge_count,
+          0::bigint AS xapi_count,
+          NULL::text AS actor_identifier,
+          NULL::text AS actor_home_page
         FROM coursera_badge_progress
         WHERE user_id IS NULL
         GROUP BY LOWER(external_email)
+        UNION ALL
+        SELECT
+          LOWER(COALESCE(actor_email, actor_identifier)) AS email,
+          NULL::text AS name,
+          MAX(received_at) AS last_activity_time,
+          0::bigint AS course_count,
+          0::bigint AS badge_count,
+          COUNT(*) AS xapi_count,
+          MAX(actor_identifier) AS actor_identifier,
+          MAX(actor_home_page) AS actor_home_page
+        FROM coursera_xapi_events
+        WHERE completion_status IN ('unmatched', 'error')
+          AND COALESCE(actor_email, actor_identifier) IS NOT NULL
+        GROUP BY LOWER(COALESCE(actor_email, actor_identifier))
       )
       SELECT
         email AS "externalEmail",
         MAX(name) AS "externalName",
         SUM(course_count)::bigint AS "courseCount",
         SUM(badge_count)::bigint AS "badgeCount",
+        SUM(xapi_count)::bigint AS "xapiCount",
+        MAX(actor_identifier) AS "actorIdentifier",
+        MAX(actor_home_page) AS "actorHomePage",
         MAX(last_activity_time) AS "lastActivityTime"
       FROM unioned
       GROUP BY email
@@ -181,9 +210,12 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
     return learners.map((row) => ({
       externalEmail: row.externalEmail,
       externalName: row.externalName,
+      actorIdentifier: row.actorIdentifier,
+      actorHomePage: row.actorHomePage,
       badges: badgesByEmail.get(row.externalEmail) ?? [],
       courseCount: Number(row.courseCount) || 0,
       badgeCount: Number(row.badgeCount) || 0,
+      xapiCount: Number(row.xapiCount) || 0,
       lastActivityTime: row.lastActivityTime,
     }));
   } catch (error) {

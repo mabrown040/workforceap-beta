@@ -268,7 +268,7 @@ export async function getTriageQueue(
   // Fetch all the inputs in parallel.
   const milestoneCutoff = new Date(now.getTime() - MILESTONE_WINDOW_DAYS * DAY_MS);
 
-  const [members, lastEventByUser, threads, computerFollowUpEvents, milestoneEvents] = await Promise.all([
+  const [members, lastEventByUser, threads, lastStaffMsgByThread, computerFollowUpEvents, milestoneEvents] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: memberIds } },
       select: {
@@ -300,6 +300,22 @@ export async function getTriageQueue(
         },
       },
     }),
+    // Most recent staff-authored (non-member) message per thread.
+    //
+    // We can't derive this from `messages[0]` above because if the member's
+    // reply is the latest entry in the thread, the latest counselor reply
+    // before it gets dropped — and the milestone flag would re-fire even
+    // after the counselor already congratulated them.
+    prisma.$queryRawUnsafe<Array<{ thread_id: string; member_id: string | null; staff_last_at: Date }>>(
+      `SELECT t.id AS thread_id, t.member_id, MAX(m.created_at) AS staff_last_at
+       FROM messages m
+       JOIN message_threads t ON t.id = m.thread_id
+       WHERE t.member_id = ANY($1::uuid[])
+         AND t.kind = 'member'
+         AND m.author_id <> t.member_id
+       GROUP BY t.id, t.member_id`,
+      memberIds,
+    ),
     prisma.memberEvent.findMany({
       where: {
         userId: { in: memberIds },
@@ -325,9 +341,9 @@ export async function getTriageQueue(
     if (r.last_at) lastEventMap.set(r.user_id, r.last_at);
   }
 
-  // Counselor's most recent message per member, plus the member's most
-  // recent unreplied message (latest authorId === memberId).
-  const lastCounselorMsgByMember = new Map<string, Date>();
+  // Member's most recent unreplied message (used by the SLA flags). We only
+  // care when the LATEST message is from the member — that's the definition
+  // of an unanswered reply.
   const memberSlaContext = new Map<
     string,
     { threadId: string; lastMessageAt: Date; lastMessagePreview: string }
@@ -342,9 +358,18 @@ export async function getTriageQueue(
         lastMessageAt: last.createdAt,
         lastMessagePreview: previewBody(last.body),
       });
-    } else {
-      lastCounselorMsgByMember.set(t.memberId, last.createdAt);
     }
+  }
+
+  // Counselor's most recent message per member (used to clear the milestone
+  // flag once the counselor has acknowledged a milestone, even if the member
+  // has since replied). Sourced from the staff-authored MAX(created_at)
+  // query above so a later "thanks" from the member doesn't re-arm the
+  // milestone bucket.
+  const lastCounselorMsgByMember = new Map<string, Date>();
+  for (const r of lastStaffMsgByThread) {
+    if (!r.member_id || !r.staff_last_at) continue;
+    lastCounselorMsgByMember.set(r.member_id, r.staff_last_at);
   }
 
   const lastFollowUpByUser = new Map<string, Date>();

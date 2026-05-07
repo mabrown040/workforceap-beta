@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db/prisma';
  * Admin lifecycle timeline for a single member.
  *
  * Returns:
- * - User enrollment state (enrolledProgram, enrolledAt, coursesCompleted, etc.)
+ * - User enrollment state (enrolledProgram, enrolledAt) and canonical training progress
  * - CourseEnrollment record (if exists)
  * - Drift detection: whether User.enrolledProgram matches CourseEnrollment.programSlug
  * - Full MemberEvent timeline (last 200 events)
@@ -31,7 +31,13 @@ export async function GET(
         email: true,
         enrolledProgram: true,
         enrolledAt: true,
-        coursesCompleted: true,
+        memberProgramProgress: {
+          select: { programSlug: true, coursesCompleted: true, averagePercent: true, lastUpdatedAt: true },
+        },
+        courseProgress: {
+          where: { status: 'COMPLETED' },
+          select: { programSlug: true, courseSlug: true, completedAt: true, lastUpdatedAt: true },
+        },
         assessmentCompleted: true,
         assessmentCompletedAt: true,
         createdAt: true,

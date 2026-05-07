@@ -40,7 +40,13 @@ export async function GET(_req: NextRequest) {
           updatedAt: true,
           enrolledProgram: true,
           assessmentCompleted: true,
-          coursesCompleted: true,
+          memberProgramProgress: {
+            select: { programSlug: true, coursesCompleted: true, averagePercent: true },
+          },
+          courseProgress: {
+            where: { status: 'COMPLETED' },
+            select: { programSlug: true, courseSlug: true },
+          },
           profile: {
             select: {
               address: true,

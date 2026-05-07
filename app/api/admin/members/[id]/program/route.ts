@@ -35,12 +35,15 @@ export async function PATCH(
 
   const now = new Date();
   await prisma.$transaction(async (tx) => {
+    await tx.courseProgress.deleteMany({ where: { userId: id } });
+    await tx.memberProgramProgress.deleteMany({ where: { userId: id } });
+
     const member = await tx.user.update({
       where: { id },
       data: {
         enrolledProgram: programSlug,
         programChangedAt: now,
-        coursesCompleted: [],
+        coursesCompleted: [], // compatibility mirror only; canonical rows were reset above
         enrolledAt: now,
       },
       select: { organizationId: true },

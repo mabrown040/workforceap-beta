@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { CourseProgressStatus } from '@prisma/client';
 
 /**
  * POST /api/admin/members/merge
@@ -110,6 +111,76 @@ export async function POST(req: NextRequest) {
     await repoint('preScreeningResponse', 'userId');
     await repoint('preScreeningDraft', 'userId');
 
+    // Canonical training progress has unique keys, so merge instead of blind repoint.
+    const statusRank: Record<CourseProgressStatus, number> = {
+      [CourseProgressStatus.NOT_STARTED]: 0,
+      [CourseProgressStatus.IN_PROGRESS]: 1,
+      [CourseProgressStatus.COMPLETED]: 2,
+    };
+    const secondaryCourseProgress = await tx.courseProgress.findMany({ where: { userId: secondaryId } });
+    let mergedCourseProgress = 0;
+    for (const row of secondaryCourseProgress) {
+      const existing = await tx.courseProgress.findUnique({
+        where: {
+          userId_programSlug_courseSlug: {
+            userId: primaryId,
+            programSlug: row.programSlug,
+            courseSlug: row.courseSlug,
+          },
+        },
+      });
+      if (!existing) {
+        await tx.courseProgress.update({ where: { id: row.id }, data: { userId: primaryId } });
+        mergedCourseProgress += 1;
+        continue;
+      }
+
+      const rowWins =
+        statusRank[row.status] > statusRank[existing.status] ||
+        row.percentComplete > existing.percentComplete ||
+        (row.completedAt != null && (existing.completedAt == null || row.completedAt > existing.completedAt));
+      if (rowWins) {
+        await tx.courseProgress.update({
+          where: { id: existing.id },
+          data: {
+            status: row.status,
+            percentComplete: Math.max(existing.percentComplete, row.percentComplete),
+            scoreScaled: existing.scoreScaled ?? row.scoreScaled,
+            scoreRaw: existing.scoreRaw ?? row.scoreRaw,
+            startedAt: existing.startedAt ?? row.startedAt,
+            completedAt: existing.completedAt && row.completedAt
+              ? (existing.completedAt > row.completedAt ? existing.completedAt : row.completedAt)
+              : existing.completedAt ?? row.completedAt,
+          },
+        });
+      }
+      await tx.courseProgress.delete({ where: { id: row.id } });
+      mergedCourseProgress += 1;
+    }
+    if (mergedCourseProgress > 0) repointed.push(`courseProgress(${mergedCourseProgress})`);
+
+    const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId } });
+    let mergedRollups = 0;
+    for (const row of secondaryRollups) {
+      const existing = await tx.memberProgramProgress.findUnique({
+        where: { userId_programSlug: { userId: primaryId, programSlug: row.programSlug } },
+      });
+      if (existing) {
+        await tx.memberProgramProgress.update({
+          where: { id: existing.id },
+          data: {
+            coursesCompleted: Math.max(existing.coursesCompleted, row.coursesCompleted),
+            averagePercent: Math.max(existing.averagePercent, row.averagePercent),
+          },
+        });
+        await tx.memberProgramProgress.delete({ where: { id: row.id } });
+      } else {
+        await tx.memberProgramProgress.update({ where: { id: row.id }, data: { userId: primaryId } });
+      }
+      mergedRollups += 1;
+    }
+    if (mergedRollups > 0) repointed.push(`memberProgramProgress(${mergedRollups})`);
+
     // Handle unique-constrained relations carefully
     // Profile has unique userId — move only if primary lacks one
     const primaryProfile = await tx.profile.findUnique({ where: { userId: primaryId } });
@@ -155,15 +226,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Merge JSON arrays: coursesCompleted — union of both
-    const primaryCourses = parseCourseSlugList(primary.coursesCompleted);
-    const secondaryCourses = parseCourseSlugList(secondary.coursesCompleted);
-    const mergedCourses = Array.from(new Set([...primaryCourses, ...secondaryCourses]));
-    if (mergedCourses.length > primaryCourses.length) {
-      updateData.coursesCompleted = JSON.stringify(mergedCourses);
-      mergedFields.push('coursesCompleted');
-    }
-
     if (Object.keys(updateData).length > 0) {
       await tx.user.update({ where: { id: primaryId }, data: updateData });
     }
@@ -197,8 +259,3 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, primaryId, secondaryId, repointed, mergedFields });
 }
 
-function parseCourseSlugList(raw: unknown): string[] {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw as string[];
-  try { return JSON.parse(String(raw)) as string[]; } catch { return []; }
-}

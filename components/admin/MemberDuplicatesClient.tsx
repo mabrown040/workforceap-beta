@@ -11,7 +11,8 @@ type Member = {
   updatedAt: string;
   enrolledProgram: string | null;
   assessmentCompleted: boolean;
-  coursesCompleted: unknown;
+  memberProgramProgress: { programSlug: string; coursesCompleted: number; averagePercent: number }[];
+  courseProgress: { programSlug: string; courseSlug: string }[];
   profile: {
     address: string | null;
     city: string | null;
@@ -180,7 +181,7 @@ export default function MemberDuplicatesClient() {
                       <div><strong>Phone:</strong> {m.phone ?? m.profile?.profilePhone ?? '—'}</div>
                       <div><strong>Program:</strong> {m.enrolledProgram ?? '—'}</div>
                       <div><strong>Assessment:</strong> {m.assessmentCompleted ? '✓' : '—'}</div>
-                      <div><strong>Courses:</strong> {Array.isArray(m.coursesCompleted) ? m.coursesCompleted.length : 0}</div>
+                      <div><strong>Courses:</strong> {m.enrolledProgram ? (m.memberProgramProgress.find((row) => row.programSlug === m.enrolledProgram)?.coursesCompleted ?? m.courseProgress.filter((row) => row.programSlug === m.enrolledProgram).length) : m.courseProgress.length}</div>
                       <div><strong>Applications:</strong> {m._count.applications}</div>
                       <div><strong>Learning:</strong> {m._count.learningProgress}</div>
                       <div><strong>Certs:</strong> {m._count.userCertifications}</div>

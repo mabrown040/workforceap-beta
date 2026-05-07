@@ -5,6 +5,7 @@ import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from 
 import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
 
 export async function GET(request: Request) {
   const user = await getUser();
@@ -62,16 +63,13 @@ export async function GET(request: Request) {
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const completedCount = program
-    ? completedSlugs.filter((slug) => program.courses.some((c) => c.slug === slug)).length
-    : 0;
 
   const requestedIndex = requestedSlug && program
     ? program.courses.findIndex((c) => c.slug === requestedSlug)
     : -1;
 
-  const defaultCurrentIndex = program && completedCount < program.courses.length
-    ? completedCount
+  const defaultCurrentIndex = program
+    ? getFirstIncompleteCourseIndex(program, completedSlugs)
     : undefined;
 
   const currentCourseIndex = requestedIndex >= 0 ? requestedIndex : defaultCurrentIndex;

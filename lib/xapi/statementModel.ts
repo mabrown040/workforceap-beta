@@ -18,11 +18,19 @@ function extractCourseSlugFromObjectId(objectId: string | null) {
   if (!objectId) return null;
   try {
     const url = new URL(objectId);
+    const learnIndex = url.pathname.toLowerCase().indexOf('/learn/');
+    if (learnIndex >= 0) {
+      const learnPath = url.pathname.slice(learnIndex + '/learn/'.length);
+      const learnSlug = learnPath.split('/').filter(Boolean).shift();
+      if (learnSlug) return toSlug(learnSlug);
+    }
     const last = url.pathname.split('/').filter(Boolean).pop();
     return last ? toSlug(last) : null;
   } catch {
-    const last = objectId.split('/').filter(Boolean).pop();
-    return last ? toSlug(last) : null;
+    const byPath = objectId.split('/').filter(Boolean).pop();
+    if (byPath) return toSlug(byPath);
+    const byColon = objectId.split(':').filter(Boolean).pop();
+    return byColon ? toSlug(byColon) : null;
   }
 }
 
@@ -171,7 +179,7 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
   // events the tail is an item ID — never a course slug — so don't pollute
   // downstream lookups. Catalog matching now uses `courseraCourseId` directly.
   const courseSlug =
-    activityType === 'course'
+    activityType === 'course' || (activityType === 'unknown' && objectId?.includes('/learn/'))
       ? extractCourseSlugFromObjectId(objectId) || (courseName ? toSlug(courseName) : undefined)
       : courseName ? toSlug(courseName) : undefined;
 

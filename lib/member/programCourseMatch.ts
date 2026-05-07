@@ -2,6 +2,7 @@ import 'server-only';
 
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import type { Program } from '@/lib/content/programs';
+import { COURSERA_TITLE_LOOSE_MIN_LEN, normalizeTitleForMatch } from '@/lib/member/courseraSkillsetMerge';
 
 function normalizeText(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -69,6 +70,18 @@ export function resolveProgramCourse(
       normalizeText(course.name) === target || normalizeSlug(course.name) === targetSlug
     );
     if (byName) return { slug: byName.slug, name: byName.name };
+
+    const looseTarget = normalizeTitleForMatch(args.courseName);
+    if (looseTarget.length >= COURSERA_TITLE_LOOSE_MIN_LEN) {
+      const loose = program.courses.find((course) => {
+        const candidate = normalizeTitleForMatch(course.name);
+        return (
+          candidate.length >= COURSERA_TITLE_LOOSE_MIN_LEN &&
+          (looseTarget.includes(candidate) || candidate.includes(looseTarget))
+        );
+      });
+      if (loose) return { slug: loose.slug, name: loose.name };
+    }
   }
 
   return null;
@@ -120,6 +133,18 @@ export function resolveProgramCourseWithCatalogFallback(
       normalizeText(course.name) === target || normalizeSlug(course.name) === targetSlug
     );
     if (byName) return { slug: byName.slug, name: byName.name };
+
+    const looseTarget = normalizeTitleForMatch(args.courseName);
+    if (looseTarget.length >= COURSERA_TITLE_LOOSE_MIN_LEN) {
+      const loose = discovered.courses.find((course) => {
+        const candidate = normalizeTitleForMatch(course.name);
+        return (
+          candidate.length >= COURSERA_TITLE_LOOSE_MIN_LEN &&
+          (looseTarget.includes(candidate) || candidate.includes(looseTarget))
+        );
+      });
+      if (loose) return { slug: loose.slug, name: loose.name };
+    }
   }
 
   return null;

@@ -77,6 +77,31 @@ function parseStringArrayMap(raw: string | undefined): StringArrayMap {
   }
 }
 
+/** programSlug → skillsetId → internal course slug (JSON env override for Enterprise alignment). */
+function parseSkillsetSlugMap(raw: string | undefined): Record<string, Record<string, string>> {
+  if (!raw?.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const out: Record<string, Record<string, string>> = {};
+    for (const [programKey, inner] of Object.entries(parsed)) {
+      const programSlug = programKey.trim();
+      if (!programSlug || !inner || typeof inner !== 'object' || Array.isArray(inner)) continue;
+      const row: Record<string, string> = {};
+      for (const [skillsetId, slug] of Object.entries(inner)) {
+        const normalizedSkillsetId = skillsetId.trim();
+        if (!normalizedSkillsetId || typeof slug !== 'string' || !slug.trim()) continue;
+        row[normalizedSkillsetId] = slug.trim();
+      }
+      if (Object.keys(row).length) out[programSlug] = row;
+    }
+    return out;
+  } catch {
+    console.warn('[coursera/config] Failed to parse COURSERA_SKILLSET_SLUG_MAP as JSON. Falling back to empty map.');
+    return {};
+  }
+}
+
 function interpolateTemplate(template: string, values: Record<string, string | undefined>): string | null {
   let failed = false;
   const resolved = template.replace(/\{(\w+)\}/g, (_match, key: string) => {
@@ -96,6 +121,7 @@ function buildCourseraConfig() {
   const envProgramIdMap = parseStringMap(process.env.COURSERA_PROGRAM_ID_MAP);
   const envCourseIdMap = parseStringArrayMap(process.env.COURSERA_COURSE_ID_MAP);
   const envLearningPathIdMap = parseStringMap(process.env.COURSERA_LEARNING_PATH_ID_MAP);
+  const skillsetSlugMap = parseSkillsetSlugMap(process.env.COURSERA_SKILLSET_SLUG_MAP);
 
   return {
     apiBaseUrl: process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL,
@@ -116,6 +142,8 @@ function buildCourseraConfig() {
     learningPathUrlTemplate: process.env.COURSERA_LEARNING_PATH_URL_TEMPLATE?.trim() || '',
     defaultSkillsetIds: parseCsv(process.env.COURSERA_DEFAULT_SKILLSET_IDS),
     skillsetIdMap: parseStringArrayMap(process.env.COURSERA_SKILLSET_ID_MAP),
+    /** Explicit Enterprise skillset → portal course slug overrides per program (JSON). */
+    skillsetSlugMap,
     /** Map of programSlug → courseIndex → Coursera course ID */
     courseIdMap: { ...DISCOVERED_COURSE_ID_MAP, ...envCourseIdMap },
     /** Map of programSlug → Coursera learning path ID */
@@ -146,6 +174,20 @@ export function resolveCourseraSkillsetIds(programSlug: string | null | undefine
   const config = getCourseraConfig();
   if (programSlug && config.skillsetIdMap[programSlug]?.length) return config.skillsetIdMap[programSlug];
   return config.defaultSkillsetIds;
+}
+
+/** Skillset id → internal course slug overrides for a Workforce program slug (from `COURSERA_SKILLSET_SLUG_MAP`). */
+export function getCourseraSkillsetSlugOverrides(programSlug: string | null | undefined): Record<string, string> {
+  const config = getCourseraConfig();
+  if (!programSlug?.trim()) return {};
+  return config.skillsetSlugMap[programSlug] ?? {};
+}
+
+/** Stable learner-facing program URL from catalog (not the opaque Enterprise program id). */
+export function resolveCourseraPublicProgramUrl(programSlug: string | null | undefined): string | null {
+  if (!programSlug?.trim()) return null;
+  const url = DISCOVERED_COURSERA_PROGRAMS[programSlug]?.publicProgramUrl?.trim();
+  return url || null;
 }
 
 export function resolveCourseraLearningPathId(programSlug: string | null | undefined): string | undefined {

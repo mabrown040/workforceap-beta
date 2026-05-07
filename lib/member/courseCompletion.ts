@@ -20,7 +20,12 @@ export async function completeMemberCourse(args: {
    *  ingestion since URL-tail slug heuristics can't tell course IDs from
    *  item IDs. */
   courseraCourseId?: string | null;
-  source: 'member' | 'coursera-webhook';
+  source: 'member' | 'coursera-webhook' | 'coursera-enterprise-sync';
+  /**
+   * When false, skip milestone emails and career workflows (bulk Coursera API reconciliation).
+   * Still writes courses_completed, CourseProgress, and analytics.
+   */
+  notify?: boolean;
 }) {
   const dbUser = await prisma.user.findUnique({
     where: { id: args.userId },
@@ -68,6 +73,7 @@ export async function completeMemberCourse(args: {
   }
 
   const updated = [...completed, matchedCourse.slug];
+  const shouldNotify = args.notify ?? args.source !== 'coursera-enterprise-sync';
 
   await prisma.user.update({
     where: { id: args.userId },
@@ -96,19 +102,21 @@ export async function completeMemberCourse(args: {
     },
   }).catch(() => {});
 
-  sendPartnerMilestoneEmail(args.userId, 'Course completed', {
-    Course: matchedCourse.name,
-  }).catch((error) => console.error('Partner milestone email failed:', error));
+  if (shouldNotify) {
+    sendPartnerMilestoneEmail(args.userId, 'Course completed', {
+      Course: matchedCourse.name,
+    }).catch((error) => console.error('Partner milestone email failed:', error));
 
-  sendCourseCompletedEmail({
-    to: dbUser.email,
-    fullName: dbUser.fullName,
-    courseName: matchedCourse.name,
-  }).catch((error) => console.error('Course completed email failed:', error));
+    sendCourseCompletedEmail({
+      to: dbUser.email,
+      fullName: dbUser.fullName,
+      courseName: matchedCourse.name,
+    }).catch((error) => console.error('Course completed email failed:', error));
 
-  handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
-    console.error('[career-os] learning completion workflow failed:', error)
-  );
+    handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
+      console.error('[career-os] learning completion workflow failed:', error)
+    );
+  }
 
   awardPoints(args.userId, 'course_completed', matchedCourse.slug).catch(() => {});
 

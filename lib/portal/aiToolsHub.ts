@@ -14,15 +14,15 @@ export type AiToolsHubCategory = {
 };
 
 const TOOL_CARDS = {
-  elevatorPitch: { label: 'AI Elevator Introduction', href: '/dashboard/ai-tools/elevator-pitch', icon: 'record_voice_over' },
+  elevatorPitch: { label: 'AI Elevator Introduction', href: '/dashboard/ai-tools/elevator-pitch?prefill=true', icon: 'record_voice_over' },
   readinessCoach: { label: 'AI Readiness Coach', href: '/dashboard/readiness', icon: 'psychology' },
   resumeCoach: { label: 'Resume & Experience Enhancer', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
   voiceInterview: { label: 'Voice Interview Practice', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
   careerBusiness: { label: 'Career & Business Coach', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },
-  resumeRewriter: { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter', icon: 'description' },
+  resumeRewriter: { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter?prefill=true', icon: 'description' },
   resumeAnalysis: { label: 'Resume Analysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check' },
   coverLetter: { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft' },
-  interviewPractice: { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice', icon: 'record_voice_over' },
+  interviewPractice: { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice?prefill=true', icon: 'record_voice_over' },
   interviewCoach: { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent' },
   jobMatchScorer: { label: 'See how you match a job', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
   skillMapper: { label: 'Find skills employers want', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree' },

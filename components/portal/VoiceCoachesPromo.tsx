@@ -47,7 +47,7 @@ export default function VoiceCoachesPromo() {
             gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
             title="AI Elevator Introduction"
             description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
-            href="/dashboard/ai-tools/elevator-pitch"
+            href="/dashboard/ai-tools/elevator-pitch?prefill=true"
             ctaLabel="Start elevator introduction"
           />
 

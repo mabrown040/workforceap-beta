@@ -2,7 +2,6 @@ import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { markCourseProgressCompleted } from '@/lib/member/courseProgress';
 import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
@@ -29,7 +28,7 @@ export async function completeMemberCourse(args: {
 }) {
   const dbUser = await prisma.user.findUnique({
     where: { id: args.userId },
-    select: { enrolledProgram: true, coursesCompleted: true, email: true, fullName: true },
+    select: { enrolledProgram: true, email: true, fullName: true },
   });
 
   if (!dbUser?.enrolledProgram) {
@@ -52,8 +51,18 @@ export async function completeMemberCourse(args: {
     throw new Error('Course not found in member program');
   }
 
-  const completed = parseCourseSlugList(dbUser.coursesCompleted);
-  if (completed.includes(matchedCourse.slug)) {
+  const existingCompletion = await prisma.courseProgress.findUnique({
+    where: {
+      userId_programSlug_courseSlug: {
+        userId: args.userId,
+        programSlug: dbUser.enrolledProgram,
+        courseSlug: matchedCourse.slug,
+      },
+    },
+    select: { status: true },
+  });
+
+  if (existingCompletion?.status === 'COMPLETED') {
     const discovered = getDiscoveredProgram(dbUser.enrolledProgram);
     const discoveredMeta = discovered?.courses.find((c) => c.slug === matchedCourse.slug);
     await markCourseProgressCompleted({
@@ -68,17 +77,13 @@ export async function completeMemberCourse(args: {
       courseSlug: matchedCourse.slug,
       courseName: matchedCourse.name,
       programSlug: dbUser.enrolledProgram,
-      completedCount: completed.length,
+      completedCount: await prisma.courseProgress.count({
+        where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
+      }),
     };
   }
 
-  const updated = [...completed, matchedCourse.slug];
   const shouldNotify = args.notify ?? args.source !== 'coursera-enterprise-sync';
-
-  await prisma.user.update({
-    where: { id: args.userId },
-    data: { coursesCompleted: updated },
-  });
 
   const discovered = getDiscoveredProgram(dbUser.enrolledProgram);
   const discoveredMeta = discovered?.courses.find((c) => c.slug === matchedCourse.slug);
@@ -97,7 +102,9 @@ export async function completeMemberCourse(args: {
     metadata: {
       courseName: matchedCourse.name,
       programSlug: dbUser.enrolledProgram,
-      completedCount: updated.length,
+      completedCount: await prisma.courseProgress.count({
+        where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
+      }),
       source: args.source,
     },
   }).catch(() => {});
@@ -126,6 +133,8 @@ export async function completeMemberCourse(args: {
     courseSlug: matchedCourse.slug,
     courseName: matchedCourse.name,
     programSlug: dbUser.enrolledProgram,
-    completedCount: updated.length,
+    completedCount: await prisma.courseProgress.count({
+      where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
+    }),
   };
 }

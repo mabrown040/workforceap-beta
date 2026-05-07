@@ -1,151 +1,68 @@
-# Missing Notifications
+# Notification Audit
 
-**Date:** 2026-03-20
+**Last reviewed:** 2026-05-07
 
-Notifications that should exist but are not implemented.
-
----
-
-## Partner Notifications (Requested by Mike)
-
-### ~~New Member Assigned to Partner~~ ✅ Implemented
-
-**Status:** Implemented in `lib/notifications/partner-notify.ts` and `app/api/admin/members/[id]/partner/route.ts`.
+This file tracks notification gaps. The priority labels reflect impact: HIGH means a stakeholder reaches for the platform and finds silence in a moment that erodes trust.
 
 ---
 
-### Weekly/Monthly Partner Summary
+## ✅ Implemented (audited and confirmed wired)
 
-**Trigger:** Cron job (e.g. weekly).
-
-**Recipient:** Partner `contactEmail`
-
-**Content:** Summary of member progress: enrollments, courses completed, certifications, placements in the period.
-
-**Priority:** Medium – nice-to-have for partner engagement.
-
----
-
-## Member Notifications
-
-### Application Accepted/Rejected
-
-**Trigger:** Admin changes application status to APPROVED or DENIED in `PATCH /api/admin/members/:id/status`.
-
-**Recipient:** Member email (from `application.user.email`)
-
-**Content:**
-- **Approved:** "Your application has been approved. Log in to access your training."
-- **Denied:** "Your application status has been updated. Log in to view details."
-
-**Priority:** High – members expect to be notified of status changes.
+| Notification | Trigger | Recipient | Wired in |
+|---|---|---|---|
+| **New member assigned to partner** | Admin assigns member to a partner | Partner `contactEmail` | `lib/notifications/partner-notify.ts`, `app/api/admin/members/[id]/partner/route.ts` |
+| **Application accepted** | Admin sets `Application.status = APPROVED` | Member email | `app/api/admin/members/[id]/status/route.ts` (calls `sendEnrollmentConfirmationEmail`) |
+| **Application denied** | Admin sets `Application.status = DENIED` | Member email | `app/api/admin/members/[id]/status/route.ts` (calls `sendApplicationRejectedEmail`) |
+| **Counselor assigned** | Admin assigns counselor to a member | Member email | `app/api/admin/members/[id]/counselor/route.ts` (calls `sendCounselorAssignedEmail`) |
+| **Course enrollment confirmation** | Member enrolls via `/api/member/enroll` | Member email | `app/api/member/enroll/route.ts` (calls `sendCourseEnrolledEmail`) |
+| **Inactive nudge** | Daily / weekly cron, 7+ and 14+ day windows | Member email | `app/api/cron/inactive-nudge/route.ts`, `app/api/cron/inactivity-nudge/route.ts` |
+| **Application submitted (admin alert)** | Member completes apply signup | `info@workforceap.org` | `app/api/apply/signup/route.ts` — wired 2026-05-07 |
+| **Application submitted (member confirmation)** | Member completes apply signup | Member email | `app/api/apply/signup/route.ts` — wired 2026-05-07 |
+| **Pre-screening interview ready (admin alert)** | Member completes pre-screening | `info@workforceap.org` | `sendPreScreeningReadyEmail` (called from pre-screening completion) |
+| **Partner weekly digest** | Cron | Partner contact | `sendPartnerWeeklyDigest` |
+| **Partner milestone events** (enrollment, course, certification, placement) | Per-event triggers | Partner contact (per opt-in) | `lib/notifications/partner-notify.ts` (fire-and-forget) |
 
 ---
 
-### Course Enrollment Confirmation
+## Outstanding gaps (not yet wired)
 
-**Trigger:** Member enrolls in program via `POST /api/member/enroll`.
+### Course completion celebration (member)
 
-**Recipient:** Member email
+**Trigger:** `POST /api/member/courses/complete` or equivalent course-completion event.
+**Recipient:** Member email.
+**Content:** "Congratulations on completing [Course]. Here's what's next."
+**Priority:** Low — partner already gets the milestone email; member sees the completion in the UI; counselor triage already surfaces a milestone-celebrate flag for outbound nudge. Acceptable to defer.
+**Helper:** `sendCourseCompletedEmail` exists in `lib/email.ts` (template: `emails/course-completed.ts`).
 
-**Content:** "You're enrolled in [Program]. Access your courses in the dashboard."
+### Weekly recap email to member
 
-**Priority:** Medium – reinforces commitment.
+**Trigger:** Cron — Monday morning, generates `WeeklyRecap` row and emails it.
+**Recipient:** Member email.
+**Priority:** Medium — increases engagement.
+**Helper:** `sendWeeklyRecapEmail` exists; cron not deployed.
+**Status:** Generation logic in `lib/recap/generate.ts`; no scheduled cron route yet.
 
----
+### Deadline reminders
 
-### Course Completion
+**Trigger:** Cron — members with upcoming program/course deadlines.
+**Recipient:** Member email.
+**Priority:** Low — depends on whether deadlines are tracked. Currently they aren't, so no-op until they are.
 
-**Trigger:** Member marks course complete via `POST /api/member/courses/complete`.
+### Admin weekly summary report
 
-**Recipient:** Member email
+**Trigger:** Cron — Monday morning.
+**Recipient:** Admin email.
+**Priority:** Low — admin has `/admin/outcomes` for live numbers; weekly email is convenience, not critical.
+**Helper:** `sendAdminWeeklySummaryEmail` exists (template: `emails/admin-weekly-recap.ts`); cron not deployed.
 
-**Content:** "Congratulations! You completed [Course]. Keep going in your program."
+### System errors / Sentry alerts
 
-**Priority:** Low – partner already gets notified; member sees it in UI.
-
----
-
-### Counselor Assigned
-
-**Trigger:** Admin assigns counselor to member (if such feature exists).
-
-**Recipient:** Member email
-
-**Content:** "[Counselor Name] has been assigned as your career counselor. Schedule a meeting from your dashboard."
-
-**Priority:** Depends on product – verify if counselor assignment exists.
-
----
-
-### Weekly Recap Email
-
-**Trigger:** Cron (e.g. Monday morning) or on-demand.
-
-**Recipient:** Member email
-
-**Content:** "Your weekly recap is ready" with summary (from `lib/recap/generate.ts`). Link to dashboard.
-
-**Priority:** Medium – increases engagement.
+**Trigger:** Critical errors via Sentry webhook.
+**Recipient:** Admin email / Slack.
+**Priority:** Low (Sentry already sends alerts to its own UI; this would be a redundant channel).
 
 ---
 
-### Deadline Reminders
+## Note on `app/api/cron/automations/route.ts`
 
-**Trigger:** Cron – members with upcoming program/course deadlines.
-
-**Recipient:** Member email
-
-**Content:** "Reminder: [Deadline] is approaching for [Program/Course]."
-
-**Priority:** Low – depends on whether deadlines are tracked.
-
----
-
-### Inactive Nudge
-
-**Trigger:** Cron automations – members with no activity in 7+ days.
-
-**Recipient:** Member email
-
-**Content:** "We miss you! Pick up where you left off in your training."
-
-**Status:** TODO in `app/api/cron/automations/route.ts` line 42.
-
-**Priority:** Medium – re-engagement.
-
----
-
-## Admin Notifications
-
-### New Application Submitted
-
-**Trigger:** Member completes signup with application (`POST /api/member/signup` or apply flow).
-
-**Recipient:** info@workforceap.org (or configurable)
-
-**Content:** "New application from [Name]. Review in admin."
-
-**Priority:** High – admins need to know when to review.
-
----
-
-### System Errors/Alerts
-
-**Trigger:** Critical errors (e.g. payment failure, auth outage). Would require error boundary or Sentry webhook.
-
-**Recipient:** Admin email
-
-**Priority:** Low – depends on monitoring setup.
-
----
-
-### Weekly Summary Report
-
-**Trigger:** Cron (e.g. Monday).
-
-**Recipient:** Admin email
-
-**Content:** Metrics: new signups, assessments, enrollments, completions, placements.
-
-**Priority:** Low – reporting.
+The previous version of this doc claimed an inactive-nudge TODO existed at line 42 of that file. As of 2026-05-07 the inactive-nudge work is **shipped** in `app/api/cron/inactive-nudge/` and `app/api/cron/inactivity-nudge/` (two different windows). The `automations/route.ts` reference is stale.

@@ -46,7 +46,13 @@ function stageFromRow(
 
 export function buildMemberApplicationStatusView(
   app: Pick<Application, 'status' | 'programInterest' | 'submittedAt' | 'createdAt'> | null,
-  member: { enrolledProgram: string | null; enrolledAt: Date | null; assessmentCompleted: boolean }
+  member: { enrolledProgram: string | null; enrolledAt: Date | null; assessmentCompleted: boolean },
+  intake?: {
+    preScreeningDone: boolean;
+    interviewEligible: boolean;
+    interviewRequested: boolean;
+    interviewCompleted: boolean;
+  }
 ): MemberApplicationStatusView | null {
   if (!app) return null;
 
@@ -65,6 +71,44 @@ export function buildMemberApplicationStatusView(
     rejected: 'Application closed',
   };
 
+  // Active stage next steps vary by pre-screening / interview progress
+  const activeNextStep = ((): { text: string; href: string } => {
+    if (!intake) {
+      return {
+        text: 'Your Training Preassessment is complete. Follow the next step on your dashboard to keep moving toward training and job support.',
+        href: '/dashboard/ai-tools',
+      };
+    }
+    if (intake.interviewCompleted) {
+      return {
+        text: 'Interview complete. Keep working through training and job search steps.',
+        href: '/dashboard/ai-tools',
+      };
+    }
+    if (intake.interviewRequested) {
+      return {
+        text: 'Interview requested — watch your email for scheduling details.',
+        href: '/dashboard/messages',
+      };
+    }
+    if (intake.interviewEligible) {
+      return {
+        text: "You're interview eligible. Request your interview or attend a scheduled session.",
+        href: '/dashboard',
+      };
+    }
+    if (intake.preScreeningDone) {
+      return {
+        text: 'Pre-screening submitted — a counselor will review and reach out by email.',
+        href: '/dashboard/messages',
+      };
+    }
+    return {
+      text: 'Complete your pre-screening to become interview eligible.',
+      href: '/dashboard',
+    };
+  })();
+
   const nextSteps: Record<MemberApplicationStage, string> = {
     applied:
       'Our team is reviewing your application. Watch your email for next steps from a counselor.',
@@ -74,8 +118,7 @@ export function buildMemberApplicationStatusView(
       'Choose your program and complete your profile so we can finalize enrollment.',
     enrolled:
       'Complete your Training Preassessment so your dashboard can show the right training steps.',
-    active:
-      'Your Training Preassessment is complete. Follow the next step on your dashboard to keep moving toward training and job support.',
+    active: activeNextStep.text,
     rejected:
       "We're unable to move forward with this application at this time. Reach out to us at info@workforceap.org if you have questions or would like to discuss next steps.",
   };
@@ -85,7 +128,7 @@ export function buildMemberApplicationStatusView(
     under_review: '/dashboard/messages',
     accepted: '/dashboard/profile',
     enrolled: '/dashboard/training',
-    active: '/dashboard/ai-tools',
+    active: activeNextStep.href,
     rejected: 'mailto:info@workforceap.org',
   };
 

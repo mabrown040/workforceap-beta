@@ -414,7 +414,11 @@
     "noMessages": "No messages yet",
     "counselorReply": "Your counselor will reply here",
     "sendMessage": "Send Message",
-    "yourMessageRequired": "Your Message *"
+    "yourMessageRequired": "Your Message *",
+    "messagesTitle": "Messages",
+    "messagesDescription": "Chat with your WorkforceAP counselor.",
+    "memberPortal": "Member Portal",
+    "noMessagesYet": "No messages yet"
   },
   "profile": {
     "edit": "Edit profile",

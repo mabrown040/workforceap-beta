@@ -414,7 +414,11 @@
     "noMessages": "Aún no hay mensajes",
     "counselorReply": "Tu consejero responderá aquí",
     "sendMessage": "Enviar mensaje",
-    "yourMessageRequired": "Tu mensaje *"
+    "yourMessageRequired": "Tu mensaje *",
+    "messagesTitle": "Mensajes",
+    "messagesDescription": "Chatea con tu consejero de WorkforceAP.",
+    "memberPortal": "Portal de miembros",
+    "noMessagesYet": "Aún no hay mensajes"
   },
   "profile": {
     "edit": "Editar perfil",

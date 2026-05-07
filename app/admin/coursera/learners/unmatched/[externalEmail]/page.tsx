@@ -9,10 +9,13 @@ import MapToUserActions from '@/components/admin/coursera/MapToUserActions';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import {
+  countUnmatchedXapiEventsByExternalEmail,
   loadLearnerProgressByExternalEmail,
   loadUnmatchedXapiEventsByExternalEmail,
   suggestUserMatchesForExternalEmail,
 } from '@/lib/coursera/progressQueries';
+
+const PARENT_EVENTS_PREVIEW_LIMIT = 10;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera learner detail (unmatched)',
@@ -45,13 +48,16 @@ export default async function AdminCourseraUnmatchedLearnerPage({
   const { externalEmail } = await params;
   const decoded = decodeURIComponent(externalEmail);
 
-  // Run all three loaders in parallel — if CSV is empty, xAPI is the entire
+  // Run all four loaders in parallel — if CSV is empty, xAPI is the entire
   // story; if both are present, we render both side-by-side. Suggestions are
-  // computed against the WAP users table independently.
-  const [csvDetail, xapiEvents, suggestions] = await Promise.all([
+  // computed against the WAP users table independently. The events list is
+  // capped at PARENT_EVENTS_PREVIEW_LIMIT here — overflow is rendered on the
+  // dedicated `/events` page so this detail page stays scannable.
+  const [csvDetail, xapiEvents, suggestions, totalUnmatchedEvents] = await Promise.all([
     loadLearnerProgressByExternalEmail(decoded),
-    loadUnmatchedXapiEventsByExternalEmail(decoded, 100),
+    loadUnmatchedXapiEventsByExternalEmail(decoded, PARENT_EVENTS_PREVIEW_LIMIT),
     suggestUserMatchesForExternalEmail(decoded, null, 5),
+    countUnmatchedXapiEventsByExternalEmail(decoded),
   ]);
 
   // Classify the key from actual data, NOT from the string shape.
@@ -96,8 +102,9 @@ export default async function AdminCourseraUnmatchedLearnerPage({
     ? await suggestUserMatchesForExternalEmail(decoded, externalName, 5)
     : suggestions;
 
-  const hasAnyData =
-    csvDetail !== null || xapiEvents.length > 0;
+  const hasAnyData = csvDetail !== null || totalUnmatchedEvents > 0;
+  const eventsHref = `/admin/coursera/learners/unmatched/${encodeURIComponent(decoded)}/events`;
+  const hasMoreEvents = totalUnmatchedEvents > xapiEvents.length;
 
   return (
     <PortalPageFrame>
@@ -141,8 +148,8 @@ export default async function AdminCourseraUnmatchedLearnerPage({
             </dd>
             <dt style={{ color: 'var(--color-on-surface-variant)' }}>Unmatched xAPI events</dt>
             <dd style={{ margin: 0 }}>
-              <strong>{xapiEvents.length}</strong>
-              {xapiEvents.length === 0 ? ' — no live activity recorded for this email' : ''}
+              <strong>{totalUnmatchedEvents}</strong>
+              {totalUnmatchedEvents === 0 ? ' — no live activity recorded for this email' : ''}
             </dd>
           </dl>
           <MapToUserActions
@@ -165,14 +172,19 @@ export default async function AdminCourseraUnmatchedLearnerPage({
           </section>
         ) : null}
 
-        {/* Unmatched xAPI events — most useful when CSV is empty. */}
+        {/* Unmatched xAPI events — preview only. Full list on /events. */}
         {xapiEvents.length > 0 ? (
           <section className="content-card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.6rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Unmatched xAPI events ({xapiEvents.length})</h2>
+              <h2 style={{ margin: 0, fontSize: '1.05rem' }}>
+                Unmatched xAPI events
+                {hasMoreEvents
+                  ? ` (showing ${xapiEvents.length} of ${totalUnmatchedEvents})`
+                  : ` (${totalUnmatchedEvents})`}
+              </h2>
               <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                Real-time activity Coursera sent for this email that we couldn&rsquo;t link to a member.
-                Mapping above will reprocess these.
+                Most-recent activity Coursera sent for this email that we couldn&rsquo;t link to a
+                member. Mapping above will reprocess these.
               </p>
             </div>
             <div style={{ overflowX: 'auto' }}>
@@ -239,6 +251,21 @@ export default async function AdminCourseraUnmatchedLearnerPage({
                 </tbody>
               </table>
             </div>
+            {hasMoreEvents ? (
+              <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--outline-variant)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  {totalUnmatchedEvents - xapiEvents.length} more event
+                  {totalUnmatchedEvents - xapiEvents.length === 1 ? '' : 's'} not shown.
+                </p>
+                <Link
+                  href={eventsHref}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.85rem', padding: '0.4rem 0.85rem' }}
+                >
+                  View all {totalUnmatchedEvents} events →
+                </Link>
+              </div>
+            ) : null}
           </section>
         ) : null}
 

@@ -31,7 +31,6 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
               email: true,
               enrolledProgram: true,
               enrolledAt: true,
-              coursesCompleted: true,
               assessmentCompleted: true,
               deletedAt: true,
               placementRecord: {
@@ -69,7 +68,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   for (const m of members) {
     if (m.placementRecord) placements++;
     else active++;
-    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) {
+    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) {
       completions++;
     }
   }
@@ -186,7 +185,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
                 {partner.referrals.map((r) => {
                   const m = r.member;
                   const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-                  const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
+                  const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
                   const student: PipelineStudent = {
                     id: m.id,
                     fullName: m.fullName,
@@ -194,7 +193,6 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
                     enrolledProgram: m.enrolledProgram,
                     enrolledAt: m.enrolledAt,
                     assessmentCompleted: m.assessmentCompleted,
-                    coursesCompleted: m.coursesCompleted,
                     deletedAt: m.deletedAt,
                     placementRecord: m.placementRecord,
                     userCertifications: m.userCertifications,

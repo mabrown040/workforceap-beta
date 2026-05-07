@@ -46,7 +46,6 @@ async function handle(_request: Request) {
             enrolledProgram: true,
             enrolledAt: true,
             assessmentCompleted: true,
-            coursesCompleted: true,
             deletedAt: true,
             placementRecord: {
               select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
@@ -73,7 +72,6 @@ async function handle(_request: Request) {
         enrolledProgram: m.enrolledProgram,
         enrolledAt: m.enrolledAt,
         assessmentCompleted: m.assessmentCompleted,
-        coursesCompleted: m.coursesCompleted,
         deletedAt: m.deletedAt,
         placementRecord: m.placementRecord,
         userCertifications: m.userCertifications,

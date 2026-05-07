@@ -105,7 +105,7 @@ export default async function PartnerDashboardPage() {
   const placements = members.filter((m) => m.placementRecord).length;
   const inTraining = pipelineMembers.filter((p) => p.stage === 'in_training' || p.stage === 'certified').length;
   const completions = pipelineMembers.filter((p) => {
-    return memberProgramCompleted(p.member.enrolledProgram, p.member.coursesCompleted, p.member.memberProgramProgress);
+    return memberProgramCompleted(p.member.enrolledProgram, null, p.member.memberProgramProgress);
   }).length;
 
   const total = members.length;

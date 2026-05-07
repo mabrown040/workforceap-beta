@@ -35,7 +35,6 @@ export default async function AdminJobReadyPage() {
       email: true,
       phone: true,
       enrolledProgram: true,
-      coursesCompleted: true,
       interviewEligible: true,
       memberProgramProgress: {
         select: { programSlug: true, averagePercent: true, coursesCompleted: true },
@@ -45,7 +44,7 @@ export default async function AdminJobReadyPage() {
 
   const rows: JobReadyRow[] = candidates
     .map((c) => {
-      const progress = computeTrainingProgress(c.enrolledProgram, c.coursesCompleted, c.memberProgramProgress);
+      const progress = computeTrainingProgress(c.enrolledProgram, null, c.memberProgramProgress);
       return {
         id: c.id,
         fullName: c.fullName ?? c.email,

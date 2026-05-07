@@ -9,7 +9,6 @@ const referralMemberSelect = {
   fullName: true,
   enrolledProgram: true,
   enrolledAt: true,
-  coursesCompleted: true,
   updatedAt: true,
   deletedAt: true,
   assessmentCompleted: true,
@@ -46,7 +45,6 @@ export type ReferralMember = {
   fullName: string;
   enrolledProgram: string | null;
   enrolledAt: Date | null;
-  coursesCompleted: unknown;
   updatedAt: Date;
   deletedAt: Date | null;
   assessmentCompleted: boolean;
@@ -129,18 +127,18 @@ export async function loadPartnerReferralBundle(partnerId: string) {
       enrolledProgram: m.enrolledProgram,
       enrolledAt: m.enrolledAt,
       assessmentCompleted: m.assessmentCompleted,
-      coursesCompleted: m.coursesCompleted,
       deletedAt: m.deletedAt,
       placementRecord: m.placementRecord as PipelineStudent['placementRecord'],
       userCertifications: m.userCertifications as PipelineStudent['userCertifications'],
       applications: m.applications,
+      memberProgramProgress: m.memberProgramProgress,
     };
     const stage = getPipelineStage(student);
     pipelineMembers.push({
       member: m,
       referredAt: r.referredAt,
       stage,
-      progress: memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress),
+      progress: memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress),
       programTitle: program?.title ?? '—',
     });
   }

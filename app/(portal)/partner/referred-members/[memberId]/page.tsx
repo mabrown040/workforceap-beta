@@ -62,7 +62,10 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
       fullName: true,
       enrolledProgram: true,
       enrolledAt: true,
-      coursesCompleted: true,
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
       placementRecord: {
         select: {
           employerName: true,
@@ -107,8 +110,12 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   ]);
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
-  const coursesDone = (member.coursesCompleted as string[] | null) ?? [];
-  const progressPct = memberProgramProgressPct(member.enrolledProgram, member.coursesCompleted, member.memberProgramProgress);
+  const coursesDone = member.enrolledProgram
+    ? member.courseProgress
+        .filter((row) => row.programSlug === member.enrolledProgram)
+        .map((row) => row.courseSlug)
+    : [];
+  const progressPct = memberProgramProgressPct(member.enrolledProgram, null, member.memberProgramProgress);
   const skillsetProgress = await loadMemberSkillsetProgress(memberId);
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
@@ -118,7 +125,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const memberStatus = placed ? 'Placed' : pendingPlacement ? 'Offer reported — review pending' : progressPct >= 80 ? 'Course-complete' : 'In training';
 
   const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
-  const allCoursesDone = memberProgramCompleted(member.enrolledProgram, member.coursesCompleted, member.memberProgramProgress);
+  const allCoursesDone = memberProgramCompleted(member.enrolledProgram, null, member.memberProgramProgress);
   const certPhaseLabel = certificateCount > 0 || allCoursesDone ? 'In progress or complete' : 'Pending';
 
   const journey = [

@@ -52,8 +52,15 @@ export async function GET(req: NextRequest) {
       fullName: true,
       email: true,
       enrolledAt: true,
-      coursesCompleted: true,
       assessmentCompleted: true,
+      memberProgramProgress: {
+        where: { programSlug: slug },
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      },
+      courseProgress: {
+        where: { programSlug: slug, status: 'COMPLETED' },
+        select: { courseSlug: true },
+      },
       assessmentScorePct: true,
       profile: {
         select: {
@@ -104,11 +111,11 @@ export async function GET(req: NextRequest) {
   ];
 
   const csvRows = users.map((u) => {
-    const completed = Array.isArray(u.coursesCompleted)
-      ? (u.coursesCompleted as string[])
-      : [];
-    const completionPct =
-      totalCourses > 0 ? Math.round((completed.length / totalCourses) * 100) : 0;
+    const completed = u.courseProgress.map((row) => row.courseSlug);
+    const rollup = u.memberProgramProgress[0] ?? null;
+    const completionPct = totalCourses > 0
+      ? Math.max(0, Math.min(100, rollup?.averagePercent ?? Math.round((completed.length / totalCourses) * 100)))
+      : 0;
 
     const p = u.placementRecord;
     // Hourly wage estimate from annual salary (40h/wk × 52wk = 2080h)

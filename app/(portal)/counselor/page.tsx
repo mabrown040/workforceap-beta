@@ -15,6 +15,7 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
 export default async function CounselorPortalPage() {
@@ -46,7 +47,9 @@ export default async function CounselorPortalPage() {
               programInterest: true,
               enrolledProgram: true,
               assessmentScorePct: true,
-              coursesCompleted: true,
+              memberProgramProgress: {
+                select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+              },
             },
           },
         },
@@ -184,15 +187,8 @@ export default async function CounselorPortalPage() {
                 const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
                 const enrolledSlug = a.member.enrolledProgram ?? null;
                 const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
-                const completed = (a.member.coursesCompleted as string[] | null) ?? [];
-                const completedSet = new Set(completed);
-                const totalCourses = program?.courses.length ?? 0;
-                const completedCount =
-                  program && totalCourses > 0
-                    ? program.courses.filter((c) => completedSet.has(c.slug)).length
-                    : 0;
-                const trainingProgressPct =
-                  program && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
+                const progress = computeTrainingProgress(enrolledSlug, null, a.member.memberProgramProgress);
+                const trainingProgressPct = program && progress.totalCourses > 0 ? progress.pct : null;
                 const rosterBadge = counselorStudentStatusBadge({
                   enrolledProgram: a.member.enrolledProgram,
                   assessmentScorePct: a.member.assessmentScorePct,

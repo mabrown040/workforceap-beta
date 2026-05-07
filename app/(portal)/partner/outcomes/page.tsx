@@ -36,7 +36,7 @@ export default async function PartnerOutcomesPage() {
   ).length;
 
   const completions = pipelineMembers.filter((p) => {
-    return memberProgramCompleted(p.member.enrolledProgram, p.member.coursesCompleted, p.member.memberProgramProgress);
+    return memberProgramCompleted(p.member.enrolledProgram, null, p.member.memberProgramProgress);
   }).length;
 
   return (

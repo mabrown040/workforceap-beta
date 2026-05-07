@@ -69,7 +69,6 @@ export default async function CounselorStudentsPage() {
               enrolledProgram: true,
               programInterest: true,
               assessmentScorePct: true,
-              coursesCompleted: true,
               wioaReviewStatus: true,
               memberProgramProgress: {
                 select: { programSlug: true, averagePercent: true, coursesCompleted: true },
@@ -251,7 +250,7 @@ export default async function CounselorStudentsPage() {
               const initials = getInitials(a.member.fullName ?? 'U');
               const program = a.member.enrolledProgram ?? a.member.programInterest ?? '—';
               const enrolledSlug = a.member.enrolledProgram ?? null;
-              const progress = computeTrainingProgress(enrolledSlug, a.member.coursesCompleted, a.member.memberProgramProgress);
+              const progress = computeTrainingProgress(enrolledSlug, null, a.member.memberProgramProgress);
               const trainingProgressPct = progress.totalCourses > 0 ? progress.pct : null;
               const statusBadge = counselorStudentStatusBadge({
                 enrolledProgram: a.member.enrolledProgram,

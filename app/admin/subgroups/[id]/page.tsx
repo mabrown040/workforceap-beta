@@ -26,7 +26,6 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
               email: true,
               enrolledProgram: true,
               enrolledAt: true,
-              coursesCompleted: true,
               deletedAt: true,
               assessmentCompleted: true,
               placementRecord: {
@@ -53,7 +52,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
     .map((ms) => {
       const m = ms.member;
       const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-      const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
+      const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,
@@ -61,7 +60,6 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
         enrolledProgram: m.enrolledProgram,
         enrolledAt: m.enrolledAt,
         assessmentCompleted: m.assessmentCompleted,
-        coursesCompleted: m.coursesCompleted,
         deletedAt: m.deletedAt,
         placementRecord: m.placementRecord,
         userCertifications: m.userCertifications,
@@ -88,7 +86,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
   for (const m of subgroup.members.map((ms) => ms.member)) {
     if (m.deletedAt) continue;
     if (m.placementRecord) placements++;
-    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) completions++;
+    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) completions++;
   }
 
   return (

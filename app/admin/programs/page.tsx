@@ -26,7 +26,13 @@ export default async function AdminProgramsPage() {
 
   const enrollments = await prisma.user.findMany({
     where: { deletedAt: null, enrolledProgram: { not: null } },
-    select: { enrolledProgram: true, assessmentScorePct: true, coursesCompleted: true },
+    select: {
+      enrolledProgram: true,
+      assessmentScorePct: true,
+      memberProgramProgress: {
+        select: { programSlug: true, coursesCompleted: true },
+      },
+    },
   });
 
   const byProgram = new Map<string, { count: number; scores: number[]; completed: number }>();
@@ -35,8 +41,8 @@ export default async function AdminProgramsPage() {
     const prog = byProgram.get(slug) ?? { count: 0, scores: [], completed: 0 };
     prog.count++;
     if (e.assessmentScorePct != null) prog.scores.push(e.assessmentScorePct);
-    const completed = (e.coursesCompleted as string[] | null) ?? [];
-    prog.completed += completed.length;
+    const completed = e.memberProgramProgress.find((row) => row.programSlug === slug)?.coursesCompleted ?? 0;
+    prog.completed += completed;
     byProgram.set(slug, prog);
   }
 

@@ -23,7 +23,7 @@ export interface PipelineStudent {
   enrolledProgram: string | null;
   enrolledAt: Date | null;
   assessmentCompleted: boolean;
-  coursesCompleted: unknown; // JSON array of course slugs
+  coursesCompleted?: unknown; // legacy JSON array of course slugs; canonical callers should pass memberProgramProgress
   memberProgramProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[];
   deletedAt: Date | null;
   placementRecord?: { employerName: string; jobTitle: string; salaryOffered: number | null; placedAt: Date } | null;

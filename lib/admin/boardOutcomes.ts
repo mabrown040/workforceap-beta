@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { memberProgramCompleted } from '@/lib/partner/memberProgress';
+import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 
 /**
  * Aggregations for the Board / Funder outcomes portal.
@@ -139,8 +139,6 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
         id: true,
         enrolledProgram: true,
         enrolledAt: true,
-        coursesCompleted: true,
-        assessmentCompleted: true,
         memberProgramProgress: {
           select: { programSlug: true, averagePercent: true, coursesCompleted: true },
         },
@@ -186,9 +184,12 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
 
   // Members served = enrolled in period
   const membersServed = enrolledMembers.length;
-  const membersInTraining = enrolledMembers.filter((m) => m.enrolledProgram && !m.assessmentCompleted).length;
+  const membersInTraining = enrolledMembers.filter((m) => {
+    const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+    return pct > 0 && pct < 100;
+  }).length;
   const membersCertified = enrolledMembers.filter((m) =>
-    memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress),
+    memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress),
   ).length;
   const membersPlaced = placements.length;
   const placementRate = membersServed > 0 ? Math.round((membersPlaced / membersServed) * 100) : 0;
@@ -225,7 +226,7 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
       placed: 0,
     };
     cur.enrolled += 1;
-    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) {
+    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) {
       cur.certified += 1;
     }
     programs.set(m.enrolledProgram, cur);

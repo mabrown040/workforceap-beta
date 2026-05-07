@@ -60,8 +60,14 @@ export async function GET(req: NextRequest) {
       phone: true,
       enrolledProgram: true,
       enrolledAt: true,
-      coursesCompleted: true,
       assessmentCompleted: true,
+      memberProgramProgress: {
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      },
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
       assessmentScorePct: true,
       pipelineBoardStage: true,
       wioaQualificationJson: true,
@@ -174,10 +180,19 @@ export async function GET(req: NextRequest) {
     const program = u.enrolledProgram ? getProgramBySlug(u.enrolledProgram) : null;
     const programTitle = program?.title ?? u.enrolledProgram ?? '';
     const totalCourses = program?.courses.length ?? 0;
-    const completed = Array.isArray(u.coursesCompleted) ? u.coursesCompleted as string[] : [];
-    const completionPct = totalCourses > 0 ? Math.round((completed.length / totalCourses) * 100) : 0;
+    const completed = u.enrolledProgram
+      ? u.courseProgress
+          .filter((row) => row.programSlug === u.enrolledProgram)
+          .map((row) => row.courseSlug)
+      : [];
+    const rollup = u.enrolledProgram
+      ? u.memberProgramProgress.find((row) => row.programSlug === u.enrolledProgram) ?? null
+      : null;
+    const completionPct = totalCourses > 0
+      ? Math.max(0, Math.min(100, rollup?.averagePercent ?? Math.round((completed.length / totalCourses) * 100)))
+      : 0;
 
-    // Map completed slugs to course names
+    // Map completed slugs to course names from canonical CourseProgress rows.
     const completedNames = program
       ? completed
           .map((slug) => program.courses.find((c) => c.slug === slug)?.name ?? slug)

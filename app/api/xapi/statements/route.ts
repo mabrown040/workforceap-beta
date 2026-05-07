@@ -66,13 +66,16 @@ export async function POST(request: Request) {
     const persisted = await persistXapiStatement({
       statementId: parsed.statementId,
       actorEmail: parsed.email,
+      actorAccountName: parsed.actorIdentifier,
+      actorHomePage: parsed.actorHomePage,
       verb,
-      courseId: tailFromObjectId(parsed.courseObjectId),
+      courseId: parsed.courseraCourseId ?? tailFromObjectId(parsed.courseObjectId),
       courseName: parsed.courseName ?? null,
       resultScoreScaled: parsed.resultScoreScaled,
       resultScoreRaw: parsed.resultScoreRaw,
       resultCompletion: parsed.resultCompletion,
       resultSuccess: parsed.resultSuccess,
+      payload: raw as Record<string, never>, // raw is a parsed xAPI JSON object — Prisma.InputJsonValue at runtime
     });
 
     // Duplicate statementId (retries / races): row exists — skip completion side effects.

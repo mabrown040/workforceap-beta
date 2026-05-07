@@ -26,6 +26,13 @@ function extractCourseSlugFromObjectId(objectId: string | null) {
   }
 }
 
+/** Activity type derived from `object.definition.type`. Coursera emits two
+ *  distinct shapes — course-level events (one per course) and item-level events
+ *  (one per quiz/lecture/assignment inside a course). They have different
+ *  semantics: a `completed` verb on an *item* means a single lesson finished,
+ *  not the whole course. The pipeline must distinguish these. */
+export type XapiActivityType = 'course' | 'item' | 'unknown';
+
 export type ParsedXapiStatement = {
   email?: string;
   actorIdentifier?: string;
@@ -35,6 +42,17 @@ export type ParsedXapiStatement = {
   statementId?: string;
   verbId?: string;
   courseObjectId?: string | null;
+  /** Coursera's canonical course identifier from
+   *  `context.extensions["http://coursera.org/xapi/extensions/courseId"]`.
+   *  Use this for catalog lookup — it's stable across course/item events. */
+  courseraCourseId?: string | null;
+  /** Coursera's program identifier from the matching extension URI. */
+  courseraProgramId?: string | null;
+  /** What the statement is *about* — distinguishes course vs item events. */
+  activityType?: XapiActivityType;
+  /** Coursera's item-type discriminator (e.g. `ITEM_TYPE_LECTURE`,
+   *  `ITEM_TYPE_STAFF_GRADED_ASSIGNMENT`). Only present on item events. */
+  itemType?: string | null;
   resultScoreScaled?: number | null;
   resultScoreRaw?: number | null;
   resultCompletion?: boolean | null;
@@ -103,7 +121,11 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
   const { scaled, raw } = readScore(result);
   const resultCompletion = typeof result?.completion === 'boolean' ? result.completion : null;
   const resultSuccess = typeof result?.success === 'boolean' ? result.success : null;
-  const resultProgressPercent = readProgressPercent(result);
+  // Coursera course-level "progressed" events carry the rolled-up % in
+  // result.score.scaled (e.g. 0.32 == 32%) and never set result.progress.
+  // Fall back to the scaled score so we don't write 0% when we have a real
+  // signal. We compute this AFTER classifying activityType below.
+  const baseProgressPercent = readProgressPercent(result);
 
   const object = statement.object && typeof statement.object === 'object'
     ? (statement.object as Record<string, unknown>)
@@ -116,7 +138,49 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
     (typeof definition?.name === 'string' ? definition.name.trim() : null) ||
     firstRecordString(definition?.name) ||
     undefined;
-  const courseSlug = extractCourseSlugFromObjectId(objectId) || (courseName ? toSlug(courseName) : undefined);
+
+  // Coursera xAPI emits identifiers via context.extensions URIs. These are the
+  // authoritative course/program/item identifiers — far more reliable than
+  // pulling the last URL segment out of object.id, which gave us "ezm1l" /
+  // "0wndn" looking-like-slugs (they're item IDs, not course slugs).
+  const context = statement.context && typeof statement.context === 'object'
+    ? (statement.context as Record<string, unknown>)
+    : null;
+  const extensions = context?.extensions && typeof context.extensions === 'object'
+    ? (context.extensions as Record<string, unknown>)
+    : null;
+  const courseraCourseId = readNonEmptyString(
+    extensions?.['http://coursera.org/xapi/extensions/courseId'],
+  );
+  const courseraProgramId = readNonEmptyString(
+    extensions?.['http://coursera.org/xapi/extensions/programId'],
+  );
+  const itemType = readNonEmptyString(
+    extensions?.['http://coursera.org/xapi/extensions/itemType'],
+  );
+
+  const definitionType = readNonEmptyString(definition?.type)?.toLowerCase() ?? '';
+  const activityType: XapiActivityType = definitionType.endsWith('/activities/course')
+    ? 'course'
+    : definitionType.endsWith('/activities/item')
+      ? 'item'
+      : 'unknown';
+
+  // courseSlug is best-effort. Prefer the URL-tail heuristic only for course-
+  // level events (where the tail is the courseId path segment). For item-level
+  // events the tail is an item ID — never a course slug — so don't pollute
+  // downstream lookups. Catalog matching now uses `courseraCourseId` directly.
+  const courseSlug =
+    activityType === 'course'
+      ? extractCourseSlugFromObjectId(objectId) || (courseName ? toSlug(courseName) : undefined)
+      : courseName ? toSlug(courseName) : undefined;
+
+  // Final progress percent: course-level events with a scaled score should
+  // report that score as the rolled-up progress, since Coursera doesn't fill
+  // result.progress for course events.
+  const resultProgressPercent =
+    baseProgressPercent
+    ?? (activityType === 'course' && scaled != null ? Math.round(scaled * 100) : null);
 
   return {
     email: email || undefined,
@@ -127,6 +191,10 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
     statementId,
     verbId: verbId || undefined,
     courseObjectId: objectId,
+    courseraCourseId,
+    courseraProgramId,
+    activityType,
+    itemType,
     resultScoreScaled: scaled,
     resultScoreRaw: raw,
     resultCompletion,
@@ -136,7 +204,24 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
   };
 }
 
+function readNonEmptyString(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/** True when the statement should mark a *course* complete on the member's
+ *  record. Coursera fires `completed` on individual items (lectures,
+ *  assignments) too — those are NOT course completions and must be excluded
+ *  here, otherwise a single quiz completion would mark the whole course done.
+ *  Item-level events are still tracked as progress signals (see
+ *  isXapiCourseProgressVerb), they just don't trigger course-completion
+ *  side effects. */
 export function isXapiCompletionVerb(parsed: ParsedXapiStatement): boolean {
+  // Item-level activities never represent a course completion. Skip them
+  // regardless of verb.
+  if (parsed.activityType === 'item') return false;
+
   const verbId = (parsed.verbId ?? '').toLowerCase();
   return (
     verbId.includes('completed')

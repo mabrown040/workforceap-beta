@@ -5,6 +5,10 @@ import { prisma } from '@/lib/db/prisma';
 export type PersistXapiStatementInput = {
   statementId?: string | null;
   actorEmail?: string | null;
+  /** From actor.account.name — Coursera's external user identifier. */
+  actorAccountName?: string | null;
+  /** From actor.account.homePage — scopes actorAccountName. */
+  actorHomePage?: string | null;
   verb: string;
   courseId?: string | null;
   courseName?: string | null;
@@ -12,6 +16,11 @@ export type PersistXapiStatementInput = {
   resultScoreRaw?: number | null;
   resultCompletion?: boolean | null;
   resultSuccess?: boolean | null;
+  /** Full original xAPI statement. Stored verbatim so replay can reconstruct
+   *  it (object.definition.type, context.extensions, result.progress, …).
+   *  Typed as Prisma.InputJsonValue so the JSONB column accepts nested
+   *  objects without per-call casts. */
+  payload?: Prisma.InputJsonValue | null;
 };
 
 /**
@@ -27,6 +36,8 @@ export async function persistXapiStatement(
       data: {
         statementId,
         actorEmail: input.actorEmail?.trim().toLowerCase() || null,
+        actorAccountName: input.actorAccountName?.trim() || null,
+        actorHomePage: input.actorHomePage?.trim() || null,
         verb: input.verb,
         courseId: input.courseId?.trim() || null,
         courseName: input.courseName?.trim() || null,
@@ -34,6 +45,7 @@ export async function persistXapiStatement(
         resultScoreRaw: input.resultScoreRaw ?? null,
         resultCompletion: input.resultCompletion ?? null,
         resultSuccess: input.resultSuccess ?? null,
+        payload: input.payload == null ? Prisma.DbNull : input.payload,
       },
     });
     return 'inserted';

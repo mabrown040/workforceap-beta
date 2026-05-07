@@ -78,11 +78,30 @@ export default function CourseraUnmatchedLearners({
         }
         const courses = payload?.backfill?.courseRowsUpdated ?? 0;
         const badges = payload?.backfill?.badgeRowsUpdated ?? 0;
+        const xapi = payload?.xapiReplay as
+          | {
+              replayed?: number;
+              breakdown?: { completedOk?: number; errored?: number; ignored?: number; unmatched?: number };
+            }
+          | undefined;
+        const xapiSummary = (() => {
+          if (!xapi || !xapi.replayed) return '';
+          const b = xapi.breakdown;
+          if (!b) return ` Replayed ${xapi.replayed} xAPI event(s).`;
+          const parts: string[] = [];
+          if ((b.completedOk ?? 0) > 0) parts.push(`${b.completedOk} completed`);
+          if ((b.errored ?? 0) > 0) parts.push(`${b.errored} errored`);
+          if ((b.ignored ?? 0) > 0) parts.push(`${b.ignored} progress`);
+          if ((b.unmatched ?? 0) > 0) parts.push(`${b.unmatched} unmatched`);
+          return parts.length
+            ? ` Replayed ${xapi.replayed}: ${parts.join(', ')}.`
+            : ` Replayed ${xapi.replayed} xAPI event(s).`;
+        })();
         setFeedback((prev) => ({
           ...prev,
           [externalEmail]: {
             kind: 'success',
-            text: `Mapped — backfilled ${courses} course row(s), ${badges} badge row(s).`,
+            text: `Mapped — backfilled ${courses} course row(s), ${badges} badge row(s).${xapiSummary}`,
           },
         }));
         router.refresh();

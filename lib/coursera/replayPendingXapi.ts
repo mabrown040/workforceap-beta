@@ -10,7 +10,20 @@ export type ReplayPendingXapiResult = {
   scanned: number;
   replayed: number;
   skippedUnparsed: number;
+  /** Total per-completion-verb side effects emitted (may include failures). */
   completionsEmitted: number;
+  /** Per-outcome breakdown so admin UIs can distinguish "0 matched" (no events
+   *  resolved to a user) from "0 succeeded but 34 errored on course resolution"
+   *  — different bugs, different fixes. */
+  breakdown: {
+    completedOk: number;
+    /** Resolver matched, but downstream processing threw (e.g. course not found in catalog). */
+    errored: number;
+    /** Resolver matched, but the verb isn't a course completion (item-level, progressed, etc.). */
+    ignored: number;
+    /** Resolver couldn't bind the actor identity to a WAP user. */
+    unmatched: number;
+  };
 };
 
 /**
@@ -49,6 +62,7 @@ async function _replayRows(
   let replayed = 0;
   let skippedUnparsed = 0;
   let completionsEmitted = 0;
+  const breakdown = { completedOk: 0, errored: 0, ignored: 0, unmatched: 0 };
 
   for (const row of rows) {
     const raw = xapiStatementRowToRawStatement(row);
@@ -60,8 +74,25 @@ async function _replayRows(
     }
 
     replayed += 1;
-    const { completions } = await handleInboundParsedStatement(parsed);
-    completionsEmitted += completions.length;
+    const result = await handleInboundParsedStatement(parsed);
+    completionsEmitted += result.completions.length;
+
+    // Aggregate per-row outcome from the pipeline's classification. Reading
+    // the just-written event row keeps this in lock-step with the
+    // authoritative `completion_status` recorded by `recordXapiEvent`.
+    if (parsed.statementId) {
+      const eventRow = await prisma.$queryRaw<Array<{ status: string }>>`
+        SELECT completion_status AS status
+        FROM coursera_xapi_events
+        WHERE statement_id = ${parsed.statementId}
+        LIMIT 1
+      `;
+      const status = eventRow[0]?.status ?? 'unknown';
+      if (status === 'completed') breakdown.completedOk += 1;
+      else if (status === 'error') breakdown.errored += 1;
+      else if (status === 'ignored') breakdown.ignored += 1;
+      else if (status === 'unmatched') breakdown.unmatched += 1;
+    }
   }
 
   return {
@@ -69,5 +100,6 @@ async function _replayRows(
     replayed,
     skippedUnparsed,
     completionsEmitted,
+    breakdown,
   };
 }

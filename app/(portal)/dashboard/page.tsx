@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
-import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
+// import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus'; // now from getMemberState
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection';
 import type { CareerMatchResult } from '@/lib/onet/types';
@@ -23,13 +23,13 @@ import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
-import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
-import { buildNextBestActions } from '@/lib/member/nextBestActions';
+// import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals'; // now from getMemberState
+import { getMemberState } from '@/lib/member/getMemberState';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
-import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
+// import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness'; // now from getMemberState
 import {
   isTrainingStaleForCounselorEscalation,
-  loadMemberProgramTrainingView,
+  // loadMemberProgramTrainingView, // now from getMemberState
 } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
@@ -80,6 +80,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
+  // Single source of truth for member state (application, training, profile, checklist, next actions)
+  const memberState = await getMemberState(user.id);
+
+  // Lightweight query for presentation-layer metadata not in getMemberState
   const intakePromise = prisma.user.findUnique({
     where: { id: user.id },
     select: {
@@ -93,7 +97,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       fullName: true,
       phone: true,
       programInterest: true,
-      careerRecommendationJson: true,
       needsComputerSupportFollowUp: true,
       profile: {
         select: {
@@ -111,51 +114,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
     },
   });
-  const profilePromise = prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: {
-      profilePhone: true,
-      profileAddress: true,
-      profileLinkedin: true,
-      profileBio: true,
-      employmentStatus: true,
-      educationLevel: true,
-    },
-  });
-  const engagementPromise = getMemberEngagementSignals(user.id);
 
-  const [intakeResult, profileResult, engagementResult] = await Promise.allSettled([
+  const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
     intakePromise,
-    profilePromise,
-    engagementPromise,
-  ]);
-
-  const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
-  if (intakeResult.status === 'rejected') {
-    console.error('[dashboard] intake query failed', intakeResult.reason);
-  }
-
-  const profileForCompleteness = profileResult.status === 'fulfilled' ? profileResult.value : null;
-  if (profileResult.status === 'rejected') {
-    console.error('[dashboard] profile completeness query failed', profileResult.reason);
-  }
-
-  const engagementSignals =
-    engagementResult.status === 'fulfilled'
-      ? engagementResult.value
-      : {
-          hasResume: false,
-          jobApplicationCount: 0,
-          counselorUnreadCount: 0,
-          weeklyRecapUnopened: false,
-        };
-  if (engagementResult.status === 'rejected') {
-    console.error('[dashboard] engagement signals failed', engagementResult.reason);
-  }
-
-  const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
-
-  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -208,12 +169,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     }),
   ]);
 
-  const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
+  const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
+  if (intakeResult.status === 'rejected') {
+    console.error('[dashboard] intake query failed', intakeResult.reason);
+  }
+
+  const careerMatchFromProfile = memberState.careerRecommendation;
   if (toolsResult.status === 'rejected') {
     console.error('[dashboard] recent AI tools query failed', toolsResult.reason);
   }
 
-  const latestApplication = applicationResult.status === 'fulfilled' ? applicationResult.value : null;
+  const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
   if (applicationResult.status === 'rejected') {
     console.error('[dashboard] latest application query failed', applicationResult.reason);
   }
@@ -282,14 +248,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const showMemberTour =
     intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
   const wizardProgramInterest =
-    latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
+    memberState.application?.programInterest ?? intakeExtra?.programInterest ?? '';
 
-  const applicationStatusView = buildMemberApplicationStatusView(latestApplication, {
-    enrolledProgram: dbUser.enrolledProgram ?? null,
-    enrolledAt: dbUser.enrolledAt ?? null,
-    assessmentCompleted: dbUser.assessmentCompleted ?? false,
-  });
-
+  // ── Application status ── (from memberState, single source of truth)
+  const applicationStatusView = memberState.application;
   const applicationStatus = applicationStatusView
     ? {
         label: applicationStatusView.label,
@@ -302,7 +264,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         stage: applicationStatusView.stage,
       }
     : null;
-  const noApplicationOnFile = !latestApplication;
+  const noApplicationOnFile = !applicationStatusView;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
@@ -313,22 +275,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const trainingView =
-    enrolledProgram && program
-      ? await loadMemberProgramTrainingView({
-          userId: user.id,
-          programSlug: enrolledProgram,
-        })
-      : null;
 
+  // ── Training state ── (from memberState, single source of truth)
+  const trainingView = memberState.trainingView;
   const completedCount = trainingView?.completedCount ?? 0;
   const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
-  const allCoursesComplete =
-    trainingView?.allCoursesComplete ??
-    (totalCourses > 0 && completedCount >= totalCourses);
-  const progressPercentDisplay =
-    trainingView?.progressPercentDisplay ??
-    (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
+  const allCoursesComplete = trainingView?.allCoursesComplete ?? false;
+  const progressPercentDisplay = trainingView?.progressPercentDisplay ?? 0;
 
   let trainingEligibleSince: Date | null = null;
   if (enrolledProgram && assessmentCompleted) {
@@ -350,13 +303,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     employed: hasPlacementRecord,
   };
 
-  const dashboardState: 'A' | 'B' | 'C' | 'D' = !enrolledProgram
-    ? 'A'
-    : !assessmentCompleted
-      ? 'B'
-      : allCoursesComplete
-        ? 'D'
-        : 'C';
+  // ── Dashboard state letter ── (from memberState, single source of truth)
+  const dashboardState = memberState.stateLetter;
 
   const showStuckCounselor =
     dashboardState === 'C' &&
@@ -368,14 +316,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       dashboardInTraining: true,
     });
 
-  const completenessUser = {
-    fullName: dbUser.fullName,
-    email: dbUser.email,
-    enrolledProgram: dbUser.enrolledProgram,
-    assessmentCompleted: dbUser.assessmentCompleted,
-  };
-  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, completenessUser);
-  const profileMissingFields = getProfileMissingFields(profileForCompleteness, completenessUser);
+  // ── Profile + next actions ── (from memberState, single source of truth)
+  const profileCompletenessPct = memberState.profileCompletenessPct;
+  const profileMissingFields = memberState.profileMissingFields;
+
+  let nextBestActions = memberState.nextBestActions;
+
+  // Starter profile review (for counselor-created accounts)
   const starterProfileReview = getCounselorStarterProfileReview({
     wasCounselorCreated: !!intakeExtra?.courseEnrollment?.enrolledByAdminId,
     phone: intakeExtra?.phone,
@@ -387,27 +334,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     referralSource: intakeExtra?.profile?.referralSource,
   });
   const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
-
-  let nextBestActions = buildNextBestActions({
-    state: dashboardState,
-    noApplicationOnFile,
-    enrolledProgram,
-    assessmentCompleted,
-    starterProfileReviewRequired: starterProfileReview.required,
-    starterProfileMissingFields: starterProfileMissingLabels,
-    hasResume: engagementSignals.hasResume,
-    hasCompletedInterviewPractice,
-    profileCompletenessPct,
-    profileMissingFields,
-    jobApplicationCount: engagementSignals.jobApplicationCount,
-    counselorUnreadCount: engagementSignals.counselorUnreadCount,
-    weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
-    courseEnrollmentActive: intakeExtra ? !!intakeExtra.courseEnrollment?.id : undefined,
-    placementPlacedAt: intakeExtra?.placementRecord?.placedAt ?? null,
-    placementRetentionDecision: intakeExtra?.placementRecord?.retentionDecision ?? null,
-    trainingCoursesIncomplete: !!(trainingView && !trainingView.allCoursesComplete && trainingView.totalCourses > 0),
-    nextIncompleteCourseName: trainingView?.nextIncompleteCourseName ?? null,
-  });
 
   for (const dbAction of dynamicNextActions.reverse()) {
     nextBestActions.unshift({

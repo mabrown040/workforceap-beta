@@ -5,6 +5,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { prefillInterviewPractice } from '@/lib/ai/prefillFromMemberState';
 import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText, cleanSpokenLine } from '@/lib/ai/postProcess';
@@ -46,13 +47,41 @@ export async function POST(request: Request) {
   }
 
   const { role, experienceLevel, count, resumeContext, language, subjectMemberId, sessionId } = parsed.data;
-  const levelDesc = LEVEL_PROMPTS[experienceLevel];
 
-  // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
+  // Resolve subject FIRST so we know who to prefill for
   const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
   if (!onBehalf.ok) {
     return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   }
+
+  let finalRole = role?.trim();
+  let finalExperienceLevel = experienceLevel;
+  let finalResumeContext = resumeContext?.trim();
+
+  // If role missing, try to prefill from member state
+  if (!finalRole || finalRole.length < 3) {
+    try {
+      const prefill = await prefillInterviewPractice(onBehalf.subjectUserId);
+      finalRole = prefill.role;
+      if (!finalExperienceLevel || finalExperienceLevel === 'mid') {
+        finalExperienceLevel = prefill.experienceLevel;
+      }
+      if (!finalResumeContext || finalResumeContext.length < 40) {
+        finalResumeContext = prefill.resumeContext;
+      }
+    } catch (prefillErr) {
+      console.error('[interview-practice] prefill failed', prefillErr);
+    }
+  }
+
+  if (!finalRole || finalRole.length < 3) {
+    return NextResponse.json(
+      { error: 'Role is required. Try uploading a resume or completing the career quiz so we can suggest a role for you.' },
+      { status: 400 }
+    );
+  }
+
+  const levelDesc = LEVEL_PROMPTS[finalExperienceLevel];
 
   const systemPrompt = `You are a career coach and interview preparation expert. Generate interview questions for job seekers.
 
@@ -68,10 +97,10 @@ Format your response as a JSON array of objects. Each object must have:
 Return ONLY the JSON array, no other text. Keep JSON property names exactly as specified in English, but write every member-facing string value in the requested response language.`;
 
   const resumeBlock =
-    resumeContext?.trim() &&
-    `\n\nCandidate resume / background (use only to tailor questions and examples; do not invent employers or titles not supported here):\n---\n${resumeContext.trim()}\n---`;
+    finalResumeContext?.trim() &&
+    `\n\nCandidate resume / background (use only to tailor questions and examples; do not invent employers or titles not supported here):\n---\n${finalResumeContext.trim()}\n---`;
 
-  const userPrompt = `Generate ${count} interview questions for a ${role} role at ${levelDesc} level.
+  const userPrompt = `Generate ${count} interview questions for a ${finalRole} role at ${levelDesc} level.
 
 Include a mix of behavioral (STAR method) and technical questions. Make them specific to this role. For each question, provide an exampleAnswer that demonstrates a strong 2-3 sentence response.${resumeBlock ?? ''}`;
 
@@ -98,7 +127,7 @@ Include a mix of behavioral (STAR method) and technical questions. Make them spe
     }
 
     const output = JSON.stringify(questions);
-    const summary = `${role} (${experienceLevel})`;
+    const summary = `${finalRole} (${finalExperienceLevel})`;
     try {
       await ensureUserInDb(user);
       await saveAIToolResult(

@@ -7,6 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
 import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -176,51 +177,22 @@ export default async function AdminPage() {
       pendingPlacements = pendingPlacementsResult.value;
     }
 
-    // Derive unique program counts in JS so the dashboard reflects distinct
-    // programs, not duplicate member enrollments in the same program.
-    // "Active in Training" counts enrolled members who have not finished every
-    // course in their known program.
-    const [programsResult] = await Promise.allSettled([
-      prisma.user.findMany({
-        where: {
-          deletedAt: null,
-          enrolledProgram: { not: null },
-        },
-        select: { enrolledProgram: true, coursesCompleted: true },
-      }),
-    ]);
+    const [trainingDashboardResult] = await Promise.allSettled([loadTrainingDashboardData()]);
 
-    if (programsResult.status === 'rejected') {
-      logPrismaReason('programMetrics', programsResult.reason);
+    if (trainingDashboardResult.status === 'rejected') {
+      logPrismaReason('trainingDashboardMetrics', trainingDashboardResult.reason);
       activeInTraining = 0;
       programsEnrolled = 0;
       programsCompleted = 0;
     } else {
-      const enrolledPrograms = new Set<string>();
-      const completedPrograms = new Set<string>();
-      let activeInTrainingCount = 0;
-
-      for (const u of programsResult.value) {
-        if (!u.enrolledProgram) continue;
-        enrolledPrograms.add(u.enrolledProgram);
-
-        const program = getProgramBySlug(u.enrolledProgram);
-        const completed = (u.coursesCompleted as string[] | null) ?? [];
-        const fullyDone =
-          program != null &&
-          program.courses.length > 0 &&
-          program.courses.every((c) => completed.includes(c.slug));
-
-        if (fullyDone) {
-          completedPrograms.add(u.enrolledProgram);
-        } else {
-          activeInTrainingCount += 1;
-        }
-      }
-
-      activeInTraining = activeInTrainingCount;
-      programsEnrolled = enrolledPrograms.size;
-      programsCompleted = completedPrograms.size;
+      const training = trainingDashboardResult.value;
+      activeInTraining = training.metrics.activeInTraining;
+      programsEnrolled = new Set(training.rows.map((row) => row.enrolledProgram)).size;
+      programsCompleted = new Set(
+        training.rows
+          .filter((row) => row.progressPercent >= 100 || row.completedCount >= row.totalCourses)
+          .map((row) => row.enrolledProgram)
+      ).size;
     }
   } catch (e) {
     logPrismaReason('critical block', e);
@@ -240,7 +212,7 @@ export default async function AdminPage() {
   }> = [
     { icon: 'groups', label: 'Total Members', value: totalMembers.toLocaleString(), accent: 'var(--color-accent)', href: '/admin/members' },
     { icon: 'task_alt', label: 'Assessments Completed', value: assessmentsCompleted.toLocaleString(), accent: '#3b82f6', href: '/admin/assessments' },
-    { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f', href: '/admin/members' },
+    { icon: 'model_training', label: 'Active in Training', value: activeInTraining.toLocaleString(), accent: '#80d99f', href: '/admin/members/training' },
     { icon: 'school', label: 'Programs Enrolled', value: programsEnrolled.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
     { icon: 'workspace_premium', label: 'Programs Completed', value: programsCompleted.toLocaleString(), accent: '#fbbf24', href: '/admin/programs' },
   ];

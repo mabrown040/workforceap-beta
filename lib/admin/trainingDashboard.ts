@@ -1,0 +1,145 @@
+import 'server-only';
+
+import { CourseProgressStatus } from '@prisma/client';
+
+import { getProgramBySlug } from '@/lib/content/programs';
+import { prisma } from '@/lib/db/prisma';
+import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+
+export type TrainingDashboardMetrics = {
+  enrolledMembers: number;
+  activeInTraining: number;
+  notStarted: number;
+  completed: number;
+  stale: number;
+  averagePercent: number;
+};
+
+export type TrainingDashboardRow = {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  enrolledProgram: string;
+  programTitle: string;
+  enrolledAt: Date | null;
+  progressPercent: number;
+  completedCount: number;
+  totalCourses: number;
+  activeCourseCount: number;
+  lastTrainingActivityAt: Date | null;
+  staleTrainingDetectedAt: Date | null;
+  partnerName: string | null;
+  counselorName: string | null;
+};
+
+export type TrainingDashboardData = {
+  metrics: TrainingDashboardMetrics;
+  rows: TrainingDashboardRow[];
+};
+
+const STALE_TRAINING_DAYS = 14;
+
+function isStale(lastTrainingActivityAt: Date | null, enrolledAt: Date | null, staleTrainingDetectedAt: Date | null): boolean {
+  if (staleTrainingDetectedAt) return true;
+  const baseline = lastTrainingActivityAt ?? enrolledAt;
+  if (!baseline) return false;
+  return Date.now() - baseline.getTime() > STALE_TRAINING_DAYS * 24 * 60 * 60 * 1000;
+}
+
+export async function loadTrainingDashboardData(): Promise<TrainingDashboardData> {
+  const members = await prisma.user.findMany({
+    where: {
+      deletedAt: null,
+      ...MEMBER_ONLY_WHERE,
+      enrolledProgram: { not: null },
+    },
+    orderBy: { enrolledAt: 'desc' },
+    take: 3000,
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phone: true,
+      enrolledProgram: true,
+      enrolledAt: true,
+      coursesCompleted: true,
+      staleTrainingDetectedAt: true,
+      memberProgramProgress: {
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
+      },
+      courseProgress: {
+        where: { status: { in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED] } },
+        select: { courseSlug: true, status: true, lastUpdatedAt: true },
+      },
+      partnerReferrals: {
+        take: 1,
+        orderBy: { referredAt: 'desc' },
+        select: { partner: { select: { name: true } } },
+      },
+      counselorAssignments: {
+        where: { active: true },
+        take: 1,
+        select: { counselor: { select: { user: { select: { fullName: true } } } } },
+      },
+    },
+  });
+
+  const rows: TrainingDashboardRow[] = [];
+
+  for (const m of members) {
+    if (!m.enrolledProgram) continue;
+    const program = getProgramBySlug(m.enrolledProgram);
+    if (!program?.courses.length) continue;
+
+    const progress = computeTrainingProgress(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
+    const matchingRollup = m.memberProgramProgress.find((row) => row.programSlug === m.enrolledProgram) ?? null;
+    let lastTrainingActivityAt = matchingRollup?.lastUpdatedAt ?? null;
+    for (const row of m.courseProgress) {
+      if (!lastTrainingActivityAt || row.lastUpdatedAt > lastTrainingActivityAt) {
+        lastTrainingActivityAt = row.lastUpdatedAt;
+      }
+    }
+
+    rows.push({
+      id: m.id,
+      fullName: m.fullName ?? m.email,
+      email: m.email,
+      phone: m.phone,
+      enrolledProgram: m.enrolledProgram,
+      programTitle: program.title,
+      enrolledAt: m.enrolledAt,
+      progressPercent: progress.pct,
+      completedCount: progress.completedCount,
+      totalCourses: progress.totalCourses,
+      activeCourseCount: m.courseProgress.filter((row) => row.status === CourseProgressStatus.IN_PROGRESS).length,
+      lastTrainingActivityAt,
+      staleTrainingDetectedAt: m.staleTrainingDetectedAt,
+      partnerName: m.partnerReferrals[0]?.partner.name ?? null,
+      counselorName: m.counselorAssignments[0]?.counselor.user.fullName ?? null,
+    });
+  }
+
+  const enrolledMembers = rows.length;
+  const completed = rows.filter((row) => row.progressPercent >= 100 || row.completedCount >= row.totalCourses).length;
+  const notStarted = rows.filter((row) => row.progressPercent <= 0 && row.completedCount === 0 && row.activeCourseCount === 0).length;
+  const activeInTraining = rows.filter((row) => row.progressPercent > 0 && row.progressPercent < 100).length;
+  const stale = rows.filter((row) => isStale(row.lastTrainingActivityAt, row.enrolledAt, row.staleTrainingDetectedAt)).length;
+  const averagePercent = enrolledMembers > 0
+    ? Math.round(rows.reduce((sum, row) => sum + row.progressPercent, 0) / enrolledMembers)
+    : 0;
+
+  rows.sort((a, b) => {
+    const staleA = isStale(a.lastTrainingActivityAt, a.enrolledAt, a.staleTrainingDetectedAt) ? 1 : 0;
+    const staleB = isStale(b.lastTrainingActivityAt, b.enrolledAt, b.staleTrainingDetectedAt) ? 1 : 0;
+    if (staleA !== staleB) return staleB - staleA;
+    if (a.progressPercent !== b.progressPercent) return b.progressPercent - a.progressPercent;
+    return (b.lastTrainingActivityAt?.getTime() ?? 0) - (a.lastTrainingActivityAt?.getTime() ?? 0);
+  });
+
+  return {
+    metrics: { enrolledMembers, activeInTraining, notStarted, completed, stale, averagePercent },
+    rows,
+  };
+}

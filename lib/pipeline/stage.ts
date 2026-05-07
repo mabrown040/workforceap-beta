@@ -5,6 +5,7 @@
  */
 
 import type { PipelineBoardStage as DbPipelineBoardStage } from '@prisma/client';
+import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
 
 export type PipelineStage =
   | 'applied'
@@ -23,6 +24,7 @@ export interface PipelineStudent {
   enrolledAt: Date | null;
   assessmentCompleted: boolean;
   coursesCompleted: unknown; // JSON array of course slugs
+  memberProgramProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[];
   deletedAt: Date | null;
   placementRecord?: { employerName: string; jobTitle: string; salaryOffered: number | null; placedAt: Date } | null;
   userCertifications?: { certName: string; earnedAt: Date }[];
@@ -46,8 +48,12 @@ export function getPipelineStage(student: PipelineStudent): PipelineStage {
   if (student.userCertifications && student.userCertifications.length > 0) return 'certified';
 
   // In training (enrolled + has completed at least one course)
-  const courses = Array.isArray(student.coursesCompleted) ? student.coursesCompleted : [];
-  if (student.enrolledAt && courses.length > 0) return 'in_training';
+  const progress = computeTrainingProgress(
+    student.enrolledProgram,
+    student.coursesCompleted,
+    student.memberProgramProgress
+  );
+  if (student.enrolledAt && progress.completedCount > 0) return 'in_training';
 
   // Enrolled (approved application + enrolled in a program)
   if (student.enrolledAt && student.enrolledProgram) return 'enrolled';

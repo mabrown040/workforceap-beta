@@ -10,7 +10,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
+import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
@@ -150,10 +150,15 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   // Program progress — real data from enrolled program courses
   const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const programCourses = programMeta?.courses ?? [];
-  const completedSlugs = new Set(parseCourseSlugList(member.coursesCompleted));
-  const progressPct = programCourses.length > 0
-    ? Math.round((programCourses.filter((c) => completedSlugs.has(c.slug)).length / programCourses.length) * 100)
-    : 0;
+  const trainingView = member.enrolledProgram
+    ? await loadMemberProgramTrainingView({
+        userId: member.id,
+        programSlug: member.enrolledProgram,
+        coursesCompletedJson: member.coursesCompleted,
+      })
+    : null;
+  const completedSlugs = new Set(trainingView?.completedSlugsAuthoritative ?? []);
+  const progressPct = trainingView?.progressPercentDisplay ?? 0;
   const skillsetProgress = await loadMemberSkillsetProgress(member.id);
 
   type PitchOutcome = 'interview' | 'no_response' | 'pending' | 'other';

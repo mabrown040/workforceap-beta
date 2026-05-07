@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
 /**
  * Aggregations for the Board / Funder outcomes portal.
@@ -140,6 +141,9 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
         enrolledAt: true,
         coursesCompleted: true,
         assessmentCompleted: true,
+        memberProgramProgress: {
+          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+        },
         profile: {
           select: {
             veteranStatus: true,
@@ -183,8 +187,8 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
   // Members served = enrolled in period
   const membersServed = enrolledMembers.length;
   const membersInTraining = enrolledMembers.filter((m) => m.enrolledProgram && !m.assessmentCompleted).length;
-  const membersCertified = enrolledMembers.filter(
-    (m) => Array.isArray(m.coursesCompleted) && (m.coursesCompleted as unknown[]).length > 0,
+  const membersCertified = enrolledMembers.filter((m) =>
+    memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress),
   ).length;
   const membersPlaced = placements.length;
   const placementRate = membersServed > 0 ? Math.round((membersPlaced / membersServed) * 100) : 0;
@@ -221,7 +225,7 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
       placed: 0,
     };
     cur.enrolled += 1;
-    if (Array.isArray(m.coursesCompleted) && (m.coursesCompleted as unknown[]).length > 0) {
+    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) {
       cur.certified += 1;
     }
     programs.set(m.enrolledProgram, cur);

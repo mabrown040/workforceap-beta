@@ -3,13 +3,13 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
+import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 
@@ -71,6 +71,9 @@ export default async function CounselorStudentsPage() {
               assessmentScorePct: true,
               coursesCompleted: true,
               wioaReviewStatus: true,
+              memberProgramProgress: {
+                select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+              },
             },
           },
         },
@@ -248,16 +251,8 @@ export default async function CounselorStudentsPage() {
               const initials = getInitials(a.member.fullName ?? 'U');
               const program = a.member.enrolledProgram ?? a.member.programInterest ?? '—';
               const enrolledSlug = a.member.enrolledProgram ?? null;
-              const programMeta = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
-              const completed = (a.member.coursesCompleted as string[] | null) ?? [];
-              const completedSet = new Set(completed);
-              const totalCourses = programMeta?.courses.length ?? 0;
-              const completedCount =
-                programMeta && totalCourses > 0
-                  ? programMeta.courses.filter((c) => completedSet.has(c.slug)).length
-                  : 0;
-              const trainingProgressPct =
-                programMeta && totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : null;
+              const progress = computeTrainingProgress(enrolledSlug, a.member.coursesCompleted, a.member.memberProgramProgress);
+              const trainingProgressPct = progress.totalCourses > 0 ? progress.pct : null;
               const statusBadge = counselorStudentStatusBadge({
                 enrolledProgram: a.member.enrolledProgram,
                 assessmentScorePct: a.member.assessmentScorePct,

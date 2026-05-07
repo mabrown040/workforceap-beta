@@ -66,6 +66,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
         placementRecord: m.placementRecord,
         userCertifications: m.userCertifications,
         applications: m.applications,
+        memberProgramProgress: m.memberProgramProgress,
       };
       const stage = getPipelineStage(student);
       return {

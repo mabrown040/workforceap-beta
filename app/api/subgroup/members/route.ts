@@ -69,6 +69,7 @@ export async function GET() {
         placementRecord: m.placementRecord,
         userCertifications: m.userCertifications,
         applications: m.applications,
+        memberProgramProgress: m.memberProgramProgress,
       };
       const stage = getPipelineStage(student);
       return {

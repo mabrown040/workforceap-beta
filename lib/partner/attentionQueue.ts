@@ -61,6 +61,9 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
           },
           userCertifications: { select: { certName: true, earnedAt: true } },
           applications: { select: { status: true, submittedAt: true } },
+          memberProgramProgress: {
+            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+          },
         },
       },
     },

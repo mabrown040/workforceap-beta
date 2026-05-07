@@ -53,6 +53,9 @@ async function handle(_request: Request) {
             },
             userCertifications: { select: { certName: true, earnedAt: true } },
             applications: { select: { status: true, submittedAt: true } },
+            memberProgramProgress: {
+              select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+            },
           },
         },
       },
@@ -75,6 +78,7 @@ async function handle(_request: Request) {
         placementRecord: m.placementRecord,
         userCertifications: m.userCertifications,
         applications: m.applications,
+        memberProgramProgress: m.memberProgramProgress,
       };
       const stage = getPipelineStage(student);
       stageCounts[stage] = (stageCounts[stage] ?? 0) + 1;

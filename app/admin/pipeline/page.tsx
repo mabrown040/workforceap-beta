@@ -86,6 +86,9 @@ export default async function AdminPipelinePage() {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
+        memberProgramProgress: {
+          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+        },
       },
     });
   } catch (e) {

@@ -37,12 +37,15 @@ export default async function AdminJobReadyPage() {
       enrolledProgram: true,
       coursesCompleted: true,
       interviewEligible: true,
+      memberProgramProgress: {
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      },
     },
   });
 
   const rows: JobReadyRow[] = candidates
     .map((c) => {
-      const progress = computeTrainingProgress(c.enrolledProgram, c.coursesCompleted);
+      const progress = computeTrainingProgress(c.enrolledProgram, c.coursesCompleted, c.memberProgramProgress);
       return {
         id: c.id,
         fullName: c.fullName ?? c.email,

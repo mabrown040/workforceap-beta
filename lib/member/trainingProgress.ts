@@ -6,6 +6,24 @@ export type TrainingProgress = {
   pct: number;
 };
 
+export type LiveTrainingProgressSummary = {
+  programSlug: string;
+  averagePercent: number;
+  coursesCompleted: number;
+} | null | undefined;
+
+function findLiveProgress(
+  enrolledProgram: string | null | undefined,
+  liveProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[]
+) {
+  if (!enrolledProgram) return null;
+  return Array.isArray(liveProgress)
+    ? liveProgress.find((row) => row?.programSlug === enrolledProgram) ?? null
+    : liveProgress?.programSlug === enrolledProgram
+      ? liveProgress
+      : null;
+}
+
 /**
  * Compute a member's training progress as a 0–100 percentage of completed
  * courses against the courses defined for their enrolled program.
@@ -17,11 +35,21 @@ export type TrainingProgress = {
  */
 export function computeTrainingProgress(
   enrolledProgram: string | null | undefined,
-  coursesCompleted: unknown
+  coursesCompleted: unknown,
+  liveProgress?: LiveTrainingProgressSummary | LiveTrainingProgressSummary[]
 ): TrainingProgress {
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const totalCourses = program?.courses.length ?? 0;
   if (totalCourses === 0) return { totalCourses: 0, completedCount: 0, pct: 0 };
+
+  const rollup = findLiveProgress(enrolledProgram, liveProgress);
+  if (rollup) {
+    return {
+      totalCourses,
+      completedCount: Math.max(0, Math.min(totalCourses, rollup.coursesCompleted)),
+      pct: Math.max(0, Math.min(100, Math.round(rollup.averagePercent))),
+    };
+  }
 
   const list = Array.isArray(coursesCompleted) ? (coursesCompleted as unknown[]) : [];
   const completedSlugs = new Set(list.filter((s): s is string => typeof s === 'string'));

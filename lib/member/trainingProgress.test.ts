@@ -52,3 +52,14 @@ test('computeTrainingProgress: malformed coursesCompleted is treated as empty', 
   assert.equal(r.completedCount, 0);
   assert.equal(r.pct, 0);
 });
+
+test('computeTrainingProgress: live rollup wins over stale legacy JSON', () => {
+  const r = computeTrainingProgress(sampleProgram.slug, [], {
+    programSlug: sampleProgram.slug,
+    coursesCompleted: 2,
+    averagePercent: 50,
+  });
+
+  assert.equal(r.completedCount, 2);
+  assert.equal(r.pct, 50);
+});

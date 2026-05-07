@@ -7,7 +7,6 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
-// import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus'; // now from getMemberState
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection';
 import type { CareerMatchResult } from '@/lib/onet/types';
@@ -23,14 +22,9 @@ import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
-// import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals'; // now from getMemberState
 import { getMemberState } from '@/lib/member/getMemberState';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
-// import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness'; // now from getMemberState
-import {
-  isTrainingStaleForCounselorEscalation,
-  // loadMemberProgramTrainingView, // now from getMemberState
-} from '@/lib/member/memberProgramTrainingView';
+import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
@@ -39,11 +33,13 @@ import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Your Dashboard',
-  description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
+  title: t('yourDashboard'),
+  description: t('dashboardDescription'),
   path: '/dashboard',
 });
 }
@@ -51,24 +47,24 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
+  const t = await getTranslations('dashboard');
 
   try {
-    return await renderMemberDashboard(user);
+    return await renderMemberDashboard(user, t);
   } catch (err) {
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&rsquo;t load your dashboard</h2>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>{t('errorTitle')}</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-          Something went wrong while loading this page. This is usually temporary. Try again, or open another section from
-          the menu.
+          {t('errorBody')}
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
           <a href="/dashboard" className="btn btn-primary">
-            Try again
+            {t('tryAgain')}
           </a>
           <a href="https://www.workforceap.org/" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-            WorkforceAP home
+            {t('waHome')}
           </a>
         </div>
       </div>
@@ -76,7 +72,7 @@ export default async function DashboardPage() {
   }
 }
 
-async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>) {
+async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>, t: Awaited<ReturnType<typeof getTranslations>>) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
@@ -365,10 +361,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const recentActivity: Array<{ label: string; timestamp: Date }> = [];
   if (dbUser.enrolledAt) {
-    recentActivity.push({ label: 'Enrolled in program', timestamp: dbUser.enrolledAt });
+    recentActivity.push({ label: t('enrolled'), timestamp: dbUser.enrolledAt });
   }
   if (dbUser.assessmentCompletedAt) {
-    recentActivity.push({ label: 'Completed skills assessment', timestamp: dbUser.assessmentCompletedAt });
+    recentActivity.push({ label: t('completedAssessment'), timestamp: dbUser.assessmentCompletedAt });
   }
   recentActivity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   const lastThree = recentActivity.slice(0, 3);
@@ -393,25 +389,25 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
   const mobilePct = progressPercentDisplay;
-  const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
+  const mobileProgressTone = allCoursesComplete ? t('progressCompleted') : completedCount > 0 ? t('progressInProgress') : t('progressGettingStarted');
   const mobileProgressSummary = totalCourses > 0
-    ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
-    : 'Courses will appear once your program is set';
+    ? t('coursesComplete', { completed: completedCount, total: totalCourses, plural: totalCourses === 1 ? '' : 's' })
+    : t('coursesWillAppear');
   const orbCircumference = 251.2;
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
   const AI_TOOL_LABELS: Record<string, string> = {
-    job_match_scorer: 'See how you match a job',
-    resume_analysis: 'Resume Analysis',
-    resume_rewriter: 'Resume Rewriter',
-    cover_letter: 'Cover Letter',
-    interview_practice: 'Interview Practice',
-    linkedin_headline: 'LinkedIn Headline',
-    linkedin_about: 'LinkedIn About',
-    salary_negotiation: 'Salary Negotiation',
-    gap_analyzer: 'See what is missing for a job',
-    interview_coach: 'AI Interview Coach',
-    career_counselor: 'Career Counselor',
+    job_match_scorer: t('seeHowYouMatch'),
+    resume_analysis: t('resumeAnalysis'),
+    resume_rewriter: t('resumeRewriter'),
+    cover_letter: t('coverLetter'),
+    interview_practice: t('interviewPractice'),
+    linkedin_headline: t('linkedinHeadline'),
+    linkedin_about: t('linkedinAbout'),
+    salary_negotiation: t('salaryNegotiation'),
+    gap_analyzer: t('seeWhatIsMissing'),
+    interview_coach: t('aiInterviewCoach'),
+    career_counselor: t('careerCounselor'),
   };
 
   const interviewCompleted = !!intakeExtra?.interviewCompletedAt;
@@ -421,24 +417,24 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
 
-  /* Journey timeline ΓÇö complete / active (next) / locked (future) */
+  /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
     {
-      label: 'Program selected',
+      label: t('journeyProgramSelected'),
       done: !!enrolledProgram,
       active: !enrolledProgram,
       locked: false,
-      detail: enrolledProgram ? 'Program on file' : noApplicationOnFile ? 'Start your application' : 'Choose a program',
+      detail: enrolledProgram ? t('programOnFile') : noApplicationOnFile ? t('startApplication') : t('chooseProgram'),
     },
     {
-      label: 'Skills assessment',
+      label: t('journeySkillsAssessment'),
       done: assessmentCompleted,
       active: !!enrolledProgram && !assessmentCompleted,
       locked: !enrolledProgram,
-      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to start training' : 'Waiting for enrollment',
+      detail: assessmentCompleted ? t('progressCompleted') : enrolledProgram ? t('completeToStartTraining') : t('waitingForEnrollment'),
     },
     {
-      label: 'Interview',
+      label: t('journeyInterview'),
       done: interviewCompleted,
       active:
         assessmentCompleted &&
@@ -451,17 +447,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           !interviewRequested &&
           !interviewEligibleFlag),
       detail: interviewCompleted
-        ? 'Complete'
+        ? t('interviewComplete')
         : interviewRequested
-          ? 'Scheduled — watch your email'
+          ? t('interviewScheduled')
           : interviewEligibleFlag
-            ? 'Request or attend your interview'
+            ? t('requestOrAttendInterview')
             : preScreeningDone
-              ? 'Pre-screening submitted — awaiting counselor review'
-              : 'Submit pre-screening below',
+              ? t('preScreeningSubmitted')
+              : t('submitPreScreening'),
     },
     {
-      label: 'First course completed',
+      label: t('journeyFirstCourse'),
       done: completedCount > 0,
       active:
         !!enrolledProgram &&
@@ -475,8 +471,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       detail:
         completedCount > 0
           ? allCoursesComplete
-            ? 'All courses complete'
-            : `${completedCount} course${completedCount === 1 ? '' : 's'} complete`
+            ? t('allCoursesComplete')
+            : t('coursesCompleteDetail', { count: completedCount, plural: completedCount === 1 ? '' : 's' })
           : enrolledProgram && assessmentCompleted
             ? interviewEligibleFlag && !interviewCompleted
               ? 'Complete interview first'

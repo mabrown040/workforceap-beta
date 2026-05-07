@@ -81,6 +81,16 @@ export default async function AdminCourseraUnmatchedLearnerPage({
   // page and resolves on replay.
   const recentActorHomePage = xapiEvents.find((e) => e.actorHomePage)?.actorHomePage ?? null;
 
+  // The case-preserved `actor_identifier` from the loaded xAPI rows.
+  // `getMappingByActor` resolves with case-sensitive `cim.actor_identifier
+  // = ?`, while the list URL key is lowercased via
+  // `LOWER(COALESCE(actor_email, actor_identifier))`. Posting the URL key
+  // as the mapping's actor_identifier would create a lowercase row that
+  // never matches a mixed-case Coursera actor on replay. Use the original
+  // value from the row.
+  const recentActorIdentifier =
+    xapiEvents.find((e) => e.actorIdentifier && e.actorEmail === null)?.actorIdentifier ?? null;
+
   // Re-run suggestions with the name once we have it (cheap; same query plan).
   const suggestionsWithName = externalName
     ? await suggestUserMatchesForExternalEmail(decoded, externalName, 5)
@@ -139,6 +149,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
             externalEmail={decoded}
             externalName={externalName}
             keyType={keyType}
+            actorIdentifier={recentActorIdentifier}
             actorHomePage={recentActorHomePage}
             suggestions={suggestionsWithName}
           />

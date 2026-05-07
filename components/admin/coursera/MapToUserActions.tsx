@@ -26,6 +26,17 @@ type Props = {
    */
   keyType: 'email' | 'actor_identifier';
   /**
+   * Case-preserved `actor_identifier` from the loaded xAPI rows. The list-
+   * page URL key is lowercased via `LOWER(COALESCE(actor_email,
+   * actor_identifier))`, so passing the URL key as `actorIdentifier` to
+   * `/map-unmatched` would create a lowercase mapping that the case-
+   * sensitive `getMappingByActor` resolver fails to match against
+   * mixed-case Coursera identifiers on replay.
+   *
+   * Required when keyType is 'actor_identifier'.
+   */
+  actorIdentifier?: string | null;
+  /**
    * The `actor_home_page` from the most-recent xAPI event for this learner,
    * if any. Required when keyType is 'actor_identifier' — the server-side
    * resolver matches `coursera_identity_mappings` on
@@ -54,6 +65,7 @@ export default function MapToUserActions({
   externalEmail,
   externalName,
   keyType,
+  actorIdentifier,
   actorHomePage,
   suggestions,
 }: Props) {
@@ -83,7 +95,17 @@ export default function MapToUserActions({
       if (keyType === 'email') {
         body.courseraEmail = externalEmail;
       } else {
-        body.actorIdentifier = externalEmail;
+        // Use the case-preserved actor_identifier from the xAPI row, NOT
+        // the URL key (which the list query lowercased). `getMappingByActor`
+        // resolves with case-sensitive `cim.actor_identifier = ?`, so a
+        // lowercased mapping won't match mixed-case Coursera actors. Fall
+        // back to the URL key only if the page didn't supply the original
+        // (e.g. the event vanished between page load and click).
+        const idForMapping =
+          actorIdentifier && actorIdentifier.trim() !== ''
+            ? actorIdentifier.trim()
+            : externalEmail;
+        body.actorIdentifier = idForMapping;
         // The resolver matches actor mappings on
         // `(actor_identifier, COALESCE(actor_home_page, ''))`, so a mapping
         // saved without the home page won't resolve when statements that DO

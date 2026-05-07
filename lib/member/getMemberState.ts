@@ -1,4 +1,3 @@
-import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildMemberApplicationStatusView, type MemberApplicationStatusView } from './memberApplicationStatus';

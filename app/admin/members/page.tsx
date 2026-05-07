@@ -41,6 +41,8 @@ export default async function AdminMembersPage() {
     lastEventsResult,
     recentEventsResult,
     canonicalCompletionsResult,
+    programProgressResult,
+    activeCourseProgressResult,
   ] = await Promise.allSettled([
     prisma.user.findMany({
       where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
@@ -99,6 +101,20 @@ export default async function AdminMembersPage() {
       where: { status: 'COMPLETED' },
       _count: { _all: true },
     }),
+    prisma.memberProgramProgress.findMany({
+      select: {
+        userId: true,
+        programSlug: true,
+        averagePercent: true,
+        coursesCompleted: true,
+        lastUpdatedAt: true,
+      },
+    }),
+    prisma.courseProgress.groupBy({
+      by: ['userId'],
+      where: { status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
+      _count: { _all: true },
+    }),
   ]);
 
   if (membersResult.status === 'rejected') {
@@ -143,6 +159,28 @@ export default async function AdminMembersPage() {
     console.error('[admin/members] canonical course_progress count failed', canonicalCompletionsResult.reason);
   }
 
+  const programProgressMap: Map<string, { averagePercent: number; coursesCompleted: number; lastUpdatedAt: Date }> = new Map();
+  if (programProgressResult.status === 'fulfilled') {
+    for (const row of programProgressResult.value) {
+      programProgressMap.set(`${row.userId}:${row.programSlug}`, {
+        averagePercent: row.averagePercent,
+        coursesCompleted: row.coursesCompleted,
+        lastUpdatedAt: row.lastUpdatedAt,
+      });
+    }
+  } else {
+    console.error('[admin/members] member_program_progress load failed', programProgressResult.reason);
+  }
+
+  const activeCourseCountMap: Map<string, number> = new Map();
+  if (activeCourseProgressResult.status === 'fulfilled') {
+    for (const row of activeCourseProgressResult.value) {
+      activeCourseCountMap.set(row.userId, row._count._all);
+    }
+  } else {
+    console.error('[admin/members] active course_progress count failed', activeCourseProgressResult.reason);
+  }
+
   const membersWithProgram = members.map((m) => {
     const fitScore = calculateFitScore({
       enrolledProgram: m.enrolledProgram,
@@ -172,11 +210,25 @@ export default async function AdminMembersPage() {
         ? new Array(canonicalCount).fill('') as string[]
         : legacyCourses;
 
+    const programTitle = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null;
+    const totalCourses = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0;
+    const liveProgress = m.enrolledProgram ? programProgressMap.get(`${m.id}:${m.enrolledProgram}`) ?? null : null;
+    const activeCourses = activeCourseCountMap.get(m.id) ?? 0;
+
     return {
       ...m,
-      programTitle: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title : null,
+      programTitle,
       coursesCompleted: coursesCompletedDisplay,
-      totalCourses: m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.courses.length ?? 0 : 0,
+      totalCourses,
+      liveTraining: liveProgress
+        ? {
+            percent: liveProgress.averagePercent,
+            coursesCompleted: liveProgress.coursesCompleted,
+            coursesActive: activeCourses,
+            totalCourses,
+            lastUpdatedAt: liveProgress.lastUpdatedAt,
+          }
+        : null,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,
       fitScore,

@@ -11,7 +11,7 @@ import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressB
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
 import {
   getCourseraSyncStatus,
   listXapiStatementsNeedingAttention,
@@ -56,9 +56,32 @@ type XapiCourseProgressSummary = {
     percentComplete: number;
     lastUpdatedAt: Date;
   }>;
+  courseLogRows: Array<{
+    key: string;
+    userId: string;
+    fullName: string;
+    email: string;
+    programSlug: string;
+    programTitle: string;
+    courseSlug: string;
+    courseName: string;
+    courseId: string | null;
+    status: string;
+    percentComplete: number;
+    lastUpdatedAt: Date | null;
+  }>;
 };
 
-async function loadXapiCourseProgressSummary(): Promise<XapiCourseProgressSummary | null> {
+type XapiCourseLogMember = {
+  id: string;
+  fullName: string;
+  email: string;
+  enrolledProgram: string | null;
+};
+
+async function loadXapiCourseProgressSummary(
+  members: XapiCourseLogMember[]
+): Promise<XapiCourseProgressSummary | null> {
   try {
     const summaryRows = await prisma.$queryRaw<Array<{ total: bigint; latest: Date | null }>>`
       SELECT COUNT(*)::bigint AS total, MAX(last_updated_at) AS latest FROM course_progress
@@ -94,6 +117,53 @@ async function loadXapiCourseProgressSummary(): Promise<XapiCourseProgressSummar
       LIMIT 10
     `;
 
+    const membersWithProgress = members.filter((member) => member.enrolledProgram);
+    const progressRows = await prisma.courseProgress.findMany({
+      where: {
+        userId: { in: membersWithProgress.map((member) => member.id) },
+      },
+      select: {
+        userId: true,
+        programSlug: true,
+        courseSlug: true,
+        courseId: true,
+        status: true,
+        percentComplete: true,
+        lastUpdatedAt: true,
+      },
+    });
+    const progressMap = new Map(
+      progressRows.map((row) => [`${row.userId}:${row.programSlug}:${row.courseSlug}`, row])
+    );
+
+    const courseLogRows = membersWithProgress.flatMap((member) => {
+      const programSlug = member.enrolledProgram;
+      if (!programSlug) return [];
+      const program = getProgramBySlug(programSlug);
+      if (!program) return [];
+      const discovered = getDiscoveredProgram(programSlug);
+      const discoveredBySlug = new Map((discovered?.courses ?? []).map((course) => [course.slug, course]));
+
+      return program.courses.map((course) => {
+        const progress = progressMap.get(`${member.id}:${programSlug}:${course.slug}`);
+        const discoveredCourse = discoveredBySlug.get(course.slug);
+        return {
+          key: `${member.id}:${programSlug}:${course.slug}`,
+          userId: member.id,
+          fullName: member.fullName,
+          email: member.email,
+          programSlug,
+          programTitle: program.title,
+          courseSlug: course.slug,
+          courseName: course.name,
+          courseId: progress?.courseId ?? discoveredCourse?.courseId ?? course.courseraCourseId ?? null,
+          status: progress?.status ?? 'NOT_STARTED',
+          percentComplete: progress?.percentComplete ?? 0,
+          lastUpdatedAt: progress?.lastUpdatedAt ?? null,
+        };
+      });
+    });
+
     return {
       totalRows: Number(summaryRows[0]?.total ?? 0),
       latestUpdatedAt: summaryRows[0]?.latest ?? null,
@@ -109,6 +179,7 @@ async function loadXapiCourseProgressSummary(): Promise<XapiCourseProgressSummar
         percentComplete: row.percentComplete,
         lastUpdatedAt: row.lastUpdatedAt,
       })),
+      courseLogRows,
     };
   } catch (error) {
     console.error('[admin/coursera] failed to load xAPI course progress summary:', error);
@@ -253,7 +324,7 @@ export default async function AdminCourseraPage({
   }
 
   const courseProgress = await loadCourseProgressSummary();
-  const xapiCourseProgress = await loadXapiCourseProgressSummary();
+  const xapiCourseProgress = await loadXapiCourseProgressSummary(members);
   const badgeProgress = await loadBadgeProgressSummary();
   const unmatchedLearners = await loadUnmatchedLearners(100);
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
@@ -441,7 +512,7 @@ export default async function AdminCourseraPage({
               <span>Last updated: <strong>{fmtDateTime(xapiCourseProgress.latestUpdatedAt)}</strong></span>
             </div>
 
-            {xapiCourseProgress.topLearners.length > 0 ? (
+            {xapiCourseProgress.courseLogRows.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                   <thead>
@@ -455,35 +526,39 @@ export default async function AdminCourseraPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {xapiCourseProgress.topLearners.map((learner) => (
-                      <tr key={learner.id}>
+                    {xapiCourseProgress.courseLogRows.map((row) => (
+                      <tr key={row.key}>
                         <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          <strong>{learner.fullName}</strong>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.email}</div>
+                          <strong>{row.fullName}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
                         </td>
                         <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.programSlug}
+                          {row.programTitle}
                         </td>
                         <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.courseSlug}
-                          {learner.courseId ? (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{learner.courseId}</div>
+                          {row.courseName}
+                          {row.courseId ? (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.courseId}</div>
                           ) : null}
                         </td>
                         <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.percentComplete}%
+                          {row.percentComplete}%
                         </td>
                         <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.status === 'COMPLETED' ? (
+                          {row.status === 'COMPLETED' ? (
                             <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
                               completed
                             </span>
+                          ) : row.status === 'IN_PROGRESS' ? (
+                            <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(164, 127, 56, 0.14)', color: 'var(--color-accent)' }}>
+                              in progress
+                            </span>
                           ) : (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>{learner.status}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
                           )}
                         </td>
                         <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(learner.lastUpdatedAt)}
+                          {fmtDateTime(row.lastUpdatedAt)}
                         </td>
                       </tr>
                     ))}
@@ -492,7 +567,7 @@ export default async function AdminCourseraPage({
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
-                No xAPI progress recorded yet. Progress appears here when Coursera sends xAPI statements for enrolled members.
+                No enrolled member course log is available yet. Progress appears here when members enroll in Coursera-backed programs.
               </span>
             )}
           </>

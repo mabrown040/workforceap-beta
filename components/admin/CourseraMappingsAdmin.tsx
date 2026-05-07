@@ -861,6 +861,36 @@ export default function CourseraMappingsAdmin({
                     >
                       Create mapping
                     </button>
+                    {row.actorEmail ? (
+                      <button
+                        type="button"
+                        className="btn coursera-unmatched-cta"
+                        style={{ width: '100%', background: 'var(--color-surface-variant)', color: 'var(--color-on-surface)' }}
+                        onClick={() => {
+                          const actorEmail = row.actorEmail ?? '';
+                          if (!confirm(`Backfill progress for ${actorEmail}?`)) return;
+                          fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
+                            method: 'GET',
+                            credentials: 'include'
+                          })
+                            .then(async (res) => {
+                              const payload = await res.json().catch(() => ({}));
+                              if (res.ok && payload.ok) {
+                                setMessage({
+                                  kind: 'success',
+                                  text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
+                                });
+                                router.refresh();
+                              } else {
+                                setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
+                              }
+                            })
+                            .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
+                        }}
+                      >
+                        Backfill progress
+                      </button>
+                    ) : null}
                   </div>
                 </article>
               ))}
@@ -900,13 +930,45 @@ export default function CourseraMappingsAdmin({
                         <div style={{ color: 'var(--color-on-surface-variant)' }}>processed: {row.processed ? 'yes' : 'no'}</div>
                       </td>
                       <td className="coursera-unmatched-actions">
-                        <button
-                          type="button"
-                          className="btn btn-primary btn-sm coursera-unmatched-cta"
-                          onClick={() => applyXapiAttentionRow(row)}
-                        >
-                          Create mapping
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm coursera-unmatched-cta"
+                            onClick={() => applyXapiAttentionRow(row)}
+                          >
+                            Use in form
+                          </button>
+                          {row.actorEmail ? (
+                            <button
+                              type="button"
+                              className="btn btn-sm"
+                              style={{ background: 'var(--color-surface-variant)', color: 'var(--color-on-surface)' }}
+                              onClick={() => {
+                                const actorEmail = row.actorEmail ?? '';
+                                if (!confirm(`Backfill progress for ${actorEmail}?`)) return;
+                                fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
+                                  method: 'GET',
+                                  credentials: 'include'
+                                })
+                                  .then(async (res) => {
+                                    const payload = await res.json().catch(() => ({}));
+                                    if (res.ok && payload.ok) {
+                                      setMessage({
+                                        kind: 'success',
+                                        text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
+                                      });
+                                      router.refresh();
+                                    } else {
+                                      setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
+                                    }
+                                  })
+                                  .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
+                              }}
+                            >
+                              Backfill
+                            </button>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   ))}

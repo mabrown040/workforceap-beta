@@ -34,6 +34,21 @@ import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import { parseCourseSlugList as parseAdminCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import '@/css/counselor.css';
 
+type AdminCourseProgressRow = {
+  courseSlug: string;
+  courseId: string | null;
+  status: string;
+  percentComplete: number;
+  lastUpdatedAt: Date;
+};
+
+type AdminMemberProgramProgressRow = {
+  programSlug: string;
+  averagePercent: number;
+  coursesCompleted: number;
+  lastUpdatedAt: Date;
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
   title: 'Member Detail',
@@ -83,6 +98,13 @@ export default async function AdminMemberDetailPage({
     wioaReviewNotes: true,
     profile: true,
     learningProgress: true,
+    courseProgress: {
+      orderBy: { lastUpdatedAt: 'desc' },
+      select: { courseSlug: true, courseId: true, status: true, percentComplete: true, lastUpdatedAt: true },
+    },
+    memberProgramProgress: {
+      select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
+    },
     userCertifications: true,
     aiJobMatches: {
       include: {
@@ -264,7 +286,16 @@ export default async function AdminMemberDetailPage({
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
-  const completedCount = program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0;
+  const liveCourseProgress = (member.courseProgress ?? []) as AdminCourseProgressRow[];
+  const liveProgressBySlug = new Map<string, AdminCourseProgressRow>(liveCourseProgress.map((row) => [row.courseSlug, row]));
+  const liveProgramProgress = ((member.memberProgramProgress ?? []) as AdminMemberProgramProgressRow[])
+    .find((row) => row.programSlug === member.enrolledProgram) ?? null;
+  const completedCount = program
+    ? Math.max(
+        coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length,
+        liveCourseProgress.filter((row) => row.status === 'COMPLETED').length
+      )
+    : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
 
   // Progress strip props for admin view
@@ -272,11 +303,11 @@ export default async function AdminMemberDetailPage({
   const adminAllCoursesComplete =
     program != null &&
     program.courses.length > 0 &&
-    program.courses.every((c) => adminCoursesCompleted.includes(c.slug));
+    program.courses.every((c) => adminCoursesCompleted.includes(c.slug) || liveProgressBySlug.get(c.slug)?.status === 'COMPLETED');
   const adminProgressStripProps = {
     intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
     assessment: !!member.assessmentCompleted,
-    trainingStarted: adminCoursesCompleted.length > 0,
+    trainingStarted: adminCoursesCompleted.length > 0 || liveCourseProgress.length > 0,
     certsComplete: adminAllCoursesComplete,
     employed: !!placedOutcomeRow,
   };
@@ -447,7 +478,12 @@ export default async function AdminMemberDetailPage({
           <p><strong>Enrolled:</strong> {program?.title ?? member.enrolledProgram ?? '—'}</p>
           <p><strong>Enrolled date:</strong> {member.enrolledAt?.toLocaleDateString() ?? '—'}</p>
           {program ? (
-            <p><strong>Course progress:</strong> {completedCount} of {program.courses.length} complete</p>
+            <p>
+              <strong>Course progress:</strong>{' '}
+              {liveProgramProgress
+                ? `${liveProgramProgress.averagePercent}% overall · ${completedCount} of ${program.courses.length} complete`
+                : `${completedCount} of ${program.courses.length} complete`}
+            </p>
           ) : (
             <p><strong>Course progress:</strong> No program enrolled</p>
           )}
@@ -470,12 +506,23 @@ export default async function AdminMemberDetailPage({
           )}
 
           <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
-            {program?.courses.map((c) => (
-              <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                {coursesCompleted.includes(c.slug) ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />}
-                {c.name}
-              </li>
-            ))}
+            {program?.courses.map((c) => {
+              const progress = liveProgressBySlug.get(c.slug);
+              const completed = coursesCompleted.includes(c.slug) || progress?.status === 'COMPLETED';
+              return (
+                <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                  {completed ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />}
+                  <span style={{ flex: 1 }}>
+                    {c.name}
+                    {progress ? (
+                      <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                        {progress.percentComplete}% · {progress.status === 'COMPLETED' ? 'completed' : 'in progress'}
+                      </span>
+                    ) : null}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
 
           {member.userCertifications && member.userCertifications.length > 0 && (

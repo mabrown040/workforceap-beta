@@ -27,6 +27,13 @@ type Member = {
   programTitle: string | null | undefined;
   coursesCompleted: string[];
   totalCourses: number;
+  liveTraining: {
+    percent: number;
+    coursesCompleted: number;
+    coursesActive: number;
+    totalCourses: number;
+    lastUpdatedAt: Date | string;
+  } | null;
   partnerName: string | null;
   partnerId: string | null;
   fitScore?: number;
@@ -45,6 +52,15 @@ function HealthDot({ status }: { status: HealthStatus }) {
   const color = status === 'green' ? '#16a34a' : status === 'yellow' ? '#d97706' : '#dc2626';
   const label = status === 'green' ? 'Active' : status === 'yellow' ? 'At Risk' : 'Inactive';
   return <span title={label} style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: color, marginRight: '0.35rem', verticalAlign: 'middle' }} />;
+}
+
+function formatTraining(m: Member): string {
+  if (m.liveTraining) {
+    const active = m.liveTraining.coursesActive > 0 ? ` · ${m.liveTraining.coursesActive} active` : '';
+    return `${m.liveTraining.percent}% overall · ${m.liveTraining.coursesCompleted}/${m.liveTraining.totalCourses} done${active}`;
+  }
+  if (m.assessmentCompleted) return `${m.coursesCompleted.length}/${m.totalCourses}`;
+  return '—';
 }
 
 export default function MembersTable({ members }: MembersTableProps) {
@@ -83,7 +99,7 @@ export default function MembersTable({ members }: MembersTableProps) {
             const lastActive = formatMemberDate(m.updatedAt) ?? '—';
             return (<tr key={m.id} data-clickable onClick={() => window.location.assign(`/admin/members/${m.id}`)}>
               <td><Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.healthStatus && <HealthDot status={m.healthStatus} />}{m.fullName}</Link><div className="members-name-details">{rawPhone ? <><span>{phoneDisplay}</span><span className="members-name-details-sep"> · </span></> : null}<span>Last active {lastActive}</span></div></td>
-              <td>{m.email}</td><td className="members-col-md">{phoneDisplay}</td><td>{m.programTitle ?? '—'}</td><td>{m.partnerName ?? '—'}</td><td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td><td>{m.healthStatus ? <span style={{ fontSize: '0.8rem', fontWeight: 600, color: m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : '—'}</td><td>{formatMemberDate(m.enrolledAt) ?? '—'}</td><td><span className={m.assessmentScorePct != null ? m.assessmentScorePct >= 70 ? 'admin-score-high' : m.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low' : ''}>{m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}</span></td><td>{m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</td><td className="members-col-md">{lastActive}</td>
+              <td>{m.email}</td><td className="members-col-md">{phoneDisplay}</td><td>{m.programTitle ?? '—'}</td><td>{m.partnerName ?? '—'}</td><td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td><td>{m.healthStatus ? <span style={{ fontSize: '0.8rem', fontWeight: 600, color: m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : '—'}</td><td>{formatMemberDate(m.enrolledAt) ?? '—'}</td><td><span className={m.assessmentScorePct != null ? m.assessmentScorePct >= 70 ? 'admin-score-high' : m.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low' : ''}>{m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}</span></td><td>{formatTraining(m)}</td><td className="members-col-md">{lastActive}</td>
               <td>
                 <Link
                   href={`/counselor/sessions/${m.id}/run`}
@@ -110,7 +126,7 @@ export default function MembersTable({ members }: MembersTableProps) {
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Program</span> {m.programTitle ?? '—'}</p>
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Partner</span> {m.partnerName ?? '—'}</p>
             <p className="admin-portal-card__row"><span className="admin-portal-card__label">Fit</span> {m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</p>
-            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Training</span> {m.assessmentCompleted ? `${m.coursesCompleted.length}/${m.totalCourses}` : '—'}</p>
+            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Training</span> {formatTraining(m)}</p>
             <p className="admin-portal-card__meta">Last active {lastActive}</p>
             <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
               <Link

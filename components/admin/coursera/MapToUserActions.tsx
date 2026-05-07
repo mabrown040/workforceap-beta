@@ -16,6 +16,15 @@ type Suggestion = {
 type Props = {
   externalEmail: string;
   externalName: string | null;
+  /**
+   * The `actor_home_page` from the most-recent xAPI event for this learner,
+   * if any. Required when the key is an actor identifier (no email) — the
+   * server-side resolver matches `coursera_identity_mappings` on
+   * `(actor_identifier, COALESCE(actor_home_page, ''))`, so omitting this
+   * for stored events that DO have a home page would create a mapping that
+   * never resolves on replay.
+   */
+  actorHomePage?: string | null;
   suggestions: Suggestion[];
 };
 
@@ -32,7 +41,12 @@ const REASON_LABEL: Record<Suggestion['matchReason'], string> = {
  * `coursera_identity_mappings` row AND reprocesses unmatched events for the
  * user. On success, refreshes the page so the unmatched count drops.
  */
-export default function MapToUserActions({ externalEmail, externalName, suggestions }: Props) {
+export default function MapToUserActions({
+  externalEmail,
+  externalName,
+  actorHomePage,
+  suggestions,
+}: Props) {
   const router = useRouter();
   const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +75,13 @@ export default function MapToUserActions({ externalEmail, externalName, suggesti
         body.courseraEmail = externalEmail;
       } else {
         body.actorIdentifier = externalEmail;
+        // The resolver matches actor mappings on
+        // `(actor_identifier, COALESCE(actor_home_page, ''))`, so a mapping
+        // saved without the home page won't resolve when statements that DO
+        // carry one replay. Pass it through whenever the events have it.
+        if (actorHomePage && actorHomePage.trim() !== '') {
+          body.actorHomePage = actorHomePage.trim();
+        }
       }
 
       const res = await fetch('/api/admin/coursera/map-unmatched', {

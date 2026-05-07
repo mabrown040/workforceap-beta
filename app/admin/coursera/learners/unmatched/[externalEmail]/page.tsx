@@ -61,6 +61,12 @@ export default async function AdminCourseraUnmatchedLearnerPage({
   // The Coursera display name might come from the CSV or be inferred later.
   const externalName = csvDetail?.externalName ?? null;
 
+  // The most-recent xAPI event's actor_home_page. The resolver matches actor
+  // mappings on `(actor_identifier, COALESCE(actor_home_page, ''))`, so we
+  // pass this to the map button so an actor-only mapping carries the home
+  // page and resolves on replay.
+  const recentActorHomePage = xapiEvents.find((e) => e.actorHomePage)?.actorHomePage ?? null;
+
   // Re-run suggestions with the name once we have it (cheap; same query plan).
   const suggestionsWithName = externalName
     ? await suggestUserMatchesForExternalEmail(decoded, externalName, 5)
@@ -118,6 +124,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
           <MapToUserActions
             externalEmail={decoded}
             externalName={externalName}
+            actorHomePage={recentActorHomePage}
             suggestions={suggestionsWithName}
           />
         </section>

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { buildCourseraLaunchUrl, getCourseraReadiness } from '@/lib/coursera/config';
 
 export async function GET() {
@@ -12,14 +11,20 @@ export async function GET() {
   try {
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, coursesCompleted: true, fullName: true },
+    select: {
+      enrolledProgram: true,
+      fullName: true,
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
+    },
   });
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
-  const completedCount = program
-    ? completedSlugs.filter((slug) => program.courses.some((course) => course.slug === slug)).length
+  const completedCount = program && enrolledProgram
+    ? dbUser?.courseProgress.filter((row) => row.programSlug === enrolledProgram && program.courses.some((course) => course.slug === row.courseSlug)).length ?? 0
     : 0;
 
   const readiness = getCourseraReadiness(enrolledProgram);

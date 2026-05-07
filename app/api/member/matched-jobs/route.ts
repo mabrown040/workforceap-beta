@@ -26,7 +26,13 @@ export async function GET() {
     select: {
       enrolledProgram: true,
       assessmentScorePct: true,
-      coursesCompleted: true,
+      memberProgramProgress: {
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      },
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
       userCertifications: { select: { certName: true } },
     },
   });
@@ -47,7 +53,17 @@ export async function GET() {
   const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
   const programSkills = program?.skills ?? [];
   const certs = (dbUser.userCertifications ?? []).map((c) => c.certName);
-  const courses = (dbUser.coursesCompleted as string[] | null) ?? [];
+  const courses = dbUser.enrolledProgram
+    ? dbUser.courseProgress
+        .filter((row) => row.programSlug === dbUser.enrolledProgram)
+        .map((row) => row.courseSlug)
+    : [];
+  const rollup = dbUser.enrolledProgram
+    ? dbUser.memberProgramProgress.find((row) => row.programSlug === dbUser.enrolledProgram) ?? null
+    : null;
+  const courseScoreInput = rollup
+    ? new Array(Math.max(0, rollup.coursesCompleted)).fill('') as string[]
+    : courses;
 
   const scored = jobs.map((job) => {
     const progSlugs = new Set((job.suggestedPrograms ?? []).map((p) => p.toLowerCase()));
@@ -58,7 +74,7 @@ export async function GET() {
     weightedSum += MATCH_WEIGHTS.programAlignment * scoreProgramAlignment(dbUser.enrolledProgram, progSlugs).score;
     weightedSum += MATCH_WEIGHTS.assessmentReadiness * scoreAssessmentReadiness(dbUser.assessmentScorePct ?? null).score;
     weightedSum += MATCH_WEIGHTS.certifications * scoreCertifications(certs, certLower).score;
-    weightedSum += MATCH_WEIGHTS.courseCompletion * scoreCourseCompletion(courses).score;
+    weightedSum += MATCH_WEIGHTS.courseCompletion * scoreCourseCompletion(courseScoreInput).score;
     weightedSum += MATCH_WEIGHTS.skillsMatching * scoreSkillsMatching(reqLower, programSkills).score;
 
     const matchPct = Math.round(Math.min(100, weightedSum * 100));

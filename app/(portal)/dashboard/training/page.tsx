@@ -43,7 +43,6 @@ export default async function TrainingPage({
     select: {
       enrolledProgram: true,
       assessmentCompleted: true,
-      coursesCompleted: true,
     },
   });
 
@@ -109,12 +108,10 @@ export default async function TrainingPage({
     progressBySlug[row.courseSlug] = { status: row.status, percentComplete: row.percentComplete };
   }
 
-  const coursesCompleted = (dbUser.coursesCompleted as string[] | null) ?? [];
-  const completedSet = new Set(coursesCompleted);
-  const completedFromRows = program.courses.filter((c) => {
-    const p = progressBySlug[c.slug];
-    return p?.status === 'COMPLETED' || completedSet.has(c.slug);
-  }).length;
+  const coursesCompleted = progressRows
+    .filter((row) => row.status === 'COMPLETED')
+    .map((row) => row.courseSlug);
+  const completedFromRows = program.courses.filter((c) => progressBySlug[c.slug]?.status === 'COMPLETED').length;
   const completedCount =
     programRollup != null ? programRollup.coursesCompleted : completedFromRows;
   const progressPct =

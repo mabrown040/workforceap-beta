@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
@@ -17,7 +16,14 @@ export async function GET(request: Request) {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, coursesCompleted: true, organizationId: true },
+    select: {
+      enrolledProgram: true,
+      organizationId: true,
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
+    },
   });
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
@@ -62,7 +68,11 @@ export async function GET(request: Request) {
   }
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const completedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
+  const completedSlugs = enrolledProgram
+    ? dbUser?.courseProgress
+        .filter((row) => row.programSlug === enrolledProgram)
+        .map((row) => row.courseSlug) ?? []
+    : [];
 
   const requestedIndex = requestedSlug && program
     ? program.courses.findIndex((c) => c.slug === requestedSlug)

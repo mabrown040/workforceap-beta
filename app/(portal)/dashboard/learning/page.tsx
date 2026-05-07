@@ -14,7 +14,6 @@ import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledC
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { readinessVoiceSurface } from '@/lib/portal/voice';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -42,7 +41,14 @@ export default async function LearningPage() {
     }),
     prisma.user.findUnique({
       where: { id: user.id },
-      select: { enrolledProgram: true, assessmentCompleted: true, coursesCompleted: true },
+      select: {
+        enrolledProgram: true,
+        assessmentCompleted: true,
+        courseProgress: {
+          where: { status: 'COMPLETED' },
+          select: { programSlug: true, courseSlug: true },
+        },
+      },
     }),
   ]);
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
@@ -52,7 +58,11 @@ export default async function LearningPage() {
   const ACTIVE_PATHWAY = getPathwayForProgram(enrolledProgram);
   const programMeta = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
   const coursesForMember = programMeta?.courses ?? [];
-  const coursesCompletedSlugs = parseCourseSlugList(dbUser?.coursesCompleted);
+  const coursesCompletedSlugs = enrolledProgram
+    ? dbUser?.courseProgress
+        .filter((row) => row.programSlug === enrolledProgram)
+        .map((row) => row.courseSlug) ?? []
+    : [];
   const pathwayMilestones = ACTIVE_PATHWAY
     ? buildPathwayMilestones(ACTIVE_PATHWAY, allProgress)
     : [];

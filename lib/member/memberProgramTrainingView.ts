@@ -4,7 +4,6 @@ import { CourseProgressStatus } from '@prisma/client';
 
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 /** Days without training activity before we surface counselor escalation on the dashboard. */
 export const STALE_TRAINING_ACTIVITY_DAYS = 14;
@@ -17,9 +16,9 @@ export type MemberProgramTrainingView = {
   allCoursesComplete: boolean;
   nextIncompleteCourseSlug: string | null;
   nextIncompleteCourseName: string | null;
-  /** Any course started, in progress, completed, or legacy JSON complete without a contradicting row. */
+  /** Any course started, in progress, or completed in canonical progress rows. */
   hasStartedTraining: boolean;
-  /** At least one catalog course counts as fully complete (CourseProgress.COMPLETED or legacy slug when no row). */
+  /** At least one catalog course counts as fully complete (CourseProgress.COMPLETED). */
   hasCompletedFirstCourse: boolean;
   /** Latest touch from `CourseProgress` / rollup; null if no rows exist yet. */
   lastTrainingActivityAt: Date | null;
@@ -29,17 +28,15 @@ export type MemberProgramTrainingView = {
 
 /**
  * Single source of truth for member training counts and activity timestamps.
- * Course rows from xAPI / manual completion override stale `courses_completed` JSON when they disagree.
+ * Course rows from xAPI / manual completion are the canonical source.
  */
 export async function loadMemberProgramTrainingView(args: {
   userId: string;
   programSlug: string;
-  coursesCompletedJson: unknown;
+  coursesCompletedJson?: unknown;
 }): Promise<MemberProgramTrainingView | null> {
   const program = getProgramBySlug(args.programSlug);
   if (!program) return null;
-
-  const legacy = new Set(parseCourseSlugList(args.coursesCompletedJson));
 
   const [rows, rollup] = await Promise.all([
     prisma.courseProgress.findMany({
@@ -87,7 +84,7 @@ export async function loadMemberProgramTrainingView(args: {
     const complete =
       row != null
         ? row.status === CourseProgressStatus.COMPLETED
-        : legacy.has(c.slug);
+        : false;
 
     const pct = row?.percentComplete ?? 0;
     sumPercentForAverage += Math.max(0, Math.min(100, pct));

@@ -30,7 +30,13 @@ export async function matchStudentsForJob(job: {
       fullName: true,
       enrolledProgram: true,
       assessmentScorePct: true,
-      coursesCompleted: true,
+      memberProgramProgress: {
+        select: { programSlug: true, coursesCompleted: true },
+      },
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
       userCertifications: { select: { certName: true } },
       profile: { select: { city: true, state: true } },
     },
@@ -62,8 +68,17 @@ export async function matchStudentsForJob(job: {
     if (certResult.reason) reasons.push(certResult.reason);
     weightedSum += MATCH_WEIGHTS.certifications * certResult.score;
 
-    const courses = (s.coursesCompleted as string[] | null) ?? [];
-    const courseResult = scoreCourseCompletion(courses);
+    const courses = s.enrolledProgram
+      ? s.courseProgress
+          .filter((row) => row.programSlug === s.enrolledProgram)
+          .map((row) => row.courseSlug)
+      : [];
+    const rollup = s.enrolledProgram
+      ? s.memberProgramProgress.find((row) => row.programSlug === s.enrolledProgram) ?? null
+      : null;
+    const courseResult = scoreCourseCompletion(
+      rollup ? new Array(Math.max(0, rollup.coursesCompleted)).fill('') as string[] : courses,
+    );
     if (courseResult.reason) reasons.push(courseResult.reason);
     weightedSum += MATCH_WEIGHTS.courseCompletion * courseResult.score;
 

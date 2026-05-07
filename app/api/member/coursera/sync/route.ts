@@ -11,8 +11,6 @@ import { fetchCourseraLearnerSkillsetProgress } from '@/lib/coursera/client';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { resolveCompletedCourseSlugsFromEnterpriseSkillsets } from '@/lib/member/courseraSkillsetMerge';
-import { countCompletedInProgram } from '@/lib/member/courseraCourseProgress';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 
 export async function POST() {
   const user = await getUser();
@@ -20,7 +18,7 @@ export async function POST() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, coursesCompleted: true },
+    select: { enrolledProgram: true },
   });
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
@@ -87,11 +85,14 @@ export async function POST() {
       }
     }
 
-    const refreshed = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { coursesCompleted: true },
+    const mergedCompletedCount = await prisma.courseProgress.count({
+      where: {
+        userId: user.id,
+        programSlug: enrolledProgram,
+        status: 'COMPLETED',
+        courseSlug: { in: program.courses.map((course) => course.slug) },
+      },
     });
-    const mergedCompletedCount = countCompletedInProgram(program, parseCourseSlugList(refreshed?.coursesCompleted));
 
     return NextResponse.json({
       syncedAt: new Date().toISOString(),

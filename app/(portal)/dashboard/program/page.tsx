@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -37,7 +36,6 @@ export default async function ProgramPage() {
     select: {
       enrolledProgram: true,
       enrolledAt: true,
-      coursesCompleted: true,
       workspaceEmail: true,
       workspaceEmailProvisioned: true,
       courseEnrollment: {
@@ -53,8 +51,6 @@ export default async function ProgramPage() {
 
   const enrolledSlug = dbUser?.enrolledProgram ?? null;
   const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
-  const coursesCompleted = parseCourseSlugList(dbUser?.coursesCompleted);
-
   // Product stake: members can choose an initial program, but self-serve switching should not
   // become a public free-for-all. Keep later reassignment counselor/admin-driven.
   if (!enrolledSlug || !program) {
@@ -76,12 +72,9 @@ export default async function ProgramPage() {
   const trainingView = await loadMemberProgramTrainingView({
     userId: user.id,
     programSlug: enrolledSlug,
-    coursesCompletedJson: dbUser?.coursesCompleted,
   });
-  const completedSet = new Set(trainingView?.completedSlugsAuthoritative ?? coursesCompleted);
-  const completedCount =
-    trainingView?.completedCount ??
-    program.courses.filter((c) => completedSet.has(c.slug)).length;
+  const completedSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
+  const completedCount = trainingView?.completedCount ?? 0;
   const nextCourseSlug =
     trainingView?.nextIncompleteCourseSlug ??
     program.courses.find((c) => !completedSet.has(c.slug))?.slug ??

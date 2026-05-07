@@ -5,7 +5,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
@@ -100,17 +99,19 @@ export default async function MemberGuidePage() {
       fullName: true,
       enrolledProgram: true,
       assessmentCompleted: true,
-      coursesCompleted: true,
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
       profile: { select: { city: true } },
     },
   });
   if (!dbUser) redirect('/login');
 
   const enrolledProgram = dbUser.enrolledProgram ?? null;
-  const coursesCompletedSlugs = parseCourseSlugList(dbUser.coursesCompleted);
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const completedCourses = program
-    ? coursesCompletedSlugs.filter((s) => program.courses.some((c) => c.slug === s)).length
+  const completedCourses = program && enrolledProgram
+    ? dbUser.courseProgress.filter((row) => row.programSlug === enrolledProgram && program.courses.some((course) => course.slug === row.courseSlug)).length
     : 0;
 
   // Determine which step the member is on (0-indexed)

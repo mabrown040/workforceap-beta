@@ -38,7 +38,6 @@ export async function GET(
           phone: true,
           enrolledProgram: true,
           enrolledAt: true,
-          coursesCompleted: true,
           updatedAt: true,
           deletedAt: true,
           assessmentCompleted: true,
@@ -51,6 +50,10 @@ export async function GET(
           memberProgramProgress: {
             select: { programSlug: true, averagePercent: true, coursesCompleted: true },
           },
+          courseProgress: {
+            where: { status: 'COMPLETED' },
+            select: { programSlug: true, courseSlug: true },
+          },
         },
       },
     },
@@ -62,7 +65,7 @@ export async function GET(
 
   const m = memberSubgroup.member;
   const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-  const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
+  const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
   const student: PipelineStudent = {
     id: m.id,
     fullName: m.fullName,
@@ -70,7 +73,6 @@ export async function GET(
     enrolledProgram: m.enrolledProgram,
     enrolledAt: m.enrolledAt,
     assessmentCompleted: m.assessmentCompleted,
-    coursesCompleted: m.coursesCompleted,
     deletedAt: m.deletedAt,
     placementRecord: m.placementRecord,
     userCertifications: m.userCertifications,
@@ -78,6 +80,11 @@ export async function GET(
     memberProgramProgress: m.memberProgramProgress,
   };
   const stage = getPipelineStage(student);
+  const coursesCompleted = m.enrolledProgram
+    ? m.courseProgress
+        .filter((row) => row.programSlug === m.enrolledProgram)
+        .map((row) => row.courseSlug)
+    : [];
 
   return NextResponse.json({
     id: m.id,
@@ -91,6 +98,6 @@ export async function GET(
     stage: PIPELINE_STAGE_LABELS[stage],
     placementRecord: m.placementRecord,
     userCertifications: m.userCertifications,
-    coursesCompleted: m.coursesCompleted,
+    coursesCompleted,
   });
 }

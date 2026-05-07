@@ -32,7 +32,6 @@ export async function GET() {
           email: true,
           enrolledProgram: true,
           enrolledAt: true,
-          coursesCompleted: true,
           updatedAt: true,
           deletedAt: true,
           assessmentCompleted: true,
@@ -56,7 +55,7 @@ export async function GET() {
       seen.add(ms.member.id);
       const m = ms.member;
       const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-      const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
+      const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,
@@ -64,8 +63,7 @@ export async function GET() {
         enrolledProgram: m.enrolledProgram,
         enrolledAt: m.enrolledAt,
         assessmentCompleted: m.assessmentCompleted,
-        coursesCompleted: m.coursesCompleted,
-        deletedAt: m.deletedAt,
+          deletedAt: m.deletedAt,
         placementRecord: m.placementRecord,
         userCertifications: m.userCertifications,
         applications: m.applications,

@@ -31,7 +31,6 @@ import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReview
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
-import { parseCourseSlugList as parseAdminCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import '@/css/counselor.css';
 
 type AdminCourseProgressRow = {
@@ -79,7 +78,6 @@ export default async function AdminMemberDetailPage({
     enrolledProgram: true,
     enrolledAt: true,
     programChangedAt: true,
-    coursesCompleted: true,
     assessmentCompleted: true,
     assessmentCompletedAt: true,
     assessmentScore: true,
@@ -126,7 +124,6 @@ export default async function AdminMemberDetailPage({
     enrolledProgram: true,
     enrolledAt: true,
     programChangedAt: true,
-    coursesCompleted: true,
     assessmentCompleted: true,
     assessmentCompletedAt: true,
     assessmentScore: true,
@@ -285,29 +282,24 @@ export default async function AdminMemberDetailPage({
   const enrollmentGateBlocked = !gate.ok;
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
-  const coursesCompleted = (member.coursesCompleted as string[] | null) ?? [];
   const liveCourseProgress = (member.courseProgress ?? []) as AdminCourseProgressRow[];
   const liveProgressBySlug = new Map<string, AdminCourseProgressRow>(liveCourseProgress.map((row) => [row.courseSlug, row]));
   const liveProgramProgress = ((member.memberProgramProgress ?? []) as AdminMemberProgramProgressRow[])
     .find((row) => row.programSlug === member.enrolledProgram) ?? null;
   const completedCount = program
-    ? Math.max(
-        coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length,
-        liveCourseProgress.filter((row) => row.status === 'COMPLETED').length
-      )
+    ? (liveProgramProgress?.coursesCompleted ?? liveCourseProgress.filter((row) => row.status === 'COMPLETED').length)
     : 0;
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
 
   // Progress strip props for admin view
-  const adminCoursesCompleted = parseAdminCourseSlugList(member.coursesCompleted);
   const adminAllCoursesComplete =
     program != null &&
     program.courses.length > 0 &&
-    program.courses.every((c) => adminCoursesCompleted.includes(c.slug) || liveProgressBySlug.get(c.slug)?.status === 'COMPLETED');
+    program.courses.every((c) => liveProgressBySlug.get(c.slug)?.status === 'COMPLETED');
   const adminProgressStripProps = {
     intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
     assessment: !!member.assessmentCompleted,
-    trainingStarted: adminCoursesCompleted.length > 0 || liveCourseProgress.length > 0,
+    trainingStarted: liveCourseProgress.length > 0,
     certsComplete: adminAllCoursesComplete,
     employed: !!placedOutcomeRow,
   };
@@ -508,7 +500,7 @@ export default async function AdminMemberDetailPage({
           <ul style={{ marginTop: '1rem', paddingLeft: '1.25rem', listStyle: 'none' }}>
             {program?.courses.map((c) => {
               const progress = liveProgressBySlug.get(c.slug);
-              const completed = coursesCompleted.includes(c.slug) || progress?.status === 'COMPLETED';
+              const completed = progress?.status === 'COMPLETED';
               return (
                 <li key={c.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                   {completed ? <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} /> : <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />}

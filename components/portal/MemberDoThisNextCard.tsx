@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 
@@ -12,10 +13,11 @@ type MemberDoThisNextCardProps = {
  * Single dominant dashboard CTA — mirrors the top `MemberNextStepsStrip` item with stronger hierarchy.
  */
 export default function MemberDoThisNextCard({ action, paddingX = '2rem' }: MemberDoThisNextCardProps) {
+  const t = useTranslations('dashboard');
   if (!action) return null;
 
   return (
-    <section style={{ padding: `0 ${paddingX}`, marginBottom: '1.5rem' }} aria-label="Do this next">
+    <section style={{ padding: `0 ${paddingX}`, marginBottom: '1.5rem' }} aria-label={t('doThisNext')}>
       <div
         style={{
           borderRadius: '1rem',
@@ -35,7 +37,7 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem' }: Memb
               margin: 0,
             }}
           >
-            Do this next
+            {t('doThisNext')}
           </p>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.25 }}>
             {action.title}

@@ -5,10 +5,12 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Member Dashboard',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
+  return { title: t('memberDashboard') };
+}
 
 export default async function DashboardLayout({
   children,

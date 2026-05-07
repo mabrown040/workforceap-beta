@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import { postMemberEvent } from '@/lib/events/client';
 
@@ -18,6 +19,7 @@ export default function MemberNextStepsStrip({
   /** When one card: stretch to full width so the grid does not look half-empty */
   fillRow?: boolean;
 }) {
+  const t = useTranslations('dashboard');
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const router = useRouter();
 
@@ -93,10 +95,10 @@ export default function MemberNextStepsStrip({
             margin: 0,
           }}
         >
-          {isFeatured ? 'Recommended next step' : 'Your next steps'}
+          {isFeatured ? t('recommendedNextStep') : t('yourNextStepsTitle')}
         </h3>
         <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-          {isFeatured ? 'Start here based on your progress' : 'Picked for you based on your progress'}
+          {isFeatured ? t('startHereBasedOnProgress') : t('pickedForYou')}
         </span>
       </div>
 
@@ -132,7 +134,7 @@ export default function MemberNextStepsStrip({
             {!isFeatured && (
               <button
                 type="button"
-                aria-label={`Dismiss "${a.title}"`}
+                aria-label={t('dismissAction', { title: a.title })}
                 onClick={() => dismiss(a.id)}
                 style={{
                   position: 'absolute',
@@ -166,7 +168,7 @@ export default function MemberNextStepsStrip({
                   textTransform: 'uppercase',
                 }}
               >
-                Start here
+                {t('startHere')}
               </span>
             )}
             <h4

@@ -10,9 +10,10 @@ import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobile
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('messages');
   return buildPageMetadataAsync({
-  title: 'Messages',
-  description: 'Chat with your WorkforceAP counselor.',
+  title: t('messagesTitle'),
+  description: t('messagesDescription'),
   path: '/dashboard/messages',
 });
 }
@@ -38,7 +39,7 @@ export default async function MemberMessagesPage() {
   ]);
 
   const lastMsg = messages[messages.length - 1];
-  const lastMsgText = lastMsg ? (lastMsg.body ?? '').slice(0, 60) : 'No messages yet';
+  const lastMsgText = lastMsg ? (lastMsg.body ?? '').slice(0, 60) : t('noMessagesYet');
   const lastMsgTime = lastMsg
     ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
@@ -80,7 +81,7 @@ export default async function MemberMessagesPage() {
         <PageHeader
           title={t('inbox')}
           titleHeadingLevel={2}
-          breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: t('inbox') }]}
+          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
         />
         <MemberCounselorChatClient
           initial={{

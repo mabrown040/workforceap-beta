@@ -5,6 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import InterviewPracticeForm from '@/components/portal/tools/InterviewPracticeForm';
+import { prefillInterviewPractice } from '@/lib/ai/prefillFromMemberState';
 import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeSaved';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -16,7 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function InterviewPracticePage() {
+type SearchParams = Promise<{ prefill?: string; role?: string }>;
+
+export default async function InterviewPracticePage({ searchParams }: { searchParams: SearchParams }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/interview-practice');
 
@@ -30,6 +33,21 @@ export default async function InterviewPracticePage() {
     });
   } catch {
     // Non-fatal — page renders with empty saved results
+  }
+
+  const sp = await searchParams;
+  const shouldPrefill = sp.prefill === 'true';
+  let initialData: { role: string; experienceLevel: 'entry' | 'mid' | 'senior'; resumeContext: string } | null = null;
+  if (shouldPrefill) {
+    try {
+      initialData = await prefillInterviewPractice(user.id);
+    } catch (err) {
+      console.error('[interview-practice page] prefill failed', err);
+    }
+  }
+  // URL role param overrides prefill
+  if (sp.role) {
+    initialData = { ...(initialData ?? { experienceLevel: 'mid', resumeContext: '' }), role: sp.role };
   }
 
   return (
@@ -86,7 +104,7 @@ export default async function InterviewPracticePage() {
           </div>
 
           <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderRadius: 12, marginBottom: '1.5rem' }}>
-            <InterviewPracticeForm memberId={user.id} />
+            <InterviewPracticeForm memberId={user.id} initialData={initialData} />
           </div>
 
           <InterviewPracticeSaved results={savedResults} />

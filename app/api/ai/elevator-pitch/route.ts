@@ -6,6 +6,7 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { prefillElevatorPitch } from '@/lib/ai/prefillFromMemberState';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
 import {
@@ -34,26 +35,45 @@ export async function POST(request: Request) {
   try { body = await request.json() as Record<string, string>; }
   catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
 
-  const { name, targetRole, strengths, certifications, industry, subjectMemberId, sessionId } = body;
-  const language = normalizeAIResponseLanguage(body.language);
-
-  if (!name?.trim() || !targetRole?.trim()) {
-    return NextResponse.json({ error: 'Name and target role are required.' }, { status: 400 });
-  }
+  const { name, targetRole, strengths, certifications, industry, language, subjectMemberId, sessionId } = body;
 
   const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId ?? undefined);
   if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
 
+  // Prefill from member state if fields missing
+  let prefill: Awaited<ReturnType<typeof prefillElevatorPitch>> | null = null;
+  if (!name?.trim() || !targetRole?.trim()) {
+    try {
+      prefill = await prefillElevatorPitch(onBehalf.subjectUserId);
+    } catch (prefillErr) {
+      console.error('[elevator-pitch] prefill failed', prefillErr);
+    }
+  }
+
+  const finalName = name?.trim() || prefill?.name || '';
+  const finalTargetRole = targetRole?.trim() || prefill?.targetRole || '';
+  if (!finalName || !finalTargetRole) {
+    return NextResponse.json(
+      { error: 'Name and target role are required. Try uploading a resume or completing the career quiz so we can prefill these for you.' },
+      { status: 400 }
+    );
+  }
+
+  const finalStrengths = strengths?.trim() || prefill?.strengths || '';
+  const finalCertifications = certifications?.trim() || prefill?.certifications || '';
+  const finalIndustry = industry?.trim() || prefill?.industry || '';
+  const normalizedLanguage = normalizeAIResponseLanguage(language as 'en' | 'es' | 'fr' | 'pt');
+
   const prompt = `Write a powerful, natural-sounding 10-20 second elevator pitch (spoken out loud) for someone with these details:
 
-Name: ${name.trim()}
-Target position / job title: ${targetRole.trim()}
-Key strengths / what they excel at: ${strengths?.trim() || 'not specified'}
-Certifications / credentials: ${certifications?.trim() || 'not specified'}
-Target industry: ${industry?.trim() || 'not specified'}
+Name: ${finalName}
+Target position / job title: ${finalTargetRole}
+Key strengths / what they excel at: ${finalStrengths || 'not specified'}
+Certifications / credentials: ${finalCertifications || 'not specified'}
+Target industry: ${finalIndustry || 'not specified'}
 
 Requirements:
-- ${aiResponseLanguageInstruction(language)}
+- ${aiResponseLanguageInstruction(normalizedLanguage)}
 - Conversational, confident tone — sounds like a real person, not a resume
 - Includes who they are, what they do best, and what they're looking for
 - Ends with a clear connection hook (e.g. "I'd love to bring this to [industry]")
@@ -66,7 +86,7 @@ Return ONLY the pitch text — no labels, no quotes, no explanation.`;
   try {
     const pitch = await chatCompletion(
       [
-        { role: 'system', content: `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(language)} Return only the pitch, nothing else.` },
+        { role: 'system', content: `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(normalizedLanguage)} Return only the pitch, nothing else.` },
         { role: 'user', content: prompt },
       ],
       { maxTokens: 200, temperature: 0.7 }

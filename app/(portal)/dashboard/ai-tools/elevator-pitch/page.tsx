@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import ElevatorPitchClient from '@/components/portal/tools/ElevatorPitchClient';
+import { prefillElevatorPitch } from '@/lib/ai/prefillFromMemberState';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,9 +16,22 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function ElevatorPitchPage() {
+type SearchParams = Promise<{ prefill?: string }>;
+
+export default async function ElevatorPitchPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/elevator-pitch');
+
+  const sp = await searchParams;
+  const shouldPrefill = sp.prefill === 'true';
+  let initialData: Awaited<ReturnType<typeof prefillElevatorPitch>> | null = null;
+  if (shouldPrefill) {
+    try {
+      initialData = await prefillElevatorPitch(user.id);
+    } catch (err) {
+      console.error('[elevator-pitch page] prefill failed', err);
+    }
+  }
 
   return (
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
@@ -33,7 +47,7 @@ export default async function ElevatorPitchPage() {
       </div>
       <div style={{ paddingBottom: '6rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '1.5rem 1rem 2rem' }}>
-          <ElevatorPitchClient />
+          <ElevatorPitchClient initialData={initialData} />
           <ToolHistoryPanel
             userId={user.id}
             toolTypes={['career_counselor']}

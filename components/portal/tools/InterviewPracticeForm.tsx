@@ -22,10 +22,10 @@ type StarWorksheet = { situation: string; task: string; action: string; result: 
 
 const emptyStar = (): StarWorksheet => ({ situation: '', task: '', action: '', result: '' });
 
-export default function InterviewPracticeForm({ memberId }: { memberId?: string }) {
-  const [role, setRole] = useState('');
-  const [resumeContext, setResumeContext] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>('mid');
+export default function InterviewPracticeForm({ memberId, initialData }: { memberId?: string; initialData?: { role: string; experienceLevel: 'entry' | 'mid' | 'senior'; resumeContext: string } | null }) {
+  const [role, setRole] = useState(initialData?.role ?? '');
+  const [resumeContext, setResumeContext] = useState(initialData?.resumeContext ?? '');
+  const [experienceLevel, setExperienceLevel] = useState<'entry' | 'mid' | 'senior'>(initialData?.experienceLevel ?? 'mid');
   const [language, setLanguage] = useState<AiToolLanguage>('en');
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState(5);

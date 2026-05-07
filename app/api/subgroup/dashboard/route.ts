@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getSubgroupsForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
 export async function GET() {
   const user = await getUser();
@@ -35,6 +35,9 @@ export async function GET() {
           placementRecord: { select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true } },
           userCertifications: { select: { certName: true, earnedAt: true } },
           applications: { select: { status: true, submittedAt: true } },
+          memberProgramProgress: {
+            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+          },
         },
       },
     },
@@ -53,7 +56,6 @@ export async function GET() {
 
     total++;
     const m = ms.member;
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
     const student: PipelineStudent = {
       id: m.id,
       fullName: m.fullName,
@@ -70,10 +72,7 @@ export async function GET() {
     const stage = getPipelineStage(student);
 
     if (m.enrolledAt && m.enrolledProgram) enrolled++;
-    if (program?.courses.length && (m.coursesCompleted as string[] | null)?.length) {
-      const done = (m.coursesCompleted as string[]) ?? [];
-      if (program.courses.every((c) => done.includes(c.slug))) completed++;
-    }
+    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) completed++;
     if (m.placementRecord) placed++;
   }
 

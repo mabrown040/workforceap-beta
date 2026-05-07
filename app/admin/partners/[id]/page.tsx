@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
 import PartnerDetailActions from '@/components/admin/PartnerDetailActions';
@@ -39,6 +39,9 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
               },
               userCertifications: { select: { certName: true, earnedAt: true } },
               applications: { select: { status: true, submittedAt: true } },
+              memberProgramProgress: {
+                select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+              },
             },
           },
         },
@@ -66,9 +69,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   for (const m of members) {
     if (m.placementRecord) placements++;
     else active++;
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-    const done = (m.coursesCompleted as string[] | null) ?? [];
-    if (program?.courses.length && program.courses.every((c) => done.includes(c.slug))) {
+    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) {
       completions++;
     }
   }
@@ -185,7 +186,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
                 {partner.referrals.map((r) => {
                   const m = r.member;
                   const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-                  const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted);
+                  const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
                   const student: PipelineStudent = {
                     id: m.id,
                     fullName: m.fullName,

@@ -44,6 +44,9 @@ export async function GET(
           },
           userCertifications: { select: { certName: true, earnedAt: true } },
           applications: { select: { status: true, submittedAt: true } },
+          memberProgramProgress: {
+            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+          },
         },
       },
       assigner: { select: { fullName: true } },
@@ -56,7 +59,7 @@ export async function GET(
     .map((ms) => {
       const m = ms.member;
       const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-      const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted);
+      const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,

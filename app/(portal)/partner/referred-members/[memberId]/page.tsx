@@ -11,7 +11,7 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
-import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 
@@ -76,6 +76,9 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
         },
       },
       userCertifications: { select: { certName: true, earnedAt: true }, orderBy: { earnedAt: 'desc' } },
+      memberProgramProgress: {
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      },
     },
   });
 
@@ -105,7 +108,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesDone = (member.coursesCompleted as string[] | null) ?? [];
-  const progressPct = memberProgramProgressPct(member.enrolledProgram, member.coursesCompleted);
+  const progressPct = memberProgramProgressPct(member.enrolledProgram, member.coursesCompleted, member.memberProgramProgress);
   const skillsetProgress = await loadMemberSkillsetProgress(memberId);
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
@@ -115,8 +118,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const memberStatus = placed ? 'Placed' : pendingPlacement ? 'Offer reported — review pending' : progressPct >= 80 ? 'Course-complete' : 'In training';
 
   const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
-  const allCoursesDone =
-    program && program.courses.length > 0 && program.courses.every((c) => coursesDone.includes(c.slug));
+  const allCoursesDone = memberProgramCompleted(member.enrolledProgram, member.coursesCompleted, member.memberProgramProgress);
   const certPhaseLabel = certificateCount > 0 || allCoursesDone ? 'In progress or complete' : 'Pending';
 
   const journey = [

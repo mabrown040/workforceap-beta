@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
@@ -36,9 +36,7 @@ export default async function PartnerOutcomesPage() {
   ).length;
 
   const completions = pipelineMembers.filter((p) => {
-    const program = p.member.enrolledProgram ? getProgramBySlug(p.member.enrolledProgram) : null;
-    const done = (p.member.coursesCompleted as string[] | null) ?? [];
-    return !!(program?.courses.length && program.courses.every((c) => done.includes(c.slug)));
+    return memberProgramCompleted(p.member.enrolledProgram, p.member.coursesCompleted, p.member.memberProgramProgress);
   }).length;
 
   return (

@@ -36,6 +36,9 @@ const referralMemberSelect = {
   },
   userCertifications: { select: { certName: true, earnedAt: true } },
   applications: { select: { status: true, submittedAt: true } },
+  memberProgramProgress: {
+    select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+  },
 } as const;
 
 export type ReferralMember = {
@@ -66,6 +69,7 @@ export type ReferralMember = {
   } | null;
   userCertifications: { certName: string; earnedAt: Date | null }[];
   applications: { status: string; submittedAt: Date | null }[];
+  memberProgramProgress: { programSlug: string; averagePercent: number; coursesCompleted: number }[];
 };
 
 export type PipelineRow = {
@@ -136,7 +140,7 @@ export async function loadPartnerReferralBundle(partnerId: string) {
       member: m,
       referredAt: r.referredAt,
       stage,
-      progress: memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted),
+      progress: memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress),
       programTitle: program?.title ?? '—',
     });
   }

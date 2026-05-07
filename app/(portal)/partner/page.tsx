@@ -6,8 +6,8 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
+import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
@@ -105,9 +105,7 @@ export default async function PartnerDashboardPage() {
   const placements = members.filter((m) => m.placementRecord).length;
   const inTraining = pipelineMembers.filter((p) => p.stage === 'in_training' || p.stage === 'certified').length;
   const completions = pipelineMembers.filter((p) => {
-    const program = p.member.enrolledProgram ? getProgramBySlug(p.member.enrolledProgram) : null;
-    const done = (p.member.coursesCompleted as string[] | null) ?? [];
-    return program?.courses.length && program.courses.every((c) => done.includes(c.slug));
+    return memberProgramCompleted(p.member.enrolledProgram, p.member.coursesCompleted, p.member.memberProgramProgress);
   }).length;
 
   const total = members.length;

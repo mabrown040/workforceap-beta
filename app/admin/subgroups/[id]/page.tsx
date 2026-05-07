@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
-import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 import SubgroupMembersTable from '@/components/admin/SubgroupMembersTable';
 
@@ -34,6 +34,9 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
               },
               userCertifications: { select: { certName: true, earnedAt: true } },
               applications: { select: { status: true, submittedAt: true } },
+              memberProgramProgress: {
+                select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+              },
             },
           },
           assigner: { select: { fullName: true } },
@@ -50,7 +53,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
     .map((ms) => {
       const m = ms.member;
       const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-      const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted);
+      const pct = memberProgramProgressPct(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress);
       const student: PipelineStudent = {
         id: m.id,
         fullName: m.fullName,
@@ -84,9 +87,7 @@ export default async function AdminSubgroupDetailPage({ params }: Props) {
   for (const m of subgroup.members.map((ms) => ms.member)) {
     if (m.deletedAt) continue;
     if (m.placementRecord) placements++;
-    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-    const done = (m.coursesCompleted as string[] | null) ?? [];
-    if (program?.courses.length && program.courses.every((c) => done.includes(c.slug))) completions++;
+    if (memberProgramCompleted(m.enrolledProgram, m.coursesCompleted, m.memberProgramProgress)) completions++;
   }
 
   return (

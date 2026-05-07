@@ -10,17 +10,20 @@ import PageHeader from '@/components/portal/PageHeader';
 import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalApplicationButton';
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Job Board',
-  description: 'Browse job openings from WorkforceAP employer partners. Log in to apply.',
+  title: t('jobBoard'),
+  description: t('jobBoardDescription'),
   path: '/dashboard/jobs',
 });
 }
 
 export default async function JobsPage() {
   const user = await getUser();
+  const t = await getTranslations('dashboard');
 
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
   let profileCity: string | null = null;
@@ -149,9 +152,9 @@ export default async function JobsPage() {
     <>
     <div className="inner-page">
       <PageHeader
-        title="Job Board"
-        subtitle="Browse openings from employers hiring WorkforceAP graduates and members. Create your account or log in to apply."
-        breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Board' }]}
+        title={t('jobBoard')}
+        subtitle={t('jobBoardSubtitle')}
+        breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('jobBoard') }]}
       />
       <section className="content-section" style={{ paddingTop: '1rem' }}>
         <div className="container">
@@ -168,10 +171,10 @@ export default async function JobsPage() {
               }}
             >
               <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.375rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Certificates that open doors in our employer network
+                {t('certificatesThatOpenDoors')}
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.5 }}>
-                Employers hiring through WorkforceAP prioritize members with verified certificates. The most in-demand right now:
+                {t('certificatesDescription')}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
                 {[
@@ -210,7 +213,7 @@ export default async function JobsPage() {
                     marginLeft: '0.25rem',
                   }}
                 >
-                  View all certs →
+                  {t('viewAllCerts')} →
                 </a>
               </div>
             </div>
@@ -232,10 +235,10 @@ export default async function JobsPage() {
             >
               <div style={{ flex: 1, minWidth: '14rem' }}>
                 <p style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>
-                  Already applied on Indeed, LinkedIn, or a company site?
+                  {t('alreadyAppliedQuestion')}
                 </p>
                 <p style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.45 }}>
-                  Log it here so WorkforceAP can track your progress and your counselor can help with follow-up.
+                  {t('logApplicationHere')}
                 </p>
               </div>
               <LogExternalApplicationButton variant="primary" />
@@ -252,7 +255,7 @@ export default async function JobsPage() {
           }}>
             <div style={{ marginBottom: '0.75rem' }}>
               <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0 0 0.125rem' }}>
-                Search beyond the WorkforceAP job board
+                {t('searchBeyondBoard')}
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
                 {user && profileCity
@@ -262,7 +265,7 @@ export default async function JobsPage() {
               {user ? (
                 <p style={{ fontSize: '0.75rem', margin: '0.35rem 0 0' }}>
                   <a href="/dashboard/profile" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                    Update your profile location →
+                    {t('updateProfileLocation')} →
                   </a>
                 </p>
               ) : null}
@@ -292,7 +295,7 @@ export default async function JobsPage() {
             </div>
             <div style={{ marginTop: '0.875rem', paddingTop: '0.875rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent)' }}>
               <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.4rem' }}>
-                Quick Austin-area presets
+                {t('quickAustinPresets')}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.875rem' }}>
                 {quickLocations.map((location) => (
@@ -309,30 +312,30 @@ export default async function JobsPage() {
                 ))}
               </div>
               <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.35rem' }}>
-                Best routine for members
+                {t('bestRoutineForMembers')}
               </p>
               <p style={{ margin: '0 0 0.5rem', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
-                Most members do best when they check 2–3 boards daily instead of bouncing across everything at once.
+                {t('bestRoutineDescription')}
               </p>
               <ul style={{ margin: 0, paddingLeft: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', lineHeight: 1.5 }}>
-                <li>Check Indeed and LinkedIn daily for fresh listings.</li>
-                <li>Use WorkInTexas for workforce-system and public-sector openings.</li>
-                <li>Log every outside application here so your counselor can help with follow-up.</li>
+                <li>{t('checkIndeedLinkedIn')}</li>
+                <li>{t('useWorkInTexas')}</li>
+                <li>{t('logEveryApplication')}</li>
               </ul>
             </div>
           </div>
 
           {!user ? (
             <p className="jobs-public-cta" style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: 1.5 }}>
-              <strong>Applying is for members.</strong>{' '}
+              <strong>{t('applyingIsForMembers')}</strong>{' '}
               <a href="/login?redirectTo=/dashboard/jobs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                Log in
+                {t('logIn')}
               </a>{' '}
-              or{' '}
+              {t('or')}{' '}
               <a href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                start an application
+                {t('startApplication')}
               </a>{' '}
-              to submit your profile to roles you choose.
+              {t('toSubmitProfile')}
             </p>
           ) : null}
           {ageGroup === 'under14' ? (
@@ -343,14 +346,13 @@ export default async function JobsPage() {
               textAlign: 'center'
             }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.75rem' }}>
-                Career Exploration for Young Learners
+                {t('careerExplorationYoung')}
               </h3>
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
-                Job applications are available for members 14 and older. For now, focus on exploring 
-                career paths and building skills through our training programs.
+                {t('careerExplorationYoungDesc')}
               </p>
               <a href="/programs" className="btn btn-primary">
-                Explore Training Programs
+                {t('exploreTrainingPrograms')}
               </a>
             </div>
           ) : ageGroup === 'youth14to17' ? (
@@ -363,8 +365,7 @@ export default async function JobsPage() {
                 marginBottom: '1.5rem'
               }}>
                 <p style={{ fontSize: '0.9rem', lineHeight: 1.5, margin: 0 }}>
-                  <strong>Youth Job Board:</strong> Showing jobs appropriate for ages 14-17. 
-                  These positions comply with youth labor laws and work permit requirements.
+                  <strong>{t('youthJobBoard')}</strong> {t('youthJobBoardDesc')}
                 </p>
               </div>
               <Suspense fallback={<JobsBoardSkeleton />}>

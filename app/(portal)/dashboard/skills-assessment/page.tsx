@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-    title: 'AI Toolkit',
-    description: 'Explore AI-powered career tools — resume help, interview practice, skill mapping, and more.',
+    title: t('aiToolkit'),
+    description: t('aiToolkitDescription'),
     path: '/dashboard/ai-tools',
   });
 }

@@ -31,7 +31,6 @@ import {
   isTrainingStaleForCounselorEscalation,
   loadMemberProgramTrainingView,
 } from '@/lib/member/memberProgramTrainingView';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
@@ -308,8 +307,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
   const assessmentCompleted = dbUser.assessmentCompleted ?? false;
-  const coursesCompleted = parseCourseSlugList(dbUser.coursesCompleted);
-  
   const userAge = intakeExtra?.profile?.dob 
     ? Math.floor((Date.now() - new Date(intakeExtra.profile.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
     : null;
@@ -321,13 +318,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       ? await loadMemberProgramTrainingView({
           userId: user.id,
           programSlug: enrolledProgram,
-          coursesCompletedJson: dbUser.coursesCompleted,
         })
       : null;
 
-  const completedCount =
-    trainingView?.completedCount ??
-    (program ? coursesCompleted.filter((s) => program.courses.some((c) => c.slug === s)).length : 0);
+  const completedCount = trainingView?.completedCount ?? 0;
   const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
   const allCoursesComplete =
     trainingView?.allCoursesComplete ??
@@ -351,7 +345,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       intakeExtra?.onboardingCompletedAt != null ||
       intakeExtra?.preScreeningResponse != null,
     assessment: assessmentCompleted,
-    trainingStarted: coursesCompleted.length > 0,
+    trainingStarted: trainingView?.hasStartedTraining ?? false,
     certsComplete: allCoursesComplete,
     employed: hasPlacementRecord,
   };
@@ -456,8 +450,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const nextIncompleteCourse =
     program && trainingView?.nextIncompleteCourseSlug
       ? program.courses.find((c) => c.slug === trainingView.nextIncompleteCourseSlug) ?? null
-      : program
-        ? program.courses.find((c) => !coursesCompleted.includes(c.slug)) ?? null
+      : program && trainingView
+        ? program.courses.find((c) => !trainingView.completedSlugsAuthoritative.includes(c.slug)) ?? null
         : null;
 
   const recommendedActions = careerBrief.recommendedActions;

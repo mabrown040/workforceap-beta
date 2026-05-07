@@ -5,7 +5,6 @@ import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { parseCourseSlugList } from '@/lib/member/parseCourseSlugList';
 import PageHeader from '@/components/portal/PageHeader';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -22,16 +21,25 @@ export default async function EmployerScreeningMemberPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { enrolledProgram: true, coursesCompleted: true },
+    select: {
+      enrolledProgram: true,
+      memberProgramProgress: {
+        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+      },
+      courseProgress: {
+        where: { status: 'COMPLETED' },
+        select: { programSlug: true, courseSlug: true },
+      },
+    },
   });
   const slug = dbUser?.enrolledProgram;
   if (!slug) redirect('/dashboard/program');
 
   const program = getProgramBySlug(slug);
-  const completed = parseCourseSlugList(dbUser.coursesCompleted);
+  const rollup = dbUser.memberProgramProgress.find((row) => row.programSlug === slug) ?? null;
   const total = program?.courses.length ?? 0;
-  const done = program ? program.courses.filter((c) => completed.includes(c.slug)).length : 0;
-  const nearComplete = total > 0 && done / total >= 0.85;
+  const done = rollup?.coursesCompleted ?? (program ? program.courses.filter((c) => dbUser.courseProgress.some((row) => row.programSlug === slug && row.courseSlug === c.slug)).length : 0);
+  const nearComplete = total > 0 && ((rollup?.averagePercent ?? Math.round((done / total) * 100)) >= 85);
 
   const pack = await prisma.employerScreeningPack.findFirst({
     where: { programSlug: slug, isActive: true },

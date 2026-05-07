@@ -626,23 +626,21 @@ export default function DashboardHomeClient({
 
             <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem' }}>
               <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-                Career tools
+                Voice coach
               </p>
               <h4 style={{ fontWeight: 700, fontSize: '1rem', margin: '0.45rem 0 0.35rem', color: 'var(--color-on-surface)' }}>
-                {primaryAction?.label ?? 'Open your toolkit'}
+                Practice out loud
               </h4>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>
-                Use one focused tool for resumes, interview prep, and job search help — without turning the homepage into a tool catalog.
+                Use voice tools for mock interviews, spoken answers, and confidence-building — without turning the homepage into a tool catalog.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
-                <Link href={primaryAction?.href ?? '/dashboard/ai-tools'} className="btn btn-secondary" onClick={() => handleDashboardAction(primaryAction ? 'primary_recommended_action_clicked' : 'ai_tools_clicked')}>
+                <Link href="/dashboard/ai-tools/voice-interview" className="btn btn-secondary" onClick={() => handleDashboardAction('ai_tools_clicked')}>
+                  Open voice coach
+                </Link>
+                <Link href={primaryAction?.href ?? '/dashboard/ai-tools'} style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction(primaryAction ? 'primary_recommended_action_clicked' : 'ai_tools_clicked')}>
                   {primaryAction ? 'Open recommended tool' : 'Open career tools'}
                 </Link>
-                {jobSearchUrl ? (
-                  <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction('job_search_clicked')}>
-                    Browse jobs
-                  </a>
-                ) : null}
               </div>
             </div>
           </div>

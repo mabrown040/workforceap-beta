@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import DataTable from '@/components/portal/ui/DataTable';
+import SectionHeader from '@/components/portal/ui/SectionHeader';
 import MapToUserActions from '@/components/admin/coursera/MapToUserActions';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -12,6 +14,7 @@ import {
   loadLearnerProgressByExternalEmail,
   loadUnmatchedXapiEventsByExternalEmail,
   suggestUserMatchesForExternalEmail,
+  type UnmatchedXapiEventRow,
 } from '@/lib/coursera/progressQueries';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -165,80 +168,99 @@ export default async function AdminCourseraUnmatchedLearnerPage({
           </section>
         ) : null}
 
-        {/* Unmatched xAPI events — most useful when CSV is empty. */}
+        {/* Unmatched xAPI events — most useful when CSV is empty.
+            Reference migration to <DataTable> + <SectionHeader> primitives.
+            See docs/UI-DESIGN-SYSTEM.md for the migration playbook. */}
         {xapiEvents.length > 0 ? (
           <section className="content-card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.6rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Unmatched xAPI events ({xapiEvents.length})</h2>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                Real-time activity Coursera sent for this email that we couldn&rsquo;t link to a member.
-                Mapping above will reprocess these.
-              </p>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left' }}>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Received</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Verb</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Status</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Actor identifier</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {xapiEvents.map((evt) => (
-                    <tr key={evt.id}>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', whiteSpace: 'nowrap' }}>
-                        {formatDateTime(evt.receivedAt)}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <strong>{evt.courseName ?? evt.courseSlug ?? '—'}</strong>
-                        {evt.courseSlug && evt.courseName ? (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                            {evt.courseSlug}
-                          </div>
-                        ) : null}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <code style={{ fontSize: '0.78rem' }}>{shortVerb(evt.verbId)}</code>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <span
+            <SectionHeader
+              title={`Unmatched xAPI events (${xapiEvents.length})`}
+              subtitle="Real-time activity Coursera sent for this email that we couldn't link to a member. Mapping above will reprocess these."
+            />
+            <DataTable<UnmatchedXapiEventRow>
+              columns={[
+                {
+                  key: 'received',
+                  header: 'Received',
+                  cell: (evt) => (
+                    <span style={{ whiteSpace: 'nowrap' }}>{formatDateTime(evt.receivedAt)}</span>
+                  ),
+                },
+                {
+                  key: 'course',
+                  header: 'Course',
+                  cell: (evt) => (
+                    <>
+                      <strong>{evt.courseName ?? evt.courseSlug ?? '—'}</strong>
+                      {evt.courseSlug && evt.courseName ? (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                          {evt.courseSlug}
+                        </div>
+                      ) : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'verb',
+                  header: 'Verb',
+                  cell: (evt) => <code style={{ fontSize: '0.78rem' }}>{shortVerb(evt.verbId)}</code>,
+                },
+                {
+                  key: 'status',
+                  header: 'Status',
+                  cell: (evt) => (
+                    <>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '0.1rem 0.45rem',
+                          borderRadius: 999,
+                          fontSize: '0.72rem',
+                          fontWeight: 600,
+                          background:
+                            evt.completionStatus === 'unmatched'
+                              ? 'rgba(251, 191, 36, 0.18)'
+                              : 'rgba(176, 0, 32, 0.12)',
+                          color:
+                            evt.completionStatus === 'unmatched'
+                              ? 'rgb(180, 130, 0)'
+                              : 'var(--color-error, #b00020)',
+                        }}
+                      >
+                        {evt.completionStatus}
+                      </span>
+                      {evt.error ? (
+                        <div
                           style={{
-                            display: 'inline-block',
-                            padding: '0.1rem 0.45rem',
-                            borderRadius: 999,
                             fontSize: '0.72rem',
-                            fontWeight: 600,
-                            background:
-                              evt.completionStatus === 'unmatched'
-                                ? 'rgba(251, 191, 36, 0.18)'
-                                : 'rgba(176, 0, 32, 0.12)',
-                            color:
-                              evt.completionStatus === 'unmatched' ? 'rgb(180, 130, 0)' : 'var(--color-error, #b00020)',
+                            color: 'var(--color-on-surface-variant)',
+                            marginTop: '0.2rem',
                           }}
                         >
-                          {evt.completionStatus}
-                        </span>
-                        {evt.error ? (
-                          <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', marginTop: '0.2rem' }}>
-                            {evt.error}
-                          </div>
-                        ) : null}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', wordBreak: 'break-all' }}>
-                        {evt.actorIdentifier ? (
-                          <code style={{ fontSize: '0.78rem' }}>{evt.actorIdentifier}</code>
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                          {evt.error}
+                        </div>
+                      ) : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'actor',
+                  header: 'Actor identifier',
+                  cell: (evt) =>
+                    evt.actorIdentifier ? (
+                      <code style={{ fontSize: '0.78rem', wordBreak: 'break-all' }}>
+                        {evt.actorIdentifier}
+                      </code>
+                    ) : (
+                      '—'
+                    ),
+                  hideOnMobile: true,
+                },
+              ]}
+              rows={xapiEvents}
+              rowKey={(evt) => evt.id}
+              density="compact"
+            />
           </section>
         ) : null}
 

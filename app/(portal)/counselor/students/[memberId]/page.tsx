@@ -67,7 +67,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       enrolledProgram: true,
       programInterest: true,
       assessmentScorePct: true,
-      coursesCompleted: true,
       wioaQualificationJson: true,
       wioaReviewStatus: true,
       wioaReviewedAt: true,
@@ -154,7 +153,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     ? await loadMemberProgramTrainingView({
         userId: member.id,
         programSlug: member.enrolledProgram,
-        coursesCompletedJson: member.coursesCompleted,
       })
     : null;
   const completedSlugs = new Set(trainingView?.completedSlugsAuthoritative ?? []);

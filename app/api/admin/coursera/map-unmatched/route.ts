@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
-import { replayPendingXapiStatementsForEmail } from '@/lib/coursera/replayPendingXapi';
+import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 
 /**
  * Inline "Map to WAP user" action used from the Coursera-only learners list.
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: { userId?: string; courseraEmail?: string };
+  let body: { userId?: string; courseraEmail?: string; actorIdentifier?: string; actorHomePage?: string };
   try {
     body = await request.json();
   } catch {
@@ -30,27 +30,33 @@ export async function POST(request: Request) {
 
   const userId = body.userId?.trim();
   const courseraEmail = body.courseraEmail?.trim();
+  const actorIdentifier = body.actorIdentifier?.trim();
+  const actorHomePage = body.actorHomePage?.trim();
   if (!userId) {
     return NextResponse.json({ error: 'userId is required' }, { status: 400 });
   }
-  if (!courseraEmail) {
-    return NextResponse.json({ error: 'courseraEmail is required' }, { status: 400 });
+  if (!courseraEmail && !actorIdentifier) {
+    return NextResponse.json({ error: 'courseraEmail or actorIdentifier is required' }, { status: 400 });
   }
 
   try {
     const mapping = await upsertCourseraIdentityMapping({
       userId,
       courseraEmail,
+      actorIdentifier,
+      actorHomePage,
       createdByUserId: user.id,
       source: 'manual-admin-unmatched',
       notes: 'Mapped from Coursera-only learners list',
     });
 
-    const backfill = await backfillUserIdForCourseraEmail(courseraEmail, userId);
+    const backfill = courseraEmail
+      ? await backfillUserIdForCourseraEmail(courseraEmail, userId)
+      : { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
 
-    // Immediately process any pending xAPI statements so member progress
-    // reflects on their dashboard right away instead of waiting for the hourly cron.
-    const xapiReplay = await replayPendingXapiStatementsForEmail(courseraEmail);
+    // Immediately replay unresolved xAPI statements — including rows already marked processed
+    // as unmatched/error before this mapping existed.
+    const xapiReplay = await replayUnresolvedXapiStatementsForIdentity({ courseraEmail, actorIdentifier });
 
     return NextResponse.json({
       ok: true,

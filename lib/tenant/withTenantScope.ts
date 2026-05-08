@@ -1,0 +1,140 @@
+import 'server-only';
+
+import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/db/prisma';
+import { makeScopedProxy, TenantScopeViolation, TENANT_SCOPED_MODELS } from './scopeProxy';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.1)
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * `withTenantScope(orgId, fn)` is the **primary defense** against cross-
+ * tenant data leaks. Every API endpoint that reads or writes tenant data
+ * must wrap its Prisma calls in this helper.
+ *
+ * What it does:
+ *   - Wraps the real Prisma client in a Proxy (see `scopeProxy.ts` for
+ *     pure logic) that, for tenant-scoped models, auto-injects
+ *     `where: { organizationId: orgId }` on read operations
+ *   - Asserts at runtime that any explicit `organizationId` in the
+ *     caller's `where` matches the scoped value — fails loudly with
+ *     `TenantScopeViolation` if a caller tries to override
+ *   - On writes (create, update, upsert, delete), forces the org id
+ *     into `data` / `where` so a malicious or buggy caller can't write
+ *     to another tenant
+ *
+ * Models recognized as tenant-scoped (carry `organizationId` directly):
+ *   - User
+ *   - Partner
+ *   - Employer
+ *   - Job
+ *   - Course
+ *   - CourseEnrollment
+ *   - OrganizationProgramCatalog
+ *   - PreScreeningResponse
+ *
+ * Tables NOT in this list inherit their tenant via FK relationships (e.g.
+ * `Application` is scoped via its `User.organizationId`). Those queries
+ * must filter via the parent: `where: { user: { organizationId } }`.
+ *
+ * Caveats:
+ *   - This helper is the application layer of defense. Sprint A.3 adds
+ *     Postgres RLS as a backstop.
+ *   - Raw SQL (`prisma.$queryRaw`) is NOT auto-scoped — those queries
+ *     must manually include the tenant filter and get reviewed in PR.
+ *   - Tables not in TENANT_SCOPED_MODELS pass through unchanged.
+ *     Reviewers should still confirm the query is scoped via parent FK.
+ */
+
+type ScopedClient = Omit<typeof prisma, '$transaction' | '$connect' | '$disconnect' | '$on' | '$use' | '$extends'>;
+
+/**
+ * Run `fn` with a Prisma client whose tenant-scoped operations are
+ * forcibly filtered/written against `orgId`.
+ */
+export async function withTenantScope<T>(
+  orgId: string,
+  fn: (db: ScopedClient) => Promise<T>,
+): Promise<T> {
+  if (!orgId || typeof orgId !== 'string' || orgId.trim() === '') {
+    throw new Error('[tenant-scope] orgId required');
+  }
+  const scoped = makeScopedProxy(orgId, prisma) as unknown as ScopedClient;
+  return fn(scoped);
+}
+
+/**
+ * Tag for raw SQL queries that intentionally cross tenants — wrap them in
+ * `crossTenantOK()` to make the choice explicit and reviewable. Doesn't do
+ * anything functional; it's a marker for the audit script.
+ */
+export async function crossTenantOK<T>(fn: () => Promise<T>): Promise<T> {
+  return fn();
+}
+
+/**
+ * Codex P2 catch on PR #1041 (commit 5db07b2bc9): the proxy injects
+ * `organizationId` on the row but does NOT verify that scoped foreign-key
+ * targets belong to the same tenant. A caller that accepts user-controlled
+ * FKs (e.g. `data: { employerId: ??? }` for a Job) can be tricked into
+ * creating an Org A row that points at an Org B parent — and any include
+ * relations leak the foreign tenant's data.
+ *
+ * `assertSameTenant` is the per-callsite escape hatch: pass any FK id from
+ * the request body and the expected scope, and this verifies the parent's
+ * `organizationId` matches before the write. Throws `TenantScopeViolation`
+ * if not.
+ *
+ * The structural fix is Postgres RLS in Sprint A.3 (CHECK constraints +
+ * row-level policies enforce same-tenant FKs at the DB layer for free).
+ * Until then, every migrated endpoint that accepts a user-controlled FK
+ * to a tenant-scoped model must call `assertSameTenant` before the write.
+ *
+ * See `docs/TENANT-ISOLATION.md` Invariant I-5.
+ *
+ * @param model — the Prisma delegate name (e.g. 'employer', 'user'). Must
+ *                be one of TENANT_SCOPED_MODELS.
+ * @param id — the FK value (typically request-controlled).
+ * @param expectedOrgId — the active tenant scope (typically the actor's).
+ */
+export async function assertSameTenant(
+  model: keyof typeof prisma,
+  id: string,
+  expectedOrgId: string,
+): Promise<void> {
+  if (!TENANT_SCOPED_MODELS.has(String(model))) {
+    throw new Error(
+      `[tenant-scope] assertSameTenant called with non-tenant-scoped model "${String(model)}"`,
+    );
+  }
+  if (!id || !expectedOrgId) {
+    throw new Error('[tenant-scope] assertSameTenant requires id and expectedOrgId');
+  }
+  // Use the unscoped client so we can read the parent's actual organizationId
+  // even if it differs from the active scope (we *want* to detect that case).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const delegate = (prisma as any)[model];
+  if (!delegate || typeof delegate.findUnique !== 'function') {
+    throw new Error(`[tenant-scope] assertSameTenant: unknown delegate "${String(model)}"`);
+  }
+  const row = await delegate.findUnique({
+    where: { id },
+    select: { organizationId: true },
+  });
+  if (!row) {
+    // Treat missing as a violation — caller passed an id that doesn't exist
+    // OR is in another tenant we can't see. Either way, refuse the write.
+    throw new TenantScopeViolation(String(model), 'assertSameTenant', expectedOrgId, 'not-found');
+  }
+  if (row.organizationId !== expectedOrgId) {
+    throw new TenantScopeViolation(
+      String(model),
+      'assertSameTenant',
+      expectedOrgId,
+      String(row.organizationId),
+    );
+  }
+}
+
+// Re-exports for convenience.
+export { TenantScopeViolation, TENANT_SCOPED_MODELS, Prisma };

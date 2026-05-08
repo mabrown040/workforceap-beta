@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { translateOccupationDescription, translateSkillName, translateTaskLine } from '@/lib/onet/copy';
+import { ONET_CODE_PATTERN, resolveOccupationTitle } from '@/lib/onet/occupationTitles';
 import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
@@ -50,10 +51,17 @@ export async function GET(request: NextRequest, { params }: Params) {
       };
     });
 
+    // If the DB title is missing or just the raw SOC code, fall back to the
+    // hand-curated title map so we never return raw codes to the UI.
+    const friendlyTitle =
+      !occ.title || ONET_CODE_PATTERN.test(occ.title)
+        ? resolveOccupationTitle(occ.onetCode, occ.title) ?? occ.title
+        : occ.title;
+
     return NextResponse.json({
       onetCode: occ.onetCode,
-      title: occ.title,
-      description: translateOccupationDescription(occ.description, occ.title),
+      title: friendlyTitle,
+      description: translateOccupationDescription(occ.description, friendlyTitle),
       jobFamily: occ.jobFamily,
       brightOutlook: occ.brightOutlook,
       educationLevel: occ.educationLevel,

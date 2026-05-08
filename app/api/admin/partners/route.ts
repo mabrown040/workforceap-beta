@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { prisma } from '@/lib/db/prisma';
+import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
@@ -9,12 +11,19 @@ import { z } from 'zod';
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 1).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
  *
- * All Prisma reads/writes against `Partner` are now wrapped in
- * `withTenantScope` so the helper auto-injects `organizationId`. Note
- * that `slug` and `referralCode` are claimed to be globally unique in
- * the schema (`@unique`); however, they SHOULD be unique-per-tenant in
- * a real multi-tenant world. That schema migration is queued for
- * Sprint A.3 — this PR only changes query scoping, not constraints.
+ * Reads against `Partner` for tenant-listing are wrapped in
+ * `withTenantScope` (org filter auto-injected). Writes are also scoped.
+ *
+ * EXCEPTION: the duplicate-slug / duplicate-referralCode check is run
+ * GLOBALLY via `crossTenantOK`. Codex P2 catch on PR #1042 — `slug`
+ * and `referralCode` are still `@unique` globally in the schema, so a
+ * scoped pre-check would miss collisions in other orgs and the create
+ * would then 500 on Prisma's P2002 instead of returning a friendly
+ * 400. Once schema migrates to per-tenant uniqueness in Sprint A.3,
+ * these checks move back inside `withTenantScope`.
+ *
+ * The route also catches P2002 as belt-and-braces in case a race
+ * slips past the pre-check.
  */
 
 const partnerSchema = z.object({
@@ -61,41 +70,52 @@ export async function POST(request: NextRequest) {
   const orgId = await getDefaultOrganizationId();
   const referralCode = parsed.data.referralCode ?? parsed.data.slug;
 
+  // Global uniqueness pre-check — slug and referralCode are @unique across
+  // ALL orgs in the current schema. crossTenantOK marks the intentional
+  // bypass for the audit script.
+  const existingSlug = await crossTenantOK(() =>
+    prisma.partner.findUnique({ where: { slug: parsed.data.slug }, select: { id: true } }),
+  );
+  if (existingSlug) {
+    return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
+  }
+
+  const codeTaken = await crossTenantOK(() =>
+    prisma.partner.findFirst({
+      where: { OR: [{ referralCode }, { slug: referralCode }] },
+      select: { id: true },
+    }),
+  );
+  if (codeTaken) {
+    return NextResponse.json(
+      { error: 'Referral code must be unique and different from other partners slugs' },
+      { status: 400 },
+    );
+  }
+
+  const { referralCode: _rc, ...rest } = parsed.data;
+
   try {
-    const partner = await withTenantScope(orgId, async (db) => {
-      // Slug uniqueness — currently global per schema, will be per-tenant in A.3.
-      // The findUnique by `slug` doesn't auto-scope (since slug is the
-      // unique key), but we re-check via findFirst-with-org for safety.
-      const existing = await db.partner.findFirst({ where: { slug: parsed.data.slug } });
-      if (existing) {
-        throw new Error('SLUG_TAKEN');
-      }
-
-      const codeTaken = await db.partner.findFirst({
-        where: { OR: [{ referralCode }, { slug: referralCode }] },
-      });
-      if (codeTaken) {
-        throw new Error('CODE_TAKEN');
-      }
-
-      const { referralCode: _rc, ...rest } = parsed.data;
-      // organizationId passed explicitly to satisfy Prisma's required-
-      // field type; withTenantScope verifies it matches the active scope.
-      return db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } });
-    });
-
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
+    );
     return NextResponse.json(partner, { status: 201 });
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === 'SLUG_TAKEN') {
+    // Belt-and-braces: catch the unique-constraint race that the
+    // global pre-check might miss between check and insert.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = (error.meta?.target as string[] | undefined) ?? [];
+      const targetField = target.join(',');
+      if (targetField.includes('slug')) {
         return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
       }
-      if (error.message === 'CODE_TAKEN') {
+      if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
         return NextResponse.json(
           { error: 'Referral code must be unique and different from other partners slugs' },
           { status: 400 },
         );
       }
+      return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
     }
     console.error('[admin/partners POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

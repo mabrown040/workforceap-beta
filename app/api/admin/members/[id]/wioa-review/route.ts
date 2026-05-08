@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 
 /**
@@ -30,7 +30,7 @@ export async function PATCH(request: NextRequest, { params }: Props) {
   if (!(await isAdmin(actor.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
-  const orgId = await getDefaultOrganizationId();
+  const orgId = await getActorOrganizationId(actor.id);
 
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({

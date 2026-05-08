@@ -3,7 +3,7 @@ import { after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 
@@ -27,7 +27,7 @@ export async function POST(
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
 
     const job = await withTenantScope(orgId, (db) =>
       db.job.findFirst({

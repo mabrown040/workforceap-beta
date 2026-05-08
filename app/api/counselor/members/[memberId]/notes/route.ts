@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { z } from 'zod';
 
 /**
@@ -76,7 +76,7 @@ export async function POST(
   const parsed = noteSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'Note content required' }, { status: 400 });
 
-  const orgId = await getDefaultOrganizationId();
+  const orgId = await getActorOrganizationId(user.id);
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({ where: { id: memberId }, select: { id: true } }),
   );

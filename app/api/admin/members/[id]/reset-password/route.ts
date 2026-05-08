@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 /**
@@ -27,7 +27,7 @@ export async function POST(
   }
 
   const { id } = await params;
-  const orgId = await getDefaultOrganizationId();
+  const orgId = await getActorOrganizationId(admin.id);
 
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({

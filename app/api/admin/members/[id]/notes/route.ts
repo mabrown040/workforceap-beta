@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -33,7 +33,7 @@ export async function GET(
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
 
     // Tenant gate: confirm the target member belongs to the active org
     // before exposing any of their notes.
@@ -69,7 +69,7 @@ export async function POST(
     const parsed = noteSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: 'Note content required' }, { status: 400 });
 
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
     const member = await withTenantScope(orgId, (db) =>
       db.user.findFirst({ where: { id }, select: { id: true } }),
     );

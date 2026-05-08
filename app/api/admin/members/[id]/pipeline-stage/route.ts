@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { captureApiError } from '@/lib/observability/captureApiError';
 import type { PipelineBoardStage } from '@prisma/client';
 
@@ -39,7 +39,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid body', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
 
     const target = await withTenantScope(orgId, (db) =>
       db.user.findFirst({

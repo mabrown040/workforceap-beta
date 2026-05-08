@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -26,7 +26,7 @@ export async function POST(
     await requireAdmin(user.id);
 
     const { id } = await params;
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
 
     const result = await withTenantScope(orgId, (db) =>
       db.user.updateMany({

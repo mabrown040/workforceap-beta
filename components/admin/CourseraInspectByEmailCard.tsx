@@ -1,0 +1,523 @@
+'use client';
+
+import { useCallback, useState } from 'react';
+
+type InspectResponse = {
+  email: string;
+  wap: {
+    userId: string | null;
+    fullName: string | null;
+    organizationId: string | null;
+    profileRole: string | null;
+    extraRoles: string[];
+    isMember: boolean;
+    enrollments: Array<{
+      courseId: string;
+      programSlug: string;
+      status: string;
+      lastActivityAt: string | null;
+    }>;
+  };
+  identityMappings: Array<{
+    id: string;
+    courseraEmail: string | null;
+    actorIdentifier: string | null;
+    source: string;
+    notes: string | null;
+    createdAt: string;
+    lastSeenAt: string | null;
+  }>;
+  coursera: {
+    foundInRoster: boolean;
+    rosterEntry: {
+      externalId: string;
+      fullName: string;
+      membershipProgramIds: string[];
+    } | null;
+    enrollmentReports: Array<{
+      programId: string;
+      contentId: string;
+      contentType: string;
+      isCompleted: boolean;
+      overallProgress: number | null;
+      lastActivityAt: string | null;
+    }>;
+    gradebookReports: Array<{
+      programId: string;
+      courseId: string;
+      collectionName: string;
+      overallProgress: number;
+      approxTotalLearningHrs: number;
+      lastActivityAt: string | null;
+    }>;
+  };
+  xapiActivity: {
+    statementCount: number;
+    latestStatementAt: string | null;
+    unprocessedCount: number;
+  };
+  diagnosis: string[];
+};
+
+const cardStyle: React.CSSProperties = {
+  padding: '0.85rem 1rem',
+  border: '1px solid var(--outline-variant)',
+  borderRadius: '0.75rem',
+  background: 'var(--surface-container-lowest)',
+  display: 'grid',
+  gap: '0.45rem',
+  minWidth: 0,
+};
+
+const cardTitleStyle: React.CSSProperties = {
+  fontSize: '0.78rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.04em',
+  color: 'var(--color-on-surface-variant)',
+  fontWeight: 700,
+};
+
+const btnStyle: React.CSSProperties = {
+  padding: '0.55rem 0.95rem',
+  borderRadius: '0.6rem',
+  border: '1px solid var(--outline-variant)',
+  background: 'var(--primary)',
+  color: 'var(--on-primary)',
+  fontWeight: 600,
+  fontSize: '0.9rem',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
+
+const btnDisabledStyle: React.CSSProperties = {
+  ...btnStyle,
+  opacity: 0.55,
+  cursor: 'not-allowed',
+};
+
+const btnSecondaryStyle: React.CSSProperties = {
+  ...btnStyle,
+  background: 'var(--surface-container)',
+  color: 'var(--color-on-surface)',
+};
+
+function fmt(value: string | null | undefined): string {
+  if (!value) return '—';
+  try {
+    return new Date(value).toLocaleString();
+  } catch {
+    return value;
+  }
+}
+
+function YesNo({ value }: { value: boolean }) {
+  return (
+    <span
+      style={{
+        fontSize: '0.72rem',
+        padding: '0.15rem 0.5rem',
+        borderRadius: '0.5rem',
+        background: value ? 'rgba(34, 197, 94, 0.15)' : 'rgba(244, 63, 94, 0.12)',
+        color: value ? 'rgb(22, 163, 74)' : 'rgb(190, 18, 60)',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.02em',
+      }}
+    >
+      {value ? 'yes' : 'no'}
+    </span>
+  );
+}
+
+export default function CourseraInspectByEmailCard() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<InspectResponse | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [addResult, setAddResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const runInspect = useCallback(async () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError('Enter an email to inspect.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setData(null);
+    setAddResult(null);
+    try {
+      const url = new URL('/api/admin/coursera/inspect-by-email', window.location.origin);
+      url.searchParams.set('email', trimmed);
+      const response = await fetch(url.toString(), { cache: 'no-store' });
+      if (!response.ok) {
+        const text = await response.text();
+        setError(`HTTP ${response.status}: ${text.slice(0, 240)}`);
+        return;
+      }
+      const json = (await response.json()) as InspectResponse;
+      setData(json);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Inspect request failed');
+    } finally {
+      setLoading(false);
+    }
+  }, [email]);
+
+  const handleAddToWap = useCallback(async () => {
+    if (!data || !data.coursera.rosterEntry) return;
+    setAdding(true);
+    setAddResult(null);
+    try {
+      const response = await fetch('/api/admin/coursera/reconcile/add-to-wap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          fullName: data.coursera.rosterEntry.fullName || undefined,
+          courseraExternalId: data.coursera.rosterEntry.externalId,
+          programId:
+            data.coursera.rosterEntry.membershipProgramIds[0] ??
+            data.coursera.enrollmentReports[0]?.programId ??
+            '',
+        }),
+      });
+      const json = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        userId?: string;
+        error?: string;
+      };
+      if (!response.ok || !json.ok) {
+        setAddResult({ ok: false, message: json.error ?? `HTTP ${response.status}` });
+        return;
+      }
+      setAddResult({ ok: true, message: `Added userId=${json.userId ?? '?'}` });
+      // Re-run inspect to reflect the new state.
+      await runInspect();
+    } catch (err) {
+      setAddResult({
+        ok: false,
+        message: err instanceof Error ? err.message : 'Add-to-WAP failed',
+      });
+    } finally {
+      setAdding(false);
+    }
+  }, [data, runInspect]);
+
+  // The "Add to WorkforceAP" inline action only makes sense when Coursera
+  // sees the learner but WAP does not yet. In every other case we hide it.
+  const showAddAction = Boolean(
+    data &&
+      data.coursera.foundInRoster &&
+      data.coursera.rosterEntry &&
+      !data.wap.userId,
+  );
+
+  return (
+    <div style={{ display: 'grid', gap: '0.85rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+        <input
+          type="email"
+          placeholder="Email to inspect (e.g. learner@example.com)"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !loading) {
+              e.preventDefault();
+              void runInspect();
+            }
+          }}
+          style={{
+            padding: '0.55rem 0.8rem',
+            borderRadius: '0.55rem',
+            border: '1px solid var(--outline-variant)',
+            background: 'var(--surface-container-lowest)',
+            color: 'var(--color-on-surface)',
+            fontSize: '0.9rem',
+            minWidth: '20rem',
+            flex: '1 1 20rem',
+          }}
+        />
+        <button
+          type="button"
+          onClick={runInspect}
+          disabled={loading}
+          style={loading ? btnDisabledStyle : btnStyle}
+        >
+          {loading ? 'Inspecting…' : 'Inspect'}
+        </button>
+        {data && (
+          <span
+            style={{
+              fontSize: '0.78rem',
+              color: 'var(--color-on-surface-variant)',
+              marginLeft: 'auto',
+            }}
+          >
+            Inspected <code>{data.email}</code>
+          </span>
+        )}
+      </div>
+
+      {error && (
+        <div
+          style={{
+            padding: '0.75rem 1rem',
+            borderRadius: '0.6rem',
+            border: '1px solid rgba(239, 68, 68, 0.5)',
+            background: 'rgba(239, 68, 68, 0.06)',
+            color: 'rgb(190, 18, 60)',
+            fontSize: '0.9rem',
+          }}
+        >
+          <strong>Inspect failed:</strong> {error}
+        </div>
+      )}
+
+      {data && (
+        <>
+          {/* Four-column grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: '0.6rem',
+            }}
+          >
+            {/* WAP record */}
+            <div style={cardStyle}>
+              <span style={cardTitleStyle}>WAP record</span>
+              {data.wap.userId ? (
+                <>
+                  <div>
+                    <strong>{data.wap.fullName || data.email}</strong>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                    userId: <code>{data.wap.userId.slice(0, 8)}…</code>
+                  </div>
+                  <div style={{ fontSize: '0.8rem' }}>
+                    Profile role: <code>{data.wap.profileRole ?? '—'}</code>
+                  </div>
+                  {data.wap.extraRoles.length > 0 && (
+                    <div style={{ fontSize: '0.8rem' }}>
+                      Extra roles: <code>{data.wap.extraRoles.join(', ')}</code>
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.8rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                    isMember: <YesNo value={data.wap.isMember} />
+                  </div>
+                  {data.wap.enrollments.length > 0 ? (
+                    <div style={{ marginTop: '0.35rem' }}>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                        Enrollments ({data.wap.enrollments.length})
+                      </div>
+                      <ul
+                        style={{
+                          margin: '0.2rem 0 0 1rem',
+                          padding: 0,
+                          fontSize: '0.78rem',
+                          maxHeight: '8rem',
+                          overflowY: 'auto',
+                        }}
+                      >
+                        {data.wap.enrollments.slice(0, 8).map((row, idx) => (
+                          <li key={`${row.programSlug}:${row.courseId}:${idx}`}>
+                            <code>{row.programSlug}</code> · {row.courseId} · {row.status}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                      No CourseProgress rows.
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  No WAP user with this email in your org.
+                </div>
+              )}
+            </div>
+
+            {/* Identity mappings */}
+            <div style={cardStyle}>
+              <span style={cardTitleStyle}>Identity mappings</span>
+              {data.identityMappings.length > 0 ? (
+                <table style={{ borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)' }}>
+                      <th style={{ padding: '0.2rem 0.3rem' }}>Source</th>
+                      <th style={{ padding: '0.2rem 0.3rem' }}>Coursera email</th>
+                      <th style={{ padding: '0.2rem 0.3rem' }}>Last seen</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.identityMappings.map((row) => (
+                      <tr key={row.id}>
+                        <td style={{ padding: '0.2rem 0.3rem' }}>
+                          <code>{row.source}</code>
+                        </td>
+                        <td style={{ padding: '0.2rem 0.3rem', wordBreak: 'break-all' }}>
+                          {row.courseraEmail ?? row.actorIdentifier ?? '—'}
+                        </td>
+                        <td style={{ padding: '0.2rem 0.3rem' }}>{fmt(row.lastSeenAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  No mapping rows.
+                </div>
+              )}
+            </div>
+
+            {/* Coursera */}
+            <div style={cardStyle}>
+              <span style={cardTitleStyle}>Coursera</span>
+              <div style={{ fontSize: '0.85rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                In roster: <YesNo value={data.coursera.foundInRoster} />
+              </div>
+              {data.coursera.rosterEntry ? (
+                <>
+                  <div style={{ fontSize: '0.78rem', wordBreak: 'break-all' }}>
+                    externalId: <code>{data.coursera.rosterEntry.externalId}</code>
+                  </div>
+                  <div style={{ fontSize: '0.78rem' }}>
+                    {data.coursera.rosterEntry.membershipProgramIds.length} program(s)
+                  </div>
+                </>
+              ) : null}
+              {data.coursera.enrollmentReports.length > 0 && (
+                <div style={{ marginTop: '0.35rem' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                    enrollmentReports ({data.coursera.enrollmentReports.length})
+                  </div>
+                  <ul
+                    style={{
+                      margin: '0.2rem 0 0 1rem',
+                      padding: 0,
+                      fontSize: '0.78rem',
+                      maxHeight: '6rem',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {data.coursera.enrollmentReports.slice(0, 6).map((r, idx) => (
+                      <li key={`${r.programId}:${r.contentId}:${idx}`}>
+                        {r.contentType ?? 'COURSE'} ·{' '}
+                        {typeof r.overallProgress === 'number'
+                          ? `${Math.round(r.overallProgress * 100)}%`
+                          : '—'}
+                        {r.isCompleted ? ' ✓' : ''}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {data.coursera.gradebookReports.length > 0 && (
+                <div style={{ marginTop: '0.35rem' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                    gradebookReports ({data.coursera.gradebookReports.length})
+                  </div>
+                  <ul
+                    style={{
+                      margin: '0.2rem 0 0 1rem',
+                      padding: 0,
+                      fontSize: '0.78rem',
+                      maxHeight: '6rem',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {data.coursera.gradebookReports.slice(0, 6).map((r, idx) => (
+                      <li key={`${r.programId}:${r.courseId}:${idx}`}>
+                        {r.collectionName || r.courseId} · {Math.round(r.overallProgress * 100)}% ·{' '}
+                        {r.approxTotalLearningHrs.toFixed(1)}h
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* xAPI activity */}
+            <div style={cardStyle}>
+              <span style={cardTitleStyle}>xAPI activity</span>
+              <div style={{ fontSize: '1.4rem', fontWeight: 700 }}>{data.xapiActivity.statementCount}</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                statements received
+              </div>
+              <div style={{ fontSize: '0.85rem' }}>
+                Latest: {fmt(data.xapiActivity.latestStatementAt)}
+              </div>
+              <div style={{ fontSize: '0.85rem' }}>
+                Unprocessed: <strong>{data.xapiActivity.unprocessedCount}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Diagnosis callout */}
+          <div
+            style={{
+              padding: '0.85rem 1rem',
+              border: '1px solid var(--outline-variant)',
+              borderRadius: '0.75rem',
+              background: 'var(--surface-container)',
+              display: 'grid',
+              gap: '0.4rem',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.78rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                fontWeight: 700,
+                color: 'var(--color-on-surface-variant)',
+              }}
+            >
+              Diagnosis
+            </span>
+            {data.diagnosis.length === 0 ? (
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                No diagnosis lines were generated.
+              </span>
+            ) : (
+              <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.25rem' }}>
+                {data.diagnosis.map((line, idx) => (
+                  <li key={idx} style={{ fontSize: '0.9rem', lineHeight: 1.45 }}>
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {showAddAction && (
+              <div style={{ marginTop: '0.35rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={handleAddToWap}
+                  disabled={adding}
+                  style={adding ? btnDisabledStyle : btnSecondaryStyle}
+                >
+                  {adding ? 'Adding…' : 'Add to WorkforceAP'}
+                </button>
+                {addResult && (
+                  <span
+                    style={{
+                      fontSize: '0.85rem',
+                      color: addResult.ok ? 'rgb(22, 163, 74)' : 'rgb(190, 18, 60)',
+                    }}
+                  >
+                    {addResult.ok ? '✓' : '✗'} {addResult.message}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

@@ -2,9 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import type { PipelineBoardStage } from '@prisma/client';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The findFirst (membership gate) and the user.update both go through
+ * `withTenantScope`. Using `updateMany` for the write so the proxy can
+ * inject `organizationId` into the where clause — Prisma's `update`
+ * requires a unique where input. An admin from Org A cannot reach an
+ * Org B member by UUID.
+ */
 
 const bodySchema = z.object({
   stage: z
@@ -27,20 +39,26 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid body', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const target = await prisma.user.findFirst({
-      where: { id: memberId, deletedAt: null },
-      select: { id: true },
-    });
+    const orgId = await getDefaultOrganizationId();
+
+    const target = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({
+        where: { id: memberId, deletedAt: null },
+        select: { id: true },
+      }),
+    );
     if (!target) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
     const stage = parsed.data.stage as PipelineBoardStage | null;
 
-    await prisma.user.update({
-      where: { id: memberId },
-      data: { pipelineBoardStage: stage },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.user.updateMany({
+        where: { id: memberId },
+        data: { pipelineBoardStage: stage },
+      }),
+    );
 
     return NextResponse.json({ ok: true, pipelineBoardStage: stage });
   } catch (error) {

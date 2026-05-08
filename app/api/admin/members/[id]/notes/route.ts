@@ -2,8 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The pre-write `user.findUnique` lookup goes through `withTenantScope`
+ * so an Org A admin cannot create a CounselorNote attached to an Org B
+ * member. `CounselorNote` itself is NOT in `TENANT_SCOPED_MODELS` — it
+ * inherits its tenant via the `memberId` FK to `User` — so the note
+ * reads/writes themselves stay on the raw client. The membership check
+ * is the gate.
+ */
 
 const noteSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -19,6 +33,15 @@ export async function GET(
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
+    const orgId = await getDefaultOrganizationId();
+
+    // Tenant gate: confirm the target member belongs to the active org
+    // before exposing any of their notes.
+    const member = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({ where: { id }, select: { id: true } }),
+    );
+    if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+
     const notes = await prisma.counselorNote.findMany({
       where: { memberId: id },
       take: 500,
@@ -46,7 +69,10 @@ export async function POST(
     const parsed = noteSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: 'Note content required' }, { status: 400 });
 
-    const member = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+    const orgId = await getDefaultOrganizationId();
+    const member = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({ where: { id }, select: { id: true } }),
+    );
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
     const note = await prisma.counselorNote.create({

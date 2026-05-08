@@ -9,6 +9,7 @@ import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
+import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -674,6 +675,20 @@ export default async function AdminCourseraPage({
             xAPI progress data is unavailable right now.
           </span>
         )}
+        </div>
+      </details>
+
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Integration self-test
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              diagnose inbound xAPI + outbound B4B REST
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
+          <CourseraSelfTest />
         </div>
       </details>
 

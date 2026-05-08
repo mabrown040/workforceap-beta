@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -257,6 +258,36 @@ function fmtDateTime(value: Date | null): string {
   return value.toLocaleString();
 }
 
+// Shared styles for collapsible section headers on this page. Each section
+// is wrapped in a <details> with a <summary> bar so the page is short and
+// scannable by default. Sections can be expanded individually.
+const collapsibleSectionStyle: CSSProperties = {
+  padding: 0,
+  marginBottom: '1rem',
+};
+const collapsibleSummaryStyle: CSSProperties = {
+  cursor: 'pointer',
+  userSelect: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '1rem',
+  padding: '0.85rem 1.1rem',
+  fontSize: '1.05rem',
+  fontWeight: 600,
+};
+const collapsibleBodyStyle: CSSProperties = {
+  display: 'grid',
+  gap: '0.75rem',
+  padding: '0.85rem 1.1rem 1rem',
+  borderTop: '1px solid var(--outline-variant)',
+};
+const collapsibleCountStyle: CSSProperties = {
+  fontSize: '0.8rem',
+  fontWeight: 400,
+  color: 'var(--color-on-surface-variant)',
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin – Coursera Identity Mapping',
@@ -397,13 +428,20 @@ export default async function AdminCourseraPage({
         ) : null}
       </div>
 
-      <section
-        className="content-card"
-        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
-      >
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Coursera course progress (CSV)
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {courseProgress
+                ? `${courseProgress.totalRows} row(s) · last sync ${fmtDateTime(courseProgress.latestSyncedAt)}`
+                : 'unavailable'}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera course progress</h2>
             <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               Per-learner-per-course progress imported from the Coursera "Learner activity &amp; progress"
               CSV report. Use this for backfill and as a redundant feed alongside the realtime xAPI bridge.
@@ -517,15 +555,23 @@ export default async function AdminCourseraPage({
             Course progress data is unavailable right now.
           </span>
         )}
-      </section>
+        </div>
+      </details>
 
-      <section
-        className="content-card"
-        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
-      >
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Live xAPI course progress
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {xapiCourseProgress
+                ? `${xapiCourseProgress.totalRows} row(s) · last update ${fmtDateTime(xapiCourseProgress.latestUpdatedAt)}`
+                : 'unavailable'}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Live xAPI course progress</h2>
             <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               Real-time course progress from xAPI statements (Coursera webhook). This is what members see on My Training.
             </span>
@@ -628,14 +674,22 @@ export default async function AdminCourseraPage({
             xAPI progress data is unavailable right now.
           </span>
         )}
-      </section>
+        </div>
+      </details>
 
-      <section
-        className="content-card"
-        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
-      >
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Specialization progress
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {badgeProgress
+                ? `${badgeProgress.totalRows} row(s) · last sync ${fmtDateTime(badgeProgress.latestSyncedAt)}`
+                : 'unavailable'}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Specialization progress</h2>
           <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
             Per-learner-per-badge progress imported from the Coursera{' '}
             <em>LearningPathActivity</em> CSV. One record per (learner, badge), with badge
@@ -737,9 +791,24 @@ export default async function AdminCourseraPage({
             Badge progress data is unavailable right now.
           </span>
         )}
-      </section>
+        </div>
+      </details>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <details
+        className="content-card"
+        style={collapsibleSectionStyle}
+        open={unmatchedLearners.length > 0 || showTestAccounts || hiddenTestAccountCount > 0}
+      >
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Unmatched learners
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {unmatchedLearners.length} shown
+              {hiddenTestAccountCount > 0 ? ` · ${hiddenTestAccountCount} hidden test` : ''}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         {hiddenTestAccountCount > 0 ? (
           <div
             style={{
@@ -802,11 +871,23 @@ export default async function AdminCourseraPage({
             programTitle: m.programTitle,
           }))}
         />
-      </div>
+        </div>
+      </details>
 
-      <div className="content-card" style={{ padding: '1rem 1.1rem', marginBottom: '1rem' }}>
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Active-pull skillset progress
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {skillsetProgress.totalRows} row(s)
+              {skillsetProgress.latestSyncedAt
+                ? ` · last sync ${skillsetProgress.latestSyncedAt.toISOString().replace('T', ' ').slice(0, 19)} UTC`
+                : ''}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div style={{ display: 'grid', gap: '0.5rem' }}>
-          <strong>Active-pull skillset progress</strong>
           <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
             Snapshot written by the <code>/api/cron/coursera-sync</code> cron
             (every 6h). Empty until skillset IDs are configured for at least one
@@ -876,17 +957,34 @@ export default async function AdminCourseraPage({
             </div>
           ) : null}
         </div>
-      </div>
+        </div>
+      </details>
 
-      <CourseraMappingsAdmin
-        members={memberOptions}
-        mappings={mappings}
-        xapiAttention={xapiAttention}
-        syncStatus={syncStatus}
-        progressAudit={progressAudit}
-        progressAuditError={progressAuditError}
-        auditEmailInitial={auditEmailRaw}
-      />
+      <details
+        className="content-card"
+        style={collapsibleSectionStyle}
+        open={Boolean(auditEmailRaw.trim()) || Boolean(progressAuditError) || (xapiAttention?.length ?? 0) > 0}
+      >
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Identity mapping &amp; audit tools
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {mappings.length} mapping(s) · {xapiAttention.length} statement(s) need attention
+            </span>
+          </span>
+        </summary>
+        <div style={{ ...collapsibleBodyStyle, gap: 0 }}>
+          <CourseraMappingsAdmin
+            members={memberOptions}
+            mappings={mappings}
+            xapiAttention={xapiAttention}
+            syncStatus={syncStatus}
+            progressAudit={progressAudit}
+            progressAuditError={progressAuditError}
+            auditEmailInitial={auditEmailRaw}
+          />
+        </div>
+      </details>
     </PortalPageFrame>
   );
 }

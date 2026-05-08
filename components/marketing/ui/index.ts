@@ -3,6 +3,7 @@ export { CohortStatCard } from './CohortStatCard';
 export { HeroSection } from './HeroSection';
 export { InfoCard } from './InfoCard';
 export { PageSection } from './PageSection';
+export { PartnershipCard } from './PartnershipCard';
 export { PricingTierCard } from './PricingTierCard';
 export { SectionHeader } from './SectionHeader';
 export { StatBand } from './StatBand';

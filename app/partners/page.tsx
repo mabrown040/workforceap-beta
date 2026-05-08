@@ -4,7 +4,7 @@ import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldChec
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import { HeroSection, PageSection, SectionHeader, ValueCard, CTABand } from '@/components/marketing/ui';
+import { CTABand, HeroSection, PageSection, PartnershipCard, SectionHeader, ValueCard } from '@/components/marketing/ui';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
@@ -192,187 +192,35 @@ export default async function PartnersPage() {
             </div>
 
             {/* Training Centers */}
-            <div
-              className="portal-card portal-card--flat"
-              style={{
-                gridColumn: 'span 4',
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <span
-                style={{
-                  width: '2rem',
-                  height: '2rem',
-                  color: 'var(--color-accent)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                aria-hidden="true"
-              >
-                <GraduationCap size={28} strokeWidth={2} />
-              </span>
-              <h3
-                style={{
-                  fontSize: '1.375rem',
-                  fontWeight: 700,
-                  color: 'var(--color-on-surface)',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {t('trainingType')}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                <strong>{t('typeYouAre')}</strong> {t('trainingWho')}
-              </p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
-                {t('trainingWhy')}
-              </p>
-              <Link
-                href={partnershipContactHref}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--color-accent)',
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  textDecoration: 'none',
-                  marginTop: '0.5rem',
-                }}
-              >
-                {t('trainingCta')}
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-              </Link>
-            </div>
-
+            <PartnershipCard
+              span={4}
+              icon={<GraduationCap size={28} strokeWidth={2} />}
+              title={t('trainingType')}
+              who={<><strong>{t('typeYouAre')}</strong> {t('trainingWho')}</>}
+              why={t('trainingWhy')}
+              cta={t('trainingCta')}
+              ctaHref={partnershipContactHref}
+            />
             {/* Public Agencies */}
-            <div
-              className="portal-card portal-card--flat"
-              style={{
-                gridColumn: 'span 5',
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <span
-                style={{
-                  width: '2rem',
-                  height: '2rem',
-                  color: 'var(--color-accent)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                aria-hidden="true"
-              >
-                <Building2 size={28} strokeWidth={2} />
-              </span>
-              <h3
-                style={{
-                  fontSize: '1.375rem',
-                  fontWeight: 700,
-                  color: 'var(--color-on-surface)',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {t('agencyType')}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                <strong>{t('typeYouAre')}</strong> {t('agencyWho')}
-              </p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
-                {t('agencyWhy')}
-              </p>
-              <Link
-                href={partnershipContactHref}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--color-accent)',
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  textDecoration: 'none',
-                  marginTop: '0.5rem',
-                }}
-              >
-                {t('agencyCta')}
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-              </Link>
-            </div>
-
+            <PartnershipCard
+              span={5}
+              icon={<Building2 size={28} strokeWidth={2} />}
+              title={t('agencyType')}
+              who={<><strong>{t('typeYouAre')}</strong> {t('agencyWho')}</>}
+              why={t('agencyWhy')}
+              cta={t('agencyCta')}
+              ctaHref={partnershipContactHref}
+            />
             {/* Philanthropic Funders */}
-            <div
-              className="portal-card portal-card--flat"
-              style={{
-                gridColumn: 'span 7',
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <span
-                style={{
-                  width: '2rem',
-                  height: '2rem',
-                  color: 'var(--color-accent)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                aria-hidden="true"
-              >
-                <Heart size={28} strokeWidth={2} />
-              </span>
-              <h3
-                style={{
-                  fontSize: '1.375rem',
-                  fontWeight: 700,
-                  color: 'var(--color-on-surface)',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {t('funderType')}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                <strong>{t('typeYouAre')}</strong> {t('funderWho')}
-              </p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
-                {t('funderWhy')}
-              </p>
-              <Link
-                href={partnershipContactHref}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--color-accent)',
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  textDecoration: 'none',
-                  marginTop: '0.5rem',
-                }}
-              >
-                {t('funderCta')}
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-              </Link>
-            </div>
+            <PartnershipCard
+              span={7}
+              icon={<Heart size={28} strokeWidth={2} />}
+              title={t('funderType')}
+              who={<><strong>{t('typeYouAre')}</strong> {t('funderWho')}</>}
+              why={t('funderWhy')}
+              cta={t('funderCta')}
+              ctaHref={partnershipContactHref}
+            />
           </div>
         </div>
       </section>

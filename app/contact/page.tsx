@@ -4,7 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
-import { ContactInfoCard, InfoCard, SectionHeader } from '@/components/marketing/ui';
+import { ContactInfoCard, InfoCard, PageSection, QuoteCard, SectionHeader } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
@@ -117,17 +117,13 @@ export default async function ContactPage({
         </div>
       </section>
 
-      <section className="content-section" style={{ textAlign: 'center', maxWidth: '56rem', margin: '0 auto', paddingTop: '2rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
-        <div className="container">
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '2.5rem', marginBottom: '1rem', display: 'block', '--ms-fill': 1 } as CSSProperties}>format_quote</span>
-          <p style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.5rem)', fontWeight: 300, fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '40rem', margin: '0 auto' }}>
-            &ldquo;{t('quote')}&rdquo;
-          </p>
-          <p className="text-label-upper" style={{ color: 'var(--color-accent)', marginTop: '1.5rem' }}>
-            {t('teamName')}
-          </p>
-        </div>
-      </section>
+      <PageSection style={{ paddingTop: '2rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
+        <QuoteCard
+          icon={<span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">format_quote</span>}
+          label={t('teamName')}
+          quote={t('quote')}
+        />
+      </PageSection>
 
       <Footer />
       <MobileBottomNav />

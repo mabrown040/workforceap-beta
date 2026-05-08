@@ -3,7 +3,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
 import { PageSection, QuoteCard, SplitHero } from '@/components/marketing/ui';
-import { SplitHero } from '@/components/marketing/ui';
 import './leadership.css';
 import { getTranslations } from 'next-intl/server';
 

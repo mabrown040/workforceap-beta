@@ -10,6 +10,7 @@ import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearn
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
 import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
+import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -689,6 +690,20 @@ export default async function AdminCourseraPage({
         </summary>
         <div style={collapsibleBodyStyle}>
           <CourseraSelfTest />
+        </div>
+      </details>
+
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Reconcile with Coursera
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              diff Coursera roster vs WorkforceAP and add missing learners
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
+          <CourseraReconcileCard />
         </div>
       </details>
 

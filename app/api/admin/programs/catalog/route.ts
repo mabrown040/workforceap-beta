@@ -2,10 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * All Prisma reads/writes against `OrganizationProgramCatalog` go
+ * through `withTenantScope` so the org filter is auto-injected on
+ * reads and the org id is forced into create/update payloads.
+ *
+ * Codex flagged this as a false-positive on PR #1041's audit script
+ * because the manual `where: { organizationId }` filters made it look
+ * scoped, but the audit only recognized `withTenantScope` as the
+ * scope marker. Migrating to the helper makes the scoping explicit
+ * and contractual rather than convention.
+ */
 
 const catalogRowSchema = z.object({
   programSlug: z.string().min(1).max(200),
@@ -34,17 +49,21 @@ export async function GET() {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const organizationId = await getDefaultOrganizationId();
-  let rows = await prisma.organizationProgramCatalog.findMany({
-    where: { organizationId },
-    orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-  });
-  // Auto-seed from static PROGRAMS list if catalog is empty (first load)
+  let rows = await withTenantScope(organizationId, (db) =>
+    db.organizationProgramCatalog.findMany({
+      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    }),
+  );
+  // Auto-seed from static PROGRAMS list if catalog is empty (first load).
+  // The seed helper writes via the regular Prisma client (it tags rows
+  // with `organizationId` itself); we re-read via the scoped client.
   if (rows.length === 0) {
     await seedOrganizationProgramCatalog(organizationId);
-    rows = await prisma.organizationProgramCatalog.findMany({
-      where: { organizationId },
-      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-    });
+    rows = await withTenantScope(organizationId, (db) =>
+      db.organizationProgramCatalog.findMany({
+        orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      }),
+    );
   }
   return NextResponse.json({ programs: rows });
 }
@@ -70,37 +89,42 @@ export async function POST(request: NextRequest) {
 
   const organizationId = await getDefaultOrganizationId();
   try {
-    const row = await prisma.organizationProgramCatalog.create({
-      data: {
-        organizationId,
-        programSlug: parsed.data.programSlug,
-        name: parsed.data.name,
-        description: parsed.data.description ?? null,
-        category: parsed.data.category,
-        deliveryType: parsed.data.deliveryType,
-        deliveryUrl: parsed.data.deliveryUrl ?? null,
-        deliveryDetails: parsed.data.deliveryDetails ?? null,
-        certifications: parsed.data.certifications ?? [],
-        duration: parsed.data.duration ?? null,
-        cost: parsed.data.cost ?? null,
-        certCost: parsed.data.certCost ?? null,
-        bookCost: parsed.data.bookCost ?? null,
-        miscCost: parsed.data.miscCost ?? null,
-        status: parsed.data.status ?? 'active',
-        displayOrder: parsed.data.displayOrder ?? 0,
-        featured: parsed.data.featured ?? false,
-        programStartDate: parsed.data.programStartDate
-          ? new Date(`${parsed.data.programStartDate}T12:00:00.000Z`)
-          : null,
-        programEndDate: parsed.data.programEndDate
-          ? new Date(`${parsed.data.programEndDate}T12:00:00.000Z`)
-          : null,
-      },
-    });
+    const row = await withTenantScope(organizationId, (db) =>
+      db.organizationProgramCatalog.create({
+        data: {
+          organizationId,
+          programSlug: parsed.data.programSlug,
+          name: parsed.data.name,
+          description: parsed.data.description ?? null,
+          category: parsed.data.category,
+          deliveryType: parsed.data.deliveryType,
+          deliveryUrl: parsed.data.deliveryUrl ?? null,
+          deliveryDetails: parsed.data.deliveryDetails ?? null,
+          certifications: parsed.data.certifications ?? [],
+          duration: parsed.data.duration ?? null,
+          cost: parsed.data.cost ?? null,
+          certCost: parsed.data.certCost ?? null,
+          bookCost: parsed.data.bookCost ?? null,
+          miscCost: parsed.data.miscCost ?? null,
+          status: parsed.data.status ?? 'active',
+          displayOrder: parsed.data.displayOrder ?? 0,
+          featured: parsed.data.featured ?? false,
+          programStartDate: parsed.data.programStartDate
+            ? new Date(`${parsed.data.programStartDate}T12:00:00.000Z`)
+            : null,
+          programEndDate: parsed.data.programEndDate
+            ? new Date(`${parsed.data.programEndDate}T12:00:00.000Z`)
+            : null,
+        },
+      }),
+    );
     return NextResponse.json(row, { status: 201 });
   } catch (e: unknown) {
     const code = typeof e === 'object' && e && 'code' in e ? (e as { code: string }).code : '';
     if (code === 'P2002') {
+      // The unique key on OrganizationProgramCatalog is (organizationId,
+      // programSlug) — already per-tenant — so this only fires when the
+      // same admin tries to add a duplicate slug to their own org.
       return NextResponse.json({ error: 'A catalog row for this program slug already exists.' }, { status: 400 });
     }
     throw e;
@@ -125,49 +149,53 @@ export async function PATCH(request: NextRequest) {
   const organizationId = await getDefaultOrganizationId();
   const { id, ...rest } = parsed.data;
 
-  const existing = await prisma.organizationProgramCatalog.findFirst({
-    where: { id, organizationId },
-  });
+  const existing = await withTenantScope(organizationId, (db) =>
+    db.organizationProgramCatalog.findFirst({
+      where: { id },
+    }),
+  );
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   if (rest.programSlug && rest.programSlug !== existing.programSlug) {
     return NextResponse.json({ error: 'programSlug cannot be changed; create a new row instead.' }, { status: 400 });
   }
 
-  const row = await prisma.organizationProgramCatalog.update({
-    where: { id },
-    data: {
-      ...(rest.name !== undefined ? { name: rest.name } : {}),
-      ...(rest.description !== undefined ? { description: rest.description } : {}),
-      ...(rest.category !== undefined ? { category: rest.category } : {}),
-      ...(rest.deliveryType !== undefined ? { deliveryType: rest.deliveryType } : {}),
-      ...(rest.deliveryUrl !== undefined ? { deliveryUrl: rest.deliveryUrl } : {}),
-      ...(rest.deliveryDetails !== undefined ? { deliveryDetails: rest.deliveryDetails } : {}),
-      ...(rest.certifications !== undefined ? { certifications: rest.certifications } : {}),
-      ...(rest.duration !== undefined ? { duration: rest.duration } : {}),
-      ...(rest.cost !== undefined ? { cost: rest.cost } : {}),
-      ...(rest.certCost !== undefined ? { certCost: rest.certCost } : {}),
-      ...(rest.bookCost !== undefined ? { bookCost: rest.bookCost } : {}),
-      ...(rest.miscCost !== undefined ? { miscCost: rest.miscCost } : {}),
-      ...(rest.status !== undefined ? { status: rest.status } : {}),
-      ...(rest.displayOrder !== undefined ? { displayOrder: rest.displayOrder } : {}),
-      ...(rest.featured !== undefined ? { featured: rest.featured } : {}),
-      ...(rest.programStartDate !== undefined
-        ? {
-            programStartDate: rest.programStartDate
-              ? new Date(`${rest.programStartDate}T12:00:00.000Z`)
-              : null,
-          }
-        : {}),
-      ...(rest.programEndDate !== undefined
-        ? {
-            programEndDate: rest.programEndDate
-              ? new Date(`${rest.programEndDate}T12:00:00.000Z`)
-              : null,
-          }
-        : {}),
-    },
-  });
+  const row = await withTenantScope(organizationId, (db) =>
+    db.organizationProgramCatalog.update({
+      where: { id },
+      data: {
+        ...(rest.name !== undefined ? { name: rest.name } : {}),
+        ...(rest.description !== undefined ? { description: rest.description } : {}),
+        ...(rest.category !== undefined ? { category: rest.category } : {}),
+        ...(rest.deliveryType !== undefined ? { deliveryType: rest.deliveryType } : {}),
+        ...(rest.deliveryUrl !== undefined ? { deliveryUrl: rest.deliveryUrl } : {}),
+        ...(rest.deliveryDetails !== undefined ? { deliveryDetails: rest.deliveryDetails } : {}),
+        ...(rest.certifications !== undefined ? { certifications: rest.certifications } : {}),
+        ...(rest.duration !== undefined ? { duration: rest.duration } : {}),
+        ...(rest.cost !== undefined ? { cost: rest.cost } : {}),
+        ...(rest.certCost !== undefined ? { certCost: rest.certCost } : {}),
+        ...(rest.bookCost !== undefined ? { bookCost: rest.bookCost } : {}),
+        ...(rest.miscCost !== undefined ? { miscCost: rest.miscCost } : {}),
+        ...(rest.status !== undefined ? { status: rest.status } : {}),
+        ...(rest.displayOrder !== undefined ? { displayOrder: rest.displayOrder } : {}),
+        ...(rest.featured !== undefined ? { featured: rest.featured } : {}),
+        ...(rest.programStartDate !== undefined
+          ? {
+              programStartDate: rest.programStartDate
+                ? new Date(`${rest.programStartDate}T12:00:00.000Z`)
+                : null,
+            }
+          : {}),
+        ...(rest.programEndDate !== undefined
+          ? {
+              programEndDate: rest.programEndDate
+                ? new Date(`${rest.programEndDate}T12:00:00.000Z`)
+                : null,
+            }
+          : {}),
+      },
+    }),
+  );
 
   return NextResponse.json(row);
 }

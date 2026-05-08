@@ -103,10 +103,27 @@ export default async function DashboardPointsPage() {
     : 100;
   const icon = LEVEL_ICONS[memberPoints.level] ?? 'sprout';
 
-  // Filter out events that always award 0 (counselor_bonus uses customPoints).
-  const earnableActions = EARN_ACTIONS.filter((a) => POINT_VALUES[a.event] > 0).sort(
-    (a, b) => POINT_VALUES[b.event] - POINT_VALUES[a.event],
-  );
+  // Codex P2 catch on PR #1054: only show actions that are actually wired
+  // to call `awardPoints()` in production code. POINT_VALUES has rows for
+  // many events that never run in current code paths; listing them on this
+  // page would promise points members can't actually earn. Keep this set in
+  // sync with `awardPoints()` call sites — grep for `awardPoints(` if adding
+  // new wired events:
+  //   - assessment_completed   → app/api/member/assessment/submit/route.ts
+  //   - program_enrolled       → app/api/member/enroll/route.ts
+  //   - course_completed       → lib/member/courseCompletion.ts
+  //   - counselor_session      → app/api/counselor/feedback/route.ts
+  // counselor_bonus is admin-awarded (uses customPoints), not member-earnable
+  // directly, so it's intentionally excluded from EARN_ACTIONS.
+  const WIRED_EVENTS = new Set<string>([
+    'assessment_completed',
+    'program_enrolled',
+    'course_completed',
+    'counselor_session',
+  ]);
+  const earnableActions = EARN_ACTIONS.filter(
+    (a) => WIRED_EVENTS.has(a.event) && POINT_VALUES[a.event] > 0,
+  ).sort((a, b) => POINT_VALUES[b.event] - POINT_VALUES[a.event]);
 
   return (
     <>

@@ -336,7 +336,7 @@ export default async function AdminCourseraPage({
   });
   const hiddenTestAccountCount = showTestAccounts
     ? 0
-    : await countHiddenTestAccountUnmatchedLearners(100);
+    : await countHiddenTestAccountUnmatchedLearners();
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
 
   if (auditEmailRaw.trim().length > 0) {

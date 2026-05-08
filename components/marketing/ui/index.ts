@@ -2,6 +2,7 @@ export { CTABand } from './CTABand';
 export { CohortStatCard } from './CohortStatCard';
 export { HeroSection } from './HeroSection';
 export { InfoCard } from './InfoCard';
+export { JourneyStep } from './JourneyStep';
 export { PageSection } from './PageSection';
 export { PartnershipCard } from './PartnershipCard';
 export { PricingTierCard } from './PricingTierCard';

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
-import { CTABand } from '@/components/marketing/ui';
+import { CTABand, JourneyStep } from '@/components/marketing/ui';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
 import { getTranslations } from 'next-intl/server';

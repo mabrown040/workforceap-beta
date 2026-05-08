@@ -4,7 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
-import { ContactInfoCard, InfoCard } from '@/components/marketing/ui';
+import { ContactInfoCard, InfoCard, SectionHeader } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
@@ -51,17 +51,16 @@ export default async function ContactPage({
     <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 1400 }}>
-          <div style={{ marginBottom: '2.5rem' }}>
-            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              {t('getInTouch')}
-            </span>
-            <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.25rem' }}>
-              {t('heroHeadline')} <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span> {t('heroHeadlineSuffix')}
-            </h1>
-            <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '46rem', lineHeight: 1.7, margin: 0 }}>
-              {t('heroCopy')}
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow={t('getInTouch')}
+            title={
+              <>
+                {t('heroHeadline')} <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span> {t('heroHeadlineSuffix')}
+              </>
+            }
+            subtitle={t('heroCopy')}
+            align="left"
+          />
 
           <div className="contact-grid" style={{ display: 'grid', gap: '2rem', alignItems: 'start' }}>
             <div>

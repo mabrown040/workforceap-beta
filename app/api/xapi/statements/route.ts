@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    verifyXapiAccessToken(token);
+    verifyXapiAccessToken(token, { request });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Invalid bearer token';
     return NextResponse.json({ error: message }, { status: 401 });

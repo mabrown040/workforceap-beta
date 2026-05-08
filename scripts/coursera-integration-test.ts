@@ -4,7 +4,7 @@
  *
  * Verifies all three credential paths actually work:
  *   1. Inbound xAPI  — Coursera → /api/xapi/oauth/token, /api/xapi/statements (we PRETEND to be Coursera)
- *   2. Outbound B4B  — we → api.coursera.org/oauth2/client_credentials/token + business endpoints
+ *   2. Outbound B4B  — we → api.coursera.com/oauth2/client_credentials/token + business endpoints
  *   3. Reverse-engineer which Coursera For Business endpoints are reachable for our org
  *
  * Reads credentials EXCLUSIVELY from environment variables. Refuses to run if any are missing
@@ -23,8 +23,8 @@
  *   COURSERA_TARGET_BASE_URL        defaults to http://localhost:3000
  *   COURSERA_ORG_ID                 defaults to 8R2W4McwOMWJp9cCBV1kvw  (WorkforceAP org id)
  *   COURSERA_ORG_SLUG               defaults to workforce-advancement
- *   COURSERA_OAUTH_TOKEN_URL        defaults to https://api.coursera.org/oauth2/client_credentials/token
- *   COURSERA_API_BASE_URL           defaults to https://api.coursera.org
+ *   COURSERA_OAUTH_TOKEN_URL        defaults to https://api.coursera.com/oauth2/client_credentials/token
+ *   COURSERA_API_BASE_URL           defaults to https://api.coursera.com/ent  (the YAML's mandated subpath)
  */
 
 const RESET = '\x1b[0m';
@@ -42,8 +42,12 @@ const SKIP = `${YELLOW}SKIP${RESET}`;
 const DEFAULT_TARGET_BASE_URL = 'http://localhost:3000';
 const DEFAULT_ORG_ID = '8R2W4McwOMWJp9cCBV1kvw';
 const DEFAULT_ORG_SLUG = 'workforce-advancement';
-const DEFAULT_COURSERA_OAUTH_URL = 'https://api.coursera.org/oauth2/client_credentials/token';
-const DEFAULT_COURSERA_API_BASE = 'https://api.coursera.org';
+// Per Coursera OAuth Credentials YAML: server is api.coursera.com (NOT .org).
+// Per Coursera For Business API YAML: server is api.coursera.com/ent (the "/ent"
+// subpath IS required for businesses.v1/* paths). PR #1070 had this backwards;
+// this is the corrected version.
+const DEFAULT_COURSERA_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
+const DEFAULT_COURSERA_API_BASE = 'https://api.coursera.com/ent';
 
 type EndpointResult = {
   url: string;
@@ -331,16 +335,13 @@ async function probeEndpoint(label: string, url: string, accessToken: string) {
 
 // ----- (d) Extras -----
 
-async function probeStatementsRetrieval(apiBase: string, accessToken: string) {
-  // Some LRS implementations expose GET /xAPI/statements for retrieval.
-  // Check whether Coursera's For Business API exposes a similar endpoint.
-  const candidates = [
-    `${apiBase}/api/businesses.v1/xAPI/statements?limit=1`,
-    `${apiBase}/xAPI/statements?limit=1`,
-  ];
-  for (const url of candidates) {
-    await probeEndpoint(`xAPI retrieval candidate ${url.replace(apiBase, '')}`, url, accessToken);
-  }
+async function probeStatementsRetrieval(_apiBase: string, _accessToken: string) {
+  // Per the Coursera xAPI YAML the user shared: Coursera xAPI is PUSH-ONLY.
+  // Coursera POSTs statements TO our `/api/xapi/statements`; there is no
+  // documented GET retrieval endpoint we can query. Removing the probes —
+  // they always 404'd and added noise to the report. Backfill of historical
+  // statements goes through `/api/businesses.v1/{orgId}/enrollmentReports`
+  // and `/courseGradebookReports` instead (see the endpoint catalog).
 }
 
 // ----- helpers -----
@@ -354,48 +355,40 @@ function cryptoRandomUuid(): string {
   return cryptoModule.randomBytes(16).toString('hex');
 }
 
-function buildEndpointCatalog(apiBase: string, orgId: string, orgSlug: string) {
-  const idEncoded = encodeURIComponent(orgId);
-  const slugEncoded = encodeURIComponent(orgSlug);
-  // These are the standard Coursera For Business REST shapes we have seen
-  // documented or referenced. Many will 404 — that's the point of the probe.
+function buildEndpointCatalog(apiBase: string, orgId: string, _orgSlug: string) {
+  // Paths are taken VERBATIM from the Coursera For Business API YAML the user
+  // shared. Note: the YAML uses `{orgId}` directly, NOT `/orgs/{orgId}` —
+  // earlier versions of this catalog had the wrong shape and 404'd on every
+  // call. The path interpolates the orgId raw. orgSlug is unused (Coursera
+  // resolves orgs by id only); kept for future symmetry.
+  const id = encodeURIComponent(orgId);
   return [
     {
-      label: `/api/businesses.v1/orgs/${orgId}`,
-      url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}`,
+      label: `GET /api/businesses.v1/${orgId} (org info)`,
+      url: `${apiBase}/api/businesses.v1/${id}`,
     },
     {
-      label: `/api/businesses.v1/orgs/${orgSlug}`,
-      url: `${apiBase}/api/businesses.v1/orgs/${slugEncoded}`,
+      label: `GET /api/businesses.v1/${orgId}/users?limit=5`,
+      url: `${apiBase}/api/businesses.v1/${id}/users?limit=5`,
     },
     {
-      label: `/api/businesses.v1/orgs/${orgId}/learners?limit=5`,
-      url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/learners?limit=5`,
+      label: `GET /api/businesses.v1/${orgId}/programs?excludeContent=true&limit=5`,
+      // excludeContent IS required per the YAML — without it the request 400s.
+      url: `${apiBase}/api/businesses.v1/${id}/programs?excludeContent=true&limit=5`,
     },
     {
-      label: `/api/businesses.v1/orgs/${orgId}/programs?limit=5`,
-      url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/programs?limit=5`,
+      label: `GET /api/businesses.v1/${orgId}/contents?limit=5`,
+      url: `${apiBase}/api/businesses.v1/${id}/contents?limit=5`,
     },
     {
-      label: `/api/businesses.v1/orgs/${orgId}/enrollments?limit=5`,
-      url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/enrollments?limit=5`,
+      // The big one — paginated member progress, this is what we actually want
+      // for closing the xAPI-lag gap.
+      label: `GET /api/businesses.v1/${orgId}/enrollmentReports?limit=5`,
+      url: `${apiBase}/api/businesses.v1/${id}/enrollmentReports?limit=5`,
     },
     {
-      label: `/api/businesses.v1/orgs/${orgId}/completions?limit=5`,
-      url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/completions?limit=5`,
-    },
-    {
-      label: `/api/businesses.v1/contents.search?q.id=${orgId}&q.start=0&q.limit=5`,
-      url: `${apiBase}/api/businesses.v1/contents.search?q.id=${idEncoded}&q.start=0&q.limit=5`,
-    },
-    {
-      label: `/api/businesses.v1/contents?q=byOrg&orgId=${orgId}&limit=5`,
-      url: `${apiBase}/api/businesses.v1/contents?q=byOrg&orgId=${idEncoded}&limit=5`,
-    },
-    // The legacy enterprise REST surface we already use for skillsets.
-    {
-      label: `/ent/api/rest/v1/enterprise/programs (legacy)`,
-      url: `${apiBase}/ent/api/rest/v1/enterprise/programs?limit=5`,
+      label: `GET /api/businesses.v1/${orgId}/courseGradebookReports?q=search&limit=5`,
+      url: `${apiBase}/api/businesses.v1/${id}/courseGradebookReports?q=search&limit=5`,
     },
   ];
 }

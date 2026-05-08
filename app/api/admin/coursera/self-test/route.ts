@@ -16,8 +16,11 @@ import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
 // Never exposes raw secrets — only obfuscated previews.
 // ---------------------------------------------------------------------------
 
-const DEFAULT_COURSERA_OAUTH_URL = 'https://api.coursera.org/oauth2/client_credentials/token';
-const DEFAULT_COURSERA_API_BASE = 'https://api.coursera.org';
+// Per Coursera OAuth Credentials YAML: server is api.coursera.com (NOT .org).
+// Per Coursera For Business API YAML: server is api.coursera.com/ent (the "/ent"
+// subpath IS required for businesses.v1/* paths).
+const DEFAULT_COURSERA_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
+const DEFAULT_COURSERA_API_BASE = 'https://api.coursera.com/ent';
 const DEFAULT_ORG_ID = '8R2W4McwOMWJp9cCBV1kvw';
 const DEFAULT_ORG_SLUG = 'workforce-advancement';
 
@@ -263,19 +266,20 @@ async function probeEndpoint(label: string, url: string, accessToken: string) {
   }
 }
 
-function buildEndpointCatalog(apiBase: string, orgId: string, orgSlug: string) {
-  const idEncoded = encodeURIComponent(orgId);
-  const slugEncoded = encodeURIComponent(orgSlug);
+function buildEndpointCatalog(apiBase: string, orgId: string, _orgSlug: string) {
+  // Paths taken VERBATIM from Coursera For Business API YAML.
+  // The YAML uses `{orgId}` directly (NO `/orgs/` prefix). Earlier catalog
+  // had the wrong shape and 404'd on every call.
+  const id = encodeURIComponent(orgId);
   return [
-    { label: 'orgs by id', url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}` },
-    { label: 'orgs by slug', url: `${apiBase}/api/businesses.v1/orgs/${slugEncoded}` },
-    { label: 'learners', url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/learners?limit=5` },
-    { label: 'programs', url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/programs?limit=5` },
-    { label: 'enrollments', url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/enrollments?limit=5` },
-    { label: 'completions', url: `${apiBase}/api/businesses.v1/orgs/${idEncoded}/completions?limit=5` },
-    { label: 'contents.search', url: `${apiBase}/api/businesses.v1/contents.search?q.id=${idEncoded}&q.start=0&q.limit=5` },
-    { label: 'contents byOrg', url: `${apiBase}/api/businesses.v1/contents?q=byOrg&orgId=${idEncoded}&limit=5` },
-    { label: 'enterprise programs (legacy)', url: `${apiBase}/ent/api/rest/v1/enterprise/programs?limit=5` },
+    { label: 'org info', url: `${apiBase}/api/businesses.v1/${id}` },
+    { label: 'users', url: `${apiBase}/api/businesses.v1/${id}/users?limit=5` },
+    // excludeContent is required per the YAML.
+    { label: 'programs', url: `${apiBase}/api/businesses.v1/${id}/programs?excludeContent=true&limit=5` },
+    { label: 'contents', url: `${apiBase}/api/businesses.v1/${id}/contents?limit=5` },
+    // The big one — paginated learner progress, what we want for backfill.
+    { label: 'enrollmentReports', url: `${apiBase}/api/businesses.v1/${id}/enrollmentReports?limit=5` },
+    { label: 'courseGradebookReports', url: `${apiBase}/api/businesses.v1/${id}/courseGradebookReports?q=search&limit=5` },
   ];
 }
 

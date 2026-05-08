@@ -12591,9 +12591,17 @@ html.dark .admin-super-messages-bubble.is-staff {
 .coursera-unmatched-card__actions > .btn,
 .coursera-unmatched-card__actions > button {
     /* Buttons in this row get full width; explicit `flex: 0 0 auto`
-       prevents a flex parent from squishing them to zero height. */
+       prevents a flex parent from squishing them to zero height.
+       Belt-and-suspenders against the original "thin maroon strip"
+       symptom: pin a min-height, line-height, padding and disable any
+       inherited `overflow: hidden` so the label always renders. */
     flex: 0 0 auto;
     width: 100%;
+    min-height: 44px;
+    line-height: 1.2;
+    padding: 0.625rem 0.875rem;
+    overflow: visible;
+    white-space: normal;
 }
 .coursera-empty-row {
     text-align: center;

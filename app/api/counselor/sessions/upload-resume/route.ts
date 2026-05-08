@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
   }
 
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = await getSubjectOrganizationId(memberId);
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id: memberId },

@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { brandedEmailLayout } from '@/lib/email/template';
 import { sessionPacketHtml, type SessionPacketSection } from '@/emails/session-packet';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
@@ -188,7 +188,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = await getSubjectOrganizationId(memberId);
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id: memberId, deletedAt: null },

@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import {
   getOrCreateMemberCounselorThread,
   assertStaffCanAccessThread,
@@ -38,7 +38,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
   if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = await getSubjectOrganizationId(memberId);
 
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: normalized.error }, { status: 400 });
   }
 
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = await getSubjectOrganizationId(memberId);
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id: memberId, deletedAt: null },
@@ -142,7 +142,7 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
   if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = await getSubjectOrganizationId(memberId);
 
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({

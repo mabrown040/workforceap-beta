@@ -44,3 +44,35 @@ export async function getActorOrganizationId(userId: string): Promise<string> {
   }
   return row.organizationId;
 }
+
+/**
+ * Resolve the org for a member who is the SUBJECT of an action — used
+ * by routes where an authenticated counselor/admin acts on a specific
+ * member identified by `memberId` (in-office sessions, notes, messages,
+ * nudges, etc.). The data we're scoping is the member's data, so the
+ * member's tenant is the correct scope, NOT the actor's.
+ *
+ * Codex P2 catch on PR #1051: the original implementation used
+ * `getActorOrganizationId(actor.id)` for these routes. That broke
+ * super_admin cross-tenant access — `resolveActOnBehalf` allowed a
+ * super_admin from Org A to act on an Org B member's behalf, but the
+ * scoped Prisma lookup in the route then returned "Member not found"
+ * because Org A's scope didn't include Org B's member.
+ *
+ * SECURITY NOTE: this function performs a CROSS-TENANT lookup (it has
+ * to — the whole point is resolving across tenants). It is only safe
+ * to call AFTER `resolveActOnBehalf` (or equivalent) has gated whether
+ * the actor has authority over the subject member. Do not call this
+ * helper without that gate; it would let any caller with an authenticated
+ * session resolve any member's org.
+ */
+export async function getSubjectOrganizationId(memberId: string): Promise<string> {
+  const row = await prisma.user.findUnique({
+    where: { id: memberId },
+    select: { organizationId: true },
+  });
+  if (!row) {
+    throw new Error(`getSubjectOrganizationId: no user row for id=${memberId}`);
+  }
+  return row.organizationId;
+}

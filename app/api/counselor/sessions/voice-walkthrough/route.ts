@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getSubjectOrganizationId } from '@/lib/tenant/organization';
 // `prisma` import removed: the only direct use was the `member` lookup,
 // which now runs inside `withTenantScope`.
 import {
@@ -98,7 +98,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
     }
 
-    const orgId = await getActorOrganizationId(user.id);
+    // Use the subject member's org as the scope. `resolveActOnBehalf` above
+    // verified the actor's authority over this member (super_admin / admin
+    // platform-wide, or counselor with active assignment). Codex P2 catch on
+    // PR #1051 — using `getActorOrganizationId(user.id)` here broke
+    // super_admin cross-tenant sessions because the scoped lookup returned
+    // "Member not found" when the super_admin's own org didn't match the
+    // member's org.
+    const orgId = await getSubjectOrganizationId(memberId);
     const member = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
         where: { id: memberId },

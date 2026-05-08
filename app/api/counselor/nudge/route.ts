@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import {
   getOrCreateMemberCounselorThread,
   assertStaffCanPost,
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
   // Ensure the member exists in the actor's tenant and the staff user is
   // allowed to message them. Lookup goes through withTenantScope so a
   // cross-tenant memberId is treated as not-found.
-  const orgId = await getActorOrganizationId(user.id);
+  const orgId = await getSubjectOrganizationId(memberId);
   const member = await withTenantScope(orgId, (db) =>
     db.user.findFirst({
       where: { id: memberId },

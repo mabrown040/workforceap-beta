@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { LevelName } from '@/lib/member/pointsConfig';
 import { getLevelForPoints, getNextLevel, LEVELS, EVENT_LABELS } from '@/lib/member/pointsConfig';
 
@@ -142,6 +143,26 @@ export default function PointsWidget({
           ))}
         </ul>
       )}
+
+      <div style={{ marginTop: recent.length > 0 ? '0.75rem' : '0.5rem', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)' }}>
+        <Link
+          href="/dashboard/points"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.25rem',
+            fontSize: '0.8125rem',
+            fontWeight: 700,
+            color: 'var(--color-accent)',
+            textDecoration: 'none',
+          }}
+        >
+          How to earn points
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+            arrow_forward
+          </span>
+        </Link>
+      </div>
     </div>
   );
 }

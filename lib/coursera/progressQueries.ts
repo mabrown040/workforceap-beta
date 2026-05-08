@@ -3,6 +3,11 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
+// Heuristic re-exported from a server-only-free module so it can be unit-
+// tested in isolation. See lib/coursera/testAccountHeuristic.ts for the
+// patterns; this module owns the SQL fragment that mirrors those patterns.
+export { isLikelyTestAccount } from '@/lib/coursera/testAccountHeuristic';
+
 export type BadgeProgressSummary = {
   totalRows: number;
   latestSyncedAt: Date | null;
@@ -103,39 +108,6 @@ export type UnmatchedLearner = {
   xapiCount: number;
   lastActivityTime: Date | null;
 };
-
-/**
- * Heuristic for test / smoke-test traffic that pollutes the unmatched
- * learners list. The May 2026 admin/coursera snapshot showed 81 unresolved
- * xAPI events for `test-smoke@workforceap.org`, plus rows for `force-test-…`
- * and `test@workforceap.org` — none of which represent real learners.
- *
- * Patterns:
- *   - Emails containing the substring "test" (covers test-smoke, qa-test,
- *     etc. — false positives are rare for real applicant emails)
- *   - Emails / actors starting with "force-" (the platform's automated
- *     load-test prefix)
- *   - Emails starting with "noreply" / "no-reply"
- *   - Emails ending with "@example.com" / "@example.org" (RFC 2606 reserved)
- *
- * Tracked as MATCHING-DEBT-001 in docs/COURSERA-IDENTITY-MATCHING.md.
- */
-export function isLikelyTestAccount(externalKey: string | null | undefined): boolean {
-  if (!externalKey) return false;
-  const lower = externalKey.trim().toLowerCase();
-  if (!lower) return false;
-
-  if (lower.startsWith('force-')) return true;
-  if (lower.startsWith('noreply') || lower.startsWith('no-reply')) return true;
-  if (lower.endsWith('@example.com') || lower.endsWith('@example.org')) return true;
-
-  // Substring 'test' covers smoke / e2e / qa-test patterns. Could false-
-  // positive on a name like "kontestina" but real applicant emails almost
-  // never contain "test" as a substring at the org level.
-  if (lower.includes('test')) return true;
-
-  return false;
-}
 
 export type LoadUnmatchedLearnersOptions = {
   /** Default false. When true, emails matching `isLikelyTestAccount` are returned alongside real learners. */

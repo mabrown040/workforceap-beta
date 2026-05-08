@@ -111,15 +111,37 @@ function buildPattern() {
   return new RegExp(`(prisma|tx|db)\\.(${models})\\.(${ops})\\b`, 'g');
 }
 
+/**
+ * Codex P2 catch on PR #1041 (commit 5db07b2bc9): the literal-pattern
+ * regex above misses dynamic delegate calls — `tx[model].updateMany(...)`
+ * where `model` is a string variable. `app/api/admin/members/merge/
+ * route.ts` does exactly this and touches `courseEnrollment` and
+ * `preScreeningResponse` (both tenant-scoped) without going through
+ * `withTenantScope`. Static analysis can't resolve the variable so we
+ * surface every dynamic delegate as a "DYNAMIC" entry that requires
+ * manual review.
+ */
+function buildDynamicPattern() {
+  const ops = ALL_OPS.join('|');
+  // Matches `prisma[expr].<op>`, `tx[expr].<op>`, `db[expr].<op>` where
+  // `expr` is anything inside the brackets (variable, string literal,
+  // member-access expression, ternary). We capture the bracket contents
+  // verbatim for the report so reviewers can grep for it.
+  return new RegExp(`(prisma|tx|db)\\[([^\\]]+)\\]\\.(${ops})\\b`, 'g');
+}
+
 function scanFile(filePath) {
   const rel = path.relative(REPO_ROOT, filePath);
   const src = fs.readFileSync(filePath, 'utf8');
   const lines = src.split('\n');
   const pattern = buildPattern();
+  const dynamicPattern = buildDynamicPattern();
   const violations = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+
+    // Literal `prisma.<model>.<op>` matches.
     let match;
     pattern.lastIndex = 0;
     while ((match = pattern.exec(line)) !== null) {
@@ -132,6 +154,27 @@ function scanFile(filePath) {
         column: match.index + 1,
         symbol: `${match[1]}.${match[2]}.${match[3]}`,
         scoped,
+        dynamic: false,
+        snippet: line.trim(),
+      });
+    }
+
+    // Dynamic `prisma[expr].<op>` matches — model unknown at static-analysis
+    // time, so we always flag as "dynamic" and require manual review. Marked
+    // as scoped only if the surrounding context shows `withTenantScope` /
+    // `crossTenantOK`, mirroring the literal-pattern logic.
+    dynamicPattern.lastIndex = 0;
+    while ((match = dynamicPattern.exec(line)) !== null) {
+      const lookbackStart = Math.max(0, i - 12);
+      const ctx = lines.slice(lookbackStart, i + 1).join('\n');
+      const scoped = SCOPE_MARKERS.some((marker) => ctx.includes(marker));
+      violations.push({
+        file: rel,
+        line: i + 1,
+        column: match.index + 1,
+        symbol: `${match[1]}[${match[2]}].${match[3]}`,
+        scoped,
+        dynamic: true,
         snippet: line.trim(),
       });
     }
@@ -150,9 +193,12 @@ function main() {
 
   const unscoped = allViolations.filter((v) => !v.scoped);
   const scoped = allViolations.filter((v) => v.scoped);
+  const dynamic = allViolations.filter((v) => v.dynamic);
 
   if (wantJson) {
-    process.stdout.write(JSON.stringify({ total: allViolations.length, unscoped, scoped }, null, 2));
+    process.stdout.write(
+      JSON.stringify({ total: allViolations.length, unscoped, scoped, dynamic }, null, 2),
+    );
     process.stdout.write('\n');
     return;
   }
@@ -163,14 +209,16 @@ function main() {
     console.log(`  total call sites:   ${allViolations.length}`);
     console.log(`  scoped:             ${scoped.length}`);
     console.log(`  UNSCOPED:           ${unscoped.length}`);
+    console.log(`  dynamic (manual):   ${dynamic.length}  (model unknown at static-analysis time)`);
     return;
   }
 
   console.log('=== tenant-scoping audit ===');
   console.log(`scanned ${files.length} files in ${SCAN_DIRS.join(', ')}`);
   console.log(`found ${allViolations.length} Prisma calls against tenant-scoped models`);
-  console.log(`  ${scoped.length} appear scoped (withTenantScope, crossTenantOK, or getDefaultOrganizationId)`);
+  console.log(`  ${scoped.length} appear scoped (withTenantScope, crossTenantOK)`);
   console.log(`  ${unscoped.length} appear UNSCOPED — review and migrate`);
+  console.log(`  ${dynamic.length} use dynamic delegates (prisma[model].op) — model unknown, manual review required`);
   console.log('');
 
   // Group unscoped by file
@@ -189,9 +237,17 @@ function main() {
   for (const [file, vs] of [...byFile.entries()].sort()) {
     console.log(`\n  ${file}`);
     for (const v of vs) {
-      console.log(`    L${v.line}:${v.column}  ${v.symbol}`);
+      const tag = v.dynamic ? ' [DYNAMIC]' : '';
+      console.log(`    L${v.line}:${v.column}  ${v.symbol}${tag}`);
       console.log(`      ${v.snippet.slice(0, 120)}${v.snippet.length > 120 ? '…' : ''}`);
     }
+  }
+
+  if (dynamic.length > 0) {
+    console.log('');
+    console.log(`NOTE: ${dynamic.length} dynamic-delegate call sites cannot be statically resolved.`);
+    console.log('      Each must be reviewed manually to confirm the runtime model is either');
+    console.log('      non-tenant-scoped, or wrapped in withTenantScope, or marked crossTenantOK.');
   }
 
   console.log('');

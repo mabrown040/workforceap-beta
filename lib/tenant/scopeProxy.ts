@@ -9,6 +9,17 @@
  * Production callers go through `lib/tenant/withTenantScope.ts` which
  * pulls in the real Prisma client and wraps it.
  *
+ * KNOWN LIMITATION: cross-tenant foreign keys.
+ * The proxy injects `organizationId` on the row being written, but does
+ * NOT verify that other foreign-key targets (e.g. `employerId`,
+ * `userId`) belong to the same tenant. A caller accepting a
+ * user-controlled FK can create a corrupt row pointing at another
+ * tenant's parent; reading it back via include relations would leak
+ * the foreign tenant's data. Use `assertSameTenant` from
+ * `withTenantScope.ts` at every callsite that takes a user-controlled
+ * FK to a tenant-scoped model. The structural fix is Postgres RLS in
+ * Sprint A.3 — see `docs/TENANT-ISOLATION.md` Invariant I-5.
+ *
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
  */
 

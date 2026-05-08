@@ -72,5 +72,69 @@ export async function crossTenantOK<T>(fn: () => Promise<T>): Promise<T> {
   return fn();
 }
 
+/**
+ * Codex P2 catch on PR #1041 (commit 5db07b2bc9): the proxy injects
+ * `organizationId` on the row but does NOT verify that scoped foreign-key
+ * targets belong to the same tenant. A caller that accepts user-controlled
+ * FKs (e.g. `data: { employerId: ??? }` for a Job) can be tricked into
+ * creating an Org A row that points at an Org B parent — and any include
+ * relations leak the foreign tenant's data.
+ *
+ * `assertSameTenant` is the per-callsite escape hatch: pass any FK id from
+ * the request body and the expected scope, and this verifies the parent's
+ * `organizationId` matches before the write. Throws `TenantScopeViolation`
+ * if not.
+ *
+ * The structural fix is Postgres RLS in Sprint A.3 (CHECK constraints +
+ * row-level policies enforce same-tenant FKs at the DB layer for free).
+ * Until then, every migrated endpoint that accepts a user-controlled FK
+ * to a tenant-scoped model must call `assertSameTenant` before the write.
+ *
+ * See `docs/TENANT-ISOLATION.md` Invariant I-5.
+ *
+ * @param model — the Prisma delegate name (e.g. 'employer', 'user'). Must
+ *                be one of TENANT_SCOPED_MODELS.
+ * @param id — the FK value (typically request-controlled).
+ * @param expectedOrgId — the active tenant scope (typically the actor's).
+ */
+export async function assertSameTenant(
+  model: keyof typeof prisma,
+  id: string,
+  expectedOrgId: string,
+): Promise<void> {
+  if (!TENANT_SCOPED_MODELS.has(String(model))) {
+    throw new Error(
+      `[tenant-scope] assertSameTenant called with non-tenant-scoped model "${String(model)}"`,
+    );
+  }
+  if (!id || !expectedOrgId) {
+    throw new Error('[tenant-scope] assertSameTenant requires id and expectedOrgId');
+  }
+  // Use the unscoped client so we can read the parent's actual organizationId
+  // even if it differs from the active scope (we *want* to detect that case).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const delegate = (prisma as any)[model];
+  if (!delegate || typeof delegate.findUnique !== 'function') {
+    throw new Error(`[tenant-scope] assertSameTenant: unknown delegate "${String(model)}"`);
+  }
+  const row = await delegate.findUnique({
+    where: { id },
+    select: { organizationId: true },
+  });
+  if (!row) {
+    // Treat missing as a violation — caller passed an id that doesn't exist
+    // OR is in another tenant we can't see. Either way, refuse the write.
+    throw new TenantScopeViolation(String(model), 'assertSameTenant', expectedOrgId, 'not-found');
+  }
+  if (row.organizationId !== expectedOrgId) {
+    throw new TenantScopeViolation(
+      String(model),
+      'assertSameTenant',
+      expectedOrgId,
+      String(row.organizationId),
+    );
+  }
+}
+
 // Re-exports for convenience.
 export { TenantScopeViolation, TENANT_SCOPED_MODELS, Prisma };

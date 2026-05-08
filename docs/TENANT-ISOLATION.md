@@ -113,6 +113,18 @@ These are testable. Every Track A PR must preserve them.
 
 **Test:** every `auditLog()` call now requires an `organizationId` parameter. The audit_log table gains a `tenant_org_id` column. Test: fire an admin action; the resulting audit row has the matching tenant id.
 
+### I-5: FK targets to tenant-scoped models share the actor's tenant
+
+**Why:** the application-layer proxy (`withTenantScope`) injects `organizationId` on the row being written, but it does not verify that *other* foreign-key targets belong to the same tenant. Concretely: an admin in Org A who controls the request body could send `data: { employerId: '<org-b-employer-id>', ... }` to a job-create endpoint. The proxy stamps `organizationId: orgA` on the new row, but the row's `employerId` points at an Org B parent. Any later read via `include: { employer: true }` exposes Org B's employer data.
+
+**Interim mitigation (Sprint A.2):** every migrated endpoint that accepts a user-controlled FK to a tenant-scoped model must call `assertSameTenant(model, id, expectedOrgId)` before the write. It uses the unscoped client to fetch the parent's `organizationId` and throws `TenantScopeViolation` on mismatch (also throws on not-found, so an Org A admin can't probe whether an Org B id exists).
+
+**Structural fix (Sprint A.3):** Postgres CHECK constraints on cross-tenant FKs (`CHECK (employer.organization_id = job.organization_id)`) plus RLS row-level policies. This makes the invariant impossible to violate even with raw SQL or a buggy migration.
+
+**Test:** Org A admin POSTs a job with `employerId` of an Org B employer → expect 400 (rejected by `assertSameTenant`), no row written, no leak in any later GET.
+
+Codex P2 catch on PR #1041 (commit 5db07b2bc9). Documented to make it tractable; per-callsite enforcement rolls out across the Sprint A.2 migration batches.
+
 ---
 
 ## Allowlist — legitimately cross-tenant operations

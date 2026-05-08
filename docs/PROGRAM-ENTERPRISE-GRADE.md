@@ -168,19 +168,38 @@ Sprint 8:      Track F (compliance evidence collection)
 
 ## Status board
 
-| Track | Status | PR | Notes |
+| Track | Status | PRs | Notes |
 |---|---|---|---|
-| A.1 — Tenant isolation foundation | 🟢 In flight | TBD | This PR |
-| A.2 — Migration | ⚪ Queued | — | After A.1 lands |
-| A.3 — RLS + pen audit | ⚪ Queued | — | After A.2 |
+| A.1 — Tenant isolation foundation | ✅ Landed | #1041 | `withTenantScope` + audit script + 35 unit tests + 1 reference migration |
+| A.2 — Migration | 🟢 In flight | #1042, #1044, #1047, #1049, #1051 | 5 batches landed; **458 → ~378 unscoped (~17% migrated)** |
+| A.3 — RLS + pen audit | ⚪ Queued | — | Strategic gate. Helpers in place: `getActorOrganizationId`, `getSubjectOrganizationId`, `isAdminInOrg`, `assertSameTenant` |
 | B.1 — Partner API tokens + read | ⚪ Queued | — | After A.3 |
 | B.2 — Partner API writes | ⚪ Queued | — | After B.1 |
 | C.1 — Member verification | ⚪ Queued | — | After B.2 |
 | C.2 — Employer + partner verification | ⚪ Queued | — | After C.1 |
-| D — SLOs + observability | ⚪ Queued | — | Parallel-able |
-| E.1 — Multi-tenant UI audit | ⚪ Queued | — | Parallel with A |
-| E.2 — Multi-tenant UI complete | ⚪ Queued | — | After A.3 + E.1 |
+| D.1 — SLO foundation | ✅ Landed | #1043 | 6 SLOs + admin-gated `/api/health/slo` stub + status-page strategy doc |
+| D.2 — SLI wiring | ⚪ Queued | — | Wire real Sentry / Vercel / DB queries into D.1 stub |
+| D.3 — Public status page | ⚪ Queued | — | Gated on Track A.3 synthetic isolation probe (SLO #5) |
+| E audit — White-label readiness | ✅ Landed | #1045 | 5-PR roadmap, schema 80% ready, middleware was 0% |
+| E.1 PR 1 — Custom domain middleware | ✅ Landed | #1046 | Edge-safe Host → Org resolver, in-process 60s cache, header strip + tenant-aware admin check |
+| E.1 PR 2 — Email branding | ✅ Landed | #1052 | `getOrganizationBranding` helper + 5 templates parameterized; ~30 templates remain |
+| E.1 PR 3 — Nav / footer logo awareness | ⚪ Queued | — | |
+| E.1 PR 4 — Per-org metadata | ⚪ Queued | — | |
+| E.1 PR 5 — PDF export logo awareness | ⚪ Queued | — | |
+| E.2 — Multi-tenant UI complete | ⚪ Queued | — | After A.3 + E.1 batch ships |
 | F — Compliance pack | ⚪ Deferred | — | Until buyer commits |
+
+### Side hustles (not in the original 5-track plan but landed alongside)
+- Sentry browser-translate fix — admin tree opt-out (#1038)
+- DataTable + SectionHeader + form primitives + 4 page migrations (#1040, #1048)
+- Coursera admin page collapsibles (#1050)
+- Jules ARIA improvements on subgroup members (#1023)
+- Job Board hot-fix — `SORT_OPTIONS` regression from i18n (#1053)
+- UI feedback: leadership color, Sprout points page, training ring centering (#1054)
+- Pipeline send-reminder mobile overflow (#1055)
+- Program comparison mobile attribution (#1056)
+- Find-your-path SOC code → role title (#1057)
+- Skill Mapper PDF radar chart (#1058)
 
 ---
 

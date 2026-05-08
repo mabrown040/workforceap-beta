@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
+import { PageSection } from '@/components/marketing/ui';
 import './leadership.css';
 import { getTranslations } from 'next-intl/server';
 
@@ -25,17 +26,16 @@ export default async function LeadershipPage() {
           .leadership-hero-grid { grid-template-columns: 1fr !important; }
         }
       `}} />
-      <section className="content-section" style={{ paddingBottom: 0 }}>
-        <div className="container" style={{ maxWidth: 1400 }}>
-          <div
-            className="editorial-grid leadership-hero-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '2fr 1fr',
-              gap: '3rem',
-              alignItems: 'start',
-            }}
-          >
+      <PageSection padding="lg">
+        <div
+          className="editorial-grid leadership-hero-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr',
+            gap: '3rem',
+            alignItems: 'start',
+          }}
+        >
             {/* Left — 2/3 */}
             <div>
               <span
@@ -134,8 +134,7 @@ export default async function LeadershipPage() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       <LeadershipContent />
       <Footer />

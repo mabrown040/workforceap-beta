@@ -4,6 +4,7 @@ import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldChec
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { HeroSection, PageSection, ValueCard, CTABand } from '@/components/marketing/ui';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
@@ -26,34 +27,10 @@ export default async function PartnersPage() {
   return (
     <div className="inner-page">
       {/* ── Hero ── */}
-      <section
-        style={{
-          position: 'relative',
-          minHeight: '90vh',
-          display: 'flex',
-          alignItems: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url(/images/hero-people.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'linear-gradient(135deg, rgba(18,20,22,0.92) 0%, rgba(18,20,22,0.75) 50%, rgba(173,44,77,0.25) 100%)',
-          }}
-        />
-
-        <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem' }}>
+      <HeroSection
+        backgroundImage="/images/hero-people.jpg"
+        overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.92) 0%, rgba(18,20,22,0.75) 50%, rgba(173,44,77,0.25) 100%)"
+        eyebrow={
           <span
             style={{
               display: 'inline-block',
@@ -67,7 +44,6 @@ export default async function PartnersPage() {
               fontWeight: 700,
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
-              marginBottom: '1.5rem',
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', verticalAlign: '-2px', marginRight: '0.35rem' }} aria-hidden="true">
@@ -75,7 +51,8 @@ export default async function PartnersPage() {
             </span>
             {t('eyebrow')}
           </span>
-
+        }
+        headline={
           <h1
             style={{
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
@@ -84,10 +61,9 @@ export default async function PartnersPage() {
               letterSpacing: '-0.03em',
               color: 'var(--color-white)',
               maxWidth: '48rem',
-              marginBottom: '2rem',
             }}
           >
-            {t('heroHeadline')}{' '}
+            {t('heroHeadline')} {' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, var(--color-accent-light), var(--color-gold))',
@@ -99,131 +75,48 @@ export default async function PartnersPage() {
               {t('heroHeadlineAccent')}
             </span>
           </h1>
-
-          <p
-            style={{
-              fontSize: '1.25rem',
-              color: 'rgba(255,255,255,0.75)',
-              maxWidth: '36rem',
-              lineHeight: 1.6,
-              marginBottom: '2.5rem',
-            }}
-          >
+        }
+        subheadline={
+          <p style={{ fontSize: '1.25rem', color: 'rgba(255,255,255,0.75)', maxWidth: '36rem', lineHeight: 1.6 }}>
             {t('heroCopy')}
           </p>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-            <Link
-              href={partnershipContactHref}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}
-            >
-              {t('heroCta')}
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
-            </Link>
-            <Link
-              href="#partner-types"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                color: 'rgba(255,255,255,0.9)',
-                padding: '0.75rem 1rem',
-                fontWeight: 600,
-                textDecoration: 'underline',
-                textUnderlineOffset: '4px',
-              }}
-            >
-              {t('heroCta2')}
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_downward</span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Narrative Section ── */}
-      <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
-        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-          <div
-            className="partners-narrative-grid"
+        }
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginTop: '2.5rem' }}>
+          <Link
+            href={partnershipContactHref}
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(12, 1fr)',
-              gap: '3rem',
+              display: 'inline-flex',
               alignItems: 'center',
+              gap: '0.5rem',
+              background: 'var(--color-accent)',
+              color: '#fff',
+              padding: '1rem 2rem',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 700,
+              textDecoration: 'none',
             }}
           >
-            <div style={{ gridColumn: 'span 5' }} className="partners-narrative-portrait">
-              <div
-                style={{
-                  borderRadius: 'var(--radius-xl)',
-                  overflow: 'hidden',
-                  aspectRatio: '3 / 4',
-                  position: 'relative',
-                }}
-              >
-                <Image
-                  src="/images/hero-people.jpg"
-                  alt={t('imgAlt')}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </div>
-            </div>
-
-            <div style={{ gridColumn: 'span 7' }} className="partners-narrative-text">
-              <h2
-                style={{
-                  fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--color-on-surface)',
-                  lineHeight: 1.1,
-                  marginBottom: '1.5rem',
-                }}
-              >
-                {t('narrativeHeadline')}{' '}
-                <span style={{ color: 'var(--color-accent)' }}>{t('narrativeHeadlineAccent')}</span>
-              </h2>
-
-              <blockquote
-                style={{
-                  borderLeft: '3px solid var(--color-accent)',
-                  paddingLeft: '1.5rem',
-                  margin: '0 0 2rem',
-                  color: 'var(--color-on-surface-variant)',
-                  fontSize: '1.125rem',
-                  fontStyle: 'italic',
-                  lineHeight: 1.7,
-                }}
-              >
-                &ldquo;{t('narrativeQuote')}&rdquo;
-              </blockquote>
-
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                {t('narrativeCopy')}
-              </p>
-
-              <ul style={{ paddingLeft: '1.25rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.8 }}>
-                <li>{t('narrativeLi1')}</li>
-                <li>{t('narrativeLi2')}</li>
-                <li>{t('narrativeLi3')}</li>
-                <li>{t('narrativeLi4')}</li>
-              </ul>
-            </div>
-          </div>
+            {t('heroCta')}
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
+          </Link>
+          <Link
+            href="#partner-types"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              color: 'rgba(255,255,255,0.9)',
+              padding: '0.75rem 1rem',
+              fontWeight: 600,
+              textDecoration: 'underline',
+              textUnderlineOffset: '4px',
+            }}
+          >
+            {t('heroSecondary')}
+          </Link>
         </div>
-      </section>
+      </HeroSection>
 
       {/* ── Partnership Types Bento Grid ── */}
       <section id="partner-types" style={{ padding: '6rem 0' }}>

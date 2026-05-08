@@ -88,8 +88,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Award points (idempotent on application id)
-    awardPoints(user.id, 'job_application', application.id).catch(() => {});
+    // Award points only when the row represents a REAL application, not a
+    // saved lead. Codex P2 catch on PR #1061 — schema accepts `SAVED` even
+    // though it defaults to APPLIED, so a client could still create a SAVED
+    // row here. Sibling `/api/member/applications/[id]` PATCH handles the
+    // SAVED → applied transition. Idempotent on application id.
+    if (application.status !== 'SAVED') {
+      awardPoints(user.id, 'job_application', application.id).catch(() => {});
+    }
 
     const recentTools = await findRecentAiToolsForApplicationFeedback(prisma, user.id);
     const promptAiFeedback = recentTools.length > 0;

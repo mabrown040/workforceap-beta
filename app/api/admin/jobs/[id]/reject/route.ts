@@ -61,6 +61,7 @@ export async function POST(
       jobTitle: job.title,
       companyName: job.employer.companyName,
       reason: parsed.data.reason,
+      orgId,
     });
 
     return NextResponse.json({ ok: true });

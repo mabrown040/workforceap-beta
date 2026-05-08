@@ -1,23 +1,41 @@
 /**
- * Shared branded email layout for WorkforceAP transactional emails.
+ * Shared branded email layout for transactional emails.
  * Dark header, white body, footer. Use with Resend.
+ *
+ * Track E (Sprint E.1 PR 2) — accepts an optional `branding` bundle from
+ * `lib/tenant/organizationBranding.ts`. Templates that pass branding get
+ * org-aware logo, accent color, footer copy, and CTA href origin.
+ * Templates that omit it keep the previous WorkforceAP defaults so we can
+ * migrate templates one PR at a time.
  */
 
 import { escapeHtml } from '@/lib/email/escapeHtml';
+import type { OrganizationBranding } from '@/lib/tenant/organizationBranding';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-const LOGO_URL = `${SITE_URL}/images/wap_logo.png`;
+const DEFAULT_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const DEFAULT_LOGO_URL = `${DEFAULT_SITE_URL}/images/wap_logo.png`;
+const DEFAULT_NAME = 'Workforce Advancement Project';
+const DEFAULT_ACCENT = '#4a9b4f';
 
-/** Restrict mail CTA links to same origin as SITE_URL to avoid open redirects in href. */
-export function safeEmailCtaHref(url: string): string {
+/**
+ * Restrict mail CTA links to same origin as the resolved branding (or the
+ * default site URL when no branding is supplied) to avoid open redirects
+ * in href.
+ */
+export function safeEmailCtaHref(url: string, baseOrigin?: string): string {
+  const base = baseOrigin || DEFAULT_SITE_URL;
   try {
-    const u = new URL(url, SITE_URL);
-    const base = new URL(SITE_URL);
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return `${base.origin}/`;
-    if (u.origin !== base.origin) return `${base.origin}/`;
+    const u = new URL(url, base);
+    const baseUrl = new URL(base);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return `${baseUrl.origin}/`;
+    if (u.origin !== baseUrl.origin) return `${baseUrl.origin}/`;
     return u.href;
   } catch {
-    return `${new URL(SITE_URL).origin}/`;
+    try {
+      return `${new URL(base).origin}/`;
+    } catch {
+      return `${new URL(DEFAULT_SITE_URL).origin}/`;
+    }
   }
 }
 
@@ -26,16 +44,29 @@ export function brandedEmailLayout(options: {
   bodyHtml: string;
   ctaText?: string;
   ctaUrl?: string;
+  /**
+   * Org branding bundle from `getOrganizationBranding(orgId)`. When omitted
+   * the template renders WorkforceAP defaults — that's the legacy behavior
+   * for the ~25 email templates not yet migrated in Sprint E.1 PR 2.
+   */
+  branding?: OrganizationBranding;
 }) {
   const { bodyHtml } = options;
   const title = escapeHtml(options.title);
   const ctaText = options.ctaText ? escapeHtml(options.ctaText) : undefined;
-  const ctaUrl = options.ctaUrl ? safeEmailCtaHref(options.ctaUrl) : undefined;
+
+  const siteUrl = options.branding?.domain || DEFAULT_SITE_URL;
+  const logoUrl = options.branding?.logoUrl || DEFAULT_LOGO_URL;
+  const orgName = options.branding?.name || DEFAULT_NAME;
+  const accent = options.branding?.primaryColor || DEFAULT_ACCENT;
+  const domainLabel = options.branding?.domainLabel || new URL(DEFAULT_SITE_URL).host;
+
+  const ctaUrl = options.ctaUrl ? safeEmailCtaHref(options.ctaUrl, siteUrl) : undefined;
   const ctaBlock =
     ctaText && ctaUrl
       ? `
     <p style="margin: 1.5rem 0;">
-      <a href="${escapeHtml(ctaUrl)}" style="display: inline-block; padding: 0.75rem 1.5rem; background: #4a9b4f; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+      <a href="${escapeHtml(ctaUrl)}" style="display: inline-block; padding: 0.75rem 1.5rem; background: ${escapeHtml(accent)}; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
         ${ctaText}
       </a>
     </p>
@@ -57,8 +88,8 @@ export function brandedEmailLayout(options: {
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%;">
           <tr>
             <td style="background: #1a1a1a; padding: 1.5rem 2rem; border-radius: 8px 8px 0 0; text-align: center;">
-              <a href="${SITE_URL}" style="display: inline-block;">
-                <img src="${LOGO_URL}" alt="Workforce Advancement Project" width="180" height="92" style="display: block; max-width: 180px; height: auto;" />
+              <a href="${escapeHtml(siteUrl)}" style="display: inline-block;">
+                <img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(orgName)}" width="180" height="92" style="display: block; max-width: 180px; height: auto;" />
               </a>
             </td>
           </tr>
@@ -71,10 +102,10 @@ export function brandedEmailLayout(options: {
               </div>
               <hr style="border: none; border-top: 1px solid #eee; margin: 2rem 0 1rem;" />
               <p style="margin: 0; font-size: 0.85rem; color: #888;">
-                Workforce Advancement Project &middot; Career training and industry certifications
+                ${escapeHtml(orgName)} &middot; Career training and industry certifications
               </p>
               <p style="margin: 0.25rem 0 0; font-size: 0.8rem;">
-                <a href="${SITE_URL}" style="color: #4a9b4f;">workforceap.org</a>
+                <a href="${escapeHtml(siteUrl)}" style="color: ${escapeHtml(accent)};">${escapeHtml(domainLabel)}</a>
               </p>
             </td>
           </tr>

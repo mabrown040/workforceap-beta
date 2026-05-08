@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 import { sendInvitationEmail } from '@/lib/email';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { randomBytes } from 'crypto';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -75,12 +76,14 @@ export async function POST(
       data: { token: newToken, expiresAt },
     });
 
+    const orgId = await getActorOrganizationId(user.id);
     const emailResult = await sendInvitationEmail({
       to: invitation.email,
       inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',
       role: roleLabel,
       personalMessage: invitation.personalMessage,
       inviteUrl,
+      orgId,
     });
 
     if (!emailResult.ok) {

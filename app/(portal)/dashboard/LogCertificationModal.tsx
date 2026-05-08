@@ -23,14 +23,19 @@ export default function LogCertificationModal() {
 
   if (!open) {
     return (
-      <button type="button" className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }} onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="btn btn-outline"
+        style={{ width: '100%', minHeight: '2.75rem', fontWeight: 700 }}
+        onClick={() => setOpen(true)}
+      >
         Add a Certificate
       </button>
     );
   }
 
   return (
-    <div style={{ marginTop: '1rem', background: 'var(--surface-container)', padding: '1rem', borderRadius: '0.5rem' }}>
+    <div style={{ background: 'var(--surface-container)', padding: '1rem', borderRadius: '0.75rem' }}>
       <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>Add a Certificate</h3>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <input

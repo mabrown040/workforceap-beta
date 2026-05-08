@@ -22,7 +22,11 @@ import {
   listCourseraIdentityMappings,
   listRecentUnmatchedXapiEvents,
 } from '@/lib/xapi/mappings';
-import { loadBadgeProgressSummary, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
+import {
+  countHiddenTestAccountUnmatchedLearners,
+  loadBadgeProgressSummary,
+  loadUnmatchedLearners,
+} from '@/lib/coursera/progressQueries';
 
 type CourseProgressSummary = {
   totalRows: number;
@@ -265,7 +269,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminCourseraPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ auditEmail?: string }>;
+  searchParams?: Promise<{ auditEmail?: string; showTest?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera');
@@ -273,6 +277,7 @@ export default async function AdminCourseraPage({
 
   const sp = (await searchParams) ?? {};
   const auditEmailRaw = typeof sp.auditEmail === 'string' ? sp.auditEmail : '';
+  const showTestAccounts = sp.showTest === '1' || sp.showTest === 'true';
 
   // Include every active user who is a member — those with profile.role === 'member'
   // and those without a profile row (the role helper defaults to 'member' there).
@@ -326,7 +331,12 @@ export default async function AdminCourseraPage({
   const courseProgress = await loadCourseProgressSummary();
   const xapiCourseProgress = await loadXapiCourseProgressSummary(members);
   const badgeProgress = await loadBadgeProgressSummary();
-  const unmatchedLearners = await loadUnmatchedLearners(100);
+  const unmatchedLearners = await loadUnmatchedLearners(100, {
+    includeTestAccounts: showTestAccounts,
+  });
+  const hiddenTestAccountCount = showTestAccounts
+    ? 0
+    : await countHiddenTestAccountUnmatchedLearners();
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
 
   if (auditEmailRaw.trim().length > 0) {
@@ -670,6 +680,59 @@ export default async function AdminCourseraPage({
       </section>
 
       <div style={{ marginBottom: '1rem' }}>
+        {hiddenTestAccountCount > 0 ? (
+          <div
+            style={{
+              padding: '0.65rem 0.9rem',
+              marginBottom: '0.6rem',
+              background: 'var(--surface-container-low, rgba(148, 163, 184, 0.08))',
+              border: '1px dashed var(--outline-variant)',
+              borderRadius: 8,
+              fontSize: '0.85rem',
+              color: 'var(--color-on-surface-variant)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span>
+              Hiding <strong>{hiddenTestAccountCount}</strong> likely test/smoke account
+              {hiddenTestAccountCount === 1 ? '' : 's'} from the unmatched list (matches:
+              <code style={{ marginLeft: '0.25rem' }}>test*</code>,{' '}
+              <code>force-*</code>, <code>noreply*</code>, <code>@example.com</code>).
+            </span>
+            <Link href="?showTest=1" style={{ fontWeight: 600 }}>
+              Show all →
+            </Link>
+          </div>
+        ) : showTestAccounts ? (
+          <div
+            style={{
+              padding: '0.65rem 0.9rem',
+              marginBottom: '0.6rem',
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px dashed rgba(251, 191, 36, 0.4)',
+              borderRadius: 8,
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span style={{ color: 'rgb(146, 90, 0)' }}>
+              <strong>Showing all rows including test accounts.</strong> The list normally hides
+              <code style={{ marginLeft: '0.25rem' }}>test*</code>, <code>force-*</code>,{' '}
+              <code>noreply*</code>, and <code>@example.com</code> traffic.
+            </span>
+            <Link href="?" style={{ fontWeight: 600 }}>
+              Hide test accounts →
+            </Link>
+          </div>
+        ) : null}
         <CourseraUnmatchedLearners
           learners={unmatchedLearners}
           members={memberOptions.map((m) => ({

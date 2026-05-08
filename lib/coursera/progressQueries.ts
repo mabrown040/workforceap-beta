@@ -3,6 +3,11 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
+// Heuristic re-exported from a server-only-free module so it can be unit-
+// tested in isolation. See lib/coursera/testAccountHeuristic.ts for the
+// patterns; this module owns the SQL fragment that mirrors those patterns.
+export { isLikelyTestAccount } from '@/lib/coursera/testAccountHeuristic';
+
 export type BadgeProgressSummary = {
   totalRows: number;
   latestSyncedAt: Date | null;
@@ -104,12 +109,51 @@ export type UnmatchedLearner = {
   lastActivityTime: Date | null;
 };
 
+export type LoadUnmatchedLearnersOptions = {
+  /** Default false. When true, emails matching `isLikelyTestAccount` are returned alongside real learners. */
+  includeTestAccounts?: boolean;
+};
+
+/**
+ * SQL `HAVING` fragment that excludes likely-test-account emails. Applied
+ * inline in the unmatched-learners query so the LIMIT clause counts only
+ * real learners — without this, a load-test that produces 100+ test rows
+ * could fill the result set and push real backlog off the page.
+ *
+ * Keep this in sync with `isLikelyTestAccount()` above.
+ */
+const TEST_ACCOUNT_EXCLUSION_HAVING = Prisma.sql`HAVING email NOT LIKE '%test%'
+  AND email NOT LIKE 'force-%'
+  AND email NOT LIKE 'noreply%'
+  AND email NOT LIKE 'no-reply%'
+  AND email NOT LIKE '%@example.com'
+  AND email NOT LIKE '%@example.org'`;
+
+/**
+ * SQL `WHERE` fragment for the count query (no GROUP BY there).
+ */
+const TEST_ACCOUNT_EXCLUSION_WHERE = Prisma.sql`AND email NOT LIKE '%test%'
+  AND email NOT LIKE 'force-%'
+  AND email NOT LIKE 'noreply%'
+  AND email NOT LIKE 'no-reply%'
+  AND email NOT LIKE '%@example.com'
+  AND email NOT LIKE '%@example.org'`;
+
 /**
  * Distinct externalEmail across coursera_course_progress + coursera_badge_progress
  * where userId IS NULL — i.e. learners on Coursera that we have not bound to a
  * WAP user yet.
+ *
+ * By default, filters out likely-test-account emails (see `isLikelyTestAccount`).
+ * Pass `{ includeTestAccounts: true }` to see everything. The filter runs at
+ * the SQL level (HAVING clause) so it applies BEFORE LIMIT — without this, a
+ * load-test producing 100+ test rows would push real backlog off the first
+ * page of the default view.
  */
-export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearner[]> {
+export async function loadUnmatchedLearners(
+  limit = 100,
+  options: LoadUnmatchedLearnersOptions = {},
+): Promise<UnmatchedLearner[]> {
   try {
     type Row = {
       externalEmail: string;
@@ -121,6 +165,8 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
       actorHomePage: string | null;
       lastActivityTime: Date | null;
     };
+
+    const havingClause = options.includeTestAccounts ? Prisma.empty : TEST_ACCOUNT_EXCLUSION_HAVING;
 
     const learners = await prisma.$queryRaw<Row[]>`
       WITH unioned AS (
@@ -175,6 +221,7 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
         MAX(last_activity_time) AS "lastActivityTime"
       FROM unioned
       GROUP BY email
+      ${havingClause}
       ORDER BY MAX(last_activity_time) DESC NULLS LAST
       LIMIT ${limit}
     `;
@@ -223,6 +270,59 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
     return [];
   }
 }
+
+/**
+ * SQL count of likely-test-account distinct emails currently in the
+ * unmatched-learners union. Used by the admin page to render a "Hiding N
+ * test accounts. [Show all]" banner.
+ *
+ * Counts ALL matching rows, not a LIMIT-capped slice — earlier versions
+ * fetched the capped list and counted JS-side, so a backlog of >100 test
+ * rows undercounted. SQL count fixes that.
+ */
+export async function countHiddenTestAccountUnmatchedLearners(): Promise<number> {
+  try {
+    const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      WITH unioned AS (
+        SELECT LOWER(external_email) AS email
+        FROM coursera_course_progress
+        WHERE user_id IS NULL
+        GROUP BY LOWER(external_email)
+        UNION
+        SELECT LOWER(external_email) AS email
+        FROM coursera_badge_progress
+        WHERE user_id IS NULL
+        GROUP BY LOWER(external_email)
+        UNION
+        SELECT LOWER(COALESCE(actor_email, actor_identifier)) AS email
+        FROM coursera_xapi_events
+        WHERE completion_status IN ('unmatched', 'error')
+          AND COALESCE(actor_email, actor_identifier) IS NOT NULL
+        GROUP BY LOWER(COALESCE(actor_email, actor_identifier))
+      )
+      SELECT COUNT(DISTINCT email)::bigint AS count
+      FROM unioned
+      WHERE email IS NOT NULL
+        AND (
+          email LIKE '%test%'
+          OR email LIKE 'force-%'
+          OR email LIKE 'noreply%'
+          OR email LIKE 'no-reply%'
+          OR email LIKE '%@example.com'
+          OR email LIKE '%@example.org'
+        )
+    `;
+    const count = rows[0]?.count ?? 0;
+    return typeof count === 'bigint' ? Number(count) : count;
+  } catch {
+    return 0;
+  }
+}
+
+// Reference TEST_ACCOUNT_EXCLUSION_WHERE so it isn't dropped by a future
+// dead-code prune; it's available for any future caller that needs to
+// filter test accounts in a non-grouped query.
+void TEST_ACCOUNT_EXCLUSION_WHERE;
 
 export type LearnerCourseRow = {
   id: string;
@@ -557,6 +657,90 @@ export async function loadUnmatchedXapiEventsByExternalEmail(
     `;
   } catch (error) {
     console.warn('[coursera/progressQueries] loadUnmatchedXapiEventsByExternalEmail failed:', error);
+    return [];
+  }
+}
+
+/**
+ * Count unmatched / errored xAPI events for an external key (email or actor
+ * identifier — same matching rules as `loadUnmatchedXapiEventsByExternalEmail`).
+ *
+ * Used by the unmatched-learner detail page so the parent can show a total
+ * even when only a preview of events is rendered, and link to the dedicated
+ * events page when there are more than the preview.
+ */
+export async function countUnmatchedXapiEventsByExternalEmail(
+  externalKey: string,
+): Promise<number> {
+  const trimmed = externalKey.trim();
+  if (!trimmed) return 0;
+  const lower = trimmed.toLowerCase();
+  const looksLikeEmail = trimmed.includes('@');
+
+  try {
+    const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      SELECT COUNT(*)::bigint AS count
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('unmatched', 'error')
+        AND (
+          (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
+          OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
+        )
+    `;
+    const count = rows[0]?.count ?? 0;
+    return typeof count === 'bigint' ? Number(count) : count;
+  } catch (error) {
+    console.warn('[coursera/progressQueries] countUnmatchedXapiEventsByExternalEmail failed:', error);
+    return 0;
+  }
+}
+
+/**
+ * Paginated loader. `pageSize` defaults to 50, `page` is 1-based.
+ *
+ * Used by `/admin/coursera/learners/unmatched/[externalEmail]/events` so an
+ * admin reviewing a Coursera-only learner with hundreds of events can scan
+ * them without overwhelming the parent detail page.
+ */
+export async function loadUnmatchedXapiEventsByExternalEmailPaginated(
+  externalKey: string,
+  page = 1,
+  pageSize = 50,
+): Promise<UnmatchedXapiEventRow[]> {
+  const trimmed = externalKey.trim();
+  if (!trimmed) return [];
+  const lower = trimmed.toLowerCase();
+  const looksLikeEmail = trimmed.includes('@');
+  const safePage = Math.max(1, Math.floor(page));
+  const safeSize = Math.min(200, Math.max(1, Math.floor(pageSize)));
+  const offset = (safePage - 1) * safeSize;
+
+  try {
+    return await prisma.$queryRaw<UnmatchedXapiEventRow[]>`
+      SELECT
+        id,
+        statement_id AS "statementId",
+        actor_email AS "actorEmail",
+        actor_identifier AS "actorIdentifier",
+        actor_home_page AS "actorHomePage",
+        course_slug AS "courseSlug",
+        course_name AS "courseName",
+        verb_id AS "verbId",
+        completion_status AS "completionStatus",
+        error,
+        received_at AS "receivedAt"
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('unmatched', 'error')
+        AND (
+          (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
+          OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
+        )
+      ORDER BY received_at DESC
+      LIMIT ${safeSize}
+      OFFSET ${offset}
+    `;
+  } catch (error) {
+    console.warn('[coursera/progressQueries] loadUnmatchedXapiEventsByExternalEmailPaginated failed:', error);
     return [];
   }
 }

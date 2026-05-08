@@ -186,7 +186,7 @@ export default function DashboardHomeClient({
         ? t('preassessmentRequired')
         : completedCount === 0
           ? t('firstCourseIsNext')
-          : t('upNextInTraining', { milestone: nextMilestone ?? programTitle });
+          : t('upNextInTraining', { milestone: nextMilestone ?? programTitle ?? 'your training plan' });
 
   const progressCardSummary =
     state === 'D'
@@ -214,7 +214,7 @@ export default function DashboardHomeClient({
           ? t('startApplicationToBegin')
           : t('chooseProgramToBegin'))
       : state === 'B'
-        ? t('completePreassessmentToStart', { program: programTitle })
+        ? t('completePreassessmentToStart', { program: programTitle ?? 'your program' })
         : state === 'C'
           ? t('keepGoingFinishNext', { milestone: nextMilestone ?? 'your next course' })
           : t('focusOnCareerReadiness');
@@ -254,19 +254,34 @@ export default function DashboardHomeClient({
       {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
 
       {/* ── Page Header ── */}
-      <header style={{ marginBottom: '2rem', padding: '0 2rem' }}>
+      <header style={{ marginBottom: '1.25rem', padding: '0 2rem' }}>
         <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', letterSpacing: '0.08em', fontSize: '0.75rem', marginBottom: '0.375rem' }}>
-          {weekEyebrow}{programTitle ? ` · ${programTitle}` : ''}
+          {weekEyebrow}
         </p>
         <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>
           {t('yourNextSteps', { firstName })}
         </h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem' }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem', marginBottom: '0.875rem' }}>
           {state === 'A' && (isMinor && age ? t('exploreCareerPaths') : t('letsBuildYourCareerPath'))}
           {state === 'B' && t('enrolledCompletePreassessment', { program: programTitle ?? 'your program' })}
           {state === 'C' && t('percentThroughTraining', { pct: progressPct, program: programTitle ?? 'your training plan' })}
           {state === 'D' && t('trainingPlanComplete')}
         </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          {programTitle ? (
+            <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.75rem', fontWeight: 700 }}>
+              {programTitle}
+            </span>
+          ) : null}
+          <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', fontWeight: 700 }}>
+            {state === 'A' ? 'Getting started' : state === 'B' ? 'Ready for preassessment' : state === 'C' ? `${progressPct}% through training` : 'Training complete'}
+          </span>
+          {(state === 'C' || state === 'D') && (
+            <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
+              {completedCount}/{totalCourses} courses done
+            </span>
+          )}
+        </div>
       </header>
 
       {showStuckCounselorStrip && state === 'C' ? (
@@ -379,14 +394,7 @@ export default function DashboardHomeClient({
         </div>
       )}
 
-      {/* ── 2. MORE NEXT STEPS — remaining actions after dominant card ── */}
-      {nextStripActions.length > 0 && (
-        <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
-          <MemberNextStepsStrip actions={nextStripActions.slice(0, 3)} />
-        </div>
-      )}
-
-      {/* ── 3. HELP STRIP — counselor contact + support CTA ── */}
+      {/* ── 2. HELP STRIP — counselor contact + support CTA ── */}
       <div
         className="portal-card portal-card--flat"
         style={{
@@ -419,14 +427,21 @@ export default function DashboardHomeClient({
         </Link>
       </div>
 
-      {/* ── 4. METRIC CARDS ── */}
+      {/* ── 3. METRIC CARDS ── */}
       {(state === 'C' || state === 'D') && (
-        <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
+        <div style={{ padding: '0 2rem', marginBottom: '1.25rem' }}>
           <div className="portal-metric-strip">
             {metricCards.map((m) => (
               <PortalMetricCard key={m.label} {...m} />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ── 4. MORE NEXT STEPS — remaining actions after dominant card ── */}
+      {nextStripActions.length > 0 && (
+        <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
+          <MemberNextStepsStrip actions={nextStripActions.slice(0, 2)} />
         </div>
       )}
 
@@ -518,187 +533,115 @@ export default function DashboardHomeClient({
           </section>
         )}
 
-        {/* ── Active Curriculum / Career Next Steps ── */}
+        {/* ── Keep moving ── */}
         <section style={{ gridColumn: 'span 12' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>
-              {state === 'D' ? 'Career Next Steps' : 'Active Curriculum'}
+              {state === 'D' ? 'Career next steps' : 'Keep moving'}
             </h3>
-            {state !== 'A' && (
-              <Link
-                href="/dashboard/training"
-                className="portal-dash-section-header__action"
-                onClick={() => handleDashboardAction('view_all_tracks_clicked')}
-              >
-                View All Tracks
-              </Link>
-            )}
+            <Link
+              href={state === 'A' ? '/dashboard/program' : '/dashboard/training'}
+              className="portal-dash-section-header__action"
+              onClick={() => handleDashboardAction('view_all_tracks_clicked')}
+            >
+              {state === 'A' ? 'View program options' : 'View all tracks'}
+            </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-            {/* Primary Action Card */}
-            {state === 'A' && (
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                  <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>GET STARTED</span>
-                  </div>
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>
-                  {noApplicationOnFile ? 'Start Your Application' : 'Choose Your Program'}
-                </h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  {noApplicationOnFile
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                {state === 'A' ? 'Get started' : state === 'B' ? 'Next step' : state === 'C' ? 'In progress' : 'Complete'}
+              </p>
+              <h4 style={{ fontWeight: 700, fontSize: '1rem', margin: '0.45rem 0 0.35rem', color: 'var(--color-on-surface)' }}>
+                {state === 'A'
+                  ? noApplicationOnFile ? 'Start your application' : 'Choose your program'
+                  : state === 'B'
+                    ? starterProfileReviewRequired ? 'Review your profile details' : 'Complete your preassessment'
+                    : state === 'C'
+                      ? nextMilestone ?? 'Continue training'
+                      : 'Build job readiness'}
+              </h4>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>
+                {state === 'A'
+                  ? noApplicationOnFile
                     ? 'Apply in about 10 minutes to get matched with the right no-cost program for your goals.'
-                    : 'Select one of our no-cost career programs. Funding is tied to a single program.'}
-                </p>
-                <Link href={noApplicationOnFile ? '/apply' : '/dashboard/program'} className="btn btn-primary"
-                  onClick={() => handleDashboardAction(noApplicationOnFile ? 'start_application_clicked' : 'choose_program_clicked')}>
-                  {noApplicationOnFile ? 'Start Your Application' : 'Choose Your Program'}
+                    : 'Select the one program track that fits your goals right now.'
+                  : state === 'B'
+                    ? starterProfileReviewRequired
+                      ? `Confirm the contact and referral details entered for you.${starterProfileMissingFields.length ? ` Missing now: ${starterProfileMissingFields.join(', ')}.` : ''}`
+                      : `A quick preassessment tailors your ${programTitle ?? 'training'} path and helps identify matching roles.`
+                    : state === 'C'
+                      ? `${completedCount} of ${totalCourses} courses marked complete. Keep moving toward job readiness.`
+                      : `You've finished ${programTitle ?? 'your training'}. Finish readiness steps before applying for jobs.`}
+              </p>
+              <div style={{ marginTop: '0.9rem' }}>
+                <Link
+                  href={state === 'A'
+                    ? (noApplicationOnFile ? '/apply' : '/dashboard/program')
+                    : state === 'B'
+                      ? (starterProfileReviewRequired ? '/dashboard/profile' : '/dashboard/assessment')
+                      : state === 'C'
+                        ? '/dashboard/training'
+                        : '/dashboard/readiness'}
+                  className="btn btn-primary"
+                  onClick={() => handleDashboardAction(
+                    state === 'A'
+                      ? (noApplicationOnFile ? 'start_application_clicked' : 'choose_program_clicked')
+                      : state === 'B'
+                        ? (starterProfileReviewRequired ? 'starter_profile_review_clicked' : 'assessment_clicked')
+                        : state === 'C'
+                          ? 'continue_training_clicked'
+                          : 'career_readiness_clicked'
+                  )}
+                >
+                  {state === 'A'
+                    ? (noApplicationOnFile ? 'Start your application' : 'Choose your program')
+                    : state === 'B'
+                      ? (starterProfileReviewRequired ? 'Review profile' : 'Start preassessment')
+                      : state === 'C'
+                        ? 'Continue training'
+                        : 'Build job readiness'}
                 </Link>
-              </div>
-            )}
-
-            {state === 'B' && (
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                  <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>NEXT STEP</span>
-                  </div>
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>
-                  {starterProfileReviewRequired ? 'Review your starter profile details' : 'Complete Your Training Preassessment'}
-                </h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  {starterProfileReviewRequired
-                    ? `Before WorkforceAP unlocks your preassessment, confirm the contact and referral details entered for you.${starterProfileMissingFields.length ? ` Missing now: ${starterProfileMissingFields.join(', ')}.` : ''}`
-                    : `A quick preassessment tailors your ${programTitle} learning path and helps identify matching roles.`}
-                </p>
-                <Link href={starterProfileReviewRequired ? '/dashboard/profile' : '/dashboard/assessment'} className="btn btn-primary"
-                  onClick={() => handleDashboardAction(starterProfileReviewRequired ? 'starter_profile_review_clicked' : 'assessment_clicked')}>
-                  {starterProfileReviewRequired ? 'Review profile' : 'Start Preassessment'}
-                </Link>
-              </div>
-            )}
-
-            {state === 'C' && nextMilestone && (
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                  <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--surface-container-highest)', color: 'var(--color-on-surface)', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>IN PROGRESS</span>
-                  </div>
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{nextMilestone}</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  {completedCount} of {totalCourses} courses marked complete. Finish training to move toward job readiness.
-                </p>
-                <Link href="/dashboard/training" className="btn btn-primary"
-                  onClick={() => handleDashboardAction('continue_training_clicked')}>
-                  Continue Training
-                </Link>
-              </div>
-            )}
-
-            {state === 'D' && (
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'linear-gradient(135deg, rgba(173,44,77,0.2), var(--surface-container-highest))' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                  <div style={{ position: 'absolute', bottom: '1rem', left: '1rem' }}>
-                    <span style={{ padding: '0.25rem 0.5rem', background: 'var(--color-accent)', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, borderRadius: '0.25rem' }}>COMPLETE</span>
-                  </div>
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Career Readiness</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  You've finished {programTitle}. Complete your readiness steps before applying for jobs.
-                </p>
-                <Link href="/dashboard/readiness" className="btn btn-primary"
-                  onClick={() => handleDashboardAction('career_readiness_clicked')}>
-                  Build Job Readiness
-                </Link>
-              </div>
-            )}
-
-            {/* Secondary Recommended Action Card */}
-            {primaryAction && state !== 'A' && (
-              <Link href={primaryAction.href} style={{ textDecoration: 'none', color: 'inherit' }}
-                onClick={() => handleDashboardAction('primary_recommended_action_clicked')}>
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{primaryAction.label}</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  Recommended next step for your career journey.
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.6875rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', opacity: 0.8, textTransform: 'uppercase' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }}>schedule</span> Recommended
-                  </span>
-                  <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--color-accent)' }}>
-                    Open
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
-                  </span>
-                </div>
-              </div>
-              </Link>
-            )}
-
-            {/* Contextual third card */}
-            {state === 'A' && (
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>How It Works</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  Learn about WorkforceAP programs, training, and job placement support.
-                </p>
-                <Link href="/how-it-works" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
-                  onClick={() => handleDashboardAction('how_it_works_clicked')}>
-                  Learn more
-                </Link>
-              </div>
-            )}
-
-            {state === 'D' && jobSearchUrl && (
-              <div className="portal-card portal-card--flat portal-card--padded" style={{ cursor: 'pointer' }}>
-                <div style={{ height: '12rem', borderRadius: '0.75rem', overflow: 'hidden', marginBottom: '1rem', position: 'relative', background: 'var(--surface-container-highest)' }}>
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--color-background-dark), transparent)', opacity: 0.8 }} />
-                </div>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>Browse Jobs</h4>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, marginBottom: '1rem' }}>
-                  Search live job listings matched to your area and program.
-                </p>
-                <a href={jobSearchUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 600, textDecoration: 'none' }}
-                  onClick={() => handleDashboardAction('job_search_clicked')}>
-                  Browse jobs in your area
-                </a>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section style={{ gridColumn: 'span 12' }}>
-          <div className="portal-card portal-card--flat" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '1rem 1.25rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem', minWidth: 0, flex: 1 }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>support_agent</span>
-              <div style={{ minWidth: 0 }}>
-                <h5 style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>AI coach</h5>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.35rem 0 0', lineHeight: 1.5 }}>
-                  Talk through interviews, certifications, and your next best step.
-                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
-              <Link href="/dashboard/readiness" className="btn btn-primary" onClick={() => handleDashboardAction('career_readiness_clicked')}>
-                Talk to AI coach
-              </Link>
-              <Link href="/dashboard/ai-tools" className="btn btn-outline" onClick={() => handleDashboardAction('ai_tools_clicked')}>
-                Open career tools
-              </Link>
+
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                Support
+              </p>
+              <h4 style={{ fontWeight: 700, fontSize: '1rem', margin: '0.45rem 0 0.35rem', color: 'var(--color-on-surface)' }}>Talk to a counselor</h4>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>
+                Ask questions, get unstuck, or check what happens next in your program.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
+                <Link href="/dashboard/messages" className="btn btn-secondary" onClick={() => handleDashboardAction('help_counselor_clicked')}>
+                  Message counselor
+                </Link>
+                <Link href="/dashboard/resources" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction('help_resources_clicked')}>
+                  Get support
+                </Link>
+              </div>
+            </div>
+
+            <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem' }}>
+              <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                Voice coach
+              </p>
+              <h4 style={{ fontWeight: 700, fontSize: '1rem', margin: '0.45rem 0 0.35rem', color: 'var(--color-on-surface)' }}>
+                Practice out loud
+              </h4>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5, margin: 0 }}>
+                Use voice tools for mock interviews, spoken answers, and confidence-building — without turning the homepage into a tool catalog.
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
+                <Link href="/dashboard/ai-tools/voice-interview" className="btn btn-secondary" onClick={() => handleDashboardAction('ai_tools_clicked')}>
+                  Open voice coach
+                </Link>
+                <Link href={primaryAction?.href ?? '/dashboard/ai-tools'} style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction(primaryAction ? 'primary_recommended_action_clicked' : 'ai_tools_clicked')}>
+                  {primaryAction ? 'Open recommended tool' : 'Open career tools'}
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -707,19 +650,18 @@ export default function DashboardHomeClient({
         <section style={{ gridColumn: 'span 12' }}>
           <details className="portal-details">
             <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', padding: '0.75rem 0', userSelect: 'none' }}>
-              More Tools &amp; Resources
+              More tools &amp; resources
             </summary>
             <div className="portal-quick-actions-grid" style={{ marginTop: '1rem' }}>
               {[
-                { href: '/dashboard/weekly-recap', label: 'Weekly Recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
-                { href: '/dashboard/ai-tools', label: 'Job Search Tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
-                { href: '/dashboard/learning', label: 'Learning Hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
+                { href: '/dashboard/weekly-recap', label: 'Weekly recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
+                { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
+                { href: '/dashboard/learning', label: 'Learning hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
-                { href: '/dashboard/skills-assessment', label: showPreassessmentPhase ? 'Training Preassessment' : 'Assessment Results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
+                { href: '/dashboard/skills-assessment', label: showPreassessmentPhase ? 'Training preassessment' : 'Assessment results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },
               ].map((item) => (
-                <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }}
-                  onClick={() => handleDashboardAction(item.action)}>
+                <Link key={item.href} href={item.href} style={{ textDecoration: 'none', color: 'inherit' }} onClick={() => handleDashboardAction(item.action)}>
                   <div className="portal-card portal-card--flat" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-on-surface-variant)' }}>{item.icon}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>

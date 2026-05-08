@@ -11,11 +11,16 @@ import MapToUserActions from '@/components/admin/coursera/MapToUserActions';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import {
+  countUnmatchedXapiEventsByExternalEmail,
   loadLearnerProgressByExternalEmail,
   loadUnmatchedXapiEventsByExternalEmail,
   suggestUserMatchesForExternalEmail,
+  type LearnerBadgeRow,
+  type LearnerCourseRow,
   type UnmatchedXapiEventRow,
 } from '@/lib/coursera/progressQueries';
+
+const PARENT_EVENTS_PREVIEW_LIMIT = 10;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera learner detail (unmatched)',
@@ -48,13 +53,16 @@ export default async function AdminCourseraUnmatchedLearnerPage({
   const { externalEmail } = await params;
   const decoded = decodeURIComponent(externalEmail);
 
-  // Run all three loaders in parallel — if CSV is empty, xAPI is the entire
+  // Run all four loaders in parallel — if CSV is empty, xAPI is the entire
   // story; if both are present, we render both side-by-side. Suggestions are
-  // computed against the WAP users table independently.
-  const [csvDetail, xapiEvents, suggestions] = await Promise.all([
+  // computed against the WAP users table independently. The events list is
+  // capped at PARENT_EVENTS_PREVIEW_LIMIT here — overflow is rendered on the
+  // dedicated `/events` page so this detail page stays scannable.
+  const [csvDetail, xapiEvents, suggestions, totalUnmatchedEvents] = await Promise.all([
     loadLearnerProgressByExternalEmail(decoded),
-    loadUnmatchedXapiEventsByExternalEmail(decoded, 100),
+    loadUnmatchedXapiEventsByExternalEmail(decoded, PARENT_EVENTS_PREVIEW_LIMIT),
     suggestUserMatchesForExternalEmail(decoded, null, 5),
+    countUnmatchedXapiEventsByExternalEmail(decoded),
   ]);
 
   // Classify the key from actual data, NOT from the string shape.
@@ -99,8 +107,13 @@ export default async function AdminCourseraUnmatchedLearnerPage({
     ? await suggestUserMatchesForExternalEmail(decoded, externalName, 5)
     : suggestions;
 
-  const hasAnyData =
-    csvDetail !== null || xapiEvents.length > 0;
+  const hasAnyData = csvDetail !== null || totalUnmatchedEvents > 0;
+  const eventsHref = `/admin/coursera/learners/unmatched/${encodeURIComponent(decoded)}/events`;
+  const hasMoreEvents = totalUnmatchedEvents > xapiEvents.length;
+
+  const xapiSectionTitle = hasMoreEvents
+    ? `Unmatched xAPI events (showing ${xapiEvents.length} of ${totalUnmatchedEvents})`
+    : `Unmatched xAPI events (${totalUnmatchedEvents})`;
 
   return (
     <PortalPageFrame>
@@ -117,13 +130,18 @@ export default async function AdminCourseraUnmatchedLearnerPage({
       <div style={{ display: 'grid', gap: '1rem' }}>
         {/* Identity / mapping action — always visible so admin can act. */}
         <section className="content-card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.75rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Map this learner to a WAP user</h2>
-          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-            This learner is not yet bound to a WAP user. Mapping them creates a row in
-            <code> coursera_identity_mappings</code>, then re-processes any unmatched xAPI events
-            for this Coursera email so existing activity flows back into the member&rsquo;s training
-            progress.
-          </p>
+          <SectionHeader
+            as="h2"
+            title="Map this learner to a WAP user"
+            subtitle={
+              <>
+                This learner is not yet bound to a WAP user. Mapping them creates a row in
+                <code> coursera_identity_mappings</code>, then re-processes any unmatched xAPI events
+                for this Coursera email so existing activity flows back into the member&rsquo;s training
+                progress.
+              </>
+            }
+          />
           <dl
             style={{
               display: 'grid',
@@ -144,8 +162,8 @@ export default async function AdminCourseraUnmatchedLearnerPage({
             </dd>
             <dt style={{ color: 'var(--color-on-surface-variant)' }}>Unmatched xAPI events</dt>
             <dd style={{ margin: 0 }}>
-              <strong>{xapiEvents.length}</strong>
-              {xapiEvents.length === 0 ? ' — no live activity recorded for this email' : ''}
+              <strong>{totalUnmatchedEvents}</strong>
+              {totalUnmatchedEvents === 0 ? ' — no live activity recorded for this email' : ''}
             </dd>
           </dl>
           <MapToUserActions
@@ -168,14 +186,13 @@ export default async function AdminCourseraUnmatchedLearnerPage({
           </section>
         ) : null}
 
-        {/* Unmatched xAPI events — most useful when CSV is empty.
-            Reference migration to <DataTable> + <SectionHeader> primitives.
-            See docs/UI-DESIGN-SYSTEM.md for the migration playbook. */}
+        {/* Unmatched xAPI events — preview rows from xapi_statements pipeline; full list on /events.
+            Data from loadUnmatchedXapiEventsByExternalEmail → Coursera webhook → xAPI store. */}
         {xapiEvents.length > 0 ? (
           <section className="content-card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.6rem' }}>
             <SectionHeader
-              title={`Unmatched xAPI events (${xapiEvents.length})`}
-              subtitle="Real-time activity Coursera sent for this email that we couldn't link to a member. Mapping above will reprocess these."
+              title={xapiSectionTitle}
+              subtitle="Most-recent activity Coursera sent for this email that we couldn&rsquo;t link to a member. Mapping above will reprocess these."
             />
             <DataTable<UnmatchedXapiEventRow>
               columns={[
@@ -261,105 +278,172 @@ export default async function AdminCourseraUnmatchedLearnerPage({
               rowKey={(evt) => evt.id}
               density="compact"
             />
+            {hasMoreEvents ? (
+              <div
+                style={{
+                  marginTop: '0.5rem',
+                  paddingTop: '0.5rem',
+                  borderTop: '1px solid var(--outline-variant)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                }}
+              >
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  {totalUnmatchedEvents - xapiEvents.length} more event
+                  {totalUnmatchedEvents - xapiEvents.length === 1 ? '' : 's'} not shown.
+                </p>
+                <Link
+                  href={eventsHref}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.85rem', padding: '0.4rem 0.85rem' }}
+                >
+                  View all {totalUnmatchedEvents} events →
+                </Link>
+              </div>
+            ) : null}
           </section>
         ) : null}
 
-        {/* CSV-imported courses (if any). */}
+        {/* CSV-imported courses — coursera_course_progress (external_email-keyed rows before mapping). */}
         {csvDetail && csvDetail.courses.length > 0 ? (
           <section className="content-card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.6rem' }}>
-            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera courses (CSV)</h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left' }}>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Hours</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Certificate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {csvDetail.courses.map((course) => (
-                    <tr key={course.id}>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <strong>{course.courseName}</strong>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                          {course.university ?? course.programName ?? course.programSlug}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                        {course.overallProgress.toFixed(2)}%
-                        {course.isCompleted ? (
-                          <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
-                            done
-                          </span>
-                        ) : null}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                        {course.learningHours.toFixed(2)}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        {formatDateTime(course.lastActivityTime)}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        {course.certificateUrl ? (
-                          <a href={course.certificateUrl} target="_blank" rel="noreferrer">view ↗</a>
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SectionHeader
+              title={`Coursera courses (CSV) (${csvDetail.courses.length})`}
+              subtitle="Imported via Coursera sync; progress snapshots keyed by external email until the learner is mapped."
+            />
+            <DataTable<LearnerCourseRow>
+              columns={[
+                {
+                  key: 'course',
+                  header: 'Course',
+                  cell: (course) => (
+                    <>
+                      <strong>{course.courseName}</strong>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                        {course.university ?? course.programName ?? course.programSlug}
+                      </div>
+                    </>
+                  ),
+                },
+                {
+                  key: 'progress',
+                  header: 'Progress',
+                  align: 'right',
+                  cell: (course) => (
+                    <>
+                      {course.overallProgress.toFixed(2)}%
+                      {course.isCompleted ? (
+                        <span
+                          style={{
+                            marginLeft: '0.4rem',
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.35rem',
+                            borderRadius: '0.4rem',
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: 'rgb(22, 163, 74)',
+                          }}
+                        >
+                          done
+                        </span>
+                      ) : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'hours',
+                  header: 'Hours',
+                  align: 'right',
+                  cell: (course) => course.learningHours.toFixed(2),
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'last',
+                  header: 'Last activity',
+                  cell: (course) => formatDateTime(course.lastActivityTime),
+                },
+                {
+                  key: 'cert',
+                  header: 'Certificate',
+                  cell: (course) =>
+                    course.certificateUrl ? (
+                      <a href={course.certificateUrl} target="_blank" rel="noreferrer">
+                        view ↗
+                      </a>
+                    ) : (
+                      '—'
+                    ),
+                  hideOnMobile: true,
+                },
+              ]}
+              rows={csvDetail.courses}
+              rowKey={(row) => row.id}
+            />
           </section>
         ) : null}
 
-        {/* CSV-imported badges (if any). */}
+        {/* CSV-imported badges — coursera_badge_progress */}
         {csvDetail && csvDetail.badges.length > 0 ? (
           <section className="content-card" style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.6rem' }}>
-            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Specializations / badges (CSV)</h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left' }}>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badge</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Courses done</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Current course</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {csvDetail.badges.map((badge) => (
-                    <tr key={badge.id}>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <strong>{badge.badgeTitle}</strong>
-                        {badge.badgeCompleted ? (
-                          <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
-                            completed
-                          </span>
-                        ) : null}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                        {badge.progressPercent.toFixed(2)}%
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                        {badge.coursesCompleted}/{badge.numberOfCourses}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        {badge.currentCourseName ?? '—'}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        {formatDateTime(badge.lastActivityTime)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SectionHeader
+              title={`Specializations / badges (CSV) (${csvDetail.badges.length})`}
+              subtitle="Specialization progress from the same Coursera CSV import pipeline."
+            />
+            <DataTable<LearnerBadgeRow>
+              columns={[
+                {
+                  key: 'badge',
+                  header: 'Badge',
+                  cell: (badge) => (
+                    <>
+                      <strong>{badge.badgeTitle}</strong>
+                      {badge.badgeCompleted ? (
+                        <span
+                          style={{
+                            marginLeft: '0.4rem',
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.35rem',
+                            borderRadius: '0.4rem',
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: 'rgb(22, 163, 74)',
+                          }}
+                        >
+                          completed
+                        </span>
+                      ) : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'progress',
+                  header: 'Progress',
+                  align: 'right',
+                  cell: (badge) => `${badge.progressPercent.toFixed(2)}%`,
+                },
+                {
+                  key: 'coursesDone',
+                  header: 'Courses done',
+                  align: 'right',
+                  cell: (badge) => `${badge.coursesCompleted}/${badge.numberOfCourses}`,
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'current',
+                  header: 'Current course',
+                  cell: (badge) => badge.currentCourseName ?? '—',
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'last',
+                  header: 'Last activity',
+                  cell: (badge) => formatDateTime(badge.lastActivityTime),
+                },
+              ]}
+              rows={csvDetail.badges}
+              rowKey={(row) => row.id}
+            />
           </section>
         ) : null}
       </div>

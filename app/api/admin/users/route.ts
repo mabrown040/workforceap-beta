@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (sendResetEmail) {
-      const { error } = await sendPasswordResetEmail(email);
+      const { error } = await sendPasswordResetEmail(email, '/reset-password', { orgId: organizationId });
       if (error) {
         return NextResponse.json({
           success: true,

@@ -38,7 +38,7 @@ export async function POST(
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   try {
-    const { error } = await sendPasswordResetEmail(member.email);
+    const { error } = await sendPasswordResetEmail(member.email, '/reset-password', { orgId });
     if (error) throw error;
 
     return NextResponse.json({ success: true, message: `Password reset email sent to ${member.email}` });

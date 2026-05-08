@@ -56,6 +56,7 @@ export async function POST(
       to: job.employer.contactEmail,
       jobTitle: job.title,
       companyName: job.employer.companyName,
+      orgId,
     });
 
     after(() => runAiMatchForLiveJob(id));

@@ -6,6 +6,7 @@
 import { Resend } from 'resend';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
+import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
 import {
   applicationAcceptedHtml,
   applicationRejectedHtml,
@@ -335,34 +336,45 @@ export async function sendElevatorSpeechEmail(params: {
   }
 }
 
-/** Notify member when a counselor is assigned (member portal Messages) */
+/**
+ * Notify member when a counselor is assigned (member portal Messages).
+ *
+ * Track E (Sprint E.1 PR 2) — accepts optional `orgId`. When supplied, the
+ * subject line, header logo, accent color, and CTA origin all reflect the
+ * member's organization. Omitting `orgId` falls back to WorkforceAP defaults
+ * for legacy callers.
+ */
 export async function sendCounselorAssignedEmail(params: {
   to: string;
   memberFullName: string;
   counselorFullName: string;
+  orgId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendCounselorAssignedEmail: RESEND_API_KEY not set');
     return { ok: false, error: 'Email not configured' };
   }
+  const branding = await getOrganizationBranding(params.orgId);
   const first = params.memberFullName.trim().split(/\s+/)[0] || 'there';
-  const messagesUrl = `${SITE_URL}/dashboard/messages`;
+  const messagesUrl = `${branding.domain}/dashboard/messages`;
   const html = brandedEmailLayout({
-    title: 'Your WorkforceAP counselor is assigned',
+    title: `Your ${branding.name} counselor is assigned`,
     bodyHtml: counselorAssignedHtml({
       firstName: first,
       counselorName: params.counselorFullName,
       messagesUrl,
+      branding,
     }),
     ctaText: 'Message your counselor',
     ctaUrl: messagesUrl,
+    branding,
   });
   try {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: sanitizeEmailSubjectLine(`WorkforceAP — ${params.counselorFullName} is your counselor`),
+      subject: sanitizeEmailSubjectLine(`${branding.name} — ${params.counselorFullName} is your counselor`),
       html,
     });
     return { ok: true };
@@ -416,28 +428,43 @@ export async function sendEnrollmentConfirmationEmail(params: {
   }
 }
 
-/** Send application accepted email to applicant */
+/**
+ * Send application accepted email to applicant.
+ *
+ * Track E (Sprint E.1 PR 2) — accepts optional `orgId`. Subject and copy
+ * reflect the org name when supplied.
+ */
 export async function sendApplicationAcceptedEmail(params: {
   to: string;
   fullName: string;
+  orgId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendApplicationAcceptedEmail: RESEND_API_KEY not set');
     return { ok: false, error: 'Email not configured' };
   }
+  const branding = await getOrganizationBranding(params.orgId);
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  // Codex P2 catch on PR #1052: branding.name is constrained only by
+  // min/max length in the Organization schema, so a stray newline could
+  // produce a malformed Subject: header (header-injection-style line
+  // break). Sanitize like the other branded subjects in this file.
+  const subject = sanitizeEmailSubjectLine(
+    `Welcome to ${branding.name} - Your Application Was Accepted`,
+  );
   const html = brandedEmailLayout({
-    title: 'Welcome to WorkforceAP - Your Application Was Accepted',
-    bodyHtml: applicationAcceptedHtml({ firstName: first }),
+    title: subject,
+    bodyHtml: applicationAcceptedHtml({ firstName: first, branding }),
     ctaText: 'Go to Dashboard',
-    ctaUrl: `${SITE_URL}/dashboard`,
+    ctaUrl: `${branding.domain}/dashboard`,
+    branding,
   });
   try {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: 'Welcome to WorkforceAP - Your Application Was Accepted',
+      subject,
       html,
     });
     return { ok: true };
@@ -649,34 +676,45 @@ export async function sendWeeklyRecapEmail(params: {
   }
 }
 
-/** Send invitation email to invitee */
+/**
+ * Send invitation email to invitee.
+ *
+ * Track E (Sprint E.1 PR 2) — accepts optional `orgId`. Subject + body
+ * say "join {org name}" when supplied. Note: `inviteUrl` is preserved
+ * verbatim — its origin is decided by the caller (token URL builder),
+ * not by the branding bundle, so we do not rewrite it.
+ */
 export async function sendInvitationEmail(params: {
   to: string;
   inviterName: string;
   role: string;
   personalMessage?: string | null;
   inviteUrl: string;
+  orgId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendInvitationEmail: RESEND_API_KEY not set');
     return { ok: false, error: 'Email not configured' };
   }
+  const branding = await getOrganizationBranding(params.orgId);
   const html = brandedEmailLayout({
-    title: `${params.inviterName} invited you to join WorkforceAP`,
+    title: `${params.inviterName} invited you to join ${branding.name}`,
     bodyHtml: invitationHtml({
       inviterName: params.inviterName,
       role: params.role,
       personalMessage: params.personalMessage,
+      branding,
     }),
     ctaText: 'Accept Invitation',
     ctaUrl: params.inviteUrl,
+    branding,
   });
   try {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to join WorkforceAP`),
+      subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to join ${branding.name}`),
       html,
     });
     return { ok: true };
@@ -823,28 +861,41 @@ export async function sendJobSubmittedEmail(params: {
   }
 }
 
-/** Send job approved to employer */
+/**
+ * Send job approved to employer.
+ *
+ * Track E (Sprint E.1 PR 2) — accepts optional `orgId` from the admin
+ * route's `getActorOrganizationId` so the employer sees the approving
+ * org's brand and domain.
+ */
 export async function sendJobApprovedEmail(params: {
   to: string;
   jobTitle: string;
   companyName: string;
+  orgId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendJobApprovedEmail: RESEND_API_KEY not set');
     return { ok: false, error: 'Email not configured' };
   }
+  const branding = await getOrganizationBranding(params.orgId);
   const html = brandedEmailLayout({
     title: 'Your Job Posting is Live',
-    bodyHtml: jobApprovedHtml(params),
+    bodyHtml: jobApprovedHtml({
+      jobTitle: params.jobTitle,
+      companyName: params.companyName,
+      branding,
+    }),
     ctaText: 'View Employer Portal',
-    ctaUrl: `${SITE_URL}/employer/jobs`,
+    ctaUrl: `${branding.domain}/employer/jobs`,
+    branding,
   });
   try {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: sanitizeEmailSubjectLine(`Your job "${params.jobTitle}" is now live on WorkforceAP`),
+      subject: sanitizeEmailSubjectLine(`Your job "${params.jobTitle}" is now live on ${branding.name}`),
       html,
     });
     return { ok: true };
@@ -854,23 +905,36 @@ export async function sendJobApprovedEmail(params: {
   }
 }
 
-/** Send job rejected to employer */
+/**
+ * Send job rejected to employer.
+ *
+ * Track E (Sprint E.1 PR 2) — accepts optional `orgId`. Subject + edit
+ * link follow the org domain when supplied.
+ */
 export async function sendJobRejectedEmail(params: {
   to: string;
   jobTitle: string;
   companyName: string;
   reason: string;
+  orgId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
     console.warn('sendJobRejectedEmail: RESEND_API_KEY not set');
     return { ok: false, error: 'Email not configured' };
   }
+  const branding = await getOrganizationBranding(params.orgId);
   const html = brandedEmailLayout({
     title: 'Job Posting Update',
-    bodyHtml: jobRejectedHtml(params),
+    bodyHtml: jobRejectedHtml({
+      jobTitle: params.jobTitle,
+      companyName: params.companyName,
+      reason: params.reason,
+      branding,
+    }),
     ctaText: 'Edit Job',
-    ctaUrl: `${SITE_URL}/employer/jobs`,
+    ctaUrl: `${branding.domain}/employer/jobs`,
+    branding,
   });
   try {
     await resend.emails.send({

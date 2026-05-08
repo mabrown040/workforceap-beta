@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
@@ -14,6 +15,15 @@ import { z } from 'zod';
  * `Employer` and `User` are tenant-scoped at the helper level. The
  * `Role` and `UserRole` models are platform-level (not tenant-scoped),
  * so those calls remain on the raw `prisma` client.
+ *
+ * EXCEPTION: the duplicate-`userId` check is run GLOBALLY via
+ * `crossTenantOK`. Codex P2 catch on PR #1042 — `Employer.userId` is
+ * still `@unique` globally in the schema, so a scoped pre-check would
+ * miss collisions in other orgs and the create would then 500 on
+ * Prisma's P2002 instead of returning a friendly 400. Once the schema
+ * migrates to per-tenant uniqueness in Sprint A.3, this check moves
+ * back inside `withTenantScope`. The route also catches P2002 as
+ * belt-and-braces in case a race slips past the pre-check.
  */
 
 const employerSchema = z.object({
@@ -65,6 +75,19 @@ export async function POST(request: NextRequest) {
 
     const orgId = await getDefaultOrganizationId();
 
+    // Global uniqueness pre-check — Employer.userId is @unique across ALL
+    // orgs in the current schema. crossTenantOK marks the intentional bypass
+    // for the audit script.
+    const existingEmployerGlobal = await crossTenantOK(() =>
+      prisma.employer.findUnique({
+        where: { userId: parsed.data.userId },
+        select: { id: true },
+      }),
+    );
+    if (existingEmployerGlobal) {
+      return NextResponse.json({ error: 'User is already an employer' }, { status: 400 });
+    }
+
     const employer = await withTenantScope(orgId, async (db) => {
       const existingUser = await db.user.findUnique({
         where: { id: parsed.data.userId },
@@ -72,14 +95,6 @@ export async function POST(request: NextRequest) {
       });
       if (!existingUser) {
         throw new Error('USER_NOT_FOUND');
-      }
-
-      const existingEmployer = await db.employer.findUnique({
-        where: { userId: parsed.data.userId },
-        select: { id: true },
-      });
-      if (existingEmployer) {
-        throw new Error('ALREADY_EMPLOYER');
       }
 
       return db.employer.create({
@@ -110,13 +125,17 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(employer, { status: 201 });
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === 'USER_NOT_FOUND') {
-        return NextResponse.json({ error: 'User not found' }, { status: 400 });
-      }
-      if (error.message === 'ALREADY_EMPLOYER') {
+    if (error instanceof Error && error.message === 'USER_NOT_FOUND') {
+      return NextResponse.json({ error: 'User not found' }, { status: 400 });
+    }
+    // Belt-and-braces: catch the unique-constraint race that the global
+    // pre-check might miss between check and insert.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = (error.meta?.target as string[] | undefined) ?? [];
+      if (target.includes('userId') || target.includes('user_id')) {
         return NextResponse.json({ error: 'User is already an employer' }, { status: 400 });
       }
+      return NextResponse.json({ error: 'An employer with these details already exists' }, { status: 400 });
     }
     console.error('[admin/employers POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobRejectedEmail } from '@/lib/email';
 import { z } from 'zod';
 
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The `job.findUnique` + `job.update` calls go through `withTenantScope`
+ * so an admin from Org A cannot reject an Org B job. `findUnique`
+ * becomes `findFirst` because the proxy must inject `organizationId`
+ * into the where clause.
+ */
 const rejectSchema = z.object({
   reason: z.string().min(1).max(1000),
 });
@@ -19,10 +29,14 @@ export async function POST(
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const job = await prisma.job.findUnique({
-      where: { id },
-      include: { employer: { select: { contactEmail: true, companyName: true } } },
-    });
+    const orgId = await getActorOrganizationId(user.id);
+
+    const job = await withTenantScope(orgId, (db) =>
+      db.job.findFirst({
+        where: { id },
+        include: { employer: { select: { contactEmail: true, companyName: true } } },
+      }),
+    );
 
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     if (job.status !== 'pending') {
@@ -35,10 +49,12 @@ export async function POST(
       return NextResponse.json({ error: 'Reason is required' }, { status: 400 });
     }
 
-    await prisma.job.update({
-      where: { id },
-      data: { status: 'closed' },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.job.update({
+        where: { id },
+        data: { status: 'closed' },
+      }),
+    );
 
     await sendJobRejectedEmail({
       to: job.employer.contactEmail,

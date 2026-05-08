@@ -40,6 +40,26 @@ export async function isAdmin(userId: string): Promise<boolean> {
   return roles.includes('admin');
 }
 
+/**
+ * Tenant-aware admin check. Required for any route that pairs with
+ * `resolveOrgFromRequest()` — the global `isAdmin()` does not verify
+ * that the user belongs to the resolved org, so a default-org admin
+ * could otherwise hit a custom-domain URL and read another tenant's
+ * data (Codex P1 catch on PR #1046).
+ *
+ * `super_admin` is platform-level and bypasses the tenant check —
+ * that role is intentionally cross-tenant for support / ops.
+ */
+export async function isAdminInOrg(userId: string, orgId: string): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  if (!(await isAdmin(userId))) return false;
+  const userRow = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { organizationId: true },
+  });
+  return userRow?.organizationId === orgId;
+}
+
 export async function isStaff(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
   if (profileRole === 'admin' || profileRole === 'super_admin') return true;

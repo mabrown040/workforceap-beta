@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type UserRow = {
   id: string;
@@ -235,93 +236,142 @@ export default function AdminUsersManager({ initialUsers, canManageRoles }: Prop
       )}
 
       <div className="admin-table-scroll">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((user) => {
-              const isEditing = editingId === user.id;
-              return (
-                <tr key={user.id}>
-                  <td>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table"
+          scrollX={false}
+          rows={filtered}
+          rowKey={(user) => user.id}
+          columns={[
+            {
+              key: 'name',
+              header: 'Name',
+              cell: (user) =>
+                editingId === user.id ? (
+                  <input
+                    value={draft.fullName}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, fullName: e.target.value }))}
+                    style={{ width: '100%', padding: '0.45rem 0.6rem' }}
+                  />
+                ) : user.memberHref ? (
+                  <a href={user.memberHref}>{user.fullName}</a>
+                ) : (
+                  user.fullName
+                ),
+            },
+            {
+              key: 'email',
+              header: 'Email',
+              cell: (user) =>
+                editingId === user.id ? (
+                  <input
+                    value={draft.email}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))}
+                    style={{ width: '100%', padding: '0.45rem 0.6rem' }}
+                  />
+                ) : (
+                  user.email
+                ),
+            },
+            {
+              key: 'role',
+              header: 'Role',
+              cell: (user) =>
+                editingId === user.id && canManageRoles ? (
+                  <select
+                    value={draft.role}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '0.45rem 0.6rem',
+                      borderRadius: '0.4rem',
+                      border: '1px solid var(--outline-variant)',
+                      background: 'var(--surface-container-lowest)',
+                      color: 'var(--color-on-surface)',
+                    }}
+                  >
+                    {ROLE_OPTIONS.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  user.role
+                ),
+            },
+            {
+              key: 'created',
+              header: 'Created',
+              cell: (user) => new Date(user.createdAt).toLocaleDateString(),
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              cell: (user) => {
+                const isEditing = editingId === user.id;
+                return (
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     {isEditing ? (
-                      <input value={draft.fullName} onChange={(e) => setDraft((prev) => ({ ...prev, fullName: e.target.value }))} style={{ width: '100%', padding: '0.45rem 0.6rem' }} />
-                    ) : user.memberHref ? (
-                      <a href={user.memberHref}>{user.fullName}</a>
-                    ) : user.fullName}
-                  </td>
-                  <td>
-                    {isEditing ? (
-                      <input value={draft.email} onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))} style={{ width: '100%', padding: '0.45rem 0.6rem' }} />
-                    ) : user.email}
-                  </td>
-                  <td>
-                    {isEditing && canManageRoles ? (
-                      <select
-                        value={draft.role}
-                        onChange={(e) => setDraft((prev) => ({ ...prev, role: e.target.value }))}
-                        style={{
-                          width: '100%',
-                          padding: '0.45rem 0.6rem',
-                          borderRadius: '0.4rem',
-                          border: '1px solid var(--outline-variant)',
-                          background: 'var(--surface-container-lowest)',
-                          color: 'var(--color-on-surface)',
-                        }}
-                      >
-                        {ROLE_OPTIONS.map((role) => <option key={role} value={role}>{role}</option>)}
-                      </select>
-                    ) : user.role}
-                  </td>
-                  <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      {isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={savingId === user.id}
+                          onClick={() => void saveUser(user.id)}
+                        >
+                          {savingId === user.id ? 'Saving…' : 'Save'}
+                        </button>
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingId(null)}>
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => startEdit(user)}>
+                        Edit
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      disabled={resettingId === user.id}
+                      onClick={() => void sendReset(user.id)}
+                    >
+                      {resettingId === user.id ? 'Sending…' : 'Reset password'}
+                    </button>
+                    {canManageRoles &&
+                      (confirmDeleteId === user.id ? (
                         <>
-                          <button type="button" className="btn btn-primary btn-sm" disabled={savingId === user.id} onClick={() => void saveUser(user.id)}>
-                            {savingId === user.id ? 'Saving…' : 'Save'}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Confirm?</span>
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            style={{ background: '#c00', color: '#fff' }}
+                            disabled={deletingId === user.id}
+                            onClick={() => void deleteUser(user.id)}
+                          >
+                            {deletingId === user.id ? '…' : 'Yes, delete'}
                           </button>
-                          <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingId(null)}>
+                          <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>
                             Cancel
                           </button>
                         </>
                       ) : (
-                        <button type="button" className="btn btn-outline btn-sm" onClick={() => startEdit(user)}>
-                          Edit
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          style={{ color: '#c00', borderColor: '#c00' }}
+                          onClick={() => setConfirmDeleteId(user.id)}
+                        >
+                          Delete
                         </button>
-                      )}
-                      <button type="button" className="btn btn-outline btn-sm" disabled={resettingId === user.id} onClick={() => void sendReset(user.id)}>
-                        {resettingId === user.id ? 'Sending…' : 'Reset password'}
-                      </button>
-                      {canManageRoles && (
-                        confirmDeleteId === user.id ? (
-                          <>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Confirm?</span>
-                            <button type="button" className="btn btn-sm" style={{ background: '#c00', color: '#fff' }} disabled={deletingId === user.id} onClick={() => void deleteUser(user.id)}>
-                              {deletingId === user.id ? '…' : 'Yes, delete'}
-                            </button>
-                            <button type="button" className="btn btn-outline btn-sm" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
-                          </>
-                        ) : (
-                          <button type="button" className="btn btn-outline btn-sm" style={{ color: '#c00', borderColor: '#c00' }} onClick={() => setConfirmDeleteId(user.id)}>
-                            Delete
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                      ))}
+                  </div>
+                );
+              },
+            },
+          ]}
+        />
       </div>
 
       <ul className="admin-portal-card-list" aria-label="Users mobile list">

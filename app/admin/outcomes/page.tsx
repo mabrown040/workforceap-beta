@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import DataTable from '@/components/portal/ui/DataTable';
 import { getPublicPlacementOutcomes, wilsonInterval } from '@/lib/outcomes/publicPlacementOutcomes';
 import { getBoardSnapshot, SMALL_SAMPLE_THRESHOLD } from '@/lib/admin/boardOutcomes';
 
@@ -274,33 +275,25 @@ export default async function AdminOutcomesPage() {
             </p>
           ) : (
             <div style={{ overflowX: 'auto', marginTop: '0.5rem' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--color-outline-variant, #e0e0e0)' }}>
-                    <th style={{ padding: '0.5rem' }}>Program</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Enrolled</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Certified</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Placed</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'right' }}>Placement rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {snapshot.outcomes.programs.map((p) => (
-                    <tr
-                      key={p.programSlug}
-                      style={{ borderBottom: '1px solid var(--color-outline-variant, #f0f0f0)' }}
-                    >
-                      <td style={{ padding: '0.5rem' }}>{p.programSlug}</td>
-                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{p.enrolled}</td>
-                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{p.certified}</td>
-                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{p.placed}</td>
-                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>
-                        {p.enrolled < SMALL_SAMPLE_THRESHOLD ? `N=${p.enrolled}` : `${p.placementRate}%`}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                density="compact"
+                scrollX={false}
+                rows={snapshot.outcomes.programs}
+                rowKey={(p) => p.programSlug}
+                columns={[
+                  { key: 'program', header: 'Program', cell: (p) => p.programSlug },
+                  { key: 'enrolled', header: 'Enrolled', align: 'right', cell: (p) => p.enrolled },
+                  { key: 'certified', header: 'Certified', align: 'right', cell: (p) => p.certified },
+                  { key: 'placed', header: 'Placed', align: 'right', cell: (p) => p.placed },
+                  {
+                    key: 'rate',
+                    header: 'Placement rate',
+                    align: 'right',
+                    cell: (p) =>
+                      p.enrolled < SMALL_SAMPLE_THRESHOLD ? `N=${p.enrolled}` : `${p.placementRate}%`,
+                  },
+                ]}
+              />
             </div>
           )}
           <p style={sourceNote}>

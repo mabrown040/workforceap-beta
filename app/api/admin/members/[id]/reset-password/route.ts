@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 /**
@@ -9,6 +10,11 @@ import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
  *
  * Sends a password-reset email to the member via Supabase Auth.
  * Super-admin only.
+ *
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
+ * The `user.findUnique` goes through `withTenantScope` so a super
+ * admin from Org A cannot trigger a reset email for an Org B member by
+ * guessing their UUID.
  */
 export async function POST(
   _req: NextRequest,
@@ -21,11 +27,14 @@ export async function POST(
   }
 
   const { id } = await params;
+  const orgId = await getActorOrganizationId(admin.id);
 
-  const member = await prisma.user.findUnique({
-    where: { id },
-    select: { email: true, fullName: true },
-  });
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id },
+      select: { email: true, fullName: true },
+    }),
+  );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   try {

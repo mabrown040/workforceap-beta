@@ -13,6 +13,13 @@ import {
   splitLocalePrefix,
   withLocalePrefix,
 } from '@/lib/i18n/config';
+import { customDomainCache, NO_ORG_SENTINEL } from '@/lib/tenant/customDomainCache';
+import { isCanonicalHost, normalizeHost } from '@/lib/tenant/hostMatch';
+
+/** Header forwarded to server components / API routes when middleware found a cached org. */
+const WAP_ORG_ID_HEADER = 'x-wap-org-id';
+/** Always-set header carrying the normalized Host so Node-runtime resolvers can populate cache. */
+const WAP_HOST_HEADER = 'x-wap-host';
 
 const PORTAL_PATHS = [
   '/dashboard',
@@ -60,12 +67,37 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const requestHeaders = new Headers(request.headers);
 
+  // Codex P1 catch on PR #1046: `new Headers(request.headers)` preserves any
+  // client-supplied values for the headers we treat as trusted downstream.
+  // A request with `x-wap-org-id: <other-org>` would otherwise survive cache
+  // misses, canonical hosts, and unknown custom domains. Strip both
+  // middleware-controlled headers BEFORE any other processing — only this
+  // function may set them, and only on verified host matches.
+  requestHeaders.delete(WAP_ORG_ID_HEADER);
+  requestHeaders.delete(WAP_HOST_HEADER);
+
   const { locale: prefixLocale, pathnameWithoutLocale } = splitLocalePrefix(pathname);
   const effectivePath = prefixLocale ? pathnameWithoutLocale : pathname;
   requestHeaders.set('x-pathname', effectivePath);
 
   const inferredLocale = resolvePreferredLocale(request);
   requestHeaders.set(WAP_LOCALE_HEADER, prefixLocale ?? inferredLocale);
+
+  // Custom-domain → organization resolution (Track E.1).
+  // We CANNOT call Prisma from Edge runtime, so middleware only consults
+  // an in-process cache populated by Node-runtime resolvers (see
+  // `lib/tenant/resolveOrgFromRequest.ts`). On a cache miss we just
+  // forward `x-wap-host` and let the resolver do the DB lookup.
+  const normalizedHost = normalizeHost(request.headers.get('host'));
+  if (normalizedHost) {
+    requestHeaders.set(WAP_HOST_HEADER, normalizedHost);
+    if (!isCanonicalHost(normalizedHost)) {
+      const cachedOrgId = customDomainCache.get(normalizedHost);
+      if (cachedOrgId && cachedOrgId !== NO_ORG_SENTINEL) {
+        requestHeaders.set(WAP_ORG_ID_HEADER, cachedOrgId);
+      }
+    }
+  }
 
   // Marketing URLs: require /{locale}/… in the browser
   if (!prefixLocale && !isLocaleBypassPath(pathname) && isLocaleableMarketingPath(pathname)) {

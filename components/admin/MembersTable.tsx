@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
+import DataTable from '@/components/portal/ui/DataTable';
 
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
@@ -96,16 +97,111 @@ export default function MembersTable({ members }: MembersTableProps) {
       </div>
 
       <div className="admin-table-scroll admin-members-desktop">
-        <table className="admin-table">
-          <thead><tr><th>Name</th><th>Email</th><th className="members-col-md">Phone</th><th>Program</th><th>Partner</th><th>Fit</th><th>Health</th><th>Enrolled</th><th>Score %</th><th>Training</th><th className="members-col-md">Last Active</th><th>Session</th></tr></thead>
-          <tbody>{filtered.map((m) => {
-            const rawPhone = m.profile?.profilePhone ?? m.phone;
-            const phoneDisplay = formatPhone(rawPhone);
-            const lastActive = formatMemberDate(m.updatedAt) ?? '—';
-            return (<tr key={m.id} data-clickable onClick={() => window.location.assign(`/admin/members/${m.id}`)}>
-              <td><Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>{m.healthStatus && <HealthDot status={m.healthStatus} />}{m.fullName}</Link><div className="members-name-details">{rawPhone ? <><span>{phoneDisplay}</span><span className="members-name-details-sep"> · </span></> : null}<span>Last active {lastActive}</span></div></td>
-              <td>{m.email}</td><td className="members-col-md">{phoneDisplay}</td><td>{m.programTitle ?? '—'}</td><td>{m.partnerName ?? '—'}</td><td>{m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</td><td>{m.healthStatus ? <span style={{ fontSize: '0.8rem', fontWeight: 600, color: m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : '—'}</td><td>{formatMemberDate(m.enrolledAt) ?? '—'}</td><td><span className={m.assessmentScorePct != null ? m.assessmentScorePct >= 70 ? 'admin-score-high' : m.assessmentScorePct >= 50 ? 'admin-score-mid' : 'admin-score-low' : ''}>{m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}</span></td><td>{formatTraining(m)}</td><td className="members-col-md">{lastActive}</td>
-              <td>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table"
+          scrollX={false}
+          rows={filtered}
+          rowKey={(m) => m.id}
+          getRowProps={(m) => ({
+            onClick: () => window.location.assign(`/admin/members/${m.id}`),
+            style: { cursor: 'pointer' },
+          })}
+          columns={[
+            {
+              key: 'name',
+              header: 'Name',
+              cell: (m) => {
+                const rawPhone = m.profile?.profilePhone ?? m.phone;
+                const phoneDisplay = formatPhone(rawPhone);
+                const lastActive = formatMemberDate(m.updatedAt) ?? '—';
+                return (
+                  <>
+                    <Link href={`/admin/members/${m.id}`} onClick={(e) => e.stopPropagation()}>
+                      {m.healthStatus && <HealthDot status={m.healthStatus} />}
+                      {m.fullName}
+                    </Link>
+                    <div className="members-name-details">
+                      {rawPhone ? (
+                        <>
+                          <span>{phoneDisplay}</span>
+                          <span className="members-name-details-sep"> · </span>
+                        </>
+                      ) : null}
+                      <span>Last active {lastActive}</span>
+                    </div>
+                  </>
+                );
+              },
+            },
+            { key: 'email', header: 'Email', cell: (m) => m.email },
+            {
+              key: 'phone',
+              header: 'Phone',
+              columnClassName: 'members-col-md',
+              cell: (m) => formatPhone(m.profile?.profilePhone ?? m.phone),
+            },
+            { key: 'program', header: 'Program', cell: (m) => m.programTitle ?? '—' },
+            { key: 'partner', header: 'Partner', cell: (m) => m.partnerName ?? '—' },
+            {
+              key: 'fit',
+              header: 'Fit',
+              cell: (m) => (m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'),
+            },
+            {
+              key: 'health',
+              header: 'Health',
+              cell: (m) =>
+                m.healthStatus ? (
+                  <span
+                    style={{
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color:
+                        m.healthStatus === 'green' ? '#16a34a' : m.healthStatus === 'yellow' ? '#d97706' : '#dc2626',
+                    }}
+                  >
+                    {m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}
+                  </span>
+                ) : (
+                  '—'
+                ),
+            },
+            {
+              key: 'enrolled',
+              header: 'Enrolled',
+              cell: (m) => formatMemberDate(m.enrolledAt) ?? '—',
+            },
+            {
+              key: 'score',
+              header: 'Score %',
+              cell: (m) => (
+                <span
+                  className={
+                    m.assessmentScorePct != null
+                      ? m.assessmentScorePct >= 70
+                        ? 'admin-score-high'
+                        : m.assessmentScorePct >= 50
+                          ? 'admin-score-mid'
+                          : 'admin-score-low'
+                      : ''
+                  }
+                >
+                  {m.assessmentScorePct != null ? `${m.assessmentScorePct}%` : '—'}
+                </span>
+              ),
+            },
+            { key: 'training', header: 'Training', cell: (m) => formatTraining(m) },
+            {
+              key: 'lastMd',
+              header: 'Last Active',
+              columnClassName: 'members-col-md',
+              cell: (m) => formatMemberDate(m.updatedAt) ?? '—',
+            },
+            {
+              key: 'session',
+              header: 'Session',
+              cell: (m) => (
                 <Link
                   href={`/counselor/sessions/${m.id}/run`}
                   onClick={(e) => e.stopPropagation()}
@@ -114,9 +210,10 @@ export default function MembersTable({ members }: MembersTableProps) {
                 >
                   Start session
                 </Link>
-              </td></tr>);
-          })}</tbody>
-        </table>
+              ),
+            },
+          ]}
+        />
       </div>
 
       <ul className="admin-portal-card-list admin-members-cards" aria-label="Members (mobile layout)">

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
+ * The `user.findUnique` goes through `withTenantScope` so an admin
+ * from Org A cannot trigger a reset email for an Org B user by guessing
+ * their UUID.
+ */
 export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,10 +20,14 @@ export async function POST(
   if (!(await isAdmin(admin.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: { email: true },
-  });
+  const orgId = await getActorOrganizationId(admin.id);
+
+  const user = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id },
+      select: { email: true },
+    }),
+  );
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   try {

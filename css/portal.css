@@ -814,22 +814,19 @@
     margin-bottom: 0.15rem;
   }
 
-  /* Program Comparison Matrix - preserve thead on mobile for program names */
+  /* Program Comparison Matrix — stacked-row layout on mobile.
+     Each criterion row becomes a card: criterion label as the header,
+     then one labeled block per program (data-label = program shortName). */
   .program-comparison-matrix {
+    display: block;
     width: 100%;
     min-width: 0;
   }
   .program-comparison-matrix thead {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: var(--color-surface, #fff);
+    display: none;
   }
-  .program-comparison-matrix thead th {
-    padding: 0.5rem;
-    font-size: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--surface-container-highest, #e0e0e0);
+  .program-comparison-matrix tbody {
+    display: block;
   }
   .program-comparison-matrix tbody tr {
     display: block;
@@ -841,7 +838,7 @@
   }
   .program-comparison-matrix tbody th[scope="row"] {
     display: block;
-    padding: 0.35rem 0;
+    padding: 0 0 0.5rem;
     font-weight: 700;
     text-align: left;
     border-bottom: 1px solid rgba(222, 191, 194, 0.15);
@@ -851,6 +848,11 @@
     display: block;
     padding: 0.35rem 0;
     text-align: left;
+  }
+  .program-comparison-matrix tbody td + td {
+    border-top: 1px solid rgba(222, 191, 194, 0.1);
+    margin-top: 0.35rem;
+    padding-top: 0.6rem;
   }
   .program-comparison-matrix tbody td::before {
     content: attr(data-label);

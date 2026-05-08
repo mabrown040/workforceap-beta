@@ -10,6 +10,7 @@ import { toVideoEmbedUrl } from '@/lib/platform/videoEmbed';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import { getTranslations } from 'next-intl/server';
+import { CTABand } from '@/components/marketing/ui';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.howItWorks');
@@ -360,55 +361,43 @@ export default async function HowItWorksPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="content-section" style={{ padding: '5rem 1rem' }}>
-        <div style={{
-          maxWidth: 900,
-          margin: '0 auto',
-          background: 'linear-gradient(to right, var(--color-accent), var(--color-accent-dark))',
-          borderRadius: 'var(--radius-xl)',
-          padding: '4rem 3rem',
-          textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <h2 className="text-display-sm" style={{ color: '#fff', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}>
-            {t('ctaTitle')}
-          </h2>
-          <p style={{ color: 'rgba(255,203,209,0.9)', fontSize: '1.125rem', maxWidth: '36rem', margin: '0 auto 2.5rem', position: 'relative', zIndex: 1 }}>
-            {t('ctaBody')}
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
-            <Link
-              href="/apply"
-              style={{
-                background: 'var(--color-gold)',
-                color: 'var(--color-on-surface)',
-                padding: '1.25rem 2.5rem',
-                borderRadius: 'var(--radius-xl)',
-                fontWeight: 900,
-                fontSize: '1.125rem',
-                textDecoration: 'none',
-              }}
-            >
-              {t('ctaApply')}
-            </Link>
-            <Link
-              href="/contact"
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                color: '#fff',
-                padding: '1.25rem 2.5rem',
-                borderRadius: 'var(--radius-xl)',
-                fontWeight: 700,
-                border: '1px solid rgba(255,255,255,0.2)',
-                textDecoration: 'none',
-              }}
-            >
-              {t('ctaContact')}
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CTABand
+        variant="gradient"
+        headline={t('ctaTitle')}
+        subheadline={t('ctaBody')}
+        primaryAction={
+          <Link
+            href="/apply"
+            style={{
+              background: 'var(--color-gold)',
+              color: 'var(--color-on-surface)',
+              padding: '1.25rem 2.5rem',
+              borderRadius: 'var(--radius-xl)',
+              fontWeight: 900,
+              fontSize: '1.125rem',
+              textDecoration: 'none',
+            }}
+          >
+            {t('ctaApply')}
+          </Link>
+        }
+        secondaryAction={
+          <Link
+            href="/contact"
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              color: '#fff',
+              padding: '1.25rem 2.5rem',
+              borderRadius: 'var(--radius-xl)',
+              fontWeight: 700,
+              border: '1px solid rgba(255,255,255,0.2)',
+              textDecoration: 'none',
+            }}
+          >
+            {t('ctaContact')}
+          </Link>
+        }
+      />
 
       <style>{`
         @media (min-width: 1024px) {

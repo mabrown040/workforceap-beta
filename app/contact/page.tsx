@@ -4,6 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
+import { ContactInfoCard, InfoCard, PageSection, QuoteCard, SectionHeader } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
@@ -50,17 +51,16 @@ export default async function ContactPage({
     <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 1400 }}>
-          <div style={{ marginBottom: '2.5rem' }}>
-            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              {t('getInTouch')}
-            </span>
-            <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1.25rem' }}>
-              {t('heroHeadline')} <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span> {t('heroHeadlineSuffix')}
-            </h1>
-            <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '46rem', lineHeight: 1.7, margin: 0 }}>
-              {t('heroCopy')}
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow={t('getInTouch')}
+            title={
+              <>
+                {t('heroHeadline')} <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span> {t('heroHeadlineSuffix')}
+              </>
+            }
+            subtitle={t('heroCopy')}
+            align="left"
+          />
 
           <div className="contact-grid" style={{ display: 'grid', gap: '2rem', alignItems: 'start' }}>
             <div>
@@ -74,89 +74,56 @@ export default async function ContactPage({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="contact-card-grid" style={{ display: 'grid', gap: '1rem' }}>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">location_on</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card1Title')}</h3>
-                    <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-                      {t('card1Body1')}
-                      <br />
-                      {t('card1Body2')}
-                    </p>
-                  </div>
-                </div>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">alternate_email</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card2Title')}</h3>
-                    <p style={{ margin: 0 }}>
-                      <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                        info@workforceap.org
-                      </a>
-                    </p>
-                  </div>
-                </div>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(255,187,0,0.12)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: '#7b5800', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">call</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card3Title')}</h3>
+                <ContactInfoCard icon="location_on" title={t('card1Title')}>
+                  <>
+                    {t('card1Body1')}
+                    <br />
+                    {t('card1Body2')}
+                  </>
+                </ContactInfoCard>
+                <ContactInfoCard icon="alternate_email" title={t('card2Title')}>
+                  <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                    info@workforceap.org
+                  </a>
+                </ContactInfoCard>
+                <ContactInfoCard
+                  icon="call"
+                  title={t('card3Title')}
+                  accentBg="rgba(255,187,0,0.12)"
+                  accentColor="#7b5800"
+                >
+                  <>
                     <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontFamily: 'monospace' }}>
                       <a href="tel:+15127771808" style={{ color: 'inherit' }}>(512) 777-1808</a>
                     </p>
                     <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', margin: '0.35rem 0 0' }}>
                       {t('card3Hours')}
                     </p>
-                  </div>
-                </div>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">schedule</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card4Title')}</h3>
-                    <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-                      {t('card4Body')}
-                    </p>
-                  </div>
-                </div>
+                  </>
+                </ContactInfoCard>
+                <ContactInfoCard icon="schedule" title={t('card4Title')}>
+                  {t('card4Body')}
+                </ContactInfoCard>
               </div>
 
-              <div
-                className="portal-card portal-card--flat"
-                style={{
-                  padding: '1.25rem',
-                  border: '1px solid var(--outline-variant)',
-                  background: 'var(--surface-container-low)',
-                }}
-              >
-                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{t('austinTeam')}</p>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>{t('austinTitle')}</h3>
-                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  {t('austinBody')}
-                </p>
-              </div>
+              <InfoCard
+                eyebrow={t('austinTeam')}
+                title={t('austinTitle')}
+                description={t('austinBody')}
+                variant="flat"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="content-section" style={{ textAlign: 'center', maxWidth: '56rem', margin: '0 auto', paddingTop: '2rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
-        <div className="container">
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '2.5rem', marginBottom: '1rem', display: 'block', '--ms-fill': 1 } as CSSProperties}>format_quote</span>
-          <p style={{ fontSize: 'clamp(1.125rem, 2.5vw, 1.5rem)', fontWeight: 300, fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '40rem', margin: '0 auto' }}>
-            &ldquo;{t('quote')}&rdquo;
-          </p>
-          <p className="text-label-upper" style={{ color: 'var(--color-accent)', marginTop: '1.5rem' }}>
-            {t('teamName')}
-          </p>
-        </div>
-      </section>
+      <PageSection style={{ paddingTop: '2rem', borderTop: '1px solid rgba(88,65,68,0.1)' }}>
+        <QuoteCard
+          icon={<span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">format_quote</span>}
+          label={t('teamName')}
+          quote={t('quote')}
+        />
+      </PageSection>
 
       <Footer />
       <MobileBottomNav />

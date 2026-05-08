@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
+import { PageSection, QuoteCard, SplitHero } from '@/components/marketing/ui';
 import './leadership.css';
 import { getTranslations } from 'next-intl/server';
 
@@ -22,120 +23,37 @@ export default async function LeadershipPage() {
       {/* ── Hero Section ── */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 768px) {
-          .leadership-hero-grid { grid-template-columns: 1fr !important; }
+          .split-hero-grid { grid-template-columns: 1fr !important; }
         }
       `}} />
-      <section className="content-section" style={{ paddingBottom: 0 }}>
-        <div className="container" style={{ maxWidth: 1400 }}>
-          <div
-            className="editorial-grid leadership-hero-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '2fr 1fr',
-              gap: '3rem',
-              alignItems: 'start',
-            }}
-          >
-            {/* Left — 2/3 */}
-            <div>
+      <PageSection padding="lg">
+        <SplitHero
+          eyebrow={t('heroLabel')}
+          headline={
+            <>
+              {t('heroHeadline1')}{' '}
               <span
-                className="text-label-upper"
                 style={{
-                  display: 'inline-block',
-                  padding: '0.3rem 0.85rem',
-                  background: 'rgba(173,44,77,0.08)',
-                  color: 'var(--color-accent)',
-                  borderRadius: 'var(--radius-full)',
-                  marginBottom: '1.75rem',
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.08em',
+                  background:
+                    'linear-gradient(135deg, var(--color-accent-light), var(--color-accent))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
                 }}
               >
-                {t('heroLabel')}
+                {t('heroHeadlineAccent')}
               </span>
-
-              <h1
-                className="text-display-lg"
-                style={{
-                  color: 'var(--color-on-surface)',
-                  marginBottom: '2rem',
-                  lineHeight: 1.08,
-                }}
-              >
-                {t('heroHeadline1')}{' '}
-                <span
-                  style={{
-                    background:
-                      'linear-gradient(135deg, var(--color-accent-light), var(--color-accent))',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  {t('heroHeadlineAccent')}
-                </span>
-              </h1>
-
-              <p
-                style={{
-                  fontSize: '1.125rem',
-                  color: 'var(--color-on-surface-variant)',
-                  maxWidth: '44rem',
-                  lineHeight: 1.75,
-                }}
-              >
-                {t('governanceBody')}
-              </p>
-            </div>
-
-            {/* Right — 1/3 quote card */}
-            <div
-              style={{
-                background: 'var(--surface-container-low)',
-                borderRadius: 'var(--radius-xl, 1rem)',
-                padding: '2rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.25rem',
-              }}
-            >
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--color-accent)',
-                  alignSelf: 'flex-start',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">
-                  verified
-                </span>
-                <span
-                  className="text-label-upper"
-                  style={{ fontSize: '0.65rem', letterSpacing: '0.1em' }}
-                >
-                  {t('established')}
-                </span>
-              </div>
-
-              <p
-                style={{
-                  fontSize: '0.9rem',
-                  color: 'var(--color-on-surface-variant)',
-                  fontStyle: 'italic',
-                  borderLeft: '2px solid var(--color-accent)',
-                  paddingLeft: '1rem',
-                  lineHeight: 1.7,
-                  margin: 0,
-                  opacity: 0.85,
-                }}
-              >
-                &ldquo;{t('quote')}&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+            </>
+          }
+          subheadline={t('governanceBody')}
+          sidebar={
+            <QuoteCard
+              icon={<span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">verified</span>}
+              label={t('established')}
+              quote={t('quote')}
+            />
+          }
+        />
+      </PageSection>
 
       <LeadershipContent />
       <Footer />

@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 
 /**
  * Data-table primitive for admin and portal pages.
@@ -49,6 +49,13 @@ export type DataTableColumn<TRow> = {
   columnClassName?: string;
   /** Pin column to the left on horizontal scroll (admin queues). */
   stickyLeft?: boolean;
+  /**
+   * When true, cells render as `<th scope="row">` instead of `<td>` (semantic row labels,
+   * e.g. program comparison matrices).
+   */
+  rowHeader?: boolean;
+  /** Forwarded to the cell as `data-label` (responsive stacked-row tables). */
+  cellDataLabel?: string;
 };
 
 export type DataTableProps<TRow> = {
@@ -80,6 +87,15 @@ export type DataTableProps<TRow> = {
   /** Merged onto the sub-row `<td>` when `renderSubRow` returns content. */
   subRowTdStyle?: CSSProperties;
   subRowTdClassName?: string;
+  /**
+   * When this returns a React element, it replaces the default `<tr>` (and optional sub-row)
+   * for that index — use for category rows with `colSpan` or other non-uniform rows.
+   */
+  renderBodyRow?: (
+    row: TRow,
+    rowIndex: number,
+    ctx: { columns: DataTableColumn<TRow>[]; columnCount: number }
+  ) => ReactElement | null | undefined;
 };
 
 const PADDING_BY_DENSITY: Record<NonNullable<DataTableProps<unknown>['density']>, string> = {
@@ -106,6 +122,7 @@ export default function DataTable<TRow>({
   renderSubRow,
   subRowTdStyle,
   subRowTdClassName,
+  renderBodyRow,
 }: DataTableProps<TRow>) {
   if (rows.length === 0 && emptyState !== undefined) {
     return <>{emptyState}</>;
@@ -168,46 +185,64 @@ export default function DataTable<TRow>({
       <tbody>
         {rows.map((row, rowIndex) => {
           const rk = rowKey(row, rowIndex);
+          const customRow = renderBodyRow?.(row, rowIndex, { columns, columnCount: columns.length });
+          if (customRow) {
+            return (
+              <Fragment key={rk}>
+                {customRow}
+              </Fragment>
+            );
+          }
           const sub = renderSubRow?.(row, rowIndex);
           const showSub = sub != null && sub !== false;
           return (
             <Fragment key={rk}>
               <tr {...(getRowProps?.(row, rowIndex) ?? {})}>
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    style={
-                      {
-                        ...(usePortalChrome
-                          ? {
-                              padding,
-                              borderBottom: '1px solid var(--outline-variant)',
-                              textAlign: col.align ?? 'left',
-                              verticalAlign: 'top',
-                            }
-                          : {
-                              textAlign: col.align ?? 'left',
-                              verticalAlign: 'top',
-                            }),
-                        ...(col.stickyLeft
-                          ? {
-                              position: 'sticky' as const,
-                              left: 0,
-                              zIndex: 1,
-                              background: 'var(--surface-container-low, #1a1c1e)',
-                            }
-                          : {}),
-                      }
-                    }
-                    className={
-                      [col.hideOnMobile ? 'wa-hidden md:wa-table-cell' : undefined, col.columnClassName]
-                        .filter(Boolean)
-                        .join(' ') || undefined
-                    }
-                  >
-                    {col.cell(row, rowIndex)}
-                  </td>
-                ))}
+                {columns.map((col) => {
+                  const sharedStyle = {
+                    ...(usePortalChrome
+                      ? {
+                          padding,
+                          borderBottom: '1px solid var(--outline-variant)',
+                          textAlign: col.align ?? 'left',
+                          verticalAlign: 'top' as const,
+                        }
+                      : {
+                          textAlign: col.align ?? 'left',
+                          verticalAlign: 'top' as const,
+                        }),
+                    ...(col.stickyLeft
+                      ? {
+                          position: 'sticky' as const,
+                          left: 0,
+                          zIndex: 1,
+                          background: 'var(--surface-container-low, #1a1c1e)',
+                        }
+                      : {}),
+                  };
+                  const sharedClass =
+                    [col.hideOnMobile ? 'wa-hidden md:wa-table-cell' : undefined, col.columnClassName]
+                      .filter(Boolean)
+                      .join(' ') || undefined;
+                  if (col.rowHeader) {
+                    return (
+                      <th
+                        key={col.key}
+                        scope="row"
+                        style={sharedStyle}
+                        className={sharedClass}
+                        data-label={col.cellDataLabel}
+                      >
+                        {col.cell(row, rowIndex)}
+                      </th>
+                    );
+                  }
+                  return (
+                    <td key={col.key} style={sharedStyle} className={sharedClass} data-label={col.cellDataLabel}>
+                      {col.cell(row, rowIndex)}
+                    </td>
+                  );
+                })}
               </tr>
               {showSub ? (
                 <tr className="data-table-subrow">

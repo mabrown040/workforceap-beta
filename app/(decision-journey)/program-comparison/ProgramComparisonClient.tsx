@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Flame } from 'lucide-react';
 import type { ComparisonTrack } from '@/lib/content/programComparisonTracks';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { useScrollAffordance } from '@/components/portal/useScrollAffordance';
+import DataTable from '@/components/portal/ui/DataTable';
+import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 
 const MAX_PICK = 4;
 const MIN_PICK = 2;
@@ -24,6 +26,25 @@ function parseSalaryMidK(salaryLabel: string): number | null {
 }
 
 type Props = { tracks: ComparisonTrack[] };
+
+type MatrixRow = {
+  key: string;
+  criteriaLabel: ReactNode;
+  bySlug: Record<string, ReactNode>;
+};
+
+type PickRow =
+  | { kind: 'category'; label: string }
+  | { kind: 'track'; track: ComparisonTrack };
+
+function DemandCell({ track }: { track: ComparisonTrack }) {
+  return (
+    <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+      {track.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
+      {track.demand}
+    </span>
+  );
+}
 
 export default function ProgramComparisonClient({ tracks }: Props) {
   const router = useRouter();
@@ -62,14 +83,14 @@ export default function ProgramComparisonClient({ tracks }: Props) {
     }
   }, [selected, hydrated]); // eslint-disable-line react-hooks/exhaustive-deps -- omit router; avoid replace loops
 
-  const toggle = (slug: string) => {
+  const toggle = useCallback((slug: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(slug)) next.delete(slug);
       else if (next.size < MAX_PICK) next.add(slug);
       return next;
     });
-  };
+  }, []);
 
   const clearSelection = () => {
     setSelected(new Set());
@@ -98,6 +119,150 @@ export default function ProgramComparisonClient({ tracks }: Props) {
     if (low.t.slug === high.t.slug) return null;
     return `Published starting bands: ${low.t.shortName} is the gentler on-ramp; ${high.t.shortName} shows a higher top-of-range — usually with more depth and time. Pick what you can finish, not only the bigger number.`;
   }, [selectedTracks]);
+
+  const matrixRows = useMemo((): MatrixRow[] => {
+    if (selectedTracks.length === 0) return [];
+    const cellFor = (fn: (t: ComparisonTrack) => ReactNode) =>
+      Object.fromEntries(selectedTracks.map((t) => [t.slug, fn(t)])) as Record<string, ReactNode>;
+
+    return [
+      { key: 'duration', criteriaLabel: 'Duration', bySlug: cellFor((t) => t.duration) },
+      { key: 'difficulty', criteriaLabel: 'Difficulty', bySlug: cellFor((t) => t.difficulty) },
+      { key: 'salary', criteriaLabel: 'Starting range', bySlug: cellFor((t) => t.salary) },
+      {
+        key: 'demand',
+        criteriaLabel: 'Demand',
+        bySlug: cellFor((t) => (
+          <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            {t.demand === 'Very High' && <Flame size={14} aria-hidden />}
+            {t.demand}
+          </span>
+        )),
+      },
+      {
+        key: 'bestFor',
+        criteriaLabel: 'Best for',
+        bySlug: cellFor((t) => {
+          const ex = getProgramExtra(t.slug);
+          return ex?.bestFor ?? '—';
+        }),
+      },
+      { key: 'certs', criteriaLabel: 'Certificates', bySlug: cellFor((t) => t.certs) },
+      {
+        key: 'next',
+        criteriaLabel: 'Next step',
+        bySlug: cellFor((t) => (
+          <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary btn-sm">
+            Apply
+          </Link>
+        )),
+      },
+    ];
+  }, [selectedTracks]);
+
+  const matrixColumns = useMemo((): DataTableColumn<MatrixRow>[] => {
+    const first: DataTableColumn<MatrixRow> = {
+      key: 'criteria',
+      header: 'Criteria',
+      rowHeader: true,
+      cellDataLabel: 'Criteria',
+      cell: (r) => r.criteriaLabel,
+    };
+    const trackCols: DataTableColumn<MatrixRow>[] = selectedTracks.map((t) => ({
+      key: t.slug,
+      header: <Link href={`/programs/${t.slug}`}>{t.shortName}</Link>,
+      cellDataLabel: t.shortName,
+      cell: (r) => r.bySlug[t.slug],
+    }));
+    return [first, ...trackCols];
+  }, [selectedTracks]);
+
+  const pickRows = useMemo((): PickRow[] => {
+    const out: PickRow[] = [];
+    let lastCategory = '';
+    for (const t of tracks) {
+      if (t.categoryLabel !== lastCategory) {
+        lastCategory = t.categoryLabel;
+        out.push({ kind: 'category', label: t.categoryLabel });
+      }
+      out.push({ kind: 'track', track: t });
+    }
+    return out;
+  }, [tracks]);
+
+  const pickColumns = useMemo(
+    (): DataTableColumn<PickRow>[] => [
+      {
+        key: 'compare',
+        header: 'Compare',
+        columnClassName: 'program-comparison-pick-col',
+        cellDataLabel: 'Compare',
+        cell: (row) =>
+          row.kind === 'track' ? (
+            <input
+              type="checkbox"
+              checked={selected.has(row.track.slug)}
+              onChange={() => toggle(row.track.slug)}
+              aria-label={`Include ${row.track.shortName} in comparison`}
+              disabled={!selected.has(row.track.slug) && selected.size >= MAX_PICK}
+            />
+          ) : null,
+      },
+      {
+        key: 'track',
+        header: 'Track',
+        cellDataLabel: 'Track',
+        cell: (row) =>
+          row.kind === 'track' ? (
+            <Link href={`/programs/${row.track.slug}`}>
+              <strong>{row.track.shortName}</strong>
+            </Link>
+          ) : null,
+      },
+      {
+        key: 'duration',
+        header: 'Duration',
+        cellDataLabel: 'Duration',
+        cell: (row) => (row.kind === 'track' ? row.track.duration : null),
+      },
+      {
+        key: 'difficulty',
+        header: 'Difficulty',
+        cellDataLabel: 'Difficulty',
+        cell: (row) => (row.kind === 'track' ? row.track.difficulty : null),
+      },
+      {
+        key: 'salary',
+        header: 'Avg. Starting Salary',
+        cellDataLabel: 'Avg. Starting Salary',
+        cell: (row) => (row.kind === 'track' ? row.track.salary : null),
+      },
+      {
+        key: 'demand',
+        header: 'Job Demand',
+        cellDataLabel: 'Job Demand',
+        cell: (row) => (row.kind === 'track' ? <DemandCell track={row.track} /> : null),
+      },
+      {
+        key: 'certs',
+        header: 'Certificates',
+        cellDataLabel: 'Certificates',
+        cell: (row) => (row.kind === 'track' ? row.track.certs : null),
+      },
+      {
+        key: 'apply',
+        header: '',
+        cellDataLabel: 'Apply',
+        cell: (row) =>
+          row.kind === 'track' ? (
+            <Link href={`/apply?program=${row.track.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+              Apply
+            </Link>
+          ) : null,
+      },
+    ],
+    [selected, toggle]
+  );
 
   const showSideBySide = hydrated && selected.size >= MIN_PICK;
 
@@ -191,74 +356,14 @@ export default function ProgramComparisonClient({ tracks }: Props) {
           </div>
           {tradeoffNote && <p className="program-comparison-tradeoff">{tradeoffNote}</p>}
           <div className="program-comparison-matrix-wrap" ref={matrixScrollRef}>
-            <table className="program-comparison-matrix">
-              <thead>
-                <tr>
-                  <th scope="col">Criteria</th>
-                  {selectedTracks.map((t) => (
-                    <th key={t.slug} scope="col">
-                      <Link href={`/programs/${t.slug}`}>{t.shortName}</Link>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Duration</th>
-                  {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label={t.shortName}>{t.duration}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Difficulty</th>
-                  {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label={t.shortName}>{t.difficulty}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Starting range</th>
-                  {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label={t.shortName}>{t.salary}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Demand</th>
-                  {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label={t.shortName}>
-                      <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        {t.demand === 'Very High' && <Flame size={14} aria-hidden />}
-                        {t.demand}
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Best for</th>
-                  {selectedTracks.map((t) => {
-                    const ex = getProgramExtra(t.slug);
-                    return (
-                      <td key={t.slug} data-label={t.shortName}>{ex?.bestFor ?? '—'}</td>
-                    );
-                  })}
-                </tr>
-                <tr>
-                  <th scope="row">Certificates</th>
-                  {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label={t.shortName}>{t.certs}</td>
-                  ))}
-                </tr>
-                <tr>
-                  <th scope="row">Next step</th>
-                  {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label={t.shortName}>
-                      <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary btn-sm">
-                        Apply
-                      </Link>
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
+            <DataTable<MatrixRow>
+              variant="admin"
+              tableClassName="program-comparison-matrix"
+              scrollX={false}
+              columns={matrixColumns}
+              rows={matrixRows}
+              rowKey={(r) => r.key}
+            />
           </div>
         </section>
       )}
@@ -275,72 +380,21 @@ export default function ProgramComparisonClient({ tracks }: Props) {
       </div>
 
       <div className="program-comparison-table-wrap" ref={tableScrollRef}>
-        <table className="comparison-table program-table program-comparison-table-pick">
-          <thead>
-            <tr>
-              <th className="program-comparison-pick-col" scope="col">
-                Compare
-              </th>
-              <th>Track</th>
-              <th>Duration</th>
-              <th>Difficulty</th>
-              <th>Avg. Starting Salary</th>
-              <th>Job Demand</th>
-              <th>Certificates</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {(() => {
-              const rows: React.ReactNode[] = [];
-              let lastCategory = '';
-              for (const t of tracks) {
-                if (t.categoryLabel !== lastCategory) {
-                  lastCategory = t.categoryLabel;
-                  rows.push(
-                    <tr key={`cat-${t.categoryLabel}`} className="program-comparison-category-row">
-                      <td colSpan={8}>{t.categoryLabel}</td>
-                    </tr>
-                  );
-                }
-                rows.push(
-                  <tr key={t.slug}>
-                    <td className="program-comparison-pick-col" data-label="Compare">
-                      <input
-                        type="checkbox"
-                        checked={selected.has(t.slug)}
-                        onChange={() => toggle(t.slug)}
-                        aria-label={`Include ${t.shortName} in comparison`}
-                        disabled={!selected.has(t.slug) && selected.size >= MAX_PICK}
-                      />
-                    </td>
-                    <td data-label="Track">
-                      <Link href={`/programs/${t.slug}`}>
-                        <strong>{t.shortName}</strong>
-                      </Link>
-                    </td>
-                    <td data-label="Duration">{t.duration}</td>
-                    <td data-label="Difficulty">{t.difficulty}</td>
-                    <td data-label="Avg. Starting Salary">{t.salary}</td>
-                    <td data-label="Job Demand">
-                      <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                        {t.demand === 'Very High' && <Flame size={14} className="text-current" aria-hidden />}
-                        {t.demand}
-                      </span>
-                    </td>
-                    <td data-label="Certificates">{t.certs}</td>
-                    <td data-label="">
-                      <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
-                        Apply
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              }
-              return rows;
-            })()}
-          </tbody>
-        </table>
+        <DataTable<PickRow>
+          variant="admin"
+          tableClassName="comparison-table program-table program-comparison-table-pick"
+          scrollX={false}
+          columns={pickColumns}
+          rows={pickRows}
+          rowKey={(row, i) => (row.kind === 'category' ? `cat-${row.label}-${i}` : row.track.slug)}
+          renderBodyRow={(row, _rowIndex, { columnCount }) =>
+            row.kind === 'category' ? (
+              <tr className="program-comparison-category-row">
+                <td colSpan={columnCount}>{row.label}</td>
+              </tr>
+            ) : null
+          }
+        />
       </div>
 
       <ul className="program-cards program-comparison-cards-pick" role="list" aria-label="Program comparison cards">

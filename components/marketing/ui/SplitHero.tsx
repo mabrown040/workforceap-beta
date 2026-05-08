@@ -1,0 +1,70 @@
+import type { ReactNode } from 'react';
+
+interface SplitHeroProps {
+  eyebrow?: ReactNode;
+  headline: ReactNode;
+  subheadline?: ReactNode;
+  sidebar?: ReactNode;
+}
+
+export function SplitHero({ eyebrow, headline, subheadline, sidebar }: SplitHeroProps) {
+  return (
+    <div
+      className="editorial-grid split-hero-grid"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '2fr 1fr',
+        gap: '3rem',
+        alignItems: 'start',
+      }}
+    >
+      <div className="split-hero-main">
+        {eyebrow && (
+          <span
+            className="text-label-upper split-hero-eyebrow"
+            style={{
+              display: 'inline-block',
+              padding: '0.3rem 0.85rem',
+              background: 'rgba(173,44,77,0.08)',
+              color: 'var(--color-accent)',
+              borderRadius: 'var(--radius-full)',
+              marginBottom: '1.75rem',
+              fontSize: '0.7rem',
+              letterSpacing: '0.08em',
+            }}
+          >
+            {eyebrow}
+          </span>
+        )}
+        <h1
+          className="text-display-lg split-hero-headline"
+          style={{
+            color: 'var(--color-on-surface)',
+            marginBottom: '2rem',
+            lineHeight: 1.08,
+          }}
+        >
+          {headline}
+        </h1>
+        {subheadline && (
+          <p
+            className="split-hero-subheadline"
+            style={{
+              fontSize: '1.125rem',
+              color: 'var(--color-on-surface-variant)',
+              maxWidth: '44rem',
+              lineHeight: 1.75,
+            }}
+          >
+            {subheadline}
+          </p>
+        )}
+      </div>
+      {sidebar && (
+        <div className="split-hero-sidebar">
+          {sidebar}
+        </div>
+      )}
+    </div>
+  );
+}

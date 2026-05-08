@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
+import { CTABand, HeroSection, PageSection, StatBand, ValueCard } from '@/components/marketing/ui';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -217,25 +218,18 @@ export default async function EmployersPage() {
       </section>
 
       {/* ===== Employer Stats ===== */}
-      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '2rem', textAlign: 'center' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>{String(WORKFORCEAP_PROGRAM_CATALOG_SIZE)}</div>
-            <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{t('statTracks')}</div>
-          </div>
-          <div className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>1:1</div>
-            <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{t('statMatching')}</div>
-          </div>
-          <div className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-accent)', lineHeight: 1 }}>Ready</div>
-            <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{t('statReady')}</div>
-          </div>
-        </div>
-      </section>
+      <PageSection padding="md">
+        <StatBand
+          stats={[
+            { value: String(WORKFORCEAP_PROGRAM_CATALOG_SIZE), label: t('statTracks') },
+            { value: '1:1', label: t('statMatching') },
+            { value: 'Ready', label: t('statReady') },
+          ]}
+        />
+      </PageSection>
 
       {/* ===== How It Works for Employers ===== */}
-      <section style={{ padding: 'clamp(2rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' }}>
+      <PageSection padding="md">
         <h2 className="text-display-sm" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>{t('processTitle')}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
           {[
@@ -252,7 +246,7 @@ export default async function EmployersPage() {
             </div>
           ))}
         </div>
-      </section>
+      </PageSection>
 
       {/* ── The WorkforceAP Difference — Sticky sidebar + value cards ── */}
       <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>

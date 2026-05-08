@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The `job.findUnique` call is wrapped in `withTenantScope(orgId, ...)`
+ * so the org filter is auto-injected. An admin from Org A can no
+ * longer load an Org B job by guessing its UUID.
+ */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,15 +22,18 @@ export async function GET(
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const job = await prisma.job.findUnique({
-      where: { id },
-      include: {
-        employer: { select: { id: true, companyName: true, contactEmail: true, contactName: true } },
-        applications: {
-          include: { student: { select: { id: true, fullName: true, email: true } } },
+    const orgId = await getDefaultOrganizationId();
+    const job = await withTenantScope(orgId, (db) =>
+      db.job.findFirst({
+        where: { id },
+        include: {
+          employer: { select: { id: true, companyName: true, contactEmail: true, contactName: true } },
+          applications: {
+            include: { student: { select: { id: true, fullName: true, email: true } } },
+          },
         },
-      },
-    });
+      }),
+    );
 
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     return NextResponse.json(job);

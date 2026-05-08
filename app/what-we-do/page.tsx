@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { getTranslations } from 'next-intl/server';
+import { SectionHeader } from '@/components/marketing/ui';
 import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -320,19 +321,11 @@ export default async function WhatWeDoPage() {
       {/* Making an impact — Bento Grid */}
       <section style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <span className="text-label-upper" style={{ color: 'var(--color-accent)', display: 'block', marginBottom: '0.75rem' }}>{t('valuesEyebrow')}</span>
-            <h2
-              style={{
-                fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-on-surface)',
-              }}
-            >
-              {t('valuesTitle')}
-            </h2>
-          </div>
+          <SectionHeader
+            eyebrow={t('valuesEyebrow')}
+            title={t('valuesTitle')}
+            align="center"
+          />
 
           <div
             className="wwd-bento-grid"

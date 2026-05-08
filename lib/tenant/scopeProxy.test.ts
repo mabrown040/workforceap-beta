@@ -42,8 +42,10 @@ function makeFakePrisma() {
       groupBy: handler('groupBy'),
       create: handler('create'),
       createMany: handler('createMany'),
+      createManyAndReturn: handler('createManyAndReturn'),
       update: handler('update'),
       updateMany: handler('updateMany'),
+      updateManyAndReturn: handler('updateManyAndReturn'),
       upsert: handler('upsert'),
       delete: handler('delete'),
       deleteMany: handler('deleteMany'),
@@ -259,4 +261,61 @@ test('caller using { organizationId: { equals: orgA } } form works when matching
   const [call] = fake.__getCalls();
   // The original equals-form is preserved (we only spread, we don't normalize)
   assert.ok(call.args);
+});
+
+// ─── Prisma "AndReturn" variants (Codex review on PR #1041) ─────────────────
+// `createManyAndReturn` (Prisma 5.14+) and `updateManyAndReturn` (5.18+) must
+// be scoped just like their non-Returning counterparts. lib/employer/
+// bulkJobInsert.ts uses createManyAndReturn for tenant-scoped jobs.
+
+test('createManyAndReturn injects organizationId into every row', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await (db.job as unknown as { createManyAndReturn: (a: unknown) => Promise<unknown> }).createManyAndReturn({
+    data: [
+      { id: 'j1', title: 'IT Support' },
+      { id: 'j2', title: 'Help Desk' },
+    ],
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as { data: Array<{ organizationId: string }> };
+  for (const row of args.data) {
+    assert.equal(row.organizationId, ORG_A);
+  }
+});
+
+test('createManyAndReturn rejects mismatched organizationId in any row', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    (db.job as unknown as { createManyAndReturn: (a: unknown) => Promise<unknown> }).createManyAndReturn({
+      data: [
+        { id: 'j1', title: 'Good' },
+        { id: 'j2', title: 'Wrong tenant', organizationId: ORG_B },
+      ],
+    }),
+  );
+});
+
+test('updateManyAndReturn injects organizationId into where', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await (db.job as unknown as { updateManyAndReturn: (a: unknown) => Promise<unknown> }).updateManyAndReturn({
+    where: { status: 'draft' },
+    data: { status: 'live' },
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as { where: { organizationId: string } };
+  assert.equal(args.where.organizationId, ORG_A);
+});
+
+test('updateManyAndReturn rejects mismatched organizationId in data', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    (db.job as unknown as { updateManyAndReturn: (a: unknown) => Promise<unknown> }).updateManyAndReturn({
+      where: { status: 'draft' },
+      data: { status: 'live', organizationId: ORG_B },
+    }),
+  );
 });

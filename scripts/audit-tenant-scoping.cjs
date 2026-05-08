@@ -35,7 +35,21 @@ const TENANT_SCOPED_MODELS = [
 ];
 
 const READ_OPS = ['findMany', 'findFirst', 'findFirstOrThrow', 'findUnique', 'findUniqueOrThrow', 'count', 'aggregate', 'groupBy'];
-const WRITE_OPS = ['create', 'createMany', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'];
+// Keep in sync with WRITE_OPS in lib/tenant/scopeProxy.ts.
+// `createManyAndReturn` (Prisma 5.14+) and `updateManyAndReturn` (Prisma 5.18+)
+// were caught by Codex review on PR #1041 — they were silently invisible to
+// the burndown before that fix.
+const WRITE_OPS = [
+  'create',
+  'createMany',
+  'createManyAndReturn',
+  'update',
+  'updateMany',
+  'updateManyAndReturn',
+  'upsert',
+  'delete',
+  'deleteMany',
+];
 const ALL_OPS = [...READ_OPS, ...WRITE_OPS];
 
 const SCAN_DIRS = ['app', 'lib', 'components'];

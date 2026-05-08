@@ -55,8 +55,10 @@ const READ_OPS = new Set([
 const WRITE_OPS = new Set([
   'create',
   'createMany',
+  'createManyAndReturn',
   'update',
   'updateMany',
+  'updateManyAndReturn',
   'upsert',
   'delete',
   'deleteMany',
@@ -163,7 +165,10 @@ function enforceWriteScope(
     return out;
   }
 
-  if (op === 'createMany') {
+  if (op === 'createMany' || op === 'createManyAndReturn') {
+    // `createManyAndReturn` (Prisma 5.14+) takes the same `{ data: [...] }`
+    // shape as `createMany` and returns the inserted rows. Both must inject
+    // `organizationId` into every row.
     const data = (out.data as Array<Record<string, unknown>> | undefined) ?? [];
     out.data = data.map((row) => {
       if (row.organizationId !== undefined && row.organizationId !== orgId) {
@@ -174,7 +179,7 @@ function enforceWriteScope(
     return out;
   }
 
-  // update, updateMany, delete, deleteMany — scope the where clause
+  // update, updateMany, updateManyAndReturn, delete, deleteMany — scope where
   const where = (out.where ?? {}) as Record<string, unknown>;
   const providedOrg = extractOrgId(where);
   if (providedOrg !== undefined && providedOrg !== orgId) {
@@ -182,7 +187,7 @@ function enforceWriteScope(
   }
   out.where = { ...where, organizationId: orgId };
 
-  if (op === 'update' || op === 'updateMany') {
+  if (op === 'update' || op === 'updateMany' || op === 'updateManyAndReturn') {
     const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
     if (data.organizationId !== undefined && data.organizationId !== orgId) {
       throw new TenantScopeViolation(model, op, orgId, String(data.organizationId));

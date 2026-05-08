@@ -129,6 +129,18 @@ function YesNo({ value }: { value: boolean }) {
   );
 }
 
+type SyncResult = {
+  ok: boolean;
+  message: string;
+  detail?: {
+    seededEnrollments: number;
+    updatedEnrollments: number;
+    droppedNoMapping: Array<{ courseraContentId: string; reason: string }>;
+    xapiReplayed: number;
+    xapiCredited: number;
+  };
+};
+
 export default function CourseraInspectByEmailCard() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -136,6 +148,8 @@ export default function CourseraInspectByEmailCard() {
   const [data, setData] = useState<InspectResponse | null>(null);
   const [adding, setAdding] = useState(false);
   const [addResult, setAddResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
   const runInspect = useCallback(async () => {
     const trimmed = email.trim();
@@ -147,6 +161,7 @@ export default function CourseraInspectByEmailCard() {
     setError(null);
     setData(null);
     setAddResult(null);
+    setSyncResult(null);
     try {
       const url = new URL('/api/admin/coursera/inspect-by-email', window.location.origin);
       url.searchParams.set('email', trimmed);
@@ -205,6 +220,61 @@ export default function CourseraInspectByEmailCard() {
     }
   }, [data, runInspect]);
 
+  const handleSyncFromCoursera = useCallback(async () => {
+    if (!data || !data.wap.userId) return;
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const response = await fetch('/api/admin/coursera/sync-user-from-b4b', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email }),
+      });
+      const json = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+        mapped?: {
+          seededEnrollments: number;
+          updatedEnrollments: number;
+          droppedNoMapping: Array<{ courseraContentId: string; reason: string }>;
+        };
+        xapi?: {
+          statementsReplayed: number;
+          nowCredited: number;
+        };
+      };
+      if (!response.ok || !json.ok) {
+        setSyncResult({
+          ok: false,
+          message: json.error ?? `HTTP ${response.status}`,
+        });
+        return;
+      }
+      setSyncResult({
+        ok: true,
+        message: json.message ?? 'Sync complete.',
+        detail: {
+          seededEnrollments: json.mapped?.seededEnrollments ?? 0,
+          updatedEnrollments: json.mapped?.updatedEnrollments ?? 0,
+          droppedNoMapping: json.mapped?.droppedNoMapping ?? [],
+          xapiReplayed: json.xapi?.statementsReplayed ?? 0,
+          xapiCredited: json.xapi?.nowCredited ?? 0,
+        },
+      });
+      // Re-run inspect so the card reflects the new state.
+      await runInspect();
+    } catch (err) {
+      setSyncResult({
+        ok: false,
+        message:
+          err instanceof Error ? err.message : 'Sync from Coursera failed',
+      });
+    } finally {
+      setSyncing(false);
+    }
+  }, [data, runInspect]);
+
   // The "Add to WorkforceAP" inline action only makes sense when Coursera
   // sees the learner but WAP does not yet. In every other case we hide it.
   const showAddAction = Boolean(
@@ -212,6 +282,17 @@ export default function CourseraInspectByEmailCard() {
       data.coursera.foundInRoster &&
       data.coursera.rosterEntry &&
       !data.wap.userId,
+  );
+
+  // The "Sync from Coursera" inline action handles the inverse case: WAP
+  // already knows the user and Coursera also has them, but either xAPI
+  // statements are stuck unprocessed or the WAP enrollment row was never
+  // seeded so the dashboard shows 0%.
+  const showSyncAction = Boolean(
+    data &&
+      data.wap.userId &&
+      data.coursera.foundInRoster &&
+      (data.xapiActivity.unprocessedCount > 0 || !data.wap.isMember),
   );
 
   return (
@@ -493,16 +574,28 @@ export default function CourseraInspectByEmailCard() {
               </ul>
             )}
 
-            {showAddAction && (
+            {(showAddAction || showSyncAction) && (
               <div style={{ marginTop: '0.35rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={handleAddToWap}
-                  disabled={adding}
-                  style={adding ? btnDisabledStyle : btnSecondaryStyle}
-                >
-                  {adding ? 'Adding…' : 'Add to WorkforceAP'}
-                </button>
+                {showAddAction && (
+                  <button
+                    type="button"
+                    onClick={handleAddToWap}
+                    disabled={adding}
+                    style={adding ? btnDisabledStyle : btnSecondaryStyle}
+                  >
+                    {adding ? 'Adding…' : 'Add to WorkforceAP'}
+                  </button>
+                )}
+                {showSyncAction && (
+                  <button
+                    type="button"
+                    onClick={handleSyncFromCoursera}
+                    disabled={syncing}
+                    style={syncing ? btnDisabledStyle : btnSecondaryStyle}
+                  >
+                    {syncing ? 'Syncing…' : 'Sync from Coursera'}
+                  </button>
+                )}
                 {addResult && (
                   <span
                     style={{
@@ -511,6 +604,34 @@ export default function CourseraInspectByEmailCard() {
                     }}
                   >
                     {addResult.ok ? '✓' : '✗'} {addResult.message}
+                  </span>
+                )}
+                {syncResult && (
+                  <span
+                    style={{
+                      fontSize: '0.85rem',
+                      color: syncResult.ok ? 'rgb(22, 163, 74)' : 'rgb(190, 18, 60)',
+                    }}
+                  >
+                    {syncResult.ok ? '✓' : '✗'} {syncResult.message}
+                    {syncResult.ok && syncResult.detail && syncResult.detail.droppedNoMapping.length > 0 && (
+                      <span
+                        style={{
+                          display: 'block',
+                          marginTop: '0.2rem',
+                          color: 'var(--color-on-surface-variant)',
+                          fontSize: '0.78rem',
+                        }}
+                      >
+                        Dropped (no catalog mapping): {syncResult.detail.droppedNoMapping
+                          .slice(0, 4)
+                          .map((d) => d.courseraContentId)
+                          .join(', ')}
+                        {syncResult.detail.droppedNoMapping.length > 4
+                          ? ` +${syncResult.detail.droppedNoMapping.length - 4} more`
+                          : ''}
+                      </span>
+                    )}
                   </span>
                 )}
               </div>

@@ -299,70 +299,26 @@ export default async function EmployersPage() {
 
             {/* Value cards */}
             <div style={{ gridColumn: 'span 8', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }} className="emp-diff-cards">
-              {/* Verified Skills */}
-              <div
-                style={{
-                  padding: '2rem',
-                  background: 'var(--surface-container)',
-                  borderRadius: 'var(--radius-xl)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                  transition: 'var(--transition-base)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>verified</span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('valueCard1Title')}</h3>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.7 }}>{t('valueCard1Desc')}</p>
-              </div>
-              {/* Diverse Pipeline */}
-              <div
-                style={{
-                  padding: '2rem',
-                  background: 'var(--surface-container)',
-                  borderRadius: 'var(--radius-xl)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                  transition: 'var(--transition-base)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>diversity_3</span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('valueCard2Title')}</h3>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.7 }}>{t('valueCard2Desc')}</p>
-              </div>
-              {/* Integration Support */}
-              <div
-                style={{
-                  padding: '2rem',
-                  background: 'var(--surface-container)',
-                  borderRadius: 'var(--radius-xl)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                  transition: 'var(--transition-base)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>support_agent</span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('valueCard3Title')}</h3>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.7 }}>{t('valueCard3Desc')}</p>
-              </div>
-              {/* Curriculum Agility */}
-              <div
-                style={{
-                  padding: '2rem',
-                  background: 'var(--surface-container)',
-                  borderRadius: 'var(--radius-xl)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem',
-                  transition: 'var(--transition-base)',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>auto_fix_high</span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>{t('valueCard4Title')}</h3>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', lineHeight: 1.7 }}>{t('valueCard4Desc')}</p>
-              </div>
+              <ValueCard
+                icon={<span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>verified</span>}
+                title={t('valueCard1Title')}
+                description={t('valueCard1Desc')}
+              />
+              <ValueCard
+                icon={<span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>diversity_3</span>}
+                title={t('valueCard2Title')}
+                description={t('valueCard2Desc')}
+              />
+              <ValueCard
+                icon={<span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>support_agent</span>}
+                title={t('valueCard3Title')}
+                description={t('valueCard3Desc')}
+              />
+              <ValueCard
+                icon={<span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>auto_fix_high</span>}
+                title={t('valueCard4Title')}
+                description={t('valueCard4Desc')}
+              />
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldChec
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import { HeroSection, PageSection, ValueCard, CTABand } from '@/components/marketing/ui';
+import { HeroSection, PageSection, SectionHeader, ValueCard, CTABand } from '@/components/marketing/ui';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
@@ -121,19 +121,7 @@ export default async function PartnersPage() {
       {/* ── Partnership Types Bento Grid ── */}
       <section id="partner-types" style={{ padding: '6rem 0' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-on-surface)',
-              }}
-            >
-              {t('pathwaysTitle')}{' '}
-              <span style={{ color: 'var(--color-accent)' }}>{t('pathwaysTitleAccent')}</span>
-            </h2>
-          </div>
+          <SectionHeader title={t('pathwaysTitle')} accent={t('pathwaysTitleAccent')} />
 
           <div
             style={{
@@ -402,19 +390,7 @@ export default async function PartnersPage() {
             }}
           >
             <div style={{ gridColumn: 'span 6' }} className="partners-platform-text">
-              <h2
-                style={{
-                  fontSize: 'clamp(2rem, 3.5vw, 2.5rem)',
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--color-on-surface)',
-                  lineHeight: 1.1,
-                  marginBottom: '2rem',
-                }}
-              >
-                {t('platformTitle')}{' '}
-                <span style={{ color: 'var(--color-accent)' }}>{t('platformTitleAccent')}</span>
-              </h2>
+  <SectionHeader align="left" title={t('platformTitle')} accent={t('platformTitleAccent')} marginBottom="2rem" />
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {/* Smart Intake */}

@@ -9,5 +9,7 @@ export { PartnershipCard } from './PartnershipCard';
 export { PricingTierCard } from './PricingTierCard';
 export { ProcessStep } from './ProcessStep';
 export { SectionHeader } from './SectionHeader';
+export { QuoteCard } from './QuoteCard';
+export { SplitHero } from './SplitHero';
 export { StatBand } from './StatBand';
 export { ValueCard } from './ValueCard';

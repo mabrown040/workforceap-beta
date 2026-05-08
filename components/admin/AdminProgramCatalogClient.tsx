@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import DataTable from '@/components/portal/ui/DataTable';
+
 type CatalogRow = {
   id: string;
   programSlug: string;
@@ -107,167 +109,214 @@ export default function AdminProgramCatalogClient() {
         Rows sync with static program slugs (enrollment and course progress). Edit display names, delivery links, and status — homepage and member enrollment use active programs.
       </p>
       <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Slug</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Delivery</th>
-              <th>Status</th>
-              <th>Featured</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((r, i) => (
-              <tr key={r.id}>
-                <td>
-                  <div style={{ display: 'flex', gap: '0.25rem' }}>
-                    <button type="button" className="btn btn-outline btn-sm" disabled={i === 0 || savingId === r.id} onClick={() => void move(i, -1)} aria-label="Move up">
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      disabled={i === sorted.length - 1 || savingId === r.id}
-                      onClick={() => void move(i, 1)}
-                      aria-label="Move down"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </td>
-                <td><code style={{ fontSize: '0.8rem' }}>{r.programSlug}</code></td>
-                <td>
-                  <input
-                    style={{ width: '100%', minWidth: '140px', fontSize: '0.875rem' }}
-                    defaultValue={r.name}
-                    key={`${r.id}-name`}
-                    onBlur={(e) => handleUpdateRow(r.id, 'name', e.target.value, r.name)}
-                  />
-                </td>
-                <td>
-                  <input
-                    style={{ width: '100%', minWidth: '100px', fontSize: '0.875rem' }}
-                    defaultValue={r.category}
-                    key={`${r.id}-cat`}
-                    onBlur={(e) => handleUpdateRow(r.id, 'category', e.target.value, r.category)}
-                  />
-                </td>
-                <td>
-                  <select
-                    style={{ fontSize: '0.875rem', maxWidth: '140px' }}
-                    value={r.deliveryType}
-                    disabled={savingId === r.id}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (DELIVERY.includes(v as (typeof DELIVERY)[number])) void patchRow(r.id, { deliveryType: v });
-                    }}
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table"
+          scrollX={false}
+          rows={sorted}
+          rowKey={(r) => r.id}
+          columns={[
+            {
+              key: 'order',
+              header: 'Order',
+              cell: (r, i) => (
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    disabled={i === 0 || savingId === r.id}
+                    onClick={() => void move(i, -1)}
+                    aria-label="Move up"
                   >
-                    {DELIVERY.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <select
-                    style={{ fontSize: '0.875rem', maxWidth: '120px' }}
-                    value={r.status}
-                    disabled={savingId === r.id}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (STATUS.includes(v as (typeof STATUS)[number])) void patchRow(r.id, { status: v });
-                    }}
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    disabled={i === sorted.length - 1 || savingId === r.id}
+                    onClick={() => void move(i, 1)}
+                    aria-label="Move down"
                   >
-                    {STATUS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={r.featured}
-                    disabled={savingId === r.id}
-                    onChange={(e) => void patchRow(r.id, { featured: e.target.checked })}
-                  />
-                </td>
-                <td>
-                  <details>
-                    <summary style={{ cursor: 'pointer', color: 'var(--color-accent, #2563eb)' }}>Edit fields</summary>
-                    <div style={{ padding: '0.75rem 0', maxWidth: '420px' }}>
+                    ↓
+                  </button>
+                </div>
+              ),
+            },
+            {
+              key: 'slug',
+              header: 'Slug',
+              cell: (r) => <code style={{ fontSize: '0.8rem' }}>{r.programSlug}</code>,
+            },
+            {
+              key: 'name',
+              header: 'Name',
+              cell: (r) => (
+                <input
+                  style={{ width: '100%', minWidth: '140px', fontSize: '0.875rem' }}
+                  defaultValue={r.name}
+                  key={`${r.id}-name`}
+                  onBlur={(e) => handleUpdateRow(r.id, 'name', e.target.value, r.name)}
+                />
+              ),
+            },
+            {
+              key: 'category',
+              header: 'Category',
+              cell: (r) => (
+                <input
+                  style={{ width: '100%', minWidth: '100px', fontSize: '0.875rem' }}
+                  defaultValue={r.category}
+                  key={`${r.id}-cat`}
+                  onBlur={(e) => handleUpdateRow(r.id, 'category', e.target.value, r.category)}
+                />
+              ),
+            },
+            {
+              key: 'delivery',
+              header: 'Delivery',
+              cell: (r) => (
+                <select
+                  style={{ fontSize: '0.875rem', maxWidth: '140px' }}
+                  value={r.deliveryType}
+                  disabled={savingId === r.id}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (DELIVERY.includes(v as (typeof DELIVERY)[number])) void patchRow(r.id, { deliveryType: v });
+                  }}
+                >
+                  {DELIVERY.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              ),
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              cell: (r) => (
+                <select
+                  style={{ fontSize: '0.875rem', maxWidth: '120px' }}
+                  value={r.status}
+                  disabled={savingId === r.id}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (STATUS.includes(v as (typeof STATUS)[number])) void patchRow(r.id, { status: v });
+                  }}
+                >
+                  {STATUS.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              ),
+            },
+            {
+              key: 'featured',
+              header: 'Featured',
+              cell: (r) => (
+                <input
+                  type="checkbox"
+                  checked={r.featured}
+                  disabled={savingId === r.id}
+                  onChange={(e) => void patchRow(r.id, { featured: e.target.checked })}
+                />
+              ),
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              cell: (r) => (
+                <details>
+                  <summary style={{ cursor: 'pointer', color: 'var(--color-accent, #2563eb)' }}>Edit fields</summary>
+                  <div style={{ padding: '0.75rem 0', maxWidth: '420px' }}>
+                    <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
+                      <span>Description</span>
+                      <textarea
+                        rows={3}
+                        style={{ width: '100%', fontSize: '0.875rem' }}
+                        defaultValue={r.description ?? ''}
+                        key={`${r.id}-desc`}
+                        onBlur={(e) => handleUpdateRow(r.id, 'description', e.target.value, r.description, true)}
+                      />
+                    </label>
+                    {(r.deliveryType === 'external_lms' || r.deliveryType === 'youtube' || r.deliveryType === 'virtual') && (
                       <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
-                        <span>Description</span>
+                        <span>URL</span>
+                        <input
+                          type="url"
+                          style={{ width: '100%', fontSize: '0.875rem' }}
+                          defaultValue={r.deliveryUrl ?? ''}
+                          key={`${r.id}-url`}
+                          onBlur={(e) => handleUpdateRow(r.id, 'deliveryUrl', e.target.value, r.deliveryUrl, true)}
+                        />
+                      </label>
+                    )}
+                    {(r.deliveryType === 'in_person' || r.deliveryType === 'internal') && (
+                      <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
+                        <span>Location / details</span>
                         <textarea
-                          rows={3}
+                          rows={2}
                           style={{ width: '100%', fontSize: '0.875rem' }}
-                          defaultValue={r.description ?? ''}
-                          key={`${r.id}-desc`}
-                          onBlur={(e) => handleUpdateRow(r.id, 'description', e.target.value, r.description, true)}
+                          defaultValue={r.deliveryDetails ?? ''}
+                          key={`${r.id}-det`}
+                          onBlur={(e) => handleUpdateRow(r.id, 'deliveryDetails', e.target.value, r.deliveryDetails, true)}
                         />
                       </label>
-                      {(r.deliveryType === 'external_lms' || r.deliveryType === 'youtube' || r.deliveryType === 'virtual') && (
-                        <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
-                          <span>URL</span>
-                          <input
-                            type="url"
-                            style={{ width: '100%', fontSize: '0.875rem' }}
-                            defaultValue={r.deliveryUrl ?? ''}
-                            key={`${r.id}-url`}
-                            onBlur={(e) => handleUpdateRow(r.id, 'deliveryUrl', e.target.value, r.deliveryUrl, true)}
-                          />
-                        </label>
-                      )}
-                      {(r.deliveryType === 'in_person' || r.deliveryType === 'internal') && (
-                        <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
-                          <span>Location / details</span>
-                          <textarea
-                            rows={2}
-                            style={{ width: '100%', fontSize: '0.875rem' }}
-                            defaultValue={r.deliveryDetails ?? ''}
-                            key={`${r.id}-det`}
-                            onBlur={(e) => handleUpdateRow(r.id, 'deliveryDetails', e.target.value, r.deliveryDetails, true)}
-                          />
-                        </label>
-                      )}
-                      <label className="form-group" style={{ display: 'block' }}>
-                        <span>Duration label</span>
-                        <input
-                          style={{ width: '100%', fontSize: '0.875rem' }}
-                          defaultValue={r.duration ?? ''}
-                          key={`${r.id}-dur`}
-                          onBlur={(e) => handleUpdateRow(r.id, 'duration', e.target.value, r.duration, true)}
-                        />
-                      </label>
-                      <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
-                        <span>Program start (TWC export; optional)</span>
-                        <input
-                          type="date"
-                          style={{ width: '100%', fontSize: '0.875rem' }}
-                          defaultValue={r.programStartDate ? r.programStartDate.slice(0, 10) : ''}
-                          key={`${r.id}-sd`}
-                          onBlur={(e) => handleUpdateRow(r.id, 'programStartDate', e.target.value, r.programStartDate ? r.programStartDate.slice(0, 10) : '', true)}
-                        />
-                      </label>
-                      <label className="form-group" style={{ display: 'block' }}>
-                        <span>Program end (TWC export; optional)</span>
-                        <input
-                          type="date"
-                          style={{ width: '100%', fontSize: '0.875rem' }}
-                          defaultValue={r.programEndDate ? r.programEndDate.slice(0, 10) : ''}
-                          key={`${r.id}-ed`}
-                          onBlur={(e) => handleUpdateRow(r.id, 'programEndDate', e.target.value, r.programEndDate ? r.programEndDate.slice(0, 10) : '', true)}
-                        />
-                      </label>
-                    </div>
-                  </details>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    )}
+                    <label className="form-group" style={{ display: 'block' }}>
+                      <span>Duration label</span>
+                      <input
+                        style={{ width: '100%', fontSize: '0.875rem' }}
+                        defaultValue={r.duration ?? ''}
+                        key={`${r.id}-dur`}
+                        onBlur={(e) => handleUpdateRow(r.id, 'duration', e.target.value, r.duration, true)}
+                      />
+                    </label>
+                    <label className="form-group" style={{ display: 'block', marginBottom: '0.75rem' }}>
+                      <span>Program start (TWC export; optional)</span>
+                      <input
+                        type="date"
+                        style={{ width: '100%', fontSize: '0.875rem' }}
+                        defaultValue={r.programStartDate ? r.programStartDate.slice(0, 10) : ''}
+                        key={`${r.id}-sd`}
+                        onBlur={(e) =>
+                          handleUpdateRow(
+                            r.id,
+                            'programStartDate',
+                            e.target.value,
+                            r.programStartDate ? r.programStartDate.slice(0, 10) : '',
+                            true
+                          )
+                        }
+                      />
+                    </label>
+                    <label className="form-group" style={{ display: 'block' }}>
+                      <span>Program end (TWC export; optional)</span>
+                      <input
+                        type="date"
+                        style={{ width: '100%', fontSize: '0.875rem' }}
+                        defaultValue={r.programEndDate ? r.programEndDate.slice(0, 10) : ''}
+                        key={`${r.id}-ed`}
+                        onBlur={(e) =>
+                          handleUpdateRow(
+                            r.id,
+                            'programEndDate',
+                            e.target.value,
+                            r.programEndDate ? r.programEndDate.slice(0, 10) : '',
+                            true
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+                </details>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

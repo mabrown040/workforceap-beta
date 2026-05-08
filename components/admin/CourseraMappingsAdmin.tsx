@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import { DataLandingEmptyArt } from '@/components/graphics/DataLandingEmptyArt';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type MemberOption = {
   id: string;
@@ -597,33 +598,39 @@ export default function CourseraMappingsAdmin({
               <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>No course progress rows for this member.</p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '520px' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--outline-variant)' }}>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>Program</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>Complete</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>Avg %</th>
-                      <th style={{ padding: '0.75rem 0.5rem' }}>Rollup source</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {progressAudit.rollups.map((r) => (
-                      <tr key={r.programSlug} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={progressAudit.rollups}
+                  rowKey={(r) => r.programSlug}
+                  columns={[
+                    {
+                      key: 'program',
+                      header: 'Program',
+                      cell: (r) => (
+                        <>
                           <div style={{ fontWeight: 700 }}>{r.programTitle || r.programSlug}</div>
                           <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>{r.programSlug}</div>
-                        </td>
-                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>
-                          {r.coursesCompleted} of {r.catalogCourseCount || '—'}
-                        </td>
-                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>{r.averagePercent}%</td>
-                        <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'complete',
+                      header: 'Complete',
+                      cell: (r) => `${r.coursesCompleted} of ${r.catalogCourseCount || '—'}`,
+                    },
+                    { key: 'avg', header: 'Avg %', cell: (r) => `${r.averagePercent}%` },
+                    {
+                      key: 'source',
+                      header: 'Rollup source',
+                      cell: (r) => (
+                        <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                           {r.fromMemberProgramProgress ? 'MemberProgramProgress' : 'Derived from rows'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
               </div>
             )}
 
@@ -631,32 +638,36 @@ export default function CourseraMappingsAdmin({
               <div>
                 <h3 style={{ fontSize: '1rem', margin: '0 0 0.5rem' }}>Course progress rows</h3>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '720px' }}>
-                    <thead>
-                      <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <th style={{ padding: '0.75rem 0.5rem' }}>Program</th>
-                        <th style={{ padding: '0.75rem 0.5rem' }}>Course</th>
-                        <th style={{ padding: '0.75rem 0.5rem' }}>Coursera id</th>
-                        <th style={{ padding: '0.75rem 0.5rem' }}>Status</th>
-                        <th style={{ padding: '0.75rem 0.5rem' }}>%</th>
-                        <th style={{ padding: '0.75rem 0.5rem' }}>Updated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {progressAudit.courseRows.map((row) => (
-                        <tr key={row.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                          <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', fontSize: '0.875rem' }}>{row.programSlug}</td>
-                          <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>{row.courseSlug}</td>
-                          <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <DataTable
+                    density="compact"
+                    scrollX={false}
+                    rows={progressAudit.courseRows}
+                    rowKey={(row) => row.id}
+                    columns={[
+                      {
+                        key: 'program',
+                        header: 'Program',
+                        cell: (row) => <span style={{ fontSize: '0.875rem' }}>{row.programSlug}</span>,
+                      },
+                      { key: 'course', header: 'Course', cell: (row) => row.courseSlug },
+                      {
+                        key: 'cid',
+                        header: 'Coursera id',
+                        cell: (row) => (
+                          <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                             {row.courseId || '—'}
-                          </td>
-                          <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>{row.status}</td>
-                          <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top' }}>{row.percentComplete}</td>
-                          <td style={{ padding: '0.75rem 0.5rem', verticalAlign: 'top', fontSize: '0.875rem' }}>{fmtDate(row.lastUpdatedAt)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </span>
+                        ),
+                      },
+                      { key: 'status', header: 'Status', cell: (row) => row.status },
+                      { key: 'pct', header: '%', cell: (row) => row.percentComplete },
+                      {
+                        key: 'updated',
+                        header: 'Updated',
+                        cell: (row) => <span style={{ fontSize: '0.875rem' }}>{fmtDate(row.lastUpdatedAt)}</span>,
+                      },
+                    ]}
+                  />
                 </div>
               </div>
             ) : null}
@@ -691,49 +702,58 @@ export default function CourseraMappingsAdmin({
           </select>
         </div>
 
-        <div className="coursera-unmatched-table-wrap">
-          <table className="coursera-unmatched-table coursera-admin-data-table" style={{ minWidth: '760px' }}>
-            <thead>
-              <tr>
-                <th scope="col">Member</th>
-                <th scope="col">Coursera email</th>
-                <th scope="col">Actor ID</th>
-                <th scope="col">Source</th>
-                <th scope="col">Last seen</th>
-                <th scope="col">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredMappings.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="coursera-empty-row">
-                    <div className="coursera-empty-row__inner">
-                      <DataLandingEmptyArt />
-                      <span>No manual mappings yet. When xAPI cannot match a learner automatically, save a row here so statements route to the right member.</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : filteredMappings.map((mapping) => (
-                <tr key={mapping.id}>
-                  <td style={{ verticalAlign: 'top' }}>
+        <DataTable
+          variant="admin"
+          tableClassName="coursera-unmatched-table coursera-admin-data-table"
+          className="coursera-unmatched-table-wrap"
+          rows={filteredMappings}
+          rowKey={(m) => m.id}
+          emptyState={
+            <div className="coursera-unmatched-table-wrap">
+              <div className="coursera-empty-row" style={{ minWidth: '760px' }}>
+                <div className="coursera-empty-row__inner">
+                  <DataLandingEmptyArt />
+                  <span>
+                    No manual mappings yet. When xAPI cannot match a learner automatically, save a row here so statements
+                    route to the right member.
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+          columns={[
+              {
+                key: 'member',
+                header: 'Member',
+                cell: (mapping) => (
+                  <>
                     <div style={{ fontWeight: 700 }}>{mapping.userFullName}</div>
                     <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>{mapping.userEmail}</div>
-                  </td>
-                  <td style={{ verticalAlign: 'top' }}>{mapping.courseraEmail || '—'}</td>
-                  <td style={{ verticalAlign: 'top' }}>
+                  </>
+                ),
+              },
+              { key: 'coursera', header: 'Coursera email', cell: (m) => m.courseraEmail || '—' },
+              {
+                key: 'actor',
+                header: 'Actor ID',
+                cell: (mapping) => (
+                  <>
                     <div>{mapping.actorIdentifier || '—'}</div>
                     {mapping.actorHomePage ? (
                       <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>{mapping.actorHomePage}</div>
                     ) : null}
-                  </td>
-                  <td style={{ verticalAlign: 'top' }}>{mapping.source}</td>
-                  <td style={{ verticalAlign: 'top' }}>{fmtDate(mapping.lastSeenAt)}</td>
-                  <td style={{ verticalAlign: 'top', color: 'var(--color-on-surface-variant)' }}>{mapping.notes || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </>
+                ),
+              },
+              { key: 'source', header: 'Source', cell: (m) => m.source },
+              { key: 'last', header: 'Last seen', cell: (m) => fmtDate(m.lastSeenAt) },
+              {
+                key: 'notes',
+                header: 'Notes',
+                cell: (m) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{m.notes || '—'}</span>,
+              },
+            ]}
+        />
       </section>
 
       <section style={cardStyle}>
@@ -896,27 +916,34 @@ export default function CourseraMappingsAdmin({
               ))}
             </div>
 
-            <div className="coursera-unmatched-table-wrap wa-hidden md:wa-block">
-              <table className="coursera-unmatched-table" style={{ minWidth: '920px' }}>
-                <thead>
-                  <tr>
-                    <th scope="col">Timestamp</th>
-                    <th scope="col">Actor email</th>
-                    <th scope="col">Verb</th>
-                    <th scope="col">Course</th>
-                    <th scope="col">Reason</th>
-                    <th scope="col" className="coursera-unmatched-actions">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredXapiAttention.map((row) => (
-                    <tr key={row.id}>
-                      <td style={{ whiteSpace: 'nowrap' }}>{fmtDate(row.createdAt)}</td>
-                      <td>{row.actorEmail || '—'}</td>
-                      <td style={{ fontSize: '0.8125rem', maxWidth: '280px', wordBreak: 'break-word' }}>{formatVerb(row.verb)}</td>
-                      <td>
+            <div className="wa-hidden md:wa-block">
+              <DataTable
+                variant="admin"
+                tableClassName="coursera-unmatched-table"
+                className="coursera-unmatched-table-wrap"
+                rows={filteredXapiAttention}
+                rowKey={(row) => row.id}
+                columns={[
+                  {
+                    key: 'ts',
+                    header: 'Timestamp',
+                    cell: (row) => <span style={{ whiteSpace: 'nowrap' }}>{fmtDate(row.createdAt)}</span>,
+                  },
+                  { key: 'actor', header: 'Actor email', cell: (row) => row.actorEmail || '—' },
+                  {
+                    key: 'verb',
+                    header: 'Verb',
+                    cell: (row) => (
+                      <span style={{ fontSize: '0.8125rem', maxWidth: '280px', wordBreak: 'break-word', display: 'inline-block' }}>
+                        {formatVerb(row.verb)}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'course',
+                    header: 'Course',
+                    cell: (row) => (
+                      <>
                         <div>{row.courseName || '—'}</div>
                         {row.courseId ? (
                           <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>id: {row.courseId}</div>
@@ -924,56 +951,67 @@ export default function CourseraMappingsAdmin({
                         {row.statementId ? (
                           <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>stmt: {row.statementId}</div>
                         ) : null}
-                      </td>
-                      <td style={{ fontSize: '0.8125rem' }}>
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'reason',
+                    header: 'Reason',
+                    cell: (row) => (
+                      <span style={{ fontSize: '0.8125rem' }}>
                         {reasonLabel(row.reason)}
                         <div style={{ color: 'var(--color-on-surface-variant)' }}>processed: {row.processed ? 'yes' : 'no'}</div>
-                      </td>
-                      <td className="coursera-unmatched-actions">
-                        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'action',
+                    header: 'Action',
+                    columnClassName: 'coursera-unmatched-actions',
+                    cell: (row) => (
+                      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm coursera-unmatched-cta"
+                          onClick={() => applyXapiAttentionRow(row)}
+                        >
+                          Use in form
+                        </button>
+                        {row.actorEmail ? (
                           <button
                             type="button"
-                            className="btn btn-primary btn-sm coursera-unmatched-cta"
-                            onClick={() => applyXapiAttentionRow(row)}
-                          >
-                            Use in form
-                          </button>
-                          {row.actorEmail ? (
-                            <button
-                              type="button"
-                              className="btn btn-sm"
-                              style={{ background: 'var(--color-surface-variant)', color: 'var(--color-on-surface)' }}
-                              onClick={() => {
-                                const actorEmail = row.actorEmail ?? '';
-                                if (!confirm(`Backfill progress for ${actorEmail}?`)) return;
-                                fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
-                                  method: 'GET',
-                                  credentials: 'include'
+                            className="btn btn-sm"
+                            style={{ background: 'var(--color-surface-variant)', color: 'var(--color-on-surface)' }}
+                            onClick={() => {
+                              const actorEmail = row.actorEmail ?? '';
+                              if (!confirm(`Backfill progress for ${actorEmail}?`)) return;
+                              fetch(`/api/admin/coursera/backfill-xapi?email=${encodeURIComponent(actorEmail)}`, {
+                                method: 'GET',
+                                credentials: 'include',
+                              })
+                                .then(async (res) => {
+                                  const payload = await res.json().catch(() => ({}));
+                                  if (res.ok && payload.ok) {
+                                    setMessage({
+                                      kind: 'success',
+                                      text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
+                                    });
+                                    router.refresh();
+                                  } else {
+                                    setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
+                                  }
                                 })
-                                  .then(async (res) => {
-                                    const payload = await res.json().catch(() => ({}));
-                                    if (res.ok && payload.ok) {
-                                      setMessage({
-                                        kind: 'success',
-                                        text: `Backfilled ${payload.progressUpdated + payload.completed} course(s) for ${actorEmail}.`,
-                                      });
-                                      router.refresh();
-                                    } else {
-                                      setMessage({ kind: 'error', text: payload.error || 'Backfill failed.' });
-                                    }
-                                  })
-                                  .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
-                              }}
-                            >
-                              Backfill
-                            </button>
-                          ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                                .catch(() => setMessage({ kind: 'error', text: 'Network error during backfill.' }));
+                            }}
+                          >
+                            Backfill
+                          </button>
+                        ) : null}
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </div>
           </>
         )}

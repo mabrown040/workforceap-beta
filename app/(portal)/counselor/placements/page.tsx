@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
 import SectionHeader from '@/components/portal/ui/SectionHeader';
+import { FormField, TextInput, TextArea } from '@/components/portal/ui/FormField';
 
 interface Placement {
   id: string;
@@ -148,35 +149,28 @@ export default function PlacementsPage() {
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 1rem' }}>New Placement</h3>
           <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Member ID</label>
-              <input type="text" value={memberId} onChange={(e) => setMemberId(e.target.value)} required style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employer</label>
-              <input type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Job Title</label>
-              <input type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Start Date</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Salary (annual)</label>
-              <input type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="50000" style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Program</label>
-              <input type="text" value={programSlug} onChange={(e) => setProgramSlug(e.target.value)} placeholder="program-slug" style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
+            <FormField label="Member ID" required>
+              <TextInput type="text" value={memberId} onChange={(e) => setMemberId(e.target.value)} required />
+            </FormField>
+            <FormField label="Employer" required>
+              <TextInput type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required />
+            </FormField>
+            <FormField label="Job Title" required>
+              <TextInput type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required />
+            </FormField>
+            <FormField label="Start Date">
+              <TextInput type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            </FormField>
+            <FormField label="Salary (annual)">
+              <TextInput type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="50000" />
+            </FormField>
+            <FormField label="Program">
+              <TextInput type="text" value={programSlug} onChange={(e) => setProgramSlug(e.target.value)} placeholder="program-slug" />
+            </FormField>
           </div>
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', resize: 'vertical' }} />
-          </div>
+          <FormField label="Notes">
+            <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+          </FormField>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
             <button type="submit" disabled={submitting} className="btn btn-primary" style={{ opacity: submitting ? 0.7 : 1 }}>
               {submitting ? 'Recording…' : 'Record placement'}

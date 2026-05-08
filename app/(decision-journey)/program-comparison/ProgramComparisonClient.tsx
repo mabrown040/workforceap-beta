@@ -206,25 +206,25 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                 <tr>
                   <th scope="row">Duration</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Duration">{t.duration}</td>
+                    <td key={t.slug} data-label={t.shortName}>{t.duration}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Difficulty</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Difficulty">{t.difficulty}</td>
+                    <td key={t.slug} data-label={t.shortName}>{t.difficulty}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Starting range</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Starting range">{t.salary}</td>
+                    <td key={t.slug} data-label={t.shortName}>{t.salary}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Demand</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Demand">
+                    <td key={t.slug} data-label={t.shortName}>
                       <span className="demand-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                         {t.demand === 'Very High' && <Flame size={14} aria-hidden />}
                         {t.demand}
@@ -237,20 +237,20 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   {selectedTracks.map((t) => {
                     const ex = getProgramExtra(t.slug);
                     return (
-                      <td key={t.slug} data-label="Best for">{ex?.bestFor ?? '—'}</td>
+                      <td key={t.slug} data-label={t.shortName}>{ex?.bestFor ?? '—'}</td>
                     );
                   })}
                 </tr>
                 <tr>
                   <th scope="row">Certificates</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Certificates">{t.certs}</td>
+                    <td key={t.slug} data-label={t.shortName}>{t.certs}</td>
                   ))}
                 </tr>
                 <tr>
                   <th scope="row">Next step</th>
                   {selectedTracks.map((t) => (
-                    <td key={t.slug} data-label="Next step">
+                    <td key={t.slug} data-label={t.shortName}>
                       <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary btn-sm">
                         Apply
                       </Link>

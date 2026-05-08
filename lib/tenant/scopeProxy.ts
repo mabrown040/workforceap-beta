@@ -140,6 +140,7 @@ function enforceWriteScope(
 
   if (op === 'create') {
     const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
+    assertNoOrganizationRelationWrite(data, model, op);
     const providedOrg = data.organizationId;
     if (providedOrg !== undefined && providedOrg !== orgId) {
       throw new TenantScopeViolation(model, op, orgId, String(providedOrg));
@@ -149,12 +150,16 @@ function enforceWriteScope(
   }
 
   if (op === 'upsert') {
-    const data = ((out.create ?? {}) as Record<string, unknown>) ?? {};
-    const providedDataOrg = data.organizationId;
-    if (providedDataOrg !== undefined && providedDataOrg !== orgId) {
-      throw new TenantScopeViolation(model, op, orgId, String(providedDataOrg));
+    const create = ((out.create ?? {}) as Record<string, unknown>) ?? {};
+    assertNoOrganizationRelationWrite(create, model, op);
+    const providedCreateOrg = create.organizationId;
+    if (providedCreateOrg !== undefined && providedCreateOrg !== orgId) {
+      throw new TenantScopeViolation(model, op, orgId, String(providedCreateOrg));
     }
-    out.create = { ...data, organizationId: orgId };
+    out.create = { ...create, organizationId: orgId };
+
+    const update = ((out.update ?? {}) as Record<string, unknown>) ?? {};
+    assertNoOrganizationRelationWrite(update, model, op);
 
     const where = ((out.where ?? {}) as Record<string, unknown>) ?? {};
     const providedWhereOrg = extractOrgId(where);
@@ -171,6 +176,7 @@ function enforceWriteScope(
     // `organizationId` into every row.
     const data = (out.data as Array<Record<string, unknown>> | undefined) ?? [];
     out.data = data.map((row) => {
+      assertNoOrganizationRelationWrite(row, model, op);
       if (row.organizationId !== undefined && row.organizationId !== orgId) {
         throw new TenantScopeViolation(model, op, orgId, String(row.organizationId));
       }
@@ -189,12 +195,45 @@ function enforceWriteScope(
 
   if (op === 'update' || op === 'updateMany' || op === 'updateManyAndReturn') {
     const data = ((out.data ?? {}) as Record<string, unknown>) ?? {};
+    assertNoOrganizationRelationWrite(data, model, op);
     if (data.organizationId !== undefined && data.organizationId !== orgId) {
       throw new TenantScopeViolation(model, op, orgId, String(data.organizationId));
     }
   }
 
   return out;
+}
+
+/**
+ * Reject any nested `organization` relation write in a Prisma data/update
+ * input. Codex P1 catch on PR #1041: a caller can do
+ *   data: { organization: { connect: { id: otherOrgId } } }
+ * and Prisma will move the row to another tenant — the scalar
+ * `data.organizationId` check doesn't see it.
+ *
+ * Strict policy: reject ALL nested `organization` writes (connect, create,
+ * update, disconnect, delete, set, upsert). There's no legitimate reason
+ * for a tenant-scoped operation to write through this relation. If a
+ * cross-tenant operation is genuinely needed, it goes through
+ * `crossTenantOK()` with explicit review.
+ */
+function assertNoOrganizationRelationWrite(
+  obj: Record<string, unknown>,
+  model: string,
+  op: string,
+): void {
+  if (!('organization' in obj)) return;
+  const value = obj.organization;
+  // Reject any non-undefined value. Even an empty object would be a Prisma
+  // input shape we don't recognize; safer to reject than guess.
+  if (value !== undefined) {
+    throw new TenantScopeViolation(
+      model,
+      op,
+      'no-relation-writes-allowed',
+      JSON.stringify(value),
+    );
+  }
 }
 
 /**

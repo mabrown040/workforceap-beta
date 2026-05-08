@@ -319,3 +319,112 @@ test('updateManyAndReturn rejects mismatched organizationId in data', () => {
     }),
   );
 });
+
+// ─── Nested organization relation writes (Codex P1 on PR #1041) ─────────────
+// A scoped caller could try to move a row to another tenant via Prisma's
+// nested relation input — the scalar organizationId check doesn't see it.
+// Strict policy: reject ALL nested `organization` writes.
+
+test('update rejects data.organization.connect to another tenant', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.update({
+      where: { id: 'u1' },
+      data: { organization: { connect: { id: ORG_B } } } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('update rejects data.organization.connect EVEN to the same tenant', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  // Strict — reject all relation writes, even a no-op connect to the same
+  // org. Caller should use scalar `organizationId: orgA` if they need it.
+  expectScopeViolation(() =>
+    db.user.update({
+      where: { id: 'u1' },
+      data: { organization: { connect: { id: ORG_A } } } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('update rejects data.organization.create (would create new org and link)', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.update({
+      where: { id: 'u1' },
+      data: {
+        organization: { create: { name: 'Sneaky', slug: 'sneaky' } },
+      } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('update rejects data.organization.disconnect', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.update({
+      where: { id: 'u1' },
+      data: { organization: { disconnect: true } } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('create rejects data.organization.connect to another tenant', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.create({
+      data: {
+        id: 'u1',
+        email: 'a@b.c',
+        fullName: 'A',
+        organization: { connect: { id: ORG_B } },
+      } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('createManyAndReturn rejects nested organization in any row', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    (
+      db.job as unknown as { createManyAndReturn: (a: unknown) => Promise<unknown> }
+    ).createManyAndReturn({
+      data: [
+        { id: 'j1', title: 'OK' },
+        {
+          id: 'j2',
+          title: 'Sneaky',
+          organization: { connect: { id: ORG_B } },
+        },
+      ],
+    }),
+  );
+});
+
+test('upsert.update rejects nested organization', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.upsert({
+      where: { id: 'u1' },
+      create: { id: 'u1', email: 'a@b.c', fullName: 'A' },
+      update: { organization: { connect: { id: ORG_B } } } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('regular updates without nested organization still work', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.user.update({ where: { id: 'u1' }, data: { fullName: 'New Name' } });
+  const [call] = fake.__getCalls();
+  const args = call.args as { where: { organizationId: string }; data: { fullName: string } };
+  assert.equal(args.where.organizationId, ORG_A);
+  assert.equal(args.data.fullName, 'New Name');
+});

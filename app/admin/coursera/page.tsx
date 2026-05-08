@@ -11,6 +11,7 @@ import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
 import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
 import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
+import CourseraInspectByEmailCard from '@/components/admin/CourseraInspectByEmailCard';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -690,6 +691,20 @@ export default async function AdminCourseraPage({
         </summary>
         <div style={collapsibleBodyStyle}>
           <CourseraSelfTest />
+        </div>
+      </details>
+
+      <details className="content-card" style={collapsibleSectionStyle} open>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Inspect by email
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              unified per-email report across WAP + Coursera + xAPI with a diagnosis line
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
+          <CourseraInspectByEmailCard />
         </div>
       </details>
 

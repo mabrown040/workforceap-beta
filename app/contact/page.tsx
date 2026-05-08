@@ -4,7 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
-import { ContactInfoCard } from '@/components/marketing/ui';
+import { ContactInfoCard, InfoCard } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
@@ -107,20 +107,12 @@ export default async function ContactPage({
                 </ContactInfoCard>
               </div>
 
-              <div
-                className="portal-card portal-card--flat"
-                style={{
-                  padding: '1.25rem',
-                  border: '1px solid var(--outline-variant)',
-                  background: 'var(--surface-container-low)',
-                }}
-              >
-                <p className="text-label-upper" style={{ marginBottom: '0.5rem', color: 'var(--color-accent)' }}>{t('austinTeam')}</p>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>{t('austinTitle')}</h3>
-                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                  {t('austinBody')}
-                </p>
-              </div>
+              <InfoCard
+                eyebrow={t('austinTeam')}
+                title={t('austinTitle')}
+                description={t('austinBody')}
+                variant="flat"
+              />
             </div>
           </div>
         </div>

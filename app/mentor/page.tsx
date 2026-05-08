@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { CTABand } from '@/components/marketing/ui';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -45,32 +46,20 @@ export default function BecomeMentorPage() {
       </section>
 
       {/* Hero */}
-      <section style={{ background: 'var(--color-accent)', color: '#fff', padding: 'clamp(3rem, 6vw, 5rem) 2rem', textAlign: 'center' }}>
-        <h1
-          style={{
-            fontSize: 'clamp(2.25rem, 4vw, 3.5rem)',
-            fontWeight: 800,
-            lineHeight: 1.05,
-            letterSpacing: '-0.02em',
-            marginBottom: '1rem',
-            maxWidth: '40rem',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
-          Share Your Expertise. Change a Career.
-        </h1>
-        <p style={{ fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', maxWidth: 600, margin: '0 auto 2rem', opacity: 0.9, lineHeight: 1.5 }}>
-          WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it&rsquo;s tax-deductible.
-        </p>
-        <Link
-          href="/mentor/apply"
-          className="btn"
-          style={{ background: '#fff', color: 'var(--color-accent)', fontWeight: 700 }}
-        >
-          Apply to Mentor
-        </Link>
-      </section>
+      <CTABand
+        variant="dark"
+        headline="Share Your Expertise. Change a Career."
+        subheadline="WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible."
+        primaryAction={
+          <Link
+            href="/mentor/apply"
+            className="btn"
+            style={{ background: "#fff", color: "var(--color-accent)", fontWeight: 700 }}
+          >
+            Apply to Mentor
+          </Link>
+        }
+      />
 
       {/* Benefits */}
       <section style={{ maxWidth: 900, margin: '0 auto', padding: '3rem 2rem' }}>

@@ -12,6 +12,7 @@ import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueri
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -473,47 +474,83 @@ export default async function AdminPage() {
                 <h3 className="portal-section-heading" style={{ margin: 0 }}>Recent Placements</h3>
               </div>
               <div style={{ overflowX: 'auto' }}>
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      {['Member', 'Employer', 'Role', 'Program', 'Days', 'Salary', 'Date'].map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentPlacements.map((p) => {
-                      const programTitle = p.user.enrolledProgram
-                        ? getProgramBySlug(p.user.enrolledProgram)?.title ?? p.user.enrolledProgram
-                        : '\u2014';
-                      const daysToPlacement = p.user.enrolledAt
-                        ? Math.floor((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
-                        : null;
-                      return (
-                        <tr key={p.id}>
-                          <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                              <div style={{ width: '2rem', height: '2rem', borderRadius: '0.25rem', background: 'var(--surface-container-highest)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>
-                                {(p.user.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                              </div>
-                              <Link href={`/admin/members/${p.user.id}`} style={{ fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
-                                {p.user.fullName}
-                              </Link>
-                            </div>
-                          </td>
-                          <td>{p.employerName}</td>
-                          <td>{p.jobTitle}</td>
-                          <td>{programTitle}</td>
-                          <td>{daysToPlacement != null ? `${daysToPlacement}d` : '\u2014'}</td>
-                          <td style={{ color: '#80d99f', fontWeight: 600 }}>
-                            {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '\u2014'}
-                          </td>
-                          <td>{p.placedAt.toLocaleDateString()}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <DataTable
+                  variant="admin"
+                  tableClassName="dashboard-table"
+                  scrollX={false}
+                  rows={recentPlacements}
+                  rowKey={(p) => p.id}
+                  columns={[
+                    {
+                      key: 'member',
+                      header: 'Member',
+                      cell: (p) => (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div
+                            style={{
+                              width: '2rem',
+                              height: '2rem',
+                              borderRadius: '0.25rem',
+                              background: 'var(--surface-container-highest)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              color: 'var(--color-accent)',
+                            }}
+                          >
+                            {(p.user.fullName ?? '?')
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')
+                              .slice(0, 2)}
+                          </div>
+                          <Link
+                            href={`/admin/members/${p.user.id}`}
+                            style={{ fontWeight: 500, color: 'var(--color-on-surface)', textDecoration: 'none' }}
+                          >
+                            {p.user.fullName}
+                          </Link>
+                        </div>
+                      ),
+                    },
+                    { key: 'employer', header: 'Employer', cell: (p) => p.employerName },
+                    { key: 'role', header: 'Role', cell: (p) => p.jobTitle },
+                    {
+                      key: 'program',
+                      header: 'Program',
+                      cell: (p) =>
+                        p.user.enrolledProgram
+                          ? getProgramBySlug(p.user.enrolledProgram)?.title ?? p.user.enrolledProgram
+                          : '\u2014',
+                    },
+                    {
+                      key: 'days',
+                      header: 'Days',
+                      cell: (p) => {
+                        const daysToPlacement = p.user.enrolledAt
+                          ? Math.floor((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (1000 * 60 * 60 * 24))
+                          : null;
+                        return daysToPlacement != null ? `${daysToPlacement}d` : '\u2014';
+                      },
+                    },
+                    {
+                      key: 'salary',
+                      header: 'Salary',
+                      cell: (p) => (
+                        <span style={{ color: '#80d99f', fontWeight: 600 }}>
+                          {p.salaryOffered ? `$${p.salaryOffered.toLocaleString()}` : '\u2014'}
+                        </span>
+                      ),
+                    },
+                    {
+                      key: 'date',
+                      header: 'Date',
+                      cell: (p) => p.placedAt.toLocaleDateString(),
+                    },
+                  ]}
+                />
               </div>
             </div>
           )}

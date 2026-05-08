@@ -11,6 +11,7 @@ import { wioaReviewLabel, WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
+import DataTable from '@/components/portal/ui/DataTable';
 import WioaReviewFilterBar from '@/components/admin/WioaReviewFilterBar';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -123,40 +124,43 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
         <>
           {/* Desktop table */}
           <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-            <table className="admin-table admin-table--sticky-first" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--outline-variant)' }}>
-                  <th style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container, #1e2022)', zIndex: 1 }}>
-                    Member
-                  </th>
-                  <th style={{ padding: '0.5rem' }}>Submitted</th>
-                  <th style={{ padding: '0.5rem' }}>Signal</th>
-                  <th style={{ padding: '0.5rem' }}>Review</th>
-                  <th style={{ padding: '0.5rem' }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {enriched.map((r) => (
-                  <tr key={r.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                    <td style={{ padding: '0.5rem', position: 'sticky', left: 0, background: 'var(--surface-container-low, #1a1c1e)', zIndex: 1 }}>
+            <DataTable
+              variant="admin"
+              tableClassName="admin-table admin-table--sticky-first"
+              scrollX={false}
+              rows={enriched}
+              rowKey={(r) => r.id}
+              columns={[
+                {
+                  key: 'member',
+                  header: 'Member',
+                  stickyLeft: true,
+                  cell: (r) => (
+                    <>
                       <strong>{r.fullName}</strong>
                       <br />
                       <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{r.email}</span>
-                    </td>
-                    <td style={{ padding: '0.5rem' }}>
-                      {r.snap ? new Date(r.snap.submittedAt).toLocaleString() : '—'}
-                    </td>
-                    <td style={{ padding: '0.5rem' }}>{r.signal}</td>
-                    <td style={{ padding: '0.5rem' }}>{wioaReviewLabel(r.wioaReviewStatus)}</td>
-                    <td style={{ padding: '0.5rem' }}>
-                      <Link href={`/admin/members/${r.id}`} className="btn btn-outline btn-sm">
-                        Open
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </>
+                  ),
+                },
+                {
+                  key: 'submitted',
+                  header: 'Submitted',
+                  cell: (r) => (r.snap ? new Date(r.snap.submittedAt).toLocaleString() : '—'),
+                },
+                { key: 'signal', header: 'Signal', cell: (r) => r.signal },
+                { key: 'review', header: 'Review', cell: (r) => wioaReviewLabel(r.wioaReviewStatus) },
+                {
+                  key: 'open',
+                  header: '',
+                  cell: (r) => (
+                    <Link href={`/admin/members/${r.id}`} className="btn btn-outline btn-sm">
+                      Open
+                    </Link>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           {/* Mobile cards */}

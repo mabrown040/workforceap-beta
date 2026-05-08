@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getProgramBySlug } from '@/lib/content/programs';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type RecentUser = {
   id: string;
@@ -23,54 +24,64 @@ export default function RecentSignupsTable({ users }: RecentSignupsTableProps) {
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Program</th>
-            <th>Enrolled</th>
-            <th>Score %</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr
-              key={u.id}
-              data-clickable
-              onClick={() => router.push(`/admin/members/${u.id}`)}
-            >
-              <td>
-                <Link href={`/admin/members/${u.id}`} onClick={(e) => e.stopPropagation()}>
-                  {u.fullName}
-                </Link>
-              </td>
-              <td>{u.email}</td>
-              <td>
-                {u.enrolledProgram ? getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram : '—'}
-              </td>
-              <td>{u.enrolledAt ? new Date(u.enrolledAt).toLocaleDateString() : '—'}</td>
-              <td>
-                <span
-                  className={
-                    u.assessmentScorePct != null
-                      ? u.assessmentScorePct >= 70
-                        ? 'admin-score-high'
-                        : u.assessmentScorePct >= 50
-                          ? 'admin-score-mid'
-                          : 'admin-score-low'
-                      : ''
-                  }
-                >
-                  {u.assessmentScorePct ?? '—'}%
-                </span>
-              </td>
-              <td>{u.assessmentCompleted ? 'Assessed' : 'Pending'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        variant="admin"
+        tableClassName="admin-table"
+        scrollX={false}
+        rows={users}
+        rowKey={(u) => u.id}
+        getRowProps={(u) => ({
+          onClick: () => router.push(`/admin/members/${u.id}`),
+          style: { cursor: 'pointer' },
+        })}
+        columns={[
+          {
+            key: 'name',
+            header: 'Name',
+            cell: (u) => (
+              <Link href={`/admin/members/${u.id}`} onClick={(e) => e.stopPropagation()}>
+                {u.fullName}
+              </Link>
+            ),
+          },
+          { key: 'email', header: 'Email', cell: (u) => u.email },
+          {
+            key: 'program',
+            header: 'Program',
+            cell: (u) =>
+              u.enrolledProgram ? getProgramBySlug(u.enrolledProgram)?.title ?? u.enrolledProgram : '—',
+          },
+          {
+            key: 'enrolled',
+            header: 'Enrolled',
+            cell: (u) => (u.enrolledAt ? new Date(u.enrolledAt).toLocaleDateString() : '—'),
+          },
+          {
+            key: 'score',
+            header: 'Score %',
+            cell: (u) => (
+              <span
+                className={
+                  u.assessmentScorePct != null
+                    ? u.assessmentScorePct >= 70
+                      ? 'admin-score-high'
+                      : u.assessmentScorePct >= 50
+                        ? 'admin-score-mid'
+                        : 'admin-score-low'
+                    : ''
+                }
+              >
+                {u.assessmentScorePct ?? '—'}%
+              </span>
+            ),
+          },
+          {
+            key: 'status',
+            header: 'Status',
+            cell: (u) => (u.assessmentCompleted ? 'Assessed' : 'Pending'),
+          },
+        ]}
+      />
     </div>
   );
 }

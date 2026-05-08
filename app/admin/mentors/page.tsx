@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -139,52 +140,60 @@ export default async function AdminMentorsPage() {
       </div>
 
       <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '52rem' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-subtle)' }}>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Name</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Company</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Industry</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Status</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Applied Date</th>
-              <th style={{ padding: '0.65rem 0.5rem' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mentors.map((mentor) => (
-              <tr key={mentor.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.fullName}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.company}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.industry}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{getMentorStatusLabel(mentor)}</td>
-                <td style={{ padding: '0.7rem 0.5rem' }}>{mentor.createdAt.toLocaleDateString()}</td>
-                <td style={{ padding: '0.7rem 0.5rem', display: 'flex', gap: '0.5rem' }}>
+        <div style={{ minWidth: '52rem' }}>
+        <DataTable
+          variant="portal"
+          scrollX={false}
+          rows={mentors}
+          rowKey={(m) => m.id}
+          columns={[
+            { key: 'name', header: 'Name', cell: (mentor) => mentor.fullName },
+            { key: 'company', header: 'Company', cell: (mentor) => mentor.company },
+            { key: 'industry', header: 'Industry', cell: (mentor) => mentor.industry },
+            { key: 'status', header: 'Status', cell: (mentor) => getMentorStatusLabel(mentor) },
+            {
+              key: 'applied',
+              header: 'Applied Date',
+              cell: (mentor) => mentor.createdAt.toLocaleDateString(),
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              cell: (mentor) => (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   {!mentor.approvedAt ? (
                     <form action={updateMentorAction}>
                       <input type="hidden" name="mentorId" value={mentor.id} />
                       <input type="hidden" name="action" value="approve" />
-                      <button type="submit" style={{ ...actionButtonStyle, background: 'var(--color-accent)' }}>Approve</button>
+                      <button type="submit" style={{ ...actionButtonStyle, background: 'var(--color-accent)' }}>
+                        Approve
+                      </button>
                     </form>
                   ) : null}
                   {mentor.approvedAt && mentor.isActive ? (
                     <form action={updateMentorAction}>
                       <input type="hidden" name="mentorId" value={mentor.id} />
                       <input type="hidden" name="action" value="deactivate" />
-                      <button type="submit" style={{ ...actionButtonStyle, background: '#a91b3f' }}>Deactivate</button>
+                      <button type="submit" style={{ ...actionButtonStyle, background: '#a91b3f' }}>
+                        Deactivate
+                      </button>
                     </form>
                   ) : null}
                   {mentor.approvedAt && !mentor.isActive ? (
                     <form action={updateMentorAction}>
                       <input type="hidden" name="mentorId" value={mentor.id} />
                       <input type="hidden" name="action" value="activate" />
-                      <button type="submit" style={{ ...actionButtonStyle, background: 'var(--color-accent)' }}>Activate</button>
+                      <button type="submit" style={{ ...actionButtonStyle, background: 'var(--color-accent)' }}>
+                        Activate
+                      </button>
                     </form>
                   ) : null}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              ),
+            },
+          ]}
+        />
+      </div>
       </div>
     </main>
   );

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+import DataTable from '@/components/portal/ui/DataTable';
+
 export type InterviewReadyRow = {
   id: string;
   fullName: string;
@@ -62,59 +64,72 @@ export default function AdminInterviewReadyTable({ rows }: { rows: InterviewRead
     <div>
       {msg && <p className="form-error" role="alert">{msg}</p>}
       <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Member</th>
-              <th>Assessment %</th>
-              <th>Pre-screening</th>
-              <th>Request</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.id}>
-                <td>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table"
+          scrollX={false}
+          rows={rows}
+          rowKey={(r) => r.id}
+          columns={[
+            {
+              key: 'member',
+              header: 'Member',
+              cell: (r) => (
+                <>
                   <Link href={`/admin/members/${r.id}`}>{r.fullName}</Link>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{r.email}</div>
-                </td>
-                <td>{r.assessmentScorePct ?? '—'}</td>
-                <td>
-                  {r.preScreening ? (
-                    <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.85rem' }}>
-                      <li>Goal: {r.preScreening.primaryGoal}</li>
-                      <li>Time/wk: {r.preScreening.weeklyHours}</li>
-                      <li>Barrier: {r.preScreening.barrier.slice(0, 80)}{r.preScreening.barrier.length > 80 ? '…' : ''}</li>
-                    </ul>
-                  ) : (
-                    '—'
-                  )}
-                </td>
-                <td>{r.interviewRequestedAt ? new Date(r.interviewRequestedAt).toLocaleString() : 'Not requested'}</td>
-                <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => mailtoSchedule(r.email, r.fullName)}
-                    >
-                      Schedule (email)
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={busy === r.id}
-                      onClick={() => void markInterviewed(r.id)}
-                    >
-                      {busy === r.id ? '…' : 'Mark interviewed'}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ),
+            },
+            { key: 'score', header: 'Assessment %', cell: (r) => r.assessmentScorePct ?? '—' },
+            {
+              key: 'prescreen',
+              header: 'Pre-screening',
+              cell: (r) =>
+                r.preScreening ? (
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.85rem' }}>
+                    <li>Goal: {r.preScreening.primaryGoal}</li>
+                    <li>Time/wk: {r.preScreening.weeklyHours}</li>
+                    <li>
+                      Barrier: {r.preScreening.barrier.slice(0, 80)}
+                      {r.preScreening.barrier.length > 80 ? '…' : ''}
+                    </li>
+                  </ul>
+                ) : (
+                  '—'
+                ),
+            },
+            {
+              key: 'request',
+              header: 'Request',
+              cell: (r) =>
+                r.interviewRequestedAt ? new Date(r.interviewRequestedAt).toLocaleString() : 'Not requested',
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              cell: (r) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => mailtoSchedule(r.email, r.fullName)}
+                  >
+                    Schedule (email)
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    disabled={busy === r.id}
+                    onClick={() => void markInterviewed(r.id)}
+                  >
+                    {busy === r.id ? '…' : 'Mark interviewed'}
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

@@ -4,13 +4,14 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getWeeklyRecapCohortStats } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Weekly recap analytics',
-  description: 'Weekly recap engagement by cohort.',
-  path: '/admin/weekly-recap',
-});
+    title: 'Weekly recap analytics',
+    description: 'Weekly recap engagement by cohort.',
+    path: '/admin/weekly-recap',
+  });
 }
 
 export default async function AdminWeeklyRecapAnalyticsPage() {
@@ -28,30 +29,25 @@ export default async function AdminWeeklyRecapAnalyticsPage() {
       <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
         {/* Desktop table */}
         <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Cohort</th>
-                <th>Members</th>
-                <th>With recaps</th>
-                <th>Total recaps</th>
-                <th>Recaps (7d)</th>
-                <th>Avg readiness</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.cohortKey}>
-                  <td>{r.cohortLabel}</td>
-                  <td>{r.memberCount}</td>
-                  <td>{r.membersWithRecap}</td>
-                  <td>{r.totalRecaps}</td>
-                  <td>{r.recapsLast7Days}</td>
-                  <td>{r.avgReadinessScore != null ? `${r.avgReadinessScore}%` : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            variant="admin"
+            tableClassName="admin-table"
+            scrollX={false}
+            rows={rows}
+            rowKey={(r) => r.cohortKey}
+            columns={[
+              { key: 'cohort', header: 'Cohort', cell: (r) => r.cohortLabel },
+              { key: 'members', header: 'Members', cell: (r) => r.memberCount },
+              { key: 'withRecaps', header: 'With recaps', cell: (r) => r.membersWithRecap },
+              { key: 'total', header: 'Total recaps', cell: (r) => r.totalRecaps },
+              { key: '7d', header: 'Recaps (7d)', cell: (r) => r.recapsLast7Days },
+              {
+                key: 'readiness',
+                header: 'Avg readiness',
+                cell: (r) => (r.avgReadinessScore != null ? `${r.avgReadinessScore}%` : '—'),
+              },
+            ]}
+          />
         </div>
 
         {/* Mobile cards */}
@@ -67,15 +63,26 @@ export default async function AdminWeeklyRecapAnalyticsPage() {
             >
               <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{r.cohortLabel}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span>Members: <strong style={{ color: 'var(--color-on-surface)' }}>{r.memberCount}</strong></span>
-                <span>With recaps: <strong style={{ color: 'var(--color-on-surface)' }}>{r.membersWithRecap}</strong></span>
+                <span>
+                  Members: <strong style={{ color: 'var(--color-on-surface)' }}>{r.memberCount}</strong>
+                </span>
+                <span>
+                  With recaps: <strong style={{ color: 'var(--color-on-surface)' }}>{r.membersWithRecap}</strong>
+                </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span>Total: <strong style={{ color: 'var(--color-on-surface)' }}>{r.totalRecaps}</strong></span>
-                <span>7d: <strong style={{ color: 'var(--color-on-surface)' }}>{r.recapsLast7Days}</strong></span>
+                <span>
+                  Total: <strong style={{ color: 'var(--color-on-surface)' }}>{r.totalRecaps}</strong>
+                </span>
+                <span>
+                  7d: <strong style={{ color: 'var(--color-on-surface)' }}>{r.recapsLast7Days}</strong>
+                </span>
               </div>
               <div style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                Avg readiness: <strong style={{ color: 'var(--color-on-surface)' }}>{r.avgReadinessScore != null ? `${r.avgReadinessScore}%` : '—'}</strong>
+                Avg readiness:{' '}
+                <strong style={{ color: 'var(--color-on-surface)' }}>
+                  {r.avgReadinessScore != null ? `${r.avgReadinessScore}%` : '—'}
+                </strong>
               </div>
             </div>
           ))}

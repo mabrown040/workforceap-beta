@@ -4,13 +4,14 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getAiToolsCohortStats } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'AI tools analytics',
-  description: 'AI tool usage by cohort.',
-  path: '/admin/ai-tools',
-});
+    title: 'AI tools analytics',
+    description: 'AI tool usage by cohort.',
+    path: '/admin/ai-tools',
+  });
 }
 
 export default async function AdminAiToolsAnalyticsPage() {
@@ -47,47 +48,51 @@ export default async function AdminAiToolsAnalyticsPage() {
           <>
             {/* Desktop table */}
             <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Cohort</th>
-                    <th>Members</th>
-                    <th>Members using tools</th>
-                    <th>Total runs</th>
-                    <th>Runs (7d)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.cohortKey}>
-                      <td>{r.cohortLabel}</td>
-                      <td>{r.memberCount}</td>
-                      <td>
+              <DataTable
+                variant="admin"
+                tableClassName="admin-table"
+                scrollX={false}
+                rows={rows}
+                rowKey={(r) => r.cohortKey}
+                columns={[
+                  { key: 'cohort', header: 'Cohort', cell: (r) => r.cohortLabel },
+                  { key: 'members', header: 'Members', cell: (r) => r.memberCount },
+                  {
+                    key: 'using',
+                    header: 'Members using tools',
+                    cell: (r) => (
+                      <>
                         {r.membersUsedTools}
                         {r.memberCount > 0 ? (
                           <span style={{ marginLeft: '0.4rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                             ({Math.round((r.membersUsedTools / r.memberCount) * 100)}%)
                           </span>
                         ) : null}
-                      </td>
-                      <td>
-                        {r.totalRuns === 0 ? (
-                          <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
-                        ) : (
-                          r.totalRuns
-                        )}
-                      </td>
-                      <td>
-                        {r.runsLast7Days === 0 ? (
-                          <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
-                        ) : (
-                          r.runsLast7Days
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'total',
+                    header: 'Total runs',
+                    cell: (r) =>
+                      r.totalRuns === 0 ? (
+                        <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
+                      ) : (
+                        r.totalRuns
+                      ),
+                  },
+                  {
+                    key: '7d',
+                    header: 'Runs (7d)',
+                    cell: (r) =>
+                      r.runsLast7Days === 0 ? (
+                        <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
+                      ) : (
+                        r.runsLast7Days
+                      ),
+                  },
+                ]}
+              />
             </div>
 
             {/* Mobile cards */}
@@ -103,12 +108,20 @@ export default async function AdminAiToolsAnalyticsPage() {
                 >
                   <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{r.cohortLabel}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    <span>Members: <strong style={{ color: 'var(--color-on-surface)' }}>{r.memberCount}</strong></span>
-                    <span>Using tools: <strong style={{ color: 'var(--color-on-surface)' }}>{r.membersUsedTools}</strong></span>
+                    <span>
+                      Members: <strong style={{ color: 'var(--color-on-surface)' }}>{r.memberCount}</strong>
+                    </span>
+                    <span>
+                      Using tools: <strong style={{ color: 'var(--color-on-surface)' }}>{r.membersUsedTools}</strong>
+                    </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    <span>Total runs: <strong style={{ color: 'var(--color-on-surface)' }}>{r.totalRuns}</strong></span>
-                    <span>Runs (7d): <strong style={{ color: 'var(--color-on-surface)' }}>{r.runsLast7Days}</strong></span>
+                    <span>
+                      Total runs: <strong style={{ color: 'var(--color-on-surface)' }}>{r.totalRuns}</strong>
+                    </span>
+                    <span>
+                      Runs (7d): <strong style={{ color: 'var(--color-on-surface)' }}>{r.runsLast7Days}</strong>
+                    </span>
                   </div>
                 </div>
               ))}

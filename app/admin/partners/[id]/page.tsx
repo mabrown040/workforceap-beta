@@ -7,6 +7,7 @@ import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@
 import InvitePartnerUserButton from '@/components/admin/InvitePartnerUserButton';
 import PartnerDetailActions from '@/components/admin/PartnerDetailActions';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -171,51 +172,72 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No referrals recorded yet.</p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Program</th>
-                  <th>Progress</th>
-                  <th>Status</th>
-                  <th>Enrolled</th>
-                </tr>
-              </thead>
-              <tbody>
-                {partner.referrals.map((r) => {
-                  const m = r.member;
-                  const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
-                  const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
-                  const student: PipelineStudent = {
-                    id: m.id,
-                    fullName: m.fullName,
-                    email: m.email,
-                    enrolledProgram: m.enrolledProgram,
-                    enrolledAt: m.enrolledAt,
-                    assessmentCompleted: m.assessmentCompleted,
-                    deletedAt: m.deletedAt,
-                    placementRecord: m.placementRecord,
-                    userCertifications: m.userCertifications,
-                    applications: m.applications,
-        memberProgramProgress: m.memberProgramProgress,
-                  };
-                  const stage = getPipelineStage(student);
-                  return (
-                    <tr key={r.id}>
-                      <td>
-                        <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                          {m.fullName}
-                        </Link>
-                      </td>
-                      <td>{program?.title ?? '—'}</td>
-                      <td>{pct}%</td>
-                      <td>{PIPELINE_STAGE_LABELS[stage]}</td>
-                      <td>{m.enrolledAt?.toLocaleDateString() ?? '—'}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <DataTable
+              variant="admin"
+              tableClassName="admin-table"
+              scrollX={false}
+              rows={partner.referrals}
+              rowKey={(r) => r.id}
+              columns={[
+                {
+                  key: 'name',
+                  header: 'Name',
+                  cell: (ref) => {
+                    const m = ref.member;
+                    return (
+                      <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
+                        {m.fullName}
+                      </Link>
+                    );
+                  },
+                },
+                {
+                  key: 'program',
+                  header: 'Program',
+                  cell: (ref) => {
+                    const m = ref.member;
+                    const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram) : null;
+                    return program?.title ?? '—';
+                  },
+                },
+                {
+                  key: 'progress',
+                  header: 'Progress',
+                  cell: (ref) => {
+                    const m = ref.member;
+                    const pct = memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress);
+                    return `${pct}%`;
+                  },
+                },
+                {
+                  key: 'status',
+                  header: 'Status',
+                  cell: (ref) => {
+                    const m = ref.member;
+                    const student: PipelineStudent = {
+                      id: m.id,
+                      fullName: m.fullName,
+                      email: m.email,
+                      enrolledProgram: m.enrolledProgram,
+                      enrolledAt: m.enrolledAt,
+                      assessmentCompleted: m.assessmentCompleted,
+                      deletedAt: m.deletedAt,
+                      placementRecord: m.placementRecord,
+                      userCertifications: m.userCertifications,
+                      applications: m.applications,
+                      memberProgramProgress: m.memberProgramProgress,
+                    };
+                    const stage = getPipelineStage(student);
+                    return PIPELINE_STAGE_LABELS[stage];
+                  },
+                },
+                {
+                  key: 'enrolled',
+                  header: 'Enrolled',
+                  cell: (ref) => ref.member.enrolledAt?.toLocaleDateString() ?? '—',
+                },
+              ]}
+            />
           </div>
         )}
       </section>

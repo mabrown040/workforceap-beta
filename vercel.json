@@ -13,6 +13,7 @@
     { "path": "/api/cron/interview-reminders", "schedule": "30 14 * * *" },
     { "path": "/api/cron/coursera-training-sync", "schedule": "0 * * * *" },
     { "path": "/api/cron/coursera-sync", "schedule": "0 */6 * * *" },
+    { "path": "/api/cron/coursera-b4b-sync", "schedule": "0 */6 * * *" },
     { "path": "/api/cron/coursera-auto-heal", "schedule": "15 * * * *" },
     { "path": "/api/cron/stale-training-check", "schedule": "30 12 * * *" }
   ]

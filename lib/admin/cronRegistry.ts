@@ -193,6 +193,20 @@ export const CRON_REGISTRY: CronDef[] = [
     workflowKey: 'cron_coursera_sync',
   },
   {
+    id: 'coursera-b4b-sync',
+    name: 'Coursera B4B enrollment sync',
+    description:
+      'Pulls Coursera For Business enrollment reports and writes/upserts course-level progress into CourseProgress + MemberProgramProgress.',
+    schedule: '0 */6 * * *',
+    scheduleLabel: 'Every 6 hours',
+    apiPath: '/api/cron/coursera-b4b-sync',
+    method: 'GET',
+    icon: 'sync_alt',
+    category: 'admin',
+    audienceDescription: 'Internal data sync (no outbound email)',
+    workflowKey: 'cron_coursera_b4b_sync',
+  },
+  {
     id: 'stale-training-check',
     name: 'Stale Coursera progress flag',
     description:

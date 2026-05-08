@@ -12549,10 +12549,23 @@ html.dark .admin-super-messages-bubble.is-staff {
     gap: var(--space-3);
 }
 .coursera-unmatched-card {
+    /* Flex column so the actions row at the bottom sizes to its content
+       and isn't clipped by the card edge. The previous default-flow
+       layout combined with the buttons' own `overflow: hidden` from
+       `.btn` rendered the maroon "Create mapping" CTA as a thin strip
+       on narrow viewports — only the top edge of the button was visible
+       below the "Identity / completion" line. */
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--outline-variant);
     border-radius: var(--radius-md);
     padding: var(--space-4);
     background: var(--surface-container-lowest, #fff);
+    /* Let the card grow to fit its contents. Explicit `overflow: visible`
+       defends against any ancestor cascading `overflow: hidden` (e.g.
+       from a future card-shell utility) which would otherwise clip the
+       sticky/positioned button shimmer. */
+    overflow: visible;
 }
 .coursera-unmatched-card__label {
     font-size: 0.65rem;
@@ -12569,6 +12582,18 @@ html.dark .admin-super-messages-bubble.is-staff {
 }
 .coursera-unmatched-card__actions {
     margin-top: var(--space-2);
+    /* Stack the inline `width: 100%` buttons with a real gap so they
+       read as separate CTAs instead of a single clipped maroon strip. */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+.coursera-unmatched-card__actions > .btn,
+.coursera-unmatched-card__actions > button {
+    /* Buttons in this row get full width; explicit `flex: 0 0 auto`
+       prevents a flex parent from squishing them to zero height. */
+    flex: 0 0 auto;
+    width: 100%;
 }
 .coursera-empty-row {
     text-align: center;

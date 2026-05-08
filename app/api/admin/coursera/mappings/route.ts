@@ -7,6 +7,7 @@ import {
   upsertCourseraIdentityMapping,
 } from '@/lib/xapi/mappings';
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
+import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -83,7 +84,19 @@ export async function POST(request: Request) {
       source: 'manual-admin-api',
     });
 
-    // Re-process unmatched xAPI events that might now match this mapping
+    // Re-process unmatched xAPI events that might now match this mapping.
+    // Two pipelines run in parallel because each catches a different failure
+    // mode the other misses:
+    //   - `reprocessUnmatchedXapiEvents` walks `coursera_xapi_events` rows
+    //     stored as 'unmatched' / 'error' (events that hit ingest before
+    //     the mapping existed)
+    //   - `replayUnresolvedXapiStatementsForIdentity` walks
+    //     `xapi_statements` directly, which catches statements whose
+    //     pipeline run never wrote a `coursera_xapi_events` row (early
+    //     failures) and statements that were already marked processed.
+    // Without the second pass, saving a mapping for a learner whose
+    // historical events were short-circuited before `recordXapiEvent`
+    // would not credit any progress.
     let reprocessResult;
     try {
       reprocessResult = await reprocessUnmatchedXapiEvents({
@@ -97,10 +110,22 @@ export async function POST(request: Request) {
       reprocessResult = { processed: 0, matched: 0, errors: 0, details: [] };
     }
 
-    return NextResponse.json({ 
-      ok: true, 
+    let xapiReplay;
+    try {
+      xapiReplay = await replayUnresolvedXapiStatementsForIdentity({
+        courseraEmail: body.courseraEmail,
+        actorIdentifier: body.actorIdentifier,
+      });
+    } catch (replayError) {
+      console.error('[admin/coursera/mappings] xapi replay failed:', replayError);
+      xapiReplay = null;
+    }
+
+    return NextResponse.json({
+      ok: true,
       mapping,
       reprocessed: reprocessResult,
+      xapiReplay,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to save Coursera mapping';

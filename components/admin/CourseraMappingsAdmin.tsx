@@ -786,9 +786,19 @@ export default function CourseraMappingsAdmin({
                   .then(async (res) => {
                     const payload = await res.json().catch(() => ({}));
                     if (res.ok && payload.result) {
+                      const r = payload.result as {
+                        processed?: number;
+                        matched?: number;
+                        errors?: number;
+                        pendingReplay?: { replayed?: number };
+                      };
+                      const pendingReplayed = r.pendingReplay?.replayed ?? 0;
+                      const detail = pendingReplayed
+                        ? ` Drained ${pendingReplayed} pending xAPI row${pendingReplayed === 1 ? '' : 's'}.`
+                        : '';
                       setMessage({
                         kind: 'success',
-                        text: `Auto-heal complete: ${payload.result.matched} of ${payload.result.processed} unmatched events matched to members.`,
+                        text: `Auto-heal complete: ${r.matched ?? 0} of ${r.processed ?? 0} statements credited to members.${detail}`,
                       });
                       router.refresh();
                     } else {

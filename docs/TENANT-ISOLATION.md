@@ -187,3 +187,129 @@ What this PR **does not** do:
 ---
 
 *Update on every Track A PR landing.*
+
+---
+
+
+## Track E.1 — Custom-domain → organization resolution
+
+As of Sprint E.1 PR 1, an `Organization` can be resolved from the request
+`Host` header via the `customDomain` field in the schema. This is the
+plumbing for white-label deployments (e.g. `aaul.workforceap.org` ->
+the AAUL org with their branding).
+
+### Resolution pipeline
+
+```
+   Request
+      |
+      v
+  middleware.ts (Edge runtime)
+      |
+      |-- normalizes Host header -> `x-wap-host`
+      |-- consults customDomainCache (in-memory, 60s TTL)
+      |-- if hit: sets `x-wap-org-id`
+      |-- if miss/canonical: leaves `x-wap-org-id` unset
+      v
+   Server component / API route (Node runtime)
+      |
+      v
+   resolveOrgFromRequest(headers)
+      |
+      |-- if `x-wap-org-id` is set: return it (fast path)
+      |-- else: read `x-wap-host`, look up customDomain in Prisma,
+      |         populate cache, return resolved orgId
+      |-- else: fall back to getDefaultOrganizationId()
+```
+
+### Files
+
+| File | Runtime | Purpose |
+|------|---------|---------|
+| `middleware.ts` | Edge | Reads Host, normalizes, sets `x-wap-host` and (on cache hit) `x-wap-org-id`. **Never calls Prisma.** |
+| `lib/tenant/hostMatch.ts` | Edge-safe pure utils | `normalizeHost`, `isCanonicalHost`. Lowercases, strips port, identifies canonical/local hosts. |
+| `lib/tenant/customDomainCache.ts` | Edge-safe (Map + Date.now) | Process-local 60s TTL cache of normalized host -> orgId. Caches a `NO_ORG_SENTINEL` for confirmed misses to avoid repeat DB hits. |
+| `lib/tenant/resolveOrgFromRequest.ts` | Node | `resolveOrgFromRequest(headers)` → orgId (with default fallback). `tryResolveOrgFromRequest(headers)` → orgId or `null`. Calls Prisma on cache miss. |
+| `lib/tenant/organization.ts` | Node | Existing `getDefaultOrganizationId()` (slug `workforceap`). Used as fallback. |
+
+### Canonical hosts (no override)
+
+These hosts always resolve to the default `workforceap` tenant — they are
+NEVER looked up against `customDomain`:
+
+- `workforceap.org`, `www.workforceap.org`
+- `workforceap.com`, `www.workforceap.com`
+- `*.vercel.app` (preview deployments)
+- `localhost`, `127.0.0.1`, `0.0.0.0`, `::1`
+
+Subdomains under `workforceap.org` (e.g. `aaul.workforceap.org`) are
+**NOT** treated as canonical — they go through `customDomain` lookup so
+tenants can use vanity subdomains.
+
+### How to read the active org in your code
+
+**Server component / route handler (App Router):**
+
+```ts
+import { headers } from 'next/headers';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
+
+export default async function Page() {
+  const orgId = await resolveOrgFromRequest(await headers());
+  // …
+}
+```
+
+**API route (`app/api/.../route.ts`):**
+
+```ts
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
+
+export async function GET(request: Request) {
+  const orgId = await resolveOrgFromRequest(request.headers);
+  // …
+}
+```
+
+If you want orgId-or-null without the default-org fallback (e.g. for
+analytics or feature flags that should ONLY fire for white-label
+tenants), use `tryResolveOrgFromRequest(headers)`.
+
+### Edge runtime constraint
+
+Middleware runs on the Edge runtime, where Prisma is unavailable. We
+cannot do `prisma.organization.findUnique({ where: { customDomain } })`
+there. Instead:
+
+- Middleware only **reads** `customDomainCache` (a plain `Map` — Edge-safe).
+- The cache is **populated** by `resolveOrgFromRequest()` calls during
+  Node-runtime request handling (server components, API routes).
+- TTL is 60s, so a deleted/renamed customDomain stops resolving within
+  a minute without redeploy.
+
+This means the **first request** to a brand-new customDomain hits the
+DB once via the resolver in a Node-runtime handler, then subsequent
+requests in the same isolate are served from the in-process cache.
+
+### What is NOT yet implemented (next PRs)
+
+- Existing call sites still use `getDefaultOrganizationId()` directly.
+  No production code currently routes through `resolveOrgFromRequest`.
+  The next PR migrates the high-traffic code paths.
+- Email templates still hard-code WorkforceAP branding (Track E.2).
+- `withTenantScope` / RLS work lives in Track A and is intentionally
+  not modified by this PR.
+- No build-time pre-warm of the cache. Considered for a later PR if
+  cold-start DB hits become an issue.
+
+---
+
+## Default organization fallback
+
+Single-tenant code paths use `getDefaultOrganizationId()` from
+`lib/tenant/organization.ts`, which looks up the org with slug
+`workforceap` (seeded by `prisma/seed.ts`) and caches it in module scope.
+
+`resolveOrgFromRequest` falls back to this for canonical hosts and
+unknown custom domains, which preserves backward compatibility for any
+caller that hasn't been migrated yet.

@@ -654,10 +654,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         ) : null}
 
         {(dashboardState === 'C' || dashboardState === 'D') && (
-          <section style={{ padding: '0 1.5rem 1.25rem' }}>
+          <section style={{ padding: '0 1.5rem 1rem' }}>
             <MemberProgressStrip {...progressStripProps} />
           </section>
         )}
+
+        <section style={{ padding: '0 1.25rem 0.75rem' }}>
+          <LogCertificationModal />
+        </section>
 
         {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
@@ -695,13 +699,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         )}
 
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
-        <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
+        <div style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-          <LogCertificationModal />
         </div>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
+        <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
           <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
             <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
               {t('applicationJourney')}

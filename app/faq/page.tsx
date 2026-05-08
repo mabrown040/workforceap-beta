@@ -4,7 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
-import { PageSection, InfoCard } from '@/components/marketing/ui';
+import { PageSection, InfoCard, SectionHeader } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -56,12 +56,12 @@ export default async function FAQPage() {
           }}
         >
           <div style={{ marginBottom: '1rem' }}>
-            <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-              {t('quickAnswers')}
-            </p>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--color-on-surface)' }}>
-              {t('quickAnswersTitle')}
-            </h2>
+            <SectionHeader
+              eyebrow={t('quickAnswers')}
+              title={t('quickAnswersTitle')}
+              align="left"
+              compact
+            />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
             <InfoCard

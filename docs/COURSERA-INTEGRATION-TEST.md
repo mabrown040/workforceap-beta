@@ -4,6 +4,14 @@ End-to-end probe for the three Coursera credential surfaces that touch
 WorkforceAP. Lives at `scripts/coursera-integration-test.ts` and is wired up as
 `npm run coursera:test`. Admin-only — never run from CI.
 
+> **Org-scoped URLs (landed):** member-facing "View on Coursera" / "Continue
+> in Coursera" links route through `lib/coursera/orgScopedUrls.ts`, which
+> resolves the program slug to its B4B `programs[].url` (catalog → live B4B
+> lookup, cached 1h → local fallback). Authenticated learners drop into the
+> right org context; unauthenticated learners hit the org sign-in page
+> instead of the public catalog. Admin / catalog-browse pages still link to
+> generic `coursera.org` URLs by design.
+
 ## What it does
 
 The runner verifies all three credential paths actually work and reports the

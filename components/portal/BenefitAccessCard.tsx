@@ -72,11 +72,23 @@ export default function BenefitAccessCard({ benefitId, name, status: initialStat
   };
 
   const handleOpenPlatform = () => {
+    // Route Coursera opens through our launch API so we land the member in
+    // their org-scoped Coursera For Business program (resolved server-side
+    // from B4B / discovered catalog) rather than the generic public catalog.
+    const courseraTarget = '/api/member/coursera/launch';
     if (needsAssessment) {
-      redirectToAssessment('https://coursera.org');
+      redirectToAssessment(isCoursera ? courseraTarget : 'https://coursera.org');
       return;
     }
-    window.open(benefitId === 'linkedin_premium' ? 'https://linkedin.com' : 'https://coursera.org', '_blank', 'noopener,noreferrer');
+    if (benefitId === 'linkedin_premium') {
+      window.open('https://linkedin.com', '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (isCoursera) {
+      window.open(courseraTarget, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    window.open('https://coursera.org', '_blank', 'noopener,noreferrer');
   };
 
   if (isActive) {

@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getTranslations } from 'next-intl/server';
+import { SectionHeader, InfoCard } from '@/components/marketing/ui';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.impact');
@@ -22,17 +23,16 @@ export default async function ImpactPage() {
     <div className="inner-page marketing-mobile-pb-for-bottom-nav">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
-          <div style={{ maxWidth: '48rem', marginBottom: '2.5rem' }}>
-            <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>
-              {t('eyebrow')}
-            </span>
-            <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              {t('heading')} <span style={{ color: 'var(--color-accent)' }}>{t('headingAccent')}</span>
-            </h1>
-            <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.8, margin: 0 }}>
-              {t('intro')}
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow={t('eyebrow')}
+            title={
+              <>
+                {t('heading')} <span style={{ color: 'var(--color-accent)' }}>{t('headingAccent')}</span>
+              </>
+            }
+            subtitle={t('intro')}
+            align="left"
+          />
 
           <div
             style={{
@@ -61,26 +61,9 @@ export default async function ImpactPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-            <section className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-              <h2 style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>{t('modelTitle')}</h2>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, margin: 0 }}>
-                {t('modelDesc')}
-              </p>
-            </section>
-
-            <section className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-              <h2 style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>{t('membersTitle')}</h2>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, margin: 0 }}>
-                {t('membersDesc')}
-              </p>
-            </section>
-
-            <section className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-              <h2 style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>{t('whyTitle')}</h2>
-              <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, margin: 0 }}>
-                {t('whyDesc')}
-              </p>
-            </section>
+            <InfoCard title={t('modelTitle')} description={t('modelDesc')} variant="flat" />
+            <InfoCard title={t('membersTitle')} description={t('membersDesc')} variant="flat" />
+            <InfoCard title={t('whyTitle')} description={t('whyDesc')} variant="flat" />
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '2rem' }}>

@@ -39,17 +39,20 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
  *      per program. Also pull `getCourseGradebookReports` filtered by email.
  *   3. For each enrollmentReport's `contentId`, look it up in
  *      `DISCOVERED_COURSERA_PROGRAMS` to find the (wapProgramSlug, courseSlug).
- *      The `CourseEnrollment` model is keyed per-program (one row per user),
- *      so we group matched rows by wapProgramSlug and pick the program with
- *      the strongest signal (most matched courses, ties broken by most-recent
- *      activity). Catalog rows whose `courseId` is still a `TODO_courseId_*`
- *      placeholder will never match a real Coursera contentId and are
- *      surfaced in `mapped.droppedNoMapping` so an operator can update the
- *      catalog later.
- *   4. Upsert `CourseEnrollment` (and pin `User.enrolledProgram`) for the
- *      chosen program slug. The xAPI pipeline gates on `User.enrolledProgram`
- *      (see `lib/xapi/inboundStatementPipeline.ts`), so both must be set
- *      together for previously-bouncing statements to credit on replay.
+ *      Catalog rows whose `courseId` is still a `TODO_courseId_*` placeholder
+ *      will never match a real Coursera contentId and are surfaced in
+ *      `mapped.droppedNoMapping` so an operator can update the catalog later.
+ *   4. Upsert one `CourseEnrollment` row PER matched program (multi-program
+ *      support — see prisma/migrations/.../multi_course_enrollment). The
+ *      program with the strongest Coursera signal (most matched courses,
+ *      ties broken by most-recent activity) is marked `isPrimary = true`,
+ *      others as secondary. If the user already has an `enrolledProgram` set
+ *      and that program is one of the Coursera matches, we keep it as
+ *      primary so we don't accidentally flip a learner away from the
+ *      program they registered for. `User.enrolledProgram` is then pinned
+ *      to the primary slug so the xAPI pipeline keeps crediting (see
+ *      `lib/xapi/inboundStatementPipeline.ts` — multi-program xAPI
+ *      crediting is deferred to a later PR).
  *   5. Call `replayUnresolvedXapiStatementsForIdentity` (per-identity, never
  *      global) to drain the learner's stuck xAPI statements.
  *   6. Return a structured summary the UI can show as a toast.
@@ -85,6 +88,10 @@ type SyncResponse = {
   mapped: {
     seededEnrollments: number;
     updatedEnrollments: number;
+    /** Slug of the row marked `isPrimary = true` after the sync. */
+    primaryProgramSlug: string | null;
+    /** All program slugs the user is now enrolled in (primary + secondary). */
+    enrolledProgramSlugs: string[];
     droppedNoMapping: DroppedItem[];
   };
   xapi: {
@@ -272,9 +279,9 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Group by wapProgramSlug so we can pick the dominant program for the
-  // single-row CourseEnrollment table. Score = number of matched courses;
-  // ties broken by most-recent activity.
+  // Group by wapProgramSlug so we can score each candidate program for the
+  // primary-enrollment slot. Score = number of matched courses; ties broken
+  // by most-recent activity.
   const programGroups = new Map<
     string,
     { courses: ResolvedCourse[]; lastActivity: number }
@@ -294,10 +301,15 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // ────────── 4. Seed/upsert CourseEnrollment ──────────
+  // ────────── 4. Seed/upsert CourseEnrollment per matched program ──────────
+  // Multi-program: write one row per matched program, mark exactly one as
+  // primary. The partial unique index `course_enrollments_user_primary_uidx`
+  // enforces the at-most-one invariant — we transitionally clear other rows
+  // first, then set the chosen primary, to avoid violating it mid-update.
   let seededEnrollments = 0;
   let updatedEnrollments = 0;
   let chosenProgramSlug: string | null = null;
+  const enrolledProgramSlugs: string[] = [];
 
   if (programGroups.size > 0) {
     const candidates = Array.from(programGroups.entries()).sort((a, b) => {
@@ -314,42 +326,59 @@ export async function POST(request: NextRequest) {
     );
     chosenProgramSlug = (existingMatch ?? candidates[0])![0];
 
-    const existing = await withTenantScope(orgId, (db) =>
-      db.courseEnrollment.findUnique({
-        where: { userId: wapUser.id },
-        select: { id: true, programSlug: true },
+    const enrolledAt = new Date();
+
+    // Clear is_primary on every existing row for this user up front. The
+    // partial unique index would reject a second is_primary=true without
+    // this, and we may be moving primary to a different slug.
+    await withTenantScope(orgId, (db) =>
+      db.courseEnrollment.updateMany({
+        where: { userId: wapUser.id, isPrimary: true },
+        data: { isPrimary: false },
       }),
     );
 
-    const enrolledAt = new Date();
-    if (!existing) {
-      await withTenantScope(orgId, (db) =>
-        db.courseEnrollment.create({
-          data: {
-            organizationId: orgId,
-            userId: wapUser.id,
-            programSlug: chosenProgramSlug!,
-            enrolledAt,
-            enrolledByAdminId: actor.id,
-          },
+    for (const [slug] of candidates) {
+      enrolledProgramSlugs.push(slug);
+      const isPrimary = slug === chosenProgramSlug;
+      const existingRow = await withTenantScope(orgId, (db) =>
+        db.courseEnrollment.findUnique({
+          where: { userId_programSlug: { userId: wapUser.id, programSlug: slug } },
+          select: { id: true },
         }),
       );
-      seededEnrollments = 1;
-    } else if (existing.programSlug !== chosenProgramSlug) {
-      await withTenantScope(orgId, (db) =>
-        db.courseEnrollment.update({
-          where: { userId: wapUser.id },
-          data: {
-            programSlug: chosenProgramSlug!,
-            enrolledByAdminId: actor.id,
-          },
-        }),
-      );
-      updatedEnrollments = 1;
+
+      if (!existingRow) {
+        await withTenantScope(orgId, (db) =>
+          db.courseEnrollment.create({
+            data: {
+              organizationId: orgId,
+              userId: wapUser.id,
+              programSlug: slug,
+              isPrimary,
+              enrolledAt,
+              enrolledByAdminId: actor.id,
+            },
+          }),
+        );
+        seededEnrollments += 1;
+      } else {
+        await withTenantScope(orgId, (db) =>
+          db.courseEnrollment.update({
+            where: { userId_programSlug: { userId: wapUser.id, programSlug: slug } },
+            data: {
+              isPrimary,
+              enrolledByAdminId: actor.id,
+            },
+          }),
+        );
+        updatedEnrollments += 1;
+      }
     }
 
     // Pin User.enrolledProgram too — the xAPI pipeline reads this field
     // (not CourseEnrollment) when deciding whether to credit a statement.
+    // Multi-program xAPI crediting is deferred (see header comment).
     if (wapUser.enrolledProgram !== chosenProgramSlug) {
       await withTenantScope(orgId, (db) =>
         db.user.update({
@@ -383,14 +412,22 @@ export async function POST(request: NextRequest) {
 
   // ────────── 6. Build summary ──────────
   const messageParts: string[] = [];
-  if (seededEnrollments > 0) {
-    messageParts.push(`Seeded CourseEnrollment for "${chosenProgramSlug}".`);
-  } else if (updatedEnrollments > 0) {
-    messageParts.push(`Updated CourseEnrollment to "${chosenProgramSlug}".`);
-  } else if (programGroups.size > 0) {
-    messageParts.push(`CourseEnrollment for "${chosenProgramSlug}" already up to date.`);
-  } else {
+  if (programGroups.size === 0) {
     messageParts.push('No matching WAP program found for any Coursera enrollment row.');
+  } else {
+    const otherSlugs = enrolledProgramSlugs.filter((s) => s !== chosenProgramSlug);
+    const primaryFragment = `Primary CourseEnrollment is "${chosenProgramSlug}".`;
+    const secondaryFragment =
+      otherSlugs.length > 0
+        ? ` Also seeded/updated secondary enrollment(s): ${otherSlugs.map((s) => `"${s}"`).join(', ')}.`
+        : '';
+    if (seededEnrollments > 0 || updatedEnrollments > 0) {
+      messageParts.push(
+        `Seeded ${seededEnrollments} and updated ${updatedEnrollments} CourseEnrollment row(s). ${primaryFragment}${secondaryFragment}`,
+      );
+    } else {
+      messageParts.push(`CourseEnrollments already up to date. ${primaryFragment}${secondaryFragment}`);
+    }
   }
   if (droppedNoMapping.length > 0) {
     messageParts.push(
@@ -412,6 +449,8 @@ export async function POST(request: NextRequest) {
     mapped: {
       seededEnrollments,
       updatedEnrollments,
+      primaryProgramSlug: chosenProgramSlug,
+      enrolledProgramSlugs,
       droppedNoMapping,
     },
     xapi: {

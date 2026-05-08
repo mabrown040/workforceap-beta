@@ -66,10 +66,15 @@ export default async function DashboardProfilePage() {
         employmentStatusAtEnroll: true,
       },
     },
-    courseEnrollment: {
+    // Multi-program: read enrolledByAdminId from the primary enrollment
+    // (the counselor-created flag for the starter-profile review). Returns
+    // an array of length 0 or 1 thanks to the partial unique index.
+    courseEnrollments: {
+      where: { isPrimary: true },
       select: {
         enrolledByAdminId: true,
       },
+      take: 1,
     },
   } satisfies Prisma.UserSelect;
 
@@ -109,10 +114,12 @@ export default async function DashboardProfilePage() {
         assessmentAnswers: true,
         notificationsUpdates: true,
         notificationsReminders: true,
-        courseEnrollment: {
+        courseEnrollments: {
+          where: { isPrimary: true },
           select: {
             enrolledByAdminId: true,
           },
+          take: 1,
         },
       },
     });
@@ -158,7 +165,7 @@ export default async function DashboardProfilePage() {
   const hasEnhanced = !!dbUser.profile?.resumeEnhancedPath;
   const hasOriginal = !!dbUser.profile?.resumeOriginalPath;
   const starterProfileReview = getCounselorStarterProfileReview({
-    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    wasCounselorCreated: !!dbUser.courseEnrollments?.[0]?.enrolledByAdminId,
     phone: dbUser.phone,
     profilePhone: dbUser.profile?.profilePhone,
     profileAddress: dbUser.profile?.profileAddress,

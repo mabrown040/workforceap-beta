@@ -38,13 +38,21 @@ export async function POST(request: Request) {
     select: {
       enrolledProgram: true,
       wioaReviewStatus: true,
-      courseEnrollment: { select: { enrolledByAdminId: true } },
+      // Multi-program: read enrolledByAdminId from the primary enrollment row
+      // (the WIOA gate cares whether an admin override is in play, which is
+      // tracked on the primary row). Returns at most one row via the partial
+      // unique index `course_enrollments_user_primary_uidx`.
+      courseEnrollments: {
+        where: { isPrimary: true },
+        select: { enrolledByAdminId: true },
+        take: 1,
+      },
     },
   });
 
   const gate = isMemberWioaVerified({
     wioaReviewStatus: existing?.wioaReviewStatus,
-    enrolledByAdminId: existing?.courseEnrollment?.enrolledByAdminId,
+    enrolledByAdminId: existing?.courseEnrollments?.[0]?.enrolledByAdminId,
   });
   if (!gate.ok) {
     const messages: Record<string, string> = {
@@ -75,17 +83,23 @@ export async function POST(request: Request) {
       },
       select: { email: true, fullName: true, organizationId: true },
     });
+    // Multi-program: self-serve enroll is the user's first program, so the
+    // row is marked isPrimary = true. Composite-keyed upsert prevents
+    // duplicate (userId, programSlug) rows if the request retries.
+    // Code above this transaction blocks if existing.enrolledProgram is
+    // already set, so there shouldn't be a competing primary row.
     await tx.courseEnrollment.upsert({
-      where: { userId: user.id },
+      where: { userId_programSlug: { userId: user.id, programSlug: slug } },
       create: {
         organizationId: u.organizationId,
         userId: user.id,
         programSlug: slug,
+        isPrimary: true,
         enrolledAt: now,
         enrolledByAdminId: null,
       },
       update: {
-        programSlug: slug,
+        isPrimary: true,
         enrolledAt: now,
         enrolledByAdminId: null,
       },

@@ -139,15 +139,23 @@ export default async function AdminDiagnosticsPage() {
         id: true,
         fullName: true,
         enrolledProgram: true,
-        courseEnrollment: { select: { programSlug: true } },
+        // Multi-program: pull all enrollments and pick the primary client-side
+        // for the drift comparison. We treat "no primary row at all" as a
+        // drift signal — same semantics as the legacy "no courseEnrollment".
+        courseEnrollments: {
+          where: { isPrimary: true },
+          select: { programSlug: true },
+          take: 1,
+        },
       },
       take: 500,
     }),
   ]);
 
-  const driftRecords = enrolledUsersForDrift.filter((u) =>
-    !u.courseEnrollment || u.enrolledProgram !== u.courseEnrollment.programSlug
-  );
+  const driftRecords = enrolledUsersForDrift.filter((u) => {
+    const primary = u.courseEnrollments[0] ?? null;
+    return !primary || u.enrolledProgram !== primary.programSlug;
+  });
 
   // Count by status for summary metrics
   const statusCounts = recentDiagnostics.reduce<Record<string, number>>((acc, d) => {
@@ -262,7 +270,7 @@ export default async function AdminDiagnosticsPage() {
                   header: 'CourseEnrollment',
                   cell: (u) => (
                     <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>
-                      {u.courseEnrollment?.programSlug ?? '—'}
+                      {u.courseEnrollments[0]?.programSlug ?? '—'}
                     </span>
                   ),
                 },
@@ -280,7 +288,7 @@ export default async function AdminDiagnosticsPage() {
                         color: 'var(--color-accent)',
                       }}
                     >
-                      {!u.courseEnrollment ? 'No record' : 'Slug mismatch'}
+                      {!u.courseEnrollments[0] ? 'No primary record' : 'Slug mismatch'}
                     </span>
                   ),
                 },

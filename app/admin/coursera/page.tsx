@@ -334,7 +334,12 @@ export default async function AdminCourseraPage({
       enrolledProgram: true,
       workspaceEmail: true,
       workspaceEmailProvisioned: true,
-      courseEnrollment: { select: { workspaceEmail: true, workspaceEmailProvisioned: true } },
+      // Multi-program: workspace email is on the primary enrollment.
+      courseEnrollments: {
+        where: { isPrimary: true },
+        select: { workspaceEmail: true, workspaceEmailProvisioned: true },
+        take: 1,
+      },
     },
     take: 500,
   });
@@ -388,9 +393,9 @@ export default async function AdminCourseraPage({
     fullName: member.fullName,
     email: member.email,
     programTitle: member.enrolledProgram ? getProgramBySlug(member.enrolledProgram)?.title ?? member.enrolledProgram : null,
-    workspaceEmail: member.courseEnrollment?.workspaceEmail ?? member.workspaceEmail,
+    workspaceEmail: member.courseEnrollments[0]?.workspaceEmail ?? member.workspaceEmail,
     workspaceEmailProvisioned:
-      member.courseEnrollment?.workspaceEmailProvisioned ?? member.workspaceEmailProvisioned,
+      member.courseEnrollments[0]?.workspaceEmailProvisioned ?? member.workspaceEmailProvisioned,
   }));
 
   return (

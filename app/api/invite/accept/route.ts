@@ -209,17 +209,21 @@ async function ensureCourseEnrollmentForInvite(
   programSlug: string,
   adminId?: string | null
 ) {
+  // Multi-program: invite-accept creates the invited user's first row,
+  // mark it primary. Composite-keyed upsert prevents duplicate
+  // (userId, programSlug) rows on retry.
   await tx.courseEnrollment.upsert({
-    where: { userId },
+    where: { userId_programSlug: { userId, programSlug } },
     create: {
       organizationId,
       userId,
       programSlug,
+      isPrimary: true,
       enrolledAt: new Date(),
       enrolledByAdminId: adminId ?? null,
     },
     update: {
-      programSlug,
+      isPrimary: true,
       enrolledAt: new Date(),
       enrolledByAdminId: adminId ?? null,
     },

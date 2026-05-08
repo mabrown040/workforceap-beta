@@ -211,11 +211,15 @@ export async function POST(request: NextRequest) {
           // Inside crossTenantOK( ... ) above; orgId pinned to the actor's
           // tenant via `actorOrgId`. withTenantScope cannot wrap a Prisma
           // $transaction directly (the proxy strips $transaction).
+          // Multi-program: this is the user's first row, mark it primary
+          // so /dashboard/training and the xAPI pipeline (via
+          // User.enrolledProgram) credit progress against it.
           await tx.courseEnrollment.create({
             data: {
               organizationId: actorOrgId,
               userId: createdUser.id,
               programSlug,
+              isPrimary: true,
               enrolledAt,
               enrolledByAdminId: user.id,
             },

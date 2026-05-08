@@ -28,7 +28,16 @@ export default async function AssessmentPage({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    include: { profile: true, courseEnrollment: { select: { enrolledByAdminId: true } } },
+    include: {
+      profile: true,
+      // Multi-program: read enrolledByAdminId from the primary enrollment;
+      // counselor-created intent is tracked on the primary row.
+      courseEnrollments: {
+        where: { isPrimary: true },
+        select: { enrolledByAdminId: true },
+        take: 1,
+      },
+    },
   });
 
   if (!dbUser) redirect('/login');
@@ -45,7 +54,7 @@ export default async function AssessmentPage({
   const firstName = nameParts[0] ?? '';
   const lastName = nameParts.slice(1).join(' ') ?? '';
   const starterProfileReview = getCounselorStarterProfileReview({
-    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    wasCounselorCreated: !!dbUser.courseEnrollments[0]?.enrolledByAdminId,
     phone: dbUser.phone,
     profilePhone: dbUser.profile?.profilePhone,
     profileAddress: dbUser.profile?.profileAddress,

@@ -105,7 +105,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           isMinor: true,
         },
       },
-      courseEnrollment: { select: { enrolledByAdminId: true, id: true } },
+      // Multi-program: dashboard intake reads enrolledByAdminId from the
+      // primary enrollment (counselor-created flag).
+      courseEnrollments: {
+        where: { isPrimary: true },
+        select: { enrolledByAdminId: true, id: true },
+        take: 1,
+      },
       placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
     },
   });
@@ -319,7 +325,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   // Starter profile review (for counselor-created accounts)
   const starterProfileReview = getCounselorStarterProfileReview({
-    wasCounselorCreated: !!intakeExtra?.courseEnrollment?.enrolledByAdminId,
+    wasCounselorCreated: !!intakeExtra?.courseEnrollments?.[0]?.enrolledByAdminId,
     phone: intakeExtra?.phone,
     profilePhone: intakeExtra?.profile?.profilePhone,
     profileAddress: intakeExtra?.profile?.profileAddress,

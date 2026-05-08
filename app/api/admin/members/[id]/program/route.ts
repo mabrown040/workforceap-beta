@@ -48,17 +48,25 @@ export async function PATCH(
       },
       select: { organizationId: true },
     });
+    // Multi-program: admin "set program" picks the user's primary
+    // enrollment. Demote any other primary first to satisfy the partial
+    // unique index, then upsert this program's row as primary.
+    await tx.courseEnrollment.updateMany({
+      where: { userId: id, isPrimary: true, programSlug: { not: programSlug } },
+      data: { isPrimary: false },
+    });
     await tx.courseEnrollment.upsert({
-      where: { userId: id },
+      where: { userId_programSlug: { userId: id, programSlug } },
       create: {
         organizationId: member.organizationId,
         userId: id,
         programSlug,
+        isPrimary: true,
         enrolledAt: now,
         enrolledByAdminId: user.id,
       },
       update: {
-        programSlug,
+        isPrimary: true,
         enrolledAt: now,
         enrolledByAdminId: user.id,
       },

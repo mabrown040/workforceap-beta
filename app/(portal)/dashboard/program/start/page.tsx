@@ -36,8 +36,11 @@ export default async function ProgramStartPage() {
   }
 
   const program = getProgramBySlug(enrolledSlug);
-  const enrollment = await prisma.courseEnrollment.findUnique({
-    where: { userId: user.id },
+  // Multi-program: this page shows the user's primary enrollment workspace
+  // info. /dashboard/training is the multi-tab surface for switching
+  // between primary/secondary programs.
+  const enrollment = await prisma.courseEnrollment.findFirst({
+    where: { userId: user.id, isPrimary: true },
     select: {
       workspaceEmail: true,
       workspaceEmailProvisioned: true,

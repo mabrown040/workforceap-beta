@@ -41,14 +41,17 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   const d = parsed.data;
 
-  // Update CourseEnrollment if it exists; also sync workspaceEmail to User
-  const enrollment = await prisma.courseEnrollment.findUnique({
-    where: { userId: memberId },
+  // Multi-program: funding/workspace metadata lives on the primary
+  // enrollment row only. If a user has multiple enrollments, the secondary
+  // ones don't get their own funding source through this UI.
+  const enrollment = await prisma.courseEnrollment.findFirst({
+    where: { userId: memberId, isPrimary: true },
+    select: { id: true },
   });
 
   if (enrollment) {
     await prisma.courseEnrollment.update({
-      where: { userId: memberId },
+      where: { id: enrollment.id },
       data: {
         fundingSource: d.fundingSource ?? null,
         fundingNotes: d.fundingNotes ?? null,

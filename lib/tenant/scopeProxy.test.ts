@@ -428,3 +428,103 @@ test('regular updates without nested organization still work', async () => {
   assert.equal(args.where.organizationId, ORG_A);
   assert.equal(args.data.fullName, 'New Name');
 });
+
+// ─── upsert.update scalar org rejection (Codex P1, PR #1041 b6a1db4b0a) ─────
+// The upsert.update branch previously didn't validate the scalar
+// `update.organizationId`. A caller could pass `update: { organizationId:
+// otherOrgId }` and once the row existed, the update path would move it
+// across tenants. The where-clause check passed because we inject the
+// scoped orgId into where, but the update payload was passed through
+// untouched. Now the scalar org check runs in the update branch too.
+
+test('upsert.update rejects scalar organizationId mismatching scope', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.upsert({
+      where: { id: 'u1' },
+      create: { id: 'u1', email: 'a@b.c', fullName: 'A' },
+      update: { organizationId: ORG_B } as unknown as Record<string, unknown>,
+    }),
+  );
+});
+
+test('upsert.update allows scalar organizationId matching scope', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.user.upsert({
+    where: { id: 'u1' },
+    create: { id: 'u1', email: 'a@b.c', fullName: 'A' },
+    update: { fullName: 'A2', organizationId: ORG_A } as unknown as Record<string, unknown>,
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as {
+    where: { organizationId: string };
+    update: { organizationId: string; fullName: string };
+  };
+  assert.equal(args.where.organizationId, ORG_A);
+  assert.equal(args.update.organizationId, ORG_A);
+  assert.equal(args.update.fullName, 'A2');
+});
+
+// ─── createMany single-object data form (Codex P2, PR #1041 b6a1db4b0a) ────
+// Prisma 5.22's createMany / createManyAndReturn accepts `data` as either
+// an array OR a single object. The original code blindly called `.map()`
+// on it and would throw `data.map is not a function` for the object form.
+// The proxy now normalizes both shapes.
+
+test('createMany with single-object data injects organizationId (object form)', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await db.user.createMany({
+    data: { id: 'u1', email: 'a@b.c', fullName: 'A' } as unknown as Array<Record<string, unknown>>,
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as { data: { organizationId: string; id: string } };
+  // Output should preserve the single-object shape.
+  assert.ok(!Array.isArray(args.data), 'expected single-object data shape preserved');
+  assert.equal(args.data.organizationId, ORG_A);
+  assert.equal(args.data.id, 'u1');
+});
+
+test('createManyAndReturn with single-object data injects organizationId', async () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  await (db.job as unknown as { createManyAndReturn: (a: unknown) => Promise<unknown> }).createManyAndReturn({
+    data: { id: 'j1', title: 'IT Support' },
+  });
+  const [call] = fake.__getCalls();
+  const args = call.args as { data: { organizationId: string; id: string } };
+  assert.ok(!Array.isArray(args.data));
+  assert.equal(args.data.organizationId, ORG_A);
+});
+
+test('createMany single-object with mismatched organizationId throws', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.createMany({
+      data: {
+        id: 'u1',
+        email: 'a@b.c',
+        fullName: 'A',
+        organizationId: ORG_B,
+      } as unknown as Array<Record<string, unknown>>,
+    }),
+  );
+});
+
+test('createMany single-object rejects nested organization relation', () => {
+  const fake = makeFakePrisma();
+  const db = createScopedClient(ORG_A, fake);
+  expectScopeViolation(() =>
+    db.user.createMany({
+      data: {
+        id: 'u1',
+        email: 'a@b.c',
+        fullName: 'A',
+        organization: { connect: { id: ORG_B } },
+      } as unknown as Array<Record<string, unknown>>,
+    }),
+  );
+});

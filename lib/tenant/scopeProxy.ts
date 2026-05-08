@@ -160,6 +160,14 @@ function enforceWriteScope(
 
     const update = ((out.update ?? {}) as Record<string, unknown>) ?? {};
     assertNoOrganizationRelationWrite(update, model, op);
+    // Codex P1 catch on PR #1041 (commit b6a1db4b0a): the upsert.update branch
+    // previously skipped the scalar `organizationId` check, so a caller could
+    // pass `update: { organizationId: otherOrgId }` and move the row across
+    // tenants once the row already existed. Apply the same scalar rejection
+    // used in the regular update path.
+    if (update.organizationId !== undefined && update.organizationId !== orgId) {
+      throw new TenantScopeViolation(model, op, orgId, String(update.organizationId));
+    }
 
     const where = ((out.where ?? {}) as Record<string, unknown>) ?? {};
     const providedWhereOrg = extractOrgId(where);
@@ -171,17 +179,31 @@ function enforceWriteScope(
   }
 
   if (op === 'createMany' || op === 'createManyAndReturn') {
-    // `createManyAndReturn` (Prisma 5.14+) takes the same `{ data: [...] }`
-    // shape as `createMany` and returns the inserted rows. Both must inject
+    // `createManyAndReturn` (Prisma 5.14+) takes the same shape as
+    // `createMany` and returns the inserted rows. Both must inject
     // `organizationId` into every row.
-    const data = (out.data as Array<Record<string, unknown>> | undefined) ?? [];
-    out.data = data.map((row) => {
+    //
+    // Codex P2 catch on PR #1041 (commit b6a1db4b0a): Prisma 5.22 lets
+    // `data` be a SINGLE object as well as an array. The previous code
+    // unconditionally cast to an array and called `.map()`, which threw
+    // `data.map is not a function` for the single-object form. Normalize
+    // both shapes and preserve the original input shape on the way out.
+    const dataInput = out.data;
+    const scopeRow = (row: Record<string, unknown>): Record<string, unknown> => {
       assertNoOrganizationRelationWrite(row, model, op);
       if (row.organizationId !== undefined && row.organizationId !== orgId) {
         throw new TenantScopeViolation(model, op, orgId, String(row.organizationId));
       }
       return { ...row, organizationId: orgId };
-    });
+    };
+    if (Array.isArray(dataInput)) {
+      out.data = (dataInput as Array<Record<string, unknown>>).map(scopeRow);
+    } else if (dataInput && typeof dataInput === 'object') {
+      out.data = scopeRow(dataInput as Record<string, unknown>);
+    } else {
+      // No data provided — let Prisma surface the validation error.
+      out.data = dataInput;
+    }
     return out;
   }
 

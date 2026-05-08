@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
+ * The TWC catalog export goes through `withTenantScope` so an admin
+ * from Org A only exports their own tenant's program catalog. The
+ * Texas Workforce Commission report is a per-funder artefact, so
+ * cross-tenant exposure here would also be a compliance issue.
+ */
 
 function csvEscape(s: string): string {
   if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
@@ -23,11 +31,13 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const organizationId = await getDefaultOrganizationId();
-  const rows = await prisma.organizationProgramCatalog.findMany({
-    where: { organizationId, status: 'active' },
-    orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const rows = await withTenantScope(orgId, (db) =>
+    db.organizationProgramCatalog.findMany({
+      where: { status: 'active' },
+      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+    }),
+  );
 
   const header = [
     'Program name',

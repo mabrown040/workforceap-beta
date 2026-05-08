@@ -128,22 +128,24 @@ export async function PATCH(
       }
     }
 
-    // Membership has already been verified above, so the User update goes
-    // through `withTenantScope` (using `updateMany` so the proxy can scope
-    // the where clause). Profile / UserRole are platform-level — they
-    // inherit tenancy via FK to User and stay on the raw transaction
-    // client. The actor's tenant gate is `existing` above.
-    const userUpdated = await withTenantScope(orgId, (db) =>
-      db.user.updateMany({
-        where: { id },
-        data: { fullName, email: normalizedEmail },
-      }),
-    );
-    if (userUpdated.count === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
+    // Membership has already been verified via withTenantScope.findFirst above.
+    // The User update + Profile / UserRole writes need to be ATOMIC — Codex P2
+    // catch on PR #1049: splitting them caused partial-update state when role
+    // sync failed after the user write succeeded. Restore the single
+    // $transaction with an explicit `organizationId` filter on the user write.
+    // This is an atomicity exception — the proxy can't be inserted inside an
+    // outer $transaction (the inner `tx` argument is unwrapped). The membership
+    // gate from `existing` above is the primary tenant check; the explicit
+    // organizationId on this updateMany is belt-and-braces.
     const updated = await prisma.$transaction(async (tx) => {
+      const userResult = await tx.user.updateMany({
+        where: { id, organizationId: orgId },
+        data: { fullName, email: normalizedEmail },
+      });
+      if (userResult.count === 0) {
+        throw new Error('USER_NOT_FOUND_IN_TX');
+      }
+
       const profile = role
         ? await ensureProfileRole(tx, id, role)
         : await tx.profile.findFirst({
@@ -165,6 +167,9 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, user: updated });
   } catch (error) {
+    if (error instanceof Error && error.message === 'USER_NOT_FOUND_IN_TX') {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
     console.error('[admin/users/:id PATCH]', error);
     return NextResponse.json({ error: 'Failed to update user.' }, { status: 500 });
   }

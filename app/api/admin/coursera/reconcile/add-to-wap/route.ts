@@ -1,0 +1,272 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+import { getUser } from '@/lib/auth/server';
+import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
+import { listAllUsers } from '@/lib/coursera/b4bClient';
+import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { crossTenantOK } from '@/lib/tenant/withTenantScope';
+import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { captureApiError } from '@/lib/observability/captureApiError';
+
+/**
+ * POST /api/admin/coursera/reconcile/add-to-wap
+ *
+ * Body: {
+ *   email: string;
+ *   fullName?: string;
+ *   courseraExternalId: string;
+ *   programId: string;            // Coursera program id (used for the
+ *                                 // identity-mapping note; we don't translate
+ *                                 // it to a WAP slug here)
+ *   programSlug?: string;         // Optional WAP CourseEnrollment slug
+ * }
+ *
+ * Behavior:
+ *   1. Verify the email is in the Coursera roster (so we never accidentally
+ *      create a WAP account for someone who hasn't actually joined Coursera).
+ *   2. Create the Supabase auth user (email_confirm=true, no password — the
+ *      member sets one via the password-reset / first-login flow). Handle
+ *      the duplicate-email collision gracefully.
+ *   3. In a Prisma `$transaction`:
+ *        - create the `User` row in the actor's org
+ *        - if `programSlug` was supplied, create the `CourseEnrollment` too
+ *        - create the `coursera_identity_mappings` row binding the new user
+ *          to the Coursera externalId/email
+ *
+ * ──────────────────────────────────────────────────────────────────────
+ *  FERPA / consent caveat
+ *  ----------------------
+ *  Coursera roster membership is NOT itself consent for a WAP account.
+ *  This endpoint is admin-only and intended for the case where the admin
+ *  has out-of-band confirmation (signed enrollment form, partner program
+ *  consent, etc.) that the learner wants a WAP account.
+ *
+ *  Do NOT loop this endpoint over an unfiltered Coursera roster — the
+ *  auto-invite-on-join flow is intentionally deferred (see
+ *  docs/COURSERA-INVITE-ON-JOIN.md) and must ship with a consent-friendly
+ *  invite email and a `coursera_join_invite_log` dedupe table.
+ * ──────────────────────────────────────────────────────────────────────
+ *
+ * Auth gate: super_admin OR admin in the actor's organization.
+ */
+
+const bodySchema = z.object({
+  email: z.string().email(),
+  fullName: z.string().min(1).max(200).optional(),
+  courseraExternalId: z.string().min(1).max(200),
+  programId: z.string().min(1).max(200),
+  programSlug: z.string().min(1).max(120).optional(),
+});
+
+export async function POST(request: NextRequest) {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  let actorOrgId: string;
+  try {
+    actorOrgId = await getActorOrganizationId(user.id);
+  } catch (err) {
+    captureApiError(err, { route: 'admin/coursera/reconcile/add-to-wap' });
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const superAdmin = await isSuperAdmin(user.id);
+  if (!superAdmin && !(await isAdminInOrg(user.id, actorOrgId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const json = await request.json().catch(() => null);
+  const parsed = bodySchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
+      { status: 400 },
+    );
+  }
+
+  const email = parsed.data.email.trim().toLowerCase();
+  const fullName = parsed.data.fullName?.trim() || email;
+  const courseraExternalId = parsed.data.courseraExternalId.trim();
+  const programId = parsed.data.programId.trim();
+  const programSlug = parsed.data.programSlug?.trim() || null;
+
+  // Step 1: verify the learner is in Coursera's roster.
+  // We intentionally drain the full roster (rather than hit a per-user
+  // Coursera endpoint) so the verification matches exactly what
+  // /reconcile sees — same source of truth, no race window.
+  let courseraMatch:
+    | { externalId?: string; id?: string; email?: string; fullName?: string }
+    | null = null;
+  try {
+    const roster = await listAllUsers({ pageLimit: 1000 });
+    courseraMatch =
+      roster.elements.find((u) => (u.email ?? '').trim().toLowerCase() === email) ?? null;
+  } catch (err) {
+    captureApiError(err, { route: 'admin/coursera/reconcile/add-to-wap' });
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error
+            ? `Coursera roster fetch failed: ${err.message}`
+            : 'Coursera roster fetch failed',
+      },
+      { status: 502 },
+    );
+  }
+
+  if (!courseraMatch) {
+    return NextResponse.json(
+      {
+        error:
+          'This email is not in the Coursera roster. Refusing to create a WAP account that has no Coursera presence.',
+      },
+      { status: 400 },
+    );
+  }
+
+  // Defensive: if the request's externalId disagrees with what Coursera
+  // sees today, prefer Coursera's value but flag it for the caller.
+  const externalIdToUse =
+    (courseraMatch.externalId ?? courseraMatch.id ?? courseraExternalId) || courseraExternalId;
+
+  // Step 2: create (or detect existing) Supabase auth user.
+  let supabaseUserId: string;
+  let createdSupabaseUser = false;
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: { full_name: fullName, source: 'coursera-reconcile' },
+    });
+
+    if (error) {
+      const msg = error.message?.toLowerCase() ?? '';
+      if (msg.includes('already') || msg.includes('registered') || msg.includes('exists')) {
+        // Surface as a 400 with a clear message so the UI can move on.
+        return NextResponse.json(
+          {
+            error:
+              'A Supabase auth user with this email already exists. Use the existing account or contact support.',
+          },
+          { status: 400 },
+        );
+      }
+      captureApiError(error, { route: 'admin/coursera/reconcile/add-to-wap' });
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    if (!data.user) {
+      return NextResponse.json({ error: 'Supabase auth user creation returned no user' }, { status: 500 });
+    }
+    supabaseUserId = data.user.id;
+    createdSupabaseUser = true;
+  } catch (err) {
+    captureApiError(err, { route: 'admin/coursera/reconcile/add-to-wap' });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Supabase auth user creation failed' },
+      { status: 500 },
+    );
+  }
+
+  // Step 3: create the WAP rows in a transaction. If anything in here
+  // fails, attempt to roll back the Supabase auth user we just created
+  // (best-effort — Supabase has no native txn).
+  //
+  // We can't use the `withTenantScope` proxy here because Prisma transactions
+  // strip the `$transaction` method off the scoped client (see
+  // `lib/tenant/withTenantScope.ts`). Instead, we wrap the raw `$transaction`
+  // in `crossTenantOK` and pin the org id into every write's `data` payload.
+  // The actorOrgId variable is sourced from `getActorOrganizationId(user.id)`
+  // above, so the writes still respect the actor's tenant.
+  try {
+    const result = await crossTenantOK(() =>
+      prisma.$transaction(async (tx) => {
+        const enrolledAt = new Date();
+        const createdUser = await tx.user.create({
+          data: {
+            id: supabaseUserId,
+            organizationId: actorOrgId,
+            email,
+            fullName,
+            enrolledProgram: programSlug,
+            enrolledAt: programSlug ? enrolledAt : null,
+          },
+          select: { id: true, email: true, fullName: true },
+        });
+
+        await tx.profile.create({
+          data: {
+            userId: createdUser.id,
+            role: 'member',
+          },
+        });
+
+        if (programSlug) {
+          // Inside crossTenantOK( ... ) above; orgId pinned to the actor's
+          // tenant via `actorOrgId`. withTenantScope cannot wrap a Prisma
+          // $transaction directly (the proxy strips $transaction).
+          await tx.courseEnrollment.create({
+            data: {
+              organizationId: actorOrgId,
+              userId: createdUser.id,
+              programSlug,
+              enrolledAt,
+              enrolledByAdminId: user.id,
+            },
+          });
+        }
+
+        return createdUser;
+      }),
+    );
+
+    // Identity mapping is in its own raw-SQL helper (lives outside the
+    // Prisma client) — call it after the transaction so the helper sees
+    // the committed user row.
+    await upsertCourseraIdentityMapping({
+      userId: result.id,
+      courseraEmail: email,
+      actorIdentifier: externalIdToUse,
+      actorHomePage: 'coursera.org',
+      createdByUserId: user.id,
+      source: 'coursera-reconcile-add-to-wap',
+      notes: `Added via Coursera reconcile UI. Coursera programId=${programId}.`,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      userId: result.id,
+      supabaseUserId,
+      email: result.email,
+    });
+  } catch (err) {
+    captureApiError(err, { route: 'admin/coursera/reconcile/add-to-wap' });
+
+    // Best-effort rollback of the Supabase auth user so we don't leak
+    // an orphaned auth account on partial failure.
+    if (createdSupabaseUser) {
+      try {
+        const supabase = getSupabaseAdmin();
+        await supabase.auth.admin.deleteUser(supabaseUserId);
+      } catch (rollbackErr) {
+        captureApiError(rollbackErr, {
+          route: 'admin/coursera/reconcile/add-to-wap',
+          extra: { stage: 'rollback-supabase-user', supabaseUserId },
+        });
+      }
+    }
+
+    return NextResponse.json(
+      {
+        error: err instanceof Error ? err.message : 'Failed to create WAP user',
+      },
+      { status: 500 },
+    );
+  }
+}

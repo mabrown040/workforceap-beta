@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
+import {
+  _resetTokenCacheForTesting,
+  getCourseGradebookReports,
+  getEnrollmentReports,
+  getOrgInfo,
+  listContents,
+  listPrograms,
+  listUsers,
+} from '@/lib/coursera/b4bClient';
 
 // ---------------------------------------------------------------------------
 // Admin-facing self-test for the Coursera integration.
@@ -40,6 +49,14 @@ function previewJson(value: unknown, max = 320): string {
   return str.length > max ? `${str.slice(0, max)}… <truncated>` : str;
 }
 
+type ClientProbe = {
+  method: string;
+  ok: boolean;
+  detail: string;
+  /** A short payload preview if the call succeeded. */
+  preview?: string;
+};
+
 type SelfTestResult = {
   ok: boolean;
   ranAt: string;
@@ -61,6 +78,12 @@ type SelfTestResult = {
       message?: string;
       payloadPreview?: string;
     }>;
+  };
+  /** (g) — exercises the typed b4bClient end-to-end against prod. */
+  client?: {
+    ok: boolean | null;
+    skipped?: string;
+    probes: ClientProbe[];
   };
   config: {
     xapiClientIdPreview: string;
@@ -266,6 +289,61 @@ async function probeEndpoint(label: string, url: string, accessToken: string) {
   }
 }
 
+async function runClientProbes(programId: string): Promise<ClientProbe[]> {
+  // Reset the b4bClient's module-scope token cache so this self-test always
+  // starts from a cold state (matches the existing direct-fetch probes).
+  _resetTokenCacheForTesting();
+
+  const probes: ClientProbe[] = [];
+
+  async function probe<T>(
+    name: string,
+    fn: () => Promise<T>,
+    summarize: (result: T) => string,
+  ) {
+    try {
+      const result = await fn();
+      probes.push({
+        method: name,
+        ok: true,
+        detail: 'ok',
+        preview: previewJson(summarize(result), 240),
+      });
+    } catch (error) {
+      probes.push({
+        method: name,
+        ok: false,
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  await probe('getOrgInfo', () => getOrgInfo(), (info) =>
+    `id=${info.id} name=${info.name}`
+  );
+  await probe('listUsers', () => listUsers({ limit: 5 }), (page) =>
+    `elements=${page.elements.length} total=${page.paging.total ?? '?'}`
+  );
+  await probe('listPrograms', () => listPrograms({ limit: 5 }), (page) =>
+    `elements=${page.elements.length} total=${page.paging.total ?? '?'}`
+  );
+  await probe('listContents', () => listContents({ limit: 5 }), (page) =>
+    `elements=${page.elements.length} total=${page.paging.total ?? '?'}`
+  );
+  await probe(
+    'getEnrollmentReports',
+    () => getEnrollmentReports({ limit: 5 }),
+    (page) => `elements=${page.elements.length} total=${page.paging.total ?? '?'}`,
+  );
+  await probe(
+    'getCourseGradebookReports',
+    () => getCourseGradebookReports({ programId, limit: 5 }),
+    (page) => `elements=${page.elements.length} total=${page.paging.total ?? '?'}`,
+  );
+
+  return probes;
+}
+
 function buildEndpointCatalog(apiBase: string, orgId: string, _orgSlug: string) {
   // Paths taken VERBATIM from Coursera For Business API YAML.
   // The YAML uses `{orgId}` directly (NO `/orgs/` prefix). Earlier catalog
@@ -419,6 +497,37 @@ export async function GET() {
     }
   }
 
+  // (g) — exercise the b4bClient end-to-end. Only meaningful when the
+  // direct-fetch outbound probes returned 200, since the client uses the
+  // same credentials/host. Skip otherwise to keep the report fast.
+  const anyEndpointOk = result.outbound.endpoints.some(
+    (e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300,
+  );
+  if (b4bPairComplete && anyEndpointOk) {
+    const programId = process.env.COURSERA_PROGRAM_ID?.trim() || 'TpIlAogTQ8-SJQKIE8PP9w';
+    try {
+      const probes = await runClientProbes(programId);
+      result.client = {
+        ok: probes.every((p) => p.ok),
+        probes,
+      };
+    } catch (error) {
+      result.client = {
+        ok: false,
+        skipped: error instanceof Error ? error.message : String(error),
+        probes: [],
+      };
+    }
+  } else {
+    result.client = {
+      ok: null,
+      skipped: !b4bPairComplete
+        ? 'B4B credentials not configured'
+        : 'Skipped — direct-fetch probes did not return any 2xx',
+      probes: [],
+    };
+  }
+
   result.recommendations = buildRecommendations(result);
 
   const anyEndpointSuccess = result.outbound.endpoints.some(
@@ -431,7 +540,8 @@ export async function GET() {
     result.inbound.tokenOk === false ||
     result.inbound.statementOk === false ||
     result.outbound.tokenOk === false ||
-    outboundTokenIssuedButNoEndpointWorks;
+    outboundTokenIssuedButNoEndpointWorks ||
+    result.client?.ok === false;
 
   result.ok = !hadFail;
 

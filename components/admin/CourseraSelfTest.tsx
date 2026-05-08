@@ -10,6 +10,13 @@ type EndpointResult = {
   payloadPreview?: string;
 };
 
+type ClientProbe = {
+  method: string;
+  ok: boolean;
+  detail: string;
+  preview?: string;
+};
+
 type SelfTestResult = {
   ok: boolean;
   ranAt: string;
@@ -25,6 +32,11 @@ type SelfTestResult = {
     tokenScope: string | null;
     tokenDetail: string;
     endpoints: EndpointResult[];
+  };
+  client?: {
+    ok: boolean | null;
+    skipped?: string;
+    probes: ClientProbe[];
   };
   config: {
     xapiClientIdPreview: string;
@@ -249,6 +261,40 @@ export default function CourseraSelfTest() {
               </div>
             )}
           </div>
+
+          {/* (g) — typed b4bClient end-to-end */}
+          {result.client && (
+            <div style={{ marginBottom: '0.75rem' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.375rem' }}>
+                Typed b4bClient (end-to-end)
+              </div>
+              {result.client.skipped ? (
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                  Skipped: {result.client.skipped}
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '0.25rem', fontSize: '0.85rem' }}>
+                  {result.client.probes.map((p) => (
+                    <div key={p.method} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span
+                        style={{
+                          color: p.ok ? 'var(--success)' : 'var(--error)',
+                          fontWeight: 700,
+                          minWidth: '3rem',
+                        }}
+                      >
+                        {p.ok ? 'OK' : 'FAIL'}
+                      </span>
+                      <span style={{ minWidth: '12rem' }}>{p.method}</span>
+                      <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {p.preview || p.detail}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Recommendations */}
           {result.recommendations.length > 0 && (

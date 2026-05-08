@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 import { sendInvitationEmail } from '@/lib/email';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { InvitationStatus } from '@prisma/client';
 import { randomBytes } from 'crypto';
 
@@ -183,12 +184,14 @@ export async function POST(request: NextRequest) {
           ? 'Counselor'
           : 'Student';
 
+  const orgId = await getActorOrganizationId(user.id);
   const emailResult = await sendInvitationEmail({
     to: email,
     inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',
     role: roleLabel,
     personalMessage,
     inviteUrl,
+    orgId,
   });
 
   if (!emailResult.ok) {

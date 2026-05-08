@@ -2,7 +2,10 @@ import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
+import type { SalaryGuideRow } from '@/lib/content/programSalaryOutcomes';
 import SalaryTableWrapper from '@/components/portal/SalaryTableWrapper';
+import DataTable from '@/components/portal/ui/DataTable';
+import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -60,7 +63,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$85k – $105k',
     mid: '$115k – $145k',
     certs: ['IBM', 'Python', 'PyTorch'],
-    borderColor: '#8B0000',
+    borderColor: '#8c0f37',
   },
   {
     category: 'IT and Cyber',
@@ -76,7 +79,7 @@ const MOBILE_SALARY_CARDS = [
     entry: '$78k – $95k',
     mid: '$110k – $140k',
     certs: ['AWS Certified', 'Terraform'],
-    borderColor: '#C41E3A',
+    borderColor: '#ad2c4d',
   },
   {
     category: 'Business',
@@ -85,6 +88,54 @@ const MOBILE_SALARY_CARDS = [
     mid: '$125k – $155k',
     certs: ['Tableau', 'SQL Expert'],
     borderColor: '#7b5800',
+  },
+];
+
+const SALARY_TABLE_COLUMNS: DataTableColumn<SalaryGuideRow>[] = [
+  {
+    key: 'program',
+    header: 'Program',
+    cellDataLabel: 'Program',
+    cell: (r) => <strong>{r.program}</strong>,
+  },
+  {
+    key: 'duration',
+    header: 'Duration',
+    cellDataLabel: 'Duration',
+    cell: (r) => r.duration,
+  },
+  {
+    key: 'salary',
+    header: 'Starting Salary',
+    cellDataLabel: 'Starting Salary',
+    cell: (r) => (
+      <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{r.salary}</span>
+    ),
+  },
+  {
+    key: 'level',
+    header: 'Level',
+    cellDataLabel: 'Level',
+    cell: (r) => (
+      <span
+        style={{
+          background: r.color,
+          color: 'white',
+          padding: '.3rem .75rem',
+          borderRadius: '50px',
+          fontSize: '.8rem',
+          fontWeight: 600,
+        }}
+      >
+        {r.level}
+      </span>
+    ),
+  },
+  {
+    key: 'ramp',
+    header: 'Ramp',
+    cellDataLabel: 'Ramp',
+    cell: (r) => <span className="salary-ramp-badge">{r.ramp}</span>,
   },
 ];
 
@@ -223,22 +274,14 @@ export default function SalaryGuidePage() {
           {/* Desktop: table | Mobile: hidden (cards shown instead) */}
           <div className="salary-guide-table-wrap">
             <SalaryTableWrapper>
-              <table className="salary-table">
-                <thead>
-                  <tr><th>Program</th><th>Duration</th><th>Starting Salary</th><th>Level</th><th>Ramp</th></tr>
-                </thead>
-                <tbody>
-                  {salaryRows.map((row) => (
-                    <tr key={row.slug}>
-                      <td data-label="Program"><strong>{row.program}</strong></td>
-                      <td data-label="Duration">{row.duration}</td>
-                      <td data-label="Starting Salary" style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{row.salary}</td>
-                      <td data-label="Level"><span style={{ background: row.color, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.8rem', fontWeight: 600 }}>{row.level}</span></td>
-                      <td data-label="Ramp"><span className="salary-ramp-badge">{row.ramp}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable<SalaryGuideRow>
+                variant="admin"
+                tableClassName="salary-table"
+                scrollX={false}
+                columns={SALARY_TABLE_COLUMNS}
+                rows={salaryRows}
+                rowKey={(r) => r.slug}
+              />
             </SalaryTableWrapper>
           </div>
 

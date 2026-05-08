@@ -26,13 +26,13 @@ export default function StaleApplicationsBanner({ staleApps }: { staleApps: any[
       <div style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Stale Applications (Older than 3 days)</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {staleApps.map((app) => (
-          <div key={app.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-container)', padding: '0.5rem 1rem', borderRadius: '0.5rem' }}>
-            <div>
+          <div key={app.id} style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', background: 'var(--surface-container)', padding: '0.5rem 1rem', borderRadius: '0.5rem' }}>
+            <div style={{ flex: '1 1 16rem', minWidth: 0, wordBreak: 'break-word' }}>
               <span style={{ fontWeight: 500 }}>{app.user?.fullName}</span> ({app.user?.email}) - Applied {new Date(app.createdAt).toLocaleDateString()}
             </div>
             <button type="button"
               className="btn btn-primary"
-              style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}
+              style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem', flexShrink: 0 }}
               onClick={() => handleRemind(app.id, app.userId)}
               disabled={loading[app.id] || reminded[app.id]}
             >

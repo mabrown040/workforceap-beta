@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -182,43 +183,58 @@ export default async function AdminJobsPage({
       </div>
 
       <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-        <table className="admin-table admin-jobs-table">
-          <thead>
-            <tr>
-              <th>Job</th>
-              <th>Company</th>
-              <th>Status</th>
-              <th>Applications</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {jobs.map((j) => (
-              <tr key={j.id}>
-                <td>
-                  <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                    {j.title}
-                  </Link>
-                </td>
-                <td className="admin-jobs-col-company">{j.employer?.companyName ?? 'Unknown'}</td>
-                <td>
-                  <span className={getJobStatusPillClass(j.status)}>
-                    {STATUS_LABELS[j.status] ?? j.status}
-                  </span>
-                </td>
-                <td className="admin-jobs-col-apps">{j._count?.applications ?? 0}</td>
-                <td className="admin-jobs-col-actions">
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table admin-jobs-table"
+          scrollX={false}
+          rows={jobs}
+          rowKey={(j) => j.id}
+          columns={[
+            {
+              key: 'job',
+              header: 'Job',
+              cell: (j) => (
+                <Link href={`/admin/jobs/${j.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
+                  {j.title}
+                </Link>
+              ),
+            },
+            {
+              key: 'company',
+              header: 'Company',
+              columnClassName: 'admin-jobs-col-company',
+              cell: (j) => j.employer?.companyName ?? 'Unknown',
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              cell: (j) => (
+                <span className={getJobStatusPillClass(j.status)}>{STATUS_LABELS[j.status] ?? j.status}</span>
+              ),
+            },
+            {
+              key: 'apps',
+              header: 'Applications',
+              columnClassName: 'admin-jobs-col-apps',
+              cell: (j) => j._count?.applications ?? 0,
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              columnClassName: 'admin-jobs-col-actions',
+              cell: (j) => (
+                <>
                   <Link href={`/admin/jobs/${j.id}`} style={{ marginRight: '0.5rem', fontSize: '0.9rem' }}>
                     Review
                   </Link>
                   <Link href={`/admin/jobs/${j.id}#matches`} style={{ fontSize: '0.9rem' }}>
                     AI Matches
                   </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ),
+            },
+          ]}
+        />
       </div>
 
       {jobs.length === 0 && (

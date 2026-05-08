@@ -6,13 +6,15 @@ import { getUser } from '@/lib/auth/server';
 import VoiceCoachesPromo from '@/components/portal/VoiceCoachesPromo';
 import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import QueryToast from '@/components/portal/QueryToast';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'AI Toolkit',
-  description: 'Guided member tools for resumes, applications, interviews, LinkedIn, and job-search strategy.',
+  title: t('aiToolkit'),
+  description: t('aiToolkitDescription'),
   path: '/dashboard/ai-tools',
 });
 }
@@ -25,6 +27,7 @@ export default async function AIToolsPage() {
 
   return (
     <div style={{ background: 'var(--surface-container-lowest)', minHeight: '100vh' }}>
+      <QueryToast />
       <div className="wa-pb-24 md:wa-pb-0">
         <div className="wa-hidden md:wa-block" style={{ padding: '1.5rem 1.5rem 0', maxWidth: '1100px', margin: '0 auto' }}>
           <PortalBreadcrumb items={[
@@ -80,7 +83,7 @@ export default async function AIToolsPage() {
               lineHeight: 1.6,
             }}
           >
-            Start with the tool cards below — bigger, simpler, and focused on the tools you actually use.
+            {tCommon('startWithToolCards')}
           </p>
           <Link
             href="/dashboard/ai-tools/history"
@@ -109,15 +112,15 @@ export default async function AIToolsPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
             <div>
               <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
-                Start here
+                {tCommon('startHere')}
               </p>
-              <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.05rem', fontWeight: 800 }}>Path to certification</h2>
+              <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.05rem', fontWeight: 800 }}>{tCommon('pathToCertification')}</h2>
               <p style={{ margin: '0.35rem 0 0', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.55 }}>
-                See how staff enrolls you in Coursera, workspace email, exams, and job support — before you dive into AI tools.
+                {tCommon('pathToCertificationDescription')}
               </p>
             </div>
             <Link href="/dashboard/program/start" className="btn btn-primary">
-              Open enrollment guide
+              {tCommon('openEnrollmentGuide')}
             </Link>
           </div>
         </PortalCard>
@@ -140,7 +143,7 @@ export default async function AIToolsPage() {
         <div style={{ marginBottom: '1rem' }}>
           <PortalCard className="portal-card--flat">
             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-              Looking for your application tracker? It now lives under <strong style={{ color: 'var(--color-on-surface)' }}>Jobs</strong> so your saved roles and application status stay with the rest of your job search workflow.
+              {tCommon('applicationTrackerMoved')}
             </p>
             <div style={{ marginTop: '0.875rem' }}>
               <Link href="/dashboard/job-applications" className="btn btn-outline">

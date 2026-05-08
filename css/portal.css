@@ -814,22 +814,19 @@
     margin-bottom: 0.15rem;
   }
 
-  /* Program Comparison Matrix - preserve thead on mobile for program names */
+  /* Program Comparison Matrix — stacked-row layout on mobile.
+     Each criterion row becomes a card: criterion label as the header,
+     then one labeled block per program (data-label = program shortName). */
   .program-comparison-matrix {
+    display: block;
     width: 100%;
     min-width: 0;
   }
   .program-comparison-matrix thead {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: var(--color-surface, #fff);
+    display: none;
   }
-  .program-comparison-matrix thead th {
-    padding: 0.5rem;
-    font-size: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--surface-container-highest, #e0e0e0);
+  .program-comparison-matrix tbody {
+    display: block;
   }
   .program-comparison-matrix tbody tr {
     display: block;
@@ -841,7 +838,7 @@
   }
   .program-comparison-matrix tbody th[scope="row"] {
     display: block;
-    padding: 0.35rem 0;
+    padding: 0 0 0.5rem;
     font-weight: 700;
     text-align: left;
     border-bottom: 1px solid rgba(222, 191, 194, 0.15);
@@ -851,6 +848,11 @@
     display: block;
     padding: 0.35rem 0;
     text-align: left;
+  }
+  .program-comparison-matrix tbody td + td {
+    border-top: 1px solid rgba(222, 191, 194, 0.1);
+    margin-top: 0.35rem;
+    padding-top: 0.6rem;
   }
   .program-comparison-matrix tbody td::before {
     content: attr(data-label);
@@ -2297,7 +2299,7 @@ html.dark .employer-applications-table.admin-table thead th {
   background: linear-gradient(135deg, #14532d 0%, #4a9b4f 100%);
 }
 .portal-action-card-gradient--career {
-  background: linear-gradient(135deg, #4a1630 0%, #C41E3A 100%);
+  background: linear-gradient(135deg, #4a1630 0%, #ad2c4d 100%);
 }
 .portal-action-card-gradient--tools {
   background: linear-gradient(135deg, #713f12 0%, #ffbb00 50%, #f59e0b 100%);
@@ -2856,16 +2858,16 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
     color: var(--color-on-surface);
   }
   .member-portal-top-nav__link:focus-visible {
-    outline: 2px solid var(--color-accent, #C41E3A);
+    outline: 2px solid var(--color-accent, #ad2c4d);
     outline-offset: 2px;
   }
   .member-portal-top-nav__link--active {
-    background: var(--color-accent, #C41E3A);
+    background: var(--color-accent, #ad2c4d);
     color: var(--color-white, #fff);
   }
   .member-portal-top-nav__link--active:hover,
   .member-portal-top-nav__link--active:focus-visible {
-    background: var(--color-accent-dark, #8B0000);
+    background: var(--color-accent-dark, #8c0f37);
     color: var(--color-white, #fff);
   }
   .member-portal-top-nav__icon {
@@ -2880,7 +2882,7 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
     padding: 0 0.35rem;
     margin-left: 0.15rem;
     border-radius: 999px;
-    background: var(--color-accent, #C41E3A);
+    background: var(--color-accent, #ad2c4d);
     color: var(--color-white, #fff);
     font-size: 0.7rem;
     font-weight: 700;
@@ -2888,7 +2890,7 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
   }
   .member-portal-top-nav__link--active .member-portal-top-nav__badge {
     background: var(--color-white, #fff);
-    color: var(--color-accent, #C41E3A);
+    color: var(--color-accent, #ad2c4d);
   }
   /* Right-edge gradient signaling more content is scrollable. */
   .member-portal-top-nav__edge-fade {

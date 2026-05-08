@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: Props) {
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
-    select: { id: true, email: true, fullName: true },
+    select: { id: true, email: true, fullName: true, organizationId: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
@@ -82,6 +82,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     to: member.email,
     memberFullName: member.fullName,
     counselorFullName: counselor.user.fullName,
+    orgId: member.organizationId,
   });
 
   return NextResponse.json({

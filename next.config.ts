@@ -43,6 +43,19 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
           {
             key: 'Content-Security-Policy',
+            // Hardening notes (see docs/SECURITY-AND-HEALTH.md for the full posture):
+            //   - `'unsafe-inline'` and `'unsafe-eval'` remain on `script-src` and
+            //     `style-src` because Next.js App Router, GTM bootstrap, and Vercel
+            //     Insights still emit inline beacons. Removing them requires a
+            //     nonce migration (mid-effort) — tracked in security backlog.
+            //   - `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`
+            //     are safe-to-add hardening that doesn't require nonces. They
+            //     close real classes of clickjacking + plugin-injection attacks.
+            //   - `frame-ancestors 'none'` supersedes `X-Frame-Options: DENY` in
+            //     modern browsers; we keep both for older clients.
+            //   - `upgrade-insecure-requests` forces any accidental http://
+            //     references in user-generated content to https on supporting
+            //     browsers.
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
@@ -52,6 +65,10 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com",
               "form-action 'self' https://formspree.io",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "frame-ancestors 'none'",
+              "upgrade-insecure-requests",
             ].join('; '),
           },
         ],

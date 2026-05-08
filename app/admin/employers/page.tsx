@@ -11,6 +11,8 @@ import ClearEmployerPortalContext from './ClearEmployerPortalContext';
 import EmployerStatusButton from './EmployerStatusButton';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import type { DataTableColumn } from '@/components/portal/ui/DataTable';
+import DataTable from '@/components/portal/ui/DataTable';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
 
 function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
@@ -54,6 +56,134 @@ export default async function AdminEmployersPage() {
     }),
   ]);
 
+  type EmployerRow = (typeof employers)[number];
+
+  const employerColumns: DataTableColumn<EmployerRow>[] = [
+    {
+      key: 'company',
+      header: 'Company',
+      cell: (e) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            style={{
+              width: '2rem',
+              height: '2rem',
+              borderRadius: '0.5rem',
+              background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '0.75rem',
+              flexShrink: 0,
+            }}
+          >
+            {(e.companyName ?? '?')
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase()}
+          </div>
+          <Link href={`/admin/employers/${e.id}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
+            {e.companyName}
+          </Link>
+        </div>
+      ),
+    },
+    {
+      key: 'contact',
+      header: 'Contact',
+      cell: (e) => (
+        <>
+          <div style={{ fontSize: '0.875rem' }}>{e.contactName}</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.contactEmail}</div>
+        </>
+      ),
+    },
+    {
+      key: 'portalUser',
+      header: 'Portal User',
+      cell: (e) => (
+        <>
+          <div style={{ fontSize: '0.875rem' }}>{e.user.fullName}</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.user.email}</div>
+        </>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (e) => (
+        <span
+          style={{
+            padding: '0.2rem 0.5rem',
+            borderRadius: '999px',
+            fontSize: '0.75rem',
+            background: e.status === 'active' ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
+            color: e.status === 'active' ? '#2d7a32' : 'var(--color-on-surface-variant)',
+            fontWeight: 600,
+          }}
+        >
+          {e.status === 'active' ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'jobs',
+      header: 'Jobs',
+      cell: (e) => <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>,
+    },
+    {
+      key: 'tier',
+      header: 'Tier',
+      cell: (e) => <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />,
+    },
+    {
+      key: 'partnership',
+      header: 'Partnership',
+      cell: (e) => {
+        const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
+        return (
+          <span
+            style={{
+              padding: '0.2rem 0.5rem',
+              borderRadius: '999px',
+              fontSize: '0.7rem',
+              background: pt.bg,
+              color: pt.color,
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {pt.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      cell: (e) => <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />,
+    },
+    ...(superAdmin
+      ? ([
+          {
+            key: 'help',
+            header: 'Help',
+            cell: (e) => (
+              <OpenEmployerPortalButton
+                employerId={e.id}
+                canOpenPortal={e.status === 'active'}
+                disabledReason="Inactive employers cannot be opened in portal preview. Reactivate the employer first."
+              />
+            ),
+          },
+        ] satisfies DataTableColumn<EmployerRow>[])
+      : []),
+  ];
+
   return (
     <PortalPageFrame>
       <PageHeader title="Employers" subtitle="Manage employer accounts. Only active employers can be opened in the employer portal preview; inactive rows stay here until reactivated." />
@@ -71,87 +201,14 @@ export default async function AdminEmployersPage() {
         <>
           {/* Desktop table */}
           <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
-            <table className="admin-table employer-applications-table">
-              <thead>
-                <tr>
-                  <th>Company</th>
-                  <th>Contact</th>
-                  <th>Portal User</th>
-                  <th>Status</th>
-                  <th>Jobs</th>
-                  <th>Tier</th>
-                  <th>Partnership</th>
-                  <th>Actions</th>
-                  {superAdmin && <th>Help</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {employers.map((e) => (
-                  <tr key={e.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
-                          {(e.companyName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
-                        <Link href={`/admin/employers/${e.id}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
-                          {e.companyName}
-                        </Link>
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ fontSize: '0.875rem' }}>{e.contactName}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.contactEmail}</div>
-                    </td>
-                    <td>
-                      <div style={{ fontSize: '0.875rem' }}>{e.user.fullName}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.user.email}</div>
-                    </td>
-                    <td>
-                      <span
-                        style={{
-                          padding: '0.2rem 0.5rem',
-                          borderRadius: '999px',
-                          fontSize: '0.75rem',
-                          background: e.status === 'active' ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
-                          color: e.status === 'active' ? '#2d7a32' : 'var(--color-on-surface-variant)',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {e.status === 'active' ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>
-                    </td>
-                    <td>
-                      <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
-                    </td>
-                    <td>
-                      {(() => {
-                        const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
-                        return (
-                          <span style={{ padding: '0.2rem 0.5rem', borderRadius: '999px', fontSize: '0.7rem', background: pt.bg, color: pt.color, fontWeight: 600, whiteSpace: 'nowrap' }}>
-                            {pt.label}
-                          </span>
-                        );
-                      })()}
-                    </td>
-                    <td>
-                      <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />
-                    </td>
-                    {superAdmin && (
-                      <td>
-                        <OpenEmployerPortalButton
-                          employerId={e.id}
-                          canOpenPortal={e.status === 'active'}
-                          disabledReason="Inactive employers cannot be opened in portal preview. Reactivate the employer first."
-                        />
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              variant="admin"
+              tableClassName="admin-table employer-applications-table"
+              scrollX={false}
+              rows={employers}
+              rowKey={(e) => e.id}
+              columns={employerColumns}
+            />
           </div>
 
           {/* Mobile cards */}

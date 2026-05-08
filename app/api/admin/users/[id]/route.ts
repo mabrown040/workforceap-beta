@@ -4,7 +4,20 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * Both DELETE and PATCH go through `withTenantScope` so a (super)admin
+ * from Org A cannot delete or rename an Org B user by guessing their
+ * UUID. `findUnique` becomes `findFirst` and `update` becomes
+ * `updateMany` so the proxy can inject the `organizationId` filter
+ * (Prisma's `update` requires a unique-only where input).
+ */
 
 export async function DELETE(
   _req: NextRequest,
@@ -20,10 +33,14 @@ export async function DELETE(
     return NextResponse.json({ error: 'Cannot delete your own account.' }, { status: 400 });
   }
 
-  const target = await prisma.user.findUnique({
-    where: { id },
-    select: { id: true, email: true, deletedAt: true },
-  });
+  const orgId = await getActorOrganizationId(actor.id);
+
+  const target = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id },
+      select: { id: true, email: true, deletedAt: true },
+    }),
+  );
   if (!target) return NextResponse.json({ error: 'User not found.' }, { status: 404 });
 
   try {
@@ -34,10 +51,12 @@ export async function DELETE(
       ? target.email
       : `deleted_${id}_${now.getTime()}_${target.email}@deleted.invalid`.slice(0, 255);
 
-    await prisma.user.update({
-      where: { id },
-      data: { deletedAt: now, email: newEmail },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.user.updateMany({
+        where: { id },
+        data: { deletedAt: now, email: newEmail },
+      }),
+    );
 
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.auth.admin.deleteUser(id);
@@ -82,10 +101,13 @@ export async function PATCH(
 
   const { fullName, email, role } = parsed.data;
 
-  const existing = await prisma.user.findUnique({
-    where: { id },
-    select: { id: true, email: true },
-  });
+  const orgId = await getActorOrganizationId(admin.id);
+  const existing = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id },
+      select: { id: true, email: true },
+    }),
+  );
   if (!existing) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   if (role && !(await isSuperAdmin(admin.id))) {
@@ -106,15 +128,23 @@ export async function PATCH(
       }
     }
 
+    // Membership has already been verified via withTenantScope.findFirst above.
+    // The User update + Profile / UserRole writes need to be ATOMIC — Codex P2
+    // catch on PR #1049: splitting them caused partial-update state when role
+    // sync failed after the user write succeeded. Restore the single
+    // $transaction with an explicit `organizationId` filter on the user write.
+    // This is an atomicity exception — the proxy can't be inserted inside an
+    // outer $transaction (the inner `tx` argument is unwrapped). The membership
+    // gate from `existing` above is the primary tenant check; the explicit
+    // organizationId on this updateMany is belt-and-braces.
     const updated = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.update({
-        where: { id },
-        data: {
-          fullName,
-          email: normalizedEmail,
-        },
-        select: { id: true, fullName: true, email: true },
+      const userResult = await tx.user.updateMany({
+        where: { id, organizationId: orgId },
+        data: { fullName, email: normalizedEmail },
       });
+      if (userResult.count === 0) {
+        throw new Error('USER_NOT_FOUND_IN_TX');
+      }
 
       const profile = role
         ? await ensureProfileRole(tx, id, role)
@@ -128,13 +158,18 @@ export async function PATCH(
       }
 
       return {
-        ...user,
+        id,
+        fullName,
+        email: normalizedEmail,
         role: profile?.role ?? 'member',
       };
     });
 
     return NextResponse.json({ success: true, user: updated });
   } catch (error) {
+    if (error instanceof Error && error.message === 'USER_NOT_FOUND_IN_TX') {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
     console.error('[admin/users/:id PATCH]', error);
     return NextResponse.json({ error: 'Failed to update user.' }, { status: 500 });
   }

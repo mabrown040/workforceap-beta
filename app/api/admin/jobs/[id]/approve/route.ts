@@ -2,10 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { after } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The `job.findUnique` and `job.update` calls go through `withTenantScope`
+ * so an admin from Org A cannot approve an Org B job by guessing its
+ * UUID. The findUnique becomes findFirst because the proxy adds
+ * `organizationId` to the where clause and the Prisma `findUnique`
+ * accepts only the unique constraint.
+ */
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,29 +27,36 @@ export async function POST(
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const job = await prisma.job.findUnique({
-      where: { id },
-      include: { employer: { include: { user: { select: { email: true, fullName: true } } } } },
-    });
+    const orgId = await getActorOrganizationId(user.id);
+
+    const job = await withTenantScope(orgId, (db) =>
+      db.job.findFirst({
+        where: { id },
+        include: { employer: { include: { user: { select: { email: true, fullName: true } } } } },
+      }),
+    );
 
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     if (job.status !== 'pending') {
       return NextResponse.json({ error: 'Job is not pending approval' }, { status: 400 });
     }
 
-    await prisma.job.update({
-      where: { id },
-      data: {
-        status: 'live',
-        approvedAt: new Date(),
-        approvedById: user.id,
-      },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.job.update({
+        where: { id },
+        data: {
+          status: 'live',
+          approvedAt: new Date(),
+          approvedById: user.id,
+        },
+      }),
+    );
 
     await sendJobApprovedEmail({
       to: job.employer.contactEmail,
       jobTitle: job.title,
       companyName: job.employer.companyName,
+      orgId,
     });
 
     after(() => runAiMatchForLiveJob(id));

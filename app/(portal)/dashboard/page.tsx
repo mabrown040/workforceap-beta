@@ -7,7 +7,6 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
-import { buildMemberApplicationStatusView } from '@/lib/member/memberApplicationStatus';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
 import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection';
 import type { CareerMatchResult } from '@/lib/onet/types';
@@ -23,27 +22,23 @@ import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
-import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
-import { buildNextBestActions } from '@/lib/member/nextBestActions';
+import { getMemberState } from '@/lib/member/getMemberState';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
-import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/profileCompleteness';
-import {
-  isTrainingStaleForCounselorEscalation,
-  loadMemberProgramTrainingView,
-} from '@/lib/member/memberProgramTrainingView';
+import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
-import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import PointsWidget from '@/components/portal/PointsWidget';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Your Dashboard',
-  description: 'Your WorkforceAP member dashboard — training progress, next steps, career tools, and application status.',
+  title: t('yourDashboard'),
+  description: t('dashboardDescription'),
   path: '/dashboard',
 });
 }
@@ -51,24 +46,24 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
+  const t = await getTranslations('dashboard');
 
   try {
-    return await renderMemberDashboard(user);
+    return await renderMemberDashboard(user, t);
   } catch (err) {
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>We couldn&rsquo;t load your dashboard</h2>
+        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>{t('errorTitle')}</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-          Something went wrong while loading this page. This is usually temporary. Try again, or open another section from
-          the menu.
+          {t('errorBody')}
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
           <a href="/dashboard" className="btn btn-primary">
-            Try again
+            {t('tryAgain')}
           </a>
           <a href="https://www.workforceap.org/" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">
-            WorkforceAP home
+            {t('waHome')}
           </a>
         </div>
       </div>
@@ -76,10 +71,14 @@ export default async function DashboardPage() {
   }
 }
 
-async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>) {
+async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>, t: Awaited<ReturnType<typeof getTranslations>>) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
+  // Single source of truth for member state (application, training, profile, checklist, next actions)
+  const memberState = await getMemberState(user.id);
+
+  // Lightweight query for presentation-layer metadata not in getMemberState
   const intakePromise = prisma.user.findUnique({
     where: { id: user.id },
     select: {
@@ -93,7 +92,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       fullName: true,
       phone: true,
       programInterest: true,
-      careerRecommendationJson: true,
       needsComputerSupportFollowUp: true,
       profile: {
         select: {
@@ -111,51 +109,9 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
     },
   });
-  const profilePromise = prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: {
-      profilePhone: true,
-      profileAddress: true,
-      profileLinkedin: true,
-      profileBio: true,
-      employmentStatus: true,
-      educationLevel: true,
-    },
-  });
-  const engagementPromise = getMemberEngagementSignals(user.id);
 
-  const [intakeResult, profileResult, engagementResult] = await Promise.allSettled([
+  const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
     intakePromise,
-    profilePromise,
-    engagementPromise,
-  ]);
-
-  const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
-  if (intakeResult.status === 'rejected') {
-    console.error('[dashboard] intake query failed', intakeResult.reason);
-  }
-
-  const profileForCompleteness = profileResult.status === 'fulfilled' ? profileResult.value : null;
-  if (profileResult.status === 'rejected') {
-    console.error('[dashboard] profile completeness query failed', profileResult.reason);
-  }
-
-  const engagementSignals =
-    engagementResult.status === 'fulfilled'
-      ? engagementResult.value
-      : {
-          hasResume: false,
-          jobApplicationCount: 0,
-          counselorUnreadCount: 0,
-          weeklyRecapUnopened: false,
-        };
-  if (engagementResult.status === 'rejected') {
-    console.error('[dashboard] engagement signals failed', engagementResult.reason);
-  }
-
-  const careerMatchFromProfile = intakeExtra?.careerRecommendationJson as CareerMatchResult | null;
-
-  const [toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
@@ -178,7 +134,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       take: 2,
     }),
     prisma.jobApplication.findMany({
-      where: { userId: user.id, status: { in: ['OFFER', 'ACCEPTED'] } },
+      where: { userId: user.id, status: 'OFFER' },
     }),
     getMemberPoints(user.id),
     prisma.pointsTransaction.findMany({
@@ -208,12 +164,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     }),
   ]);
 
-  const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
+  const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
+  if (intakeResult.status === 'rejected') {
+    console.error('[dashboard] intake query failed', intakeResult.reason);
+  }
+
+  const careerMatchFromProfile = memberState.careerRecommendation;
   if (toolsResult.status === 'rejected') {
     console.error('[dashboard] recent AI tools query failed', toolsResult.reason);
   }
 
-  const latestApplication = applicationResult.status === 'fulfilled' ? applicationResult.value : null;
+  const recentTools = toolsResult.status === 'fulfilled' ? toolsResult.value : [];
   if (applicationResult.status === 'rejected') {
     console.error('[dashboard] latest application query failed', applicationResult.reason);
   }
@@ -260,7 +221,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     } else {
       sessionMap.set(ev.sessionId, {
         sessionId: ev.sessionId,
-        actorName: meta.actorName ?? 'your counselor',
+        actorName: meta.actorName ?? t('yourCounselor'),
         startedAt: ev.createdAt,
         toolCount: 1,
         resultIds: ev.entityId ? [ev.entityId] : [],
@@ -282,14 +243,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const showMemberTour =
     intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
   const wizardProgramInterest =
-    latestApplication?.programInterest ?? intakeExtra?.programInterest ?? '';
+    memberState.application?.programInterest ?? intakeExtra?.programInterest ?? '';
 
-  const applicationStatusView = buildMemberApplicationStatusView(latestApplication, {
-    enrolledProgram: dbUser.enrolledProgram ?? null,
-    enrolledAt: dbUser.enrolledAt ?? null,
-    assessmentCompleted: dbUser.assessmentCompleted ?? false,
-  });
-
+  // ── Application status ── (from memberState, single source of truth)
+  const applicationStatusView = memberState.application;
   const applicationStatus = applicationStatusView
     ? {
         label: applicationStatusView.label,
@@ -302,7 +259,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         stage: applicationStatusView.stage,
       }
     : null;
-  const noApplicationOnFile = !latestApplication;
+  const noApplicationOnFile = !applicationStatusView;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
   const enrolledProgram = dbUser.enrolledProgram ?? null;
@@ -313,22 +270,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
-  const trainingView =
-    enrolledProgram && program
-      ? await loadMemberProgramTrainingView({
-          userId: user.id,
-          programSlug: enrolledProgram,
-        })
-      : null;
 
+  // ── Training state ── (from memberState, single source of truth)
+  const trainingView = memberState.trainingView;
   const completedCount = trainingView?.completedCount ?? 0;
   const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
-  const allCoursesComplete =
-    trainingView?.allCoursesComplete ??
-    (totalCourses > 0 && completedCount >= totalCourses);
-  const progressPercentDisplay =
-    trainingView?.progressPercentDisplay ??
-    (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
+  const allCoursesComplete = trainingView?.allCoursesComplete ?? false;
+  const progressPercentDisplay = trainingView?.progressPercentDisplay ?? 0;
 
   let trainingEligibleSince: Date | null = null;
   if (enrolledProgram && assessmentCompleted) {
@@ -350,13 +298,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     employed: hasPlacementRecord,
   };
 
-  const dashboardState: 'A' | 'B' | 'C' | 'D' = !enrolledProgram
-    ? 'A'
-    : !assessmentCompleted
-      ? 'B'
-      : allCoursesComplete
-        ? 'D'
-        : 'C';
+  // ── Dashboard state letter ── (from memberState, single source of truth)
+  const dashboardState = memberState.stateLetter;
 
   const showStuckCounselor =
     dashboardState === 'C' &&
@@ -368,14 +311,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       dashboardInTraining: true,
     });
 
-  const completenessUser = {
-    fullName: dbUser.fullName,
-    email: dbUser.email,
-    enrolledProgram: dbUser.enrolledProgram,
-    assessmentCompleted: dbUser.assessmentCompleted,
-  };
-  const profileCompletenessPct = getProfileCompleteness(profileForCompleteness, completenessUser);
-  const profileMissingFields = getProfileMissingFields(profileForCompleteness, completenessUser);
+  // ── Profile + next actions ── (from memberState, single source of truth)
+  const profileCompletenessPct = memberState.profileCompletenessPct;
+  const profileMissingFields = memberState.profileMissingFields;
+
+  let nextBestActions = memberState.nextBestActions;
+
+  // Starter profile review (for counselor-created accounts)
   const starterProfileReview = getCounselorStarterProfileReview({
     wasCounselorCreated: !!intakeExtra?.courseEnrollment?.enrolledByAdminId,
     phone: intakeExtra?.phone,
@@ -387,27 +329,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     referralSource: intakeExtra?.profile?.referralSource,
   });
   const starterProfileMissingLabels = getStarterProfileFieldLabels(starterProfileReview.missing);
-
-  let nextBestActions = buildNextBestActions({
-    state: dashboardState,
-    noApplicationOnFile,
-    enrolledProgram,
-    assessmentCompleted,
-    starterProfileReviewRequired: starterProfileReview.required,
-    starterProfileMissingFields: starterProfileMissingLabels,
-    hasResume: engagementSignals.hasResume,
-    hasCompletedInterviewPractice,
-    profileCompletenessPct,
-    profileMissingFields,
-    jobApplicationCount: engagementSignals.jobApplicationCount,
-    counselorUnreadCount: engagementSignals.counselorUnreadCount,
-    weeklyRecapUnopened: engagementSignals.weeklyRecapUnopened,
-    courseEnrollmentActive: intakeExtra ? !!intakeExtra.courseEnrollment?.id : undefined,
-    placementPlacedAt: intakeExtra?.placementRecord?.placedAt ?? null,
-    placementRetentionDecision: intakeExtra?.placementRecord?.retentionDecision ?? null,
-    trainingCoursesIncomplete: !!(trainingView && !trainingView.allCoursesComplete && trainingView.totalCourses > 0),
-    nextIncompleteCourseName: trainingView?.nextIncompleteCourseName ?? null,
-  });
 
   for (const dbAction of dynamicNextActions.reverse()) {
     nextBestActions.unshift({
@@ -439,10 +360,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const recentActivity: Array<{ label: string; timestamp: Date }> = [];
   if (dbUser.enrolledAt) {
-    recentActivity.push({ label: 'Enrolled in program', timestamp: dbUser.enrolledAt });
+    recentActivity.push({ label: t('enrolled'), timestamp: dbUser.enrolledAt });
   }
   if (dbUser.assessmentCompletedAt) {
-    recentActivity.push({ label: 'Completed skills assessment', timestamp: dbUser.assessmentCompletedAt });
+    recentActivity.push({ label: t('completedAssessment'), timestamp: dbUser.assessmentCompletedAt });
   }
   recentActivity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   const lastThree = recentActivity.slice(0, 3);
@@ -467,25 +388,25 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
   const mobilePct = progressPercentDisplay;
-  const mobileProgressTone = allCoursesComplete ? 'Completed' : completedCount > 0 ? 'In progress' : 'Getting started';
+  const mobileProgressTone = allCoursesComplete ? t('progressCompleted') : completedCount > 0 ? t('progressInProgress') : t('progressGettingStarted');
   const mobileProgressSummary = totalCourses > 0
-    ? `${completedCount} of ${totalCourses} course${totalCourses === 1 ? '' : 's'} complete`
-    : 'Courses will appear once your program is set';
+    ? t('coursesComplete', { completed: completedCount, total: totalCourses, plural: totalCourses === 1 ? '' : 's' })
+    : t('coursesWillAppear');
   const orbCircumference = 251.2;
   const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
 
   const AI_TOOL_LABELS: Record<string, string> = {
-    job_match_scorer: 'See how you match a job',
-    resume_analysis: 'Resume Analysis',
-    resume_rewriter: 'Resume Rewriter',
-    cover_letter: 'Cover Letter',
-    interview_practice: 'Interview Practice',
-    linkedin_headline: 'LinkedIn Headline',
-    linkedin_about: 'LinkedIn About',
-    salary_negotiation: 'Salary Negotiation',
-    gap_analyzer: 'See what is missing for a job',
-    interview_coach: 'AI Interview Coach',
-    career_counselor: 'Career Counselor',
+    job_match_scorer: t('seeHowYouMatch'),
+    resume_analysis: t('resumeAnalysis'),
+    resume_rewriter: t('resumeRewriter'),
+    cover_letter: t('coverLetter'),
+    interview_practice: t('interviewPractice'),
+    linkedin_headline: t('linkedinHeadline'),
+    linkedin_about: t('linkedinAbout'),
+    salary_negotiation: t('salaryNegotiation'),
+    gap_analyzer: t('seeWhatIsMissing'),
+    interview_coach: t('aiInterviewCoach'),
+    career_counselor: t('careerCounselor'),
   };
 
   const interviewCompleted = !!intakeExtra?.interviewCompletedAt;
@@ -495,24 +416,24 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
 
   const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
 
-  /* Journey timeline ΓÇö complete / active (next) / locked (future) */
+  /* Journey timeline — complete / active (next) / locked (future) */
   const journeySteps = [
     {
-      label: 'Program selected',
+      label: t('journeyProgramSelected'),
       done: !!enrolledProgram,
       active: !enrolledProgram,
       locked: false,
-      detail: enrolledProgram ? 'Program on file' : noApplicationOnFile ? 'Start your application' : 'Choose a program',
+      detail: enrolledProgram ? t('programOnFile') : noApplicationOnFile ? t('startApplication') : t('chooseProgram'),
     },
     {
-      label: 'Skills assessment',
+      label: t('journeySkillsAssessment'),
       done: assessmentCompleted,
       active: !!enrolledProgram && !assessmentCompleted,
       locked: !enrolledProgram,
-      detail: assessmentCompleted ? 'Completed' : enrolledProgram ? 'Complete to start training' : 'Waiting for enrollment',
+      detail: assessmentCompleted ? t('progressCompleted') : enrolledProgram ? t('completeToStartTraining') : t('waitingForEnrollment'),
     },
     {
-      label: 'Interview',
+      label: t('journeyInterview'),
       done: interviewCompleted,
       active:
         assessmentCompleted &&
@@ -525,17 +446,17 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           !interviewRequested &&
           !interviewEligibleFlag),
       detail: interviewCompleted
-        ? 'Complete'
+        ? t('interviewComplete')
         : interviewRequested
-          ? 'Scheduled — watch your email'
+          ? t('interviewScheduled')
           : interviewEligibleFlag
-            ? 'Request or attend your interview'
+            ? t('requestOrAttendInterview')
             : preScreeningDone
-              ? 'Awaiting counselor review'
-              : 'Submit pre-screening below',
+              ? t('preScreeningSubmitted')
+              : t('submitPreScreening'),
     },
     {
-      label: 'First course completed',
+      label: t('journeyFirstCourse'),
       done: completedCount > 0,
       active:
         !!enrolledProgram &&
@@ -549,13 +470,13 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
       detail:
         completedCount > 0
           ? allCoursesComplete
-            ? 'All courses complete'
-            : `${completedCount} course${completedCount === 1 ? '' : 's'} complete`
+            ? t('allCoursesComplete')
+            : t('coursesCompleteDetail', { count: completedCount, plural: completedCount === 1 ? '' : 's' })
           : enrolledProgram && assessmentCompleted
             ? interviewEligibleFlag && !interviewCompleted
-              ? 'Complete interview first'
-              : 'Open your first course'
-            : 'Complete prior steps first',
+              ? t('completeInterviewFirst')
+              : t('openFirstCourse')
+            : t('completePriorStepsFirst'),
     },
   ];
 
@@ -612,10 +533,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 </div>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-                    {noApplicationOnFile ? 'WorkforceAP' : 'Member dashboard'}
+                    {noApplicationOnFile ? t('workforceAP') : t('memberDashboard')}
                   </p>
                   <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    {noApplicationOnFile ? `Welcome, ${firstName}` : `Welcome back, ${firstName}`}
+                    {noApplicationOnFile ? t('welcomeFirstName', { firstName }) : t('welcomeBackFirstName', { firstName })}
                   </h2>
                 </div>
                 {program && (
@@ -628,20 +549,22 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>
 
               {/* Progress ring — only shown once training has actually started (state C/D); 0% next to "Getting started" reads as failure */}
-              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', flexShrink: 0, width: '7rem' }}>
                 <div
                   className="portal-progress-ring"
                   style={{
+                    position: 'relative',
                     width: '6rem',
                     height: '6rem',
                     flexShrink: 0,
+                    margin: '0 auto',
                     borderRadius: '999px',
                     background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
                     boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
                     border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
                   }}
                 >
-                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
+                  <svg style={{ width: '100%', height: '100%', display: 'block', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
                     <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
                     <circle
                       cx="48" cy="48" r="40" fill="transparent"
@@ -667,7 +590,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   }}
                 >
                   <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
-                    Training progress
+                    {t('trainingProgress')}
                   </span>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
@@ -679,7 +602,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             {(dashboardState === 'C' || dashboardState === 'D') && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                Training progress blends Coursera activity (xAPI) with courses you mark complete. Application steps are below.
+                {t('trainingProgressBlends')}
               </p>
             </div>
             )}
@@ -702,20 +625,20 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               }}
             >
               <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.78)', margin: '0 0 0.4rem' }}>
-                Your next step
+                {t('yourNextStep')}
               </p>
               <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
                 {noApplicationOnFile
-                  ? 'Apply now — 10 minutes'
-                  : 'Choose your program'}
+                  ? t('applyNowTenMinutes')
+                  : t('chooseYourProgram')}
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
                 {noApplicationOnFile
-                  ? 'Career training at no cost to members, funded by grants and partnerships. A counselor will help you pick the right program and next steps.'
-                  : 'Pick the career track that fits your goals. Programs are available at no cost to members, funded by grants and partnerships.'}
+                  ? t('careerTrainingNoCost')
+                  : t('pickCareerTrack')}
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
-                <span>{noApplicationOnFile ? 'Start Application' : 'Choose Program'}</span>
+                <span>{noApplicationOnFile ? t('startApplication') : t('chooseProgramBtn')}</span>
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
               </div>
             </Link>
@@ -732,14 +655,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
         ) : null}
 
-        <section style={{ padding: '0 1.5rem 1.25rem' }}>
-          <MemberDashboardVoiceSectionLazy />
-        </section>
         {(dashboardState === 'C' || dashboardState === 'D') && (
-          <section style={{ padding: '0 1.5rem 1.25rem' }}>
+          <section style={{ padding: '0 1.5rem 1rem' }}>
             <MemberProgressStrip {...progressStripProps} />
           </section>
         )}
+
+        <section style={{ padding: '0 1.25rem 0.75rem' }}>
+          <LogCertificationModal />
+        </section>
 
         {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
           <section style={{ padding: '0 1.25rem 1rem' }}>
@@ -769,7 +693,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   href={applicationStatus.nextStepHref}
                   style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box' }}
                 >
-                  Take action
+                  {t('takeAction')}
                 </Link>
               </div>
             </div>
@@ -777,16 +701,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         )}
 
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
-        <div style={{ padding: '0 1.25rem', marginBottom: '0.75rem' }}>
+        <div style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
           <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-          <LogCertificationModal />
         </div>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1rem' }}>
+        <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
           <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
             <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-              Application journey
+              {t('applicationJourney')}
             </summary>
             <div className="portal-journey-timeline" style={{ marginTop: '1rem' }}>
               {journeySteps.map((step, i) => {
@@ -822,12 +745,30 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             />
           ) : (
             <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
-              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Your first points are waiting.</p>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('yourFirstPointsWaiting')}</p>
               <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
-                Earn points by uploading a resume, completing training steps, and using career tools. Start with one small action.
+                {t('earnPointsDescription')}
               </p>
               <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                Upload or improve your resume
+                {t('uploadImproveResume')}
+              </Link>
+              <Link
+                href="/dashboard/points"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  marginTop: '0.75rem',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  color: 'var(--color-accent)',
+                  textDecoration: 'none',
+                }}
+              >
+                How to earn points
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                  arrow_forward
+                </span>
               </Link>
             </div>
           )}
@@ -837,8 +778,8 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         {!enrolledProgram ? (
           <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">Recommended Programs</h3>
-              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>View All</a>
+              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">{t('recommendedPrograms')}</h3>
+              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>{t('viewAll')}</a>
             </div>
             <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
               {PROGRAMS.slice(0, 3).map((prog, i) => (
@@ -856,7 +797,7 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 >
                   <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
                   <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || 'WorkforceAP'}</p>
+                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || t('workforceAP')}</p>
                     <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
                   </div>
                 </div>
@@ -867,32 +808,32 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
-                Next milestones
+                {t('nextMilestones')}
               </h3>
               <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
-                Training
+                {t('trainingLink')}
               </a>
             </div>
             <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
               {[
                 {
-                  eyebrow: program?.title ?? 'Your program',
-                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : 'Continue your training',
-                  desc: nextIncompleteCourse?.name ? 'Pick up where you left off.' : 'Open your training track and keep progressing.',
+                  eyebrow: program?.title ?? t('yourProgram'),
+                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : t('continueTraining'),
+                  desc: nextIncompleteCourse?.name ? t('pickUpWhereLeftOff') : t('openTrainingTrack'),
                   href: '/dashboard/training',
                   icon: 'school',
                 },
                 {
-                  eyebrow: 'Job search tools',
-                  title: 'Practice interview answers',
-                  desc: 'Build confidence for recruiter screens and counselor interviews.',
+                  eyebrow: t('jobSearchTools'),
+                  title: t('practiceInterviewAnswers'),
+                  desc: t('buildConfidenceInterview'),
                   href: '/dashboard/ai-tools/interview-practice',
                   icon: 'record_voice_over',
                 },
                 {
-                  eyebrow: 'Connect',
-                  title: 'Browse job board',
-                  desc: 'Explore roles that fit your program and interests.',
+                  eyebrow: t('connect'),
+                  title: t('browseJobBoard'),
+                  desc: t('exploreRoles'),
                   href: '/dashboard/jobs',
                   icon: 'work',
                 },
@@ -932,14 +873,14 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
         {/* ΓöÇΓöÇ Quick Actions 2x2 ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Quick Actions</h3>
+            <h3 className="portal-dash-section-header__title">{t('quickActions')}</h3>
           </div>
           <div className="portal-quick-grid-2x2">
             {([
-              { icon: 'upload_file', label: 'Upload Resume', href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'support_agent', label: 'My Progress', href: '/dashboard/readiness' },
-              { icon: 'forum', label: 'Interview Prep', href: '/dashboard/ai-tools/interview-practice' },
-              { icon: 'auto_awesome', label: 'AI Tools', href: '/dashboard/ai-tools' },
+              { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-rewriter' },
+              { icon: 'support_agent', label: t('myProgress'), href: '/dashboard/readiness' },
+              { icon: 'forum', label: t('interviewPrep'), href: '/dashboard/ai-tools/interview-practice' },
+              { icon: 'auto_awesome', label: t('aiTools'), href: '/dashboard/ai-tools' },
             ] as const).map((action) => (
               <a key={action.label} href={action.href} className="portal-quick-grid-item">
                 <div className="portal-quick-grid-item__icon">
@@ -951,11 +892,15 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
           </div>
         </section>
 
+        <section style={{ padding: '0 1.25rem 1.25rem' }}>
+          <MemberDashboardVoiceSectionLazy />
+        </section>
+
         {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label="Recent AI activity">
+        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label={t('recentAIActivity')}>
           <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">Recent AI Activity</h3>
-            {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">View all</Link>}
+            <h3 className="portal-dash-section-header__title">{t('recentAIActivity')}</h3>
+            {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">{t('viewAllLower')}</Link>}
           </div>
           {recentTools.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -982,12 +927,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
             </div>
           ) : (
             <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
-              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>You have not used a career tool yet.</p>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('notUsedCareerToolYet')}</p>
               <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
-                Try one short tool today. The resume tool is a good first step and only takes a few minutes.
+                {t('tryOneShortTool')}
               </p>
               <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                Try the resume tool
+                {t('tryResumeTool')}
               </Link>
             </div>
           )}
@@ -1016,34 +961,6 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
               }}
             >
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-                <MemberDashboardVoiceSectionLazy />
-              </div>
-              <div
-                style={{
-                  maxWidth: 1200,
-                  margin: '0 auto',
-                  padding: '0 2rem 1.25rem',
-                }}
-              >
-                <MemberProgressStrip {...progressStripProps} />
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <ProgramCommitmentPanel variant="compact" />
-                </div>
-                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
-                  <div style={{ maxWidth: '300px' }}>
-                    <LogCertificationModal />
-                  </div>
-                  {memberPoints && (
-                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
-                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
-                    </div>
-                  )}
-                </div>
-              </div>
               <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
                 <DashboardHomeClient
                   recommendedActions={recommendedActions}
@@ -1077,6 +994,31 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                   isMinor={isMinor}
                 />
               </Suspense>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+                <MemberDashboardVoiceSectionLazy />
+              </div>
+              <div
+                style={{
+                  maxWidth: 1200,
+                  margin: '0 auto',
+                  padding: '0 2rem 1.25rem',
+                }}
+              >
+                <MemberProgressStrip {...progressStripProps} />
+              </div>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
+                  <div style={{ maxWidth: '300px' }}>
+                    <LogCertificationModal />
+                  </div>
+                  {memberPoints && (
+                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
+                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
+                    </div>
+                  )}
+                </div>
+              </div>
               <PlacementConfirmationStrip offers={jobOffers} />
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
                 <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>

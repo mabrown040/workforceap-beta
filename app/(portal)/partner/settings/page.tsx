@@ -7,6 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import { DefinitionList, DefinitionRow } from '@/components/portal/ui/DefinitionList';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -18,21 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-function InfoRow({ label, value, mono }: { label: string; value: string | null | boolean | Date; mono?: boolean }) {
-  let display: string;
-  if (typeof value === 'boolean') display = value ? 'Active' : 'Inactive';
-  else if (value instanceof Date) display = value.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  else display = value != null && String(value).trim() ? String(value) : '—';
 
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem', padding: '0.625rem 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>{label}</span>
-      <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', fontFamily: mono ? 'ui-monospace, monospace' : undefined, wordBreak: 'break-all', textAlign: 'right' }}>
-        {display}
-      </span>
-    </div>
-  );
-}
 
 export default async function PartnerSettingsPage() {
   const user = await getUser();
@@ -73,20 +60,24 @@ export default async function PartnerSettingsPage() {
 
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Organization</h2>
-        <InfoRow label="Name" value={partner.name} />
-        <InfoRow label="Slug" value={partner.slug} mono />
-        <InfoRow label="Referral Code" value={partner.referralCode} mono />
-        <InfoRow label="Type" value={partner.organizationType} />
-        <InfoRow label="Status" value={partner.active} />
-        <InfoRow label="Onboarding Complete" value={partner.onboardingCompletedAt} />
-        <InfoRow label="Portal Tour" value={partner.tourCompletedAt} />
+        <DefinitionList>
+          <DefinitionRow label="Name" value={partner.name} />
+          <DefinitionRow label="Slug" value={partner.slug} mono />
+          <DefinitionRow label="Referral Code" value={partner.referralCode} mono />
+          <DefinitionRow label="Type" value={partner.organizationType} />
+          <DefinitionRow label="Status" value={partner.active} />
+          <DefinitionRow label="Onboarding Complete" value={partner.onboardingCompletedAt} />
+          <DefinitionRow label="Portal Tour" value={partner.tourCompletedAt} />
+        </DefinitionList>
       </div>
 
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary Contact</h2>
-        <InfoRow label="Contact Name" value={partner.contactName} />
-        <InfoRow label="Email" value={partner.contactEmail} />
-        <InfoRow label="Phone" value={partner.contactPhone} />
+        <DefinitionList>
+          <DefinitionRow label="Contact Name" value={partner.contactName} />
+          <DefinitionRow label="Email" value={partner.contactEmail} />
+          <DefinitionRow label="Phone" value={partner.contactPhone} />
+        </DefinitionList>
       </div>
 
       <PartnerNotificationPrefs

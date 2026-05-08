@@ -43,18 +43,23 @@ function ResumeCoachRedirectCard() {
   );
 }
 
-function ResumeRewriterWithPrefill() {
-  const [resumeText, setResumeText] = useState('');
+function ResumeRewriterWithPrefill({ initialData }: { initialData?: { resume: string; jobTarget: string | null; framework: 'auto' } | null }) {
+  const [resumeText, setResumeText] = useState(initialData?.resume ?? '');
   const [hasHydrated, setHasHydrated] = useState(false);
-  const [hasStoredResume, setHasStoredResume] = useState(false);
-  const [showLoadedBanner, setShowLoadedBanner] = useState(false);
+  const [hasStoredResume, setHasStoredResume] = useState(!!initialData?.resume);
+  const [showLoadedBanner, setShowLoadedBanner] = useState(!!initialData?.resume);
   const [showUploadBanner, setShowUploadBanner] = useState(false);
-  const loadedTextRef = useRef<string | null>(null);
+  const loadedTextRef = useRef<string | null>(initialData?.resume ?? null);
   const didFetchRef = useRef(false);
 
   useEffect(() => {
     if (didFetchRef.current) return;
     didFetchRef.current = true;
+    // If server already provided resume, skip client-side fetch
+    if (initialData?.resume) {
+      setHasHydrated(true);
+      return;
+    }
     let cancelled = false;
 
     fetch('/api/member/resume?includePlainText=1')
@@ -176,7 +181,7 @@ function ResumeRewriterWithPrefill() {
   );
 }
 
-export default function ResumeRewriterClient() {
+export default function ResumeRewriterClient({ initialData }: { initialData?: { resume: string; jobTarget: string | null; framework: 'auto' } | null }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -186,7 +191,7 @@ export default function ResumeRewriterClient() {
   return (
     <div>
       {hydrated ? <ResumeCoachRedirectCard /> : null}
-      <ResumeRewriterWithPrefill />
+      <ResumeRewriterWithPrefill initialData={initialData} />
     </div>
   );
 }

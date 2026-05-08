@@ -8,7 +8,8 @@ import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
-import { inferResumeFramework, resumeFrameworkPromptBlock } from '@/lib/resume/inferResumeFramework';
+import { inferResumeFramework, resumeFrameworkPromptBlock, type ResumeFramework } from '@/lib/resume/inferResumeFramework';
+import { prefillResumeRewriter, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
 import { prisma } from '@/lib/db/prisma';
 
 export async function POST(request: Request) {
@@ -44,14 +45,28 @@ export async function POST(request: Request) {
   const { resume, jobTarget, targetSalary, targetLocation, language, subjectMemberId, sessionId, resumeFramework } =
     parsed.data;
 
-  // Resolve subject (In-Office Session: counselor/admin on behalf of member).
-  // Default: actor IS subject (legacy member self-serve path).
+  // Resolve subject FIRST so we know who to prefill for
   const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
   if (!onBehalf.ok) {
     return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   }
 
-  let framework = resumeFramework;
+  let finalResume = resume?.trim();
+  let finalJobTarget: string | null = jobTarget?.trim() ?? null;
+  let framework: 'auto' | ResumeFramework = resumeFramework;
+
+  // If no resume provided, try to prefill from member state
+  if (!finalResume || finalResume.length < 40) {
+    const prefill = await prefillResumeRewriter(onBehalf.subjectUserId);
+    if (!prefill.ok) {
+      const err = honestNoResumeError();
+      return NextResponse.json({ error: err.error }, { status: err.status });
+    }
+    finalResume = prefill.resume;
+    if (!finalJobTarget) finalJobTarget = prefill.jobTarget;
+    if (framework === 'auto') framework = prefill.framework;
+  }
+
   if (framework === 'auto') {
     const profile = await prisma.profile.findUnique({
       where: { userId: onBehalf.subjectUserId },
@@ -104,11 +119,11 @@ Format your response in two parts:
 2. HOW WE POSITIONED YOU: 3-5 bullet points explaining what was reframed and why — helping the member understand the strategy, not just copy the output.`;
 
   const userPrompt = `CAREER GOAL
-Target role: ${jobTarget}${goalContext ? `\n${goalContext}` : ''}
+Target role: ${finalJobTarget ?? 'not specified'}${goalContext ? `\n${goalContext}` : ''}
 
 ORIGINAL RESUME
 ---
-${resume}
+${finalResume}
 ---
 
 Reposition this resume toward the career goal above. Remember: only work with what is actually in the resume. Frame it powerfully toward the target — do not invent anything.`;
@@ -132,7 +147,7 @@ Reposition this resume toward the career goal above. Remember: only work with wh
 
     try {
       await ensureUserInDb(user);
-      const contextLabel = [jobTarget, targetLocation, targetSalary].filter(Boolean).join(' | ');
+      const contextLabel = [finalJobTarget, targetLocation, targetSalary].filter(Boolean).join(' | ');
       // Save to SUBJECT's history; tag actor metadata so the member's
       // dashboard can render the "Your session with {actor}" card.
       await saveAIToolResult(

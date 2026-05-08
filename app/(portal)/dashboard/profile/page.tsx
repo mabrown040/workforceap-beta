@@ -1,3 +1,4 @@
+import { getMemberState } from '@/lib/member/getMemberState';
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -13,7 +14,6 @@ import DeleteAccountButton from "@/components/portal/DeleteAccountButton";
 import StartTourButton from "@/components/onboarding/StartTourButton";
 import ResumeClient from "@/app/(portal)/dashboard/resume/ResumeClient";
 import ResumeCoachWorkspace from "@/components/portal/ResumeCoachWorkspace";
-import { getProfileCompleteness } from "@/lib/resume/profileCompleteness";
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
@@ -143,11 +143,9 @@ export default async function DashboardProfilePage() {
         .toUpperCase()
     : "??";
 
-  // Single source of truth: getProfileCompleteness in lib/resume/profileCompleteness.
-  // Both this page and dashboard/page must pass the full user (fullName, email,
-  // enrolledProgram, assessmentCompleted) and profile (phone, address, linkedin,
-  // bio, employmentStatus, educationLevel) so the computed % agrees across surfaces.
-  const profilePct = getProfileCompleteness(dbUser.profile, dbUser);
+  // Single source of truth: getMemberState returns consistent profile % across all surfaces.
+  const memberState = await getMemberState(user.id);
+  const profilePct = memberState.profileCompletenessPct;
   const completeness = profilePct;
   const witData = {
     name: dbUser.fullName ?? "",

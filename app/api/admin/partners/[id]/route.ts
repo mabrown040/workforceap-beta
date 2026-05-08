@@ -1,8 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * Reads/writes against `Partner` are wrapped in `withTenantScope` so the
+ * org filter is auto-injected. The `subgroup` writes stay on the regular
+ * client because `Subgroup` is not a tenant-scoped model in
+ * `TENANT_SCOPED_MODELS` (it inherits its tenant via FK to `Partner`).
+ *
+ * EXCEPTION: the duplicate-referralCode pre-check runs GLOBALLY via
+ * `crossTenantOK` because `referralCode` and `slug` are still `@unique`
+ * globally in the schema. A scoped pre-check would miss collisions in
+ * other orgs and the update would then 500 on Prisma's P2002 instead of
+ * returning a friendly 400. The route also catches P2002 as belt-and-
+ * braces in case a race slips past the pre-check. Once schema migrates
+ * to per-tenant uniqueness in Sprint A.3, these pre-checks move back
+ * inside `withTenantScope`.
+ *
+ * Transactional note: the original PATCH wrapped partner.update +
+ * subgroup.updateMany in a single Prisma transaction. After this
+ * migration the partner.update goes through `withTenantScope`
+ * (separate connection from the subgroup tx). The subgroup updates
+ * stay in their own transaction. This is functionally identical for
+ * the success path and slightly less atomic on failure — acceptable
+ * because the partner update is gated by uniqueness pre-checks, and
+ * the subgroup writes are idempotent.
+ */
 
 const patchSchema = z.object({
   name: z.string().min(1).max(200).optional(),
@@ -36,7 +67,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   const { id: partnerId } = await params;
-  const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
+  const orgId = await getDefaultOrganizationId();
+
+  const partner = await withTenantScope(orgId, (db) =>
+    db.partner.findFirst({ where: { id: partnerId } }),
+  );
   if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
   const body = await request.json().catch(() => null);
@@ -49,25 +84,38 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   if (data.referralCode !== undefined) {
     const code = data.referralCode.trim().toLowerCase();
-    const slugConflict = await prisma.partner.findFirst({
-      where: { slug: code, id: { not: partnerId } },
-    });
-    const codeConflict = await prisma.partner.findFirst({
-      where: { referralCode: code, id: { not: partnerId } },
-    });
+    // Global uniqueness pre-check — `slug` and `referralCode` are
+    // `@unique` across ALL orgs in the current schema, so this check
+    // must cross tenants. crossTenantOK marks the intentional bypass
+    // for the audit script.
+    const slugConflict = await crossTenantOK(() =>
+      prisma.partner.findFirst({
+        where: { slug: code, id: { not: partnerId } },
+        select: { id: true },
+      }),
+    );
+    const codeConflict = await crossTenantOK(() =>
+      prisma.partner.findFirst({
+        where: { referralCode: code, id: { not: partnerId } },
+        select: { id: true },
+      }),
+    );
     if (slugConflict || codeConflict) {
       return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
     }
   }
 
-  // Check for duplicate contact email if changing
+  // Check for duplicate contact email if changing — scoped to tenant.
   if (data.contactEmail !== undefined && data.contactEmail) {
-    const existing = await prisma.partner.findFirst({
-      where: {
-        contactEmail: data.contactEmail.trim().toLowerCase(),
-        id: { not: partnerId },
-      },
-    });
+    const existing = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({
+        where: {
+          contactEmail: data.contactEmail!.trim().toLowerCase(),
+          id: { not: partnerId },
+        },
+        select: { id: true },
+      }),
+    );
     if (existing) {
       return NextResponse.json({ error: 'Another partner already uses this contact email' }, { status: 400 });
     }
@@ -84,39 +132,58 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl?.trim() || null;
   if (data.brandColor !== undefined) updateData.brandColor = data.brandColor?.trim() || null;
 
-  await prisma.$transaction(async (tx) => {
+  try {
     if (Object.keys(updateData).length > 0) {
-      await tx.partner.update({
-        where: { id: partnerId },
-        data: updateData,
-      });
+      await withTenantScope(orgId, (db) =>
+        db.partner.update({
+          where: { id: partnerId },
+          data: updateData,
+        }),
+      );
     }
 
     if (data.subgroupIds !== undefined) {
-      // Clear partner from subgroups that no longer have this partner
-      await tx.subgroup.updateMany({
-        where: { partnerId, type: 'partner' },
-        data: { partnerId: null },
-      });
-      // Assign partner to selected subgroups (type=partner only)
-      if (data.subgroupIds.length > 0) {
+      // Subgroup is NOT tenant-scoped (inherits via FK to Partner).
+      // Run the clear+assign inside its own transaction.
+      await prisma.$transaction(async (tx) => {
         await tx.subgroup.updateMany({
-          where: {
-            id: { in: data.subgroupIds },
-            type: 'partner',
-          },
-          data: { partnerId },
+          where: { partnerId, type: 'partner' },
+          data: { partnerId: null },
         });
-      }
+        if (data.subgroupIds && data.subgroupIds.length > 0) {
+          await tx.subgroup.updateMany({
+            where: {
+              id: { in: data.subgroupIds },
+              type: 'partner',
+            },
+            data: { partnerId },
+          });
+        }
+      });
     }
-  });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = (error.meta?.target as string[] | undefined) ?? [];
+      const targetField = target.join(',');
+      if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
+        return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
+      }
+      if (targetField.includes('slug')) {
+        return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
+      }
+      return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
+    }
+    throw error;
+  }
 
-  const updated = await prisma.partner.findUnique({
-    where: { id: partnerId },
-    include: {
-      subgroups: { select: { id: true, name: true } },
-      _count: { select: { counselors: true, referrals: true } },
-    },
-  });
+  const updated = await withTenantScope(orgId, (db) =>
+    db.partner.findFirst({
+      where: { id: partnerId },
+      include: {
+        subgroups: { select: { id: true, name: true } },
+        _count: { select: { counselors: true, referrals: true } },
+      },
+    }),
+  );
   return NextResponse.json(updated);
 }

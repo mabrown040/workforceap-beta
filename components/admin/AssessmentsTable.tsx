@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import { formatPhone } from '@/lib/formatPhone';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type AssessmentUser = {
   id: string;
@@ -213,78 +214,162 @@ export default function AssessmentsTable({
 
       {/* Desktop table (≥768px) */}
       <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-        <table className="admin-table employer-applications-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('name'); setSortDir(sortBy === 'name' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
-                Name {sortBy === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ textAlign: 'left', padding: '0.5rem' }}>Email</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem' }}>Phone</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem' }}>Program Interest</th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('score'); setSortDir(sortBy === 'score' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
-                Score % {sortBy === 'score' && (sortDir === 'asc' ? '↑' : '↓')}
-              </th>
-              <th style={{ textAlign: 'left', padding: '0.5rem', cursor: 'pointer' }} onClick={() => { setSortBy('date'); setSortDir(sortBy === 'date' && sortDir === 'desc' ? 'asc' : 'desc'); }}>
-                Date Completed {sortBy === 'date' && (sortDir === 'asc' ? '↑' : '↓')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.flatMap((u) => [
-              <tr
-                key={u.id}
-                onClick={() => setExpandedId(expandedId === u.id ? null : u.id)}
-                style={{
-                  cursor: 'pointer',
-                  background: highlightUserId === u.id ? 'rgba(74, 155, 79, 0.08)' : expandedId === u.id ? 'rgba(173,44,77,0.05)' : undefined,
-                }}
-              >
-                <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: '2rem', height: '2rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
-                      {(u.fullName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                    </div>
-                    <span style={{ fontWeight: 600 }}>{u.fullName}</span>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table employer-applications-table"
+          scrollX={false}
+          rows={sorted}
+          rowKey={(u) => u.id}
+          getRowProps={(u) => ({
+            onClick: () => setExpandedId(expandedId === u.id ? null : u.id),
+            style: {
+              cursor: 'pointer',
+              background:
+                highlightUserId === u.id
+                  ? 'rgba(74, 155, 79, 0.08)'
+                  : expandedId === u.id
+                    ? 'rgba(173,44,77,0.05)'
+                    : undefined,
+            },
+          })}
+          renderSubRow={(u) =>
+            expandedId === u.id ? (
+              <>
+                <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Answer breakdown</h4>
+                <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
+                  {ASSESSMENT_QUESTIONS.map((q) => {
+                    const ans = answers(u)[q.id];
+                    const correct = ans === q.correct;
+                    return (
+                      <div key={q.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
+                        <span style={{ fontWeight: 600, minWidth: '2rem' }}>Q{q.id}:</span>
+                        <span>{q.question}</span>
+                        <span style={{ color: correct ? 'var(--color-success, green)' : 'var(--color-error, red)' }}>
+                          {ans ? `Answer: ${ans}` : '—'} {correct ? '✓' : '✗'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : null
+          }
+          subRowTdStyle={{ padding: '1rem', background: 'var(--color-light)', borderBottom: '1px solid #ddd' }}
+          columns={[
+            {
+              key: 'name',
+              header: (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSortBy('name');
+                    setSortDir(sortBy === 'name' && sortDir === 'desc' ? 'asc' : 'desc');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSortBy('name');
+                      setSortDir(sortBy === 'name' && sortDir === 'desc' ? 'asc' : 'desc');
+                    }
+                  }}
+                >
+                  Name {sortBy === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
+                </span>
+              ),
+              cell: (u) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div
+                    style={{
+                      width: '2rem',
+                      height: '2rem',
+                      borderRadius: '9999px',
+                      background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {(u.fullName ?? '?')
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase()}
                   </div>
-                </td>
-                <td>{u.email}</td>
-                <td>{formatPhone(u.phone)}</td>
-                <td>{u.programInterest ?? '—'}</td>
-                <td>
-                  <span style={{ fontWeight: 700, color: scoreColor(u.assessmentScorePct) }}>
-                    {u.assessmentScorePct ?? '—'}{u.assessmentScorePct !== null ? '%' : ''}
-                  </span>
-                </td>
-                <td>{u.assessmentCompletedAt?.toLocaleDateString() ?? '—'}</td>
-              </tr>,
-              ...(expandedId === u.id
-                ? [
-                    <tr key={`${u.id}-exp`}>
-                      <td colSpan={6} style={{ padding: '1rem', background: 'var(--color-light)', borderBottom: '1px solid #ddd' }}>
-                        <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Answer breakdown</h4>
-                        <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
-                          {ASSESSMENT_QUESTIONS.map((q) => {
-                            const ans = answers(u)[q.id];
-                            const correct = ans === q.correct;
-                            return (
-                              <div key={q.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
-                                <span style={{ fontWeight: 600, minWidth: '2rem' }}>Q{q.id}:</span>
-                                <span>{q.question}</span>
-                                <span style={{ color: correct ? 'var(--color-success, green)' : 'var(--color-error, red)' }}>
-                                  {ans ? `Answer: ${ans}` : '—'} {correct ? '✓' : '✗'}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </td>
-                    </tr>,
-                  ]
-                : []),
-            ])}
-          </tbody>
-        </table>
+                  <span style={{ fontWeight: 600 }}>{u.fullName}</span>
+                </div>
+              ),
+            },
+            { key: 'email', header: 'Email', cell: (u) => u.email },
+            { key: 'phone', header: 'Phone', cell: (u) => formatPhone(u.phone) },
+            { key: 'program', header: 'Program Interest', cell: (u) => u.programInterest ?? '—' },
+            {
+              key: 'score',
+              header: (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSortBy('score');
+                    setSortDir(sortBy === 'score' && sortDir === 'desc' ? 'asc' : 'desc');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSortBy('score');
+                      setSortDir(sortBy === 'score' && sortDir === 'desc' ? 'asc' : 'desc');
+                    }
+                  }}
+                >
+                  Score % {sortBy === 'score' && (sortDir === 'asc' ? '↑' : '↓')}
+                </span>
+              ),
+              cell: (u) => (
+                <span style={{ fontWeight: 700, color: scoreColor(u.assessmentScorePct) }}>
+                  {u.assessmentScorePct ?? '—'}
+                  {u.assessmentScorePct !== null ? '%' : ''}
+                </span>
+              ),
+            },
+            {
+              key: 'date',
+              header: (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSortBy('date');
+                    setSortDir(sortBy === 'date' && sortDir === 'desc' ? 'asc' : 'desc');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSortBy('date');
+                      setSortDir(sortBy === 'date' && sortDir === 'desc' ? 'asc' : 'desc');
+                    }
+                  }}
+                >
+                  Date Completed {sortBy === 'date' && (sortDir === 'asc' ? '↑' : '↓')}
+                </span>
+              ),
+              cell: (u) => u.assessmentCompletedAt?.toLocaleDateString() ?? '—',
+            },
+          ]}
+        />
       </div>
 
       {users.length === 0 && (

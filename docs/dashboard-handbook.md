@@ -11,6 +11,17 @@
   <em>Version 1.0 | March 30, 2026</em>
 </p>
 
+> ⚠️ **Future-state document.** The metrics, member counts, placement rates, and dashboards
+> illustrated in this handbook describe the **target state** of the WorkforceAP platform —
+> what the dashboards will show once we have a representative cohort flowing through. They
+> are **not** live production numbers and must not be quoted externally as such.
+>
+> For the **single source of truth** on live metrics — applications received, members
+> enrolled, certifications earned, placements recorded, data-quality flags — see
+> [`/admin/outcomes`](/admin/outcomes) and the methodology in
+> [`docs/OUTCOMES-METHODOLOGY.md`](./OUTCOMES-METHODOLOGY.md). External pitches must source
+> any quoted number from the live snapshot, not from this document.
+
 ---
 
 ## Table of Contents

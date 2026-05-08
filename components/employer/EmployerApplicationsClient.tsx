@@ -1,8 +1,10 @@
 'use client';
 
-import { Fragment, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import DataTable from '@/components/portal/ui/DataTable';
 
 export type AppMsg = {
   id: string;
@@ -62,39 +64,48 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
     }
   }, []);
 
-  const toggleChat = useCallback(async (applicationId: string) => {
-    if (openChatId === applicationId) {
-      setOpenChatId(null);
-      return;
-    }
-
-    setError(null);
-
-    if (!chatMessages[applicationId]) {
-      setChatLoadingId(applicationId);
-      try {
-        const r = await fetch(`/api/employer/applications/${applicationId}/messages`, {
-          credentials: 'include',
-        });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok) {
-          setError(typeof data.error === 'string' ? data.error : 'Unable to load messages');
-          return;
-        }
-        setChatMessages((prev) => ({ ...prev, [applicationId]: Array.isArray(data.messages) ? data.messages : [] }));
-      } catch {
-        setError('Unable to load messages');
+  const toggleChat = useCallback(
+    async (applicationId: string) => {
+      if (openChatId === applicationId) {
+        setOpenChatId(null);
         return;
-      } finally {
-        setChatLoadingId(null);
       }
-    }
 
-    setOpenChatId(applicationId);
-  }, [chatMessages, openChatId]);
+      setError(null);
+
+      if (!chatMessages[applicationId]) {
+        setChatLoadingId(applicationId);
+        try {
+          const r = await fetch(`/api/employer/applications/${applicationId}/messages`, {
+            credentials: 'include',
+          });
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            setError(typeof data.error === 'string' ? data.error : 'Unable to load messages');
+            return;
+          }
+          setChatMessages((prev) => ({ ...prev, [applicationId]: Array.isArray(data.messages) ? data.messages : [] }));
+        } catch {
+          setError('Unable to load messages');
+          return;
+        } finally {
+          setChatLoadingId(null);
+        }
+      }
+
+      setOpenChatId(applicationId);
+    },
+    [chatMessages, openChatId]
+  );
 
   if (rows.length === 0) {
-    return <p style={{ color: 'var(--color-on-surface-variant)' }}>No applications yet.</p>;
+    return (
+      <PortalEmptyState
+        title="No applications yet"
+        description="When candidates apply to your jobs, they will appear here with status and messaging."
+        icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>badge</span>}
+      />
+    );
   }
 
   return (
@@ -105,116 +116,164 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
         </p>
       ) : null}
       <div className="employer-applications-table-wrap" style={{ overflowX: 'auto' }}>
-        <table className="admin-table employer-applications-table">
-          <thead>
-            <tr>
-              <th>Applicant</th>
-              <th>Job</th>
-              <th>Status</th>
-              <th>Applied</th>
-              <th>Message</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((app) => {
-              const studentName = app.student.fullName?.trim() || app.student.email;
-              const isChatOpen = openChatId === app.id;
-              const isChatLoading = chatLoadingId === app.id;
-              const initialMessages = chatMessages[app.id] ?? [];
-
-              return (
-                <Fragment key={app.id}>
-                  <tr id={app.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '2rem', height: '2rem', borderRadius: '9999px', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
-                          {(studentName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <Link href={`/employer/candidates/${app.student.id}?jobId=${encodeURIComponent(app.jobId)}`} style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}>
-                            {studentName}
-                          </Link>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{app.student.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <Link href={`/employer/jobs/${app.job.id}`} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                        {app.job.title}
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table employer-applications-table"
+          scrollX={false}
+          rows={rows}
+          rowKey={(app) => app.id}
+          renderSubRow={(app) => {
+            const isChatOpen = openChatId === app.id;
+            if (!isChatOpen) return null;
+            const studentName = app.student.fullName?.trim() || app.student.email;
+            const initialMessages = chatMessages[app.id] ?? [];
+            return (
+              <div
+                id={`employer-chat-${app.id}`}
+                style={{
+                  border: '1px solid var(--outline-variant)',
+                  borderRadius: '0.875rem',
+                  overflow: 'hidden',
+                  background: 'var(--surface-container-lowest)',
+                  minHeight: '28rem',
+                }}
+              >
+                <EmployerApplicationChatClient
+                  applicationId={app.id}
+                  studentName={studentName}
+                  jobTitle={app.job.title}
+                  initialMessages={initialMessages}
+                />
+              </div>
+            );
+          }}
+          subRowTdStyle={{ padding: '0 0 1rem', verticalAlign: 'top', borderBottom: '1px solid var(--outline-variant)' }}
+          columns={[
+            {
+              key: 'applicant',
+              header: 'Applicant',
+              cell: (app) => {
+                const studentName = app.student.fullName?.trim() || app.student.email;
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div
+                      style={{
+                        width: '2rem',
+                        height: '2rem',
+                        borderRadius: '9999px',
+                        background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        flexShrink: 0,
+                      }}
+                      aria-hidden
+                    >
+                      {(studentName ?? '?')
+                        .split(' ')
+                        .map((n: string) => n[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div>
+                      <Link
+                        href={`/employer/candidates/${app.student.id}?jobId=${encodeURIComponent(app.jobId)}`}
+                        style={{ fontWeight: 700, color: 'var(--color-on-surface)', textDecoration: 'none' }}
+                      >
+                        {studentName}
                       </Link>
-                    </td>
-                    <td>
-                      <select
-                        className="employer-app-status-select"
-                        value={app.status}
-                        disabled={busyId === app.id}
-                        onChange={(e) => void patchStatus(app.id, e.target.value)}
-                        aria-label={`Status for ${studentName}`}
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
-                      {new Date(app.appliedAt).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        onClick={() => void toggleChat(app.id)}
-                        disabled={isChatLoading}
-                        aria-expanded={isChatOpen}
-                        aria-controls={`employer-chat-${app.id}`}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.375rem',
-                          padding: '0.4rem 0.75rem',
-                          borderRadius: '0.5rem',
-                          background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
-                          color: 'var(--color-accent)',
-                          fontWeight: 700,
-                          fontSize: '0.8125rem',
-                          border: 'none',
-                          cursor: isChatLoading ? 'default' : 'pointer',
-                          opacity: isChatLoading ? 0.6 : 1,
-                        }}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
-                        {isChatLoading ? 'Loading…' : isChatOpen ? 'Close' : 'Message'}
-                      </button>
-                    </td>
-                  </tr>
-                  {isChatOpen ? (
-                    <tr>
-                      <td colSpan={5} style={{ padding: '0 0 1rem' }}>
-                        <div
-                          id={`employer-chat-${app.id}`}
-                          style={{
-                            marginTop: '0.75rem',
-                            border: '1px solid #ebe7e7',
-                            borderRadius: '0.875rem',
-                            overflow: 'hidden',
-                            background: '#fff',
-                            minHeight: '28rem',
-                          }}
-                        >
-                          <EmployerApplicationChatClient
-                            applicationId={app.id}
-                            studentName={studentName}
-                            jobTitle={app.job.title}
-                            initialMessages={initialMessages}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ) : null}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{app.student.email}</div>
+                    </div>
+                  </div>
+                );
+              },
+            },
+            {
+              key: 'job',
+              header: 'Job',
+              cell: (app) => (
+                <Link
+                  href={`/employer/jobs/${app.job.id}`}
+                  style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}
+                >
+                  {app.job.title}
+                </Link>
+              ),
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              cell: (app) => {
+                const studentName = app.student.fullName?.trim() || app.student.email;
+                return (
+                  <select
+                    className="employer-app-status-select"
+                    value={app.status}
+                    disabled={busyId === app.id}
+                    onChange={(e) => void patchStatus(app.id, e.target.value)}
+                    aria-label={`Status for ${studentName}`}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                );
+              },
+            },
+            {
+              key: 'applied',
+              header: 'Applied',
+              cell: (app) => (
+                <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
+                  {new Date(app.appliedAt).toLocaleDateString()}
+                </span>
+              ),
+            },
+            {
+              key: 'message',
+              header: 'Message',
+              cell: (app) => {
+                const studentName = app.student.fullName?.trim() || app.student.email;
+                const isChatOpen = openChatId === app.id;
+                const isChatLoading = chatLoadingId === app.id;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => void toggleChat(app.id)}
+                    disabled={isChatLoading}
+                    aria-expanded={isChatOpen}
+                    aria-controls={`employer-chat-${app.id}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
+                      color: 'var(--color-accent)',
+                      fontWeight: 700,
+                      fontSize: '0.8125rem',
+                      border: 'none',
+                      cursor: isChatLoading ? 'default' : 'pointer',
+                      opacity: isChatLoading ? 0.6 : 1,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }} aria-hidden>
+                      forum
+                    </span>
+                    {isChatLoading ? 'Loading…' : isChatOpen ? 'Close' : 'Message'}
+                  </button>
+                );
+              },
+            },
+          ]}
+        />
       </div>
     </div>
   );

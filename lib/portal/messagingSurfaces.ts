@@ -13,8 +13,8 @@ export const memberMessagingSurface: MessagingSurface = {
   badge: 'Messages',
   subtext: 'Private thread with your counselor — replies in real time.',
   icon: '💬',
-  glowColor: '#8B0000',
-  gradient: 'linear-gradient(135deg, #670024, #8B0000, #e8a0b3)',
+  glowColor: '#8c0f37',
+  gradient: 'linear-gradient(135deg, #670024, #8c0f37, #e8a0b3)',
 };
 
 export const partnerMessagingSurface: MessagingSurface = {

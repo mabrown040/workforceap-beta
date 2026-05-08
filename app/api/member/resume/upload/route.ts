@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
+import { awardPoints } from '@/lib/member/points';
 import { Buffer } from 'node:buffer';
 
 /** Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */
@@ -60,6 +61,10 @@ export async function POST(request: Request) {
       create: { userId: user.id, resumeOriginalPath: path, role: 'member' },
       update: { resumeOriginalPath: path },
     });
+
+    // Award points for first resume upload (idempotent — fixed entityId means
+    // re-uploading the same or a new resume only awards once).
+    awardPoints(user.id, 'resume_uploaded', 'first-upload').catch(() => {});
 
     return NextResponse.json({ ok: true, path });
   } catch (e) {

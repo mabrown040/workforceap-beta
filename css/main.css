@@ -50,8 +50,8 @@
 
     /* Color Palette - Primary */
     --color-primary: #1a1a1a;
-    --color-accent: #C41E3A;
-    --color-accent-dark: #8B0000;
+    --color-accent: #ad2c4d;
+    --color-accent-dark: #8c0f37;
     --color-accent-light: #FF8A95;
 
     /* Color Palette - Semantic */
@@ -2087,8 +2087,12 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     background: none;
     border: none;
     font-family: inherit;
-    padding: 0.5rem 0;
+    padding: 0.5rem 0.5rem;
     transition: color var(--transition-fast);
+    /* WCAG / mobile touch target — keep ≥ 44px tall on every viewport. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
 }
 .nav-link-glass:hover {
     color: var(--color-accent);
@@ -2101,8 +2105,10 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     padding-bottom: calc(0.5rem - 2px);
 }
 .dropdown-item-glass {
-    display: block;
-    padding: 0.625rem 1.125rem;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.125rem;
+    min-height: 44px;
     font-size: 0.875rem;
     color: var(--color-on-surface);
     text-decoration: none;
@@ -2119,18 +2125,27 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     text-decoration: none;
     padding: 0.5rem 1rem;
     transition: opacity var(--transition-fast);
+    /* WCAG / mobile touch target ≥ 44px. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
 }
 .nav-login-btn:hover { opacity: 0.8; }
 .nav-apply-btn {
     background: var(--color-accent);
     color: var(--color-white);
-    padding: 0.5rem 1.5rem;
+    padding: 0.75rem 1.5rem;
     border-radius: var(--radius-md);
     font-weight: 700;
     font-size: 0.875rem;
     text-decoration: none;
     transition: all var(--transition-fast);
     white-space: nowrap;
+    /* WCAG / mobile touch target — primary CTA stays ≥ 48px. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
 }
 .nav-apply-btn:hover {
     background: var(--color-accent-dark);
@@ -2152,12 +2167,17 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
 a.nav-cta {
     background: var(--color-accent) !important;
     color: var(--color-white) !important;
-    padding: 8px 20px !important;
+    padding: 12px 20px !important;
     border-radius: var(--radius-md) !important;
     font-weight: 700 !important;
     font-size: 0.875rem !important;
     transition: all var(--transition-fast) !important;
     white-space: nowrap !important;
+    /* WCAG / mobile touch target — primary CTA stays ≥ 48px tall. */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 48px !important;
 }
 @media (max-width: 1024px) {
     .nav-container {
@@ -2168,8 +2188,9 @@ a.nav-cta {
     }
     .nav-cta,
     a.nav-cta {
-        padding: 6px 14px !important;
+        padding: 10px 14px !important;
         font-size: 0.8125rem !important;
+        min-height: 44px !important;
     }
 }
 .nav-cta:hover,
@@ -2258,7 +2279,7 @@ body.mobile-nav-open {
 .btn-primary,
 a.btn-primary,
 button.btn-primary {
-    background: linear-gradient(135deg, #8B0000, #C41E3A);
+    background: linear-gradient(135deg, #8c0f37, #ad2c4d);
     color: var(--color-white);
     border: none;
     border-radius: var(--radius-md);
@@ -4684,7 +4705,7 @@ body.inner-page {
     height: 1.1rem;
     flex-shrink: 0;
     cursor: pointer;
-    accent-color: #C41E3A;
+    accent-color: #ad2c4d;
 }
 
 /* Apply page specific */
@@ -6734,9 +6755,9 @@ img.img-fade.loaded { opacity: 1; }
     .main-nav.scrolled .nav-container {
         height: var(--nav-height-scrolled);
     }
-    .nav-logo-image { 
-        height: 60px; 
-        max-width: 142px; 
+    .nav-logo-image {
+        height: 60px;
+        max-width: 142px;
     }
     .main-nav.scrolled .nav-logo-image {
         height: 48px;
@@ -12050,7 +12071,7 @@ html.dark .admin-super-messages-bubble.is-staff {
 }
 .progress-banner-fill {
     height: 100%;
-    background: var(--color-accent, #C41E3A);
+    background: var(--color-accent, #ad2c4d);
     border-radius: 3px;
     transition: width 0.2s ease;
 }
@@ -12528,10 +12549,23 @@ html.dark .admin-super-messages-bubble.is-staff {
     gap: var(--space-3);
 }
 .coursera-unmatched-card {
+    /* Flex column so the actions row at the bottom sizes to its content
+       and isn't clipped by the card edge. The previous default-flow
+       layout combined with the buttons' own `overflow: hidden` from
+       `.btn` rendered the maroon "Create mapping" CTA as a thin strip
+       on narrow viewports — only the top edge of the button was visible
+       below the "Identity / completion" line. */
+    display: flex;
+    flex-direction: column;
     border: 1px solid var(--outline-variant);
     border-radius: var(--radius-md);
     padding: var(--space-4);
     background: var(--surface-container-lowest, #fff);
+    /* Let the card grow to fit its contents. Explicit `overflow: visible`
+       defends against any ancestor cascading `overflow: hidden` (e.g.
+       from a future card-shell utility) which would otherwise clip the
+       sticky/positioned button shimmer. */
+    overflow: visible;
 }
 .coursera-unmatched-card__label {
     font-size: 0.65rem;
@@ -12548,6 +12582,26 @@ html.dark .admin-super-messages-bubble.is-staff {
 }
 .coursera-unmatched-card__actions {
     margin-top: var(--space-2);
+    /* Stack the inline `width: 100%` buttons with a real gap so they
+       read as separate CTAs instead of a single clipped maroon strip. */
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+.coursera-unmatched-card__actions > .btn,
+.coursera-unmatched-card__actions > button {
+    /* Buttons in this row get full width; explicit `flex: 0 0 auto`
+       prevents a flex parent from squishing them to zero height.
+       Belt-and-suspenders against the original "thin maroon strip"
+       symptom: pin a min-height, line-height, padding and disable any
+       inherited `overflow: hidden` so the label always renders. */
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 44px;
+    line-height: 1.2;
+    padding: 0.625rem 0.875rem;
+    overflow: visible;
+    white-space: normal;
 }
 .coursera-empty-row {
     text-align: center;
@@ -15505,7 +15559,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #8B0000;
+    color: #8c0f37;
 }
 .job-applications-tracker__title {
     margin: 0;
@@ -15816,7 +15870,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
 
 /* Messaging polish — aligns with VoiceAgentSurface / portal surfaces */
 .member-counselor-chat__scroll {
-    border: 1px solid color-mix(in srgb, var(--color-accent, #8B0000) 12%, var(--outline-variant, #e8e0dd));
+    border: 1px solid color-mix(in srgb, var(--color-accent, #8c0f37) 12%, var(--outline-variant, #e8e0dd));
     background: linear-gradient(
         165deg,
         var(--surface-container-lowest, #fff) 0%,
@@ -15824,7 +15878,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     );
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.75),
-        0 10px 40px color-mix(in srgb, var(--color-accent, #8B0000) 8%, transparent);
+        0 10px 40px color-mix(in srgb, var(--color-accent, #8c0f37) 8%, transparent);
     border-radius: 14px;
     padding: 1rem 1rem 0.85rem;
 }

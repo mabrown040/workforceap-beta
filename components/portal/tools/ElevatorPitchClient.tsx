@@ -7,15 +7,15 @@ import ToolFollowThrough from './ToolFollowThrough';
 
 type Step = 'form' | 'pitch' | 'rehearse';
 
-export default function ElevatorPitchClient() {
+export default function ElevatorPitchClient({ initialData }: { initialData?: { name: string; targetRole: string; strengths: string; certifications: string; industry: string } | null }) {
   const [step, setStep] = useState<Step>('form');
 
   // Form fields
-  const [name, setName] = useState('');
-  const [targetRole, setTargetRole] = useState('');
-  const [strengths, setStrengths] = useState('');
-  const [certifications, setCertifications] = useState('');
-  const [industry, setIndustry] = useState('');
+  const [name, setName] = useState(initialData?.name ?? '');
+  const [targetRole, setTargetRole] = useState(initialData?.targetRole ?? '');
+  const [strengths, setStrengths] = useState(initialData?.strengths ?? '');
+  const [certifications, setCertifications] = useState(initialData?.certifications ?? '');
+  const [industry, setIndustry] = useState(initialData?.industry ?? '');
   const [language, setLanguage] = useState<AiToolLanguage>('en');
 
   useDraftAutosave('ai-tool:elevator-pitch:name', name, setName);

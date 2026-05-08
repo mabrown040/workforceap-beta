@@ -6,6 +6,7 @@ import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
+import { awardPoints } from '@/lib/member/points';
 
 // GET: List user's job applications
 export async function GET() {
@@ -86,6 +87,15 @@ export async function POST(request: NextRequest) {
         source: application.source,
       },
     });
+
+    // Award points only when the row represents a REAL application, not a
+    // saved lead. Codex P2 catch on PR #1061 — schema accepts `SAVED` even
+    // though it defaults to APPLIED, so a client could still create a SAVED
+    // row here. Sibling `/api/member/applications/[id]` PATCH handles the
+    // SAVED → applied transition. Idempotent on application id.
+    if (application.status !== 'SAVED') {
+      awardPoints(user.id, 'job_application', application.id).catch(() => {});
+    }
 
     const recentTools = await findRecentAiToolsForApplicationFeedback(prisma, user.id);
     const promptAiFeedback = recentTools.length > 0;

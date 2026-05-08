@@ -46,7 +46,7 @@ export default function Layout({ previewText, children }: LayoutProps) {
               Workforce Advancement Project &middot; Free Career Training &amp; Job Support
             </Text>
             <Text style={footerLink}>
-              <Link href={baseUrl} style={{ color: "#C41E3A" }}>
+              <Link href={baseUrl} style={{ color: "#ad2c4d" }}>
                 workforceap.org
               </Link>
             </Text>
@@ -71,8 +71,8 @@ const container = {
 
 const header = {
   // Using the brand gradient from tailwind.config.ts but hardcoded colors
-  // Primary: #1a1a1a, Accent Dark: #8B0000
-  background: "linear-gradient(135deg, #1a1a1a 0%, #2a0a14 50%, #8B0000 100%)",
+  // Primary: #1a1a1a, Accent Dark: #8c0f37
+  background: "linear-gradient(135deg, #1a1a1a 0%, #2a0a14 50%, #8c0f37 100%)",
   padding: "24px 32px",
   borderRadius: "8px 8px 0 0",
   textAlign: "center" as const,

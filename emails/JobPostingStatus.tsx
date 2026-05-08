@@ -79,7 +79,7 @@ const text = {
 
 const feedbackBox = {
   backgroundColor: "#fef2f2",
-  borderLeft: "4px solid #C41E3A",
+  borderLeft: "4px solid #ad2c4d",
   padding: "16px",
   margin: "24px 0",
   borderRadius: "0 4px 4px 0",
@@ -97,7 +97,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: "#C41E3A",
+  backgroundColor: "#ad2c4d",
   borderRadius: "6px",
   color: "#fff",
   fontSize: "16px",

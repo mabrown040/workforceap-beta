@@ -127,8 +127,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: createError.message }, { status: 400 });
     }
     authUser = createData.user;
-    // Optionally trigger password reset so user can set their own
-    await sendPasswordResetEmail(email);
+    // Optionally trigger password reset so user can set their own.
+    // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
+    // member's tenant domain instead of the platform default.
+    const orgIdForReset = await getDefaultOrganizationId();
+    await sendPasswordResetEmail(email, '/reset-password', { orgId: orgIdForReset });
   }
 
   if (!authUser) {

@@ -38,7 +38,7 @@ export default function ShareButtons() {
         className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group"
         aria-label={copied ? 'Application link copied' : 'Copy application link to clipboard'}
       >
-        <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8B0000] transition-colors" aria-hidden="true">
+        <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8c0f37] transition-colors" aria-hidden="true">
           {copied ? 'check' : 'content_copy'}
         </span>
         <span aria-live="polite" className="text-[10px] mt-2 font-medium text-[#584144]">{copied ? 'Copied!' : 'Copy Link'}</span>
@@ -48,7 +48,7 @@ export default function ShareButtons() {
         className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group"
         aria-label="Share via Email"
       >
-        <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8B0000] transition-colors" aria-hidden="true">mail</span>
+        <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8c0f37] transition-colors" aria-hidden="true">mail</span>
         <span className="text-[10px] mt-2 font-medium text-[#584144]">Email</span>
       </button>
       <button type="button"
@@ -56,7 +56,7 @@ export default function ShareButtons() {
         className="flex flex-col items-center justify-center py-4 bg-white border border-[#debfc2]/10 rounded-xl hover:bg-[#f0edec] transition-colors group"
         aria-label="Share via SMS"
       >
-        <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8B0000] transition-colors" aria-hidden="true">chat_bubble</span>
+        <span className="material-symbols-outlined text-[#584144] group-hover:text-[#8c0f37] transition-colors" aria-hidden="true">chat_bubble</span>
         <span className="text-[10px] mt-2 font-medium text-[#584144]">SMS</span>
       </button>
     </div>

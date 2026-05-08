@@ -1,13 +1,39 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { trackEvent } from '@/lib/events/track';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The new walk-in member is created inside the actor counselor's tenant,
+ * not the default org. Three Prisma touches:
+ *
+ *   1. Pre-flight email lookup — `User.email` is `@unique` GLOBALLY in
+ *      the current schema, so the duplicate check has to span all
+ *      tenants. Wrapped in `crossTenantOK` to mark the intentional
+ *      cross-tenant read for the audit script. Once the schema migrates
+ *      to per-tenant uniqueness in Sprint A.3, this moves into
+ *      `withTenantScope`.
+ *   2. Free the soft-deleted email — must use `crossTenantOK` since
+ *      the row found in (1) might have been seeded into another org
+ *      historically; we still want to free the email slot.
+ *   3. Create the new `User` row + `Profile` + (optional)
+ *      `CounselorAssignment` inside `withTenantScope` so the new member
+ *      is stamped with the actor's `organizationId`.
+ *
+ * Belt-and-braces: catch P2002 on the email field if the global
+ * pre-check loses a race with a concurrent insert.
+ */
 
 /**
  * Walk-in session API — creates a brand-new member and starts an in-office
@@ -70,16 +96,26 @@ export async function POST(request: Request) {
   // its email is still occupying the @unique slot. Free it before we ask
   // Supabase to invite — otherwise even after Supabase succeeds we'd fail
   // when the transaction tries to insert the new User row. See #757 + #761.
-  const existingPrisma = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true, deletedAt: true },
-  });
+  //
+  // `User.email` is `@unique` GLOBALLY (not per-tenant) in the current
+  // schema, so the lookup MUST span all tenants — `crossTenantOK` marks
+  // the intentional bypass. The follow-up `update` below is also
+  // unscoped because the soft-deleted row could legitimately live in
+  // any tenant; we just want to free the email slot regardless.
+  const existingPrisma = await crossTenantOK(() =>
+    prisma.user.findUnique({
+      where: { email },
+      select: { id: true, deletedAt: true },
+    }),
+  );
   if (existingPrisma?.deletedAt) {
     const freedEmail = `deleted_${existingPrisma.id}_${Date.now()}_${email}@deleted.invalid`.slice(0, 255);
-    await prisma.user.update({
-      where: { id: existingPrisma.id },
-      data: { email: freedEmail },
-    });
+    await crossTenantOK(() =>
+      prisma.user.update({
+        where: { id: existingPrisma.id },
+        data: { email: freedEmail },
+      }),
+    );
   } else if (existingPrisma) {
     // Active Prisma row — existing member. Return their ID so the client can
     // offer a one-click "start session with them" path.
@@ -160,11 +196,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
   }
 
-  const organizationId = await getDefaultOrganizationId();
+  // Walk-in lands in the actor's tenant, not the default org. Codex P1
+  // catch on PR #1047 — using `getDefaultOrganizationId()` would mis-tag
+  // a non-default-org counselor's walk-ins.
+  const organizationId = await getActorOrganizationId(user.id);
 
   try {
-    await prisma.$transaction(async (tx) => {
-      await tx.user.create({
+    // Step 1: User.create goes through withTenantScope so the new row
+    // is stamped with the active org and any explicit `organizationId`
+    // that doesn't match would fail loudly. Profile + CounselorAssignment
+    // inherit tenancy via FK to User and stay on raw tx.
+    await withTenantScope(organizationId, (db) =>
+      db.user.create({
         data: {
           id: authUser.id,
           organizationId,
@@ -172,7 +215,10 @@ export async function POST(request: Request) {
           fullName,
           phone: phone || null,
         },
-      });
+      }),
+    );
+
+    await prisma.$transaction(async (tx) => {
       await tx.profile.create({
         data: {
           userId: authUser.id,
@@ -200,8 +246,29 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error('[walk-in] db transaction failed', err);
-    // Best-effort cleanup: remove the supabase auth user since we couldn't
-    // finish provisioning. Otherwise the email is taken but no User row exists.
+    // Best-effort cleanup: remove the supabase auth user AND the prisma
+    // user row (if it was created in step 1) since we couldn't finish
+    // provisioning. Otherwise the email is taken but the member is
+    // half-provisioned. Belt-and-braces P2002 catch on email also
+    // returns the duplicate-account 409 response.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      const target = (err.meta?.target as string[] | undefined) ?? [];
+      if (target.includes('email') || target.includes('users_email_key')) {
+        try { await supabase.auth.admin.deleteUser(authUser.id); } catch { /* ignore */ }
+        return NextResponse.json(
+          { error: 'A member with this email already exists.' },
+          { status: 409 }
+        );
+      }
+    }
+    try {
+      // Delete the prisma user if it was created — uses crossTenantOK
+      // because the cleanup is intentionally broad and we just want the
+      // row gone regardless of which tenant claimed it.
+      await crossTenantOK(() =>
+        prisma.user.deleteMany({ where: { id: authUser.id } })
+      );
+    } catch { /* swallow */ }
     try {
       await supabase.auth.admin.deleteUser(authUser.id);
     } catch {

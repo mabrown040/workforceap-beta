@@ -5,7 +5,8 @@ import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import {
   ADMIN_USER_ROLES,
   ensureAppUser,
@@ -14,6 +15,22 @@ import {
 } from '@/lib/admin/adminUserProvisioning';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * GET/POST migrated to `withTenantScope` so an admin from Org A only
+ * sees / creates users in their own tenant.
+ *
+ * EXCEPTION: the create-time email collision pre-check uses
+ * `crossTenantOK` because `User.email` is `@unique` GLOBALLY in the
+ * schema. A scoped pre-check would miss Org B owning the address and
+ * the create would 500 on Prisma's P2002 instead of returning 409.
+ * The route also surfaces P2002 from `ensureAppUser` as belt-and-
+ * braces. Once the schema migrates to per-tenant uniqueness in
+ * Sprint A.3, this check moves back inside `withTenantScope`.
+ */
 
 /** List users for admin dropdowns (e.g. subgroup leader selection). Returns id, fullName, email. */
 export async function GET() {
@@ -25,12 +42,15 @@ export async function GET() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const users = await prisma.user.findMany({
-    where: { deletedAt: null },
-    select: { id: true, fullName: true, email: true },
-    orderBy: { fullName: 'asc' },
-    take: 500,
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const users = await withTenantScope(orgId, (db) =>
+    db.user.findMany({
+      where: { deletedAt: null },
+      select: { id: true, fullName: true, email: true },
+      orderBy: { fullName: 'asc' },
+      take: 500,
+    }),
+  );
   return NextResponse.json(users);
 }
 
@@ -71,10 +91,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Only super admins can create staff or admin users.' }, { status: 403 });
   }
 
-  const existingDbUser = await prisma.user.findFirst({
-    where: { email },
-    select: { id: true, fullName: true, email: true, profile: { select: { role: true } } },
-  });
+  // User.email is @unique GLOBALLY in the schema, so the pre-check has to
+  // see all tenants — otherwise a cross-tenant collision would surface as
+  // a 500 from Prisma's P2002 instead of a clean 409 here.
+  const existingDbUser = await crossTenantOK(() =>
+    prisma.user.findFirst({
+      where: { email },
+      select: { id: true, fullName: true, email: true, profile: { select: { role: true } } },
+    }),
+  );
   if (existingDbUser) {
     return NextResponse.json(
       {
@@ -122,7 +147,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const organizationId = await getDefaultOrganizationId();
+    // Tag the new user with the actor's tenant, not the seeded default org.
+    // Codex P1 catch on PR #1047: a non-default-org admin creating users
+    // would otherwise plant them in the wrong tenant.
+    const organizationId = await getActorOrganizationId(admin.id);
     const created = await prisma.$transaction(async (tx) => {
       const user = await ensureAppUser(tx, {
         authUserId,
@@ -143,7 +171,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (sendResetEmail) {
-      const { error } = await sendPasswordResetEmail(email);
+      const { error } = await sendPasswordResetEmail(email, '/reset-password', { orgId: organizationId });
       if (error) {
         return NextResponse.json({
           success: true,

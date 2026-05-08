@@ -8,134 +8,6 @@ import { trackFunnelEvent } from '@/lib/analytics/events';
 import { recommendProgramsForGaps, type ProgramRecommendation } from '@/lib/content/programs';
 import { findCoursesForGap, buildCoursePathForGaps, type CourseSkillMapping } from '@/lib/content/courseSkillMap';
 
-/** Render a self-contained radar chart SVG string with hardcoded colors (no CSS vars). */
-function renderRadarSvgString(data: { axis: string; value: number }[], size = 320): string {
-  const cx = size / 2, cy = size / 2, r = size * 0.34;
-  const n = data.length;
-  if (n < 3) return '';
-  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
-  const pt = (i: number, v: number) => ({
-    x: cx + r * v * Math.cos(angle(i)),
-    y: cy + r * v * Math.sin(angle(i)),
-  });
-  const gridLevels = [0.25, 0.5, 0.75, 1];
-  const gridColor = '#333537';
-  const accentColor = '#C41E3A';
-  const labelColor = '#a3a3a3';
-
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
-  // Background rect (more reliable than CSS background when drawn to canvas)
-  svg += `<rect width="${size}" height="${size}" rx="12" fill="#1e2022"/>`;
-  // Grid polygons
-  for (const level of gridLevels) {
-    const pts = data.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ');
-    svg += `<polygon points="${pts}" fill="none" stroke="${gridColor}" stroke-width="1"/>`;
-  }
-  // Radial lines
-  for (let i = 0; i < n; i++) {
-    const p = pt(i, 1);
-    svg += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="${gridColor}" stroke-width="1"/>`;
-  }
-  // Data polygon
-  const dataPts = data.map((d, i) => { const p = pt(i, d.value); return `${p.x},${p.y}`; }).join(' ');
-  svg += `<polygon points="${dataPts}" fill="${accentColor}" fill-opacity="0.2" stroke="${accentColor}" stroke-width="2"/>`;
-  // Data dots
-  for (let i = 0; i < n; i++) {
-    const p = pt(i, data[i].value);
-    svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${accentColor}"/>`;
-  }
-  // Axis labels
-  for (let i = 0; i < n; i++) {
-    const p = pt(i, 1.22);
-    svg += `<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="12" font-family="Inter,sans-serif" fill="${labelColor}">${data[i].axis}</text>`;
-  }
-  svg += '</svg>';
-  return svg;
-}
-
-/** Render a dual-polygon radar SVG string (member vs target) with hardcoded colors. */
-function renderDualRadarSvgString(
-  memberData: { axis: string; value: number }[],
-  targetData: { axis: string; value: number }[],
-  occupationTitle: string,
-  size = 320,
-): string {
-  const cx = size / 2, cy = size / 2, r = size * 0.32;
-  const axes = targetData.length >= memberData.length
-    ? targetData.map(d => d.axis)
-    : memberData.map(d => d.axis);
-  const n = axes.length;
-  if (n < 3) return '';
-  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
-  const pt = (i: number, v: number) => ({
-    x: cx + r * v * Math.cos(angle(i)),
-    y: cy + r * v * Math.sin(angle(i)),
-  });
-  const getValue = (data: { axis: string; value: number }[], axis: string) =>
-    data.find(d => d.axis === axis)?.value ?? 0;
-
-  const gridLevels = [0.25, 0.5, 0.75, 1];
-  const gridColor = '#333537';
-  const accentColor = '#C41E3A';
-  const blueColor = '#2b7bb9';
-  const labelColor = '#a3a3a3';
-  const shortTitle = occupationTitle.length > 22 ? occupationTitle.slice(0, 22) + '…' : occupationTitle;
-
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
-  svg += `<rect width="${size}" height="${size}" rx="12" fill="#1e2022"/>`;
-  for (const level of gridLevels) {
-    const pts = axes.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ');
-    svg += `<polygon points="${pts}" fill="none" stroke="${gridColor}" stroke-width="1"/>`;
-  }
-  for (let i = 0; i < n; i++) {
-    const p = pt(i, 1);
-    svg += `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="${gridColor}" stroke-width="1"/>`;
-  }
-  // Target (red/solid)
-  const targetPts = axes.map((axis, i) => { const p = pt(i, getValue(targetData, axis)); return `${p.x},${p.y}`; }).join(' ');
-  svg += `<polygon points="${targetPts}" fill="${accentColor}" fill-opacity="0.15" stroke="${accentColor}" stroke-width="2"/>`;
-  // Member (blue/dashed)
-  const memberPts = axes.map((axis, i) => { const p = pt(i, getValue(memberData, axis)); return `${p.x},${p.y}`; }).join(' ');
-  svg += `<polygon points="${memberPts}" fill="${blueColor}" fill-opacity="0.2" stroke="${blueColor}" stroke-width="2" stroke-dasharray="4 2"/>`;
-  // Labels
-  for (let i = 0; i < n; i++) {
-    const p = pt(i, 1.22);
-    svg += `<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-family="Inter,sans-serif" fill="${labelColor}">${axes[i]}</text>`;
-  }
-  // Legend
-  const ly = size - 18;
-  const lx = cx - 60;
-  svg += `<rect x="${lx}" y="${ly - 5}" width="10" height="10" rx="2" fill="${blueColor}" fill-opacity="0.85"/>`;
-  svg += `<text x="${lx + 14}" y="${ly + 0}" dominant-baseline="middle" font-size="10" font-family="Inter,sans-serif" fill="${labelColor}">Your skills</text>`;
-  svg += `<rect x="${lx + 75}" y="${ly - 5}" width="10" height="10" rx="2" fill="${accentColor}"/>`;
-  svg += `<text x="${lx + 89}" y="${ly + 0}" dominant-baseline="middle" font-size="10" font-family="Inter,sans-serif" fill="${labelColor}">${shortTitle}</text>`;
-  svg += '</svg>';
-  return svg;
-}
-
-/** Convert an SVG string to a PNG data URL via canvas. */
-async function svgToPngDataUrl(svgString: string, size = 320): Promise<string> {
-  return new Promise((resolve, reject) => {
-    // Use base64 inline data URL — more reliable than blob URLs which browsers
-    // may block in canvas toDataURL() due to origin security restrictions.
-    const b64 = btoa(unescape(encodeURIComponent(svgString)));
-    const url = `data:image/svg+xml;base64,${b64}`;
-    const img = new Image();
-    img.onload = () => {
-      const scale = 2; // 2x for crisp export
-      const canvas = document.createElement('canvas');
-      canvas.width = size * scale;
-      canvas.height = size * scale;
-      const ctx = canvas.getContext('2d')!;
-      ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0, size, size);
-      resolve(canvas.toDataURL('image/png'));
-    };
-    img.onerror = () => reject(new Error('SVG render failed'));
-    img.src = url;
-  });
-}
-
 const DEMO_RADAR = [
   { axis: 'Analytics', value: 0.72 },
   { axis: 'Engineering', value: 0.85 },
@@ -590,12 +462,17 @@ export default function SkillMapperClient() {
         ...skills.slice(0, 15).map(s => `${s.name}: ${s.score}%`),
       ].filter(Boolean).join('\n');
 
-      // Render the radar chart as a PNG for the PDF
-      let chartImage: string | undefined;
-      try {
-        const svgStr = renderRadarSvgString(radarData, 320);
-        if (svgStr) chartImage = await svgToPngDataUrl(svgStr, 320);
-      } catch { /* non-fatal — PDF will still have text */ }
+      // Send structured chart data — the server draws the radar chart natively with
+      // pdf-lib primitives. Previous attempts to rasterize SVG -> PNG via canvas
+      // failed silently in some browsers (tainted canvas / data-URL quirks),
+      // leaving the chart out of the exported PDF entirely.
+      const chartData = radarData.length >= 3
+        ? {
+            type: 'radar' as const,
+            axes: radarData.map(r => r.axis),
+            series: [{ label: selectedTitle, values: radarData.map(r => ({ axis: r.axis, value: r.value })) }],
+          }
+        : undefined;
 
       const res = await fetch('/api/ai/export-pdf', {
         method: 'POST',
@@ -604,7 +481,7 @@ export default function SkillMapperClient() {
           text: lines,
           title: `Skill Mapper`,
           toolName: 'Skill Mapper',
-          chartImage,
+          chartData,
         }),
       });
       if (!res.ok) return;
@@ -639,11 +516,20 @@ export default function SkillMapperClient() {
         ] : []),
       ].join('\n');
 
-      let chartImage: string | undefined;
-      try {
-        const svgStr = renderDualRadarSvgString(memberProfile, radarData, selectedTitle, 320);
-        if (svgStr) chartImage = await svgToPngDataUrl(svgStr, 320);
-      } catch { /* non-fatal */ }
+      // Send structured chart data — server draws the dual radar natively with pdf-lib.
+      const targetAxes = radarData.length >= memberProfile.length
+        ? radarData.map(r => r.axis)
+        : memberProfile.map(p => p.axis);
+      const chartData = targetAxes.length >= 3
+        ? {
+            type: 'radar' as const,
+            axes: targetAxes,
+            series: [
+              { label: selectedTitle || 'Target', values: radarData.map(r => ({ axis: r.axis, value: r.value })) },
+              { label: 'Your profile', values: memberProfile.map(p => ({ axis: p.axis, value: p.value })) },
+            ],
+          }
+        : undefined;
 
       const res = await fetch('/api/ai/export-pdf', {
         method: 'POST',
@@ -652,7 +538,7 @@ export default function SkillMapperClient() {
           text: lines,
           title: 'Skill Comparison',
           toolName: 'Skill Mapper',
-          chartImage,
+          chartData,
         }),
       });
       if (!res.ok) return;

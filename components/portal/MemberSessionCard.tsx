@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * "Your session with {actor} on {date}" card on the member dashboard.
@@ -18,6 +19,7 @@ export type MemberSessionCardProps = {
 };
 
 export default function MemberSessionCard({ actorName, startedAt, toolCount }: MemberSessionCardProps) {
+  const t = useTranslations('dashboard');
   const dateLabel = startedAt.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -66,7 +68,7 @@ export default function MemberSessionCard({ actorName, startedAt, toolCount }: M
               color: 'var(--color-accent-dark)',
             }}
           >
-            Your in-office session
+            {t('yourInOfficeSession')}
           </p>
           <h2
             style={{
@@ -77,11 +79,10 @@ export default function MemberSessionCard({ actorName, startedAt, toolCount }: M
               lineHeight: 1.3,
             }}
           >
-            You and <strong>{actorName}</strong> built this on {dateLabel}.
+            {t('youAndActorBuiltThis', { actorName, dateLabel })}
           </h2>
           <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-            {toolCount} {toolCount === 1 ? 'thing' : 'things'} we made together. Pick up where you left off,
-            or build on top of it.
+            {t('toolCountTogether', { count: toolCount })}
           </p>
         </div>
         <Link
@@ -89,7 +90,7 @@ export default function MemberSessionCard({ actorName, startedAt, toolCount }: M
           className="btn btn-primary btn-small"
           style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
         >
-          See what we built
+          {t('seeWhatWeBuilt')}
         </Link>
       </div>
     </section>

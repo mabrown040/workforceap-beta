@@ -7,6 +7,7 @@ import { trackEvent } from '@/lib/events/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
+import { awardPoints } from '@/lib/member/points';
 
 /**
  * Log an external job application — Member Apply Loop.
@@ -102,6 +103,9 @@ export async function POST(req: NextRequest) {
       },
       sourcePage: '/dashboard/jobs',
     }).catch(() => {});
+
+    // Award points (idempotent on application id)
+    awardPoints(user.id, 'job_application', application.id).catch(() => {});
 
     // Best-effort counselor notification — drop a system message into the
     // member↔counselor thread so the counselor sees it in their command

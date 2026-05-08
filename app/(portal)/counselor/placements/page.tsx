@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import DataTable from '@/components/portal/ui/DataTable';
+import SectionHeader from '@/components/portal/ui/SectionHeader';
+import { FormField, TextArea, TextInput } from '@/components/portal/ui/FormField';
 
 interface Placement {
   id: string;
@@ -16,6 +20,24 @@ interface Placement {
   program_slug: string | null;
 }
 
+function PortalListSkeleton({ label }: { label: string }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      style={{
+        textAlign: 'center',
+        padding: '2.5rem 1rem',
+        color: 'var(--color-on-surface-variant)',
+        fontSize: '0.9rem',
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
 export default function PlacementsPage() {
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +45,6 @@ export default function PlacementsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  // Form state
   const [memberId, setMemberId] = useState('');
   const [employerName, setEmployerName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
@@ -79,8 +100,8 @@ export default function PlacementsPage() {
       setShowAddForm(false);
       resetForm();
       loadPlacements();
-    } catch (e: any) {
-      setMessage(e.message || 'Failed to record placement');
+    } catch (e: unknown) {
+      setMessage(e instanceof Error ? e.message : 'Failed to record placement');
     } finally {
       setSubmitting(false);
     }
@@ -106,6 +127,8 @@ export default function PlacementsPage() {
     return `$${n.toLocaleString()}/yr`;
   };
 
+  const msgIsSuccess = message?.includes('success');
+
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
       <PageHeader
@@ -119,123 +142,146 @@ export default function PlacementsPage() {
         }
       />
 
-      {message && (
-        <div style={{
-          padding: '0.875rem 1rem',
-          borderRadius: 'var(--radius-md)',
-          background: message.includes('success') 
-            ? 'color-mix(in srgb, var(--color-green) 10%, transparent)'
-            : 'color-mix(in srgb, var(--color-error) 10%, transparent)',
-          border: `1px solid color-mix(in srgb, ${message.includes('success') ? 'var(--color-green)' : 'var(--color-error)'} 20%, transparent)`,
-          color: message.includes('success') ? 'var(--color-green)' : 'var(--color-error)',
-          marginBottom: '1.5rem',
-          fontSize: '0.9rem',
-          fontWeight: 600,
-        }}>
+      {message ? (
+        <div
+          role={msgIsSuccess ? 'status' : 'alert'}
+          style={{
+            padding: '0.875rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            background: msgIsSuccess
+              ? 'color-mix(in srgb, var(--color-green) 10%, transparent)'
+              : 'color-mix(in srgb, var(--color-error) 10%, transparent)',
+            border: `1px solid color-mix(in srgb, ${msgIsSuccess ? 'var(--color-green)' : 'var(--color-error)'} 20%, transparent)`,
+            color: msgIsSuccess ? 'var(--color-green)' : 'var(--color-error)',
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem',
+            fontWeight: 600,
+          }}
+        >
           {message}
         </div>
-      )}
+      ) : null}
 
-      {showAddForm && (
-        <form onSubmit={handleSubmit} style={{ 
-          background: 'var(--surface-container)', 
-          padding: '1.5rem', 
-          borderRadius: 'var(--radius-lg)', 
-          border: '1px solid var(--outline-variant)',
-          marginBottom: '1.5rem' 
-        }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 1rem' }}>New Placement</h3>
-          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Member ID</label>
-              <input type="text" value={memberId} onChange={(e) => setMemberId(e.target.value)} required style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employer</label>
-              <input type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Job Title</label>
-              <input type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Start Date</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Salary (annual)</label>
-              <input type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="50000" style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Program</label>
-              <input type="text" value={programSlug} onChange={(e) => setProgramSlug(e.target.value)} placeholder="program-slug" style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)' }} />
-            </div>
+      {showAddForm ? (
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            background: 'var(--surface-container)',
+            padding: '1.5rem',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--outline-variant)',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <SectionHeader title="New placement" density="compact" />
+          <div style={{ display: 'grid', gap: '0 1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+            <FormField label="Member ID" required>
+              <TextInput type="text" value={memberId} onChange={(e) => setMemberId(e.target.value)} required aria-required />
+            </FormField>
+            <FormField label="Employer" required>
+              <TextInput type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required aria-required />
+            </FormField>
+            <FormField label="Job title" required>
+              <TextInput type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required aria-required />
+            </FormField>
+            <FormField label="Start date">
+              <TextInput type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            </FormField>
+            <FormField label="Salary (annual)">
+              <TextInput type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="50000" inputMode="numeric" />
+            </FormField>
+            <FormField label="Program">
+              <TextInput type="text" value={programSlug} onChange={(e) => setProgramSlug(e.target.value)} placeholder="program-slug" />
+            </FormField>
           </div>
-          <div style={{ marginTop: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notes</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-md)', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', resize: 'vertical' }} />
-          </div>
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem' }}>
+          <FormField label="Notes">
+            <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+          </FormField>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button type="submit" disabled={submitting} className="btn btn-primary" style={{ opacity: submitting ? 0.7 : 1 }}>
               {submitting ? 'Recording…' : 'Record placement'}
             </button>
-            <button type="button" className="btn btn-outline" onClick={() => { setShowAddForm(false); resetForm(); }}>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => {
+                setShowAddForm(false);
+                resetForm();
+              }}
+            >
               Cancel
             </button>
           </div>
         </form>
-      )}
+      ) : null}
 
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-on-surface-variant)' }}>
-          Loading placements…
-        </div>
-      )}
+      {loading ? <PortalListSkeleton label="Loading placements…" /> : null}
 
-      {!loading && placements.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-on-surface-variant)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 48, marginBottom: '0.5rem', display: 'block' }}>work</span>
-          <p style={{ fontSize: '1rem', fontWeight: 600, margin: '0 0 0.5rem' }}>No placements yet</p>
-          <p style={{ fontSize: '0.85rem', margin: 0 }}>Record a placement to see it here.</p>
-        </div>
-      )}
+      {!loading && placements.length === 0 ? (
+        <PortalEmptyState
+          title="No placements yet"
+          description="When you record a placement, it will appear in this list for your team."
+          icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>work</span>}
+          primaryAction={{ label: 'Record placement', onClick: () => setShowAddForm(true) }}
+        />
+      ) : null}
 
-      {!loading && placements.length > 0 && (
-        <div style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)', overflow: 'hidden' }}>
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{placements.length} placements</span>
+      {!loading && placements.length > 0 ? (
+        <div
+          style={{
+            background: 'var(--surface-container)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--outline-variant)',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)' }}>
+            <SectionHeader
+              density="compact"
+              title="Recorded placements"
+              subtitle={`${placements.length} total`}
+            />
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-container-high)' }}>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Member</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employer</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Job Title</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Start Date</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Salary</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Placed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {placements.map((p) => (
-                  <tr key={p.id} style={{ borderTop: '1px solid var(--outline-variant)' }}>
-                    <td style={{ padding: '0.875rem 1rem' }}>
-                      <div style={{ fontWeight: 600 }}>{p.member_email}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{p.program_slug || 'No program'}</div>
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem', fontWeight: 500 }}>{p.employer_name}</td>
-                    <td style={{ padding: '0.875rem 1rem' }}>{p.job_title}</td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(p.start_date)}</td>
-                    <td style={{ padding: '0.875rem 1rem', fontWeight: 600, color: 'var(--color-green)' }}>{formatCurrency(p.salary_offered)}</td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(p.placed_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            density="compact"
+            variant="portal"
+            scrollX
+            rows={placements}
+            rowKey={(p) => p.id}
+            columns={[
+              {
+                key: 'member',
+                header: 'Member',
+                cell: (p) => (
+                  <>
+                    <div style={{ fontWeight: 600 }}>{p.member_email}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{p.program_slug || 'No program'}</div>
+                  </>
+                ),
+              },
+              { key: 'employer', header: 'Employer', cell: (p) => <span style={{ fontWeight: 500 }}>{p.employer_name}</span> },
+              { key: 'job', header: 'Job title', cell: (p) => p.job_title },
+              {
+                key: 'start',
+                header: 'Start date',
+                cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatDate(p.start_date)}</span>,
+              },
+              {
+                key: 'salary',
+                header: 'Salary',
+                cell: (p) => (
+                  <span style={{ fontWeight: 600, color: 'var(--color-green)' }}>{formatCurrency(p.salary_offered)}</span>
+                ),
+              },
+              {
+                key: 'placed',
+                header: 'Placed',
+                cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatDate(p.placed_at)}</span>,
+              },
+            ]}
+          />
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

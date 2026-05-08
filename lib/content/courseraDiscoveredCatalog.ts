@@ -55,7 +55,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "health-information-technology-mchit": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "iMhjZsGTRkSIY2bBk-ZEhA",
-    title: "Medical Coding, Billing, and Health Information Technician Certificate (MBCHIT)",
+    title: "Medical Billing, Coding, and Health Information Technician Certificate (MBCHIT)",
     courses: [
       { courseId: "x6YSLlDAEe-ouX0TtQVdn", slug: "medical-terminology-anatomy-physiology-fundamentals", name: "Medical Terminology, Anatomy, and Physiology Fundamentals", partner: "MedCerts" },
       { courseId: "y7ZTMmEBEe-pvY1UuRWfo", slug: "register-patients--validate-data", name: "Register Patients & Validate Data", partner: "Coursera" },

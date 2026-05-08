@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { trackEvent } from '@/lib/events/track';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
+import { awardPoints } from '@/lib/member/points';
 
 const placementSchema = z.object({
   userId: z.string().uuid(),
@@ -108,6 +109,9 @@ export async function POST(request: NextRequest) {
     entityId: placement.id,
     metadata: { employerName, jobTitle, isNew: !prior, isEdit: !!prior, daysToPlacement },
   }).catch(() => {});
+
+  // Award points to the placed member (idempotent on placement.id)
+  awardPoints(userId, 'placement_recorded', placement.id).catch(() => {});
 
   if (!prior) {
     await sendPartnerMilestoneEmail(userId, 'Job placement', {

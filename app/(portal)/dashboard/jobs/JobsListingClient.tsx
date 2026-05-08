@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Briefcase, MapPin, Clock, DollarSign, Search, SlidersHorizontal, X } from 'lucide-react';
 import { PROGRAMS } from '@/lib/content/programs';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
@@ -29,22 +30,28 @@ type MatchedJob = {
   matchPct: number;
 };
 
-const LOCATION_LABELS: Record<string, string> = {
-  remote: 'Remote',
-  hybrid: 'Hybrid',
-  onsite: 'On-site',
-};
-const JOB_TYPE_LABELS: Record<string, string> = {
-  fulltime: 'Full-time',
-  parttime: 'Part-time',
-  contract: 'Contract',
-};
-const SORT_OPTIONS: { value: string; label: string }[] = [
-  { value: 'newest', label: 'Newest first' },
-  { value: 'title', label: 'Title A–Z' },
-  { value: 'salary-desc', label: 'Salary (high to low)' },
-  { value: 'salary-asc', label: 'Salary (low to high)' },
-];
+function getLocationLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    remote: t('remote'),
+    hybrid: t('hybrid'),
+    onsite: t('onsite'),
+  };
+}
+function getJobTypeLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    fulltime: t('fulltime'),
+    parttime: t('parttime'),
+    contract: t('contract'),
+  };
+}
+function getSortOptions(t: (k: string) => string): { value: string; label: string }[] {
+  return [
+    { value: 'newest', label: t('newestFirst') },
+    { value: 'title', label: t('titleAZ') },
+    { value: 'salary-desc', label: t('salaryHighToLow') },
+    { value: 'salary-asc', label: t('salaryLowToHigh') },
+  ];
+}
 
 function formatSalary(min: number | null, max: number | null): string {
   return formatJobSalaryRange(min, max) ?? '';
@@ -72,13 +79,15 @@ function JobCard({
   isAuthenticated,
   matchPct,
   isApplied,
+  t,
 }: {
   job: Job;
   isAuthenticated: boolean;
   matchPct?: number;
   isApplied?: boolean;
+  t: (k: string) => string;
 }) {
-  const locationDisplay = job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType;
+  const locationDisplay = job.location ?? getLocationLabels(t)[job.locationType] ?? job.locationType;
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
 
   return (
@@ -118,7 +127,7 @@ function JobCard({
                 border: `1px solid ${matchPct >= 70 ? 'rgba(13,148,136,0.3)' : matchPct >= 40 ? 'rgba(217,119,6,0.3)' : 'rgba(107,114,128,0.3)'}`,
                 borderRadius: '999px', padding: '0.15rem 0.5rem',
               }}>
-                {matchPct}% match
+                {matchPct}% {t('match')}
               </span>
             )}
           </div>
@@ -131,7 +140,7 @@ function JobCard({
           </span>
           <span className="job-card__meta-item">
             <Clock size={14} aria-hidden />
-            {JOB_TYPE_LABELS[job.jobType] ?? job.jobType}
+            {getJobTypeLabels(t)[job.jobType] ?? job.jobType}
           </span>
         </div>
         {salaryStr && (
@@ -148,41 +157,40 @@ function JobCard({
   );
 }
 
-function JobsEmptyState({ onClearFilters }: { onClearFilters: () => void }) {
+function JobsEmptyState({ onClearFilters, t }: { onClearFilters: () => void; t: (k: string) => string }) {
   return (
     <div className="jobs-empty-state">
       <div className="jobs-empty-state__icon" aria-hidden>
         <Briefcase size={48} strokeWidth={1.5} />
       </div>
-      <h3 className="jobs-empty-state__title">No jobs match your filters</h3>
+      <h3 className="jobs-empty-state__title">{t('noJobsMatchFilters')}</h3>
       <p className="jobs-empty-state__text">
-        Try adjusting your filters or clear them to see all available jobs.
+        {t('tryAdjustingFilters')}
       </p>
       <button type="button" className="btn btn-outline" onClick={onClearFilters}>
-        Clear filters
+        {t('clearFilters')}
       </button>
     </div>
   );
 }
 
-function JobsNoResultsState({ isAuthenticated }: { isAuthenticated: boolean }) {
+function JobsNoResultsState({ isAuthenticated, t }: { isAuthenticated: boolean; t: (k: string) => string }) {
   if (isAuthenticated) {
     return (
       <div className="jobs-empty-state">
         <div className="jobs-empty-state__icon" aria-hidden>
           <Briefcase size={48} strokeWidth={1.5} />
         </div>
-        <h3 className="jobs-empty-state__title">No openings listed yet</h3>
+        <h3 className="jobs-empty-state__title">{t('noOpeningsListed')}</h3>
         <p className="jobs-empty-state__text">
-          New roles appear as employer partners post them. If nothing matches your filters, try widening them—or message your
-          counselor about openings that fit your program and goals.
+          {t('newRolesAppear')}
         </p>
         <div className="jobs-empty-state__actions">
           <Link href="/dashboard/messages" className="btn btn-primary">
-            Message your counselor
+            {t('messageCounselor')}
           </Link>
           <Link href="/dashboard/ai-tools/job-match-scorer" className="btn btn-outline">
-            Improve job matches
+            {t('improveJobMatches')}
           </Link>
         </div>
       </div>
@@ -193,20 +201,19 @@ function JobsNoResultsState({ isAuthenticated }: { isAuthenticated: boolean }) {
       <div className="jobs-empty-state__icon" aria-hidden>
         <Briefcase size={48} strokeWidth={1.5} />
       </div>
-      <h3 className="jobs-empty-state__title">No jobs available right now</h3>
+      <h3 className="jobs-empty-state__title">{t('noJobsAvailable')}</h3>
       <p className="jobs-empty-state__text">
-        New job opportunities are added regularly as our employer partners post openings. While you wait,
-        explore our training programs and get job-ready — we&rsquo;ll help you find the right role when new positions become available.
+        {t('newJobsAddedRegularly')}
       </p>
       <div className="jobs-empty-state__actions">
         <Link href="/programs" className="btn btn-primary">
-          Browse programs
+          {t('browsePrograms')}
         </Link>
         <Link href="/apply" className="btn btn-outline">
-          Apply for training
+          {t('applyForTraining')}
         </Link>
         <Link href="/employers" className="btn btn-ghost">
-          For employers
+          {t('forEmployers')}
         </Link>
       </div>
     </div>
@@ -226,6 +233,7 @@ export default function JobsListingClient({
   initialTotal?: number;
   appliedJobIds?: string[];
 }) {
+  const t = useTranslations('jobs');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -330,7 +338,7 @@ export default function JobsListingClient({
     <div className="job-filters-panel">
       <div className="job-filter-group">
         <label htmlFor="job-search-q" className="job-filter-label">
-          Search jobs
+          {t('searchJobs')}
         </label>
         <div className="job-search-input-wrap">
           <Search size={18} className="job-search-icon" aria-hidden />
@@ -411,7 +419,7 @@ export default function JobsListingClient({
           onChange={(e) => updateUrl({ sort: e.target.value })}
           className="job-filter-select"
         >
-          {SORT_OPTIONS.map((opt) => (
+          {getSortOptions(t).map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -457,7 +465,7 @@ export default function JobsListingClient({
       {hasActiveFilters && (
         <button type="button" onClick={clearFilters} className="job-filter-clear">
           <X size={14} />
-          Clear all filters
+          {t('clearAllFilters')}
         </button>
       )}
     </div>
@@ -585,9 +593,9 @@ export default function JobsListingClient({
         </div>
       ) : jobs.length === 0 ? (
         hasActiveFilters ? (
-          <JobsEmptyState onClearFilters={clearFilters} />
+          <JobsEmptyState onClearFilters={clearFilters} t={t} />
         ) : (
-          <JobsNoResultsState isAuthenticated={isAuthenticated} />
+          <JobsNoResultsState isAuthenticated={isAuthenticated} t={t} />
         )
       ) : (
         <>
@@ -604,6 +612,7 @@ export default function JobsListingClient({
                   isAuthenticated={isAuthenticated}
                   matchPct={matched?.matchPct}
                   isApplied={appliedSet.has(j.id)}
+                  t={t}
                 />
               );
             })}

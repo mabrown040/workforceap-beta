@@ -1,6 +1,14 @@
 # Workforce Advancement Project — Product Vision
 **Confidential | March 2026**
 
+> ⚠️ **Vision / future-state document.** Phase milestones (e.g. "50–100 placements
+> documented", "3–5 corporate partners co-funding") describe the **target state** for the
+> Austin proof case — they are not current production figures. Live operational metrics
+> (applications received, members enrolled, certifications earned, placements recorded)
+> are sourced from [`/admin/outcomes`](/admin/outcomes) and documented in
+> [`docs/OUTCOMES-METHODOLOGY.md`](./OUTCOMES-METHODOLOGY.md). External pitches must
+> reconcile any quoted number against the live snapshot.
+
 ---
 
 ## The One-Line Version

@@ -1,9 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 1).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * Reads against `Partner` for tenant-listing are wrapped in
+ * `withTenantScope` (org filter auto-injected). Writes are also scoped.
+ *
+ * EXCEPTION: the duplicate-slug / duplicate-referralCode check is run
+ * GLOBALLY via `crossTenantOK`. Codex P2 catch on PR #1042 — `slug`
+ * and `referralCode` are still `@unique` globally in the schema, so a
+ * scoped pre-check would miss collisions in other orgs and the create
+ * would then 500 on Prisma's P2002 instead of returning a friendly
+ * 400. Once schema migrates to per-tenant uniqueness in Sprint A.3,
+ * these checks move back inside `withTenantScope`.
+ *
+ * The route also catches P2002 as belt-and-braces in case a race
+ * slips past the pre-check.
+ */
 
 const partnerSchema = z.object({
   name: z.string().min(1).max(200),
@@ -26,11 +47,14 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const partners = await prisma.partner.findMany({
-    take: 500,
-    orderBy: { name: 'asc' },
-    include: { _count: { select: { counselors: true, referrals: true } } },
-  });
+  const orgId = await getDefaultOrganizationId();
+  const partners = await withTenantScope(orgId, (db) =>
+    db.partner.findMany({
+      take: 500,
+      orderBy: { name: 'asc' },
+      include: { _count: { select: { counselors: true, referrals: true } } },
+    }),
+  );
   return NextResponse.json(partners);
 }
 
@@ -43,22 +67,57 @@ export async function POST(request: NextRequest) {
   const parsed = partnerSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
 
-  const existing = await prisma.partner.findUnique({ where: { slug: parsed.data.slug } });
-  if (existing) return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
-
+  const orgId = await getDefaultOrganizationId();
   const referralCode = parsed.data.referralCode ?? parsed.data.slug;
-  const codeTaken = await prisma.partner.findFirst({
-    where: { OR: [{ referralCode }, { slug: referralCode }] },
-  });
+
+  // Global uniqueness pre-check — slug and referralCode are @unique across
+  // ALL orgs in the current schema. crossTenantOK marks the intentional
+  // bypass for the audit script.
+  const existingSlug = await crossTenantOK(() =>
+    prisma.partner.findUnique({ where: { slug: parsed.data.slug }, select: { id: true } }),
+  );
+  if (existingSlug) {
+    return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
+  }
+
+  const codeTaken = await crossTenantOK(() =>
+    prisma.partner.findFirst({
+      where: { OR: [{ referralCode }, { slug: referralCode }] },
+      select: { id: true },
+    }),
+  );
   if (codeTaken) {
     return NextResponse.json(
       { error: 'Referral code must be unique and different from other partners slugs' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const { referralCode: _rc, ...rest } = parsed.data;
-  const organizationId = await getDefaultOrganizationId();
-  const partner = await prisma.partner.create({ data: { ...rest, referralCode, organizationId } });
-  return NextResponse.json(partner, { status: 201 });
+
+  try {
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
+    );
+    return NextResponse.json(partner, { status: 201 });
+  } catch (error) {
+    // Belt-and-braces: catch the unique-constraint race that the
+    // global pre-check might miss between check and insert.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = (error.meta?.target as string[] | undefined) ?? [];
+      const targetField = target.join(',');
+      if (targetField.includes('slug')) {
+        return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
+      }
+      if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
+        return NextResponse.json(
+          { error: 'Referral code must be unique and different from other partners slugs' },
+          { status: 400 },
+        );
+      }
+      return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
+    }
+    console.error('[admin/partners POST] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

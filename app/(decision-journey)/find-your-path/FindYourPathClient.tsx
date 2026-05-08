@@ -10,6 +10,7 @@ import { scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
 import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
 import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations';
 import type { CareerMatchResult } from '@/lib/onet/types';
+import { resolveOccupationTitle, ONET_CODE_PATTERN } from '@/lib/onet/occupationTitles';
 import {
   INTEREST_PROFILER_STORAGE_KEY,
   type InterestProfilerRiasec,
@@ -28,7 +29,23 @@ type StoredQuizPayloadV1 = {
 };
 
 function isRawOnetCodeTitle(title?: string | null): boolean {
-  return !!title && /^\d{2}-\d{4}\.\d{2}$/.test(title.trim());
+  return !!title && ONET_CODE_PATTERN.test(title.trim());
+}
+
+/** Fallback substring when we don't have a friendly role title to surface. */
+const GENERIC_ROLE_LABEL = 'this role';
+
+/** Sanitize a description in case the server inlined a raw SOC code into copy. */
+function sanitizeOccupationDescription(
+  description: string | null | undefined,
+  friendlyTitle: string | null | undefined
+): string {
+  if (!description) return '';
+  // Replace any inlined raw SOC code (e.g. "15-1252.00") with a human label.
+  const replacement = friendlyTitle && !isRawOnetCodeTitle(friendlyTitle)
+    ? friendlyTitle.toLowerCase()
+    : GENERIC_ROLE_LABEL;
+  return description.replace(/\b\d{2}-\d{4}\.\d{2}\b/g, replacement);
 }
 
 const INTEREST_ICONS: Record<string, string> = {
@@ -214,7 +231,13 @@ function QuizResultsView({
           : (answers ? getTopFitSummary(answers) : 'Based on your answers, here are the programs we recommend:')}
       </p>
 
-      {topOcc && (
+      {topOcc && (() => {
+        // Resolve a human-readable title, falling back to a static SOC→title
+        // map so we never render a raw code like "15-1252.00" as the headline.
+        const friendlyTitle = resolveOccupationTitle(topOcc.onetCode, topOcc.title);
+        const headlineTitle = friendlyTitle ?? null;
+        const cleanDescription = sanitizeOccupationDescription(topOcc.description, friendlyTitle);
+        return (
         <div
           style={{
             marginBottom: '1.5rem',
@@ -227,8 +250,14 @@ function QuizResultsView({
           <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-accent)' }}>
             YOUR STRONGEST ROLE MATCH
           </p>
-          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.25rem' }}>{topOcc.title}</h3>
-          <p style={{ margin: 0, lineHeight: 1.65, color: 'var(--color-on-surface)' }}>{topOcc.description}</p>
+          {headlineTitle ? (
+            <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.25rem' }}>{headlineTitle}</h3>
+          ) : (
+            <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.25rem' }}>Your top career match</h3>
+          )}
+          {cleanDescription && (
+            <p style={{ margin: 0, lineHeight: 1.65, color: 'var(--color-on-surface)' }}>{cleanDescription}</p>
+          )}
           {topOcc.whyFit.length > 0 && (
             <div style={{ marginTop: '1rem' }}>
               <p style={{ margin: '0 0 0.35rem', fontWeight: 600, fontSize: '0.9rem' }}>Why this fits you</p>
@@ -242,7 +271,8 @@ function QuizResultsView({
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
 
       {careerMatch && careerMatch.recommendedPrograms.length > 0 && (
         <div style={{ marginBottom: '1.5rem' }}>

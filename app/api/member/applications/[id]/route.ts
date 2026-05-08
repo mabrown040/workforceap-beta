@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
+import { awardPoints } from '@/lib/member/points';
 import { z } from 'zod';
 
 const updateSchema = z.object({
@@ -54,6 +55,19 @@ export async function PATCH(
       where: { id },
       data,
     });
+
+    // Award points on the SAVED → real-application transition. Codex P2 catch
+    // on PR #1061 — POST awards only for non-SAVED creates, so a row created
+    // as SAVED and later transitioned should award here. Idempotent on app id
+    // (`@@unique([userId, event, entityId])` in pointsConfig) so re-PATCHing
+    // an already-applied row never double-awards.
+    if (
+      parsed.data.status !== undefined &&
+      parsed.data.status !== 'SAVED' &&
+      existing.status === 'SAVED'
+    ) {
+      awardPoints(user.id, 'job_application', app.id).catch(() => {});
+    }
 
     return NextResponse.json({ application: app });
   } catch (err) {

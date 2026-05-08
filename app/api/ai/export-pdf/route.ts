@@ -6,15 +6,34 @@ import { getUser } from '@/lib/auth/server';
 
 /**
  * POST /api/ai/export-pdf
- * Body: { text: string, title?: string, toolName?: string, chartImage?: string }
+ * Body: {
+ *   text: string,
+ *   title?: string,
+ *   toolName?: string,
+ *   chartImage?: string,
+ *   chartData?: RadarChartData
+ * }
  * Returns: PDF with WorkforceAP logo header on each page.
  *
  * Embeds the actual /public/images/wap_logo.png in the header bar.
  * Falls back to vector text if the image cannot be loaded.
  * When chartImage (base64 data-URL PNG) is provided, it is embedded below the title.
+ * When chartData is provided (and no chartImage), the radar chart is drawn natively
+ * using pdf-lib primitives — far more reliable than browser SVG-to-canvas rasterization.
  */
 
-const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #C41E3A
+type RadarSeries = {
+  label?: string;
+  values: { axis: string; value: number }[]; // value 0..1
+};
+type RadarChartData = {
+  type: 'radar';
+  // axes ordering used by the chart; if omitted, derived from the first series
+  axes?: string[];
+  series: RadarSeries[];
+};
+
+const ACCENT = rgb(173 / 255, 44 / 255, 77 / 255); // #ad2c4d
 const DARK_TEXT = rgb(0.13, 0.13, 0.13);
 const MUTED = rgb(0.52, 0.52, 0.52);
 const RULE = rgb(0.87, 0.87, 0.87);
@@ -24,6 +43,15 @@ const FOOTER_H = 20;
 const MARGIN = 50;
 const PAGE_W = 612;
 const PAGE_H = 792;
+
+/** Normalize pasted/markdown content so Helvetica renders reliably and PDFs look intentional. */
+function normalizePdfExportText(raw: string): string {
+  let t = raw.replace(/\r\n/g, '\n').replace(/\*\*/g, '');
+  t = t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+  t = t.replace(/\u2022|\u25CF/g, '- ');
+  t = t.replace(/\n{4,}/g, '\n\n\n');
+  return t.trim();
+}
 
 type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
 
@@ -80,6 +108,126 @@ function drawHeader(
   }
 }
 
+/**
+ * Draw a radar/spider chart natively using pdf-lib primitives.
+ * Supports one or two series (single occupation or member-vs-target comparison).
+ * Returns the y-coordinate after the chart (caller should set y to this value).
+ */
+function drawRadarChart(
+  page: ReturnType<PDFDocument['getPage']>,
+  font: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>,
+  data: RadarChartData,
+  opts: { cx: number; cy: number; radius: number },
+): void {
+  const { cx, cy, radius } = opts;
+
+  // Resolve axes
+  const axes = (data.axes && data.axes.length > 0)
+    ? data.axes
+    : (data.series[0]?.values ?? []).map(v => v.axis);
+  const n = axes.length;
+  if (n < 3) return;
+
+  // 12 o'clock start, clockwise — matches on-screen chart math
+  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
+  const point = (i: number, v: number) => ({
+    x: cx + radius * v * Math.cos(angle(i)),
+    y: cy - radius * v * Math.sin(angle(i)), // PDF y grows up; screen y grows down. Negate to match visual orientation.
+  });
+
+  const gridColor = rgb(0.82, 0.82, 0.84);
+  const axisColor = rgb(0.78, 0.78, 0.80);
+  const labelColor = rgb(0.36, 0.36, 0.38);
+  const seriesColors = [
+    rgb(173 / 255, 44 / 255, 77 / 255), // accent (red)
+    rgb(43 / 255, 123 / 255, 185 / 255), // blue
+  ];
+
+  // Grid polygons (concentric)
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  for (const level of gridLevels) {
+    for (let i = 0; i < n; i++) {
+      const p1 = point(i, level);
+      const p2 = point((i + 1) % n, level);
+      page.drawLine({
+        start: { x: p1.x, y: p1.y },
+        end: { x: p2.x, y: p2.y },
+        thickness: 0.5,
+        color: gridColor,
+      });
+    }
+  }
+
+  // Radial axis spokes
+  for (let i = 0; i < n; i++) {
+    const p = point(i, 1);
+    page.drawLine({
+      start: { x: cx, y: cy },
+      end: { x: p.x, y: p.y },
+      thickness: 0.5,
+      color: axisColor,
+    });
+  }
+
+  // Series polygons (closed outlines) and dots
+  data.series.forEach((series, sIdx) => {
+    const stroke = seriesColors[sIdx] ?? seriesColors[0];
+    const lookup = new Map(series.values.map(v => [v.axis, Math.max(0, Math.min(1, v.value))]));
+    const poly: { x: number; y: number }[] = axes.map((axis, i) => point(i, lookup.get(axis) ?? 0));
+
+    // Closed outline (no fill — pdf-lib has no convenient polygon-fill primitive
+    // we want without including a heavier path string; outline-only reads cleanly in print).
+    for (let i = 0; i < poly.length; i++) {
+      const p1 = poly[i];
+      const p2 = poly[(i + 1) % poly.length];
+      page.drawLine({
+        start: { x: p1.x, y: p1.y },
+        end: { x: p2.x, y: p2.y },
+        thickness: 1.5,
+        color: stroke,
+      });
+    }
+    // Data dots
+    for (const p of poly) {
+      page.drawCircle({ x: p.x, y: p.y, size: 2.2, color: stroke });
+    }
+  });
+
+  // Axis labels (placed slightly outside the outermost ring)
+  const labelSize = 8;
+  axes.forEach((axisLabel, i) => {
+    const p = point(i, 1.18);
+    const w = font.widthOfTextAtSize(axisLabel, labelSize);
+    // Approximate centering: nudge x left by half-width; PDF text baseline sits at y, so nudge y slightly up
+    page.drawText(axisLabel, {
+      x: p.x - w / 2,
+      y: p.y - labelSize / 3,
+      font,
+      size: labelSize,
+      color: labelColor,
+    });
+  });
+
+  // Series legend (drawn beneath the chart by caller? — we draw inline at bottom-left of the chart bbox)
+  if (data.series.length > 1) {
+    const legendY = cy - radius - 14;
+    let legendX = cx - radius;
+    data.series.forEach((series, sIdx) => {
+      const color = seriesColors[sIdx] ?? seriesColors[0];
+      const label = (series.label ?? `Series ${sIdx + 1}`).slice(0, 28);
+      page.drawRectangle({ x: legendX, y: legendY, width: 8, height: 8, color });
+      page.drawText(label, {
+        x: legendX + 12,
+        y: legendY + 1,
+        font,
+        size: 8,
+        color: labelColor,
+      });
+      legendX += 14 + font.widthOfTextAtSize(label, 8) + 14;
+    });
+  }
+}
+
 function drawFooter(
   page: ReturnType<PDFDocument['getPage']>,
   font: Awaited<ReturnType<typeof PDFDocument.prototype.embedFont>>,
@@ -97,12 +245,36 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { text, title, toolName, chartImage } = body as {
+    const { text, title, toolName, chartImage, chartData } = body as {
       text?: string;
       title?: string;
       toolName?: string;
       chartImage?: string;
+      chartData?: RadarChartData;
     };
+
+    // Validate chartData shape — guards against malformed input that would otherwise crash
+    // the drawing logic. We accept only a recognised radar shape with sensible bounds.
+    const validChartData: RadarChartData | null = (() => {
+      if (!chartData || typeof chartData !== 'object') return null;
+      if (chartData.type !== 'radar') return null;
+      if (!Array.isArray(chartData.series) || chartData.series.length === 0) return null;
+      const cleanedSeries: RadarSeries[] = [];
+      for (const s of chartData.series) {
+        if (!s || !Array.isArray(s.values)) continue;
+        const cleanedValues = s.values
+          .filter(v => v && typeof v.axis === 'string' && typeof v.value === 'number' && Number.isFinite(v.value))
+          .map(v => ({ axis: v.axis, value: Math.max(0, Math.min(1, v.value)) }));
+        if (cleanedValues.length >= 3) {
+          cleanedSeries.push({ label: typeof s.label === 'string' ? s.label : undefined, values: cleanedValues });
+        }
+      }
+      if (cleanedSeries.length === 0) return null;
+      const axes = Array.isArray(chartData.axes) && chartData.axes.every(a => typeof a === 'string')
+        ? chartData.axes
+        : undefined;
+      return { type: 'radar', axes, series: cleanedSeries };
+    })();
 
     if (!text || typeof text !== 'string') {
       return NextResponse.json({ error: 'text is required' }, { status: 400 });
@@ -149,7 +321,7 @@ export async function POST(req: NextRequest) {
       return lines;
     };
 
-    const bodyLines = wrapText(text.replace(/\*\*/g, ''), font, bodyFontSize, maxWidth);
+    const bodyLines = wrapText(normalizePdfExportText(text), font, bodyFontSize, maxWidth);
 
     // First page
     let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
@@ -190,6 +362,23 @@ export async function POST(req: NextRequest) {
         height: chartH,
       });
       y -= 16;
+    } else if (validChartData) {
+      // Draw the radar chart natively with pdf-lib primitives (preferred — works without
+      // a browser canvas round-trip). Box: ~260pt tall to leave room for axis labels & legend.
+      const radius = 80;
+      const labelPadding = 28; // extra room above & below for axis labels
+      const legendPadding = validChartData.series.length > 1 ? 18 : 0;
+      const chartBoxH = radius * 2 + labelPadding * 2 + legendPadding;
+      if (y - chartBoxH < BODY_BOTTOM) {
+        page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+        drawHeader(page, boldFont, font, logo);
+        y = BODY_TOP;
+      }
+      const cx = PAGE_W / 2;
+      const cy = y - labelPadding - radius;
+      drawRadarChart(page, font, validChartData, { cx, cy, radius });
+      y -= chartBoxH;
+      y -= 8;
     }
 
     // Body

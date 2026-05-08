@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { TrainingDashboardRow } from '@/lib/admin/trainingDashboard';
+import DataTable from '@/components/portal/ui/DataTable';
 
 function formatDate(value: string | Date | null): string {
   if (!value) return '—';
@@ -71,52 +72,106 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
         </select>
         <select value={program} onChange={(e) => setProgram(e.target.value)} style={{ padding: '0.6rem', minWidth: '220px' }}>
           <option value="">All programs</option>
-          {programs.map(([slug, title]) => <option key={slug} value={slug}>{title}</option>)}
+          {programs.map(([slug, title]) => (
+            <option key={slug} value={slug}>
+              {title}
+            </option>
+          ))}
         </select>
       </div>
 
       <div style={{ overflowX: 'auto' }}>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Member</th>
-              <th>Program</th>
-              <th>Status</th>
-              <th>Progress</th>
-              <th>Last training touch</th>
-              <th>Partner / counselor</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((row) => {
-              const badge = statusFor(row);
-              return (
-                <tr key={row.id}>
-                  <td>
-                    <Link href={`/admin/members/${row.id}`}>{row.fullName}</Link>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
-                  </td>
-                  <td>
-                    {row.programTitle}
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>Enrolled {formatDate(row.enrolledAt)}</div>
-                  </td>
-                  <td><span style={{ display: 'inline-flex', padding: '0.2rem 0.55rem', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 800, color: badge.color, background: badge.bg }}>{badge.label}</span></td>
-                  <td>
-                    <strong>{row.progressPercent}%</strong>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.completedCount}/{row.totalCourses} complete · {row.activeCourseCount} active</div>
-                  </td>
-                  <td>{formatLastTouch(row.lastTrainingActivityAt)}</td>
-                  <td>
-                    <div>{row.partnerName ?? 'No partner'}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.counselorName ?? 'No counselor'}</div>
-                  </td>
-                  <td><Link href={`/admin/members/${row.id}`} className="btn btn-outline btn-sm">Open</Link></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <DataTable
+          variant="admin"
+          tableClassName="admin-table"
+          scrollX={false}
+          rows={filtered}
+          rowKey={(row) => row.id}
+          columns={[
+            {
+              key: 'member',
+              header: 'Member',
+              cell: (row) => (
+                <>
+                  <Link href={`/admin/members/${row.id}`}>{row.fullName}</Link>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
+                </>
+              ),
+            },
+            {
+              key: 'program',
+              header: 'Program',
+              cell: (row) => (
+                <>
+                  {row.programTitle}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                    Enrolled {formatDate(row.enrolledAt)}
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              cell: (row) => {
+                const badge = statusFor(row);
+                return (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '999px',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      color: badge.color,
+                      background: badge.bg,
+                    }}
+                  >
+                    {badge.label}
+                  </span>
+                );
+              },
+            },
+            {
+              key: 'progress',
+              header: 'Progress',
+              cell: (row) => (
+                <>
+                  <strong>{row.progressPercent}%</strong>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                    {row.completedCount}/{row.totalCourses} complete · {row.activeCourseCount} active
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: 'touch',
+              header: 'Last training touch',
+              cell: (row) => formatLastTouch(row.lastTrainingActivityAt),
+            },
+            {
+              key: 'partner',
+              header: 'Partner / counselor',
+              cell: (row) => (
+                <>
+                  <div>{row.partnerName ?? 'No partner'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                    {row.counselorName ?? 'No counselor'}
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              cell: (row) => (
+                <Link href={`/admin/members/${row.id}`} className="btn btn-outline btn-sm">
+                  Open
+                </Link>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

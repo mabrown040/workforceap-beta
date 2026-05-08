@@ -319,7 +319,7 @@ export default function WorkspaceShell({
             type="button"
             className="workspace-menu-btn"
             onClick={() => setDrawerOpen(true)}
-            aria-label="Open menu"
+            aria-label={tNav('openMenu')}
           >
             <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
@@ -338,7 +338,7 @@ export default function WorkspaceShell({
                 <span className="material-symbols-outlined" aria-hidden style={{ fontSize: '1rem' }}>
                   open_in_new
                 </span>
-                {marketingSiteLabel ?? 'Public site'}
+                {marketingSiteLabel ?? tNav('publicSite')}
               </Link>
             ) : null}
           </div>
@@ -423,7 +423,7 @@ export default function WorkspaceShell({
       />
 
       {hasTabs && activeTab && (
-        <nav ref={tabBarRef} className="workspace-tab-bar" aria-label="Workspace tabs">
+        <nav ref={tabBarRef} className="workspace-tab-bar" aria-label={tNav('workspaceTabs')}>
           <div className="workspace-tab-bar-inner">
             {NAV_TAB_ORDER.map((tab) => {
               const meta = NAV_TAB_META[tab];
@@ -459,7 +459,7 @@ export default function WorkspaceShell({
                   type="button"
                   className="workspace-sidebar-collapse-btn"
                   onClick={toggleCollapse}
-                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  aria-label={collapsed ? tNav('expandSidebar') : tNav('collapseSidebar')}
                   title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 >
                   {collapsed ? <ChevronRight size={18} aria-hidden /> : <ChevronLeft size={18} aria-hidden />}

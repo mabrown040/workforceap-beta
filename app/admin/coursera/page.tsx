@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -8,6 +9,7 @@ import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
+import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -22,7 +24,11 @@ import {
   listCourseraIdentityMappings,
   listRecentUnmatchedXapiEvents,
 } from '@/lib/xapi/mappings';
-import { loadBadgeProgressSummary, loadUnmatchedLearners } from '@/lib/coursera/progressQueries';
+import {
+  countHiddenTestAccountUnmatchedLearners,
+  loadBadgeProgressSummary,
+  loadUnmatchedLearners,
+} from '@/lib/coursera/progressQueries';
 
 type CourseProgressSummary = {
   totalRows: number;
@@ -252,6 +258,36 @@ function fmtDateTime(value: Date | null): string {
   return value.toLocaleString();
 }
 
+// Shared styles for collapsible section headers on this page. Each section
+// is wrapped in a <details> with a <summary> bar so the page is short and
+// scannable by default. Sections can be expanded individually.
+const collapsibleSectionStyle: CSSProperties = {
+  padding: 0,
+  marginBottom: '1rem',
+};
+const collapsibleSummaryStyle: CSSProperties = {
+  cursor: 'pointer',
+  userSelect: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '1rem',
+  padding: '0.85rem 1.1rem',
+  fontSize: '1.05rem',
+  fontWeight: 600,
+};
+const collapsibleBodyStyle: CSSProperties = {
+  display: 'grid',
+  gap: '0.75rem',
+  padding: '0.85rem 1.1rem 1rem',
+  borderTop: '1px solid var(--outline-variant)',
+};
+const collapsibleCountStyle: CSSProperties = {
+  fontSize: '0.8rem',
+  fontWeight: 400,
+  color: 'var(--color-on-surface-variant)',
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin – Coursera Identity Mapping',
@@ -265,7 +301,7 @@ export const dynamic = 'force-dynamic';
 export default async function AdminCourseraPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ auditEmail?: string }>;
+  searchParams?: Promise<{ auditEmail?: string; showTest?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera');
@@ -273,6 +309,7 @@ export default async function AdminCourseraPage({
 
   const sp = (await searchParams) ?? {};
   const auditEmailRaw = typeof sp.auditEmail === 'string' ? sp.auditEmail : '';
+  const showTestAccounts = sp.showTest === '1' || sp.showTest === 'true';
 
   // Include every active user who is a member — those with profile.role === 'member'
   // and those without a profile row (the role helper defaults to 'member' there).
@@ -326,7 +363,12 @@ export default async function AdminCourseraPage({
   const courseProgress = await loadCourseProgressSummary();
   const xapiCourseProgress = await loadXapiCourseProgressSummary(members);
   const badgeProgress = await loadBadgeProgressSummary();
-  const unmatchedLearners = await loadUnmatchedLearners(100);
+  const unmatchedLearners = await loadUnmatchedLearners(100, {
+    includeTestAccounts: showTestAccounts,
+  });
+  const hiddenTestAccountCount = showTestAccounts
+    ? 0
+    : await countHiddenTestAccountUnmatchedLearners();
   const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
 
   if (auditEmailRaw.trim().length > 0) {
@@ -386,13 +428,20 @@ export default async function AdminCourseraPage({
         ) : null}
       </div>
 
-      <section
-        className="content-card"
-        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
-      >
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Coursera course progress (CSV)
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {courseProgress
+                ? `${courseProgress.totalRows} row(s) · last sync ${fmtDateTime(courseProgress.latestSyncedAt)}`
+                : 'unavailable'}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera course progress</h2>
             <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               Per-learner-per-course progress imported from the Coursera "Learner activity &amp; progress"
               CSV report. Use this for backfill and as a redundant feed alongside the realtime xAPI bridge.
@@ -428,55 +477,72 @@ export default async function AdminCourseraPage({
 
             {courseProgress.topLearners.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Hours</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {courseProgress.topLearners.map((learner) => (
-                      <tr key={learner.id}>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.user ? (
-                            <>
-                              <strong>{learner.user.fullName}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
-                            </>
-                          ) : (
-                            <>
-                              <strong>{learner.externalName || learner.externalEmail}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                                {learner.externalEmail} · unmapped
-                              </div>
-                            </>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={courseProgress.topLearners}
+                  rowKey={(learner) => learner.id}
+                  columns={[
+                    {
+                      key: 'learner',
+                      header: 'Learner',
+                      cell: (learner) =>
+                        learner.user ? (
+                          <>
+                            <strong>{learner.user.fullName}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                          </>
+                        ) : (
+                          <>
+                            <strong>{learner.externalName || learner.externalEmail}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                              {learner.externalEmail} · unmapped
+                            </div>
+                          </>
+                        ),
+                    },
+                    {
+                      key: 'course',
+                      header: 'Course',
+                      cell: (learner) => (
+                        <>
                           {learner.courseName}
                           {learner.isCompleted ? (
-                            <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                            <span
+                              style={{
+                                marginLeft: '0.4rem',
+                                fontSize: '0.7rem',
+                                padding: '0.1rem 0.35rem',
+                                borderRadius: '0.4rem',
+                                background: 'rgba(34, 197, 94, 0.15)',
+                                color: 'rgb(22, 163, 74)',
+                              }}
+                            >
                               completed
                             </span>
                           ) : null}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.overallProgress.toFixed(2)}%
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.learningHours.toFixed(2)}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(learner.lastActivityTime)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'progress',
+                      header: 'Progress',
+                      align: 'right',
+                      cell: (learner) => `${learner.overallProgress.toFixed(2)}%`,
+                    },
+                    {
+                      key: 'hours',
+                      header: 'Hours',
+                      align: 'right',
+                      cell: (learner) => learner.learningHours.toFixed(2),
+                    },
+                    {
+                      key: 'last',
+                      header: 'Last activity',
+                      cell: (learner) => fmtDateTime(learner.lastActivityTime),
+                    },
+                  ]}
+                />
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
@@ -489,15 +555,23 @@ export default async function AdminCourseraPage({
             Course progress data is unavailable right now.
           </span>
         )}
-      </section>
+        </div>
+      </details>
 
-      <section
-        className="content-card"
-        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
-      >
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Live xAPI course progress
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {xapiCourseProgress
+                ? `${xapiCourseProgress.totalRows} row(s) · last update ${fmtDateTime(xapiCourseProgress.latestUpdatedAt)}`
+                : 'unavailable'}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Live xAPI course progress</h2>
             <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
               Real-time course progress from xAPI statements (Coursera webhook). This is what members see on My Training.
             </span>
@@ -514,56 +588,80 @@ export default async function AdminCourseraPage({
 
             {xapiCourseProgress.courseLogRows.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Program</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Status</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last updated</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {xapiCourseProgress.courseLogRows.map((row) => (
-                      <tr key={row.key}>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={xapiCourseProgress.courseLogRows}
+                  rowKey={(row) => row.key}
+                  columns={[
+                    {
+                      key: 'learner',
+                      header: 'Learner',
+                      cell: (row) => (
+                        <>
                           <strong>{row.fullName}</strong>
                           <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {row.programTitle}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                        </>
+                      ),
+                    },
+                    { key: 'program', header: 'Program', cell: (row) => row.programTitle },
+                    {
+                      key: 'course',
+                      header: 'Course',
+                      cell: (row) => (
+                        <>
                           {row.courseName}
                           {row.courseId ? (
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.courseId}</div>
                           ) : null}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {row.percentComplete}%
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {row.status === 'COMPLETED' ? (
-                            <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
-                              completed
-                            </span>
-                          ) : row.status === 'IN_PROGRESS' ? (
-                            <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(164, 127, 56, 0.14)', color: 'var(--color-accent)' }}>
-                              in progress
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(row.lastUpdatedAt)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'pct',
+                      header: 'Progress',
+                      align: 'right',
+                      cell: (row) => `${row.percentComplete}%`,
+                    },
+                    {
+                      key: 'status',
+                      header: 'Status',
+                      cell: (row) =>
+                        row.status === 'COMPLETED' ? (
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.4rem',
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              color: 'rgb(22, 163, 74)',
+                            }}
+                          >
+                            completed
+                          </span>
+                        ) : row.status === 'IN_PROGRESS' ? (
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.4rem',
+                              background: 'rgba(164, 127, 56, 0.14)',
+                              color: 'var(--color-accent)',
+                            }}
+                          >
+                            in progress
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
+                        ),
+                    },
+                    {
+                      key: 'updated',
+                      header: 'Last updated',
+                      cell: (row) => fmtDateTime(row.lastUpdatedAt),
+                    },
+                  ]}
+                />
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
@@ -576,14 +674,22 @@ export default async function AdminCourseraPage({
             xAPI progress data is unavailable right now.
           </span>
         )}
-      </section>
+        </div>
+      </details>
 
-      <section
-        className="content-card"
-        style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.75rem' }}
-      >
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Specialization progress
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {badgeProgress
+                ? `${badgeProgress.totalRows} row(s) · last sync ${fmtDateTime(badgeProgress.latestSyncedAt)}`
+                : 'unavailable'}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div>
-          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Specialization progress</h2>
           <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
             Per-learner-per-badge progress imported from the Coursera{' '}
             <em>LearningPathActivity</em> CSV. One record per (learner, badge), with badge
@@ -601,59 +707,77 @@ export default async function AdminCourseraPage({
 
             {badgeProgress.topLearners.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badge</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Courses done</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Current course</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {badgeProgress.topLearners.map((learner) => (
-                      <tr key={learner.id}>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.user ? (
-                            <>
-                              <strong>{learner.user.fullName}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
-                            </>
-                          ) : (
-                            <>
-                              <strong>{learner.externalName || learner.externalEmail}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                                {learner.externalEmail} · unmapped
-                              </div>
-                            </>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={badgeProgress.topLearners}
+                  rowKey={(learner) => learner.id}
+                  columns={[
+                    {
+                      key: 'learner',
+                      header: 'Learner',
+                      cell: (learner) =>
+                        learner.user ? (
+                          <>
+                            <strong>{learner.user.fullName}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                          </>
+                        ) : (
+                          <>
+                            <strong>{learner.externalName || learner.externalEmail}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                              {learner.externalEmail} · unmapped
+                            </div>
+                          </>
+                        ),
+                    },
+                    {
+                      key: 'badge',
+                      header: 'Badge',
+                      cell: (learner) => (
+                        <>
                           {learner.badgeTitle}
                           {learner.badgeCompleted ? (
-                            <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                            <span
+                              style={{
+                                marginLeft: '0.4rem',
+                                fontSize: '0.7rem',
+                                padding: '0.1rem 0.35rem',
+                                borderRadius: '0.4rem',
+                                background: 'rgba(34, 197, 94, 0.15)',
+                                color: 'rgb(22, 163, 74)',
+                              }}
+                            >
                               completed
                             </span>
                           ) : null}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.progressPercent.toFixed(2)}%
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.coursesCompleted}/{learner.numberOfCourses}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.currentCourseName ?? '—'}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(learner.lastActivityTime)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'progress',
+                      header: 'Progress',
+                      align: 'right',
+                      cell: (learner) => `${learner.progressPercent.toFixed(2)}%`,
+                    },
+                    {
+                      key: 'courses',
+                      header: 'Courses done',
+                      align: 'right',
+                      cell: (learner) => `${learner.coursesCompleted}/${learner.numberOfCourses}`,
+                    },
+                    {
+                      key: 'current',
+                      header: 'Current course',
+                      cell: (learner) => learner.currentCourseName ?? '—',
+                    },
+                    {
+                      key: 'last',
+                      header: 'Last activity',
+                      cell: (learner) => fmtDateTime(learner.lastActivityTime),
+                    },
+                  ]}
+                />
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
@@ -667,9 +791,77 @@ export default async function AdminCourseraPage({
             Badge progress data is unavailable right now.
           </span>
         )}
-      </section>
+        </div>
+      </details>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <details
+        className="content-card"
+        style={collapsibleSectionStyle}
+        open={unmatchedLearners.length > 0 || showTestAccounts || hiddenTestAccountCount > 0}
+      >
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Unmatched learners
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {unmatchedLearners.length} shown
+              {hiddenTestAccountCount > 0 ? ` · ${hiddenTestAccountCount} hidden test` : ''}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
+        {hiddenTestAccountCount > 0 ? (
+          <div
+            style={{
+              padding: '0.65rem 0.9rem',
+              marginBottom: '0.6rem',
+              background: 'var(--surface-container-low, rgba(148, 163, 184, 0.08))',
+              border: '1px dashed var(--outline-variant)',
+              borderRadius: 8,
+              fontSize: '0.85rem',
+              color: 'var(--color-on-surface-variant)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span>
+              Hiding <strong>{hiddenTestAccountCount}</strong> likely test/smoke account
+              {hiddenTestAccountCount === 1 ? '' : 's'} from the unmatched list (matches:
+              <code style={{ marginLeft: '0.25rem' }}>test*</code>,{' '}
+              <code>force-*</code>, <code>noreply*</code>, <code>@example.com</code>).
+            </span>
+            <Link href="?showTest=1" style={{ fontWeight: 600 }}>
+              Show all →
+            </Link>
+          </div>
+        ) : showTestAccounts ? (
+          <div
+            style={{
+              padding: '0.65rem 0.9rem',
+              marginBottom: '0.6rem',
+              background: 'rgba(251, 191, 36, 0.1)',
+              border: '1px dashed rgba(251, 191, 36, 0.4)',
+              borderRadius: 8,
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span style={{ color: 'rgb(146, 90, 0)' }}>
+              <strong>Showing all rows including test accounts.</strong> The list normally hides
+              <code style={{ marginLeft: '0.25rem' }}>test*</code>, <code>force-*</code>,{' '}
+              <code>noreply*</code>, and <code>@example.com</code> traffic.
+            </span>
+            <Link href="?" style={{ fontWeight: 600 }}>
+              Hide test accounts →
+            </Link>
+          </div>
+        ) : null}
         <CourseraUnmatchedLearners
           learners={unmatchedLearners}
           members={memberOptions.map((m) => ({
@@ -679,11 +871,23 @@ export default async function AdminCourseraPage({
             programTitle: m.programTitle,
           }))}
         />
-      </div>
+        </div>
+      </details>
 
-      <div className="content-card" style={{ padding: '1rem 1.1rem', marginBottom: '1rem' }}>
+      <details className="content-card" style={collapsibleSectionStyle}>
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Active-pull skillset progress
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {skillsetProgress.totalRows} row(s)
+              {skillsetProgress.latestSyncedAt
+                ? ` · last sync ${skillsetProgress.latestSyncedAt.toISOString().replace('T', ' ').slice(0, 19)} UTC`
+                : ''}
+            </span>
+          </span>
+        </summary>
+        <div style={collapsibleBodyStyle}>
         <div style={{ display: 'grid', gap: '0.5rem' }}>
-          <strong>Active-pull skillset progress</strong>
           <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
             Snapshot written by the <code>/api/cron/coursera-sync</code> cron
             (every 6h). Empty until skillset IDs are configured for at least one
@@ -712,49 +916,75 @@ export default async function AdminCourseraPage({
 
           {skillsetProgress.topMembers.length > 0 ? (
             <div style={{ marginTop: '0.5rem', overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)' }}>
-                    <th style={{ padding: '0.35rem 0.5rem' }}>Member</th>
-                    <th style={{ padding: '0.35rem 0.5rem' }}>Skillset</th>
-                    <th style={{ padding: '0.35rem 0.5rem', textAlign: 'right' }}>Progress</th>
-                    <th style={{ padding: '0.35rem 0.5rem' }}>Last sync</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {skillsetProgress.topMembers.map((row) => (
-                    <tr key={`${row.userId}:${row.skillsetId}`} style={{ borderTop: '1px solid var(--outline-variant, #ddd)' }}>
-                      <td style={{ padding: '0.35rem 0.5rem' }}>
+              <DataTable
+                density="compact"
+                scrollX={false}
+                rows={skillsetProgress.topMembers}
+                rowKey={(row) => `${row.userId}:${row.skillsetId}`}
+                columns={[
+                  {
+                    key: 'member',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Member</span>,
+                    cell: (row) => (
+                      <>
                         <div style={{ fontWeight: 500 }}>{row.userFullName || row.userEmail}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                          {row.userEmail}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.35rem 0.5rem' }}>{row.skillsetName}</td>
-                      <td style={{ padding: '0.35rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                        {row.progressPct}%
-                      </td>
-                      <td style={{ padding: '0.35rem 0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.userEmail}</div>
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'skillset',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Skillset</span>,
+                    cell: (row) => row.skillsetName,
+                  },
+                  {
+                    key: 'pct',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Progress</span>,
+                    align: 'right',
+                    cell: (row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.progressPct}%</span>,
+                  },
+                  {
+                    key: 'sync',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Last sync</span>,
+                    cell: (row) => (
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                         {row.lastSyncedAt.toISOString().slice(0, 10)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </span>
+                    ),
+                  },
+                ]}
+              />
             </div>
           ) : null}
         </div>
-      </div>
+        </div>
+      </details>
 
-      <CourseraMappingsAdmin
-        members={memberOptions}
-        mappings={mappings}
-        xapiAttention={xapiAttention}
-        syncStatus={syncStatus}
-        progressAudit={progressAudit}
-        progressAuditError={progressAuditError}
-        auditEmailInitial={auditEmailRaw}
-      />
+      <details
+        className="content-card"
+        style={collapsibleSectionStyle}
+        open={Boolean(auditEmailRaw.trim()) || Boolean(progressAuditError) || (xapiAttention?.length ?? 0) > 0}
+      >
+        <summary style={collapsibleSummaryStyle}>
+          <span>
+            Identity mapping &amp; audit tools
+            <span style={{ ...collapsibleCountStyle, marginLeft: '0.5rem' }}>
+              {mappings.length} mapping(s) · {xapiAttention.length} statement(s) need attention
+            </span>
+          </span>
+        </summary>
+        <div style={{ ...collapsibleBodyStyle, gap: 0 }}>
+          <CourseraMappingsAdmin
+            members={memberOptions}
+            mappings={mappings}
+            xapiAttention={xapiAttention}
+            syncStatus={syncStatus}
+            progressAudit={progressAudit}
+            progressAuditError={progressAuditError}
+            auditEmailInitial={auditEmailRaw}
+          />
+        </div>
+      </details>
     </PortalPageFrame>
   );
 }

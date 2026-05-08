@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { prefillResumeRewriter } from '@/lib/ai/prefillFromMemberState';
 import ResumeRewriterClient from './ResumeRewriterClient';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
@@ -15,9 +16,25 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function ResumeRewriterPage() {
+type SearchParams = Promise<{ prefill?: string }>;
+
+export default async function ResumeRewriterPage({ searchParams }: { searchParams: SearchParams }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/resume-rewriter');
+
+  const sp = await searchParams;
+  const shouldPrefill = sp.prefill === 'true';
+  let initialData: { resume: string; jobTarget: string | null; framework: 'auto' } | null = null;
+  if (shouldPrefill) {
+    try {
+      const prefill = await prefillResumeRewriter(user.id);
+      if (prefill.ok) {
+        initialData = { resume: prefill.resume, jobTarget: prefill.jobTarget, framework: 'auto' };
+      }
+    } catch (err) {
+      console.error('[resume-rewriter page] prefill failed', err);
+    }
+  }
 
   const modePills = [
     { key: 'resume-coach', label: 'Resume coach' },
@@ -208,7 +225,7 @@ export default async function ResumeRewriterPage() {
               marginBottom: '2rem',
             }}
           >
-            <ResumeRewriterClient />
+            <ResumeRewriterClient initialData={initialData} />
           </div>
 
           <ToolHistoryPanel

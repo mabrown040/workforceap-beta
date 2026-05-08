@@ -20,7 +20,7 @@ type Props = {
   };
 };
 
-const ACCENT = '#C41E3A';
+const ACCENT = '#ad2c4d';
 const BLUE = '#2b7bb9';
 const GOLD = '#FFBB00';
 const GREEN = '#4a9b4f';

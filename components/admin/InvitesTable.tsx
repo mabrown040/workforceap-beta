@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import DataTable from '@/components/portal/ui/DataTable';
+
 type Invite = {
   id: string;
   email: string;
@@ -130,100 +132,118 @@ export default function InvitesTable({ invites }: Props) {
         </div>
       ) : (
         <div className="admin-table-scroll admin-invites-desktop">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Invited By</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((inv) => {
-                const displayStatus = effectiveStatus(inv);
-                const statusStyle = STATUS_STYLES[displayStatus] ?? STATUS_STYLES.pending;
-                return (
-                  <tr key={inv.id}>
-                    <td>
-                      <div style={{ fontWeight: 500 }}>{inv.email}</div>
-                      {inv.subgroup && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                          Subgroup: {inv.subgroup.name}
-                        </div>
-                      )}
-                      {inv.role === 'counselor' && (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                          {inv.partner ? `Partner: ${inv.partner.name}` : 'WorkforceAP counselor'}
-                        </div>
-                      )}
-                    </td>
-                    <td>{ROLE_LABELS[inv.role] ?? inv.role}</td>
-                    <td>
-                      <span
+          <DataTable
+            variant="admin"
+            tableClassName="admin-table"
+            scrollX={false}
+            rows={filtered}
+            rowKey={(inv) => inv.id}
+            columns={[
+              {
+                key: 'email',
+                header: 'Email',
+                cell: (inv) => (
+                  <>
+                    <div style={{ fontWeight: 500 }}>{inv.email}</div>
+                    {inv.subgroup && (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                        Subgroup: {inv.subgroup.name}
+                      </div>
+                    )}
+                    {inv.role === 'counselor' && (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                        {inv.partner ? `Partner: ${inv.partner.name}` : 'WorkforceAP counselor'}
+                      </div>
+                    )}
+                  </>
+                ),
+              },
+              {
+                key: 'role',
+                header: 'Role',
+                cell: (inv) => ROLE_LABELS[inv.role] ?? inv.role,
+              },
+              {
+                key: 'status',
+                header: 'Status',
+                cell: (inv) => {
+                  const displayStatus = effectiveStatus(inv);
+                  const statusStyle = STATUS_STYLES[displayStatus] ?? STATUS_STYLES.pending;
+                  return (
+                    <span
+                      style={{
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                        textTransform: 'capitalize',
+                        background: statusStyle.bg,
+                        color: statusStyle.color,
+                      }}
+                    >
+                      {displayStatus}
+                    </span>
+                  );
+                },
+              },
+              {
+                key: 'invitedBy',
+                header: 'Invited By',
+                cell: (inv) => <span style={{ fontSize: '0.9rem' }}>{inv.invitedBy.fullName}</span>,
+              },
+              {
+                key: 'date',
+                header: 'Date',
+                cell: (inv) => (
+                  <span style={{ fontSize: '0.9rem' }}>
+                    {inv.status === 'accepted' && inv.acceptedAt ? formatDate(inv.acceptedAt) : formatDate(inv.createdAt)}
+                  </span>
+                ),
+              },
+              {
+                key: 'actions',
+                header: 'Actions',
+                cell: (inv) => {
+                  const displayStatus = effectiveStatus(inv);
+                  return displayStatus === 'pending' ? (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleResend(inv.id)}
+                        disabled={!!resending}
                         style={{
-                          padding: '0.2rem 0.5rem',
-                          borderRadius: '4px',
-                          fontSize: '0.8rem',
-                          textTransform: 'capitalize',
-                          background: statusStyle.bg,
-                          color: statusStyle.color,
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.85rem',
+                          color: 'var(--color-accent)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: resending ? 'wait' : 'pointer',
+                          textDecoration: 'underline',
                         }}
                       >
-                        {displayStatus}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '0.9rem' }}>{inv.invitedBy.fullName}</td>
-                    <td style={{ fontSize: '0.9rem' }}>
-                      {inv.status === 'accepted' && inv.acceptedAt
-                        ? formatDate(inv.acceptedAt)
-                        : formatDate(inv.createdAt)}
-                    </td>
-                    <td>
-                      {displayStatus === 'pending' && (
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleResend(inv.id)}
-                            disabled={!!resending}
-                            style={{
-                              padding: '0.25rem 0.5rem',
-                              fontSize: '0.85rem',
-                              color: 'var(--color-accent)',
-                              background: 'none',
-                              border: 'none',
-                              cursor: resending ? 'wait' : 'pointer',
-                              textDecoration: 'underline',
-                            }}
-                          >
-                            {resending === inv.id ? 'Resending...' : 'Resend'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setRevokeTarget({ id: inv.id, email: inv.email })}
-                            disabled={!!revoking}
-                            style={{
-                              padding: '0.25rem 0.5rem',
-                              fontSize: '0.85rem',
-                              color: 'var(--color-on-surface-variant)',
-                              background: 'none',
-                              border: 'none',
-                              cursor: revoking ? 'wait' : 'pointer',
-                              textDecoration: 'underline',
-                            }}
-                          >
-                            {revoking === inv.id ? 'Revoking...' : 'Revoke'}
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        {resending === inv.id ? 'Resending...' : 'Resend'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRevokeTarget({ id: inv.id, email: inv.email })}
+                        disabled={!!revoking}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          fontSize: '0.85rem',
+                          color: 'var(--color-on-surface-variant)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: revoking ? 'wait' : 'pointer',
+                          textDecoration: 'underline',
+                        }}
+                      >
+                        {revoking === inv.id ? 'Revoking...' : 'Revoke'}
+                      </button>
+                    </div>
+                  ) : null;
+                },
+              },
+            ]}
+          />
         </div>
       )}
       <ul className="admin-portal-card-list admin-invites-cards" aria-label="Invitations (mobile layout)">

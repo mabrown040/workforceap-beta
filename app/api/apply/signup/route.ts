@@ -10,6 +10,10 @@ import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import {
+  sendApplicationConfirmationEmail,
+  sendNewApplicationAdminEmail,
+} from '@/lib/email';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -166,6 +170,7 @@ export async function POST(request: NextRequest) {
     select: { enrolledAt: true },
   });
 
+  let createdApplicationId: string | null = null;
   try {
     await prisma.$transaction(async (tx) => {
       await tx.user.upsert({
@@ -235,7 +240,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      await tx.application.create({
+      const application = await tx.application.create({
         data: {
           userId: user.id,
           status: ApplicationStatus.PENDING,
@@ -247,7 +252,9 @@ export async function POST(request: NextRequest) {
           referralSource,
           referralPartnerId,
         },
+        select: { id: true },
       });
+      createdApplicationId = application.id;
 
       // Create partner referral record so the member shows in partner's referred members list
       if (referralPartnerId) {
@@ -264,6 +271,37 @@ export async function POST(request: NextRequest) {
       metadata: { smsOptIn: smsOptIn ?? false, program_ranked_slugs: programRankedSlugs },
       sourcePage: '/apply/create-account',
     });
+
+    // Fire-and-forget post-signup notifications. Email failures (Resend
+    // outage, missing env, transient network) must NOT block account
+    // creation — the user is already authenticated and their record is
+    // committed. Errors are logged and surfaced via captureApiError so we
+    // can spot patterns without losing the signup.
+    sendApplicationConfirmationEmail({
+      to: user.email!,
+      fullName,
+    }).catch((err) => {
+      console.error('Member application confirmation email failed:', err);
+      captureApiError(err, {
+        route: 'POST /api/apply/signup#applicationConfirmation',
+        extra: { userId: user.id },
+      });
+    });
+
+    if (createdApplicationId) {
+      sendNewApplicationAdminEmail({
+        applicantName: fullName,
+        applicantEmail: user.email!,
+        programInterest: programInterestSummary,
+        applicationId: createdApplicationId,
+      }).catch((err) => {
+        console.error('Admin new-application alert email failed:', err);
+        captureApiError(err, {
+          route: 'POST /api/apply/signup#newApplicationAdmin',
+          extra: { userId: user.id, applicationId: createdApplicationId },
+        });
+      });
+    }
   } catch (dbError) {
     captureApiError(dbError, { route: 'POST /api/apply/signup' });
     return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });

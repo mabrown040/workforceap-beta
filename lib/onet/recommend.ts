@@ -6,6 +6,7 @@ import { getFitReasoning } from '@/lib/content/quizReasoning';
 import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations';
 import { translateOccupationDescription, translateSkillName, translateTaskLine } from '@/lib/onet/copy';
 import { getOccupation } from '@/lib/onet/client';
+import { ONET_CODE_PATTERN, resolveOccupationTitle } from '@/lib/onet/occupationTitles';
 import type { CareerMatchResult, ExperienceBandUi } from '@/lib/onet/types';
 import { ANCHOR_DIGITAL_LITERACY_SLUG, ANCHOR_IT_SUPPORT_SLUG } from '@/lib/onet/programAnchors';
 import { mergeRiasecIntoWeights, type InterestProfilerRiasec } from '@/lib/content/quizIpMerge';
@@ -185,11 +186,17 @@ export async function buildCareerMatchResult(
     // Self-healing: if the stored title is just the O*NET code, fetch the real
     // title from O*NET so users do not see raw codes like "15-1252.00".
     let occupationTitle = occ.title;
-    if (!occupationTitle || /^\d{2}-\d{4}\.\d{2}$/.test(occupationTitle)) {
-      const fresh = await getOccupation(code);
-      if (fresh?.title && !/^\d{2}-\d{4}\.\d{2}$/.test(fresh.title)) {
+    if (!occupationTitle || ONET_CODE_PATTERN.test(occupationTitle)) {
+      const fresh = await getOccupation(code).catch(() => null);
+      if (fresh?.title && !ONET_CODE_PATTERN.test(fresh.title)) {
         occupationTitle = fresh.title;
       }
+    }
+    // Local fallback so we never surface a raw SOC code as a role title
+    // (e.g. when ONET_API_KEY is unset or the API call failed above).
+    if (!occupationTitle || ONET_CODE_PATTERN.test(occupationTitle)) {
+      const fallback = resolveOccupationTitle(code, occupationTitle);
+      if (fallback) occupationTitle = fallback;
     }
 
     const relatedTitles = await Promise.all(

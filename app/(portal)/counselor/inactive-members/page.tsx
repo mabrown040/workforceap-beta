@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
+import SectionHeader from '@/components/portal/ui/SectionHeader';
 
 interface InactiveMember {
   id: string;
@@ -116,85 +118,92 @@ export default function InactiveMembersPage() {
 
       {!loading && !error && members.length > 0 && (
         <div style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)', overflow: 'hidden' }}>
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{members.length} members inactive</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Last updated {new Date().toLocaleTimeString()}</span>
+          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)' }}>
+            <SectionHeader
+              title={`${members.length} members inactive`}
+              action={<span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Last updated {new Date().toLocaleTimeString()}</span>}
+            />
           </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-container-high)' }}>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Member</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'center', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Days Inactive</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Last Active</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Joined</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {members.map((m) => {
+          <DataTable<InactiveMember>
+            columns={[
+              {
+                key: 'member',
+                header: 'Member',
+                cell: (m) => (
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{m.email}</div>
+                    {m.phone && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
+                        {m.phone}
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                key: 'days',
+                header: 'Days Inactive',
+                align: 'center',
+                cell: (m) => {
                   const sev = severity(m.daysInactive);
                   return (
-                    <tr key={m.id} style={{ borderTop: '1px solid var(--outline-variant)' }}>
-                      <td style={{ padding: '0.875rem 1rem' }}>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{m.email}</div>
-                          {m.phone && (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
-                              {m.phone}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.875rem 1rem', textAlign: 'center' }}>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          padding: '0.35rem 0.75rem',
-                          borderRadius: 'var(--radius-md)',
-                          background: `color-mix(in srgb, ${sev.color} 12%, transparent)`,
-                          color: sev.color,
-                          fontWeight: 700,
-                          fontSize: '0.8rem',
-                        }}>
-                          {m.daysInactive} days
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                        {formatDate(m.lastActiveAt)}
-                      </td>
-                      <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                        {formatDate(m.joinedAt)}
-                      </td>
-                      <td style={{ padding: '0.875rem 1rem', textAlign: 'right' }}>
-                        <button
-                          type="button"
-                          onClick={() => logOutreach(m)}
-                          disabled={sendingReminder === m.id || reminderSent.has(m.id)}
-                          title="Mark that you contacted this member by email or phone. Does not send a message automatically."
-                          style={{
-                            padding: '0.5rem 0.875rem',
-                            borderRadius: 'var(--radius-md)',
-                            border: 'none',
-                            background: reminderSent.has(m.id) ? 'var(--color-green)' : 'var(--color-accent)',
-                            color: 'var(--color-white, #fff)',
-                            fontWeight: 600,
-                            fontSize: '0.8rem',
-                            cursor: sendingReminder === m.id || reminderSent.has(m.id) ? 'not-allowed' : 'pointer',
-                            opacity: sendingReminder === m.id ? 0.7 : 1,
-                          }}
-                        >
-                          {sendingReminder === m.id ? 'Saving…' : reminderSent.has(m.id) ? 'Logged ✓' : 'Log Outreach'}
-                        </button>
-                      </td>
-                    </tr>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: 'var(--radius-md)',
+                      background: `color-mix(in srgb, ${sev.color} 12%, transparent)`,
+                      color: sev.color,
+                      fontWeight: 700,
+                      fontSize: '0.8rem',
+                    }}>
+                      {m.daysInactive} days
+                    </span>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
+                },
+              },
+              {
+                key: 'lastActive',
+                header: 'Last Active',
+                cell: (m) => <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatDate(m.lastActiveAt)}</span>,
+              },
+              {
+                key: 'joined',
+                header: 'Joined',
+                cell: (m) => <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatDate(m.joinedAt)}</span>,
+              },
+              {
+                key: 'action',
+                header: 'Action',
+                align: 'right',
+                cell: (m) => (
+                  <button
+                    type="button"
+                    onClick={() => logOutreach(m)}
+                    disabled={sendingReminder === m.id || reminderSent.has(m.id)}
+                    title="Mark that you contacted this member by email or phone. Does not send a message automatically."
+                    style={{
+                      padding: '0.5rem 0.875rem',
+                      borderRadius: 'var(--radius-md)',
+                      border: 'none',
+                      background: reminderSent.has(m.id) ? 'var(--color-green)' : 'var(--color-accent)',
+                      color: 'var(--color-white, #fff)',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      cursor: sendingReminder === m.id || reminderSent.has(m.id) ? 'not-allowed' : 'pointer',
+                      opacity: sendingReminder === m.id ? 0.7 : 1,
+                    }}
+                  >
+                    {sendingReminder === m.id ? 'Saving…' : reminderSent.has(m.id) ? 'Logged ✓' : 'Log Outreach'}
+                  </button>
+                ),
+              },
+            ]}
+            rows={members}
+            rowKey={(m) => m.id}
+            density="compact"
+          />
         </div>
       )}
     </div>

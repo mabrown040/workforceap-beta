@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
+import SectionHeader from '@/components/portal/ui/SectionHeader';
 
 interface Placement {
   id: string;
@@ -202,38 +204,51 @@ export default function PlacementsPage() {
 
       {!loading && placements.length > 0 && (
         <div style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)', overflow: 'hidden' }}>
-          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{placements.length} placements</span>
+          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)' }}>
+            <SectionHeader title={`${placements.length} placements`} />
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-container-high)' }}>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Member</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Employer</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Job Title</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Start Date</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Salary</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 600, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Placed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {placements.map((p) => (
-                  <tr key={p.id} style={{ borderTop: '1px solid var(--outline-variant)' }}>
-                    <td style={{ padding: '0.875rem 1rem' }}>
-                      <div style={{ fontWeight: 600 }}>{p.member_email}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{p.program_slug || 'No program'}</div>
-                    </td>
-                    <td style={{ padding: '0.875rem 1rem', fontWeight: 500 }}>{p.employer_name}</td>
-                    <td style={{ padding: '0.875rem 1rem' }}>{p.job_title}</td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(p.start_date)}</td>
-                    <td style={{ padding: '0.875rem 1rem', fontWeight: 600, color: 'var(--color-green)' }}>{formatCurrency(p.salary_offered)}</td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--color-on-surface-variant)' }}>{formatDate(p.placed_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable<Placement>
+            columns={[
+              {
+                key: 'member',
+                header: 'Member',
+                cell: (p) => (
+                  <>
+                    <div style={{ fontWeight: 600 }}>{p.member_email}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{p.program_slug || 'No program'}</div>
+                  </>
+                ),
+              },
+              {
+                key: 'employer',
+                header: 'Employer',
+                cell: (p) => <span style={{ fontWeight: 500 }}>{p.employer_name}</span>,
+              },
+              {
+                key: 'job',
+                header: 'Job Title',
+                cell: (p) => p.job_title,
+              },
+              {
+                key: 'start',
+                header: 'Start Date',
+                cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatDate(p.start_date)}</span>,
+              },
+              {
+                key: 'salary',
+                header: 'Salary',
+                cell: (p) => <span style={{ fontWeight: 600, color: 'var(--color-green)' }}>{formatCurrency(p.salary_offered)}</span>,
+              },
+              {
+                key: 'placed',
+                header: 'Placed',
+                cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatDate(p.placed_at)}</span>,
+              },
+            ]}
+            rows={placements}
+            rowKey={(p) => p.id}
+            density="compact"
+          />
         </div>
       )}
     </div>

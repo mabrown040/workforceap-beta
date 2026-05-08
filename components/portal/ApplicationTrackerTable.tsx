@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 import { TableSkeleton } from '@/components/ui/Skeleton';
-import { useScrollAffordance } from './useScrollAffordance';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type JobApplication = {
   id: string;
@@ -333,97 +333,98 @@ export default function ApplicationTrackerTable() {
             On a small screen, use the card view below or scroll the table sideways.
           </p>
           <div className="application-tracker-table-wrap application-tracker-table-desktop" ref={scrollRef}>
-          <table className="application-tracker-table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Applied</th>
-                <th>Link</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredApplications.map((app) => (
-                <tr key={app.id}>
-                  <td data-label="Company">{app.company}</td>
-                  <td data-label="Role">{app.role}</td>
-                  <td data-label="Status">
-                    <select
-                      value={app.status}
-                      onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                      className="application-status-select"
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td data-label="Applied">
-                    {editingId === app.id ? (
-                      <input
-                        type="date"
-                        value={editAppliedAt}
-                        onChange={(e) => setEditAppliedAt(e.target.value)}
-                        className="application-tracker-edit-input"
-                      />
-                    ) : (
-                      <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '— (add date)'}</span>
-                    )}
-                  </td>
-                  <td data-label="Link">
-                    {editingId === app.id ? (
-                      <input
-                        type="url"
-                        value={editUrl}
-                        onChange={(e) => setEditUrl(e.target.value)}
-                        placeholder="https://..."
-                        className="application-tracker-edit-input"
-                      />
-                    ) : app.url ? (
-                      <a href={app.url} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm">
-                        View
-                      </a>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td data-label="Actions">
-                    {editingId === app.id ? (
-                      <span style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit}>
-                          Save
-                        </button>
-                        <button type="button" className="btn btn-outline btn-sm" onClick={cancelEdit}>
-                          Cancel
-                        </button>
-                      </span>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => startEdit(app)}
-                          aria-label="Edit date and link"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => setPendingDeleteId(app.id)}
-                          aria-label="Delete"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable<JobApplication>
+            columns={[
+              { key: 'company', header: 'Company', cell: (app) => app.company },
+              { key: 'role', header: 'Role', cell: (app) => app.role },
+              {
+                key: 'status',
+                header: 'Status',
+                cell: (app) => (
+                  <select
+                    value={app.status}
+                    onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                    className="application-status-select"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
+                    ))}
+                  </select>
+                ),
+              },
+              {
+                key: 'applied',
+                header: 'Applied',
+                cell: (app) =>
+                  editingId === app.id ? (
+                    <input
+                      type="date"
+                      value={editAppliedAt}
+                      onChange={(e) => setEditAppliedAt(e.target.value)}
+                      className="application-tracker-edit-input"
+                    />
+                  ) : (
+                    <span>{app.appliedAt ? new Date(app.appliedAt).toLocaleDateString() : '— (add date)'}</span>
+                  ),
+              },
+              {
+                key: 'link',
+                header: 'Link',
+                cell: (app) =>
+                  editingId === app.id ? (
+                    <input
+                      type="url"
+                      value={editUrl}
+                      onChange={(e) => setEditUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="application-tracker-edit-input"
+                    />
+                  ) : app.url ? (
+                    <a href={app.url} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm">
+                      View
+                    </a>
+                  ) : (
+                    '—'
+                  ),
+              },
+              {
+                key: 'actions',
+                header: '',
+                cell: (app) =>
+                  editingId === app.id ? (
+                    <span style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit}>
+                        Save
+                      </button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={cancelEdit}>
+                        Cancel
+                      </button>
+                    </span>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => startEdit(app)}
+                        aria-label="Edit date and link"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => setPendingDeleteId(app.id)}
+                        aria-label="Delete"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ),
+              },
+            ]}
+            rows={filteredApplications}
+            rowKey={(app) => app.id}
+          />
         </div>
           <ul className="application-tracker-card-list" aria-label="Applications (mobile layout)">
             {filteredApplications.map((app) => (

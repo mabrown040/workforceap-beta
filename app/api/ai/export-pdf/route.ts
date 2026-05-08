@@ -44,6 +44,15 @@ const MARGIN = 50;
 const PAGE_W = 612;
 const PAGE_H = 792;
 
+/** Normalize pasted/markdown content so Helvetica renders reliably and PDFs look intentional. */
+function normalizePdfExportText(raw: string): string {
+  let t = raw.replace(/\r\n/g, '\n').replace(/\*\*/g, '');
+  t = t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+  t = t.replace(/\u2022|\u25CF/g, '- ');
+  t = t.replace(/\n{4,}/g, '\n\n\n');
+  return t.trim();
+}
+
 type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
 
 async function loadLogo(pdfDoc: PDFDocument): Promise<EmbeddedLogo> {
@@ -312,7 +321,7 @@ export async function POST(req: NextRequest) {
       return lines;
     };
 
-    const bodyLines = wrapText(text.replace(/\*\*/g, ''), font, bodyFontSize, maxWidth);
+    const bodyLines = wrapText(normalizePdfExportText(text), font, bodyFontSize, maxWidth);
 
     // First page
     let page = pdfDoc.addPage([PAGE_W, PAGE_H]);

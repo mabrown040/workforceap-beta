@@ -65,11 +65,52 @@ function ResumeDraftPendingPreview({
   resumeText,
   original,
   suggested,
+  context,
 }: {
   resumeText: string;
-  original: string;
+  original?: string | null;
   suggested: string;
+  context?: string;
 }) {
+  if (!original?.trim()) {
+    return (
+      <div
+        role="region"
+        aria-label="Suggested addition for your draft"
+        style={{
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          fontFamily: 'ui-monospace, monospace',
+          fontSize: '0.82rem',
+          lineHeight: 1.55,
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          border: '2px solid rgba(37, 99, 235, 0.45)',
+          background: 'var(--surface-container-low)',
+          maxHeight: 'min(42vh, 340px)',
+          overflow: 'auto',
+          boxSizing: 'border-box',
+        }}
+      >
+        <mark
+          style={{
+            background: 'rgba(34, 197, 94, 0.35)',
+            color: 'var(--color-on-surface)',
+            fontWeight: 600,
+            padding: '0 2px',
+          }}
+        >
+          {suggested}
+        </mark>
+        {context ? (
+          <p style={{ margin: '0.75rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+            {context}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   const idx = resumeText.indexOf(original);
   if (idx === -1) {
     return (
@@ -119,6 +160,11 @@ function ResumeDraftPendingPreview({
         {suggested}
       </mark>
       {resumeText.slice(idx + original.length)}
+      {context ? (
+        <p style={{ margin: '0.75rem 0 0', fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+          {context}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -230,7 +276,8 @@ export default function ResumeCoachWorkspace() {
       const o = s.original?.trim();
       if (o && resumeText.includes(o)) return s;
     }
-    return null;
+    const addOnly = liveCoachSuggestions.find((s) => !s.original?.trim());
+    return addOnly ?? null;
   }, [liveCoachSuggestions, resumeText]);
 
   const queuedCardSuggestions = useMemo(
@@ -433,7 +480,7 @@ export default function ResumeCoachWorkspace() {
             </p>
           ) : null}
 
-          {hydrated && activeInlineSuggestion?.original?.trim() ? (
+          {hydrated && activeInlineSuggestion ? (
             <div style={{ marginBottom: '1rem' }}>
               <p
                 style={{
@@ -445,12 +492,13 @@ export default function ResumeCoachWorkspace() {
                   color: 'var(--color-on-surface-variant)',
                 }}
               >
-                Pending change (in session)
+                {activeInlineSuggestion.original?.trim() ? 'Pending change (in session)' : 'Suggested addition'}
               </p>
               <ResumeDraftPendingPreview
                 resumeText={resumeText}
-                original={activeInlineSuggestion.original!.trim()}
+                original={activeInlineSuggestion.original}
                 suggested={activeInlineSuggestion.suggested}
+                context={activeInlineSuggestion.context}
               />
               <div
                 style={{
@@ -464,7 +512,11 @@ export default function ResumeCoachWorkspace() {
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
-                  aria-label="Apply suggested change"
+                  aria-label={
+                    activeInlineSuggestion.original?.trim()
+                      ? 'Apply suggested change'
+                      : 'Apply suggested addition'
+                  }
                   onClick={() => {
                     handleAccept(activeInlineSuggestion);
                     dismissSuggestion(activeInlineSuggestion.id);
@@ -475,7 +527,7 @@ export default function ResumeCoachWorkspace() {
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
-                  aria-label="Dismiss suggested change"
+                  aria-label="Dismiss suggestion"
                   onClick={() => dismissSuggestion(activeInlineSuggestion.id)}
                 >
                   ✕ Dismiss

@@ -561,6 +561,90 @@ export async function loadUnmatchedXapiEventsByExternalEmail(
   }
 }
 
+/**
+ * Count unmatched / errored xAPI events for an external key (email or actor
+ * identifier — same matching rules as `loadUnmatchedXapiEventsByExternalEmail`).
+ *
+ * Used by the unmatched-learner detail page so the parent can show a total
+ * even when only a preview of events is rendered, and link to the dedicated
+ * events page when there are more than the preview.
+ */
+export async function countUnmatchedXapiEventsByExternalEmail(
+  externalKey: string,
+): Promise<number> {
+  const trimmed = externalKey.trim();
+  if (!trimmed) return 0;
+  const lower = trimmed.toLowerCase();
+  const looksLikeEmail = trimmed.includes('@');
+
+  try {
+    const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      SELECT COUNT(*)::bigint AS count
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('unmatched', 'error')
+        AND (
+          (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
+          OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
+        )
+    `;
+    const count = rows[0]?.count ?? 0;
+    return typeof count === 'bigint' ? Number(count) : count;
+  } catch (error) {
+    console.warn('[coursera/progressQueries] countUnmatchedXapiEventsByExternalEmail failed:', error);
+    return 0;
+  }
+}
+
+/**
+ * Paginated loader. `pageSize` defaults to 50, `page` is 1-based.
+ *
+ * Used by `/admin/coursera/learners/unmatched/[externalEmail]/events` so an
+ * admin reviewing a Coursera-only learner with hundreds of events can scan
+ * them without overwhelming the parent detail page.
+ */
+export async function loadUnmatchedXapiEventsByExternalEmailPaginated(
+  externalKey: string,
+  page = 1,
+  pageSize = 50,
+): Promise<UnmatchedXapiEventRow[]> {
+  const trimmed = externalKey.trim();
+  if (!trimmed) return [];
+  const lower = trimmed.toLowerCase();
+  const looksLikeEmail = trimmed.includes('@');
+  const safePage = Math.max(1, Math.floor(page));
+  const safeSize = Math.min(200, Math.max(1, Math.floor(pageSize)));
+  const offset = (safePage - 1) * safeSize;
+
+  try {
+    return await prisma.$queryRaw<UnmatchedXapiEventRow[]>`
+      SELECT
+        id,
+        statement_id AS "statementId",
+        actor_email AS "actorEmail",
+        actor_identifier AS "actorIdentifier",
+        actor_home_page AS "actorHomePage",
+        course_slug AS "courseSlug",
+        course_name AS "courseName",
+        verb_id AS "verbId",
+        completion_status AS "completionStatus",
+        error,
+        received_at AS "receivedAt"
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('unmatched', 'error')
+        AND (
+          (${looksLikeEmail}::boolean AND LOWER(actor_email) = ${lower})
+          OR (actor_email IS NULL AND LOWER(actor_identifier) = ${lower})
+        )
+      ORDER BY received_at DESC
+      LIMIT ${safeSize}
+      OFFSET ${offset}
+    `;
+  } catch (error) {
+    console.warn('[coursera/progressQueries] loadUnmatchedXapiEventsByExternalEmailPaginated failed:', error);
+    return [];
+  }
+}
+
 export type SuggestedUserMatch = {
   userId: string;
   email: string;

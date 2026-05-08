@@ -23,8 +23,8 @@
  *   COURSERA_TARGET_BASE_URL        defaults to http://localhost:3000
  *   COURSERA_ORG_ID                 defaults to 8R2W4McwOMWJp9cCBV1kvw  (WorkforceAP org id)
  *   COURSERA_ORG_SLUG               defaults to workforce-advancement
- *   COURSERA_OAUTH_TOKEN_URL        defaults to https://api.coursera.com/oauth2/client_credentials/token
- *   COURSERA_API_BASE_URL           defaults to https://api.coursera.com
+ *   COURSERA_OAUTH_TOKEN_URL        defaults to https://api.coursera.org/oauth2/client_credentials/token
+ *   COURSERA_API_BASE_URL           defaults to https://api.coursera.org
  */
 
 const RESET = '\x1b[0m';
@@ -42,8 +42,8 @@ const SKIP = `${YELLOW}SKIP${RESET}`;
 const DEFAULT_TARGET_BASE_URL = 'http://localhost:3000';
 const DEFAULT_ORG_ID = '8R2W4McwOMWJp9cCBV1kvw';
 const DEFAULT_ORG_SLUG = 'workforce-advancement';
-const DEFAULT_COURSERA_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
-const DEFAULT_COURSERA_API_BASE = 'https://api.coursera.com';
+const DEFAULT_COURSERA_OAUTH_URL = 'https://api.coursera.org/oauth2/client_credentials/token';
+const DEFAULT_COURSERA_API_BASE = 'https://api.coursera.org';
 
 type EndpointResult = {
   url: string;

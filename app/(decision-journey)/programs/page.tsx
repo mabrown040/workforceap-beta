@@ -371,43 +371,13 @@ export default async function ProgramsPage() {
               { num: '03', icon: 'trending_up', title: 'Get Job-Ready', desc: 'Resume review, mock interviews, and practical preparation for the roles you\'re targeting.' },
               { num: '04', icon: 'handshake', title: 'Connect to Work', desc: 'Direct introductions to our network of employer partners actively hiring program completers.' },
             ].map((step) => (
-              <div key={step.num} style={{ position: 'relative', textAlign: 'left', padding: '2rem 1.5rem' }}>
-                <div
-                  style={{
-                    fontSize: '5rem',
-                    fontWeight: 900,
-                    color: 'var(--color-on-surface)',
-                    opacity: 0.06,
-                    position: 'absolute',
-                    top: '0',
-                    left: '1rem',
-                    userSelect: 'none',
-                    lineHeight: 1,
-                  }}
-                >
-                  {step.num}
-                </div>
-                <div style={{ position: 'relative', zIndex: 1, paddingTop: '1.5rem' }}>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      color: 'var(--color-accent)',
-                      fontSize: '1.75rem',
-                      marginBottom: '0.75rem',
-                      display: 'block',
-                      '--ms-fill': 1,
-                    }}
-                   aria-hidden="true">
-                    {step.icon}
-                  </span>
-                  <h4 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-accent)' }}>
-                    {step.title}
-                  </h4>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                    {step.desc}
-                  </p>
-                </div>
-              </div>
+              <JourneyStep
+                key={step.num}
+                number={step.num}
+                icon={step.icon}
+                title={step.title}
+                description={step.desc}
+              />
             ))}
           </div>
         </div>

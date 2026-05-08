@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
+import { CTABand } from '@/components/marketing/ui';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
 import { getTranslations } from 'next-intl/server';
@@ -413,82 +414,48 @@ export default async function ProgramsPage() {
       </section>
 
       {/* ── CTA Section ── */}
-      <section className="content-section" style={{ padding: '5rem 1rem' }}>
-        <div
-          style={{
-            maxWidth: 800,
-            margin: '0 auto',
-            background: 'var(--color-accent)',
-            borderRadius: 'var(--radius-xl)',
-            padding: '4rem 3rem',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <h2
-            className="text-display-sm"
-            style={{ color: 'var(--color-white, #fff)', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
-          >
-            Ready to take the next step?
-          </h2>
-          <p
+      <CTABand
+        variant="dark"
+        headline="Ready to take the next step?"
+        subheadline="No-cost training and job-placement support for eligible members — built with employers so you move into real work in your field."
+        primaryAction={
+          <Link
+            href="/apply"
             style={{
-              color: 'rgba(255,203,209,0.9)',
-              fontSize: '1.125rem',
-              marginBottom: '2.5rem',
-              maxWidth: '36rem',
-              margin: '0 auto 2.5rem',
-              position: 'relative',
-              zIndex: 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'var(--color-white)',
+              color: 'var(--color-accent)',
+              padding: '1rem 2rem',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 700,
+              textDecoration: 'none',
             }}
           >
-            No-cost training and job-placement support for eligible members — built with employers
-            so you move into real work in your field.
-          </p>
-          <div
+            Apply Now
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
+          </Link>
+        }
+        secondaryAction={
+          <Link
+            href="/find-your-path"
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              justifyContent: 'center',
-              position: 'relative',
-              zIndex: 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: 'var(--color-white)',
+              padding: '1rem 2rem',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 700,
+              textDecoration: 'none',
+              border: '2px solid var(--color-white)',
             }}
           >
-            <Link
-              href="/apply"
-              style={{
-                background: 'var(--color-gold)',
-                color: 'var(--color-on-surface)',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 900,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                fontSize: '0.875rem',
-                textDecoration: 'none',
-              }}
-            >
-              Start Application
-            </Link>
-            <Link
-              href="/contact"
-              style={{
-                border: '1px solid rgba(255,255,255,0.3)',
-                color: 'var(--color-white, #fff)',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                textDecoration: 'none',
-              }}
-            >
-              Talk to an Advisor
-            </Link>
-          </div>
-        </div>
-      </section>
+            Explore Programs
+          </Link>
+        }
+      />
 
       {/* Responsive styles (layout toggle lives at top of page) */}
       <style>{`

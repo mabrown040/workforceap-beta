@@ -7,6 +7,7 @@ interface PageSectionProps {
   className?: string;
   id?: string;
   ariaLabel?: string;
+  style?: React.CSSProperties;
 }
 
 const PADDING_MAP = {
@@ -30,6 +31,7 @@ export function PageSection({
   className,
   id,
   ariaLabel,
+  style,
 }: PageSectionProps) {
   const bg = BG_MAP[variant];
   return (
@@ -41,6 +43,7 @@ export function PageSection({
         padding: PADDING_MAP[padding],
         background: bg,
         ...(bg ? { color: variant === 'accent' || variant === 'gradient' ? 'var(--color-white)' : undefined } : {}),
+        ...style,
       }}
     >
       <div className="container" style={{ maxWidth: 'var(--max-width, 80rem)', margin: '0 auto' }}>

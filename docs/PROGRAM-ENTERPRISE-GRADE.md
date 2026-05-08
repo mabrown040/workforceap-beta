@@ -39,8 +39,10 @@ The single most important track because every other track assumes tenant boundar
 - ✅ Audit script: inventory of every tenant-scoped Prisma read, mark which already filter and which don't
 - ✅ `withTenantScope(orgId, fn)` helper — gives an enforced tenant context that fails loudly if a tenant-scoped query escapes
 - ✅ CI test fixture — seeds two orgs, fires representative endpoints, asserts no cross-tenant leak
-- ✅ One reference endpoint migration — `app/api/admin/members/route.ts` adopts the pattern
+- ✅ One reference endpoint migration — `app/api/admin/jobs/route.ts` adopts the pattern
 - ✅ Architecture doc: `docs/TENANT-ISOLATION.md`
+
+**Burndown after Sprint A.1:** 458 tenant-scoped Prisma call sites, 1 scoped (the reference migration), 457 unscoped. The earlier "21 scoped" report was a false-positive: `getDefaultOrganizationId()` was treated as a scope marker, but it's just a value lookup — a Codex review caught it. The 457 number is the honest migration burndown.
 
 **Sprint A.2 — Migration**
 - Migrate the remaining ~30 admin and partner endpoints to use `withTenantScope`

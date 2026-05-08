@@ -73,10 +73,17 @@ const SKIP_PATHS = [
 // Markers in surrounding context that indicate the call is properly scoped.
 // If any of these appear within a small window above a Prisma call site, we
 // treat the call as scoped.
+//
+// `getDefaultOrganizationId` was REMOVED from this list (Codex P2 catch on
+// PR #1041): it's just a value lookup, not actual tenant scoping. Calls
+// like `prisma.employer.create({ data: { organizationId } })` near a
+// nearby `getDefaultOrganizationId` call were being marked scoped purely
+// because of the proximity, even though the call wasn't wrapped in
+// `withTenantScope`. That false-positive masked real violations from the
+// burndown.
 const SCOPE_MARKERS = [
   'withTenantScope',
   'crossTenantOK(',
-  'getDefaultOrganizationId', // single-tenant write path; allowed during phased rollout
 ];
 
 function shouldSkipPath(filePath) {

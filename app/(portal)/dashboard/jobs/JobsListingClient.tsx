@@ -419,7 +419,7 @@ export default function JobsListingClient({
           onChange={(e) => updateUrl({ sort: e.target.value })}
           className="job-filter-select"
         >
-          {SORT_OPTIONS.map((opt) => (
+          {getSortOptions(t).map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -593,9 +593,9 @@ export default function JobsListingClient({
         </div>
       ) : jobs.length === 0 ? (
         hasActiveFilters ? (
-          <JobsEmptyState onClearFilters={clearFilters} />
+          <JobsEmptyState onClearFilters={clearFilters} t={t} />
         ) : (
-          <JobsNoResultsState isAuthenticated={isAuthenticated} />
+          <JobsNoResultsState isAuthenticated={isAuthenticated} t={t} />
         )
       ) : (
         <>
@@ -612,6 +612,7 @@ export default function JobsListingClient({
                   isAuthenticated={isAuthenticated}
                   matchPct={matched?.matchPct}
                   isApplied={appliedSet.has(j.id)}
+                  t={t}
                 />
               );
             })}

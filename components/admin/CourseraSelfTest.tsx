@@ -172,6 +172,12 @@ export default function CourseraSelfTest() {
             <div>
               Org: <code>{result.config.orgId}</code> / <code>{result.config.orgSlug}</code>
             </div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+              OAuth URL: <code>{result.config.oauthUrl}</code>
+            </div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+              API base: <code>{result.config.apiBase}</code>
+            </div>
           </div>
 
           {/* Inbound */}
@@ -210,7 +216,9 @@ export default function CourseraSelfTest() {
               <span style={{ color: statusBadge(result.outbound.tokenOk).color, fontWeight: 700, minWidth: '3rem' }}>
                 {statusBadge(result.outbound.tokenOk).text}
               </span>
-              <span>api.coursera.org OAuth</span>
+              <span style={{ fontFamily: 'var(--font-mono, ui-monospace, monospace)', fontSize: '0.85rem' }}>
+                {result.config.oauthUrl || 'OAuth'}
+              </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                 {result.outbound.tokenDetail}
               </span>

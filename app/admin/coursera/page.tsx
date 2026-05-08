@@ -8,6 +8,7 @@ import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
+import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -438,55 +439,72 @@ export default async function AdminCourseraPage({
 
             {courseProgress.topLearners.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Hours</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {courseProgress.topLearners.map((learner) => (
-                      <tr key={learner.id}>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.user ? (
-                            <>
-                              <strong>{learner.user.fullName}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
-                            </>
-                          ) : (
-                            <>
-                              <strong>{learner.externalName || learner.externalEmail}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                                {learner.externalEmail} · unmapped
-                              </div>
-                            </>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={courseProgress.topLearners}
+                  rowKey={(learner) => learner.id}
+                  columns={[
+                    {
+                      key: 'learner',
+                      header: 'Learner',
+                      cell: (learner) =>
+                        learner.user ? (
+                          <>
+                            <strong>{learner.user.fullName}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                          </>
+                        ) : (
+                          <>
+                            <strong>{learner.externalName || learner.externalEmail}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                              {learner.externalEmail} · unmapped
+                            </div>
+                          </>
+                        ),
+                    },
+                    {
+                      key: 'course',
+                      header: 'Course',
+                      cell: (learner) => (
+                        <>
                           {learner.courseName}
                           {learner.isCompleted ? (
-                            <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                            <span
+                              style={{
+                                marginLeft: '0.4rem',
+                                fontSize: '0.7rem',
+                                padding: '0.1rem 0.35rem',
+                                borderRadius: '0.4rem',
+                                background: 'rgba(34, 197, 94, 0.15)',
+                                color: 'rgb(22, 163, 74)',
+                              }}
+                            >
                               completed
                             </span>
                           ) : null}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.overallProgress.toFixed(2)}%
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.learningHours.toFixed(2)}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(learner.lastActivityTime)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'progress',
+                      header: 'Progress',
+                      align: 'right',
+                      cell: (learner) => `${learner.overallProgress.toFixed(2)}%`,
+                    },
+                    {
+                      key: 'hours',
+                      header: 'Hours',
+                      align: 'right',
+                      cell: (learner) => learner.learningHours.toFixed(2),
+                    },
+                    {
+                      key: 'last',
+                      header: 'Last activity',
+                      cell: (learner) => fmtDateTime(learner.lastActivityTime),
+                    },
+                  ]}
+                />
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
@@ -524,56 +542,80 @@ export default async function AdminCourseraPage({
 
             {xapiCourseProgress.courseLogRows.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Program</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Status</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last updated</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {xapiCourseProgress.courseLogRows.map((row) => (
-                      <tr key={row.key}>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={xapiCourseProgress.courseLogRows}
+                  rowKey={(row) => row.key}
+                  columns={[
+                    {
+                      key: 'learner',
+                      header: 'Learner',
+                      cell: (row) => (
+                        <>
                           <strong>{row.fullName}</strong>
                           <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {row.programTitle}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                        </>
+                      ),
+                    },
+                    { key: 'program', header: 'Program', cell: (row) => row.programTitle },
+                    {
+                      key: 'course',
+                      header: 'Course',
+                      cell: (row) => (
+                        <>
                           {row.courseName}
                           {row.courseId ? (
                             <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.courseId}</div>
                           ) : null}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {row.percentComplete}%
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {row.status === 'COMPLETED' ? (
-                            <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
-                              completed
-                            </span>
-                          ) : row.status === 'IN_PROGRESS' ? (
-                            <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(164, 127, 56, 0.14)', color: 'var(--color-accent)' }}>
-                              in progress
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(row.lastUpdatedAt)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'pct',
+                      header: 'Progress',
+                      align: 'right',
+                      cell: (row) => `${row.percentComplete}%`,
+                    },
+                    {
+                      key: 'status',
+                      header: 'Status',
+                      cell: (row) =>
+                        row.status === 'COMPLETED' ? (
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.4rem',
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              color: 'rgb(22, 163, 74)',
+                            }}
+                          >
+                            completed
+                          </span>
+                        ) : row.status === 'IN_PROGRESS' ? (
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.4rem',
+                              background: 'rgba(164, 127, 56, 0.14)',
+                              color: 'var(--color-accent)',
+                            }}
+                          >
+                            in progress
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
+                        ),
+                    },
+                    {
+                      key: 'updated',
+                      header: 'Last updated',
+                      cell: (row) => fmtDateTime(row.lastUpdatedAt),
+                    },
+                  ]}
+                />
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
@@ -611,59 +653,77 @@ export default async function AdminCourseraPage({
 
             {badgeProgress.topLearners.length > 0 ? (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left' }}>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Learner</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badge</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Courses done</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Current course</th>
-                      <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {badgeProgress.topLearners.map((learner) => (
-                      <tr key={learner.id}>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.user ? (
-                            <>
-                              <strong>{learner.user.fullName}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
-                            </>
-                          ) : (
-                            <>
-                              <strong>{learner.externalName || learner.externalEmail}</strong>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                                {learner.externalEmail} · unmapped
-                              </div>
-                            </>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                <DataTable
+                  density="compact"
+                  scrollX={false}
+                  rows={badgeProgress.topLearners}
+                  rowKey={(learner) => learner.id}
+                  columns={[
+                    {
+                      key: 'learner',
+                      header: 'Learner',
+                      cell: (learner) =>
+                        learner.user ? (
+                          <>
+                            <strong>{learner.user.fullName}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                          </>
+                        ) : (
+                          <>
+                            <strong>{learner.externalName || learner.externalEmail}</strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                              {learner.externalEmail} · unmapped
+                            </div>
+                          </>
+                        ),
+                    },
+                    {
+                      key: 'badge',
+                      header: 'Badge',
+                      cell: (learner) => (
+                        <>
                           {learner.badgeTitle}
                           {learner.badgeCompleted ? (
-                            <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                            <span
+                              style={{
+                                marginLeft: '0.4rem',
+                                fontSize: '0.7rem',
+                                padding: '0.1rem 0.35rem',
+                                borderRadius: '0.4rem',
+                                background: 'rgba(34, 197, 94, 0.15)',
+                                color: 'rgb(22, 163, 74)',
+                              }}
+                            >
                               completed
                             </span>
                           ) : null}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.progressPercent.toFixed(2)}%
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                          {learner.coursesCompleted}/{learner.numberOfCourses}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {learner.currentCourseName ?? '—'}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                          {fmtDateTime(learner.lastActivityTime)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'progress',
+                      header: 'Progress',
+                      align: 'right',
+                      cell: (learner) => `${learner.progressPercent.toFixed(2)}%`,
+                    },
+                    {
+                      key: 'courses',
+                      header: 'Courses done',
+                      align: 'right',
+                      cell: (learner) => `${learner.coursesCompleted}/${learner.numberOfCourses}`,
+                    },
+                    {
+                      key: 'current',
+                      header: 'Current course',
+                      cell: (learner) => learner.currentCourseName ?? '—',
+                    },
+                    {
+                      key: 'last',
+                      header: 'Last activity',
+                      cell: (learner) => fmtDateTime(learner.lastActivityTime),
+                    },
+                  ]}
+                />
               </div>
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
@@ -775,35 +835,44 @@ export default async function AdminCourseraPage({
 
           {skillsetProgress.topMembers.length > 0 ? (
             <div style={{ marginTop: '0.5rem', overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)' }}>
-                    <th style={{ padding: '0.35rem 0.5rem' }}>Member</th>
-                    <th style={{ padding: '0.35rem 0.5rem' }}>Skillset</th>
-                    <th style={{ padding: '0.35rem 0.5rem', textAlign: 'right' }}>Progress</th>
-                    <th style={{ padding: '0.35rem 0.5rem' }}>Last sync</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {skillsetProgress.topMembers.map((row) => (
-                    <tr key={`${row.userId}:${row.skillsetId}`} style={{ borderTop: '1px solid var(--outline-variant, #ddd)' }}>
-                      <td style={{ padding: '0.35rem 0.5rem' }}>
+              <DataTable
+                density="compact"
+                scrollX={false}
+                rows={skillsetProgress.topMembers}
+                rowKey={(row) => `${row.userId}:${row.skillsetId}`}
+                columns={[
+                  {
+                    key: 'member',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Member</span>,
+                    cell: (row) => (
+                      <>
                         <div style={{ fontWeight: 500 }}>{row.userFullName || row.userEmail}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                          {row.userEmail}
-                        </div>
-                      </td>
-                      <td style={{ padding: '0.35rem 0.5rem' }}>{row.skillsetName}</td>
-                      <td style={{ padding: '0.35rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                        {row.progressPct}%
-                      </td>
-                      <td style={{ padding: '0.35rem 0.5rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.userEmail}</div>
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'skillset',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Skillset</span>,
+                    cell: (row) => row.skillsetName,
+                  },
+                  {
+                    key: 'pct',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Progress</span>,
+                    align: 'right',
+                    cell: (row) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{row.progressPct}%</span>,
+                  },
+                  {
+                    key: 'sync',
+                    header: <span style={{ color: 'var(--color-on-surface-variant)' }}>Last sync</span>,
+                    cell: (row) => (
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                         {row.lastSyncedAt.toISOString().slice(0, 10)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </span>
+                    ),
+                  },
+                ]}
+              />
             </div>
           ) : null}
         </div>

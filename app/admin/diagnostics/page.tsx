@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { FUNNEL_DEFINITIONS } from '@/lib/events/catalog';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -230,34 +231,61 @@ export default async function AdminDiagnosticsPage() {
           </div>
         ) : (
           <div className="portal-card portal-card--flat" style={{ overflow: 'auto' }}>
-            <table className="dashboard-table">
-              <thead>
-                <tr>
-                  <th>Member</th>
-                  <th>User.enrolledProgram</th>
-                  <th>CourseEnrollment</th>
-                  <th>Issue</th>
-                </tr>
-              </thead>
-              <tbody>
-                {driftRecords.slice(0, 25).map((u) => (
-                  <tr key={u.id}>
-                    <td>
-                      <a href={`/admin/members/${u.id}/lifecycle`} style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}>
-                        {u.fullName ?? u.id}
-                      </a>
-                    </td>
-                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.enrolledProgram}</td>
-                    <td style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.courseEnrollment?.programSlug ?? '—'}</td>
-                    <td>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)' }}>
-                        {!u.courseEnrollment ? 'No record' : 'Slug mismatch'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              variant="admin"
+              tableClassName="dashboard-table"
+              scrollX={false}
+              rows={driftRecords.slice(0, 25)}
+              rowKey={(u) => u.id}
+              columns={[
+                {
+                  key: 'member',
+                  header: 'Member',
+                  cell: (u) => (
+                    <a
+                      href={`/admin/members/${u.id}/lifecycle`}
+                      style={{ color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}
+                    >
+                      {u.fullName ?? u.id}
+                    </a>
+                  ),
+                },
+                {
+                  key: 'enrolled',
+                  header: 'User.enrolledProgram',
+                  cell: (u) => (
+                    <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>{u.enrolledProgram}</span>
+                  ),
+                },
+                {
+                  key: 'ce',
+                  header: 'CourseEnrollment',
+                  cell: (u) => (
+                    <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}>
+                      {u.courseEnrollment?.programSlug ?? '—'}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'issue',
+                  header: 'Issue',
+                  cell: (u) => (
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        padding: '0.15rem 0.5rem',
+                        borderRadius: '9999px',
+                        background: 'rgba(173,44,77,0.1)',
+                        color: 'var(--color-accent)',
+                      }}
+                    >
+                      {!u.courseEnrollment ? 'No record' : 'Slug mismatch'}
+                    </span>
+                  ),
+                },
+              ]}
+            />
             {driftRecords.length > 25 ? (
               <p style={{ margin: '0.75rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                 Showing 25 of {driftRecords.length} drift issues.{' '}

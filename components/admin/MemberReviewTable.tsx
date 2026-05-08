@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ApplicationStatus } from '@prisma/client';
 import { formatPhone } from '@/lib/formatPhone';
+import DataTable from '@/components/portal/ui/DataTable';
 
 type ApplicationWithUser = {
   id: string;
@@ -80,31 +81,45 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
         </div>
       )}
       <div className="admin-table-scroll admin-member-review-desktop">
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid var(--outline-variant)' }}>
-            <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Applicant</th>
-            <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Program</th>
-            <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Submitted</th>
-            <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Status</th>
-            <th style={{ textAlign: 'left', padding: '0.75rem', fontWeight: 600 }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applications.map((app) => (
-            <tr key={app.id} style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-              <td style={{ padding: '0.75rem' }}>
-                <div style={{ fontWeight: 600 }}>{app.user.fullName}</div>
-                <div style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>{app.user.email}</div>
-                {app.user.phone && (
-                  <div style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>{formatPhone(app.user.phone)}</div>
-                )}
-              </td>
-              <td style={{ padding: '0.75rem', fontSize: '.9rem' }}>{app.programInterest}</td>
-              <td style={{ padding: '0.75rem', fontSize: '.9rem' }}>
-                {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : '—'}
-              </td>
-              <td style={{ padding: '0.75rem' }}>
+        <DataTable
+          variant="portal"
+          scrollX={false}
+          rows={applications}
+          rowKey={(app) => app.id}
+          columns={[
+            {
+              key: 'applicant',
+              header: 'Applicant',
+              cell: (app) => (
+                <>
+                  <div style={{ fontWeight: 600 }}>{app.user.fullName}</div>
+                  <div style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>{app.user.email}</div>
+                  {app.user.phone ? (
+                    <div style={{ fontSize: '.875rem', color: 'var(--color-on-surface-variant)' }}>
+                      {formatPhone(app.user.phone)}
+                    </div>
+                  ) : null}
+                </>
+              ),
+            },
+            {
+              key: 'program',
+              header: 'Program',
+              cell: (app) => <span style={{ fontSize: '.9rem' }}>{app.programInterest}</span>,
+            },
+            {
+              key: 'submitted',
+              header: 'Submitted',
+              cell: (app) => (
+                <span style={{ fontSize: '.9rem' }}>
+                  {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : '—'}
+                </span>
+              ),
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              cell: (app) => (
                 <span
                   style={{
                     display: 'inline-block',
@@ -132,8 +147,12 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                 >
                   {app.status.replace('_', ' ')}
                 </span>
-              </td>
-              <td style={{ padding: '0.75rem' }}>
+              ),
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              cell: (app) => (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <input
                     type="text"
@@ -158,7 +177,12 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                         style={{
                           padding: '0.35rem 0.6rem',
                           fontSize: '.8rem',
-                          background: opt.value === 'APPROVED' ? 'var(--color-green)' : opt.value === 'DENIED' ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+                          background:
+                            opt.value === 'APPROVED'
+                              ? 'var(--color-green)'
+                              : opt.value === 'DENIED'
+                                ? 'var(--color-accent)'
+                                : 'var(--color-on-surface-variant)',
                           color: 'white',
                           border: 'none',
                         }}
@@ -168,11 +192,10 @@ export function MemberReviewTable({ applications }: MemberReviewTableProps) {
                     ))}
                   </div>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              ),
+            },
+          ]}
+        />
       </div>
       <ul className="admin-portal-card-list admin-member-review-cards" aria-label="Applications (mobile layout)">
         {applications.map((app) => (

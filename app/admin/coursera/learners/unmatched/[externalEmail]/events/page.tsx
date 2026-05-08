@@ -10,7 +10,9 @@ import { isAdmin } from '@/lib/auth/roles';
 import {
   countUnmatchedXapiEventsByExternalEmail,
   loadUnmatchedXapiEventsByExternalEmailPaginated,
+  type UnmatchedXapiEventRow,
 } from '@/lib/coursera/progressQueries';
+import DataTable from '@/components/portal/ui/DataTable';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera unmatched xAPI events',
@@ -98,34 +100,43 @@ export default async function AdminCourseraUnmatchedEventsPage({
         {events.length > 0 ? (
           <section className="content-card" style={{ padding: '1rem 1.1rem' }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                <thead>
-                  <tr style={{ textAlign: 'left' }}>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Received</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Verb</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Status</th>
-                    <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Statement ID</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.map((evt) => (
-                    <tr key={evt.id}>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', whiteSpace: 'nowrap' }}>
-                        {formatDateTime(evt.receivedAt)}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+              <DataTable<UnmatchedXapiEventRow>
+                density="compact"
+                scrollX={false}
+                rows={events}
+                rowKey={(evt) => evt.id}
+                columns={[
+                  {
+                    key: 'received',
+                    header: 'Received',
+                    cell: (evt) => (
+                      <span style={{ whiteSpace: 'nowrap' }}>{formatDateTime(evt.receivedAt)}</span>
+                    ),
+                  },
+                  {
+                    key: 'course',
+                    header: 'Course',
+                    cell: (evt) => (
+                      <>
                         <strong>{evt.courseName ?? evt.courseSlug ?? '—'}</strong>
                         {evt.courseSlug && evt.courseName ? (
                           <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
                             {evt.courseSlug}
                           </div>
                         ) : null}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                        <code style={{ fontSize: '0.78rem' }}>{shortVerb(evt.verbId)}</code>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'verb',
+                    header: 'Verb',
+                    cell: (evt) => <code style={{ fontSize: '0.78rem' }}>{shortVerb(evt.verbId)}</code>,
+                  },
+                  {
+                    key: 'status',
+                    header: 'Status',
+                    cell: (evt) => (
+                      <>
                         <span
                           style={{
                             display: 'inline-block',
@@ -150,20 +161,23 @@ export default async function AdminCourseraUnmatchedEventsPage({
                             {evt.error}
                           </div>
                         ) : null}
-                      </td>
-                      <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', wordBreak: 'break-all' }}>
-                        {evt.statementId ? (
-                          <code style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
-                            {evt.statementId}
-                          </code>
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'statement',
+                    header: 'Statement ID',
+                    cell: (evt) =>
+                      evt.statementId ? (
+                        <code style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+                          {evt.statementId}
+                        </code>
+                      ) : (
+                        '—'
+                      ),
+                  },
+                ]}
+              />
             </div>
 
             {/* Pagination footer. Hidden when there's only one page. */}

@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import DataTable from '@/components/portal/ui/DataTable';
+
 type Member = {
   id: string;
   fullName: string;
@@ -120,47 +122,52 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       ) : (
         <div className="admin-responsive-data">
         <div className="admin-table-scroll admin-subgroup-desktop">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Program</th>
-                <th>Progress</th>
-                <th>Status</th>
-                <th>Assigned</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((m) => (
-                <tr key={m.id}>
-                  <td>
-                    <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
-                      {m.fullName}
-                    </Link>
-                  </td>
-                  <td>{m.enrolledProgram ?? '—'}</td>
-                  <td>{m.progressPct}%</td>
-                  <td>{m.stage}</td>
-                  <td style={{ fontSize: '0.85rem' }}>
+          <DataTable
+            variant="admin"
+            tableClassName="admin-table"
+            scrollX={false}
+            rows={members}
+            rowKey={(m) => m.id}
+            columns={[
+              {
+                key: 'name',
+                header: 'Name',
+                cell: (m) => (
+                  <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
+                    {m.fullName}
+                  </Link>
+                ),
+              },
+              { key: 'program', header: 'Program', cell: (m) => m.enrolledProgram ?? '—' },
+              { key: 'progress', header: 'Progress', cell: (m) => `${m.progressPct}%` },
+              { key: 'status', header: 'Status', cell: (m) => m.stage },
+              {
+                key: 'assigned',
+                header: 'Assigned',
+                cell: (m) => (
+                  <span style={{ fontSize: '0.85rem' }}>
                     {new Date(m.assignedAt).toLocaleDateString()}
                     {m.assignedBy && <span style={{ color: 'var(--color-on-surface-variant)' }}> by {m.assignedBy}</span>}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-outline"
-                      style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
-                      onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
-                      disabled={!!removing}
-                    >
-                      {removing === m.id ? '…' : 'Remove'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </span>
+                ),
+              },
+              {
+                key: 'actions',
+                header: 'Actions',
+                cell: (m) => (
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+                    onClick={() => setRemoveTarget({ id: m.id, name: m.fullName })}
+                    disabled={!!removing}
+                  >
+                    {removing === m.id ? '…' : 'Remove'}
+                  </button>
+                ),
+              },
+            ]}
+          />
         </div>
         <ul className="admin-portal-card-list admin-subgroup-cards" aria-label="Subgroup members (mobile layout)">
           {members.map((m) => (

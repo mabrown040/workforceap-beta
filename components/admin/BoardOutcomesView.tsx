@@ -1,5 +1,6 @@
 import { Award, Briefcase, GraduationCap, Info, TrendingUp, Users } from 'lucide-react';
 import type { BoardOutcomes } from '@/lib/admin/boardOutcomes';
+import DataTable from '@/components/portal/ui/DataTable';
 
 /**
  * Board / Funder outcomes dashboard.
@@ -124,28 +125,65 @@ export default function BoardOutcomesView({
             Programs
           </h3>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  <th style={{ padding: '0.5rem 0.5rem 0.5rem 0' }}>Program</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Enrolled</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Certified</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Placed</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Placement rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {programs.map((p) => (
-                  <tr key={p.programSlug} style={{ borderTop: '1px solid var(--outline-variant)' }}>
-                    <td style={{ padding: '0.65rem 0.5rem 0.65rem 0', color: 'var(--color-on-surface)' }}>{p.title}</td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.enrolled}</td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.certified}</td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: 'var(--color-accent)' }}>{p.placed}</td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{p.placementRate}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              density="compact"
+              scrollX={false}
+              rows={programs}
+              rowKey={(p) => p.programSlug}
+              columns={[
+                {
+                  key: 'program',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Program
+                    </span>
+                  ),
+                  cell: (p) => <span style={{ color: 'var(--color-on-surface)' }}>{p.title}</span>,
+                },
+                {
+                  key: 'enrolled',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Enrolled
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.enrolled}</span>,
+                },
+                {
+                  key: 'certified',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Certified
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.certified}</span>,
+                },
+                {
+                  key: 'placed',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Placed
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: 'var(--color-accent)' }}>{p.placed}</span>
+                  ),
+                },
+                {
+                  key: 'rate',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Placement rate
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.placementRate}%</span>,
+                },
+              ]}
+            />
           </div>
         </section>
       ) : null}
@@ -189,36 +227,72 @@ export default function BoardOutcomesView({
             Member identities are not shown on the funder view. PII lives only on the admin member detail page.
           </p>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  <th style={{ padding: '0.5rem 0.5rem 0.5rem 0' }}>Job title</th>
-                  <th style={{ padding: '0.5rem' }}>Program</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Annual wage</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Weeks to placement</th>
-                  <th style={{ padding: '0.5rem', textAlign: 'right' }}>Placed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {outcomes.placements.map((p, i) => (
-                  <tr key={i} style={{ borderTop: '1px solid var(--outline-variant)' }}>
-                    <td style={{ padding: '0.65rem 0.5rem 0.65rem 0', color: 'var(--color-on-surface)' }}>{p.jobTitle}</td>
-                    <td style={{ padding: '0.65rem 0.5rem', color: 'var(--color-on-surface-variant)' }}>
-                      {p.enrolledProgram ?? '—'}
-                    </td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+            <DataTable
+              density="compact"
+              scrollX={false}
+              rows={outcomes.placements}
+              rowKey={(p, idx) => `${idx}-${p.jobTitle}-${p.placedAt?.toISOString?.() ?? ''}`}
+              columns={[
+                {
+                  key: 'job',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Job title
+                    </span>
+                  ),
+                  cell: (p) => <span style={{ color: 'var(--color-on-surface)' }}>{p.jobTitle}</span>,
+                },
+                {
+                  key: 'prog',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Program
+                    </span>
+                  ),
+                  cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{p.enrolledProgram ?? '—'}</span>,
+                },
+                {
+                  key: 'wage',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Annual wage
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {p.annualSalary ? `$${formatThousands(p.annualSalary)}` : '—'}
-                    </td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                      {p.weeksFromEnrollmentToPlacement ?? '—'}
-                    </td>
-                    <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--color-on-surface-variant)' }}>
+                    </span>
+                  ),
+                },
+                {
+                  key: 'weeks',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Weeks to placement
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.weeksFromEnrollmentToPlacement ?? '—'}</span>
+                  ),
+                },
+                {
+                  key: 'placed',
+                  header: (
+                    <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Placed
+                    </span>
+                  ),
+                  align: 'right',
+                  cell: (p) => (
+                    <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-on-surface-variant)' }}>
                       {p.placedAt.toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  ),
+                },
+              ]}
+            />
           </div>
         </section>
       ) : null}

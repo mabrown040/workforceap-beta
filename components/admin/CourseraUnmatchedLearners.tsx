@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import DataTable from '@/components/portal/ui/DataTable';
+
 type MemberOption = {
   id: string;
   fullName: string;
@@ -142,161 +144,170 @@ export default function CourseraUnmatchedLearners({
       </p>
 
       <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-          <thead>
-            <tr style={{ textAlign: 'left' }}>
-              <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Coursera learner</th>
-              <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badges</th>
-              <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Activity</th>
-              <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last seen</th>
-              <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {learners.map((learner) => {
-              const isOpen = openEmail === learner.externalEmail;
-              const hash = encodeURIComponent(learner.externalEmail);
-              const fb = feedback[learner.externalEmail];
-              return (
-                <tr key={learner.externalEmail}>
-                  <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+        <DataTable<UnmatchedLearnerView>
+          density="compact"
+          scrollX={false}
+          rows={learners}
+          rowKey={(learner) => learner.externalEmail}
+          columns={[
+            {
+              key: 'learner',
+              header: 'Coursera learner',
+              cell: (learner) => {
+                const hash = encodeURIComponent(learner.externalEmail);
+                return (
+                  <>
                     <strong>{learner.externalName || learner.externalEmail}</strong>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                       {learner.externalEmail}
-                      {learner.actorIdentifier && learner.actorIdentifier !== learner.externalEmail ? ` · actor ${learner.actorIdentifier}` : ''}
+                      {learner.actorIdentifier && learner.actorIdentifier !== learner.externalEmail
+                        ? ` · actor ${learner.actorIdentifier}`
+                        : ''}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginTop: '0.2rem' }}>
                       <a href={`/admin/coursera/learners/unmatched/${hash}`}>view detail →</a>
                     </div>
-                  </td>
-                  <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    {learner.badges.length === 0 ? (
-                      <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
-                    ) : (
-                      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.2rem' }}>
-                        {learner.badges.map((b) => (
-                          <li key={b.badgeSlug} style={{ fontSize: '0.85rem' }}>
-                            {b.badgeTitle}
-                            <span style={{ color: 'var(--color-on-surface-variant)' }}>
-                              {' '}({b.progressPercent.toFixed(2)}%)
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </td>
-                  <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    <span style={{ color: 'var(--color-on-surface-variant)' }}>
-                      {learner.courseCount} course{learner.courseCount === 1 ? '' : 's'} ·{' '}
-                      {learner.badgeCount} badge{learner.badgeCount === 1 ? '' : 's'} ·{' '}
-                      {learner.xapiCount} unresolved xAPI
-                    </span>
-                  </td>
-                  <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    {fmtDateTime(learner.lastActivityTime)}
-                  </td>
-                  <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    {isOpen ? (
-                      <div style={{ display: 'grid', gap: '0.4rem', minWidth: '14rem' }}>
-                        <select
-                          value={selectedUserId[learner.externalEmail] ?? ''}
-                          onChange={(e) =>
-                            setSelectedUserId((prev) => ({
-                              ...prev,
-                              [learner.externalEmail]: e.target.value,
-                            }))
-                          }
-                          style={{
-                            width: '100%',
-                            padding: '0.45rem 0.6rem',
-                            borderRadius: '0.5rem',
-                            border: '1px solid var(--outline-variant)',
-                            background: 'var(--surface-container)',
-                            color: 'var(--color-on-surface)',
-                            fontSize: '0.85rem',
-                          }}
-                        >
-                          <option value="">Select a WAP member…</option>
-                          {members.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.fullName} · {m.email}
-                              {m.programTitle ? ` · ${m.programTitle}` : ''}
-                            </option>
-                          ))}
-                        </select>
-                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                          <button
-                            type="button"
-                            disabled={isPending}
-                            onClick={() => handleSubmit(learner.externalEmail)}
-                            style={{
-                              padding: '0.4rem 0.7rem',
-                              borderRadius: '0.5rem',
-                              border: 'none',
-                              background: 'var(--color-primary)',
-                              color: 'var(--color-on-primary)',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                            }}
-                          >
-                            {isPending ? 'Saving…' : 'Save mapping'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenEmail(null);
-                              setFeedback((prev) => ({ ...prev, [learner.externalEmail]: null }));
-                            }}
-                            style={{
-                              padding: '0.4rem 0.7rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid var(--outline-variant)',
-                              background: 'var(--surface-container)',
-                              color: 'var(--color-on-surface)',
-                              fontWeight: 500,
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                            }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                        {fb ? (
-                          <span
-                            style={{
-                              fontSize: '0.78rem',
-                              color: fb.kind === 'success' ? 'rgb(22, 163, 74)' : 'rgb(239, 68, 68)',
-                            }}
-                          >
-                            {fb.text}
-                          </span>
-                        ) : null}
-                      </div>
-                    ) : (
+                  </>
+                );
+              },
+            },
+            {
+              key: 'badges',
+              header: 'Badges',
+              cell: (learner) =>
+                learner.badges.length === 0 ? (
+                  <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>
+                ) : (
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: '0.2rem' }}>
+                    {learner.badges.map((b) => (
+                      <li key={b.badgeSlug} style={{ fontSize: '0.85rem' }}>
+                        {b.badgeTitle}
+                        <span style={{ color: 'var(--color-on-surface-variant)' }}> ({b.progressPercent.toFixed(2)}%)</span>
+                      </li>
+                    ))}
+                  </ul>
+                ),
+            },
+            {
+              key: 'activity',
+              header: 'Activity',
+              cell: (learner) => (
+                <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                  {learner.courseCount} course{learner.courseCount === 1 ? '' : 's'} · {learner.badgeCount} badge
+                  {learner.badgeCount === 1 ? '' : 's'} · {learner.xapiCount} unresolved xAPI
+                </span>
+              ),
+            },
+            {
+              key: 'last',
+              header: 'Last seen',
+              cell: (learner) => fmtDateTime(learner.lastActivityTime),
+            },
+            {
+              key: 'action',
+              header: 'Action',
+              cell: (learner) => {
+                const isOpen = openEmail === learner.externalEmail;
+                const fb = feedback[learner.externalEmail];
+                return isOpen ? (
+                  <div style={{ display: 'grid', gap: '0.4rem', minWidth: '14rem' }}>
+                    <select
+                      value={selectedUserId[learner.externalEmail] ?? ''}
+                      onChange={(e) =>
+                        setSelectedUserId((prev) => ({
+                          ...prev,
+                          [learner.externalEmail]: e.target.value,
+                        }))
+                      }
+                      style={{
+                        width: '100%',
+                        padding: '0.45rem 0.6rem',
+                        borderRadius: '0.5rem',
+                        border: '1px solid var(--outline-variant)',
+                        background: 'var(--surface-container)',
+                        color: 'var(--color-on-surface)',
+                        fontSize: '0.85rem',
+                      }}
+                    >
+                      <option value="">Select a WAP member…</option>
+                      {members.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.fullName} · {m.email}
+                          {m.programTitle ? ` · ${m.programTitle}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                       <button
                         type="button"
-                        onClick={() => setOpenEmail(learner.externalEmail)}
+                        disabled={isPending}
+                        onClick={() => handleSubmit(learner.externalEmail)}
+                        style={{
+                          padding: '0.4rem 0.7rem',
+                          borderRadius: '0.5rem',
+                          border: 'none',
+                          background: 'var(--color-primary)',
+                          color: 'var(--color-on-primary)',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                        }}
+                      >
+                        {isPending ? 'Saving…' : 'Save mapping'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenEmail(null);
+                          setFeedback((prev) => ({ ...prev, [learner.externalEmail]: null }));
+                        }}
                         style={{
                           padding: '0.4rem 0.7rem',
                           borderRadius: '0.5rem',
                           border: '1px solid var(--outline-variant)',
                           background: 'var(--surface-container)',
                           color: 'var(--color-on-surface)',
-                          fontWeight: 600,
+                          fontWeight: 500,
                           cursor: 'pointer',
                           fontSize: '0.85rem',
                         }}
                       >
-                        Map to WAP user…
+                        Cancel
                       </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </div>
+                    {fb ? (
+                      <span
+                        style={{
+                          fontSize: '0.78rem',
+                          color: fb.kind === 'success' ? 'rgb(22, 163, 74)' : 'rgb(239, 68, 68)',
+                        }}
+                      >
+                        {fb.text}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setOpenEmail(learner.externalEmail)}
+                    style={{
+                      padding: '0.4rem 0.7rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid var(--outline-variant)',
+                      background: 'var(--surface-container)',
+                      color: 'var(--color-on-surface)',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    Map to WAP user…
+                  </button>
+                );
+              },
+            },
+          ]}
+        />
       </div>
     </section>
   );

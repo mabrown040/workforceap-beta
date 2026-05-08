@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import DataTable from '@/components/portal/ui/DataTable';
+
 interface AuditEvent {
   id: string;
   userId: string;
@@ -196,86 +198,97 @@ export default function AuditLogsClient({
 
       {/* Desktop table */}
       <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: 'var(--font-size-sm)',
-          }}
-        >
-          <thead>
-            <tr
+        <DataTable
+          density="compact"
+          variant="portal"
+          scrollX={false}
+          rows={events}
+          rowKey={(e) => e.id}
+          getRowProps={(e) => ({
+            style: {
+              cursor: e.metadata ? 'pointer' : 'default',
+            },
+            onClick: () => {
+              if (e.metadata) setExpandedId(expandedId === e.id ? null : e.id);
+            },
+          })}
+          emptyState={
+            <div
               style={{
-                borderBottom: '2px solid var(--outline-variant)',
-                textAlign: 'left',
+                padding: '2rem',
+                textAlign: 'center',
+                color: 'var(--color-on-surface-variant)',
+                fontSize: 'var(--font-size-sm)',
               }}
             >
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>Time</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>User</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>Event</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>Entity</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>Source</th>
-              <th style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((e) => (
-              <tr
-                key={e.id}
-                style={{
-                  borderBottom: '1px solid var(--outline-variant)',
-                  cursor: e.metadata ? 'pointer' : 'default',
-                }}
-                onClick={() => e.metadata && setExpandedId(expandedId === e.id ? null : e.id)}
-              >
-                <td style={{ padding: '0.625rem 0.5rem', whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>
-                  {formatTime(e.createdAt)}
-                </td>
-                <td style={{ padding: '0.625rem 0.5rem' }}>
+              No events match your filters.
+            </div>
+          }
+          columns={[
+            {
+              key: 'time',
+              header: 'Time',
+              cell: (e) => (
+                <span style={{ whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>{formatTime(e.createdAt)}</span>
+              ),
+            },
+            {
+              key: 'user',
+              header: 'User',
+              cell: (e) => (
+                <>
                   <div style={{ fontWeight: 500 }}>{e.userName ?? '—'}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.userEmail ?? '—'}</div>
-                </td>
-                <td style={{ padding: '0.625rem 0.5rem' }}>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '0.125rem 0.5rem',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(173,44,77,0.1)',
-                      color: 'var(--color-accent)',
-                      fontSize: '0.8125rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {e.eventName}
-                  </span>
-                </td>
-                <td style={{ padding: '0.625rem 0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                </>
+              ),
+            },
+            {
+              key: 'event',
+              header: 'Event',
+              cell: (e) => (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'rgba(173,44,77,0.1)',
+                    color: 'var(--color-accent)',
+                    fontSize: '0.8125rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {e.eventName}
+                </span>
+              ),
+            },
+            {
+              key: 'entity',
+              header: 'Entity',
+              cell: (e) => (
+                <span style={{ color: 'var(--color-on-surface-variant)' }}>
                   {e.entityType ? `${e.entityType}${e.entityId ? ` #${e.entityId.slice(0, 8)}` : ''}` : '—'}
-                </td>
-                <td style={{ padding: '0.625rem 0.5rem', color: 'var(--color-on-surface-variant)' }}>
-                  {e.sourcePage || '—'}
-                </td>
-                <td style={{ padding: '0.625rem 0.5rem' }}>
-                  {e.metadata ? (
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
-                      {expandedId === e.id ? 'expand_less' : 'expand_more'}
-                    </span>
-                  ) : (
-                    '—'
-                  )}
-                </td>
-              </tr>
-            ))}
-            {events.length === 0 && (
-              <tr>
-                <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-                  No events match your filters.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                </span>
+              ),
+            },
+            {
+              key: 'source',
+              header: 'Source',
+              cell: (e) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{e.sourcePage || '—'}</span>,
+            },
+            {
+              key: 'details',
+              header: 'Details',
+              cell: (e) =>
+                e.metadata ? (
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
+                    {expandedId === e.id ? 'expand_less' : 'expand_more'}
+                  </span>
+                ) : (
+                  '—'
+                ),
+            },
+          ]}
+        />
       </div>
 
       {/* Mobile card list */}

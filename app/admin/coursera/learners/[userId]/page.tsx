@@ -7,7 +7,13 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
-import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
+import DataTable from '@/components/portal/ui/DataTable';
+import SectionHeader from '@/components/portal/ui/SectionHeader';
+import {
+  loadLearnerProgressByUserId,
+  type LearnerBadgeRow,
+  type LearnerCourseRow,
+} from '@/lib/coursera/progressQueries';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Coursera learner detail',
@@ -145,52 +151,77 @@ export default async function AdminCourseraLearnerPage({
           className="content-card"
           style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.6rem' }}
         >
-          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera courses (from CSV)</h2>
+          <SectionHeader title={`Coursera courses (from CSV) (${csvProgress.courses.length})`} />
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ textAlign: 'left' }}>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Course</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Hours</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Certificate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {csvProgress.courses.map((course) => (
-                  <tr key={course.id}>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+            <DataTable<LearnerCourseRow>
+              density="compact"
+              scrollX={false}
+              rows={csvProgress.courses}
+              rowKey={(course) => course.id}
+              columns={[
+                {
+                  key: 'course',
+                  header: 'Course',
+                  cell: (course) => (
+                    <>
                       <strong>{course.courseName}</strong>
                       <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                         {course.university ?? course.programName ?? course.programSlug}
                       </div>
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
+                    </>
+                  ),
+                },
+                {
+                  key: 'progress',
+                  header: 'Progress',
+                  align: 'right',
+                  cell: (course) => (
+                    <>
                       {course.overallProgress.toFixed(2)}%
                       {course.isCompleted ? (
-                        <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                        <span
+                          style={{
+                            marginLeft: '0.4rem',
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.35rem',
+                            borderRadius: '0.4rem',
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: 'rgb(22, 163, 74)',
+                          }}
+                        >
                           done
                         </span>
                       ) : null}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                      {course.learningHours.toFixed(2)}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {formatDateTime(course.lastActivityTime)}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {course.certificateUrl ? (
-                        <a href={course.certificateUrl} target="_blank" rel="noreferrer">view ↗</a>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </>
+                  ),
+                },
+                {
+                  key: 'hours',
+                  header: 'Hours',
+                  align: 'right',
+                  cell: (course) => course.learningHours.toFixed(2),
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'last',
+                  header: 'Last activity',
+                  cell: (course) => formatDateTime(course.lastActivityTime),
+                },
+                {
+                  key: 'cert',
+                  header: 'Certificate',
+                  cell: (course) =>
+                    course.certificateUrl ? (
+                      <a href={course.certificateUrl} target="_blank" rel="noreferrer">
+                        view ↗
+                      </a>
+                    ) : (
+                      '—'
+                    ),
+                  hideOnMobile: true,
+                },
+              ]}
+            />
           </div>
         </section>
       ) : null}
@@ -200,50 +231,70 @@ export default async function AdminCourseraLearnerPage({
           className="content-card"
           style={{ padding: '1rem 1.1rem', marginBottom: '1rem', display: 'grid', gap: '0.6rem' }}
         >
-          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Specializations / badges (from CSV)</h2>
+          <SectionHeader title={`Specializations / badges (from CSV) (${csvProgress.badges.length})`} />
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ textAlign: 'left' }}>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Badge</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Progress</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>Courses done</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Current course</th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>Last activity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {csvProgress.badges.map((badge) => (
-                  <tr key={badge.id}>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
+            <DataTable<LearnerBadgeRow>
+              density="compact"
+              scrollX={false}
+              rows={csvProgress.badges}
+              rowKey={(badge) => badge.id}
+              columns={[
+                {
+                  key: 'badge',
+                  header: 'Badge',
+                  cell: (badge) => (
+                    <>
                       <strong>{badge.badgeTitle}</strong>
                       {badge.badgeCompleted ? (
-                        <span style={{ marginLeft: '0.4rem', fontSize: '0.7rem', padding: '0.1rem 0.35rem', borderRadius: '0.4rem', background: 'rgba(34, 197, 94, 0.15)', color: 'rgb(22, 163, 74)' }}>
+                        <span
+                          style={{
+                            marginLeft: '0.4rem',
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.35rem',
+                            borderRadius: '0.4rem',
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: 'rgb(22, 163, 74)',
+                          }}
+                        >
                           completed
                         </span>
                       ) : null}
                       {badge.badgeLink ? (
                         <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                          <a href={badge.badgeLink} target="_blank" rel="noreferrer">badge link ↗</a>
+                          <a href={badge.badgeLink} target="_blank" rel="noreferrer">
+                            badge link ↗
+                          </a>
                         </div>
                       ) : null}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                      {badge.progressPercent.toFixed(2)}%
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)', textAlign: 'right' }}>
-                      {badge.coursesCompleted}/{badge.numberOfCourses}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {badge.currentCourseName ?? '—'}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {formatDateTime(badge.lastActivityTime)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </>
+                  ),
+                },
+                {
+                  key: 'progress',
+                  header: 'Progress',
+                  align: 'right',
+                  cell: (badge) => `${badge.progressPercent.toFixed(2)}%`,
+                },
+                {
+                  key: 'coursesDone',
+                  header: 'Courses done',
+                  align: 'right',
+                  cell: (badge) => `${badge.coursesCompleted}/${badge.numberOfCourses}`,
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'current',
+                  header: 'Current course',
+                  cell: (badge) => badge.currentCourseName ?? '—',
+                  hideOnMobile: true,
+                },
+                {
+                  key: 'last',
+                  header: 'Last activity',
+                  cell: (badge) => formatDateTime(badge.lastActivityTime),
+                },
+              ]}
+            />
           </div>
         </section>
       ) : null}
@@ -252,67 +303,42 @@ export default async function AdminCourseraLearnerPage({
         className="content-card"
         style={{ padding: '1rem 1.1rem', display: 'grid', gap: '0.6rem' }}
       >
-        <div>
-          <h2 style={{ margin: 0, fontSize: '1.05rem' }}>Coursera identity mappings</h2>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-            How this learner's Coursera activity is bound to their WorkforceAP account. Edits live on the
-            main Coursera admin page.
-          </p>
-        </div>
+        <SectionHeader
+          title="Coursera identity mappings"
+          subtitle="How this learner's Coursera activity is bound to their WorkforceAP account. Edits live on the main Coursera admin page."
+        />
         {identityMappings.length === 0 ? (
           <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
             No identity mappings recorded for this learner.
           </span>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ textAlign: 'left' }}>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    Coursera email
-                  </th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    Actor identifier
-                  </th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    Source
-                  </th>
-                  <th style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                    Last seen
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {identityMappings.map((row) => (
-                  <tr key={row.id}>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {row.courseraEmail || '—'}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {row.actorIdentifier ? (
-                        <span style={{ wordBreak: 'break-all' }}>
-                          {row.actorIdentifier}
-                          {row.actorHomePage ? (
-                            <span style={{ color: 'var(--color-on-surface-variant)' }}>
-                              {' '}
-                              @ {row.actorHomePage}
-                            </span>
-                          ) : null}
-                        </span>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {row.source}
-                    </td>
-                    <td style={{ padding: '0.5rem 0.6rem', borderBottom: '1px solid var(--outline-variant)' }}>
-                      {formatDateTime(row.lastSeenAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable<IdentityMappingRow>
+              density="compact"
+              scrollX={false}
+              rows={identityMappings}
+              rowKey={(row) => row.id}
+              columns={[
+                { key: 'email', header: 'Coursera email', cell: (row) => row.courseraEmail || '—' },
+                {
+                  key: 'actor',
+                  header: 'Actor identifier',
+                  cell: (row) =>
+                    row.actorIdentifier ? (
+                      <span style={{ wordBreak: 'break-all' }}>
+                        {row.actorIdentifier}
+                        {row.actorHomePage ? (
+                          <span style={{ color: 'var(--color-on-surface-variant)' }}> @ {row.actorHomePage}</span>
+                        ) : null}
+                      </span>
+                    ) : (
+                      '—'
+                    ),
+                },
+                { key: 'source', header: 'Source', cell: (row) => row.source },
+                { key: 'last', header: 'Last seen', cell: (row) => formatDateTime(row.lastSeenAt) },
+              ]}
+            />
           </div>
         )}
       </section>

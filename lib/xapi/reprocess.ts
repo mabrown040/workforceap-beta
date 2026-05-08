@@ -4,6 +4,10 @@ import { prisma } from '@/lib/db/prisma';
 import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import { parseXapiStatement } from '@/lib/xapi/statements';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
+import {
+  replayPendingXapiStatements,
+  type ReplayPendingXapiResult,
+} from '@/lib/coursera/replayPendingXapi';
 
 export type ReprocessResult = {
   processed: number;
@@ -15,6 +19,13 @@ export type ReprocessResult = {
     result: 'matched' | 'already_processed' | 'no_payload' | 'parse_error' | 'error' | 'no_match';
     error?: string;
   }>;
+  /**
+   * Drained `xapi_statements.processed=false` rows in the same pass. Captured
+   * here so the admin "Auto-heal all" button can report a single number that
+   * covers both ingest paths in one click. Optional for callers that only
+   * care about `coursera_xapi_events`.
+   */
+  pendingReplay?: ReplayPendingXapiResult;
 };
 
 /**
@@ -66,12 +77,30 @@ export async function reprocessUnmatchedXapiEvents(args: {
 }
 
 /**
- * Auto-heal: attempt to resolve any unmatched xAPI events by finding a matching
- * portal user and auto-creating a mapping. This runs without any manual mapping.
+ * Auto-heal: attempt to resolve any unmatched OR errored xAPI events by
+ * re-running the inbound pipeline. This covers two cases the old narrower
+ * implementation missed:
+ *
+ *   1. The actor already has a saved mapping in `coursera_identity_mappings`
+ *      (e.g. Drew Harris) but the event landed BEFORE the mapping existed
+ *      and was permanently flagged `unmatched`. The previous query had a
+ *      `NOT EXISTS` clause that explicitly excluded those rows — so they
+ *      stayed stuck forever and the dashboard kept reporting "needs
+ *      attention" with `processed: yes`.
+ *   2. Status `'error'` rows (resolver matched, downstream processing
+ *      threw) were not picked up at all.
+ *
+ * For each candidate we re-parse the stored payload and re-run
+ * `handleInboundParsedStatement`. That delegates to `resolveXapiUser`,
+ * which already prefers the manual mapping table, then actor identifier,
+ * then a direct `User.email` match (and auto-creates a mapping when a
+ * direct match is found). On a successful resolve, the pipeline writes
+ * `CourseProgress` (driving the dashboard %) and updates the
+ * `coursera_xapi_events` row's `completion_status`, so the row drops out
+ * of the "needs attention" queue.
  */
 export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<ReprocessResult> {
-  // Find unmatched events where we DON'T already have a mapping
-  const unmatchedEvents = await prisma.$queryRaw<
+  const events = await prisma.$queryRaw<
     Array<{
       statement_id: string | null;
       actor_email: string | null;
@@ -85,20 +114,9 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
       cxe.actor_identifier,
       cxe.raw_payload
     FROM coursera_xapi_events cxe
-    WHERE cxe.completion_status = 'unmatched'
+    WHERE cxe.completion_status IN ('unmatched', 'error')
       AND cxe.raw_payload IS NOT NULL
       AND cxe.statement_id IS NOT NULL
-      AND NOT EXISTS (
-        SELECT 1 FROM coursera_identity_mappings cim
-        WHERE (
-          cxe.actor_email IS NOT NULL
-          AND LOWER(cim.coursera_email) = LOWER(cxe.actor_email)
-        )
-        OR (
-          cxe.actor_identifier IS NOT NULL
-          AND cim.actor_identifier = cxe.actor_identifier
-        )
-      )
     ORDER BY cxe.received_at DESC
     LIMIT ${limit}
   `;
@@ -110,45 +128,8 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
     details: [],
   };
 
-  for (const event of unmatchedEvents) {
+  for (const event of events) {
     try {
-      // Try to find a user by email
-      const actorEmail = event.actor_email?.trim().toLowerCase();
-      if (!actorEmail) {
-        result.details.push({
-          statementId: event.statement_id,
-          actorEmail: event.actor_email,
-          result: 'no_payload',
-        });
-        continue;
-      }
-
-      const user = await prisma.user.findFirst({
-        where: {
-          deletedAt: null,
-          email: { equals: actorEmail, mode: 'insensitive' },
-        },
-        select: { id: true, email: true, fullName: true },
-      });
-
-      if (!user) {
-        result.details.push({
-          statementId: event.statement_id,
-          actorEmail: event.actor_email,
-          result: 'no_match',
-        });
-        continue;
-      }
-
-      // Auto-create a mapping
-      await upsertCourseraIdentityMapping({
-        userId: user.id,
-        courseraEmail: actorEmail,
-        actorIdentifier: event.actor_identifier ?? null,
-        source: 'auto-healed',
-      });
-
-      // Now reprocess the event
       const rawPayload =
         typeof event.raw_payload === 'string'
           ? JSON.parse(event.raw_payload)
@@ -165,18 +146,66 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
         continue;
       }
 
+      // If we have an actor email but the saved mapping table has no row
+      // for it, optimistically auto-link any matching portal user so the
+      // pipeline's direct-email branch resolves on the first try. (The
+      // pipeline does this itself, but doing it up front keeps the
+      // mapping table in sync for events that lack mbox but share an
+      // actor identifier with another mapped row.)
+      const actorEmail = event.actor_email?.trim().toLowerCase();
+      if (actorEmail) {
+        const directUser = await prisma.user.findFirst({
+          where: {
+            deletedAt: null,
+            email: { equals: actorEmail, mode: 'insensitive' },
+          },
+          select: { id: true },
+        });
+        if (directUser) {
+          try {
+            await upsertCourseraIdentityMapping({
+              userId: directUser.id,
+              courseraEmail: actorEmail,
+              actorIdentifier: event.actor_identifier ?? null,
+              source: 'auto-healed',
+            });
+          } catch (mappingError) {
+            // Non-fatal: the pipeline will still resolve via direct email.
+            console.warn('[autoHeal] mapping upsert failed:', mappingError);
+          }
+        }
+      }
+
       const { completions } = await handleInboundParsedStatement(parsed);
       result.processed += 1;
 
-      const wasMatched = completions.some((c) => (c as { ok?: boolean }).ok === true);
-      if (wasMatched) {
-        result.matched += 1;
+      // After replay, read the canonical event status to decide whether the
+      // resolver actually bound this statement to a user (matched) or it
+      // stayed unmatched. Don't trust `completions` alone — non-completion
+      // verbs (item-level progress) emit no completions even when matched,
+      // and the row already updated `CourseProgress`.
+      let matchedStatus: 'matched' | 'no_match' = 'no_match';
+      if (parsed.statementId) {
+        const eventRow = await prisma.$queryRaw<Array<{ status: string }>>`
+          SELECT completion_status AS status
+          FROM coursera_xapi_events
+          WHERE statement_id = ${parsed.statementId}
+          LIMIT 1
+        `;
+        const status = eventRow[0]?.status ?? 'unmatched';
+        if (status === 'completed' || status === 'ignored') {
+          matchedStatus = 'matched';
+        }
+      } else if (completions.some((c) => (c as { ok?: boolean }).ok === true)) {
+        matchedStatus = 'matched';
       }
+
+      if (matchedStatus === 'matched') result.matched += 1;
 
       result.details.push({
         statementId: event.statement_id,
         actorEmail: event.actor_email,
-        result: wasMatched ? 'matched' : 'no_match',
+        result: matchedStatus,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Auto-heal failed';
@@ -188,6 +217,30 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
         error: message,
       });
     }
+  }
+
+  // Also drain `xapi_statements.processed = false` rows. The attention queue
+  // surfaces these as `reason = 'unprocessed'` (e.g. webhook arrived before
+  // any identity mapping existed, or the pipeline crashed mid-flight before
+  // calling `markXapiStatementProcessed`). These never wrote a
+  // `coursera_xapi_events` row, so the SQL above misses them entirely. Run
+  // the same pipeline against them so a single "Auto-heal all" click clears
+  // both reasons.
+  try {
+    const pendingReplay = await replayPendingXapiStatements(limit);
+    result.pendingReplay = pendingReplay;
+    result.processed += pendingReplay.replayed;
+    result.matched += pendingReplay.breakdown.completedOk + pendingReplay.breakdown.ignored;
+    result.errors += pendingReplay.breakdown.errored;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Pending replay failed';
+    result.errors += 1;
+    result.details.push({
+      statementId: null,
+      actorEmail: null,
+      result: 'error',
+      error: `pending-replay: ${message}`,
+    });
   }
 
   return result;

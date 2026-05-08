@@ -18,7 +18,11 @@ export async function POST() {
   }
 
   try {
-    const result = await autoHealUnmatchedXapiEvents(100);
+    const result = await autoHealUnmatchedXapiEvents(200);
+    // Surface a flat number the admin UI can show in the success toast.
+    // `result.processed` already includes both pathways (existing
+    // `coursera_xapi_events` rows + drained `xapi_statements.processed=false`
+    // rows from the pending replay), so a single number is accurate.
     return NextResponse.json({ ok: true, result });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Auto-heal failed';

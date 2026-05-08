@@ -2,7 +2,13 @@ import 'server-only';
 
 import { CourseProgressStatus } from '@prisma/client';
 
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  averageProgramProgressFromB4B,
+  filterRecognizedCourseraCourseIds,
+  type LearnerProgressByContent,
+} from '@/lib/coursera/learnerProgress';
 import { prisma } from '@/lib/db/prisma';
 
 /** Days without training activity before we surface counselor escalation on the dashboard. */
@@ -29,11 +35,21 @@ export type MemberProgramTrainingView = {
 /**
  * Single source of truth for member training counts and activity timestamps.
  * Course rows from xAPI / manual completion are the canonical source.
+ *
+ * `b4bProgress` is an optional enrichment from Coursera For Business
+ * (`fetchLearnerProgressFromB4B`). When supplied AND every catalog course
+ * has a Coursera courseId AND every courseId appears in the B4B map, we
+ * use the average B4B `overallProgress` as the program % — Coursera is
+ * the authoritative source. We fall back to the local rollup whenever
+ * B4B data is incomplete to avoid mixing fresh and stale numbers in the
+ * same average. Course-level completion still comes from local rows so
+ * existing "Mark complete" + xAPI behavior is unchanged.
  */
 export async function loadMemberProgramTrainingView(args: {
   userId: string;
   programSlug: string;
   coursesCompletedJson?: unknown;
+  b4bProgress?: LearnerProgressByContent;
 }): Promise<MemberProgramTrainingView | null> {
   const program = getProgramBySlug(args.programSlug);
   if (!program) return null;
@@ -109,7 +125,22 @@ export async function loadMemberProgramTrainingView(args: {
 
   let progressPercentDisplay = 0;
   if (totalCourses > 0) {
-    if (rollup != null) {
+    // Authoritative B4B average wins when present and complete (every
+    // course in the catalog has a Coursera id AND a row in the B4B
+    // response). See loadMemberProgramTrainingView jsdoc for the
+    // all-or-nothing rationale.
+    const b4bAverage = args.b4bProgress
+      ? averageProgramProgressFromB4B({
+          progress: args.b4bProgress,
+          courseraCourseIds: filterRecognizedCourseraCourseIds(
+            (DISCOVERED_COURSERA_PROGRAMS[args.programSlug]?.courses ?? []).map((c) => c.courseId),
+          ),
+        })
+      : null;
+
+    if (b4bAverage != null) {
+      progressPercentDisplay = Math.max(0, Math.min(100, b4bAverage));
+    } else if (rollup != null) {
       progressPercentDisplay = Math.max(0, Math.min(100, rollup.averagePercent));
     } else if (rows.length > 0) {
       progressPercentDisplay = Math.round(sumPercentForAverage / totalCourses);

@@ -20,6 +20,15 @@ import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import { trackTrainingTabViewed } from '@/lib/analytics/track';
 import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import {
+  averageProgramProgressFromB4B,
+  fetchLearnerProgressFromB4B,
+  filterRecognizedCourseraCourseIds,
+  getLearnerProgressLastActivity,
+  type LearnerProgressByContent,
+} from '@/lib/coursera/learnerProgress';
+import RefreshCourseraProgressButton from '@/components/portal/RefreshCourseraProgressButton';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -27,6 +36,27 @@ export async function generateMetadata(): Promise<Metadata> {
   description: 'Complete your courses and track your progress toward getting job-ready.',
   path: '/dashboard/training',
 });
+}
+
+/**
+ * Server-rendered "X minutes ago" label for the Coursera freshness chip.
+ * Kept inline (rather than a shared component) because it's only used
+ * here and the page is a server component; no need for a `'use client'`
+ * boundary just to format a date.
+ */
+function RelativeFreshness({ when }: { when: Date }) {
+  const diffMs = Date.now() - when.getTime();
+  if (diffMs < 60_000) return <>just now</>;
+  if (diffMs < 3_600_000) {
+    const m = Math.round(diffMs / 60_000);
+    return <>{m} minute{m === 1 ? '' : 's'} ago</>;
+  }
+  if (diffMs < 86_400_000) {
+    const h = Math.round(diffMs / 3_600_000);
+    return <>{h} hour{h === 1 ? '' : 's'} ago</>;
+  }
+  const d = Math.round(diffMs / 86_400_000);
+  return <>{d} day{d === 1 ? '' : 's'} ago</>;
 }
 
 export default async function TrainingPage({
@@ -46,7 +76,20 @@ export default async function TrainingPage({
     },
   });
 
-  const [tTraining, dbUser, progressRows, programRollup, courseraMappings] = await Promise.all([
+  // B4B is queried in parallel with the local DB reads. Coursera is the
+  // authoritative source of % progress (xAPI lags hours-to-days), but we
+  // never block the page on it: the inner call returns an empty map on
+  // failure so callers fall through to local rows. See
+  // lib/coursera/learnerProgress.ts for caching + fail-soft semantics.
+  const b4bProgressPromise = dbUserPromise.then(async (u) => {
+    if (!u?.enrolledProgram || !user.email) return new Map() as LearnerProgressByContent;
+    const courseraProgramId = DISCOVERED_COURSERA_PROGRAMS[u.enrolledProgram]?.courseraProgramId;
+    return fetchLearnerProgressFromB4B(user.email, {
+      programId: courseraProgramId,
+    });
+  });
+
+  const [tTraining, dbUser, progressRows, programRollup, courseraMappings, b4bProgress] = await Promise.all([
     getTranslations('training'),
     dbUserPromise,
     dbUserPromise.then((u) =>
@@ -70,6 +113,13 @@ export default async function TrainingPage({
     listCourseraIdentityMappingsForUser(user.id).catch((error) => {
       console.warn('[dashboard/training] unable to load Coursera identity mappings:', error);
       return [];
+    }),
+    b4bProgressPromise.catch((error) => {
+      // Defensive: fetchLearnerProgressFromB4B already swallows errors
+      // internally, but if anything in the program-id lookup throws we
+      // still want the page to render with local rows.
+      console.warn('[dashboard/training] B4B learner progress unavailable:', error);
+      return new Map() as LearnerProgressByContent;
     }),
   ]);
 
@@ -103,23 +153,65 @@ export default async function TrainingPage({
     courseraCourseId: discovered?.courses.find((dc: CourseraDiscoveredCourse) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
   }));
 
+  // Build the progress map. Local CourseProgress rows seed status (they
+  // remain authoritative for completion + non-Coursera courses), then
+  // we layer the B4B `overallProgress` over the percent because Coursera
+  // refreshes within minutes versus xAPI's hours-to-days lag.
   const progressBySlug: Record<string, CourseProgressUi> = {};
   for (const row of progressRows) {
     progressBySlug[row.courseSlug] = { status: row.status, percentComplete: row.percentComplete };
   }
+  // Keep local status when COMPLETED so a manually-completed course
+  // can't be "downgraded" by stale B4B; otherwise reflect B4B's completion
+  // bit so a recent finish flips to COMPLETED before the background sync writes it.
+  for (const c of coursesWithIds) {
+    if (!c.courseraCourseId) continue;
+    const b4bEntry = b4bProgress.get(c.courseraCourseId);
+    if (!b4bEntry) continue;
+    const existing = progressBySlug[c.slug];
 
-  const coursesCompleted = progressRows
-    .filter((row) => row.status === 'COMPLETED')
-    .map((row) => row.courseSlug);
+    let nextStatus: CourseProgressUi['status'];
+    if (existing?.status === 'COMPLETED' || b4bEntry.isCompleted) {
+      nextStatus = 'COMPLETED';
+    } else if (b4bEntry.overallProgress > 0) {
+      nextStatus = 'IN_PROGRESS';
+    } else {
+      nextStatus = existing?.status ?? 'NOT_STARTED';
+    }
+
+    progressBySlug[c.slug] = {
+      status: nextStatus,
+      percentComplete: b4bEntry.isCompleted
+        ? 100
+        : Math.max(b4bEntry.overallProgress, existing?.percentComplete ?? 0),
+    };
+  }
+
+  const coursesCompleted = Object.entries(progressBySlug)
+    .filter(([, row]) => row.status === 'COMPLETED')
+    .map(([slug]) => slug);
   const completedFromRows = program.courses.filter((c) => progressBySlug[c.slug]?.status === 'COMPLETED').length;
   const completedCount =
-    programRollup != null ? programRollup.coursesCompleted : completedFromRows;
-  const progressPct =
-    programRollup != null && program.courses.length > 0
-      ? programRollup.averagePercent
-      : program.courses.length > 0
-        ? Math.round((completedFromRows / program.courses.length) * 100)
-        : 0;
+    programRollup != null
+      ? Math.max(programRollup.coursesCompleted, completedFromRows)
+      : completedFromRows;
+  // Prefer the average across B4B `overallProgress` when every course in
+  // the program has fresh authoritative data so the hero number matches
+  // the learner's view inside Coursera. All-or-nothing logic lives in
+  // averageProgramProgressFromB4B.
+  const b4bAverage = averageProgramProgressFromB4B({
+    progress: b4bProgress,
+    courseraCourseIds: filterRecognizedCourseraCourseIds(coursesWithIds.map((c) => c.courseraCourseId)),
+  });
+  const progressPct = (() => {
+    if (b4bAverage != null) return b4bAverage;
+    if (program.courses.length === 0) return 0;
+    if (programRollup != null) return programRollup.averagePercent;
+    return Math.round((completedFromRows / program.courses.length) * 100);
+  })();
+
+  const b4bLastActivity = getLearnerProgressLastActivity(b4bProgress);
+  const b4bHasData = b4bProgress.size > 0;
 
   const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
   const savedCourseraEmail = courseraMappings.find((mapping) => mapping.courseraEmail)?.courseraEmail ?? null;
@@ -344,6 +436,42 @@ export default async function TrainingPage({
             </a>
           </div>
         </div>
+
+        {b4bHasData && (
+          <div
+            style={{
+              padding: '0 1rem',
+              marginBottom: '0.75rem',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.5rem',
+            }}
+          >
+            <span
+              data-testid="coursera-progress-freshness"
+              style={{
+                fontSize: '0.8125rem',
+                color: 'var(--color-on-surface-variant)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+              }}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '1rem', color: 'var(--color-blue)' }}
+                aria-hidden="true"
+              >
+                cloud_done
+              </span>
+              Updated from Coursera{' '}
+              {b4bLastActivity ? <RelativeFreshness when={b4bLastActivity} /> : 'just now'}
+            </span>
+            <RefreshCourseraProgressButton />
+          </div>
+        )}
 
         <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
           <CourseraProgressCard userId={user.id} />

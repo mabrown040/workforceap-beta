@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdminInOrg } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
@@ -47,9 +47,16 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    // Org-aware authz: resolve the tenant first, THEN verify the user is
+    // an admin in that tenant. Codex P1 catch on PR #1046 — the global
+    // `isAdmin()` would let a default-org admin hit a custom-domain URL
+    // and read another tenant's data.
     const orgId = await resolveOrgFromRequest(request.headers);
+    if (!(await isAdminInOrg(user.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const employers = await withTenantScope(orgId, (db) =>
       db.employer.findMany({
         take: 1000,
@@ -72,7 +79,6 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = await request.json().catch(() => null);
     const parsed = employerSchema.safeParse(body);
@@ -81,6 +87,9 @@ export async function POST(request: NextRequest) {
     }
 
     const orgId = await resolveOrgFromRequest(request.headers);
+    if (!(await isAdminInOrg(user.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     // Global uniqueness pre-check — Employer.userId is @unique across ALL
     // orgs in the current schema. crossTenantOK marks the intentional bypass

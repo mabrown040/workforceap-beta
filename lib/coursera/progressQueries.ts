@@ -105,11 +105,55 @@ export type UnmatchedLearner = {
 };
 
 /**
+ * Heuristic for test / smoke-test traffic that pollutes the unmatched
+ * learners list. The May 2026 admin/coursera snapshot showed 81 unresolved
+ * xAPI events for `test-smoke@workforceap.org`, plus rows for `force-test-…`
+ * and `test@workforceap.org` — none of which represent real learners.
+ *
+ * Patterns:
+ *   - Emails containing the substring "test" (covers test-smoke, qa-test,
+ *     etc. — false positives are rare for real applicant emails)
+ *   - Emails / actors starting with "force-" (the platform's automated
+ *     load-test prefix)
+ *   - Emails starting with "noreply" / "no-reply"
+ *   - Emails ending with "@example.com" / "@example.org" (RFC 2606 reserved)
+ *
+ * Tracked as MATCHING-DEBT-001 in docs/COURSERA-IDENTITY-MATCHING.md.
+ */
+export function isLikelyTestAccount(externalKey: string | null | undefined): boolean {
+  if (!externalKey) return false;
+  const lower = externalKey.trim().toLowerCase();
+  if (!lower) return false;
+
+  if (lower.startsWith('force-')) return true;
+  if (lower.startsWith('noreply') || lower.startsWith('no-reply')) return true;
+  if (lower.endsWith('@example.com') || lower.endsWith('@example.org')) return true;
+
+  // Substring 'test' covers smoke / e2e / qa-test patterns. Could false-
+  // positive on a name like "kontestina" but real applicant emails almost
+  // never contain "test" as a substring at the org level.
+  if (lower.includes('test')) return true;
+
+  return false;
+}
+
+export type LoadUnmatchedLearnersOptions = {
+  /** Default false. When true, emails matching `isLikelyTestAccount` are returned alongside real learners. */
+  includeTestAccounts?: boolean;
+};
+
+/**
  * Distinct externalEmail across coursera_course_progress + coursera_badge_progress
  * where userId IS NULL — i.e. learners on Coursera that we have not bound to a
  * WAP user yet.
+ *
+ * By default, filters out likely-test-account emails (see `isLikelyTestAccount`).
+ * Pass `{ includeTestAccounts: true }` to see everything.
  */
-export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearner[]> {
+export async function loadUnmatchedLearners(
+  limit = 100,
+  options: LoadUnmatchedLearnersOptions = {},
+): Promise<UnmatchedLearner[]> {
   try {
     type Row = {
       externalEmail: string;
@@ -207,7 +251,7 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
       badgesByEmail.set(row.externalEmail, list);
     }
 
-    return learners.map((row) => ({
+    const all = learners.map((row) => ({
       externalEmail: row.externalEmail,
       externalName: row.externalName,
       actorIdentifier: row.actorIdentifier,
@@ -218,9 +262,27 @@ export async function loadUnmatchedLearners(limit = 100): Promise<UnmatchedLearn
       xapiCount: Number(row.xapiCount) || 0,
       lastActivityTime: row.lastActivityTime,
     }));
+
+    if (options.includeTestAccounts) return all;
+    return all.filter((row) => !isLikelyTestAccount(row.externalEmail));
   } catch (error) {
     console.error('[admin/coursera] failed to load unmatched learners:', error);
     return [];
+  }
+}
+
+/**
+ * Count of likely-test-account rows currently in the unmatched-learners
+ * list. Used by the admin page to render a "Hiding N test accounts. [Show
+ * all]" banner. Cheap because we already have the data — this just runs
+ * the same query and counts the filtered-out rows.
+ */
+export async function countHiddenTestAccountUnmatchedLearners(limit = 100): Promise<number> {
+  try {
+    const all = await loadUnmatchedLearners(limit, { includeTestAccounts: true });
+    return all.filter((row) => isLikelyTestAccount(row.externalEmail)).length;
+  } catch {
+    return 0;
   }
 }
 

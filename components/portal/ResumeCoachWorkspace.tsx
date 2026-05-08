@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import GoogleDocsStyleResumeEditor from '@/components/portal/GoogleDocsStyleResumeEditor';
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
 import { resumeCoachVoiceSurface } from '@/lib/portal/voice';
@@ -397,7 +398,7 @@ export default function ResumeCoachWorkspace() {
       <div style={{ flex: '1 1 300px', minWidth: 280 }}>
         <VoiceAgentSurface
           {...resumeCoachVoiceSurface}
-          subtext="Voice feedback on bullets and framing. Your live draft syncs during the call, and suggested rewrites can pop onto the draft for a quick ✓ or ✕ review."
+          subtext="Voice feedback on bullets and framing. Your draft stays editable — suggested deletions and rewrites appear inline (like Google Docs) with Accept or Reject."
         >
           <PortalVoiceSession
             sessionEndpoint="/api/member/resume-coach/session"
@@ -464,7 +465,7 @@ export default function ResumeCoachWorkspace() {
           </div>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             {hydrated
-              ? 'Edits here sync to the coach during the call. Suggested rewrites can pop up above your draft with ✓ and ✕ controls, and you can keep editing directly at any time.'
+              ? 'Edits sync to the coach during the call. Replace suggestions highlight inside your draft; additions show as cards you can apply.'
               : 'Loading your resume…'}
           </p>
           {postSessionParsing ? (
@@ -480,7 +481,7 @@ export default function ResumeCoachWorkspace() {
             </p>
           ) : null}
 
-          {hydrated && activeInlineSuggestion ? (
+          {hydrated && activeInlineSuggestion && !activeInlineSuggestion.original?.trim() ? (
             <div style={{ marginBottom: '1rem' }}>
               <p
                 style={{
@@ -492,7 +493,7 @@ export default function ResumeCoachWorkspace() {
                   color: 'var(--color-on-surface-variant)',
                 }}
               >
-                {activeInlineSuggestion.original?.trim() ? 'Pending change (in session)' : 'Suggested addition'}
+                Suggested addition
               </p>
               <ResumeDraftPendingPreview
                 resumeText={resumeText}
@@ -512,11 +513,7 @@ export default function ResumeCoachWorkspace() {
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
-                  aria-label={
-                    activeInlineSuggestion.original?.trim()
-                      ? 'Apply suggested change'
-                      : 'Apply suggested addition'
-                  }
+                  aria-label="Apply suggested addition"
                   onClick={() => {
                     handleAccept(activeInlineSuggestion);
                     dismissSuggestion(activeInlineSuggestion.id);
@@ -632,25 +629,27 @@ export default function ResumeCoachWorkspace() {
           ) : null}
 
           {hydrated ? (
-            <textarea
+            <GoogleDocsStyleResumeEditor
               value={resumeText}
-              onChange={(e) => setResumeText(e.target.value)}
+              onChange={setResumeText}
               rows={18}
               placeholder="Your resume will appear here…"
-              aria-label="Live resume draft"
-              style={{
-                width: '100%',
-                resize: 'vertical',
-                fontFamily: 'ui-monospace, monospace',
-                fontSize: '0.82rem',
-                lineHeight: 1.55,
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                border: '1px solid var(--outline-variant)',
-                background: 'var(--surface-container-low)',
-                color: 'var(--color-on-surface)',
-                boxSizing: 'border-box',
-              }}
+              ariaLabel="Live resume draft"
+              inlineReplace={
+                activeInlineSuggestion?.original?.trim() &&
+                resumeText.includes(activeInlineSuggestion.original.trim())
+                  ? {
+                      original: activeInlineSuggestion.original.trim(),
+                      suggested: activeInlineSuggestion.suggested,
+                      context: activeInlineSuggestion.context,
+                      onAccept: () => {
+                        handleAccept(activeInlineSuggestion);
+                        dismissSuggestion(activeInlineSuggestion.id);
+                      },
+                      onReject: () => dismissSuggestion(activeInlineSuggestion.id),
+                    }
+                  : null
+              }
             />
           ) : (
             <div

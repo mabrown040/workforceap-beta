@@ -3,12 +3,26 @@ import { z } from 'zod';
 import { Resend } from 'resend';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { sessionPacketHtml, type SessionPacketSection } from '@/emails/session-packet';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * Member existence + email lookup goes through `withTenantScope` so an
+ * Org A counselor cannot resolve an Org B member's email by guessing
+ * the UUID. `MemberEvent`, `AIToolResult`, `ReadinessChecklist`, and
+ * `Profile` all inherit tenancy via FK to `User` — they stay on the raw
+ * client; the membership gate above keeps cross-tenant writes/reads
+ * impossible.
+ */
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -174,10 +188,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const member = await prisma.user.findUnique({
-    where: { id: memberId, deletedAt: null },
-    select: { id: true, fullName: true, email: true },
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id: memberId, deletedAt: null },
+      select: { id: true, fullName: true, email: true },
+    }),
+  );
   if (!member) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }

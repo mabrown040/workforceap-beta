@@ -5,7 +5,8 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { awardPoints } from '@/lib/member/points';
 import { chatCompletion } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
 interface FeedbackBody {
@@ -163,10 +164,13 @@ export async function POST(req: NextRequest) {
     awardPoints(user.id, 'counselor_session', resultId).catch(() => {});
 
     try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { fullName: true, email: true },
-      });
+      const orgId = await getActorOrganizationId(user.id);
+      const dbUser = await withTenantScope(orgId, (db) =>
+        db.user.findFirst({
+          where: { id: user.id },
+          select: { fullName: true, email: true },
+        }),
+      );
 
       const recipients = getVoiceCoachTranscriptRecipients();
       if (recipients.length > 0) {

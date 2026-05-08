@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+// `prisma` import removed: the only direct use was the `member` lookup,
+// which now runs inside `withTenantScope`.
 import {
   startElevenLabsPortalSession,
   type ElevenLabsPortalAgentKey,
@@ -9,6 +12,17 @@ import {
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The member lookup is wrapped in `withTenantScope` so a counselor from
+ * Org A cannot resolve an Org B member's name/email/program into a
+ * voice-agent dynamic-variables payload by guessing the UUID. The
+ * `resolveActOnBehalf` check above gates the assignment relationship,
+ * but it does not enforce tenancy — this lookup does.
+ */
 
 /**
  * In-Office Session voice walk-through endpoint.
@@ -84,10 +98,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
     }
 
-    const member = await prisma.user.findUnique({
-      where: { id: memberId },
-      select: { fullName: true, email: true, programInterest: true, enrolledProgram: true },
-    });
+    const orgId = await getActorOrganizationId(user.id);
+    const member = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({
+        where: { id: memberId },
+        select: { fullName: true, email: true, programInterest: true, enrolledProgram: true },
+      }),
+    );
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
     // Best-effort: pull existing resume to seed the agent's context. If

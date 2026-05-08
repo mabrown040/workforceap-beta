@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   getOrCreateMemberCounselorThread,
   assertStaffCanAccessThread,
@@ -9,6 +11,19 @@ import {
   normalizeMessageBody,
   serializeMessage,
 } from '@/lib/messages/counselorThread';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * Every member-existence check goes through `withTenantScope` so an
+ * Org A admin/counselor cannot read or post into a thread for an Org B
+ * member by guessing the memberId. `Message`, `MessageThread`, and the
+ * author-name lookup all inherit tenancy via FK to `User`. The author
+ * `findMany` is also scoped — it returns Org A names only, so a leaked
+ * authorId from another tenant would resolve to "User" instead of
+ * exposing the foreign tenant's user.
+ */
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -23,11 +38,14 @@ export async function GET(_request: NextRequest, { params }: Props) {
   if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
-    select: { id: true, fullName: true },
-  });
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id: memberId, deletedAt: null },
+      select: { id: true, fullName: true },
+    }),
+  );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
@@ -40,10 +58,12 @@ export async function GET(_request: NextRequest, { params }: Props) {
     take: 500,
   });
 
-  const names = await prisma.user.findMany({
-    where: { id: { in: [...new Set(messages.map((m) => m.authorId))] } },
-    select: { id: true, fullName: true },
-  });
+  const names = await withTenantScope(orgId, (db) =>
+    db.user.findMany({
+      where: { id: { in: [...new Set(messages.map((m) => m.authorId))] } },
+      select: { id: true, fullName: true },
+    }),
+  );
   const nameById = new Map(names.map((n) => [n.id, n.fullName]));
 
   return NextResponse.json({
@@ -82,10 +102,13 @@ export async function POST(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: normalized.error }, { status: 400 });
   }
 
-  const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
-    select: { id: true },
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id: memberId, deletedAt: null },
+      select: { id: true },
+    }),
+  );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
@@ -119,11 +142,14 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
   if (!(await canUseCounselorMessaging(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
-    select: { id: true },
-  });
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id: memberId, deletedAt: null },
+      select: { id: true },
+    }),
+  );
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const thread = await getOrCreateMemberCounselorThread(memberId);

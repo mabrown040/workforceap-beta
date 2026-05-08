@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   getOrCreateMemberCounselorThread,
   assertStaffCanPost,
@@ -13,6 +15,18 @@ import {
   type NudgeTemplateId,
 } from '@/lib/counselor/nudgeTemplates';
 import { getProgramBySlug } from '@/lib/content/programs';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The member lookup is wrapped in `withTenantScope` so a counselor from
+ * Org A cannot send a nudge to an Org B member by guessing the UUID.
+ * `Message`, `MessageThread`, and `MemberEvent` are NOT in
+ * `TENANT_SCOPED_MODELS` — they inherit tenancy via FK to `User` —
+ * so those reads/writes stay on the raw client; the membership lookup
+ * is the gate.
+ */
 
 const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'milestone_celebrate'];
 
@@ -51,11 +65,16 @@ export async function POST(request: Request) {
   const template = getTemplate(templateId);
   if (!template) return NextResponse.json({ error: 'Unknown template' }, { status: 400 });
 
-  // Ensure the member exists and the staff user is allowed to message them.
-  const member = await prisma.user.findUnique({
-    where: { id: memberId },
-    select: { id: true, fullName: true, enrolledProgram: true, deletedAt: true },
-  });
+  // Ensure the member exists in the actor's tenant and the staff user is
+  // allowed to message them. Lookup goes through withTenantScope so a
+  // cross-tenant memberId is treated as not-found.
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id: memberId },
+      select: { id: true, fullName: true, enrolledProgram: true, deletedAt: true },
+    }),
+  );
   if (!member || member.deletedAt) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }

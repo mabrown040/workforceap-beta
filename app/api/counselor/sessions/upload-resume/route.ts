@@ -3,9 +3,23 @@ import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
+
+/**
+ * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
+ * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
+ *
+ * The member existence check goes through `withTenantScope` so a
+ * counselor from Org A cannot upload a resume to an Org B member's
+ * profile by guessing the UUID. `Profile` is NOT in
+ * `TENANT_SCOPED_MODELS` — it inherits tenancy via the `userId` FK to
+ * `User` — so the upsert stays on the raw client; the membership gate
+ * above prevents cross-tenant writes.
+ */
 
 const BUCKET = 'member-resumes';
 const MAX_SIZE = 5 * 1024 * 1024;
@@ -35,10 +49,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
   }
 
-  const member = await prisma.user.findUnique({
-    where: { id: memberId },
-    select: { id: true },
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({
+      where: { id: memberId },
+      select: { id: true },
+    }),
+  );
   if (!member) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }

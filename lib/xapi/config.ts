@@ -7,9 +7,20 @@ function normalizeBaseUrl(value: string | undefined) {
   return raw.replace(/\/$/, '');
 }
 
-export function getXapiConfig() {
+function getBaseUrlFromRequest(request: Request): string | null {
+  try {
+    const u = new URL(request.url);
+    return u.origin;
+  } catch {
+    return null;
+  }
+}
+
+export function getXapiConfig(options: { request?: Request } = {}) {
+  const fromRequest = options.request ? getBaseUrlFromRequest(options.request) : null;
   const tenantBaseUrl = normalizeBaseUrl(
-    process.env.XAPI_TENANT_SERVER_URL ||
+    fromRequest ||
+      process.env.XAPI_TENANT_SERVER_URL ||
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
   );
@@ -33,8 +44,8 @@ export function getXapiConfig() {
   };
 }
 
-export function getXapiReadiness() {
-  const config = getXapiConfig();
+export function getXapiReadiness(options: { request?: Request } = {}) {
+  const config = getXapiConfig(options);
   const missing: string[] = [];
   if (!config.clientId) missing.push('XAPI client ID');
   if (!config.clientSecret) missing.push('XAPI client secret');

@@ -3,12 +3,12 @@ import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
 import { issueXapiAccessToken, parseBasicAuth } from '@/lib/xapi/token';
 
 export async function POST(request: Request) {
-  const readiness = getXapiReadiness();
+  const readiness = getXapiReadiness({ request });
   if (!readiness.ready) {
     return NextResponse.json({ error: 'xAPI auth is not configured', missing: readiness.missing }, { status: 503 });
   }
 
-  const config = getXapiConfig();
+  const config = getXapiConfig({ request });
   const auth = parseBasicAuth(request.headers.get('authorization'));
 
   let body: URLSearchParams | null = null;
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_client' }, { status: 401 });
   }
 
-  const accessToken = issueXapiAccessToken();
+  const accessToken = issueXapiAccessToken('statements:write', { request });
   return NextResponse.json({
     access_token: accessToken,
     token_type: 'Bearer',

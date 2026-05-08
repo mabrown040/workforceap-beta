@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
               status: 'draft',
             })
           );
-          created.push(...(await insertEmployerJobsBatch(batch)));
+          created.push(...(await insertEmployerJobsBatch(organizationId, batch)));
           continue;
         }
 
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
           const collected = await collectDraftInputsFromPageText(atsResult.rawText, { baseUrl: url });
           if (collected.handled) {
             const batch = collected.drafts.map((d) => jobDataFromImportedDraft(organizationId, ctx.employerId, d));
-            created.push(...(await insertEmployerJobsBatch(batch)));
+            created.push(...(await insertEmployerJobsBatch(organizationId, batch)));
             errors.push(...collected.errors);
             continue;
           }
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
               parsedJob ? 'ai' : 'scrape+fallback',
               'url-text-parse'
             );
-            created.push(...(await insertEmployerJobsBatch([row])));
+            created.push(...(await insertEmployerJobsBatch(organizationId, [row])));
             continue;
           }
         }
@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
             directResult.provider,
             'direct-job-url'
           );
-          created.push(...(await insertEmployerJobsBatch([row])));
+          created.push(...(await insertEmployerJobsBatch(organizationId, [row])));
           continue;
         }
 
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
             status: 'draft',
           })
         );
-        created.push(...(await insertEmployerJobsBatch(batch)));
+        created.push(...(await insertEmployerJobsBatch(organizationId, batch)));
         careersPageProcessed = true;
       } else if (atsResult.errors.length > 0) {
         errors.push({ source: careersPageUrl, error: atsResult.errors[0] });
@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
       const collected = await collectDraftInputsFromPageText(listingsText, { baseUrl: careersPageUrl });
       if (collected.handled) {
         const batch = collected.drafts.map((d) => jobDataFromImportedDraft(organizationId, ctx.employerId, d));
-        created.push(...(await insertEmployerJobsBatch(batch)));
+        created.push(...(await insertEmployerJobsBatch(organizationId, batch)));
         errors.push(...collected.errors);
         careersPageProcessed = true;
       }

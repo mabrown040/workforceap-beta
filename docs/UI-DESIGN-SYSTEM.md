@@ -42,13 +42,16 @@ This is **best done in a local session** (Cursor or a dev server with hot reload
 
 ## Reference migration — see this PR's diff
 
-`app/admin/coursera/learners/unmatched/[externalEmail]/page.tsx` shows the migration in action on **one** of its three tables (the xAPI events table). The other two (CSV courses, CSV badges) are left as-is so the diff shows the before/after side-by-side.
+`app/admin/coursera/learners/unmatched/[externalEmail]/page.tsx` migrates **all** tabular sections on that screen:
 
-Compare:
-- **Before:** lines 168–243 in the previous master (75 lines of nested table + 25 inline `style={{}}` blocks).
-- **After:** the new section using `<SectionHeader>` + `<DataTable>` (~60 lines, 5 inline style blocks remaining only inside cell renderers for badge colors and dim-text).
+| Section | Data source (DB) | Primitive usage |
+| --- | --- | --- |
+| Map-to-user intro | N/A (identity copy + `MapToUserActions`) | `<SectionHeader>` for title + explanatory subtitle |
+| Unmatched xAPI preview | `loadUnmatchedXapiEventsByExternalEmail` → underlying xAPI / ingest pipeline (see `XapiStatement` in Prisma schema). Preview capped; overflow → `/events`. | `<SectionHeader>` + `<DataTable>` + “View all” footer |
+| Coursera courses (CSV) | `coursera_course_progress` keyed by `external_email` | `<SectionHeader>` + `<DataTable>` |
+| Specializations / badges (CSV) | `coursera_badge_progress` | `<SectionHeader>` + `<DataTable>` |
 
-Net: ~25% fewer lines, much more readable column config, mobile-hide support for free.
+Inline `style={{}}` remains only inside cell renderers (status pills, badge chips, secondary lines).
 
 ---
 
@@ -191,6 +194,7 @@ Some inline styles are appropriate and shouldn't be primitive-ized:
 | Date | Change |
 |---|---|
 | 2026-05-07 | Initial doc; `DataTable` + `SectionHeader` primitives added; reference migration in `app/admin/coursera/learners/unmatched/[externalEmail]/page.tsx`. |
+| 2026-05-08 | Reference page: merged with master (pagination + test-traffic SQL); CSV course/badge tables migrated to `DataTable`; mapping card uses `SectionHeader`. |
 
 ---
 

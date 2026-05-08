@@ -38,10 +38,11 @@ export type B4BEnrollmentReport = {
 export type B4BSyncResult = {
   scanned: number;
   upserted: number;
+  upsertedKnown: number;
+  upsertedUnknown: number;
   skippedNoUser: number;
-  skippedNoMapping: number;
   errors: number;
-  byUser: Record<string, { courses: number; error?: string }>;
+  byUser: Record<string, { courses: number; unknownCourses: number; error?: string }>;
 };
 
 /* ------------------------------------------------------------------ */
@@ -145,6 +146,15 @@ function buildCourseIdToMetaMap(): Record<
   return map;
 }
 
+/** Slugify any string into a valid course slug */
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 80);
+}
+
 /* ------------------------------------------------------------------ */
 /*  Main sync                                                          */
 /* ------------------------------------------------------------------ */
@@ -172,8 +182,9 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   const result: B4BSyncResult = {
     scanned: reports.length,
     upserted: 0,
+    upsertedKnown: 0,
+    upsertedUnknown: 0,
     skippedNoUser: 0,
-    skippedNoMapping: 0,
     errors: 0,
     byUser: {},
   };
@@ -197,14 +208,29 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       continue;
     }
 
-    const metas = courseIdToMeta[report.contentId];
-    if (!metas || metas.length === 0) {
-      result.skippedNoMapping += 1;
-      continue;
+    // Determine program slug: catalog lookup first, then Coursera programId mapping, then fallback
+    let programSlug: string;
+    const knownMetas = courseIdToMeta[report.contentId];
+    const programSlugsFromId = programIdToSlugs[report.programId];
+
+    if (knownMetas && knownMetas.length > 0) {
+      programSlug = knownMetas[0].programSlug;
+    } else if (programSlugsFromId && programSlugsFromId.length > 0) {
+      programSlug = programSlugsFromId[0];
+    } else {
+      // Fallback: use Coursera's programSlug or a generic bucket
+      programSlug = slugify(report.programSlug || report.programName || 'coursera-unknown');
     }
 
-    // Use the first matching program/course mapping
-    const meta = metas[0];
+    // Determine course slug: catalog lookup first, then slugify Coursera contentName
+    let courseSlug: string;
+    let isKnown = false;
+    if (knownMetas && knownMetas.length > 0) {
+      courseSlug = knownMetas[0].courseSlug;
+      isKnown = true;
+    } else {
+      courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
+    }
 
     // Determine status
     let status: CourseProgressStatus;
@@ -221,14 +247,14 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
         where: {
           userId_programSlug_courseSlug: {
             userId,
-            programSlug: meta.programSlug,
-            courseSlug: meta.courseSlug,
+            programSlug,
+            courseSlug,
           },
         },
         create: {
           userId,
-          programSlug: meta.programSlug,
-          courseSlug: meta.courseSlug,
+          programSlug,
+          courseSlug,
           courseId: report.contentId,
           status,
           percentComplete: report.overallProgress,
@@ -245,12 +271,19 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       });
 
       result.upserted += 1;
-      const userEntry = result.byUser[email] ?? { courses: 0 };
+      if (isKnown) {
+        result.upsertedKnown += 1;
+      } else {
+        result.upsertedUnknown += 1;
+      }
+
+      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
       userEntry.courses += 1;
+      if (!isKnown) userEntry.unknownCourses += 1;
       result.byUser[email] = userEntry;
     } catch (err) {
       result.errors += 1;
-      const userEntry = result.byUser[email] ?? { courses: 0 };
+      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
       userEntry.error = err instanceof Error ? err.message : 'unknown';
       result.byUser[email] = userEntry;
       captureApiError(err, {
@@ -261,7 +294,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
   }
 
   // Update MemberProgramProgress rollups for affected users
-  await updateRollups(Object.values(result.byUser).map((_, i) => Object.keys(result.byUser)[i]));
+  await updateRollups(Object.keys(result.byUser));
 
   return result;
 }

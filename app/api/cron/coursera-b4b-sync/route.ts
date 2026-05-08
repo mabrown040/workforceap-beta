@@ -23,8 +23,9 @@ async function handle(_req: NextRequest) {
       ok: true,
       scanned: result.scanned,
       upserted: result.upserted,
+      upsertedKnown: result.upsertedKnown,
+      upsertedUnknown: result.upsertedUnknown,
       skippedNoUser: result.skippedNoUser,
-      skippedNoMapping: result.skippedNoMapping,
       errors: result.errors,
       byUserCount: Object.keys(result.byUser).length,
     };

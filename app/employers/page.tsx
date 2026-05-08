@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
-import { CTABand, CohortStatCard, HeroSection, PageSection, PricingTierCard, StatBand, ValueCard } from '@/components/marketing/ui';
+import { CTABand, CohortStatCard, HeroSection, PageSection, PricingTierCard, ProcessStep, StatBand, ValueCard } from '@/components/marketing/ui';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -237,13 +237,12 @@ export default async function EmployersPage() {
             { step: '2', icon: 'groups', title: t('introStep2Title'), desc: t('introStep2Desc') },
             { step: '3', icon: 'handshake', title: t('introStep3Title'), desc: t('introStep3Desc') },
           ].map((item) => (
-            <div key={item.step} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.25rem', flexShrink: 0 }}>{item.step}</div>
-              <div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem' }}>{item.title}</h3>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', lineHeight: 1.6 }}>{item.desc}</p>
-              </div>
-            </div>
+            <ProcessStep
+              key={item.step}
+              step={item.step}
+              title={item.title}
+              description={item.desc}
+            />
           ))}
         </div>
       </PageSection>

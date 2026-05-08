@@ -7,6 +7,7 @@ export { JourneyStep } from './JourneyStep';
 export { PageSection } from './PageSection';
 export { PartnershipCard } from './PartnershipCard';
 export { PricingTierCard } from './PricingTierCard';
+export { ProcessStep } from './ProcessStep';
 export { SectionHeader } from './SectionHeader';
 export { StatBand } from './StatBand';
 export { ValueCard } from './ValueCard';

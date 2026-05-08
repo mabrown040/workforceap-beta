@@ -18,18 +18,34 @@ const DEFAULT_NAME = 'Workforce Advancement Project';
 const DEFAULT_ACCENT = '#4a9b4f';
 
 /**
- * Restrict mail CTA links to same origin as the resolved branding (or the
- * default site URL when no branding is supplied) to avoid open redirects
- * in href.
+ * Restrict mail CTA links to a small allowlist of "our" origins to avoid
+ * open redirects in href. The allowlist is:
+ *   - The resolved branding origin (e.g. `https://aaul.workforceap.org`)
+ *   - The canonical `DEFAULT_SITE_URL` (`NEXT_PUBLIC_SITE_URL` or
+ *     `https://www.workforceap.org`)
+ *
+ * Codex P1 catch on PR #1052: when an org has a `customDomain`, the
+ * invite/auth flows still build URLs on the canonical `NEXT_PUBLIC_SITE_URL`
+ * (e.g. `https://www.workforceap.org/invite?token=...`). The previous
+ * single-origin check rejected those as cross-origin and replaced the CTA
+ * with the tenant root, dropping the invite token. Allowing both origins
+ * preserves token-bearing CTAs without opening up arbitrary external
+ * redirects.
  */
 export function safeEmailCtaHref(url: string, baseOrigin?: string): string {
   const base = baseOrigin || DEFAULT_SITE_URL;
   try {
     const u = new URL(url, base);
-    const baseUrl = new URL(base);
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return `${baseUrl.origin}/`;
-    if (u.origin !== baseUrl.origin) return `${baseUrl.origin}/`;
-    return u.href;
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      return `${new URL(base).origin}/`;
+    }
+
+    const allowed = new Set<string>();
+    try { allowed.add(new URL(base).origin); } catch {}
+    try { allowed.add(new URL(DEFAULT_SITE_URL).origin); } catch {}
+
+    if (allowed.has(u.origin)) return u.href;
+    return `${new URL(base).origin}/`;
   } catch {
     try {
       return `${new URL(base).origin}/`;

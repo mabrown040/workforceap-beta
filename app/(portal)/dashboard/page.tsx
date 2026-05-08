@@ -549,20 +549,22 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </div>
 
               {/* Progress ring — only shown once training has actually started (state C/D); 0% next to "Getting started" reads as failure */}
-              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.45rem', flexShrink: 0, minWidth: '7rem' }}>
+              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', flexShrink: 0, width: '7rem' }}>
                 <div
                   className="portal-progress-ring"
                   style={{
+                    position: 'relative',
                     width: '6rem',
                     height: '6rem',
                     flexShrink: 0,
+                    margin: '0 auto',
                     borderRadius: '999px',
                     background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
                     boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
                     border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
                   }}
                 >
-                  <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
+                  <svg style={{ width: '100%', height: '100%', display: 'block', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
                     <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
                     <circle
                       cx="48" cy="48" r="40" fill="transparent"
@@ -749,6 +751,24 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
               </p>
               <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 {t('uploadImproveResume')}
+              </Link>
+              <Link
+                href="/dashboard/points"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  marginTop: '0.75rem',
+                  fontSize: '0.8125rem',
+                  fontWeight: 700,
+                  color: 'var(--color-accent)',
+                  textDecoration: 'none',
+                }}
+              >
+                How to earn points
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                  arrow_forward
+                </span>
               </Link>
             </div>
           )}

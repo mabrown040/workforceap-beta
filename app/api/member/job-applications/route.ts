@@ -6,6 +6,7 @@ import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
+import { awardPoints } from '@/lib/member/points';
 
 // GET: List user's job applications
 export async function GET() {
@@ -86,6 +87,9 @@ export async function POST(request: NextRequest) {
         source: application.source,
       },
     });
+
+    // Award points (idempotent on application id)
+    awardPoints(user.id, 'job_application', application.id).catch(() => {});
 
     const recentTools = await findRecentAiToolsForApplicationFeedback(prisma, user.id);
     const promptAiFeedback = recentTools.length > 0;

@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { findPathwayById } from '@/lib/content/learningPathways';
+import { awardPoints } from '@/lib/member/points';
 
 export async function POST(
   _request: Request,
@@ -66,6 +67,9 @@ export async function POST(
       entityId: `${pathwayId}-${stepIdx}`,
       metadata: { pathwayId, stepIndex: stepIdx, stepTitle },
     });
+
+    // Award points (idempotent per (pathway, step))
+    awardPoints(user.id, 'pathway_step_completed', `${pathwayId}-${stepIdx}`).catch(() => {});
 
     return NextResponse.json({ progress });
   } catch (err) {

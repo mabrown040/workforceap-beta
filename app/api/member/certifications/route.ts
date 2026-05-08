@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { trackEvent } from '@/lib/events/track';
+import { awardPoints } from '@/lib/member/points';
 
 const toggleSchema = z.object({
   certName: z.string().min(1).max(200),
@@ -76,6 +77,9 @@ export async function POST(request: Request) {
         entityType: 'UserCertification',
         metadata: { certName },
       }).catch(() => {});
+
+      // Award points (idempotent per cert name)
+      awardPoints(user.id, 'certification_earned', certName).catch(() => {});
 
       sendPartnerMilestoneEmail(user.id, 'Certification earned', {
         Certification: certName,

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { awardPoints } from '@/lib/member/points';
 
 const createSchema = z.object({
   company: z.string().min(1).max(200),
@@ -66,6 +67,8 @@ export async function POST(request: Request) {
       },
     });
     await trackEvent({ userId: user.id, eventName: 'application_added', entityType: 'job_application', entityId: app.id });
+    // Award points (idempotent on application id)
+    awardPoints(user.id, 'job_application', app.id).catch(() => {});
     return NextResponse.json({ application: app });
   } catch (err) {
     captureApiError(err, { route: 'member/applications POST' });

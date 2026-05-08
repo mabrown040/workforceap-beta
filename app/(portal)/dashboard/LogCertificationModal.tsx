@@ -3,6 +3,17 @@
 import { useState } from 'react';
 import { logExternalCertification } from './logCertAction';
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '0.8rem 0.9rem',
+  borderRadius: '0.75rem',
+  border: '1px solid var(--outline-variant)',
+  background: 'var(--surface)',
+  color: 'var(--color-on-surface)',
+  fontSize: '0.95rem',
+  boxSizing: 'border-box',
+};
+
 export default function LogCertificationModal() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -13,6 +24,7 @@ export default function LogCertificationModal() {
     try {
       const formData = new FormData(e.currentTarget);
       await logExternalCertification(formData);
+      e.currentTarget.reset();
       setOpen(false);
     } catch (err) {
       console.error(err);
@@ -23,39 +35,82 @@ export default function LogCertificationModal() {
 
   if (!open) {
     return (
-      <button
-        type="button"
-        className="btn btn-outline"
-        style={{ width: '100%', minHeight: '2.75rem', fontWeight: 700 }}
-        onClick={() => setOpen(true)}
+      <div
+        className="portal-card portal-card--flat"
+        style={{
+          padding: '1rem',
+          borderRadius: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.9rem',
+          background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, white) 0%, white 100%)',
+          border: '1px solid color-mix(in srgb, var(--color-accent) 12%, var(--outline-variant))',
+        }}
       >
-        Add a Certificate
-      </button>
+        <div style={{ minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+            Certification update
+          </p>
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', lineHeight: 1.45, color: 'var(--color-on-surface)' }}>
+            Finished a course or earned a credential? Add it here so your counselor can review it faster.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ minHeight: '2.75rem', fontWeight: 700, flexShrink: 0 }}
+          onClick={() => setOpen(true)}
+        >
+          Add certificate
+        </button>
+      </div>
     );
   }
 
   return (
-    <div style={{ background: 'var(--surface-container)', padding: '1rem', borderRadius: '0.75rem' }}>
-      <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>Add a Certificate</h3>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        <input
-          name="certName"
-          placeholder="Certification Name (e.g., AWS Cloud Practitioner)"
-          required
-          style={{ padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid var(--outline-variant)' }}
-        />
-        <input
-          type="date"
-          name="earnedAt"
-          required
-          style={{ padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid var(--outline-variant)' }}
-        />
-        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-          <button type="button" className="btn btn-ghost" onClick={() => setOpen(false)}>Cancel</button>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Saving...' : 'Save Certificate'}
-          </button>
+    <div
+      className="portal-card portal-card--flat"
+      style={{
+        padding: '1rem',
+        borderRadius: '1rem',
+        background: 'var(--surface-container)',
+        border: '1px solid var(--outline-variant)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.9rem' }}>
+        <div>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>Add a certificate</h3>
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
+            Enter the credential name and the date you earned it.
+          </p>
         </div>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Certification name</span>
+          <input
+            name="certName"
+            placeholder="AWS Cloud Practitioner"
+            required
+            style={inputStyle}
+          />
+        </label>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Date earned</span>
+          <input
+            type="date"
+            name="earnedAt"
+            required
+            style={inputStyle}
+          />
+        </label>
+        <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', justifyContent: 'center' }}>
+          {loading ? 'Saving…' : 'Save certificate'}
+        </button>
       </form>
     </div>
   );

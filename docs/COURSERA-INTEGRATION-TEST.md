@@ -18,7 +18,7 @@ B4B puller or rely on inbound xAPI alone.
    what Coursera will send in production.
 2. **(b) Outbound For Business API.**
    Exchanges the dev app's B4B client_id/secret at
-   `https://api.coursera.org/oauth2/client_credentials/token` and reports the
+   `https://api.coursera.com/oauth2/client_credentials/token` and reports the
    granted scopes.
 3. **(c) Reverse-engineer reachable endpoints.**
    Probes a list of common Coursera For Business REST endpoints
@@ -53,8 +53,8 @@ written into a config file checked into the repo.
 | `COURSERA_TARGET_BASE_URL` | `http://localhost:3000` | Host the inbound test points at. Set to your Vercel preview URL to test stage, or `https://www.workforceap.org` to test prod. |
 | `COURSERA_ORG_ID` | `8R2W4McwOMWJp9cCBV1kvw` | Workforce Advancement Project's Coursera org ID. |
 | `COURSERA_ORG_SLUG` | `workforce-advancement` | Used as a fallback path segment in some probes. |
-| `COURSERA_OAUTH_TOKEN_URL` | `https://api.coursera.org/oauth2/client_credentials/token` | Coursera's outbound OAuth endpoint. |
-| `COURSERA_API_BASE_URL` | `https://api.coursera.org` | Base for B4B endpoint probes. |
+| `COURSERA_OAUTH_TOKEN_URL` | `https://api.coursera.com/oauth2/client_credentials/token` | Coursera's outbound OAuth endpoint. |
+| `COURSERA_API_BASE_URL` | `https://api.coursera.com/ent` | Base for B4B endpoint probes. |
 
 If all four required variables are absent, the script exits with code 2 and
 prints which ones are missing. If only one of the two pairs is set, the script
@@ -88,7 +88,7 @@ npm run coursera:test
 ```
 
 The inbound xAPI section will hit the Vercel-deployed Next.js handlers; the
-outbound section calls `api.coursera.org` directly from the runner's machine,
+outbound section calls `api.coursera.com` directly from the runner's machine,
 so it works the same regardless of `COURSERA_TARGET_BASE_URL`.
 
 ### Production
@@ -145,7 +145,7 @@ shape we guessed. Add the actual URL from Coursera's docs to
 
 ### Network errors / `fetch failed`
 If running against `localhost:3000`, ensure `npm run dev` is up. If the
-outbound call to `api.coursera.org` fails, confirm your machine has
+outbound call to `api.coursera.com` fails, confirm your machine has
 unrestricted egress (some sandboxed CI runners cannot reach Coursera).
 
 ## What the script does NOT do

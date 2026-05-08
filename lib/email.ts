@@ -446,7 +446,13 @@ export async function sendApplicationAcceptedEmail(params: {
   }
   const branding = await getOrganizationBranding(params.orgId);
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
-  const subject = `Welcome to ${branding.name} - Your Application Was Accepted`;
+  // Codex P2 catch on PR #1052: branding.name is constrained only by
+  // min/max length in the Organization schema, so a stray newline could
+  // produce a malformed Subject: header (header-injection-style line
+  // break). Sanitize like the other branded subjects in this file.
+  const subject = sanitizeEmailSubjectLine(
+    `Welcome to ${branding.name} - Your Application Was Accepted`,
+  );
   const html = brandedEmailLayout({
     title: subject,
     bodyHtml: applicationAcceptedHtml({ firstName: first, branding }),

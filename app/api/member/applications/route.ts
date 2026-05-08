@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { awardPoints } from '@/lib/member/points';
 
 const createSchema = z.object({
   company: z.string().min(1).max(200),
@@ -66,6 +67,14 @@ export async function POST(request: Request) {
       },
     });
     await trackEvent({ userId: user.id, eventName: 'application_added', entityType: 'job_application', entityId: app.id });
+    // Award points only when the row represents a REAL application, not a
+    // saved lead. Codex P2 catch on PR #1061 — schema defaults to `SAVED`, so
+    // awarding on every create let users inflate points by saving jobs. The
+    // PATCH route (`/api/member/applications/[id]`) handles the transition
+    // from SAVED → APPLIED/etc. Idempotent on application id.
+    if (status !== 'SAVED') {
+      awardPoints(user.id, 'job_application', app.id).catch(() => {});
+    }
     return NextResponse.json({ application: app });
   } catch (err) {
     captureApiError(err, { route: 'member/applications POST' });

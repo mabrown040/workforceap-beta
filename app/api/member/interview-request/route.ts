@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { awardPoints } from '@/lib/member/points';
 
 export async function POST() {
   const user = await getUser();
@@ -41,6 +42,9 @@ export async function POST() {
     where: { id: user.id },
     data: { interviewRequestedAt: new Date() },
   });
+
+  // Award points (idempotent — fixed entityId means only the first request awards)
+  awardPoints(user.id, 'interview_requested', 'first-request').catch(() => {});
 
   return NextResponse.json({ ok: true });
   } catch {

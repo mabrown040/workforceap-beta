@@ -113,6 +113,15 @@ export default async function DashboardPointsPage() {
   //   - program_enrolled       → app/api/member/enroll/route.ts
   //   - course_completed       → lib/member/courseCompletion.ts
   //   - counselor_session      → app/api/counselor/feedback/route.ts
+  //   - placement_recorded     → app/api/admin/placements/route.ts
+  //   - certification_earned   → app/api/member/certifications/route.ts
+  //   - interview_requested    → app/api/member/interview-request/route.ts
+  //   - resume_uploaded        → app/api/member/resume/upload/route.ts
+  //   - job_application        → app/api/(portal)/dashboard/jobs/[id]/apply/route.ts
+  //                              + app/api/member/job-applications/route.ts
+  //                              + app/api/member/job-applications/log-external/route.ts
+  //                              + app/api/member/applications/route.ts
+  //   - pathway_step_completed → app/api/member/pathway-steps/[pathwayId]/[stepIndex]/complete/route.ts
   // counselor_bonus is admin-awarded (uses customPoints), not member-earnable
   // directly, so it's intentionally excluded from EARN_ACTIONS.
   const WIRED_EVENTS = new Set<string>([
@@ -120,6 +129,12 @@ export default async function DashboardPointsPage() {
     'program_enrolled',
     'course_completed',
     'counselor_session',
+    'placement_recorded',
+    'certification_earned',
+    'interview_requested',
+    'resume_uploaded',
+    'job_application',
+    'pathway_step_completed',
   ]);
   const earnableActions = EARN_ACTIONS.filter(
     (a) => WIRED_EVENTS.has(a.event) && POINT_VALUES[a.event] > 0,

@@ -5,6 +5,7 @@ import { sendNewJobApplicationEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
+import { awardPoints } from '@/lib/member/points';
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -88,6 +89,9 @@ export async function POST(
     metadata: { jobId: id, jobTitle: job.title },
     sourcePage: `/dashboard/jobs/${id}`,
   });
+
+  // Award points (idempotent on application id)
+  awardPoints(authUser.id, 'job_application', app.id).catch(() => {});
 
   try {
     await syncCuratedJobToTracker(

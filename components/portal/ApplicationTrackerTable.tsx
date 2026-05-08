@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { trackApplicationTrackerOpen } from '@/lib/analytics/events';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import DataTable from '@/components/portal/ui/DataTable';
+import { useScrollAffordance } from './useScrollAffordance';
 
 type JobApplication = {
   id: string;

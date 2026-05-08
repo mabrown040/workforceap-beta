@@ -1,4 +1,4 @@
-import type { ReactNode, InputHTMLAttributes, SelectHTMLAttributes } from 'react';
+import type { ReactNode, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
 interface FormFieldProps {
   label: string;
@@ -64,7 +64,7 @@ export function SelectField(props: SelectHTMLAttributes<HTMLSelectElement>) {
   );
 }
 
-export function TextArea(props: InputHTMLAttributes<HTMLTextAreaElement>) {
+export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}

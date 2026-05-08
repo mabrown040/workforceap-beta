@@ -38,13 +38,17 @@ export default async function ProgramPage() {
       enrolledAt: true,
       workspaceEmail: true,
       workspaceEmailProvisioned: true,
-      courseEnrollment: {
+      // Multi-program: workspace metadata lives on the primary enrollment
+      // (matches /dashboard/program/start). Returns 0 or 1 row.
+      courseEnrollments: {
+        where: { isPrimary: true },
         select: {
           id: true,
           workspaceEmail: true,
           workspaceEmailProvisioned: true,
           enrolledAt: true,
         },
+        take: 1,
       },
     },
   });
@@ -95,13 +99,13 @@ export default async function ProgramPage() {
               Coursera & training email
             </p>
             <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', lineHeight: 1.55 }}>
-              {dbUser?.courseEnrollment?.workspaceEmailProvisioned || dbUser?.workspaceEmailProvisioned
+              {dbUser?.courseEnrollments?.[0]?.workspaceEmailProvisioned || dbUser?.workspaceEmailProvisioned
                 ? 'Your WorkforceAP training seat is on file. Use the training email below when opening Coursera links so progress syncs.'
                 : 'Staff still provisions Coursera under your assigned WorkforceAP workspace email when your seat is ready — watch Counselor Chat for the exact address.'}
             </p>
-            {(dbUser?.courseEnrollment?.workspaceEmail || dbUser?.workspaceEmail) && (
+            {(dbUser?.courseEnrollments?.[0]?.workspaceEmail || dbUser?.workspaceEmail) && (
               <p style={{ margin: '0.5rem 0 0', fontWeight: 700, wordBreak: 'break-all' }}>
-                {dbUser?.courseEnrollment?.workspaceEmail ?? dbUser?.workspaceEmail}
+                {dbUser?.courseEnrollments?.[0]?.workspaceEmail ?? dbUser?.workspaceEmail}
               </p>
             )}
             <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

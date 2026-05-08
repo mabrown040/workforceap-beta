@@ -183,8 +183,10 @@ export default async function AdminMemberDetailPage({
       include: { counselor: { select: { userId: true, user: { select: { fullName: true } } } } },
     }),
     prisma.placementRecord.findUnique({ where: { userId: id }, select: placementRecordSafeSelect }).catch(() => null),
-    prisma.courseEnrollment.findUnique({
-      where: { userId: id },
+    // Multi-program: funding/workspace metadata lives on the primary
+    // enrollment row. Secondary enrollments inherit nothing here.
+    prisma.courseEnrollment.findFirst({
+      where: { userId: id, isPrimary: true },
       select: {
         fundingSource: true,
         fundingNotes: true,

@@ -47,8 +47,11 @@ export async function GET(
         },
       },
     }),
-    prisma.courseEnrollment.findUnique({
-      where: { userId: memberId },
+    // Multi-program: pick the primary enrollment for the lifecycle view.
+    // Other (secondary) enrollments are intentionally not shown here; the
+    // member detail page surfaces them. See prisma/migrations/.../multi_course_enrollment.
+    prisma.courseEnrollment.findFirst({
+      where: { userId: memberId, isPrimary: true },
       select: {
         programSlug: true,
         enrolledAt: true,

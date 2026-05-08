@@ -122,8 +122,12 @@ export async function GET(request: NextRequest) {
         email: true,
         fullName: true,
         enrolledProgram: true,
-        courseEnrollment: {
+        // Multi-program: use the primary enrollment's slug for the reconcile
+        // comparison. Secondary enrollments aren't surfaced in this view.
+        courseEnrollments: {
+          where: { isPrimary: true },
           select: { programSlug: true },
+          take: 1,
         },
       },
     }),
@@ -140,7 +144,7 @@ export async function GET(request: NextRequest) {
       id: u.id,
       email: u.email,
       fullName: u.fullName,
-      programSlug: u.courseEnrollment?.programSlug ?? u.enrolledProgram ?? null,
+      programSlug: u.courseEnrollments[0]?.programSlug ?? u.enrolledProgram ?? null,
     });
   }
 

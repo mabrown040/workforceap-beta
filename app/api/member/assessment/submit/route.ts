@@ -44,7 +44,12 @@ export async function POST(request: Request) {
       assessmentCompleted: true,
       email: true,
       phone: true,
-      courseEnrollment: { select: { enrolledByAdminId: true } },
+      // Multi-program: counselor-created flag lives on the primary enrollment.
+      courseEnrollments: {
+        where: { isPrimary: true },
+        select: { enrolledByAdminId: true },
+        take: 1,
+      },
       profile: {
         select: {
           profilePhone: true,
@@ -66,7 +71,7 @@ export async function POST(request: Request) {
   }
 
   const starterProfileReview = getCounselorStarterProfileReview({
-    wasCounselorCreated: !!dbUser.courseEnrollment?.enrolledByAdminId,
+    wasCounselorCreated: !!dbUser.courseEnrollments[0]?.enrolledByAdminId,
     phone: dbUser.phone,
     profilePhone: dbUser.profile?.profilePhone,
     profileAddress: dbUser.profile?.profileAddress,

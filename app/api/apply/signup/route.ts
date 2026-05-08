@@ -202,16 +202,20 @@ export async function POST(request: NextRequest) {
       // Self-serve enroll (POST /api/member/enroll) and admin create both do this.
       // Signup must do the same so inactivity crons and reporting see consistent state.
       if (programSlug) {
+        // Multi-program: signup creates the user's first enrollment, mark
+        // it primary. Composite-keyed upsert ensures retries don't create
+        // duplicate (userId, programSlug) rows.
         await tx.courseEnrollment.upsert({
-          where: { userId: user.id },
+          where: { userId_programSlug: { userId: user.id, programSlug } },
           create: {
             organizationId,
             userId: user.id,
             programSlug,
+            isPrimary: true,
             enrolledAt: new Date(),
           },
           update: {
-            programSlug,
+            isPrimary: true,
             enrolledAt: new Date(),
           },
         });

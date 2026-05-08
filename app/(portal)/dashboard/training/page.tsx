@@ -29,6 +29,7 @@ import {
   type LearnerProgressByContent,
 } from '@/lib/coursera/learnerProgress';
 import RefreshCourseraProgressButton from '@/components/portal/RefreshCourseraProgressButton';
+import TrainingProgramTabs from '@/components/portal/TrainingProgramTabs';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -62,68 +63,58 @@ function RelativeFreshness({ when }: { when: Date }) {
 export default async function TrainingPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ error?: string }>;
+  searchParams?: Promise<{ error?: string; program?: string }>;
 }) {
   const params = await searchParams;
   const launchError = params?.error === 'launch_failed';
+  const requestedProgramSlug = typeof params?.program === 'string' ? params.program.trim() : '';
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
+
+  // Multi-program: pull all enrollments (primary first), not just
+  // User.enrolledProgram. The active program is either ?program=<slug>
+  // (must be one of the user's enrollments) or the primary enrollment.
   const dbUserPromise = prisma.user.findUnique({
     where: { id: user.id },
     select: {
       enrolledProgram: true,
       assessmentCompleted: true,
+      courseEnrollments: {
+        select: {
+          id: true,
+          programSlug: true,
+          isPrimary: true,
+          enrolledAt: true,
+        },
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
+      },
     },
   });
 
-  // B4B is queried in parallel with the local DB reads. Coursera is the
-  // authoritative source of % progress (xAPI lags hours-to-days), but we
-  // never block the page on it: the inner call returns an empty map on
-  // failure so callers fall through to local rows. See
-  // lib/coursera/learnerProgress.ts for caching + fail-soft semantics.
-  const b4bProgressPromise = dbUserPromise.then(async (u) => {
-    if (!u?.enrolledProgram || !user.email) return new Map() as LearnerProgressByContent;
-    const courseraProgramId = DISCOVERED_COURSERA_PROGRAMS[u.enrolledProgram]?.courseraProgramId;
-    return fetchLearnerProgressFromB4B(user.email, {
-      programId: courseraProgramId,
-    });
-  });
-
-  const [tTraining, dbUser, progressRows, programRollup, courseraMappings, b4bProgress] = await Promise.all([
+  const [tTraining, dbUser, courseraMappings] = await Promise.all([
     getTranslations('training'),
     dbUserPromise,
-    dbUserPromise.then((u) =>
-      u?.enrolledProgram
-        ? prisma.courseProgress.findMany({
-            where: { userId: user.id, programSlug: u.enrolledProgram },
-            select: { courseSlug: true, status: true, percentComplete: true },
-          })
-        : []
-    ),
-    dbUserPromise.then((u) =>
-      u?.enrolledProgram
-        ? prisma.memberProgramProgress.findUnique({
-            where: {
-              userId_programSlug: { userId: user.id, programSlug: u.enrolledProgram },
-            },
-            select: { coursesCompleted: true, averagePercent: true },
-          })
-        : null
-    ),
     listCourseraIdentityMappingsForUser(user.id).catch((error) => {
       console.warn('[dashboard/training] unable to load Coursera identity mappings:', error);
       return [];
     }),
-    b4bProgressPromise.catch((error) => {
-      // Defensive: fetchLearnerProgressFromB4B already swallows errors
-      // internally, but if anything in the program-id lookup throws we
-      // still want the page to render with local rows.
-      console.warn('[dashboard/training] B4B learner progress unavailable:', error);
-      return new Map() as LearnerProgressByContent;
-    }),
   ]);
 
-  if (!dbUser?.enrolledProgram) {
+  const enrollments = dbUser?.courseEnrollments ?? [];
+  const primaryEnrollment = enrollments.find((e) => e.isPrimary) ?? enrollments[0] ?? null;
+  // If ?program=<slug> is one of the user's enrollments, use it; otherwise
+  // fall back to the primary, then to User.enrolledProgram (legacy users
+  // whose CourseEnrollment row hasn't backfilled yet).
+  const matchingRequested = requestedProgramSlug
+    ? enrollments.find((e) => e.programSlug === requestedProgramSlug)
+    : null;
+  const activeProgramSlug =
+    matchingRequested?.programSlug ??
+    primaryEnrollment?.programSlug ??
+    dbUser?.enrolledProgram ??
+    null;
+
+  if (!activeProgramSlug) {
     return (
       <div className="portal-main-content">
         <div className="content-card" style={{ maxWidth: '36rem', margin: '2rem auto', textAlign: 'center', padding: '2rem' }}>
@@ -138,13 +129,39 @@ export default async function TrainingPage({
     );
   }
 
-  if (!dbUser.assessmentCompleted) {
+  if (!dbUser?.assessmentCompleted) {
     redirect('/dashboard/assessment?redirect=/dashboard/training');
   }
 
+  // Per-program data load now keys on the active slug, not enrolledProgram.
+  // B4B fetch happens here too so it's keyed on the same active slug — when
+  // multi-program lands, switching tabs re-fetches authoritative progress
+  // for the new active program. Fail-soft: empty map if B4B is unavailable
+  // so the page still renders with local CourseProgress rows.
+  const courseraProgramIdForActive =
+    DISCOVERED_COURSERA_PROGRAMS[activeProgramSlug]?.courseraProgramId;
+  const [progressRows, programRollup, b4bProgress] = await Promise.all([
+    prisma.courseProgress.findMany({
+      where: { userId: user.id, programSlug: activeProgramSlug },
+      select: { courseSlug: true, status: true, percentComplete: true },
+    }),
+    prisma.memberProgramProgress.findUnique({
+      where: { userId_programSlug: { userId: user.id, programSlug: activeProgramSlug } },
+      select: { coursesCompleted: true, averagePercent: true },
+    }),
+    user.email
+      ? fetchLearnerProgressFromB4B(user.email, { programId: courseraProgramIdForActive }).catch(
+          (error) => {
+            console.warn('[dashboard/training] B4B learner progress unavailable:', error);
+            return new Map() as LearnerProgressByContent;
+          },
+        )
+      : Promise.resolve(new Map() as LearnerProgressByContent),
+  ]);
+
   trackTrainingTabViewed(user.id);
 
-  const program = getProgramBySlug(dbUser.enrolledProgram);
+  const program = getProgramBySlug(activeProgramSlug);
   if (!program) redirect('/dashboard/program');
 
   const discovered = getDiscoveredProgram(program);
@@ -213,8 +230,19 @@ export default async function TrainingPage({
   const b4bLastActivity = getLearnerProgressLastActivity(b4bProgress);
   const b4bHasData = b4bProgress.size > 0;
 
-  const courseraReadiness = getCourseraReadiness(dbUser.enrolledProgram);
+  const courseraReadiness = getCourseraReadiness(activeProgramSlug);
   const savedCourseraEmail = courseraMappings.find((mapping) => mapping.courseraEmail)?.courseraEmail ?? null;
+
+  // Multi-program: tabs only render when the user has 2+ enrollments.
+  // Single-enrollment users see the same layout they always did.
+  const tabRows = enrollments.map((e) => ({
+    id: e.id,
+    programSlug: e.programSlug,
+    programTitle: getProgramBySlug(e.programSlug)?.title ?? e.programSlug,
+    isPrimary: e.isPrimary,
+  }));
+  const showProgramTabs = tabRows.length > 1;
+  const activeIsPrimary = primaryEnrollment?.programSlug === activeProgramSlug;
 
   const isZeroState = completedCount === 0 && !Object.values(progressBySlug).some((p) => p.status === 'IN_PROGRESS' || (p.percentComplete ?? 0) > 0);
 
@@ -267,6 +295,16 @@ export default async function TrainingPage({
             { label: tTraining('myTraining') },
           ]}
         />
+
+        {showProgramTabs && (
+          <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+            <TrainingProgramTabs
+              tabs={tabRows}
+              activeProgramSlug={activeProgramSlug}
+              activeIsPrimary={activeIsPrimary}
+            />
+          </div>
+        )}
 
         {launchError && (
           <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
@@ -535,7 +573,7 @@ export default async function TrainingPage({
             <TrainingCourseList
               courses={coursesWithIds}
               completedSlugs={coursesCompleted}
-              programSlug={dbUser.enrolledProgram}
+              programSlug={activeProgramSlug}
               progressBySlug={progressBySlug}
             />
           </section>

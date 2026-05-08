@@ -184,12 +184,18 @@ export async function GET(request: NextRequest) {
         organizationId: true,
         profile: { select: { role: true } },
         userRoles: { include: { role: { select: { name: true } } } },
-        courseEnrollment: {
+        // Multi-program: pull all the user's enrollments (primary first) for
+        // the inspect card. The card today only renders the legacy
+        // `wapEnrollments` (CourseProgress rows), so this is informational —
+        // a future PR will surface the full enrollment list.
+        courseEnrollments: {
           select: {
             programSlug: true,
+            isPrimary: true,
             enrolledAt: true,
             updatedAt: true,
           },
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
         },
       },
     }),

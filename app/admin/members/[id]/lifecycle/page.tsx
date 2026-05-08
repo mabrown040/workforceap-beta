@@ -52,8 +52,9 @@ export default async function AdminMemberLifecyclePage({
         },
       },
     }),
-    prisma.courseEnrollment.findUnique({
-      where: { userId: memberId },
+    // Multi-program: show the primary enrollment in the lifecycle header.
+    prisma.courseEnrollment.findFirst({
+      where: { userId: memberId, isPrimary: true },
       select: {
         programSlug: true,
         enrolledAt: true,

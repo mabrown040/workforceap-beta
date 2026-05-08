@@ -59,17 +59,35 @@ export async function PATCH(
         select: { organizationId: true },
       });
       if (memberForOrg) {
+        // Multi-program: a program-change request flips the user's primary
+        // enrollment to the requested program. Demote any other primary
+        // first (the partial unique index `course_enrollments_user_primary_uidx`
+        // allows only one). Then upsert the requested-slug row as primary.
+        await tx.courseEnrollment.updateMany({
+          where: {
+            userId: existing.userId,
+            isPrimary: true,
+            programSlug: { not: existing.requestedProgramSlug },
+          },
+          data: { isPrimary: false },
+        });
         await tx.courseEnrollment.upsert({
-          where: { userId: existing.userId },
+          where: {
+            userId_programSlug: {
+              userId: existing.userId,
+              programSlug: existing.requestedProgramSlug,
+            },
+          },
           create: {
             organizationId: memberForOrg.organizationId,
             userId: existing.userId,
             programSlug: existing.requestedProgramSlug,
+            isPrimary: true,
             enrolledAt: new Date(),
             enrolledByAdminId: user.id,
           },
           update: {
-            programSlug: existing.requestedProgramSlug,
+            isPrimary: true,
             enrolledByAdminId: user.id,
           },
         });

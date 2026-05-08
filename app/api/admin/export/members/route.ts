@@ -101,13 +101,18 @@ export async function GET(req: NextRequest) {
       applications: {
         select: { status: true, submittedAt: true },
       },
-      courseEnrollment: {
+      // Multi-program: export uses the primary enrollment for the funding
+      // / programSlug column. Secondary enrollments are intentionally not
+      // exported here (a separate report would list all enrollments).
+      courseEnrollments: {
+        where: { isPrimary: true },
         select: {
           programSlug: true,
           fundingSource: true,
           fundingNotes: true,
           enrolledAt: true,
         },
+        take: 1,
       },
       trainingAccessRequests: {
         select: { providerKey: true, status: true, activatedAt: true },
@@ -205,7 +210,7 @@ export async function GET(req: NextRequest) {
     const wioa = u.wioaQualificationJson as { signal?: string } | null;
     const wioaSignal = wioa?.signal ?? '';
 
-    const enrollment = u.courseEnrollment;
+    const enrollment = u.courseEnrollments[0] ?? null;
     const fundingSource = enrollment?.fundingSource ?? '';
 
     const certs = u.userCertifications.map((c) => c.certName).join('; ');

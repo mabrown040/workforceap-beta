@@ -145,7 +145,12 @@ model User {
   applicationMessagesAuthored ApplicationMessage[]
   preScreeningResponse        PreScreeningResponse?
   preScreeningDraft           PreScreeningDraft?
-  courseEnrollment            CourseEnrollment?
+  /// All program enrollments for the user (multi-program support). At most
+  /// one row has `isPrimary = true` (enforced by partial unique index). Use
+  /// `findFirst({ where: { userId, isPrimary: true } })` for the primary
+  /// enrollment, or `findUnique({ where: { userId_programSlug: ... } })`
+  /// for a specific program.
+  courseEnrollments           CourseEnrollment[]
   adminCourseEnrollments      CourseEnrollment[]    @relation("AdminCourseEnrollments")
 
   mentorProfile       Mentor?
@@ -1286,7 +1291,12 @@ model OrganizationProgramCatalog {
   @@map("organization_program_catalog")
 }
 
-// One row per member enrollment (mirrors User.enrolledProgram); enrolledByAdminId skips self-serve profile gate.
+// One row per member enrollment per program. A user can have multiple
+// CourseEnrollment rows (e.g., IT Support + Cybersecurity); exactly one is
+// flagged `isPrimary = true` and is what /dashboard/training defaults to.
+// `User.enrolledProgram` is a redundant pointer kept temporarily so xAPI
+// crediting and a few admin views keep working — slated to deprecate once
+// every consumer reads from CourseEnrollment + isPrimary directly.
 model Course {
   id               String   @id @default(uuid())
   organizationId   String   @map("organization_id")
@@ -1311,8 +1321,15 @@ model Course {
 model CourseEnrollment {
   id                String   @id @default(uuid())
   organizationId    String   @map("organization_id")
-  userId            String   @unique @map("user_id")
+  userId            String   @map("user_id")
   programSlug       String   @map("program_slug")
+  /// At most one row per user has `isPrimary = true` (enforced by partial
+  /// unique index `course_enrollments_user_primary_uidx`). Mirrors what
+  /// /dashboard/training defaults to; xAPI ingestion still gates on
+  /// `User.enrolledProgram`, which the codebase keeps in sync with the
+  /// primary row until the dual-enrollment xAPI path lands (see
+  /// lib/xapi/inboundStatementPipeline.ts — deferred to a later PR).
+  isPrimary         Boolean  @default(false) @map("is_primary")
   enrolledAt        DateTime @default(now()) @map("enrolled_at")
   enrolledByAdminId String?  @map("enrolled_by_admin_id")
   createdAt         DateTime @default(now()) @map("created_at")
@@ -1326,8 +1343,10 @@ model CourseEnrollment {
   workspaceEmailProvisioned Boolean        @default(false) @map("workspace_email_provisioned")
   workspaceEmail            String?        @map("workspace_email")
 
+  @@unique([userId, programSlug])
   @@index([organizationId])
   @@index([programSlug])
+  @@index([userId, isPrimary])
   @@map("course_enrollments")
 }
 

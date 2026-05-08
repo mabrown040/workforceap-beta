@@ -158,11 +158,13 @@ export async function POST(request: Request) {
       // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
       // The member self-enrollment flow (POST /api/member/enroll) does this in a
       // transaction. Admin creation must do the same.
+      // Multi-program: admin-created member's first row is primary.
       await tx.courseEnrollment.create({
         data: {
           organizationId,
           userId: authUser.id,
           programSlug,
+          isPrimary: true,
           enrolledAt,
           enrolledByAdminId: user.id,
         },

@@ -19,7 +19,12 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  // Find users with enrolledProgram set
+  // Find users with enrolledProgram set. Multi-program: drift now compares
+  // User.enrolledProgram against the user's *primary* CourseEnrollment row
+  // (the one with isPrimary = true). Secondary enrollments are not a drift
+  // signal — a user can legitimately be enrolled in IT Support (primary) +
+  // Cybersecurity (secondary). Prisma findMany with a filtered relation
+  // returns at most one row because of the partial unique index.
   const enrolledUsers = await prisma.user.findMany({
     where: { enrolledProgram: { not: null }, deletedAt: null },
     select: {
@@ -28,8 +33,10 @@ export async function GET() {
       email: true,
       enrolledProgram: true,
       enrolledAt: true,
-      courseEnrollment: {
+      courseEnrollments: {
+        where: { isPrimary: true },
         select: { programSlug: true, enrolledAt: true },
+        take: 1,
       },
     },
     take: 500,
@@ -47,7 +54,8 @@ export async function GET() {
   const driftRecords: DriftRecord[] = [];
 
   for (const u of enrolledUsers) {
-    if (!u.courseEnrollment) {
+    const primary = u.courseEnrollments[0] ?? null;
+    if (!primary) {
       driftRecords.push({
         userId: u.id,
         fullName: u.fullName,
@@ -56,14 +64,14 @@ export async function GET() {
         userProgram: u.enrolledProgram,
         enrollmentProgram: null,
       });
-    } else if (u.enrolledProgram !== u.courseEnrollment.programSlug) {
+    } else if (u.enrolledProgram !== primary.programSlug) {
       driftRecords.push({
         userId: u.id,
         fullName: u.fullName,
         email: u.email,
         driftType: 'slug_mismatch',
         userProgram: u.enrolledProgram,
-        enrollmentProgram: u.courseEnrollment.programSlug,
+        enrollmentProgram: primary.programSlug,
       });
     }
   }

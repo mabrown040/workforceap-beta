@@ -1,15 +1,17 @@
-import type { ReactNode, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import type { ReactNode, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
 interface FormFieldProps {
   label: string;
   children: ReactNode;
   required?: boolean;
+  htmlFor?: string;
 }
 
-export function FormField({ label, children, required }: FormFieldProps) {
+export function FormField({ label, children, required, htmlFor }: FormFieldProps) {
   return (
     <div style={{ marginBottom: '0.875rem' }}>
       <label
+        htmlFor={htmlFor}
         style={{
           display: 'block',
           fontSize: '0.75rem',
@@ -46,23 +48,7 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
-export function SelectField(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      {...props}
-      style={{
-        width: '100%',
-        padding: '0.5rem 0.75rem',
-        border: '1px solid var(--outline-variant)',
-        borderRadius: 'var(--radius-md)',
-        background: 'var(--surface-container-low)',
-        color: 'var(--color-on-surface)',
-        fontSize: '0.875rem',
-        ...(props.style || {}),
-      }}
-    />
-  );
-}
+
 
 export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (

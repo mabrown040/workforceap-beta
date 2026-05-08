@@ -50,7 +50,7 @@ export default function LogCertificationModal() {
       >
         <div style={{ minWidth: 0 }}>
           <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-            Certification update
+            Earned something new?
           </p>
           <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', lineHeight: 1.45, color: 'var(--color-on-surface)' }}>
             Finished a course or earned a credential? Add it here so your counselor can review it faster.

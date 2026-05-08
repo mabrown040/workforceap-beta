@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import EmployerContactForm from './EmployerContactForm';
-import { CTABand, HeroSection, PageSection, StatBand, ValueCard } from '@/components/marketing/ui';
+import { CTABand, CohortStatCard, HeroSection, PageSection, PricingTierCard, StatBand, ValueCard } from '@/components/marketing/ui';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -354,93 +354,45 @@ export default async function EmployersPage() {
             }}
           >
             {/* IT Support */}
-            <div
-              style={{
-                gridColumn: 'span 8',
-                padding: '2.5rem',
-                background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-dark))',
-                borderRadius: 'var(--radius-xl)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                transition: 'var(--transition-base)',
-              }}
-              className="emp-cohort-card"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'rgba(255,255,255,0.9)', '--ms-fill': 1 }}>computer</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff' }}>{t('cohortItTitle')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)' }}>{t('cohortItSubtitle')}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.15)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>{t('cohortLevel')} {t('cohortLevelEntry')}</span>
-                <span style={{ fontSize: '1rem', fontWeight: 700, color: '#fff' }}>{t('cohortSalary')} $55K-$72K</span>
-              </div>
-            </div>
+            <CohortStatCard
+              variant="accent"
+              span={8}
+              icon={<span className="material-symbols-outlined" style={{ '--ms-fill': 1 }}>computer</span>}
+              title={t('cohortItTitle')}
+              subtitle={t('cohortItSubtitle')}
+              level={<>{t('cohortLevel')} {t('cohortLevelEntry')}</>}
+              salaryRange={<>{t('cohortSalary')} $55K-$72K</>}
+            />
             {/* Cybersecurity */}
-            <div
-              style={{
-                gridColumn: 'span 8',
-                padding: '2.5rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                transition: 'var(--transition-base)',
-              }}
-              className="emp-cohort-card"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>security</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('cohortCyberTitle')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortCyberSubtitle')}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} {t('cohortLevelEntryToMid')}</span>
-                <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{t('cohortSalary')} $75K-$112K</span>
-              </div>
-            </div>
+            <CohortStatCard
+              variant="default"
+              span={8}
+              icon={<span className="material-symbols-outlined" style={{ '--ms-fill': 1 }}>security</span>}
+              title={t('cohortCyberTitle')}
+              subtitle={t('cohortCyberSubtitle')}
+              level={<>{t('cohortLevel')} {t('cohortLevelEntryToMid')}</>}
+              salaryRange={<>{t('cohortSalary')} $75K-$112K</>}
+            />
             {/* AWS Cloud */}
-            <div
-              style={{
-                gridColumn: 'span 4',
-                padding: '2.5rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                transition: 'var(--transition-base)',
-              }}
-              className="emp-cohort-card"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>cloud_queue</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('cohortAwsTitle')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortAwsSubtitle')}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} {t('cohortLevelEntryToMid')}</span>
-                <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{t('cohortSalary')} $95K-$145K</span>
-              </div>
-            </div>
+            <CohortStatCard
+              variant="default"
+              span={4}
+              icon={<span className="material-symbols-outlined" style={{ '--ms-fill': 1 }}>cloud_queue</span>}
+              title={t('cohortAwsTitle')}
+              subtitle={t('cohortAwsSubtitle')}
+              level={<>{t('cohortLevel')} {t('cohortLevelEntryToMid')}</>}
+              salaryRange={<>{t('cohortSalary')} $95K-$145K</>}
+            />
             {/* Data Analytics */}
-            <div
-              style={{
-                gridColumn: 'span 4',
-                padding: '2.5rem',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                transition: 'var(--transition-base)',
-              }}
-              className="emp-cohort-card"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '2.25rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>analytics</span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('cohortDataTitle')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortDataSubtitle')}</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--outline-variant)', marginTop: 'auto' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('cohortLevel')} {t('cohortLevelEntry')}</span>
-                <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{t('cohortSalary')} $72K-$102K</span>
-              </div>
-            </div>
+            <CohortStatCard
+              variant="default"
+              span={4}
+              icon={<span className="material-symbols-outlined" style={{ '--ms-fill': 1 }}>analytics</span>}
+              title={t('cohortDataTitle')}
+              subtitle={t('cohortDataSubtitle')}
+              level={<>{t('cohortLevel')} {t('cohortLevelEntry')}</>}
+              salaryRange={<>{t('cohortSalary')} $72K-$102K</>}
+            />
           </div>
         </div>
       </section>
@@ -531,89 +483,28 @@ export default async function EmployersPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }} className="emp-tiers-grid">
             {/* Standard */}
-            <div
-              style={{
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem',
-                position: 'relative',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                border: '1px solid var(--outline-variant)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('tierStandard')}</h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-                {[t('tierStandardF1'), t('tierStandardF2'), t('tierStandardF3')].map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="#employer-contact-form" style={{ display: 'block', textAlign: 'center', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', padding: '0.875rem', borderRadius: 'var(--radius-lg)', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none', transition: 'var(--transition-base)' }}>
-                {t('tierCta')}
-              </Link>
-            </div>
+            <PricingTierCard
+              title={t('tierStandard')}
+              features={[t('tierStandardF1'), t('tierStandardF2'), t('tierStandardF3')]}
+              ctaText={t('tierCta')}
+              ctaHref="#employer-contact-form"
+            />
             {/* Strategic Partner */}
-            <div
-              style={{
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem',
-                position: 'relative',
-                background: 'linear-gradient(135deg, var(--surface-container-high), var(--surface-container))',
-                borderRadius: 'var(--radius-xl)',
-                border: '2px solid var(--color-accent)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <span style={{ position: 'absolute', top: '-0.75rem', left: '50%', transform: 'translateX(-50%)', background: 'var(--color-accent)', color: '#fff', padding: '0.25rem 1rem', borderRadius: 'var(--radius-full)', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                {t('tierMostPopular')}
-              </span>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('tierStrategic')}</h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-                {[t('tierStrategicF1'), t('tierStrategicF2'), t('tierStrategicF3'), t('tierStrategicF4')].map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="#employer-contact-form" style={{ display: 'block', textAlign: 'center', background: 'var(--color-accent)', color: '#fff', padding: '0.875rem', borderRadius: 'var(--radius-lg)', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none', transition: 'var(--transition-base)' }}>
-                {t('tierCta')}
-              </Link>
-            </div>
+            <PricingTierCard
+              variant="featured"
+              badge={t('tierMostPopular')}
+              title={t('tierStrategic')}
+              features={[t('tierStrategicF1'), t('tierStrategicF2'), t('tierStrategicF3'), t('tierStrategicF4')]}
+              ctaText={t('tierCta')}
+              ctaHref="#employer-contact-form"
+            />
             {/* Team Training */}
-            <div
-              style={{
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem',
-                position: 'relative',
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-xl)',
-                border: '1px solid var(--outline-variant)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('tierTeam')}</h3>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-                {[t('tierTeamF1'), t('tierTeamF2'), t('tierTeamF3'), t('tierTeamF4')].map((f) => (
-                  <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link href="#employer-contact-form" style={{ display: 'block', textAlign: 'center', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', padding: '0.875rem', borderRadius: 'var(--radius-lg)', fontWeight: 700, fontSize: '0.875rem', textDecoration: 'none', transition: 'var(--transition-base)' }}>
-                {t('tierCta')}
-              </Link>
-            </div>
+            <PricingTierCard
+              title={t('tierTeam')}
+              features={[t('tierTeamF1'), t('tierTeamF2'), t('tierTeamF3'), t('tierTeamF4')]}
+              ctaText={t('tierCta')}
+              ctaHref="#employer-contact-form"
+            />
           </div>
         </div>
       </section>
@@ -712,22 +603,23 @@ export default async function EmployersPage() {
       </section>
 
       {/* ===== Employer CTA ===== */}
-      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
-        <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>{t('ctaTitle')}</h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-          {t('ctaCopy')}
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.875rem', flexWrap: 'wrap' }}>
+      <CTABand
+        variant="light"
+        headline={t('ctaTitle')}
+        subheadline={t('ctaCopy')}
+        primaryAction={
           <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
             {t('ctaCta')}
           </a>
-          {!user && (
+        }
+        secondaryAction={
+          !user ? (
             <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
               {t('heroSignIn')}
             </Link>
-          )}
-        </div>
-      </section>
+          ) : null
+        }
+      />
 
       <style>{`
         @media (max-width: 1023px) {

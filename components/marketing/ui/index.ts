@@ -1,6 +1,8 @@
 export { CTABand } from './CTABand';
+export { CohortStatCard } from './CohortStatCard';
 export { HeroSection } from './HeroSection';
 export { InfoCard } from './InfoCard';
 export { PageSection } from './PageSection';
+export { PricingTierCard } from './PricingTierCard';
 export { StatBand } from './StatBand';
 export { ValueCard } from './ValueCard';

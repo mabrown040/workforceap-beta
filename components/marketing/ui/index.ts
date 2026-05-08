@@ -1,3 +1,4 @@
+export { ContactInfoCard } from './ContactInfoCard';
 export { CTABand } from './CTABand';
 export { CohortStatCard } from './CohortStatCard';
 export { HeroSection } from './HeroSection';

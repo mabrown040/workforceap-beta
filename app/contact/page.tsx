@@ -4,6 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import ContactFormClient from './ContactFormClient';
+import { ContactInfoCard } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
 function getPrefilledTopic(topicParam?: string | string[]): string {
@@ -74,57 +75,36 @@ export default async function ContactPage({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div className="contact-card-grid" style={{ display: 'grid', gap: '1rem' }}>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">location_on</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card1Title')}</h3>
-                    <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-                      {t('card1Body1')}
-                      <br />
-                      {t('card1Body2')}
-                    </p>
-                  </div>
-                </div>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">alternate_email</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card2Title')}</h3>
-                    <p style={{ margin: 0 }}>
-                      <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-                        info@workforceap.org
-                      </a>
-                    </p>
-                  </div>
-                </div>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(255,187,0,0.12)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: '#7b5800', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">call</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card3Title')}</h3>
+                <ContactInfoCard icon="location_on" title={t('card1Title')}>
+                  <>
+                    {t('card1Body1')}
+                    <br />
+                    {t('card1Body2')}
+                  </>
+                </ContactInfoCard>
+                <ContactInfoCard icon="alternate_email" title={t('card2Title')}>
+                  <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                    info@workforceap.org
+                  </a>
+                </ContactInfoCard>
+                <ContactInfoCard
+                  icon="call"
+                  title={t('card3Title')}
+                  accentBg="rgba(255,187,0,0.12)"
+                  accentColor="#7b5800"
+                >
+                  <>
                     <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontFamily: 'monospace' }}>
                       <a href="tel:+15127771808" style={{ color: 'inherit' }}>(512) 777-1808</a>
                     </p>
                     <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', margin: '0.35rem 0 0' }}>
                       {t('card3Hours')}
                     </p>
-                  </div>
-                </div>
-                <div className="portal-card portal-card--elevated" style={{ padding: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div style={{ background: 'rgba(173,44,77,0.1)', padding: '0.75rem', borderRadius: 'var(--radius-lg)', color: 'var(--color-accent)', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" aria-hidden="true">schedule</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>{t('card4Title')}</h3>
-                    <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, margin: 0 }}>
-                      {t('card4Body')}
-                    </p>
-                  </div>
-                </div>
+                  </>
+                </ContactInfoCard>
+                <ContactInfoCard icon="schedule" title={t('card4Title')}>
+                  {t('card4Body')}
+                </ContactInfoCard>
               </div>
 
               <div

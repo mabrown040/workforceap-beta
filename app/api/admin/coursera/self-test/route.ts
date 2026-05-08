@@ -316,7 +316,21 @@ export async function GET() {
   const readiness = getXapiReadiness();
   const xapiConfig = getXapiConfig();
 
-  const targetBase = (process.env.COURSERA_TARGET_BASE_URL?.trim() || `https://${process.env.VERCEL_URL || 'www.workforceap.org'}`).replace(/\/$/, '');
+  // Inbound target. The chain matters:
+  //   1. Explicit COURSERA_TARGET_BASE_URL — operator override
+  //   2. NEXT_PUBLIC_SITE_URL — canonical site URL (typically prod)
+  //   3. Hardcoded www.workforceap.org — safe prod fallback
+  // We deliberately do NOT fall back to VERCEL_URL: that returns the
+  // per-deployment URL like `workforceap-beta-<sha>-...vercel.app`,
+  // which on preview deployments sits behind Vercel's password protection
+  // wall and returns 401 "Authentication Required" before ever reaching
+  // our route. The inbound test only makes sense against the same domain
+  // Coursera POSTs to in production.
+  const targetBase = (
+    process.env.COURSERA_TARGET_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    'https://www.workforceap.org'
+  ).replace(/\/$/, '');
   const orgId = process.env.COURSERA_ORG_ID?.trim() || DEFAULT_ORG_ID;
   const orgSlug = process.env.COURSERA_ORG_SLUG?.trim() || DEFAULT_ORG_SLUG;
   const oauthUrl = process.env.COURSERA_OAUTH_TOKEN_URL?.trim() || DEFAULT_COURSERA_OAUTH_URL;

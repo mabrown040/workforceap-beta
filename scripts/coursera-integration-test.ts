@@ -426,16 +426,41 @@ async function main() {
   if (!b4bId) missing.push('COURSERA_B4B_CLIENT_ID');
   if (!b4bSecret) missing.push('COURSERA_B4B_CLIENT_SECRET');
 
-  if (missing.length === 4) {
-    console.log(`\n${RED}${BOLD}All credential env vars are missing. Aborting.${RESET}`);
-    console.log(`Set the following before running:`);
-    for (const name of missing) console.log(`  - ${name}`);
+  const xapiPairComplete = Boolean(xapiId && xapiSecret);
+  const xapiPairPartial = Boolean(xapiId) !== Boolean(xapiSecret);
+  const b4bPairComplete = Boolean(b4bId && b4bSecret);
+  const b4bPairPartial = Boolean(b4bId) !== Boolean(b4bSecret);
+
+  // Codex P2 catch on PR #1069: previously this only aborted when ALL FOUR
+  // env vars were missing. If the operator set only one var from a pair
+  // (e.g. ID without SECRET), both sections silently skipped and the
+  // process exited 0 — hiding a misconfigured invocation. Now: abort if
+  // no complete pair is set; if a pair is partial, mark it as a failure
+  // so exit code is non-zero.
+  if (!xapiPairComplete && !b4bPairComplete) {
+    console.log(`\n${RED}${BOLD}No complete credential pair set. Aborting.${RESET}`);
+    console.log(`Set EITHER both of {COURSERA_XAPI_CLIENT_ID, COURSERA_XAPI_CLIENT_SECRET}`);
+    console.log(`OR both of {COURSERA_B4B_CLIENT_ID, COURSERA_B4B_CLIENT_SECRET}.`);
+    if (missing.length) {
+      console.log(`Missing:`);
+      for (const name of missing) console.log(`  - ${name}`);
+    }
     process.exit(2);
   }
 
   // ----- (a) inbound -----
   logSection('(a) INBOUND xAPI — pretend to be Coursera');
-  if (!xapiId || !xapiSecret) {
+  if (xapiPairPartial) {
+    logRow(
+      'inbound credentials check',
+      'fail',
+      `incomplete xAPI pair (set both COURSERA_XAPI_CLIENT_ID and COURSERA_XAPI_CLIENT_SECRET, or neither)`,
+    );
+    findings.inboundTokenOk = false;
+    findings.inboundTokenDetail = 'incomplete xAPI credential pair';
+    findings.inboundStatementOk = false;
+    findings.inboundStatementDetail = 'incomplete xAPI credential pair';
+  } else if (!xapiId || !xapiSecret) {
     logRow('inbound credentials check', 'skip', 'COURSERA_XAPI_CLIENT_ID/SECRET not set');
     findings.inboundTokenOk = null;
     findings.inboundStatementOk = null;
@@ -454,7 +479,15 @@ async function main() {
   // ----- (b) outbound -----
   logSection('(b) OUTBOUND For Business API — we call Coursera');
   let outboundToken: string | null = null;
-  if (!b4bId || !b4bSecret) {
+  if (b4bPairPartial) {
+    logRow(
+      'outbound credentials check',
+      'fail',
+      `incomplete B4B pair (set both COURSERA_B4B_CLIENT_ID and COURSERA_B4B_CLIENT_SECRET, or neither)`,
+    );
+    findings.outboundTokenOk = false;
+    findings.outboundTokenDetail = 'incomplete B4B credential pair';
+  } else if (!b4bId || !b4bSecret) {
     logRow('outbound credentials check', 'skip', 'COURSERA_B4B_CLIENT_ID/SECRET not set');
     findings.outboundTokenOk = null;
   } else {
@@ -485,11 +518,24 @@ async function main() {
   // ----- final report -----
   printFinalReport();
 
-  // Exit non-zero if any non-skipped check failed.
+  // Exit non-zero if any non-skipped check failed. Codex P2 catch on
+  // PR #1069: previously only token-level failures were included. If
+  // outbound OAuth succeeded but every B4B endpoint returned 401/403,
+  // exit was 0 — making "no usable access" look like success. Now we
+  // also fail if the token-was-issued-but-no-endpoint-returned-data
+  // case occurs.
+  const probedEndpoints = findings.endpoints.length > 0;
+  const anyEndpointSucceeded = findings.endpoints.some(
+    (e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300,
+  );
+  const outboundTokenIssuedButNoEndpointWorks =
+    findings.outboundTokenOk === true && probedEndpoints && !anyEndpointSucceeded;
+
   const hadFail =
     findings.inboundTokenOk === false ||
     findings.inboundStatementOk === false ||
-    findings.outboundTokenOk === false;
+    findings.outboundTokenOk === false ||
+    outboundTokenIssuedButNoEndpointWorks;
   process.exit(hadFail ? 1 : 0);
 }
 

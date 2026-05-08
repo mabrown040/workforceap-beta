@@ -15,6 +15,13 @@ export type CourseraProgressRow = {
   certificateUrl: string | null;
   /** ISO string — kept primitive so server -> client serialization is trivial. */
   lastActivityTime: string | null;
+  /**
+   * Pre-resolved org-scoped Coursera URL for the row's "View on Coursera"
+   * button. Resolved server-side via `lib/coursera/orgScopedUrls` so the
+   * client view doesn't need network or catalog access. Null when the
+   * underlying row lacks the metadata to resolve a URL.
+   */
+  viewUrl?: string | null;
 };
 
 export type CourseraProgressCardViewProps = {
@@ -59,8 +66,19 @@ function formatRelative(locale: 'en' | 'es', iso: string | null): string {
   return locale === 'es' ? 'hace instantes' : 'just now';
 }
 
-function buildCourseLink(slug: string | null, fallback: string | null): string | null {
-  if (slug && slug.trim()) return `https://www.coursera.org/learn/${slug.trim()}`;
+/**
+ * Picks the "View on Coursera" target for a row.
+ *
+ * Prefers the server-resolved org-scoped URL (`viewUrl`) so members land
+ * inside their Coursera For Business program shell rather than the public
+ * catalog. Falls back to the program home URL when no per-course resolution
+ * was possible.
+ */
+function buildCourseLink(
+  viewUrl: string | null | undefined,
+  fallback: string | null,
+): string | null {
+  if (viewUrl && viewUrl.trim()) return viewUrl;
   return fallback;
 }
 
@@ -147,7 +165,7 @@ export default function CourseraProgressCardView({
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem' }}>
           {rows.map((row) => {
             const pct = Math.max(0, Math.min(100, Math.round(row.overallProgress)));
-            const link = buildCourseLink(row.courseraCourseSlug, programHomeUrl);
+            const link = buildCourseLink(row.viewUrl ?? null, programHomeUrl);
             return (
               <li
                 key={row.id}

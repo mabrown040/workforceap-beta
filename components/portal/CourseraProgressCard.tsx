@@ -2,6 +2,10 @@ import { prisma } from '@/lib/db/prisma';
 import { getCourseraConfig } from '@/lib/coursera/config';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  getOrgScopedCourseUrl,
+  getOrgScopedProgramUrl,
+} from '@/lib/coursera/orgScopedUrls';
 import CourseraProgressCardView, {
   type CourseraProgressRow,
 } from '@/components/portal/CourseraProgressCardView';
@@ -46,31 +50,42 @@ export default async function CourseraProgressCard({
     }),
   ]);
 
-  // Discovered catalog gives us a shareable program URL we can use as the
-  // fallback "View on Coursera" target when a course slug is missing. We pick
-  // the first row's programSlug since all rows share the member's enrollment.
+  // Org-scoped program URL keeps the member inside their Coursera For Business
+  // context (cookie-authenticated learners hit the program shell directly;
+  // unauthenticated learners hit the org sign-in page rather than a generic
+  // catalog). We pick the first row's programSlug since all rows share the
+  // member's enrollment. Fall back to the configured COURSERA_PROGRAM_HOME_URL
+  // when no enrollment has been recorded yet.
   const programSlug = csvRows[0]?.programSlug ?? canonicalRows[0]?.programSlug ?? null;
-  const fromDiscovered = programSlug
-    ? DISCOVERED_COURSERA_PROGRAMS[programSlug]?.publicProgramUrl ?? null
-    : null;
-  const fromConfig = getCourseraConfig().programHomeUrl || null;
-  const programHomeUrl: string | null = fromDiscovered ?? fromConfig;
+  const programHomeUrl: string | null = programSlug
+    ? await getOrgScopedProgramUrl(programSlug)
+    : (getCourseraConfig().programHomeUrl || null);
 
   const coveredSlugs = new Set<string>(
     csvRows.map((r) => r.courseraCourseSlug).filter(Boolean) as string[]
   );
 
-  const viewRows: CourseraProgressRow[] = csvRows.map((row) => ({
-    id: row.id,
-    courseName: row.courseName,
-    university: row.university ?? null,
-    courseraCourseSlug: row.courseraCourseSlug ?? null,
-    overallProgress: Number(row.overallProgress) || 0,
-    learningHours: Number(row.learningHours) || 0,
-    isCompleted: row.isCompleted,
-    certificateUrl: row.certificateUrl ?? null,
-    lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
-  }));
+  const csvViewRows: CourseraProgressRow[] = await Promise.all(
+    csvRows.map(async (row) => ({
+      id: row.id,
+      courseName: row.courseName,
+      university: row.university ?? null,
+      courseraCourseSlug: row.courseraCourseSlug ?? null,
+      overallProgress: Number(row.overallProgress) || 0,
+      learningHours: Number(row.learningHours) || 0,
+      isCompleted: row.isCompleted,
+      certificateUrl: row.certificateUrl ?? null,
+      lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
+      // Pre-resolved org-scoped URL so the client view doesn't need to know
+      // about catalog vs B4B. Falls back gracefully when the program slug
+      // is missing (rare — should always be set on CSV-imported rows).
+      viewUrl: row.programSlug
+        ? await getOrgScopedCourseUrl(row.programSlug, row.courseraCourseId)
+        : null,
+    })),
+  );
+
+  const viewRows: CourseraProgressRow[] = [...csvViewRows];
 
   // Backfill from canonical course_progress so the card shows progress even
   // before the first CSV import (xAPI / webhook / manual completions).
@@ -79,6 +94,12 @@ export default async function CourseraProgressCard({
     const program = c.programSlug ? getProgramBySlug(c.programSlug) : null;
     const course = program?.courses.find((pc) => pc.slug === c.courseSlug);
     const discovered = slugToDiscoveredCourse(c.courseSlug, c.programSlug);
+    const viewUrl =
+      c.programSlug && discovered?.courseId
+        ? await getOrgScopedCourseUrl(c.programSlug, discovered.courseId)
+        : c.programSlug
+          ? await getOrgScopedProgramUrl(c.programSlug)
+          : null;
     viewRows.push({
       id: `canonical-${c.id}`,
       courseName: course?.name ?? discovered?.name ?? c.courseSlug,
@@ -89,6 +110,7 @@ export default async function CourseraProgressCard({
       isCompleted: c.status === 'COMPLETED',
       certificateUrl: null,
       lastActivityTime: c.lastUpdatedAt ? c.lastUpdatedAt.toISOString() : null,
+      viewUrl,
     });
   }
 

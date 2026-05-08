@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { buildCourseraLaunchUrl, getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
+import { buildCourseraLaunchUrl, getCourseraConfig } from '@/lib/coursera/config';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import {
+  getOrgScopedCourseUrl,
+  getOrgScopedProgramUrl,
+  localFallbackUrl,
+} from '@/lib/coursera/orgScopedUrls';
 import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
 
 export async function GET(request: Request) {
@@ -32,7 +37,11 @@ export async function GET(request: Request) {
   const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
 
   if (requestedSlug && enrolledProgram) {
-    // Prefer DB override first (org-configured course URL type / slug)
+    // Prefer DB override first (org-configured course URL type / slug). Org
+    // admins set this when their org has a special URL pattern that diverges
+    // from the discovered catalog. We still respect the configured kind
+    // (`learn` vs `specialization`) and just centralize the host through
+    // `localFallbackUrl` so it stays in one place.
     if (dbUser?.organizationId) {
       const course = await prisma.course.findUnique({
         where: {
@@ -46,23 +55,24 @@ export async function GET(request: Request) {
 
       if (course && course.courseraSlug) {
         const urlType = course.courseraUrlType || 'learn';
-        return NextResponse.redirect(`https://www.coursera.org/${urlType}/${course.courseraSlug}`);
+        const kind = urlType === 'specializations' || urlType === 'specialization'
+          ? ('specialization' as const)
+          : ('course' as const);
+        return NextResponse.redirect(localFallbackUrl(course.courseraSlug, kind));
       }
     }
 
-    // Fallback: construct enterprise deep link from discovered catalog
+    // Fallback: construct an org-scoped deep link from the B4B / discovered
+    // catalog so authenticated learners land inside their program shell.
     const discoveredProg = DISCOVERED_COURSERA_PROGRAMS[enrolledProgram];
     if (discoveredProg) {
       const discoveredCourse = discoveredProg.courses.find((c) => c.slug === requestedSlug);
       if (discoveredCourse) {
-        const programSlugFromUrl = (discoveredProg.publicProgramUrl ?? '').match(/\/programs\/([^/?#]+)/)?.[1];
-        if (programSlugFromUrl) {
-          return NextResponse.redirect(
-            `https://www.coursera.org/programs/${programSlugFromUrl}/learn/${discoveredCourse.slug}`
-          );
-        }
-        // If URL parse fails, fall through to public learn URL
-        return NextResponse.redirect(`https://www.coursera.org/learn/${discoveredCourse.slug}`);
+        const orgScoped = await getOrgScopedCourseUrl(
+          enrolledProgram,
+          discoveredCourse.courseId,
+        );
+        return NextResponse.redirect(orgScoped);
       }
     }
   }
@@ -91,12 +101,13 @@ export async function GET(request: Request) {
       : undefined;
 
   // Prefer (1) a configured deep link when it is clearly program/course-specific,
-  // then (2) the discovered learner program URL for the member's actual
-  // enrollment, then (3) the generic Coursera platform root. This avoids
-  // dropping members on a broad homepage or admin landing when we know their
-  // enrolled learner program URL (#95).
-  const discoveredProgramUrl = enrolledProgram
-    ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.publicProgramUrl ?? null
+  // then (2) the org-scoped program URL for the member's actual enrollment
+  // (resolved from B4B at runtime so we always have a current value), then
+  // (3) the generic Coursera platform root. This avoids dropping members on a
+  // broad homepage or admin landing when we know their enrolled learner program
+  // URL (#95).
+  const orgScopedProgramUrl = enrolledProgram
+    ? await getOrgScopedProgramUrl(enrolledProgram)
     : null;
 
   const configuredLaunchUrl = buildCourseraLaunchUrl({
@@ -107,7 +118,6 @@ export async function GET(request: Request) {
     currentCourseId,
   });
 
-  const readiness = getCourseraReadiness(enrolledProgram);
   const isProgramSpecificLaunchUrl = (url: string | null | undefined) => {
     if (!url) return false;
     return /\/programs\//.test(url) || /\/learn\//.test(url) || /\/professional-certificates\//.test(url);
@@ -115,7 +125,7 @@ export async function GET(request: Request) {
 
   const resolvedUrl =
     (isProgramSpecificLaunchUrl(configuredLaunchUrl) ? configuredLaunchUrl : null) ??
-    discoveredProgramUrl ??
+    orgScopedProgramUrl ??
     configuredLaunchUrl ??
     null;
 

@@ -40,6 +40,19 @@ This is **best done in a local session** (Cursor or a dev server with hot reload
 
 ---
 
+## Portal surfaces (counselor + employer)
+
+These routes use the same **`DataTable`** + **`SectionHeader`** + **`PortalEmptyState`** patterns as admin, with **`variant="portal"`** on counselor tables (built-in cell chrome) and **`variant="admin"`** where employer CSS reuses `admin-table`:
+
+| Area | Files |
+| --- | --- |
+| Counselor | `app/(portal)/counselor/placements/page.tsx`, `inactive-members/page.tsx` |
+| Employer | `components/employer/EmployerApplicationsClient.tsx` (expandable chat via `renderSubRow`), `EmployerMatchHistoryClient.tsx` |
+
+Forms on placements use **`FormField`** / **`TextInput`** / **`TextArea`** from `components/portal/ui/FormField.tsx`.
+
+---
+
 ## Reference migration — see this PR's diff
 
 `app/admin/coursera/learners/unmatched/[externalEmail]/page.tsx` migrates **all** tabular sections on that screen:

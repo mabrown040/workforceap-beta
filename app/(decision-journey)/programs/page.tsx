@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
-import { CTABand, JourneyStep } from '@/components/marketing/ui';
+import { CTABand, JourneyStep, SplitHero } from '@/components/marketing/ui';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
 import { getTranslations } from 'next-intl/server';
@@ -32,91 +32,54 @@ export default async function ProgramsPage() {
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}
-      {/* Inline styles only: Tailwind uses wa- prefix — unprefixed utility classes do not exist in CSS */}
       {/* ── Hero Section ── */}
       <section className="content-section" style={{ paddingBottom: 0 }}>
         <div className="container" style={{ maxWidth: 1200 }}>
-          <div className="editorial-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem', alignItems: 'center' }}>
-            {/* Left — 7 col */}
-            <div className="programs-hero-left" style={{ gridColumn: '1 / 8' }}>
-              <span
-                className="text-label-upper"
-                style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}
-              >
-                {t('heroTitle')}
-              </span>
-              <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>
-                Find the right program{' '}
-                <span style={{ color: 'var(--color-accent)', fontStyle: 'italic' }}>for your goals.</span>
-              </h1>
-              <p
-                style={{
-                  fontSize: '1.125rem',
-                  color: 'var(--color-on-surface-variant)',
-                  maxWidth: '42rem',
-                  lineHeight: 1.7,
-                }}
-              >
-                WorkforceAP offers {WORKFORCEAP_PROGRAM_CATALOG_SIZE} no-cost programs that help members
-                build practical skills and move toward better employment. Use the guided tools below to
-                find the best fit&mdash;based on your interests, timeline, and where you want to go.
-              </p>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '2rem', alignItems: 'center' }}>
-                <ExperimentedCtaLink
-                  experiment="programs_primary_cta"
-                  variants={[
-                    { id: 'control', label: 'Find Your Path \u2192', className: 'btn btn-primary', href: '/find-your-path' },
-                    { id: 'quiz_first', label: 'Take the Quiz \u2192', className: 'btn btn-primary', href: '/find-your-path' },
-                  ]}
-                />
-                <Link
-                  href="/program-comparison"
-                  style={{
-                    color: 'var(--color-accent)',
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '4px',
-                  }}
-                >
-                  Compare programs side-by-side
-                </Link>
-              </div>
-            </div>
-
-            {/* Right — 5 col hero image */}
-            <div className="programs-hero-right" style={{ gridColumn: '8 / -1', position: 'relative' }}>
-              <div
-                style={{
-                  borderRadius: 'var(--radius-xl)',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  aspectRatio: '4 / 5',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
-                }}
-              >
-                <Image
-                  src="/images/hero-people.jpg"
-                  alt="Professionals collaborating on certification programs"
-                  fill
-                  sizes="(min-width: 1024px) 40vw, 90vw"
-                  style={{ objectFit: 'cover' }}
-                  priority
-                />
-                {/* Gradient overlay — kept light so the photo reads through */}
+          <SplitHero
+            eyebrow={t("heroTitle")}
+            headline={
+              <>
+                Find the right program{" "}
+                <span style={{ color: "var(--color-accent)", fontStyle: "italic" }}>for your goals.</span>
+              </>
+            }
+            subheadline={
+              <>
+                <p style={{ fontSize: "1.125rem", color: "var(--color-on-surface-variant)", marginBottom: "1.25rem", lineHeight: 1.65 }}>
+                  {t("heroDesc")}
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
+                  <ExperimentedCtaLink href="#program-catalog" className="btn btn-primary" eventName="programs_page_cta_click" eventProperties={{ cta_location: "hero" }}>
+                    {t("heroCta1")}
+                  </ExperimentedCtaLink>
+                  <Link href="/find-your-path" className="btn btn-outline">
+                    {t("heroCta2")}
+                  </Link>
+                </div>
+              </>
+            }
+            sidebar={
+              <div className="programs-hero-right" style={{ gridColumn: "8 / -1", position: "relative" }}>
                 <div
                   style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.30) 0%, transparent 55%)',
-                    borderRadius: 'var(--radius-xl)',
-                    pointerEvents: 'none',
+                    borderRadius: "var(--radius-xl)",
+                    overflow: "hidden",
+                    position: "relative",
+                    aspectRatio: "4 / 3",
                   }}
-                />
+                >
+                  <Image
+                    src="/images/hero-people.jpg"
+                    alt="WorkforceAP members collaborating on training"
+                    fill
+                    sizes="(min-width: 1024px) 500px, 100vw"
+                    style={{ objectFit: "cover" }}
+                    priority
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+            }
+          />
         </div>
       </section>
 

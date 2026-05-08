@@ -431,33 +431,37 @@ export default async function EmployersPage() {
             />
 
             {/* Step 1 */}
-            <div style={{ textAlign: 'center', padding: '0 1rem', position: 'relative', zIndex: 1 }}>
-              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.25rem', margin: '0 auto 1.5rem', boxShadow: 'var(--shadow-glow-accent)', border: '3px solid var(--surface-container-low)' }}>1</div>
-              <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block', '--ms-fill': 1 }}>description</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('processStep1Title')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('processStep1Desc')}</p>
-            </div>
+            <ProcessStep
+              step="1"
+              icon="description"
+              title={t('processStep1Title')}
+              description={t('processStep1Desc')}
+              centered
+            />
             {/* Step 2 */}
-            <div style={{ textAlign: 'center', padding: '0 1rem', position: 'relative', zIndex: 1 }}>
-              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.25rem', margin: '0 auto 1.5rem', boxShadow: 'var(--shadow-glow-accent)', border: '3px solid var(--surface-container-low)' }}>2</div>
-              <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block', '--ms-fill': 1 }}>person_search</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('processStep2Title')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('processStep2Desc')}</p>
-            </div>
+            <ProcessStep
+              step="2"
+              icon="person_search"
+              title={t('processStep2Title')}
+              description={t('processStep2Desc')}
+              centered
+            />
             {/* Step 3 */}
-            <div style={{ textAlign: 'center', padding: '0 1rem', position: 'relative', zIndex: 1 }}>
-              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.25rem', margin: '0 auto 1.5rem', boxShadow: 'var(--shadow-glow-accent)', border: '3px solid var(--surface-container-low)' }}>3</div>
-              <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block', '--ms-fill': 1 }}>how_to_reg</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('processStep3Title')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('processStep3Desc')}</p>
-            </div>
+            <ProcessStep
+              step="3"
+              icon="how_to_reg"
+              title={t('processStep3Title')}
+              description={t('processStep3Desc')}
+              centered
+            />
             {/* Step 4 */}
-            <div style={{ textAlign: 'center', padding: '0 1rem', position: 'relative', zIndex: 1 }}>
-              <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.25rem', margin: '0 auto 1.5rem', boxShadow: 'var(--shadow-glow-accent)', border: '3px solid var(--surface-container-low)' }}>4</div>
-              <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block', '--ms-fill': 1 }}>handshake</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('processStep4Title')}</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('processStep4Desc')}</p>
-            </div>
+            <ProcessStep
+              step="4"
+              icon="handshake"
+              title={t('processStep4Title')}
+              description={t('processStep4Desc')}
+              centered
+            />
           </div>
         </div>
       </section>

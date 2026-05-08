@@ -67,6 +67,15 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const requestHeaders = new Headers(request.headers);
 
+  // Codex P1 catch on PR #1046: `new Headers(request.headers)` preserves any
+  // client-supplied values for the headers we treat as trusted downstream.
+  // A request with `x-wap-org-id: <other-org>` would otherwise survive cache
+  // misses, canonical hosts, and unknown custom domains. Strip both
+  // middleware-controlled headers BEFORE any other processing — only this
+  // function may set them, and only on verified host matches.
+  requestHeaders.delete(WAP_ORG_ID_HEADER);
+  requestHeaders.delete(WAP_HOST_HEADER);
+
   const { locale: prefixLocale, pathnameWithoutLocale } = splitLocalePrefix(pathname);
   const effectivePath = prefixLocale ? pathnameWithoutLocale : pathname;
   requestHeaders.set('x-pathname', effectivePath);

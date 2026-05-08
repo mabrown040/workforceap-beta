@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import { z } from 'zod';
 
 /**
@@ -15,6 +15,13 @@ import { z } from 'zod';
  * `Employer` and `User` are tenant-scoped at the helper level. The
  * `Role` and `UserRole` models are platform-level (not tenant-scoped),
  * so those calls remain on the raw `prisma` client.
+ *
+ * Org resolution: `resolveOrgFromRequest(request.headers)` reads the
+ * `x-wap-org-id` / `x-wap-host` headers set by middleware (Track E.1).
+ * Falls back to the default org for canonical hosts. Codex P2 catch on
+ * PR #1046 — earlier this called `getDefaultOrganizationId()` directly,
+ * so the new resolver was dead code and `customDomain` requests still
+ * hit the default org. This is the first production wire-up.
  *
  * EXCEPTION: the duplicate-`userId` check is run GLOBALLY via
  * `crossTenantOK`. Codex P2 catch on PR #1042 — `Employer.userId` is
@@ -36,13 +43,13 @@ const employerSchema = z.object({
   contactPhone: z.string().max(50).optional().nullable(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await resolveOrgFromRequest(request.headers);
     const employers = await withTenantScope(orgId, (db) =>
       db.employer.findMany({
         take: 1000,
@@ -73,7 +80,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
     }
 
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await resolveOrgFromRequest(request.headers);
 
     // Global uniqueness pre-check — Employer.userId is @unique across ALL
     // orgs in the current schema. crossTenantOK marks the intentional bypass

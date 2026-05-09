@@ -1415,11 +1415,13 @@ model CourseProgress {
   courseSlug       String               @map("course_slug")
   status           CourseProgressStatus @default(NOT_STARTED)
   percentComplete  Int                  @default(0) @map("percent_complete")
+  progressPct      Int                  @default(0) @map("progress_pct")
   scoreScaled      Float?               @map("score_scaled")
   scoreRaw         Float?               @map("score_raw")
   startedAt        DateTime?            @map("started_at")
   completedAt      DateTime?            @map("completed_at")
   lastActivityAt   DateTime?            @map("last_activity_at")
+  statementCount   Int                  @default(0) @map("statement_count")
   lastUpdatedAt    DateTime             @updatedAt @map("last_updated_at")
   createdAt        DateTime             @default(now()) @map("created_at")
 

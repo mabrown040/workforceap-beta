@@ -458,6 +458,7 @@ function DownloadPdfButton({ text, title, toolName }: { text: string; title?: st
     <button
       type="button"
       disabled={loading}
+      aria-busy={loading}
       onClick={async () => {
         setLoading(true);
         try {
@@ -483,7 +484,9 @@ function DownloadPdfButton({ text, title, toolName }: { text: string; title?: st
       <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
         {loading ? 'hourglass_empty' : 'download'}
       </span>
-      {loading ? 'Saving…' : 'Download PDF'}
+      <span aria-live="polite">
+        {loading ? 'Saving…' : 'Download PDF'}
+      </span>
     </button>
   );
 }

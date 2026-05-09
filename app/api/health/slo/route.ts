@@ -22,8 +22,26 @@ import { isAdmin } from '@/lib/auth/roles';
  *   - The status-page recommendation
  *
  * Sprint D.1 status: response shape is final; underlying numbers are
- * STUBBED. Each measurement helper carries a TODO comment marking where
+ * STUBBED. Each measurement helper returns `current: null` and
+ * `status: 'unknown'` with an explanatory `note` — no synthetic numbers
+ * are ever emitted. Each helper carries a TODO comment marking where
  * Sprint D.2 will wire in the real Sentry / Vercel / DB queries.
+ *
+ * @deprecated No current consumers in the repo (verified by grep across
+ * `app/`, `components/`, `lib/`, and tests). The only references are in
+ * `docs/SLO-AND-STATUS.md`, which describes the intended Sprint D.2
+ * status-page consumer that has not yet been implemented. Because every
+ * field is honestly null (never synthetic) and the route is admin-gated,
+ * leaving it in place is safe — but if Sprint D.2 has been deprioritized
+ * or dropped, this route should be removed rather than left as dead
+ * code. Re-evaluate at the start of the next planning cycle: either wire
+ * it (Sprint D.2 lands and the /status page goes live) or delete it.
+ *
+ * NOTE TO MAINTAINERS: do not "fill in" the stub helpers with synthetic
+ * numbers to make a dashboard look populated. Either wire to a real
+ * source or keep returning `current: null`. Synthetic SLO numbers shown
+ * to a funder or buyer would be a trust violation. Wiring real APIs is
+ * explicitly Sprint D.2 work and is out of scope for this PR.
  */
 
 export const dynamic = 'force-dynamic';

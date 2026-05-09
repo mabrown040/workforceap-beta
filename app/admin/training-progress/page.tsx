@@ -5,7 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import TrainingProgressClient, {
@@ -43,7 +43,7 @@ export default async function AdminTrainingProgressPage() {
 
   const learnerIds = learners.map((l) => l.id);
 
-  const [canonicalProgressRows, rawCourseraRows] = await Promise.all([
+  const [canonicalProgressRows, rawCourseraRows, dbMappings] = await Promise.all([
     prisma.courseProgress.findMany({
       where: { userId: { in: learnerIds } },
       select: {
@@ -77,7 +77,18 @@ export default async function AdminTrainingProgressPage() {
         completionTime: true,
       },
     }),
+    prisma.courseraCanonicalCourseMapping.findMany({
+      select: {
+        courseraCourseId: true,
+        canonicalProgramSlug: true,
+        canonicalCourseSlug: true,
+      },
+    }),
   ]);
+
+  const dbMappingByCourseraId = new Map(
+    dbMappings.map((m) => [m.courseraCourseId, m]),
+  );
 
   const canonicalByKey = new Map(
     canonicalProgressRows.map((r) => [`${r.userId}:${r.programSlug}:${r.courseSlug}`, r]),
@@ -112,14 +123,23 @@ export default async function AdminTrainingProgressPage() {
   }
 
   // Raw Coursera view: row per (learner × actual Coursera course they're in)
-  // Best-effort canonical mapping: match by courseraCourseId across all known
-  // canonical programs the learner could be on.
+  // Mapping resolution order:
+  //   1. DB-curated mapping in coursera_canonical_course_mappings (admin-edited)
+  //   2. Static program-def mapping via courseraCourseId / slug
+  //   3. Unmapped — surface the inline "Map this" form in the UI
   const learnersById = new Map(learners.map((l) => [l.id, l]));
   const rawRows: RawCourseraRow[] = rawCourseraRows.map((row) => {
     const learner = row.userId ? learnersById.get(row.userId) : null;
     let mappedProgramSlug: string | null = null;
     let mappedCourseSlug: string | null = null;
-    if (learner?.enrolledProgram) {
+    let mappingSource: 'db' | 'static' | null = null;
+
+    const dbMatch = dbMappingByCourseraId.get(row.courseraCourseId);
+    if (dbMatch) {
+      mappedProgramSlug = dbMatch.canonicalProgramSlug;
+      mappedCourseSlug = dbMatch.canonicalCourseSlug;
+      mappingSource = 'db';
+    } else if (learner?.enrolledProgram) {
       const program = getProgramBySlug(learner.enrolledProgram);
       const match = program?.courses.find(
         (c) =>
@@ -129,6 +149,7 @@ export default async function AdminTrainingProgressPage() {
       if (match) {
         mappedProgramSlug = learner.enrolledProgram;
         mappedCourseSlug = match.slug;
+        mappingSource = 'static';
       }
     }
     return {
@@ -145,6 +166,8 @@ export default async function AdminTrainingProgressPage() {
       courseraProgramName: row.programName,
       mappedProgramSlug,
       mappedCourseSlug,
+      mappingSource,
+      suggestedProgramSlug: learner?.enrolledProgram ?? null,
       percentComplete: Number(row.overallProgress),
       learningHours: Number(row.learningHours),
       isCompleted: row.isCompleted,
@@ -154,13 +177,30 @@ export default async function AdminTrainingProgressPage() {
     };
   });
 
+  // Catalog of canonical (programSlug, courseSlug, courseName) options the
+  // client can offer in the "Map this" dropdown. Built from the static
+  // program definitions in lib/content/programs.ts.
+  const canonicalCatalog = PROGRAMS.map((program) => ({
+    programSlug: program.slug,
+    programTitle: program.title,
+    courses: program.courses.map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      courseraCourseId: c.courseraCourseId ?? null,
+    })),
+  }));
+
   return (
     <PortalPageFrame>
       <PageHeader
         title="Training progress"
         subtitle="All learners across both canonical curriculum (DB course_progress) and raw Coursera enrollments (coursera_course_progress). Sort any column."
       />
-      <TrainingProgressClient curriculumRows={curriculumRows} rawRows={rawRows} />
+      <TrainingProgressClient
+        curriculumRows={curriculumRows}
+        rawRows={rawRows}
+        canonicalCatalog={canonicalCatalog}
+      />
     </PortalPageFrame>
   );
 }

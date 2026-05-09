@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 
 type MatchRow = {
   id: string;
@@ -18,7 +19,7 @@ const COLUMNS: { id: string; label: string; statuses: string[]; color: string; i
   { id: 'contacted', label: 'Contacted', statuses: ['contacted'], color: 'var(--color-gold)', icon: 'mail' },
   { id: 'interviewing', label: 'Interviewing', statuses: ['interviewing'], color: 'var(--color-accent)', icon: 'videocam' },
   { id: 'hired', label: 'Hired', statuses: ['hired'], color: 'var(--color-green, #4a9b4f)', icon: 'check_circle' },
-  { id: 'declined', label: 'Declined', statuses: ['employer_declined', 'student_declined'], color: 'var(--color-on-surface-variant)', icon: 'block' },
+  { id: 'declined', label: 'Declined', statuses: ['rejected'], color: 'var(--color-on-surface-variant)', icon: 'block' },
 ];
 
 const STATUS_FOR_COLUMN: Record<string, string> = {
@@ -26,7 +27,7 @@ const STATUS_FOR_COLUMN: Record<string, string> = {
   contacted: 'interviewing',
   interviewing: 'hired',
   hired: 'hired',
-  declined: 'employer_declined',
+  declined: 'rejected',
 };
 
 function scoreColor(score: number) {
@@ -54,7 +55,7 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
   const dragMatch = useRef<MatchRow | null>(null);
 
   const patchStatus = useCallback(async (match: MatchRow, targetColumnId: string) => {
-    const newStatus = targetColumnId === 'declined' ? 'employer_declined' : STATUS_FOR_COLUMN[targetColumnId] ?? 'contacted';
+    const newStatus = targetColumnId === 'declined' ? 'rejected' : STATUS_FOR_COLUMN[targetColumnId] ?? 'contacted';
     if (matchColumnId(match.status) === targetColumnId) return;
     setBusy(match.id);
     try {
@@ -135,7 +136,7 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
               {/* Cards */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.625rem', flex: 1 }}>
                 {colMatches.map(m => {
-                  const score = Math.round(m.matchScore * 100);
+                  const score = matchScoreAsPercent(m.matchScore);
                   const isBusy = busy === m.id;
                   const isDragging = dragId === m.id;
                   return (

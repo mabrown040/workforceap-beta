@@ -2186,7 +2186,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-1',
     courseName: 'Introduction to Construction Industry',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2201,7 +2201,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-2',
     courseName: 'Blueprint Reading and Construction Math',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2216,7 +2216,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-3',
     courseName: 'Construction Safety and OSHA-10',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2231,7 +2231,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-4',
     courseName: 'Hand and Power Tools',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2246,7 +2246,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-5',
     courseName: 'Concrete and Masonry Fundamentals',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2261,7 +2261,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-6',
     courseName: 'Carpentry and Framing Basics',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2276,7 +2276,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-7',
     courseName: 'Electrical and Plumbing Basics',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
@@ -2291,7 +2291,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
   {
     courseSlug: 'construction-course-8',
     courseName: 'Construction Readiness Capstone',
-    programSlug: 'construction-readiness-certificate-osha-10',
+    programSlug: 'core-construction-training-certificate',
     programTitle: 'Core Construction',
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,

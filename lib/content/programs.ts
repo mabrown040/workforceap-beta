@@ -253,7 +253,7 @@ export const PROGRAM_AXIS_MAP: Record<string, Record<string, number>> = {
   'certified-logistics-technician-clt': {
     Analytics: 55, Engineering: 40, Design: 10, Strategy: 65, Ethics: 30, Research: 30,
   },
-  'construction-readiness-certificate-osha-10': {
+  'core-construction-training-certificate': {
     Analytics: 25, Engineering: 55, Design: 20, Strategy: 25, Ethics: 60, Research: 20,
   },
 };

@@ -517,7 +517,7 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
     // ── Construction Readiness (OSHA-10) ──
     {
       onetCode: '47-2061.00',
-      programSlug: 'construction-readiness-certificate-osha-10',
+      programSlug: 'core-construction-training-certificate',
       priority: 1,
       experienceBand: 'beginner',
       recommendationType: 'primary',
@@ -525,7 +525,7 @@ export async function seedOnetCareerData(prisma: PrismaClient): Promise<void> {
     },
     {
       onetCode: '47-1011.00',
-      programSlug: 'construction-readiness-certificate-osha-10',
+      programSlug: 'core-construction-training-certificate',
       priority: 2,
       experienceBand: 'experienced',
       recommendationType: 'stretch',

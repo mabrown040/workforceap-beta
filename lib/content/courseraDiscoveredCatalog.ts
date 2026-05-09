@@ -1,13 +1,8 @@
-// Some `courseId` fields below are still `TODO_courseId_<N>` placeholders
-// from PR #1068. Resolve them by running:
-//
-//   COURSERA_B4B_CLIENT_ID=... COURSERA_B4B_CLIENT_SECRET=... \
-//   npm run coursera:backfill-catalog
+// Course IDs are resolved against Coursera public `onDemandCourses` metadata
+// and/or B4B `listContents` when the enterprise catalog differs. If a new
+// program adds courses without IDs, run:
 //   node scripts/backfill-coursera-courseids.cjs --write
-//
-// The script is idempotent (only `TODO_courseId_<digits>` lines are touched)
-// and leaves any course it can't match against B4B `listContents` as-is so
-// the rest of the catalog still builds. See docs/COURSERA-INTEGRATION-TEST.md.
+// (requires `COURSERA_B4B_CLIENT_ID` / `SECRET`). See docs/COURSERA-INTEGRATION-TEST.md.
 const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "comptia-a-plus": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
@@ -169,13 +164,13 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     learningPathId: "rrX4ZPagR5K1-GT2oGeS9Q",
     title: "UX Design Professional Certificate (Google)",
     courses: [
-      { courseId: "TODO_courseId_1", slug: "foundations-user-experience-design", name: "Foundations of User Experience (UX) Design", partner: "Google" },
-      { courseId: "TODO_courseId_2", slug: "start-ux-design-process", name: "Start the UX Design Process: Empathize, Define, and Ideate", partner: "Google" },
-      { courseId: "TODO_courseId_3", slug: "wireframes-low-fidelity-prototypes", name: "Build Wireframes and Low-Fidelity Prototypes", partner: "Google" },
-      { courseId: "TODO_courseId_4", slug: "conduct-ux-research", name: "Conduct UX Research and Test Early Concepts", partner: "Google" },
-      { courseId: "TODO_courseId_5", slug: "high-fidelity-designs-prototype", name: "Create High-Fidelity Designs and Prototypes in Figma", partner: "Google" },
-      { courseId: "TODO_courseId_6", slug: "responsive-web-design-adobe-xd", name: "Responsive Web Design in Adobe XD", partner: "Google" },
-      { courseId: "TODO_courseId_7", slug: "uxe-design-jobs", name: "Design a User Experience for Social Good & Prepare for Jobs", partner: "Google" },
+      { courseId: "aDPeKsbTEeqqzg7nmRt_BQ", slug: "foundations-user-experience-design", name: "Foundations of User Experience (UX) Design", partner: "Google" },
+      { courseId: "R-r2uwp-Eeuf7w5EwYPThw", slug: "start-ux-design-process", name: "Start the UX Design Process: Empathize, Define, and Ideate", partner: "Google" },
+      { courseId: "TjOLkAp-EeubJBIM7h4jow", slug: "wireframes-low-fidelity-prototypes", name: "Build Wireframes and Low-Fidelity Prototypes", partner: "Google" },
+      { courseId: "U7e_Lgp-EeubJBIM7h4jow", slug: "conduct-ux-research", name: "Conduct UX Research and Test Early Concepts", partner: "Google" },
+      { courseId: "W5kcLAp-Eeua7xKR7OK1aw", slug: "high-fidelity-designs-prototype", name: "Create High-Fidelity Designs and Prototypes in Figma", partner: "Google" },
+      { courseId: "YLwdQgp-Eeu0VAqNda9Xjw", slug: "responsive-web-design-adobe-xd", name: "Build Dynamic User Interfaces (UI) for Websites", partner: "Google" },
+      { courseId: "coP2hgp-Eeuh2QpCvqFzYQ", slug: "ux-design-jobs", name: "Design a User Experience for Social Good & Prepare for Jobs", partner: "Google" },
     ],
   },
   "aws-cloud-technology-amazon": {
@@ -183,14 +178,14 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     learningPathId: "q5z39pYDSM6c9_aWA4jOLw",
     title: "AWS Cloud Technology (Amazon)",
     courses: [
-      { courseId: "TODO_courseId_1", slug: "introduction-to-it-and-aws-cloud", name: "Introduction to Information Technology and AWS Cloud", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_2", slug: "providing-tech-support-aws", name: "Providing Technical Support for AWS Workloads", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_3", slug: "developing-app-in-python-on-aws", name: "Developing Applications in Python on AWS", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_4", slug: "aws-cloud-consultant", name: "Skills for Working as an AWS Cloud Consultant", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_5", slug: "devops-on-aws-code-build-test", name: "DevOps on AWS and Project Management", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_6", slug: "automation-in-the-aws-cloud", name: "Automation in the AWS Cloud", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_7", slug: "data-analytics-and-databases-on-aws", name: "Data Analytics and Databases on AWS", partner: "Amazon Web Services" },
-      { courseId: "TODO_courseId_8", slug: "aws-well-architected-framework", name: "Capstone: Following the AWS Well Architected Framework", partner: "Amazon Web Services" },
+      { courseId: "gRUEQ0kLEe68aRLfH8OQLw", slug: "information-technology-and-aws", name: "Introduction to Information Technology and AWS Cloud", partner: "Amazon Web Services" },
+      { courseId: "gEIVp0wWEe68aRLfH8OQLw", slug: "technical-support-for-aws-workloads", name: "Providing Technical Support for AWS Workloads", partner: "Amazon Web Services" },
+      { courseId: "WyjQhRE-Ee63NRKAiQUvxw", slug: "developing-applications-in-python-on-aws", name: "Developing Applications in Python on AWS", partner: "Amazon Web Services" },
+      { courseId: "oQrDBkwiEe6XUQp7mwOjCw", slug: "aws-cloud-consultant-skills", name: "Skills for Working as an AWS Cloud Consultant", partner: "Amazon Web Services" },
+      { courseId: "FaV_7UwmEe6XUQp7mwOjCw", slug: "devops-and-project-management-aws", name: "DevOps on AWS and Project Management", partner: "Amazon Web Services" },
+      { courseId: "_wAorUwnEe6XUQp7mwOjCw", slug: "automation-in-aws", name: "Automation in the AWS Cloud", partner: "Amazon Web Services" },
+      { courseId: "9rSF60wpEe6pFg5BQAqraQ", slug: "data-analytics-and-databases-aws", name: "Data Analytics and Databases on AWS", partner: "Amazon Web Services" },
+      { courseId: "_cJKmEwqEe6pFg5BQAqraQ", slug: "aws-well-architected-framework", name: "Capstone: Following the AWS Well Architected Framework", partner: "Amazon Web Services" },
     ],
   },
   "software-developer-professional-certificate-ibm": {
@@ -198,16 +193,16 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     learningPathId: "fT-1P-CkT6q_tT_gpM-qJw",
     title: "Software Developer Professional Certificate (IBM)",
     courses: [
-      { courseId: "TODO_courseId_1", slug: "introduction-to-software-engineering", name: "Introduction to Software Engineering", partner: "IBM" },
-      { courseId: "TODO_courseId_2", slug: "introduction-html-css-javascript", name: "Introduction to HTML, CSS, & JavaScript", partner: "IBM" },
-      { courseId: "TODO_courseId_3", slug: "getting-started-with-git-and-github", name: "Getting Started with Git and GitHub", partner: "IBM" },
-      { courseId: "TODO_courseId_4", slug: "python-for-applied-data-science-ai", name: "Python for Data Science, AI & Development", partner: "IBM" },
-      { courseId: "TODO_courseId_5", slug: "developing-frontend-apps-with-react", name: "Developing Front-End Apps with React", partner: "IBM" },
-      { courseId: "TODO_courseId_6", slug: "developing-backend-apps-with-nodejs-and-express", name: "Developing Back-End Apps with Node.js and Express", partner: "IBM" },
-      { courseId: "TODO_courseId_7", slug: "django-application-development-with-sql-and-databases", name: "Django Application Development with SQL and Databases", partner: "IBM" },
-      { courseId: "TODO_courseId_8", slug: "ibm-containers-docker-kubernetes-openshift", name: "Introduction to Containers w/ Docker, Kubernetes & OpenShift", partner: "IBM" },
-      { courseId: "TODO_courseId_9", slug: "ibm-microservices-openshift", name: "Application Development using Microservices and Serverless", partner: "IBM" },
-      { courseId: "TODO_courseId_10", slug: "software-developer-career-guide-and-interview-preparation", name: "Software Developer Career Guide & Interview Preparation", partner: "IBM" },
+      { courseId: "FkAMrrwEEey8ogoy0lwspQ", slug: "introduction-to-software-engineering", name: "Introduction to Software Engineering", partner: "IBM" },
+      { courseId: "yI8fAUhFEe6cKg41IVwGGw", slug: "introduction-html-css-javascript", name: "Introduction to HTML, CSS, & JavaScript", partner: "IBM" },
+      { courseId: "qpVajkliEeyq9Q4Bl6meLw", slug: "getting-started-with-git-and-github", name: "Getting Started with Git and GitHub", partner: "IBM" },
+      { courseId: "ejOz7RDUEei99hK0xs-tsg", slug: "python-for-applied-data-science-ai", name: "Python for Data Science, AI & Development", partner: "IBM" },
+      { courseId: "naTKYx_OEe2BPRI-bktxDQ", slug: "developing-frontend-apps-with-react", name: "Developing Front-End Apps with React", partner: "IBM" },
+      { courseId: "wWKidiPbEe2Psg5YTxx2NQ", slug: "developing-backend-apps-with-nodejs-and-express", name: "Developing Back-End Apps with Node.js and Express", partner: "IBM" },
+      { courseId: "RRhnJTQqEeuGxw6YZU0gNQ", slug: "developing-applications-with-sql-databases-and-django", name: "Django Application Development with SQL and Databases", partner: "IBM" },
+      { courseId: "GGlYeNHJEeq7SQ7kpEztwQ", slug: "ibm-containers-docker-kubernetes-openshift", name: "Introduction to Containers w/ Docker, Kubernetes & OpenShift", partner: "IBM" },
+      { courseId: "ZhjmFVU3Eeibyw6mhOxdLA", slug: "applications-development-microservices-serverless-openshift", name: "Application Development using Microservices and Serverless", partner: "IBM" },
+      { courseId: "gQ_b82HOEeyipgpI5l_HwQ", slug: "software-developer-career-guide-and-interview-preparation", name: "Software Developer Career Guide and Interview Preparation", partner: "IBM" },
     ],
   },
   "it-automation-with-python-google": {
@@ -215,12 +210,12 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     learningPathId: "QnQ2KKmHTmu0Niiphy5rsQ",
     title: "IT Automation with Python (Google)",
     courses: [
-      { courseId: "TODO_courseId_1", slug: "python-crash-course", name: "Crash Course on Python", partner: "Google" },
-      { courseId: "TODO_courseId_2", slug: "python-operating-system", name: "Using Python to Interact with the Operating System", partner: "Google" },
-      { courseId: "TODO_courseId_3", slug: "introduction-git-github", name: "Introduction to Git and GitHub", partner: "Google" },
-      { courseId: "TODO_courseId_4", slug: "troubleshooting-debugging-techniques", name: "Troubleshooting and Debugging Techniques", partner: "Google" },
-      { courseId: "TODO_courseId_5", slug: "configuration-management-cloud", name: "Configuration Management and the Cloud", partner: "Google" },
-      { courseId: "TODO_courseId_6", slug: "automating-real-world-tasks-python", name: "Automating Real-World Tasks with Python", partner: "Google" },
+      { courseId: "8D3R5HiaEeioIg7r4jw_PA", slug: "python-crash-course", name: "Crash Course on Python", partner: "Google" },
+      { courseId: "3XMnuVFsEemYkgoCaF1HCg", slug: "python-operating-system", name: "Using Python to Interact with the Operating System", partner: "Google" },
+      { courseId: "-qIqP1FsEemNmQ6a3syMJg", slug: "introduction-git-github", name: "Introduction to Git and GitHub", partner: "Google" },
+      { courseId: "EId6wlFtEemX4g642wIuAg", slug: "troubleshooting-debugging-techniques", name: "Troubleshooting and Debugging Techniques", partner: "Google" },
+      { courseId: "HuWcu1FtEemShQpcsklh7g", slug: "configuration-management-cloud", name: "Configuration Management and the Cloud", partner: "Google" },
+      { courseId: "K2Ns8esJEemSygq9dtZBMw", slug: "automating-real-world-tasks-python", name: "Automating Real-World Tasks with Python", partner: "Google" },
     ],
   },
   "comptia-network-plus-professional-certificate": {
@@ -228,15 +223,15 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     learningPathId: "Qkse5-KHSUyLHufih3lMPg",
     title: "CompTIA Network+ Professional Certificate",
     courses: [
-      { courseId: "TODO_courseId_1", slug: "introduction-to-networking", name: "Introduction to Networking", partner: "Cisco Learning and Certifications" },
-      { courseId: "TODO_courseId_2", slug: "networking-fundamentals", name: "Networking Fundamentals", partner: "Cisco Learning and Certifications" },
-      { courseId: "TODO_courseId_3", slug: "intro-to-contemporary-operating-systems", name: "Introduction to Contemporary Operating Systems and Hardware", partner: "LearnQuest" },
-      { courseId: "TODO_courseId_4", slug: "introduction-to-networking-and-storage", name: "Introduction to Networking and Storage", partner: "IBM" },
-      { courseId: "TODO_courseId_5", slug: "basics-of-cisco-networking", name: "Basics of Cisco Networking", partner: "Cisco Learning and Certifications" },
-      { courseId: "TODO_courseId_6", slug: "ccna", name: "CCNA Foundations", partner: "Cisco Learning and Certifications" },
-      { courseId: "TODO_courseId_7", slug: "tcpip-advanced-topics", name: "TCP/IP and Advanced Topics", partner: "University of Colorado System" },
-      { courseId: "TODO_courseId_8", slug: "packt-operating-systems-and-networking-fundamentals-bokjh", name: "Operating Systems and Networking Fundamentals", partner: "Packt" },
-      { courseId: "TODO_courseId_9", slug: "network-foundations-and-addressing", name: "Network Foundations and Addressing", partner: "Cisco Learning and Certifications" },
+      { courseId: "0fUXSbYpEfCYqAr_4Pp9Mw", slug: "packt-networking-basics-and-tcp-ip-fundamentals-6cthe", name: "Networking Basics and TCP/IP Fundamentals", partner: "Packt" },
+      { courseId: "mHhLzQN2EfCttRIgtBdAwQ", slug: "packt-networking-fundamentals-3mbff", name: "Networking Fundamentals", partner: "Packt" },
+      { courseId: "X_YaRAFBEe6-2RLGGJPzEw", slug: "intro-to-os-and-hardware-1a", name: "Introduction to Contemporary Operating Systems and Hardware 1a", partner: "LearnQuest" },
+      { courseId: "r0SMFfxuEe-ioR4NnKP7h", slug: "introduction-to-networking-and-storage", name: "Introduction to Networking and Storage", partner: "IBM" },
+      { courseId: "kVrMZeXIEe2dBg70uMCUbw", slug: "basics-of-cisco-networking", name: "Basics of Cisco Networking", partner: "Cisco Learning and Certifications" },
+      { courseId: "PwpVaWbaEe-99A4YM4NoOw", slug: "packt-fundamentals-of-networking-and-cisco-devices-gvjwp", name: "CCNA Foundations – Networking Basics and Cisco IOS Essentials", partner: "Packt" },
+      { courseId: "KfuykmTsEeeqbxLIz9M6nA", slug: "tcp-ip-advanced", name: "TCP/IP and Advanced Topics", partner: "University of Colorado System" },
+      { courseId: "RP5nqGeBEe-ZVAr_5CUYPw", slug: "packt-operating-systems-and-networking-fundamentals-bokjh", name: "Operating Systems and Networking Fundamentals", partner: "Packt" },
+      { courseId: "DZbN0Xc6Ee-cBRK_mZB3Bw", slug: "packt-network-foundation-and-addressing-zkkwy", name: "Network Foundations and Addressing", partner: "Packt" },
     ],
   },
   "comptia-security-plus-professional-certificate": {
@@ -245,9 +240,9 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     title: "CompTIA Security+ Professional Certificate",
     // "System and Network Security" not found in Coursera catalog — skipped
     courses: [
-      { courseId: "TODO_courseId_1", slug: "network-security", name: "Network Security", partner: "Cisco Learning and Certifications" },
-      { courseId: "TODO_courseId_2", slug: "intro-cyber-security", name: "Introduction to Network Security", partner: "University of London" },
-      { courseId: "TODO_courseId_3", slug: "computer-networking", name: "Computer Networks and Network Security", partner: "IBM" },
+      { courseId: "a9kCXv7xEeyQqQ4ISkSP3Q", slug: "network-security", name: "Network Security", partner: "Cisco Learning and Certifications" },
+      { courseId: "A7g7jrgWEe2Qygqta7KH5Q", slug: "introduction-to-network-security", name: "Introduction to Network Security", partner: "University of London" },
+      { courseId: "3pCB7HgGEem9bArpYNDHGA", slug: "network-security-database-vulnerabilities", name: "Computer Networks and Network Security", partner: "IBM" },
     ],
   },
   "cybersecurity-professional-certificate-google": {
@@ -255,14 +250,14 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
     learningPathId: "gCtwKvPFS36rcCrzxSt-Yg",
     title: "Cybersecurity Professional Certificate (Google)",
     courses: [
-      { courseId: "TODO_courseId_1", slug: "foundations-of-cybersecurity", name: "Foundations of Cybersecurity", partner: "Google" },
-      { courseId: "TODO_courseId_2", slug: "manage-security-risks", name: "Play It Safe: Manage Security Risks", partner: "Google" },
-      { courseId: "TODO_courseId_3", slug: "networks-and-network-security", name: "Connect and Protect: Networks and Network Security", partner: "Google" },
-      { courseId: "TODO_courseId_4", slug: "linux-and-sql", name: "Tools of the Trade: Linux and SQL", partner: "Google" },
-      { courseId: "TODO_courseId_5", slug: "assets-threats-and-vulnerabilities", name: "Assets, Threats, and Vulnerabilities", partner: "Google" },
-      { courseId: "TODO_courseId_6", slug: "detection-and-response", name: "Sound the Alarm: Detection and Response", partner: "Google" },
-      { courseId: "TODO_courseId_7", slug: "automate-cybersecurity-python", name: "Automate Cybersecurity Tasks with Python", partner: "Google" },
-      { courseId: "TODO_courseId_8", slug: "prepare-for-cybersecurity-jobs", name: "Put It to Work: Prepare for Cybersecurity Jobs", partner: "Google" },
+      { courseId: "f6gZrWUIEe2piwrmyBNtEQ", slug: "foundations-of-cybersecurity", name: "Foundations of Cybersecurity", partner: "Google" },
+      { courseId: "y6mmi2UIEe21jBLFGcIQ1w", slug: "manage-security-risks", name: "Play It Safe: Manage Security Risks", partner: "Google" },
+      { courseId: "PeAVvmUJEe2NnA4jep2fLw", slug: "networks-and-network-security", name: "Connect and Protect: Networks and Network Security", partner: "Google" },
+      { courseId: "h_qSTmUJEe21jBLFGcIQ1w", slug: "linux-and-sql", name: "Tools of the Trade: Linux and SQL", partner: "Google" },
+      { courseId: "z5Fx9mUJEe2piwrmyBNtEQ", slug: "assets-threats-and-vulnerabilities", name: "Assets, Threats, and Vulnerabilities", partner: "Google" },
+      { courseId: "3obxa2UJEe2NnA4jep2fLw", slug: "detection-and-response", name: "Sound the Alarm: Detection and Response", partner: "Google" },
+      { courseId: "7LHOTGUJEe21jBLFGcIQ1w", slug: "automate-cybersecurity-tasks-with-python", name: "Automate Cybersecurity Tasks with Python", partner: "Google" },
+      { courseId: "-TDPq2UJEe2piwrmyBNtEQ", slug: "prepare-for-cybersecurity-jobs", name: "Put It to Work: Prepare for Cybersecurity Jobs", partner: "Google" },
     ],
   },
 };
@@ -286,5 +281,24 @@ export type CourseraDiscoveredProgram = CourseraDiscoveredProgramInner & {
 };
 export type CourseraDiscoveredCourse = CourseraDiscoveredCourseInner & { estimatedHours?: number };
 
+/** WAP `programs.ts` slug → key in `DISCOVERED_COURSERA_PROGRAMS_INNER` (single object, no duplicate curriculum). */
+const WAP_PROGRAM_DISCOVERED_ALIASES: Record<string, CourseraProgramSlug> = {
+  'comptia-a-professional-certificate': 'comptia-a-plus',
+  'comptia-network-professional-certificate': 'comptia-network-plus-professional-certificate',
+  'comptia-security-professional-certificate': 'comptia-security-plus-professional-certificate',
+  'digital-marketing-e-commerce-google': 'digital-marketing-e-commerce-professional-certificate-google',
+};
+
+function mergeDiscoveredWithWapAliases(
+  inner: Record<CourseraProgramSlug, CourseraDiscoveredProgram>,
+  aliases: Record<string, CourseraProgramSlug>,
+): Record<string, CourseraDiscoveredProgram> {
+  const out: Record<string, CourseraDiscoveredProgram> = { ...inner };
+  for (const [wapSlug, innerKey] of Object.entries(aliases)) {
+    out[wapSlug] = inner[innerKey];
+  }
+  return out;
+}
+
 export const DISCOVERED_COURSERA_PROGRAMS: Record<string, CourseraDiscoveredProgram> =
-  DISCOVERED_COURSERA_PROGRAMS_INNER;
+  mergeDiscoveredWithWapAliases(DISCOVERED_COURSERA_PROGRAMS_INNER, WAP_PROGRAM_DISCOVERED_ALIASES);

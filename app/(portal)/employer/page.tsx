@@ -86,7 +86,7 @@ export default async function EmployerDashboardPage() {
   const jobIds = jobs.map((j) => j.id);
   const liveJobIds = jobs.filter((j) => j.status === 'live').map((j) => j.id);
 
-  const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount, offerStageCount] = await Promise.all([
+  const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount, offerStageCount, screenedCount, interviewCount] = await Promise.all([
     liveJobIds.length === 0
       ? Promise.resolve(0)
       : prisma.aIJobMatch.count({ where: { jobId: { in: liveJobIds } } }),
@@ -108,6 +108,12 @@ export default async function EmployerDashboardPage() {
     prisma.job.count({ where: { employerId: ctx.employerId, status: 'filled' } }),
     prisma.jobPostingApplication.count({
       where: { job: { employerId: ctx.employerId }, status: 'offered' },
+    }),
+    prisma.jobPostingApplication.count({
+      where: { job: { employerId: ctx.employerId }, status: 'reviewing' },
+    }),
+    prisma.jobPostingApplication.count({
+      where: { job: { employerId: ctx.employerId }, status: 'interview' },
     }),
   ]);
 
@@ -236,10 +242,10 @@ export default async function EmployerDashboardPage() {
         {/* Pipeline summary strip */}
         <div className="portal-kpi-card" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
           {[
-            { label: 'Screened', value: Math.max(0, totalApplications - inReview) },
-            { label: 'Interview', value: inReview },
+            { label: 'Screened', value: screenedCount },
+            { label: 'Interview', value: interviewCount },
             { label: 'Offer', value: offerStageCount },
-            { label: 'Hired', value: filledPositions },
+            { label: 'Hired', value: hiresFromApplications },
           ].map((s, i, arr) => (
             <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
               <div style={{ flex:1, textAlign:"center" }}>

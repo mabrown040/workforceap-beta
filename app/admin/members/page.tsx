@@ -13,7 +13,7 @@ import MembersTable from '@/components/admin/MembersTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -44,7 +44,7 @@ export default async function AdminMembersPage() {
     activeCourseProgressResult,
   ] = await Promise.allSettled([
     prisma.user.findMany({
-      where: { deletedAt: null, ...MEMBER_ONLY_WHERE },
+      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
       orderBy: { createdAt: 'desc' },
       take: 2000,
       select: {

@@ -39,6 +39,9 @@ export async function GET(req: NextRequest) {
 
   try {
   const EXPORT_LIMIT = 10_000;
+  // Strict member filter: WIOA / funder cohort exports must never include
+  // admin-dogfood rows. Use MEMBER_OR_DOGFOOD_WHERE only on internal admin
+  // surfaces.
   const users = await prisma.user.findMany({
     where: {
       deletedAt: null,

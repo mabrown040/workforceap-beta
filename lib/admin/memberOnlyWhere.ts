@@ -1,15 +1,27 @@
 import type { Prisma } from '@prisma/client';
 
+const FIXTURE_EMAILS = ['member.success@workforceap.org', 'mbrown@hsconglomerates.com'];
+
 /**
- * Prisma where-clause fragment that scopes user queries to actual member accounts only.
- * Excludes admin, super_admin, counselor, case_manager, employer, and partner profiles.
- * All signup paths create a profile row, so users without a profile row are also excluded
- * (they are seed/test accounts, not real members).
- * Also explicitly excludes known fixture/test accounts from production surfaces.
+ * Strict member filter used by funder / grant exports (WIOA cohort CSV, etc.)
+ * Only profile.role === 'member' rows count toward outcome reporting.
  */
 export const MEMBER_ONLY_WHERE = {
   profile: { role: 'member' },
-  email: {
-    notIn: ['member.success@workforceap.org', 'mbrown@hsconglomerates.com'],
-  },
+  email: { notIn: FIXTURE_EMAILS },
+} satisfies Prisma.UserWhereInput;
+
+/**
+ * Member-or-dogfood-admin filter used by admin-facing surfaces (/admin/members,
+ * /admin/pipeline, etc.). Includes:
+ *  - any profile.role === 'member' (real members)
+ *  - admin / super_admin accounts (dogfooders — they need to find themselves
+ *    in the admin UI to test member surfaces with their own Coursera data)
+ *
+ * Funder-facing exports must keep using `MEMBER_ONLY_WHERE` so admin rows
+ * never leak into WIOA / outcome reports.
+ */
+export const MEMBER_OR_DOGFOOD_WHERE = {
+  profile: { role: { in: ['member', 'admin', 'super_admin'] } },
+  email: { notIn: FIXTURE_EMAILS },
 } satisfies Prisma.UserWhereInput;

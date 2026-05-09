@@ -39,6 +39,15 @@ type Member = {
   partnerId: string | null;
   fitScore?: number;
   healthStatus?: HealthStatus;
+  /**
+   * Multi-program-aware: every program slug the member has a
+   * `course_enrollments` row for. The program-filter dropdown is built from
+   * the union of these across all rows, and matching tests against this
+   * list rather than just the primary `enrolledProgram` slug.
+   */
+  enrollmentProgramSlugs: string[];
+  /** Title-by-slug lookup so the dropdown can render real program titles. */
+  enrollmentProgramTitleBySlug: Record<string, string>;
 };
 
 type MembersTableProps = { members: Member[] };
@@ -78,20 +87,38 @@ export default function MembersTable({ members }: MembersTableProps) {
   const filtered = members.filter((m) => {
     const q = search.toLowerCase();
     const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
-    const matchProgram = !programFilter || m.enrolledProgram === programFilter;
+    // Multi-program-aware: a member matches the program filter if ANY of
+    // their `course_enrollments` rows is for the chosen program (not just
+    // the denormalized primary on `enrolledProgram`).
+    const matchProgram = !programFilter || m.enrollmentProgramSlugs.includes(programFilter);
     const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
     const matchHealth = !healthFilter || m.healthStatus === healthFilter;
     return matchSearch && matchProgram && matchPartner && matchHealth;
   });
 
-  const programs = [...new Set(members.map((m) => m.enrolledProgram).filter(Boolean))] as string[];
+  // Build the program-filter dropdown from the DISTINCT union of every
+  // member's enrolled program slugs (multi-program members contribute every
+  // program they're in, not just the primary).
+  const programs = (() => {
+    const titleBySlug = new Map<string, string>();
+    for (const m of members) {
+      for (const slug of m.enrollmentProgramSlugs) {
+        if (!titleBySlug.has(slug)) {
+          titleBySlug.set(slug, m.enrollmentProgramTitleBySlug[slug] ?? slug);
+        }
+      }
+    }
+    return [...titleBySlug.entries()]
+      .map(([slug, title]) => ({ slug, title }))
+      .sort((a, b) => a.title.localeCompare(b.title));
+  })();
   const partnerOptions = [...new Map(members.filter((m) => m.partnerId).map((m) => [m.partnerId!, m.partnerName!])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
 
   return (
     <div>
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <input type="text" placeholder="Search by name or email" value={search} onChange={(e) => setSearch(e.target.value)} style={{ padding: '0.5rem', width: '220px' }} />
-        <select value={programFilter} onChange={(e) => setProgramFilter(e.target.value)} style={{ padding: '0.5rem', width: '200px' }}><option value="">All programs</option>{programs.map((p) => <option key={p} value={p}>{p}</option>)}</select>
+        <select value={programFilter} onChange={(e) => setProgramFilter(e.target.value)} style={{ padding: '0.5rem', width: '200px' }}><option value="">All programs</option>{programs.map((p) => <option key={p.slug} value={p.slug}>{p.title}</option>)}</select>
         <select value={partnerFilter} onChange={(e) => setPartnerFilter(e.target.value)} style={{ padding: '0.5rem', width: '220px' }}><option value="">All partners</option><option value="__none">No partner</option>{partnerOptions.map(([pid, pname]) => <option key={pid} value={pid}>{pname}</option>)}</select>
         <select value={healthFilter} onChange={(e) => setHealthFilter(e.target.value)} style={{ padding: '0.5rem', width: '140px' }}><option value="">All health</option><option value="green">Active</option><option value="yellow">At Risk</option><option value="red">Inactive</option></select>
       </div>

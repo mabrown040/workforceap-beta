@@ -32,6 +32,12 @@ export type TrainingDashboardRow = {
   staleTrainingDetectedAt: Date | null;
   partnerName: string | null;
   counselorName: string | null;
+  /**
+   * All program slugs the member is enrolled in (primary + every secondary
+   * `course_enrollments` row). The program-filter dropdown matches against
+   * this list so multi-program learners surface under non-primary programs.
+   */
+  programSlugsAll: string[];
 };
 
 export type TrainingDashboardData = {
@@ -68,6 +74,14 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       memberProgramProgress: {
         select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
       },
+      // Multi-program-aware: pulled to detect every program a member is
+      // enrolled in (the source of truth for multi-program learners), not
+      // just the denormalized primary on `User.enrolledProgram`. The
+      // program-filter checks against this so secondary enrollees show up
+      // when the dashboard is scoped to a non-primary program.
+      courseEnrollments: {
+        select: { programSlug: true },
+      },
       courseProgress: {
         where: { status: { in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED] } },
         select: { courseSlug: true, status: true, lastUpdatedAt: true },
@@ -101,6 +115,18 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       }
     }
 
+    // Multi-program-aware: every program slug the learner is in (primary +
+    // every secondary `course_enrollments` row). Falls back through
+    // `memberProgramProgress` for legacy rows that pre-date enrollments
+    // materialisation.
+    const programSlugsAll = Array.from(
+      new Set<string>([
+        m.enrolledProgram,
+        ...m.courseEnrollments.map((row) => row.programSlug),
+        ...m.memberProgramProgress.map((row) => row.programSlug),
+      ]),
+    );
+
     rows.push({
       id: m.id,
       fullName: m.fullName ?? m.email,
@@ -117,6 +143,7 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       staleTrainingDetectedAt: m.staleTrainingDetectedAt,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       counselorName: m.counselorAssignments[0]?.counselor.user.fullName ?? null,
+      programSlugsAll,
     });
   }
 

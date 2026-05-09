@@ -59,6 +59,14 @@ export default async function AdminMembersPage() {
         programInterest: true,
         updatedAt: true,
         createdAt: true,
+        // Multi-program-aware: pull every program slug the member has an
+        // enrollment row for so the MembersTable filter dropdown can include
+        // ALL programs each member is in (not just the denormalized primary
+        // on `enrolledProgram`) and so filtering by program matches
+        // secondary-enrolled members too.
+        courseEnrollments: {
+          select: { programSlug: true, isPrimary: true },
+        },
         profile: {
           select: {
             profilePhone: true,
@@ -205,6 +213,20 @@ export default async function AdminMembersPage() {
     const liveProgress = m.enrolledProgram ? programProgressMap.get(`${m.id}:${m.enrolledProgram}`) ?? null : null;
     const activeCourses = activeCourseCountMap.get(m.id) ?? 0;
 
+    // Multi-program-aware: surface every program slug the learner has an
+    // enrollment row for. Falls back to legacy `enrolledProgram` when the
+    // member has no `course_enrollments` rows yet (legacy / seeded users).
+    const enrollmentProgramSlugs = Array.from(
+      new Set<string>([
+        ...(m.enrolledProgram ? [m.enrolledProgram] : []),
+        ...m.courseEnrollments.map((row) => row.programSlug),
+      ]),
+    );
+    const enrollmentProgramTitleBySlug: Record<string, string> = {};
+    for (const slug of enrollmentProgramSlugs) {
+      enrollmentProgramTitleBySlug[slug] = getProgramBySlug(slug)?.title ?? slug;
+    }
+
     return {
       ...m,
       programTitle,
@@ -223,6 +245,8 @@ export default async function AdminMembersPage() {
       partnerId: m.partnerReferrals[0]?.partner.id ?? null,
       fitScore,
       healthStatus,
+      enrollmentProgramSlugs,
+      enrollmentProgramTitleBySlug,
     };
   });
 

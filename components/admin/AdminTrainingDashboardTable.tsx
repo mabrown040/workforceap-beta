@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { TrainingDashboardRow } from '@/lib/admin/trainingDashboard';
+import { getProgramBySlug } from '@/lib/content/programs';
 import DataTable from '@/components/portal/ui/DataTable';
 
 function formatDate(value: string | Date | null): string {
@@ -39,17 +40,27 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
   const [status, setStatus] = useState('in_progress');
   const [program, setProgram] = useState('');
 
-  const programs = useMemo(
-    () => [...new Map(rows.map((row) => [row.enrolledProgram, row.programTitle])).entries()].sort((a, b) => a[1].localeCompare(b[1])),
-    [rows]
-  );
+  // Multi-program-aware: build the program-filter dropdown from every program
+  // each row carries (primary + secondary enrollments). Filtering then matches
+  // a row if ANY of its program slugs equals the chosen program — so a member
+  // enrolled in both `it-cyber` and `ai-software` shows up under either.
+  const programs = useMemo(() => {
+    const titleByPrimary = new Map(rows.map((row) => [row.enrolledProgram, row.programTitle]));
+    const slugs = new Set<string>();
+    for (const row of rows) {
+      for (const slug of row.programSlugsAll) slugs.add(slug);
+    }
+    return [...slugs]
+      .map((slug) => [slug, titleByPrimary.get(slug) ?? getProgramBySlug(slug)?.title ?? slug] as const)
+      .sort((a, b) => a[1].localeCompare(b[1]));
+  }, [rows]);
 
   const filtered = rows.filter((row) => {
     const q = query.trim().toLowerCase();
     const rowStatus = statusFor(row).label.toLowerCase().replace(' ', '_');
     const matchesQuery = !q || row.fullName.toLowerCase().includes(q) || row.email.toLowerCase().includes(q);
     const matchesStatus = !status || rowStatus === status;
-    const matchesProgram = !program || row.enrolledProgram === program;
+    const matchesProgram = !program || row.programSlugsAll.includes(program);
     return matchesQuery && matchesStatus && matchesProgram;
   });
 

@@ -24,29 +24,40 @@ export default async function AdminProgramsPage() {
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
-  const enrollments = await prisma.user.findMany({
-    where: { deletedAt: null, enrolledProgram: { not: null } },
+  // Multi-program-aware: count members per program from `course_enrollments`
+  // (the source of truth for multi-program learners). A learner with rows in
+  // both `it-cyber` and `ai-software` is counted once under each program,
+  // not just under their primary `User.enrolledProgram`.
+  const enrollmentRows = await prisma.courseEnrollment.findMany({
+    where: { user: { deletedAt: null } },
     select: {
-      enrolledProgram: true,
-      assessmentScorePct: true,
-      memberProgramProgress: {
-        select: { programSlug: true, coursesCompleted: true },
+      programSlug: true,
+      user: {
+        select: {
+          id: true,
+          assessmentScorePct: true,
+          memberProgramProgress: {
+            select: { programSlug: true, coursesCompleted: true },
+          },
+        },
       },
     },
   });
 
   const byProgram = new Map<string, { count: number; scores: number[]; completed: number }>();
-  for (const e of enrollments) {
-    const slug = e.enrolledProgram!;
+  const seenLearners = new Set<string>();
+  for (const e of enrollmentRows) {
+    const slug = e.programSlug;
     const prog = byProgram.get(slug) ?? { count: 0, scores: [], completed: 0 };
     prog.count++;
-    if (e.assessmentScorePct != null) prog.scores.push(e.assessmentScorePct);
-    const completed = e.memberProgramProgress.find((row) => row.programSlug === slug)?.coursesCompleted ?? 0;
+    if (e.user.assessmentScorePct != null) prog.scores.push(e.user.assessmentScorePct);
+    const completed = e.user.memberProgramProgress.find((row) => row.programSlug === slug)?.coursesCompleted ?? 0;
     prog.completed += completed;
     byProgram.set(slug, prog);
+    seenLearners.add(e.user.id);
   }
 
-  const totalEnrollments = enrollments.length;
+  const totalEnrollments = seenLearners.size;
   const programStats = PROGRAMS.map((program) => {
     const stats = byProgram.get(program.slug) ?? { count: 0, scores: [], completed: 0 };
     const avgScore = stats.scores.length > 0

@@ -11,6 +11,7 @@ import {
   averageProgramProgressFromB4B,
   fetchLearnerProgressFromB4B,
   getLearnerProgressLastActivity,
+  invalidateLearnerProgressCacheForEmail,
 } from './learnerProgress';
 
 const ORIGINAL_ENV: Record<string, string | undefined> = {};
@@ -144,6 +145,49 @@ test('reuses cache within TTL, refetches when skipCache=true', async (t) => {
 
   await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1', skipCache: true });
   assert.equal(enrollmentCalls, 2, 'skipCache=true forces a refetch');
+});
+
+test('invalidateLearnerProgressCacheForEmail clears entries for that learner only', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  let enrollmentCalls = 0;
+  _setFetchForTesting(async (url) => {
+    if (url.includes('/oauth2/')) {
+      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+    }
+    if (url.includes('/enrollmentReports')) {
+      enrollmentCalls += 1;
+      return jsonResponse({
+        elements: [
+          {
+            programId: 'PRG-1',
+            externalId: 'inv@test.com',
+            contentId: 'C1',
+            contentType: 'Course',
+            isCompleted: false,
+            overallProgress: 10,
+          },
+        ],
+        paging: { total: 1 },
+      });
+    }
+    return jsonResponse({});
+  });
+
+  await fetchLearnerProgressFromB4B('inv@test.com', { programId: 'PRG-1' });
+  await fetchLearnerProgressFromB4B('other@test.com', { programId: 'PRG-1' });
+  assert.equal(enrollmentCalls, 2);
+
+  assert.ok(_getLearnerCacheEntryForTesting('inv@test.com', 'PRG-1'));
+  assert.ok(_getLearnerCacheEntryForTesting('other@test.com', 'PRG-1'));
+
+  invalidateLearnerProgressCacheForEmail('inv@test.com');
+  assert.equal(_getLearnerCacheEntryForTesting('inv@test.com', 'PRG-1'), undefined);
+  assert.ok(_getLearnerCacheEntryForTesting('other@test.com', 'PRG-1'));
+
+  await fetchLearnerProgressFromB4B('inv@test.com', { programId: 'PRG-1' });
+  assert.equal(enrollmentCalls, 3);
 });
 
 test('cache TTL elapses → next call refetches', async (t) => {

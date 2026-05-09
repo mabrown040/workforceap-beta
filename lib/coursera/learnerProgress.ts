@@ -78,6 +78,21 @@ export function _getLearnerCacheEntryForTesting(
   return learnerCache.get(learnerCacheKey(email, programId));
 }
 
+/**
+ * Drop cached B4B progress for one learner (all program scopes).
+ * Call after `syncUserFromB4B` / cron writes so the member dashboard and any
+ * server-render path using `fetchLearnerProgressFromB4B` sees fresh Coursera
+ * numbers on the next fetch instead of waiting out the 60s TTL.
+ */
+export function invalidateLearnerProgressCacheForEmail(email: string): void {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return;
+  const prefix = `${normalized}::`;
+  for (const key of learnerCache.keys()) {
+    if (key.startsWith(prefix)) learnerCache.delete(key);
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Internals                                                          */
 /* ------------------------------------------------------------------ */

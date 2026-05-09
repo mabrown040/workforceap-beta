@@ -561,7 +561,6 @@ export default function JobsListingClient({
       <aside
         id="job-filters-drawer"
         className={`job-filters-drawer ${filtersOpen ? 'is-open' : ''}`}
-        aria-hidden={!filtersOpen}
       >
         <div className="job-filters-drawer-inner">
           <div className="job-filters-drawer-header">

@@ -23,6 +23,12 @@ import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberState } from '@/lib/member/getMemberState';
+import {
+  fetchLearnerProgressFromB4B,
+  type LearnerProgressByContent,
+} from '@/lib/coursera/learnerProgress';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { maybeAutoSyncCourseraOnDashboard } from '@/lib/coursera/dashboardAutoSync';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
@@ -75,8 +81,43 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
-  // Single source of truth for member state (application, training, profile, checklist, next actions)
-  const memberState = await getMemberState(user.id);
+  // ── Auto-sync trigger (fire-and-await with 5s deadline; fail-soft) ──
+  // First-visit members who have a Coursera identity mapping but zero local
+  // CourseProgress rows get their enrollment + xAPI seeded right here so the
+  // hero ring + "X of N courses" reflect real Coursera progress. Subsequent
+  // renders skip via the `users.last_coursera_auto_sync_at` dedupe.
+  // PR #1079 wired B4B real-time progress into /dashboard/training; this
+  // closes the equivalent gap on the home page (#1079 only enriched the
+  // training page, so the home dashboard kept reading 0% from local rows
+  // for any never-synced learner). See lib/coursera/dashboardAutoSync.ts.
+  await maybeAutoSyncCourseraOnDashboard({
+    userId: user.id,
+    userEmail: user.email ?? null,
+  });
+
+  // ── B4B authoritative progress for the hero ring ──
+  // Pulled in parallel with the rest of the page data; the 60s cache in
+  // learnerProgress.ts means a refresh + sub-page navigation reuses one
+  // request. Failure → empty map → fall back to local rollup. No DB writes.
+  const enrolledProgramSlug = dbUser.enrolledProgram ?? null;
+  const courseraProgramIdForEnrolled = enrolledProgramSlug
+    ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgramSlug]?.courseraProgramId
+    : undefined;
+  const b4bProgressPromise: Promise<LearnerProgressByContent> = user.email
+    ? fetchLearnerProgressFromB4B(user.email, {
+        programId: courseraProgramIdForEnrolled,
+      }).catch((err) => {
+        console.warn('[dashboard] B4B learner progress unavailable:', err);
+        return new Map() as LearnerProgressByContent;
+      })
+    : Promise.resolve(new Map() as LearnerProgressByContent);
+  const b4bProgress = await b4bProgressPromise;
+
+  // Single source of truth for member state (application, training, profile, checklist, next actions).
+  // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`
+  // reflects Coursera's authoritative average when every catalog course has
+  // a B4B row (all-or-nothing — see averageProgramProgressFromB4B).
+  const memberState = await getMemberState(user.id, { b4bProgress });
 
   // Lightweight query for presentation-layer metadata not in getMemberState
   const intakePromise = prisma.user.findUnique({

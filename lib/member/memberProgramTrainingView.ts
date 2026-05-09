@@ -86,6 +86,21 @@ export async function loadMemberProgramTrainingView(args: {
     }
   }
 
+  // Build a slug→Coursera courseId map so we can fall back to the B4B
+  // `isCompleted` / `overallProgress` signal when the local CourseProgress
+  // row hasn't been seeded yet (never-synced learner — see #1076 / #1079).
+  // This is what makes the dashboard hero ring render correctly on a
+  // member's first visit before any auto-sync writes have landed.
+  const discovered = DISCOVERED_COURSERA_PROGRAMS[args.programSlug];
+  const courseraIdBySlug = new Map<string, string>();
+  if (discovered) {
+    for (const c of discovered.courses) {
+      if (c.courseId && !c.courseId.startsWith('TODO_')) {
+        courseraIdBySlug.set(c.slug, c.courseId);
+      }
+    }
+  }
+
   const totalCourses = program.courses.length;
   let completedCount = 0;
   let hasStartedTraining = false;
@@ -97,18 +112,29 @@ export async function loadMemberProgramTrainingView(args: {
 
   for (const c of program.courses) {
     const row = bySlug.get(c.slug);
-    const complete =
-      row != null
-        ? row.status === CourseProgressStatus.COMPLETED
-        : false;
+    const courseraId = courseraIdBySlug.get(c.slug);
+    const b4bEntry =
+      args.b4bProgress && courseraId ? args.b4bProgress.get(courseraId) : undefined;
 
-    const pct = row?.percentComplete ?? 0;
+    // Local row wins for completion when present (xAPI / "Mark complete"
+    // are the system of record). B4B is the fallback for users who haven't
+    // been synced yet — first dashboard hit, no local rows, but Coursera
+    // reports progress.
+    const complete =
+      row?.status === CourseProgressStatus.COMPLETED ||
+      (row == null && b4bEntry?.isCompleted === true);
+
+    const localPct = row?.percentComplete ?? 0;
+    const b4bPct = b4bEntry?.overallProgress ?? 0;
+    const pct = Math.max(localPct, row == null ? b4bPct : 0);
     sumPercentForAverage += Math.max(0, Math.min(100, pct));
 
     const started =
       complete ||
       row?.status === CourseProgressStatus.IN_PROGRESS ||
-      pct > 0;
+      localPct > 0 ||
+      // B4B started signal only counts when no local row exists yet.
+      (row == null && b4bPct > 0);
 
     if (started) hasStartedTraining = true;
     if (complete) {

@@ -43,7 +43,7 @@ export default async function AdminTrainingProgressPage() {
 
   const learnerIds = learners.map((l) => l.id);
 
-  const [canonicalProgressRows, rawCourseraRows, dbMappings] = await Promise.all([
+  const [canonicalProgressRows, rawCourseraRows, dbMappings, courseEnrollmentRows] = await Promise.all([
     prisma.courseProgress.findMany({
       where: { userId: { in: learnerIds } },
       select: {
@@ -89,6 +89,18 @@ export default async function AdminTrainingProgressPage() {
         canonicalCourseSlug: true,
       },
     }),
+    // Multi-program: drive the curriculum view from EVERY enrollment row
+    // (primary + secondary), not just `User.enrolledProgram`. The legacy
+    // single-program field stays as a fallback below for users without any
+    // CourseEnrollment rows yet (seeded test users).
+    prisma.courseEnrollment.findMany({
+      where: { userId: { in: learnerIds } },
+      select: {
+        userId: true,
+        programSlug: true,
+        isPrimary: true,
+      },
+    }),
   ]);
 
   const dbMappingByCourseraId = new Map(
@@ -99,31 +111,75 @@ export default async function AdminTrainingProgressPage() {
     canonicalProgressRows.map((r) => [`${r.userId}:${r.programSlug}:${r.courseSlug}`, r]),
   );
 
-  // Curriculum view: row per (learner × enrolled program × canonical course)
+  // Multi-program: bucket every CourseEnrollment row by user so we can
+  // emit curriculum rows for primary + secondary programs in one pass.
+  const enrollmentsByUser = new Map<string, typeof courseEnrollmentRows>();
+  for (const row of courseEnrollmentRows) {
+    const bucket = enrollmentsByUser.get(row.userId);
+    if (bucket) bucket.push(row);
+    else enrollmentsByUser.set(row.userId, [row]);
+  }
+
+  // Curriculum view: row per (learner × enrolled program × canonical course).
+  // For multi-program learners we emit one block per enrolled program, in
+  // this order: primary first, then each secondary alphabetically by program
+  // title. The `programRole` field lets the client component show a
+  // `secondary` pill on rows from non-primary programs.
   const curriculumRows: CurriculumRow[] = [];
   for (const learner of learners) {
-    const programSlug = learner.enrolledProgram;
-    if (!programSlug) continue;
-    const program = getProgramBySlug(programSlug);
-    if (!program) continue;
-    for (const course of program.courses) {
-      const progress = canonicalByKey.get(`${learner.id}:${programSlug}:${course.slug}`);
-      curriculumRows.push({
-        key: `${learner.id}:${programSlug}:${course.slug}`,
-        learnerId: learner.id,
-        learnerName: learner.fullName ?? '',
-        learnerEmail: learner.email ?? '',
-        learnerRole: learner.profile?.role ?? 'member',
-        programSlug,
-        programTitle: program.title,
-        courseSlug: course.slug,
-        courseName: course.name,
-        courseraCourseId: progress?.courseId ?? course.courseraCourseId ?? null,
-        status: progress?.status ?? 'NOT_STARTED',
-        percentComplete: progress?.percentComplete ?? 0,
-        lastActivityAt: progress?.lastActivityAt?.toISOString() ?? null,
-        lastUpdatedAt: progress?.lastUpdatedAt?.toISOString() ?? null,
-      });
+    const learnerEnrollments = enrollmentsByUser.get(learner.id) ?? [];
+
+    // Build the ordered list of programs to render for this learner. When
+    // CourseEnrollment rows exist, they drive the view (primary first, then
+    // secondaries alpha by program title). Otherwise fall back to the
+    // legacy `User.enrolledProgram` so seeded users without a backfilled
+    // enrollment row still get a curriculum block (treated as primary).
+    type ProgramEmit = { programSlug: string; programRole: 'primary' | 'secondary' };
+    let programsToEmit: ProgramEmit[] = [];
+
+    if (learnerEnrollments.length > 0) {
+      const primary = learnerEnrollments.find((e) => e.isPrimary) ?? null;
+      const secondaries = learnerEnrollments
+        .filter((e) => e !== primary)
+        .map((e) => ({
+          programSlug: e.programSlug,
+          programTitle: getProgramBySlug(e.programSlug)?.title ?? e.programSlug,
+        }))
+        .sort((a, b) => a.programTitle.localeCompare(b.programTitle));
+
+      if (primary) {
+        programsToEmit.push({ programSlug: primary.programSlug, programRole: 'primary' });
+      }
+      for (const s of secondaries) {
+        programsToEmit.push({ programSlug: s.programSlug, programRole: 'secondary' });
+      }
+    } else if (learner.enrolledProgram) {
+      programsToEmit = [{ programSlug: learner.enrolledProgram, programRole: 'primary' }];
+    }
+
+    for (const { programSlug, programRole } of programsToEmit) {
+      const program = getProgramBySlug(programSlug);
+      if (!program) continue;
+      for (const course of program.courses) {
+        const progress = canonicalByKey.get(`${learner.id}:${programSlug}:${course.slug}`);
+        curriculumRows.push({
+          key: `${learner.id}:${programSlug}:${course.slug}`,
+          learnerId: learner.id,
+          learnerName: learner.fullName ?? '',
+          learnerEmail: learner.email ?? '',
+          learnerRole: learner.profile?.role ?? 'member',
+          programSlug,
+          programTitle: program.title,
+          programRole,
+          courseSlug: course.slug,
+          courseName: course.name,
+          courseraCourseId: progress?.courseId ?? course.courseraCourseId ?? null,
+          status: progress?.status ?? 'NOT_STARTED',
+          percentComplete: progress?.percentComplete ?? 0,
+          lastActivityAt: progress?.lastActivityAt?.toISOString() ?? null,
+          lastUpdatedAt: progress?.lastUpdatedAt?.toISOString() ?? null,
+        });
+      }
     }
   }
 

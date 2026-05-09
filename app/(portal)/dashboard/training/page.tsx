@@ -26,6 +26,7 @@ import {
 } from '@/lib/coursera/learnerProgress';
 import RefreshCourseraProgressButton from '@/components/portal/RefreshCourseraProgressButton';
 import TrainingProgramTabs from '@/components/portal/TrainingProgramTabs';
+import OtherProgramsList, { type OtherProgram } from '@/components/portal/OtherProgramsList';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
@@ -266,6 +267,24 @@ export default async function TrainingPage({
   }));
   const showProgramTabs = tabRows.length > 1;
   const activeIsPrimary = primaryEnrollment?.programSlug === activeProgramSlug;
+
+  // Multi-program: list every non-primary CourseEnrollment row in the
+  // "Other programs" section below. Hidden when there are zero secondaries
+  // so single-program users see the same layout they always did. We resolve
+  // each program's title + course count from the static catalog so the
+  // secondary card shows the same titles the primary block uses.
+  const secondaryPrograms: OtherProgram[] = enrollments
+    .filter((e) => !e.isPrimary)
+    .map((e) => {
+      const p = getProgramBySlug(e.programSlug);
+      return {
+        enrollmentId: e.id,
+        programSlug: e.programSlug,
+        programTitle: p?.title ?? e.programSlug,
+        courseCount: p?.courses.length ?? 0,
+      };
+    })
+    .sort((a, b) => a.programTitle.localeCompare(b.programTitle));
 
   const isZeroState = completedCount === 0 && !Object.values(progressBySlug).some((p) => p.status === 'IN_PROGRESS' || (p.percentComplete ?? 0) > 0);
 
@@ -602,6 +621,11 @@ export default async function TrainingPage({
               enrolledCourseraCourseIds={Array.from(b4bProgress.keys())}
             />
           </section>
+
+          {/* Multi-program: read-only "Other programs" list. Renders nothing
+              when the learner has zero non-primary CourseEnrollment rows so
+              single-program users see no UI change. */}
+          <OtherProgramsList programs={secondaryPrograms} />
         </div>
       </div>
     </>

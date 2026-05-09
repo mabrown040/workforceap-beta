@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { requireAdmin, isAdmin, canBypassMemberAssessment } from './roles';
+import { requireAdmin, isAdmin, canBypassMemberAssessment, isSuperAdmin, isCounselor } from './roles';
 import { prisma } from '../db/prisma';
 
 test('requireAdmin throws error when user is not admin', async (t) => {
@@ -95,6 +95,30 @@ test('canBypassMemberAssessment is false for plain member', async (t) => {
   profileDelegate.findUnique = async () => ({ role: 'member' } as any);
   userRoleDelegate.findMany = async () => ([] as any[]);
   assert.equal(await canBypassMemberAssessment('user-bypass-member'), false);
+});
+
+test('isSuperAdmin is true when profile role is super_admin', async (t) => {
+  const profileDelegate = prisma.profile as any;
+  const originalFindUnique = profileDelegate.findUnique;
+  t.after(() => {
+    profileDelegate.findUnique = originalFindUnique;
+  });
+  profileDelegate.findUnique = async () => ({ role: 'super_admin' } as any);
+  assert.equal(await isSuperAdmin('user-super-admin-profile'), true);
+});
+
+test('isCounselor is true for super_admin without a counselor row', async (t) => {
+  const profileDelegate = prisma.profile as any;
+  const counselorDelegate = prisma.counselor as any;
+  const originalProfileFind = profileDelegate.findUnique;
+  const originalCounselorFind = counselorDelegate.findFirst;
+  t.after(() => {
+    profileDelegate.findUnique = originalProfileFind;
+    counselorDelegate.findFirst = originalCounselorFind;
+  });
+  profileDelegate.findUnique = async () => ({ role: 'super_admin' } as any);
+  counselorDelegate.findFirst = async () => null;
+  assert.equal(await isCounselor('user-super-admin-counselor'), true);
 });
 
 test('canBypassMemberAssessment is true when admin via UserRole table', async (t) => {

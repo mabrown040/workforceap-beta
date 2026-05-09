@@ -321,16 +321,16 @@ export default async function AdminCourseraPage({
   const auditEmailRaw = typeof sp.auditEmail === 'string' ? sp.auditEmail : '';
   const showTestAccounts = sp.showTest === '1' || sp.showTest === 'true';
 
-  // Include every active user who is a member — those with profile.role === 'member'
-  // and those without a profile row (the role helper defaults to 'member' there).
-  // Coursera mapping needs to surface real members even before they enroll, and must
-  // not be narrowed to fixture/demo accounts.
+  // Include members, profile-less rows (treated as member), and admin/super_admin
+  // dogfood accounts (same idea as MEMBER_OR_DOGFOOD_WHERE) so Coursera tooling
+  // stays usable for platform operators testing with their own learner email.
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
       OR: [
         { profile: { is: null } },
         { profile: { role: 'member' } },
+        { profile: { role: { in: ['admin', 'super_admin'] } } },
       ],
     },
     orderBy: [{ fullName: 'asc' }],

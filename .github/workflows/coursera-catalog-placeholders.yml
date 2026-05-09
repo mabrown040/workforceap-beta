@@ -1,0 +1,34 @@
+name: Coursera Catalog Placeholders
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-placeholders:
+    name: Check Coursera catalog for TODO_courseId_ placeholders
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    # The script uses a BASELINE_COUNT (currently 53) and only fails when
+    # the catalog grows past that baseline. So this gate enforces "no NEW
+    # placeholders" from day one without blocking the existing 53. As the
+    # backfill script resolves placeholders, lower BASELINE_COUNT in
+    # `scripts/lint/check-coursera-catalog-placeholders.mjs` to lock in
+    # the improvement.
+    #
+    # The COURSERA_CATALOG_ALLOW_PLACEHOLDERS env var is still honored by
+    # the script for emergency local bypasses, but CI does not set it.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run placeholder guard
+        run: node scripts/lint/check-coursera-catalog-placeholders.mjs

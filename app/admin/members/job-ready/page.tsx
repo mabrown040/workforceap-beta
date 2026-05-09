@@ -4,7 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminJobReadyTable, { type JobReadyRow } from '@/components/admin/AdminJobReadyTable';
 import { computeTrainingProgress, JOB_READY_TRAINING_PCT } from '@/lib/member/trainingProgress';
@@ -25,7 +25,7 @@ export default async function AdminJobReadyPage() {
   const candidates = await prisma.user.findMany({
     where: {
       deletedAt: null,
-      ...MEMBER_ONLY_WHERE,
+      ...MEMBER_OR_DOGFOOD_WHERE,
       enrolledProgram: { not: null },
     },
     orderBy: { createdAt: 'desc' },

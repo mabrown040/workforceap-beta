@@ -605,6 +605,7 @@ export default async function AdminPage() {
                 { icon: 'task_alt', label: 'Assessments', desc: 'Skills assessments and scores', href: '/admin/assessments' },
                 { icon: 'school', label: 'Programs', desc: 'Training tracks and courses', href: '/admin/programs' },
                 { icon: 'sync', label: 'Coursera', desc: 'Identity mapping and xAPI review', href: '/admin/coursera' },
+                { icon: 'table_view', label: 'Training progress', desc: 'Per-learner curriculum + raw Coursera, sortable', href: '/admin/training-progress' },
               ].map((item) => (
                 <Link key={item.label} href={item.href} className="portal-action-row" style={{ gap: '1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

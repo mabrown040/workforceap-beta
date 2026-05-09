@@ -68,9 +68,10 @@ export default async function CourseraProgressCard({
   // catalog). We pick the first row's programSlug since all rows share the
   // member's enrollment. Fall back to the configured COURSERA_PROGRAM_HOME_URL
   // when no enrollment has been recorded yet.
-  const programSlug = csvRows[0]?.programSlug ?? canonicalRows[0]?.programSlug ?? null;
-  const programHomeUrl: string | null = programSlug
-    ? await getOrgScopedProgramUrl(programSlug)
+  const primaryProgramSlug =
+    programSlug ?? csvRows[0]?.programSlug ?? canonicalRows[0]?.programSlug ?? null;
+  const programHomeUrl: string | null = primaryProgramSlug
+    ? await getOrgScopedProgramUrl(primaryProgramSlug)
     : (getCourseraConfig().programHomeUrl || null);
 
   const coveredSlugs = new Set<string>(

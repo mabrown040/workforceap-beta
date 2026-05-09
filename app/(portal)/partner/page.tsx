@@ -198,6 +198,17 @@ export default async function PartnerDashboardPage() {
         <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
       </div>
 
+      <div style={{ padding: '0 1.5rem 1rem' }}>
+        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>Referral link</p>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
+          Applied via your link: <strong>{referredMembersAppliedViaLink}</strong>
+        </p>
+        <p style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+          Share: <strong>{referralApplyUrl}</strong>
+        </p>
+        <CopyReferralLink url={referralApplyUrl} />
+      </div>
+
       {/* Next Step Guidance */}
       <div style={{ padding: '0.75rem 1.25rem 1rem' }}>
         <Link href={nextAction.href} style={{ textDecoration: 'none' }}>
@@ -367,7 +378,7 @@ export default async function PartnerDashboardPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
               Outcomes snapshot
             </Link>
-            <Link href="/apply" className="btn btn-primary">
+            <Link href={referralApplyUrl} className="btn btn-primary">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
               New Referral
             </Link>

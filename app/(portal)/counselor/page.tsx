@@ -96,7 +96,6 @@ export default async function CounselorPortalPage() {
         if (last?.authorId === t.memberId) messagesNeedingReply += 1;
       }
     }
-    }
   }
 
   const dbUser = await prisma.user.findUnique({

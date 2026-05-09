@@ -1,9 +1,26 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
 import StatusBadge from '@/components/portal/StatusBadge';
+
+type ItemRow = {
+  courseItemId: string;
+  itemType: string | null;
+  itemTypeLabel: string;
+  latestVerb: string | null;
+  latestScoreScaled: number | null;
+  completed: boolean;
+  lastSeenAt: string;
+  statementCount: number;
+};
+
+type ItemFetchState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; rows: ItemRow[] };
 
 export type CanonicalCatalog = Array<{
   programSlug: string;
@@ -244,6 +261,127 @@ function MapThisAction({
   );
 }
 
+/** Pretty-print a Coursera xAPI score (0..1 scaled) as `87%` / `—`. */
+function fmtScore(scaled: number | null): string {
+  if (scaled == null || !Number.isFinite(scaled)) return '—';
+  return `${Math.round(scaled * 100)}%`;
+}
+
+/**
+ * Per-item drill-down for one (learner, course) cell. Lazily fetches from
+ * `/api/admin/training-progress/items` only when the row expands, so the
+ * page-load cost of 100s of curriculum rows stays flat.
+ *
+ * Renders inline below the row via DataTable's `renderSubRow` slot.
+ */
+function PerItemSubRow({
+  learnerEmail,
+  courseraCourseId,
+}: {
+  learnerEmail: string;
+  courseraCourseId: string;
+}) {
+  const [state, setState] = useState<ItemFetchState>({ status: 'idle' });
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ status: 'loading' });
+    const params = new URLSearchParams({
+      email: learnerEmail,
+      courseraCourseId,
+    });
+    fetch(`/api/admin/training-progress/items?${params.toString()}`, {
+      credentials: 'same-origin',
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error ?? `HTTP ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((j: { items?: ItemRow[] }) => {
+        if (cancelled) return;
+        setState({ status: 'ready', rows: j.items ?? [] });
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setState({
+          status: 'error',
+          message: err instanceof Error ? err.message : 'Could not load items',
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [learnerEmail, courseraCourseId]);
+
+  if (state.status === 'loading') {
+    return (
+      <div style={{ padding: '0.6rem 0.8rem', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+        Loading per-item activity…
+      </div>
+    );
+  }
+  if (state.status === 'error') {
+    return (
+      <div style={{ padding: '0.6rem 0.8rem', fontSize: '0.78rem', color: 'var(--color-error, #b91c1c)' }}>
+        {state.message}
+      </div>
+    );
+  }
+  if (state.status !== 'ready') return null;
+
+  if (state.rows.length === 0) {
+    return (
+      <div style={{ padding: '0.6rem 0.8rem', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+        No item-level xAPI statements for this learner on this Coursera course.
+        {' '}This is expected when only course-level rollups have been ingested.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: '0.5rem 0.6rem', background: 'var(--surface-container-low, #fafafa)' }}>
+      <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem' }}>
+        {state.rows.length} item{state.rows.length === 1 ? '' : 's'} from xapi_statements (item-level only).
+      </div>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+        <thead>
+          <tr style={{ textAlign: 'left' }}>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Item ID</th>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Type</th>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Latest verb</th>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)', textAlign: 'right' }}>Score</th>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Status</th>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Last seen</th>
+            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)', textAlign: 'right' }}>#evts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {state.rows.map((it) => (
+            <tr key={it.courseItemId}>
+              <td style={{ padding: '0.25rem 0.4rem', fontFamily: 'monospace' }}>{it.courseItemId}</td>
+              <td style={{ padding: '0.25rem 0.4rem' }}>{it.itemTypeLabel}</td>
+              <td style={{ padding: '0.25rem 0.4rem' }}>{it.latestVerb ?? '—'}</td>
+              <td style={{ padding: '0.25rem 0.4rem', textAlign: 'right' }}>{fmtScore(it.latestScoreScaled)}</td>
+              <td style={{ padding: '0.25rem 0.4rem' }}>
+                {it.completed ? (
+                  <StatusBadge label="completed" variant="success" />
+                ) : (
+                  <StatusBadge label="in progress" variant="accent" />
+                )}
+              </td>
+              <td style={{ padding: '0.25rem 0.4rem' }}>{fmtDate(it.lastSeenAt)}</td>
+              <td style={{ padding: '0.25rem 0.4rem', textAlign: 'right' }}>{it.statementCount}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function TrainingProgressClient({
   curriculumRows,
   rawRows,
@@ -258,6 +396,18 @@ export default function TrainingProgressClient({
   const [filter, setFilter] = useState('');
   const [sortKey, setSortKey] = useState<string>('learnerName');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
+  // Set of curriculum-row keys whose per-item drill-down is open. Lazy: each
+  // open row mounts <PerItemSubRow> which fetches once per (learner, course).
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(() => new Set());
+
+  const toggleExpanded = (key: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const handleSort = (key: string) => {
     if (sortKey === key) {
@@ -321,6 +471,32 @@ export default function TrainingProgressClient({
   );
 
   const curriculumColumns: DataTableColumn<CurriculumRow>[] = [
+    {
+      key: 'expand',
+      header: '',
+      width: '2.2rem',
+      cell: (r) => {
+        // Only courses with a Coursera courseId can be drilled in — the
+        // per-item route keys off the LRS's actor email + course id.
+        if (!r.courseraCourseId || !r.learnerEmail) return null;
+        const isOpen = expandedKeys.has(r.key);
+        return (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleExpanded(r.key);
+            }}
+            aria-expanded={isOpen}
+            aria-label={isOpen ? 'Hide per-item activity' : 'Show per-item activity'}
+            className="btn btn-outline"
+            style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', lineHeight: 1 }}
+          >
+            {isOpen ? '▾' : '▸'}
+          </button>
+        );
+      },
+    },
     {
       key: 'learnerName',
       header: sortHeader('Learner', 'learnerName'),
@@ -533,7 +709,7 @@ export default function TrainingProgressClient({
 
       <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
         {view === 'curriculum'
-          ? 'Row per (learner × enrolled program × canonical course). Pulls from the DB course_progress table — what the member dashboard renders. A learner showing 0% here when their portal shows progress means raw Coursera activity exists in the Raw view but never promoted into course_progress (usually because no canonical mapping exists yet — open the Raw view and click "Map this →").'
+          ? 'Row per (learner × enrolled program × canonical course). Pulls from the DB course_progress table — what the member dashboard renders. Click ▸ on any row to drill into per-item xAPI activity (lectures, quizzes, labs, peer reviews) for that learner on that Coursera course. A learner showing 0% here when their portal shows progress means raw Coursera activity exists in the Raw view but never promoted into course_progress (usually because no canonical mapping exists yet — open the Raw view and click "Map this →").'
           : 'Row per (learner × actual Coursera course they’re enrolled in). Pulls from coursera_course_progress (CSV import + B4B refresh). Includes orphan rows whose Coursera email never matched a WAP user — those are flagged "identity unmatched" and need an identity mapping in /admin/coursera before the rest of the pipeline can promote their progress.'}
       </p>
 
@@ -543,6 +719,17 @@ export default function TrainingProgressClient({
           rows={filteredCurriculum}
           rowKey={(r) => r.key}
           density="compact"
+          renderSubRow={(r) => {
+            if (!expandedKeys.has(r.key)) return null;
+            if (!r.courseraCourseId || !r.learnerEmail) return null;
+            return (
+              <PerItemSubRow
+                learnerEmail={r.learnerEmail}
+                courseraCourseId={r.courseraCourseId}
+              />
+            );
+          }}
+          subRowTdStyle={{ padding: 0 }}
           emptyState={
             <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', padding: '1.5rem' }}>
               No rows. Curriculum rows only exist when a learner has an enrolledProgram set.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
 
 type InspectResponse = {
   email: string;
@@ -426,28 +427,32 @@ export default function CourseraInspectByEmailCard() {
             <div style={cardStyle}>
               <span style={cardTitleStyle}>Identity mappings</span>
               {data.identityMappings.length > 0 ? (
-                <table style={{ borderCollapse: 'collapse', fontSize: '0.78rem' }}>
-                  <thead>
-                    <tr style={{ textAlign: 'left', color: 'var(--color-on-surface-variant)' }}>
-                      <th style={{ padding: '0.2rem 0.3rem' }}>Source</th>
-                      <th style={{ padding: '0.2rem 0.3rem' }}>Coursera email</th>
-                      <th style={{ padding: '0.2rem 0.3rem' }}>Last seen</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.identityMappings.map((row) => (
-                      <tr key={row.id}>
-                        <td style={{ padding: '0.2rem 0.3rem' }}>
-                          <code>{row.source}</code>
-                        </td>
-                        <td style={{ padding: '0.2rem 0.3rem', wordBreak: 'break-all' }}>
+                <DataTable<InspectResponse['identityMappings'][number]>
+                  rows={data.identityMappings}
+                  rowKey={(row) => row.id}
+                  density="compact"
+                  columns={[
+                    {
+                      key: 'source',
+                      header: 'Source',
+                      cell: (row) => <code>{row.source}</code>,
+                    },
+                    {
+                      key: 'courseraEmail',
+                      header: 'Coursera email',
+                      cell: (row) => (
+                        <span style={{ wordBreak: 'break-all' }}>
                           {row.courseraEmail ?? row.actorIdentifier ?? '—'}
-                        </td>
-                        <td style={{ padding: '0.2rem 0.3rem' }}>{fmt(row.lastSeenAt)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </span>
+                      ),
+                    },
+                    {
+                      key: 'lastSeenAt',
+                      header: 'Last seen',
+                      cell: (row) => fmt(row.lastSeenAt),
+                    },
+                  ] satisfies DataTableColumn<InspectResponse['identityMappings'][number]>[]}
+                />
               ) : (
                 <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                   No mapping rows.

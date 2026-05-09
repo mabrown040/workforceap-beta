@@ -702,58 +702,97 @@ export default function CourseraMappingsAdmin({
           </select>
         </div>
 
-        <DataTable
-          variant="admin"
-          tableClassName="coursera-unmatched-table coursera-admin-data-table"
-          className="coursera-unmatched-table-wrap"
-          rows={filteredMappings}
-          rowKey={(m) => m.id}
-          emptyState={
-            <div className="coursera-unmatched-table-wrap">
-              <div className="coursera-empty-row" style={{ minWidth: '760px' }}>
-                <div className="coursera-empty-row__inner">
-                  <DataLandingEmptyArt />
-                  <span>
-                    No manual mappings yet. When xAPI cannot match a learner automatically, save a row here so statements
-                    route to the right member.
-                  </span>
-                </div>
-              </div>
-            </div>
-          }
-          columns={[
-              {
-                key: 'member',
-                header: 'Member',
-                cell: (mapping) => (
-                  <>
+        {filteredMappings.length === 0 ? (
+          <div className="coursera-empty-row__inner" style={{ padding: '1.5rem 0' }}>
+            <DataLandingEmptyArt />
+            <span style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '28rem' }}>
+              No manual mappings yet. When xAPI cannot match a learner automatically, save a row here so statements
+              route to the right member.
+            </span>
+          </div>
+        ) : (
+          <>
+            {/* Mobile: stacked cards (avoids horizontal cropping of email columns) */}
+            <div className="coursera-unmatched-cards md:wa-hidden" style={{ marginBottom: '0.5rem' }}>
+              {filteredMappings.map((mapping) => (
+                <article key={`mapping-card-${mapping.id}`} className="coursera-unmatched-card">
+                  <div className="coursera-unmatched-card__label">Member</div>
+                  <div className="coursera-unmatched-card__value">
                     <div style={{ fontWeight: 700 }}>{mapping.userFullName}</div>
-                    <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>{mapping.userEmail}</div>
-                  </>
-                ),
-              },
-              { key: 'coursera', header: 'Coursera email', cell: (m) => m.courseraEmail || '—' },
-              {
-                key: 'actor',
-                header: 'Actor ID',
-                cell: (mapping) => (
-                  <>
+                    <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>{mapping.userEmail}</div>
+                  </div>
+
+                  <div className="coursera-unmatched-card__label">Coursera email</div>
+                  <div className="coursera-unmatched-card__value">{mapping.courseraEmail || '—'}</div>
+
+                  <div className="coursera-unmatched-card__label">Actor ID</div>
+                  <div className="coursera-unmatched-card__value">
                     <div>{mapping.actorIdentifier || '—'}</div>
                     {mapping.actorHomePage ? (
-                      <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>{mapping.actorHomePage}</div>
+                      <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.75rem' }}>{mapping.actorHomePage}</div>
                     ) : null}
-                  </>
-                ),
-              },
-              { key: 'source', header: 'Source', cell: (m) => m.source },
-              { key: 'last', header: 'Last seen', cell: (m) => fmtDate(m.lastSeenAt) },
-              {
-                key: 'notes',
-                header: 'Notes',
-                cell: (m) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{m.notes || '—'}</span>,
-              },
-            ]}
-        />
+                  </div>
+
+                  <div className="coursera-unmatched-card__label">Source · last seen</div>
+                  <div className="coursera-unmatched-card__value">
+                    {mapping.source}
+                    <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem', marginTop: '0.2rem' }}>
+                      {fmtDate(mapping.lastSeenAt)}
+                    </div>
+                  </div>
+
+                  <div className="coursera-unmatched-card__label">Notes</div>
+                  <div className="coursera-unmatched-card__value" style={{ color: 'var(--color-on-surface-variant)' }}>
+                    {mapping.notes || '—'}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Desktop: original table */}
+            <div className="wa-hidden md:wa-block">
+              <DataTable
+                variant="admin"
+                tableClassName="coursera-unmatched-table coursera-admin-data-table"
+                className="coursera-unmatched-table-wrap"
+                rows={filteredMappings}
+                rowKey={(m) => m.id}
+                columns={[
+                  {
+                    key: 'member',
+                    header: 'Member',
+                    cell: (mapping) => (
+                      <>
+                        <div style={{ fontWeight: 700 }}>{mapping.userFullName}</div>
+                        <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>{mapping.userEmail}</div>
+                      </>
+                    ),
+                  },
+                  { key: 'coursera', header: 'Coursera email', cell: (m) => m.courseraEmail || '—' },
+                  {
+                    key: 'actor',
+                    header: 'Actor ID',
+                    cell: (mapping) => (
+                      <>
+                        <div>{mapping.actorIdentifier || '—'}</div>
+                        {mapping.actorHomePage ? (
+                          <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8125rem' }}>{mapping.actorHomePage}</div>
+                        ) : null}
+                      </>
+                    ),
+                  },
+                  { key: 'source', header: 'Source', cell: (m) => m.source },
+                  { key: 'last', header: 'Last seen', cell: (m) => fmtDate(m.lastSeenAt) },
+                  {
+                    key: 'notes',
+                    header: 'Notes',
+                    cell: (m) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{m.notes || '—'}</span>,
+                  },
+                ]}
+              />
+            </div>
+          </>
+        )}
       </section>
 
       <section style={cardStyle}>

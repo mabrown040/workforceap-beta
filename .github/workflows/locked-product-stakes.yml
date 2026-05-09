@@ -10,10 +10,16 @@ jobs:
     name: Locked product stakes approval
     runs-on: ubuntu-latest
     steps:
-      - name: Check locked files against approval label
+      - name: Checkout for bypass script
+        uses: actions/checkout@v4
+
+      - name: Check locked files against approval label or i18n-only bypass
         uses: actions/github-script@v7
         with:
           script: |
+            const { execFileSync } = require('node:child_process');
+            const path = require('node:path');
+
             const pr = context.payload.pull_request;
             if (!pr) {
               core.setFailed('This workflow only runs on pull_request events.');
@@ -48,14 +54,91 @@ jobs:
             const labels = (pr.labels || []).map((label) => label.name);
             const approved = labels.includes('stake-approved');
 
+            // Path A: explicit approval label always wins.
+            if (approved) {
+              core.summary
+                .addHeading('Locked Product Stakes Check')
+                .addRaw(`Locked files touched:\n${touchedLocked.map((f) => `- ${f}`).join('\n')}\n\n`)
+                .addRaw('Approval label `stake-approved` present — passing.\n')
+                .write();
+              return;
+            }
+
+            // Path B: i18n-only rewrap bypass. Conservatively verify that the
+            // ONLY changes are wrapping existing English literals with t()
+            // calls plus add-only entries to messages/*.json. If the script
+            // says safe, we let the PR through; if not, we fall through to
+            // requiring the label.
+            const fileByName = new Map(files.map((f) => [f.filename, f]));
+
+            const lockedPatches = {};
+            for (const f of touchedLocked) {
+              lockedPatches[f] = fileByName.get(f)?.patch ?? '';
+            }
+
+            const messagesRe = /^messages\/[^/]+\.json$/;
+            const messagesPatches = {};
+            for (const f of changed) {
+              if (messagesRe.test(f)) {
+                messagesPatches[f] = fileByName.get(f)?.patch ?? '';
+              }
+            }
+
+            // Pull base + head messages/en.json to verify removed literals
+            // match the new key values.
+            async function loadJson(ref) {
+              try {
+                const res = await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: 'messages/en.json',
+                  ref,
+                });
+                if (Array.isArray(res.data) || !('content' in res.data)) return null;
+                const buf = Buffer.from(res.data.content, res.data.encoding || 'base64');
+                return JSON.parse(buf.toString('utf8'));
+              } catch (e) {
+                core.warning(`Could not load messages/en.json @ ${ref}: ${e.message}`);
+                return null;
+              }
+            }
+
+            const baseEn = await loadJson(pr.base.sha);
+            const headEn = await loadJson(pr.head.sha);
+
+            const input = JSON.stringify({
+              lockedPatterns,
+              changedFiles: changed,
+              lockedPatches,
+              messagesPatches,
+              baseEn,
+              headEn,
+            });
+
+            let result = { safe: false, reason: 'bypass script did not run' };
+            try {
+              const stdout = execFileSync(
+                'node',
+                [path.resolve('scripts/locked-stakes/check-i18n-safe-diff.mjs')],
+                { input, encoding: 'utf8' },
+              );
+              result = JSON.parse(stdout);
+            } catch (e) {
+              core.warning(`i18n-bypass script failed: ${e.message}`);
+            }
+
             core.summary
               .addHeading('Locked Product Stakes Check')
               .addRaw(`Locked files touched:\n${touchedLocked.map((f) => `- ${f}`).join('\n')}\n\n`)
-              .addRaw(`Approval label present: ${approved ? 'yes' : 'no'}\n`)
+              .addRaw(`Approval label \`stake-approved\` present: ${approved ? 'yes' : 'no'}\n\n`)
+              .addRaw(`i18n-only bypass: ${result.safe ? 'PASSED' : 'not eligible'} — ${result.reason}\n`)
               .write();
 
-            if (!approved) {
-              core.setFailed(
-                'This PR changes locked WorkforceAP product-stake files. Add the `stake-approved` label after Mike explicitly approves the change.'
-              );
+            if (result.safe) {
+              core.info(`Allowing without label: ${result.reason}`);
+              return;
             }
+
+            core.setFailed(
+              `This PR changes locked WorkforceAP product-stake files. Add the \`stake-approved\` label after Mike explicitly approves the change. (i18n-only bypass not eligible: ${result.reason})`
+            );

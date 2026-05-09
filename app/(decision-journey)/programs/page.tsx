@@ -38,8 +38,8 @@ export default async function ProgramsPage() {
             eyebrow={t("heroTitle")}
             headline={
               <>
-                Find the right program{" "}
-                <span style={{ color: "var(--color-accent)", fontStyle: "italic" }}>for your goals.</span>
+                {t("headlineMain")}{" "}
+                <span style={{ color: "var(--color-accent)", fontStyle: "italic" }}>{t("headlineAccent")}</span>
               </>
             }
             subheadline={
@@ -115,25 +115,25 @@ export default async function ProgramsPage() {
             >
               {[
                 {
-                  eyebrow: 'Beginner-safe',
-                  title: 'New to tech',
-                  desc: 'Build confidence with computers first, then move into faster tracks when you are ready.',
+                  eyebrow: t('quickStartCard1Eyebrow'),
+                  title: t('quickStartCard1Title'),
+                  desc: t('quickStartCard1Desc'),
                   href: '/programs/digital-literacy-empowerment-class',
-                  cta: 'See Digital Literacy path',
+                  cta: t('quickStartCard1Cta'),
                 },
                 {
-                  eyebrow: 'Move quickly',
-                  title: 'Fastest path to a job',
-                  desc: 'IT Support is one of the clearest routes into real entry-level roles and opens the door to what comes next.',
+                  eyebrow: t('quickStartCard2Eyebrow'),
+                  title: t('quickStartCard2Title'),
+                  desc: t('quickStartCard2Desc'),
                   href: '/programs/it-support-professional-certificate-ibm',
-                  cta: 'See IT Support path',
+                  cta: t('quickStartCard2Cta'),
                 },
                 {
-                  eyebrow: 'Salary upside',
-                  title: 'Higher earning potential',
-                  desc: 'After IT fundamentals, explore cybersecurity, cloud, data, and AI tracks that can lead to stronger salary ceilings.',
+                  eyebrow: t('quickStartCard3Eyebrow'),
+                  title: t('quickStartCard3Title'),
+                  desc: t('quickStartCard3Desc'),
                   href: '#subgroup-programming',
-                  cta: 'Browse advanced technical paths',
+                  cta: t('quickStartCard3Cta'),
                 },
               ].map((item) => (
                 <Link
@@ -211,7 +211,7 @@ export default async function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">compare_arrows</span>
-              Compare Programs
+              {t('toolChipCompare')}
             </Link>
             <Link
               href="/salary-guide"
@@ -229,7 +229,7 @@ export default async function ProgramsPage() {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">payments</span>
-              View Salary Guide
+              {t('toolChipSalary')}
             </Link>
           </div>
         </div>
@@ -256,8 +256,7 @@ export default async function ProgramsPage() {
               {t('howToChoose')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.75rem', maxWidth: '44rem' }}>
-              The right program depends on where you are now and where you want to go. Consider these
-              factors before picking a track:
+              {t('howToChooseDesc')}
             </p>
             <div
               style={{
@@ -267,11 +266,11 @@ export default async function ProgramsPage() {
               }}
             >
               {[
-                { icon: 'interests', label: 'Your interests', desc: 'What genuinely interests you — tech, healthcare, business, or something else.' },
-                { icon: 'devices', label: 'Comfort with technology', desc: 'Some programs assume no prior tech experience; others move faster from day one.' },
-                { icon: 'schedule', label: 'Your timeline', desc: 'How quickly you need to be working. Some tracks move in 5-hour sections, while others span several months.' },
-                { icon: 'work', label: 'Job direction', desc: 'The specific roles you\'re aiming for — knowing the title helps narrow the track.' },
-                { icon: 'trending_up', label: 'Learning curve preference', desc: 'Whether you want a beginner-friendly ramp or a steeper, faster path into a field.' },
+                { icon: 'interests', label: t('howToChooseFactor1Label'), desc: t('howToChooseFactor1Desc') },
+                { icon: 'devices', label: t('howToChooseFactor2Label'), desc: t('howToChooseFactor2Desc') },
+                { icon: 'schedule', label: t('howToChooseFactor3Label'), desc: t('howToChooseFactor3Desc') },
+                { icon: 'work', label: t('howToChooseFactor4Label'), desc: t('howToChooseFactor4Desc') },
+                { icon: 'trending_up', label: t('howToChooseFactor5Label'), desc: t('howToChooseFactor5Desc') },
               ].map((item) => (
                 <div key={item.label} style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start' }}>
                   <span
@@ -289,9 +288,9 @@ export default async function ProgramsPage() {
               ))}
             </div>
             <p style={{ marginTop: '1.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-              Not sure which factors apply to you?{' '}
+              {t('howToChooseFootnotePrefix')}{' '}
               <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                Pathfinder walks you through it in about two minutes.
+                {t('howToChooseFootnoteLink')}
               </Link>
             </p>
           </div>
@@ -315,7 +314,7 @@ export default async function ProgramsPage() {
               {t('fromEnrollment')}
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '32rem', margin: '0 auto' }}>
-              WorkforceAP supports members at every step — from choosing a program through landing a job in their field.
+              {t('journeyIntro')}
             </p>
           </div>
           <div
@@ -328,10 +327,10 @@ export default async function ProgramsPage() {
             className="programs-journey-grid"
           >
             {[
-              { num: '01', icon: 'assessment', title: 'Find Your Fit', desc: 'Use Pathfinder to match your interests, timeline, and goals to the right program.' },
-              { num: '02', icon: 'workspace_premium', title: 'Build Skills', desc: 'Complete self-paced or cohort-based training and earn an industry-recognized certificate.' },
-              { num: '03', icon: 'trending_up', title: 'Get Job-Ready', desc: 'Resume review, mock interviews, and practical preparation for the roles you\'re targeting.' },
-              { num: '04', icon: 'handshake', title: 'Connect to Work', desc: 'Direct introductions to our network of employer partners actively hiring program completers.' },
+              { num: '01', icon: 'assessment', title: t('journeyStep1Title'), desc: t('journeyStep1Desc') },
+              { num: '02', icon: 'workspace_premium', title: t('journeyStep2Title'), desc: t('journeyStep2Desc') },
+              { num: '03', icon: 'trending_up', title: t('journeyStep3Title'), desc: t('journeyStep3Desc') },
+              { num: '04', icon: 'handshake', title: t('journeyStep4Title'), desc: t('journeyStep4Desc') },
             ].map((step) => (
               <JourneyStep
                 key={step.num}
@@ -348,8 +347,8 @@ export default async function ProgramsPage() {
       {/* ── CTA Section ── */}
       <CTABand
         variant="dark"
-        headline="Ready to take the next step?"
-        subheadline="No-cost training and job-placement support for eligible members — built with employers so you move into real work in your field."
+        headline={t('ctaHeadline')}
+        subheadline={t('ctaSubheadline')}
         primaryAction={
           <Link
             href="/apply"
@@ -365,7 +364,7 @@ export default async function ProgramsPage() {
               textDecoration: 'none',
             }}
           >
-            Apply Now
+            {t('ctaPrimary')}
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
           </Link>
         }
@@ -384,7 +383,7 @@ export default async function ProgramsPage() {
               border: '2px solid var(--color-white)',
             }}
           >
-            Explore Programs
+            {t('ctaSecondary')}
           </Link>
         }
       />

@@ -1,8 +1,19 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
 import StatusBadge from '@/components/portal/StatusBadge';
+
+export type CanonicalCatalog = Array<{
+  programSlug: string;
+  programTitle: string;
+  courses: Array<{
+    slug: string;
+    name: string;
+    courseraCourseId: string | null;
+  }>;
+}>;
 
 export type CurriculumRow = {
   key: string;
@@ -35,6 +46,8 @@ export type RawCourseraRow = {
   courseraProgramName: string | null;
   mappedProgramSlug: string | null;
   mappedCourseSlug: string | null;
+  mappingSource: 'db' | 'static' | null;
+  suggestedProgramSlug: string | null;
   percentComplete: number;
   learningHours: number;
   isCompleted: boolean;
@@ -92,13 +105,154 @@ function SortLabel({
   );
 }
 
+function MapThisAction({
+  row,
+  catalog,
+  onSaved,
+}: {
+  row: RawCourseraRow;
+  catalog: CanonicalCatalog;
+  onSaved: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [programSlug, setProgramSlug] = useState(row.suggestedProgramSlug ?? catalog[0]?.programSlug ?? '');
+  const [courseSlug, setCourseSlug] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const program = catalog.find((p) => p.programSlug === programSlug);
+
+  const onSubmit = async () => {
+    if (!programSlug || !courseSlug) {
+      setError('Pick a program and course.');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/coursera/canonical-course-mappings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseraCourseId: row.courseraCourseId,
+          courseraCourseSlug: row.courseraCourseSlug,
+          canonicalProgramSlug: programSlug,
+          canonicalCourseSlug: courseSlug,
+        }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setError(j.error ?? `HTTP ${res.status}`);
+        return;
+      }
+      setOpen(false);
+      onSaved();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Mapping save failed');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!open) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <StatusBadge label="unmapped" variant="error" />
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="btn btn-outline"
+          style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}
+        >
+          Map this →
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.35rem',
+        padding: '0.5rem',
+        border: '1px solid var(--color-outline-variant, #d8d6d2)',
+        borderRadius: '0.4rem',
+        background: 'var(--surface-container-low, #fafafa)',
+        minWidth: 240,
+      }}
+    >
+      <select
+        value={programSlug}
+        onChange={(e) => {
+          setProgramSlug(e.target.value);
+          setCourseSlug('');
+        }}
+        style={{ fontSize: '0.78rem', padding: '0.25rem' }}
+        aria-label="Canonical program"
+      >
+        <option value="">— pick program —</option>
+        {catalog.map((p) => (
+          <option key={p.programSlug} value={p.programSlug}>
+            {p.programTitle}
+          </option>
+        ))}
+      </select>
+      <select
+        value={courseSlug}
+        onChange={(e) => setCourseSlug(e.target.value)}
+        disabled={!program}
+        style={{ fontSize: '0.78rem', padding: '0.25rem' }}
+        aria-label="Canonical course"
+      >
+        <option value="">— pick course —</option>
+        {program?.courses.map((c) => (
+          <option key={c.slug} value={c.slug}>
+            {c.name}
+            {c.courseraCourseId ? ' (already linked statically)' : ''}
+          </option>
+        ))}
+      </select>
+      {error && (
+        <span style={{ color: 'var(--color-error, #b91c1c)', fontSize: '0.7rem' }}>{error}</span>
+      )}
+      <div style={{ display: 'flex', gap: '0.35rem' }}>
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={submitting}
+          className="btn btn-primary"
+          style={{ fontSize: '0.7rem', padding: '0.25rem 0.55rem' }}
+        >
+          {submitting ? 'Saving…' : 'Save mapping'}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            setError(null);
+          }}
+          className="btn btn-outline"
+          style={{ fontSize: '0.7rem', padding: '0.25rem 0.55rem' }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function TrainingProgressClient({
   curriculumRows,
   rawRows,
+  canonicalCatalog,
 }: {
   curriculumRows: CurriculumRow[];
   rawRows: RawCourseraRow[];
+  canonicalCatalog: CanonicalCatalog;
 }) {
+  const router = useRouter();
   const [view, setView] = useState<View>('curriculum');
   const [filter, setFilter] = useState('');
   const [sortKey, setSortKey] = useState<string>('learnerName');
@@ -273,13 +427,19 @@ export default function TrainingProgressClient({
       header: sortHeader('Mapped to canonical', 'mappedCourseSlug'),
       cell: (r) =>
         r.mappedCourseSlug ? (
-          <span style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
-            {r.mappedProgramSlug}
-            <br />
-            {r.mappedCourseSlug}
-          </span>
+          <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+            <div>{r.mappedProgramSlug}</div>
+            <div>{r.mappedCourseSlug}</div>
+            {r.mappingSource === 'db' && (
+              <StatusBadge label="db override" variant="info" className="wa-mt-1" />
+            )}
+          </div>
         ) : (
-          <StatusBadge label="unmapped" variant="error" />
+          <MapThisAction
+            row={r}
+            catalog={canonicalCatalog}
+            onSaved={() => router.refresh()}
+          />
         ),
     },
     {

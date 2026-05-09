@@ -179,6 +179,7 @@ model User {
   courseraCourseProgress   CourseraCourseProgress[]
   courseraBadgeProgress    CourseraBadgeProgress[]
   courseraSkillsetProgress CourseraSkillsetProgress[]
+  courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -1906,6 +1907,34 @@ model CourseraCourseProgress {
   @@index([programSlug])
   @@index([courseraCourseId])
   @@map("coursera_course_progress")
+}
+
+/// Admin-curated mapping from a real Coursera course (identified by its
+/// `coursera_course_id`) to a canonical (programSlug, courseSlug) pair in
+/// `lib/content/programs.ts`. Lets non-engineers wire up new courses without
+/// a code change — see /admin/training-progress (raw view) for the inline
+/// "Map this" action.
+///
+/// Resolution order at read time is: this table first (most-recently-edited
+/// row per courseraCourseId wins), then the static `courseraCourseId` field
+/// on the program-def fallback. So an admin can override a static mapping
+/// without redeploying.
+model CourseraCanonicalCourseMapping {
+  id                   String   @id @default(uuid())
+  courseraCourseId     String   @unique @map("coursera_course_id")
+  courseraCourseSlug   String?  @map("coursera_course_slug")
+  canonicalProgramSlug String   @map("canonical_program_slug")
+  canonicalCourseSlug  String   @map("canonical_course_slug")
+  notes                String?  @map("notes")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  createdById          String?  @map("created_by_id")
+
+  createdBy User? @relation("CourseraCanonicalCourseMappingCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([canonicalProgramSlug])
+  @@index([canonicalCourseSlug])
+  @@map("coursera_canonical_course_mappings")
 }
 
 /// Per-learner-per-badge (specialization) progress imported from the Coursera

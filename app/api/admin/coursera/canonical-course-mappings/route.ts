@@ -1,0 +1,107 @@
+import { NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
+
+async function requireAdminUser() {
+  const user = await getUser();
+  if (!user || !(await isAdmin(user.id))) return null;
+  return user;
+}
+
+export async function POST(request: Request) {
+  const user = await requireAdminUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const {
+    courseraCourseId,
+    courseraCourseSlug,
+    canonicalProgramSlug,
+    canonicalCourseSlug,
+    notes,
+  } = (body ?? {}) as {
+    courseraCourseId?: string;
+    courseraCourseSlug?: string | null;
+    canonicalProgramSlug?: string;
+    canonicalCourseSlug?: string;
+    notes?: string | null;
+  };
+
+  if (!courseraCourseId || typeof courseraCourseId !== 'string') {
+    return NextResponse.json({ error: 'courseraCourseId is required' }, { status: 400 });
+  }
+  if (!canonicalProgramSlug || typeof canonicalProgramSlug !== 'string') {
+    return NextResponse.json({ error: 'canonicalProgramSlug is required' }, { status: 400 });
+  }
+  if (!canonicalCourseSlug || typeof canonicalCourseSlug !== 'string') {
+    return NextResponse.json({ error: 'canonicalCourseSlug is required' }, { status: 400 });
+  }
+
+  // Validate the canonical pair actually exists in the program defs so admins
+  // can't create dangling mappings.
+  const program = getProgramBySlug(canonicalProgramSlug);
+  if (!program) {
+    return NextResponse.json(
+      { error: `No canonical program found for slug "${canonicalProgramSlug}"` },
+      { status: 400 },
+    );
+  }
+  const course = program.courses.find((c) => c.slug === canonicalCourseSlug);
+  if (!course) {
+    return NextResponse.json(
+      {
+        error: `Program "${canonicalProgramSlug}" has no course with slug "${canonicalCourseSlug}"`,
+      },
+      { status: 400 },
+    );
+  }
+
+  const mapping = await prisma.courseraCanonicalCourseMapping.upsert({
+    where: { courseraCourseId },
+    create: {
+      courseraCourseId,
+      courseraCourseSlug: courseraCourseSlug ?? null,
+      canonicalProgramSlug,
+      canonicalCourseSlug,
+      notes: notes ?? null,
+      createdById: user.id,
+    },
+    update: {
+      courseraCourseSlug: courseraCourseSlug ?? null,
+      canonicalProgramSlug,
+      canonicalCourseSlug,
+      notes: notes ?? null,
+    },
+  });
+
+  return NextResponse.json({ ok: true, mapping });
+}
+
+export async function DELETE(request: Request) {
+  const user = await requireAdminUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const url = new URL(request.url);
+  const courseraCourseId = url.searchParams.get('courseraCourseId');
+  if (!courseraCourseId) {
+    return NextResponse.json({ error: 'courseraCourseId query param is required' }, { status: 400 });
+  }
+
+  await prisma.courseraCanonicalCourseMapping.deleteMany({
+    where: { courseraCourseId },
+  });
+
+  return NextResponse.json({ ok: true });
+}

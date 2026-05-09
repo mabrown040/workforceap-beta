@@ -120,7 +120,22 @@ export type B4BGradebookReport = {
   programId?: string;
   courseId?: string;
   courseName?: string;
+  /**
+   * Item-level rolled-up percentage (0–100). Finer-grained than
+   * `enrollmentReports.overallProgress` — surfaces non-zero values when a
+   * learner has done a single quiz/assignment but the course-level rollup
+   * still rounds to 0. We prefer this when present in `syncUserFromB4B`.
+   */
+  overallProgress?: number;
+  /** Approx total learning hours the learner has clocked so far. */
+  approxTotalLearningHrs?: number;
+  /** Legacy/aggregate hours field; some Coursera responses use this name. */
   totalLearningHours?: number;
+  /** Epoch ms of the learner's last activity in this course. */
+  lastActivityAt?: number;
+  collectionId?: string | null;
+  /** e.g. "Project Management Professional Certificate". */
+  collectionName?: string | null;
   /** Raw item-level breakdown (Coursera shape varies). */
   items?: Array<Record<string, unknown>>;
 };

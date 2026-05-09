@@ -1,4 +1,12 @@
-import 'server-only';
+/**
+ * Coursera For Business (B4B) → CourseProgress sync.
+ *
+ * Intentionally does NOT `import 'server-only'`: this lets the pure
+ * `computeCourseProgressUpdate` helper run under `node --test` (matches
+ * the b4bClient.ts / testAccountHeuristic.ts pattern). The actual sync
+ * function (`syncCourseraB4BEnrollmentReports`) reaches process.env and
+ * the Prisma client, so it would never execute in the browser anyway.
+ */
 
 import { CourseProgressStatus } from '@prisma/client';
 
@@ -156,6 +164,130 @@ function slugify(name: string): string {
 }
 
 /* ------------------------------------------------------------------ */
+/*  CourseProgress merge logic (pure, unit-tested)                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Subset of `B4BEnrollmentReport` fields the merge helper actually needs.
+ * Kept intentionally narrow so tests can construct fixtures without
+ * fabricating unrelated Coursera fields.
+ */
+export type B4BProgressInput = {
+  /** Coursera says the course is fully done. */
+  isCompleted: boolean;
+  /** 0–100, course-level. May round to 0 when only a single quiz is done. */
+  overallProgress: number | null | undefined;
+  /** Epoch milliseconds. May be 0 / null when the learner has never engaged. */
+  lastActivityAt: number | null | undefined;
+};
+
+/** Subset of the existing `CourseProgress` row needed for the merge. */
+export type ExistingCourseProgress = {
+  status: CourseProgressStatus;
+  percentComplete: number;
+  lastActivityAt: Date | null;
+} | null;
+
+export type MergedCourseProgress = {
+  status: CourseProgressStatus;
+  percentComplete: number;
+  lastActivityAt: Date | null;
+};
+
+/**
+ * Read-before-write merge for B4B enrollment data → CourseProgress row.
+ *
+ * Why this exists (and why future devs MUST NOT "simplify" it):
+ *
+ *   1. Coursera B4B `enrollmentReports.overallProgress` is COURSE-LEVEL and
+ *      rounds to 0 when only a single quiz (typically <5% of the course)
+ *      is complete. Naive sync would write `NOT_STARTED` for a learner who
+ *      genuinely just started — visible idle on the dashboard hero ring.
+ *      The `lastActivityAt > 0` check upgrades these to `IN_PROGRESS`.
+ *
+ *   2. xAPI statements credit COMPLETED *before* B4B's enrollmentReports
+ *      reflect it (Coursera's internal aggregation lags by hours). Without
+ *      a downgrade guard, the next B4B sync would overwrite an xAPI-credited
+ *      COMPLETED back to IN_PROGRESS or NOT_STARTED, and the learner sees
+ *      their certificate disappear. The ladder below ensures status only
+ *      ever moves forward (NOT_STARTED → IN_PROGRESS → COMPLETED).
+ *
+ *   3. `percentComplete` similarly never goes down. xAPI may have credited a
+ *      learner with 80% based on per-item events while B4B's coarse rollup
+ *      still says 30%. We pick the max.
+ *
+ *   4. `lastActivityAt` is the more recent of (existing, B4B) — neither
+ *      side is authoritative, but we always want the latest signal.
+ */
+export function computeCourseProgressUpdate(
+  existing: ExistingCourseProgress,
+  report: B4BProgressInput,
+): MergedCourseProgress {
+  const reportPct = typeof report.overallProgress === 'number' ? report.overallProgress : 0;
+  const reportActivityMs =
+    typeof report.lastActivityAt === 'number' && report.lastActivityAt > 0
+      ? report.lastActivityAt
+      : null;
+
+  // ── Status from B4B alone ──────────────────────────────────────────────
+  // Promote to IN_PROGRESS even when overallProgress rounds to 0, as long
+  // as we have a `lastActivityAt` signal. This is the "started a quiz, hasn't
+  // yet finished anything visible" case that previously stuck on NOT_STARTED.
+  let newStatus: CourseProgressStatus;
+  if (report.isCompleted) {
+    newStatus = CourseProgressStatus.COMPLETED;
+  } else if (reportPct > 0 || reportActivityMs != null) {
+    newStatus = CourseProgressStatus.IN_PROGRESS;
+  } else {
+    newStatus = CourseProgressStatus.NOT_STARTED;
+  }
+
+  // ── Final status ladder (never downgrade) ──────────────────────────────
+  // Once a learner is COMPLETED we never demote them. If existing is
+  // IN_PROGRESS and B4B would say NOT_STARTED, we keep IN_PROGRESS — B4B
+  // sometimes briefly returns missing/zero rows during its own re-aggregation.
+  let finalStatus: CourseProgressStatus;
+  if (existing?.status === CourseProgressStatus.COMPLETED) {
+    finalStatus = CourseProgressStatus.COMPLETED;
+  } else if (newStatus === CourseProgressStatus.COMPLETED) {
+    finalStatus = CourseProgressStatus.COMPLETED;
+  } else if (
+    existing?.status === CourseProgressStatus.IN_PROGRESS &&
+    newStatus === CourseProgressStatus.NOT_STARTED
+  ) {
+    finalStatus = CourseProgressStatus.IN_PROGRESS;
+  } else {
+    finalStatus = newStatus;
+  }
+
+  // ── percentComplete: prefer the larger of (existing, new). ─────────────
+  // 100 when COMPLETED so the dashboard ring matches the status pill even
+  // if B4B is still catching up (e.g. xAPI-credited completion not yet in
+  // the enrollmentReport overallProgress field).
+  const newPct = report.isCompleted ? 100 : reportPct;
+  const existingPct = existing?.percentComplete ?? 0;
+  let finalPct = Math.max(existingPct, newPct);
+  if (finalStatus === CourseProgressStatus.COMPLETED) finalPct = 100;
+
+  // ── lastActivityAt: pick whichever is more recent. ─────────────────────
+  const existingActivityMs = existing?.lastActivityAt
+    ? existing.lastActivityAt.getTime()
+    : 0;
+  const candidateMs = reportActivityMs ?? 0;
+  const finalActivityMs = Math.max(existingActivityMs, candidateMs);
+  const finalActivity =
+    finalActivityMs > 0
+      ? new Date(finalActivityMs)
+      : (existing?.lastActivityAt ?? null);
+
+  return {
+    status: finalStatus,
+    percentComplete: finalPct,
+    lastActivityAt: finalActivity,
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main sync                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -199,6 +331,15 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     }
   }
 
+  // TODO(coursera-sync-gradebook): merge `getCourseGradebookReports` for
+  // item-level granularity. `enrollmentReports.overallProgress` is course-level
+  // and rounds <5% engagement (e.g. one quiz done) to 0, so a "just-started"
+  // learner's percentComplete still shows 0% — only the IN_PROGRESS pill +
+  // lastActivityAt timestamp distinguish them. The per-user gradebook endpoint
+  // returns item-level breakdowns. Deferred because wiring it into THIS
+  // cron-style cross-tenant sync requires N per-user API calls and Coursera
+  // rate-limits aggressively; the single-user `syncUserFromB4B` path already
+  // fetches gradebook data and is the better place to stitch them together.
   for (const report of deduped.values()) {
     const email = report.email.trim().toLowerCase();
     const userId = userByEmail.get(email);
@@ -232,17 +373,11 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
     }
 
-    // Determine status: IN_PROGRESS if there's any activity, even if progress rounds to 0
-    let status: CourseProgressStatus;
-    if (report.isCompleted) {
-      status = CourseProgressStatus.COMPLETED;
-    } else if ((report.overallProgress ?? 0) > 0 || (report.lastActivityAt ?? 0) > 0) {
-      status = CourseProgressStatus.IN_PROGRESS;
-    } else {
-      status = CourseProgressStatus.NOT_STARTED;
-    }
-
-    // Read-before-write guard: never downgrade completion or recent activity
+    // Read-before-write so we never downgrade an xAPI-credited COMPLETED back
+    // to IN_PROGRESS, and never lower percentComplete when B4B's coarse
+    // course-level rollup briefly trails the per-item xAPI signal. See
+    // `computeCourseProgressUpdate` doc-comment for the full rationale —
+    // this is exactly the kind of code that gets "simplified" wrong.
     const existing = await prisma.courseProgress.findUnique({
       where: {
         userId_programSlug_courseSlug: {
@@ -258,49 +393,19 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       },
     });
 
-    // Never overwrite a COMPLETED row with anything lower
-    if (existing?.status === CourseProgressStatus.COMPLETED && !report.isCompleted) {
-      // Still update lastActivityAt if Coursera has fresher data
-      const existingLastMs = existing.lastActivityAt ? existing.lastActivityAt.getTime() : 0;
-      const newLastMs = report.lastActivityAt ?? 0;
-      if (newLastMs > existingLastMs) {
-        await prisma.courseProgress.update({
-          where: { userId_programSlug_courseSlug: { userId, programSlug, courseSlug } },
-          data: { lastActivityAt: new Date(newLastMs) },
-        });
-      }
-      result.upserted += 1; // Count as handled
-      if (isKnown) result.upsertedKnown += 1;
-      else result.upsertedUnknown += 1;
-      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
-      userEntry.courses += 1;
-      result.byUser[email] = userEntry;
-      continue;
-    }
+    const merged = computeCourseProgressUpdate(existing, {
+      isCompleted: report.isCompleted,
+      overallProgress: report.overallProgress,
+      lastActivityAt: report.lastActivityAt,
+    });
 
-    // Don't lower percentComplete unless the course is now completed
-    if (
-      existing &&
-      existing.percentComplete > (report.overallProgress ?? 0) &&
-      !report.isCompleted
-    ) {
-      // Still update lastActivityAt if Coursera has fresher data
-      const existingLastMs = existing.lastActivityAt ? existing.lastActivityAt.getTime() : 0;
-      const newLastMs = report.lastActivityAt ?? 0;
-      if (newLastMs > existingLastMs) {
-        await prisma.courseProgress.update({
-          where: { userId_programSlug_courseSlug: { userId, programSlug, courseSlug } },
-          data: { lastActivityAt: new Date(newLastMs) },
-        });
-      }
-      result.upserted += 1;
-      if (isKnown) result.upsertedKnown += 1;
-      else result.upsertedUnknown += 1;
-      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
-      userEntry.courses += 1;
-      result.byUser[email] = userEntry;
-      continue;
-    }
+    // `completedAt` is set the first time we see COMPLETED. If we've already
+    // recorded one we keep it — re-syncs shouldn't re-stamp the timestamp.
+    // Use Coursera's `updatedAt` if available, otherwise now.
+    const completedAt =
+      merged.status === CourseProgressStatus.COMPLETED
+        ? new Date(report.updatedAt || Date.now())
+        : null;
 
     try {
       await prisma.courseProgress.upsert({
@@ -316,19 +421,25 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           programSlug,
           courseSlug,
           courseId: report.contentId,
-          status,
-          percentComplete: report.overallProgress,
+          status: merged.status,
+          percentComplete: merged.percentComplete,
           startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
-          completedAt: report.isCompleted ? new Date(report.updatedAt) : null,
-          lastActivityAt: report.lastActivityAt ? new Date(report.lastActivityAt) : null,
+          completedAt,
+          lastActivityAt: merged.lastActivityAt,
         },
         update: {
           courseId: report.contentId,
-          status,
-          percentComplete: report.overallProgress,
-          startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
-          completedAt: report.isCompleted ? new Date(report.updatedAt) : null,
-          lastActivityAt: report.lastActivityAt ? new Date(report.lastActivityAt) : null,
+          status: merged.status,
+          percentComplete: merged.percentComplete,
+          // Don't overwrite an existing startedAt with null on later syncs;
+          // only stamp it the first time we see an enrolledAt.
+          ...(report.enrolledAt ? { startedAt: new Date(report.enrolledAt) } : {}),
+          // Set completedAt on the transition into COMPLETED; never clear it.
+          ...(merged.status === CourseProgressStatus.COMPLETED &&
+          existing?.status !== CourseProgressStatus.COMPLETED
+            ? { completedAt }
+            : {}),
+          lastActivityAt: merged.lastActivityAt,
         },
       });
 

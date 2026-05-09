@@ -1427,6 +1427,11 @@ model CourseProgress {
   @@unique([userId, programSlug, courseSlug])
   @@index([userId])
   @@index([programSlug])
+  // Supports the "what did this learner touch most recently?" query path the
+  // dashboard uses (and counselor "stale learner" queries). Composite +
+  // descending sort lets Postgres satisfy ORDER BY last_activity_at DESC LIMIT N
+  // for a single user without a sort step.
+  @@index([userId, lastActivityAt(sort: Desc)])
   @@map("course_progress")
 }
 

@@ -76,6 +76,10 @@ model User {
   needsComputerSupportFollowUp Boolean             @default(false) @map("needs_computer_support_follow_up")
   /// Daily cron: Coursera course progress stale for this member (see stale-training-check cron).
   staleTrainingDetectedAt      DateTime?           @map("stale_training_detected_at")
+  /// Set when /api/member/coursera/auto-sync seeded CourseEnrollment + replayed
+  /// xAPI for this user from B4B; the dashboard home auto-sync trigger reads
+  /// this to dedupe and skip the call when fresh (≤1h). NULL = never auto-synced.
+  lastCourseraAutoSyncAt       DateTime?           @map("last_coursera_auto_sync_at")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
   careerRecommendationJson     Json?               @map("career_recommendation_json")
   /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
@@ -174,6 +178,7 @@ model User {
   @@index([deletedAt])
   @@index([email])
   @@index([staleTrainingDetectedAt])
+  @@index([lastCourseraAutoSyncAt])
   @@map("users")
 }
 

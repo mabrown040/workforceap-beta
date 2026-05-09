@@ -7,6 +7,7 @@ import { buildNextBestActions, type NextBestAction, type NextBestActionsContext 
 import { getMemberEngagementSignals, type MemberEngagementSignals } from './memberEngagementSignals';
 import { getMemberResumePlainText } from './getMemberResumePlainText';
 import type { CareerMatchResult } from '@/lib/onet/types';
+import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -178,7 +179,20 @@ function deriveStateLetter(args: {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export async function getMemberState(userId: string): Promise<MemberState> {
+export async function getMemberState(
+  userId: string,
+  opts: {
+    /** Optional Coursera B4B progress map keyed by Coursera contentId. When
+     *  supplied, `trainingView.progressPercentDisplay` reflects the B4B
+     *  authoritative average for the user's enrolledProgram (all-or-nothing
+     *  — see `averageProgramProgressFromB4B`). The dashboard home page
+     *  fetches this in parallel with the rest of the page data so the hero
+     *  ring matches what Coursera shows the learner internally. Other
+     *  callers (resume / profile pages) can omit it; the local rollup is
+     *  used as today. */
+    b4bProgress?: LearnerProgressByContent;
+  } = {},
+): Promise<MemberState> {
   const [user, engagement, latestResumeText] = await Promise.all([
     loadMemberCore(userId),
     loadEngagement(userId),
@@ -196,6 +210,7 @@ export async function getMemberState(userId: string): Promise<MemberState> {
     ? await loadMemberProgramTrainingView({
         userId: user.id,
         programSlug: user.enrolledProgram,
+        b4bProgress: opts.b4bProgress,
       })
     : null;
 

@@ -72,6 +72,13 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       wioaReviewedAt: true,
       wioaReviewedByUserId: true,
       wioaReviewNotes: true,
+      // Multi-program-aware: load ALL course enrollments so we can render
+      // secondary programs below the primary block (instead of hiding them
+      // when `User.enrolledProgram` is set to just the primary slug).
+      courseEnrollments: {
+        select: { programSlug: true, isPrimary: true, enrolledAt: true },
+        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
+      },
       profile: {
         select: {
           resumeOriginalPath: true,
@@ -158,6 +165,17 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   const completedSlugs = new Set(trainingView?.completedSlugsAuthoritative ?? []);
   const progressPct = trainingView?.progressPercentDisplay ?? 0;
   const skillsetProgress = await loadMemberSkillsetProgress(member.id);
+
+  // Multi-program-aware: any course_enrollments rows whose programSlug isn't
+  // the primary one we already render above. Single-program members produce
+  // an empty list and the section is skipped, preserving today's UX.
+  const otherProgramEnrollments = member.courseEnrollments
+    .filter((row) => row.programSlug !== member.enrolledProgram)
+    .map((row) => ({
+      programSlug: row.programSlug,
+      programTitle: getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+      enrolledAt: row.enrolledAt,
+    }));
 
   type PitchOutcome = 'interview' | 'no_response' | 'pending' | 'other';
   type PitchMeta = { employer: string; usedAt: string; outcome: PitchOutcome };
@@ -370,6 +388,41 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             )}
           </div>
         </div>
+
+        {/* Other programs this student is in — multi-program-aware. Hidden
+            when the learner only has the primary enrollment, so the
+            single-program experience is unchanged. */}
+        {otherProgramEnrollments.length > 0 ? (
+          <div style={{ padding: '0 1rem 1rem' }}>
+            <div
+              style={{
+                background: '#fff',
+                borderRadius: '0.75rem',
+                padding: '1.25rem',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <h3 style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
+                Other programs this student is in
+              </h3>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+                Secondary enrollments outside the primary program shown above.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {otherProgramEnrollments.map((row) => (
+                  <li key={row.programSlug} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', background: 'var(--surface-container-low)' }}>
+                    <Link
+                      href={`/admin/training-progress?program=${encodeURIComponent(row.programSlug)}`}
+                      style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+                    >
+                      {row.programTitle}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : null}
 
         {/* Points */}
         {memberPts && (
@@ -629,6 +682,45 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 reviewerName={wioaReviewerName}
                 reviewNotes={member.wioaReviewNotes}
               />
+            </section>
+          ) : null}
+
+          {/* Other programs this student is in — multi-program-aware. Hidden
+              when only the primary enrollment exists, preserving the
+              single-program UX. */}
+          {otherProgramEnrollments.length > 0 ? (
+            <section style={{ marginTop: '1.5rem', maxWidth: 640 }}>
+              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: 700 }}>
+                Other programs this student is in
+              </h2>
+              <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                Secondary enrollments outside the primary program ({programMeta?.title ?? member.enrolledProgram ?? '—'}).
+              </p>
+              <div className="portal-card portal-card--flat" style={{ padding: '1rem', border: '1px solid var(--outline-variant)' }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {otherProgramEnrollments.map((row) => (
+                    <li
+                      key={row.programSlug}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.55rem 0.75rem',
+                        borderRadius: '0.5rem',
+                        background: 'var(--surface-container-low)',
+                      }}
+                    >
+                      <Link
+                        href={`/admin/training-progress?program=${encodeURIComponent(row.programSlug)}`}
+                        style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+                      >
+                        {row.programTitle}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </section>
           ) : null}
 

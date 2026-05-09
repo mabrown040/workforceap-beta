@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { CourseProgressStatus } from '@prisma/client';
+
 import {
   getCourseGradebookReports,
   getEnrollmentReports,
@@ -7,7 +9,12 @@ import {
   type B4BEnrollmentReport,
   type B4BGradebookReport,
 } from './b4bClient';
+import {
+  computeCourseProgressUpdate,
+  mergeB4BProgressSignals,
+} from './b4bSync';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { prisma } from '@/lib/db/prisma';
 import { replayUnresolvedXapiStatementsForIdentity } from './replayPendingXapi';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
@@ -60,6 +67,8 @@ export type SyncUserFromB4BResult = {
     primaryProgramSlug: string | null;
     enrolledProgramSlugs: string[];
     droppedNoMapping: DroppedItem[];
+    /** CourseProgress rows upserted from the merged gradebook+enrollment signal. */
+    courseProgressUpserted: number;
   };
   xapi: {
     statementsReplayed: number;
@@ -130,37 +139,79 @@ export async function syncUserFromB4B(args: {
     );
   }
 
-  const enrollmentReports: B4BEnrollmentReport[] = [];
-  for (const program of programs) {
+  // Run enrollment-reports loop and gradebook fetch concurrently. The
+  // enrollment loop is per-program (N requests); gradebook is a single
+  // email-scoped call. Failing soft on either side: enrollment errors are
+  // already swallowed per-program below, and a gradebook failure falls back
+  // to enrollment-only behavior (the dashboard ring just stays at the coarse
+  // enrollment percentage instead of the finer gradebook one).
+  const enrollmentReportsPromise = (async () => {
+    const out: B4BEnrollmentReport[] = [];
+    for (const program of programs) {
+      try {
+        const page = await getEnrollmentReports({
+          byUserProgramId: true,
+          programId: program.id,
+          externalId: email,
+          limit: 200,
+        });
+        out.push(...page.elements);
+      } catch (err) {
+        // Per-program failure shouldn't sink the whole sync; log and continue.
+        console.warn(
+          `[syncUserFromB4B] enrollmentReports failed for program=${program.id} email=${email}:`,
+          err instanceof Error ? err.message : err,
+        );
+      }
+    }
+    return out;
+  })();
+
+  const gradebookReportsPromise = (async () => {
     try {
-      const page = await getEnrollmentReports({
-        byUserProgramId: true,
-        programId: program.id,
-        externalId: email,
+      const page = await getCourseGradebookReports({
+        emailOrExternalId: email,
         limit: 200,
       });
-      enrollmentReports.push(...page.elements);
+      return page.elements;
     } catch (err) {
-      // Per-program failure shouldn't sink the whole sync; log and continue.
       console.warn(
-        `[syncUserFromB4B] enrollmentReports failed for program=${program.id} email=${email}:`,
+        `[syncUserFromB4B] gradebook fetch failed for email=${email}:`,
         err instanceof Error ? err.message : err,
       );
+      return [];
     }
-  }
+  })();
 
-  let gradebookReports: B4BGradebookReport[] = [];
-  try {
-    const page = await getCourseGradebookReports({
-      emailOrExternalId: email,
-      limit: 200,
-    });
-    gradebookReports = page.elements;
-  } catch (err) {
-    console.warn(
-      `[syncUserFromB4B] gradebook fetch failed for email=${email}:`,
-      err instanceof Error ? err.message : err,
-    );
+  const [enrollmentReports, gradebookReports]: [
+    B4BEnrollmentReport[],
+    B4BGradebookReport[],
+  ] = await Promise.all([enrollmentReportsPromise, gradebookReportsPromise]);
+
+  // Index gradebook rows by courseId for O(1) lookup during the per-course
+  // merge below. If Coursera returns multiple gradebook rows for the same
+  // courseId (e.g. the learner is in both a standalone course AND a program
+  // that includes it), prefer the one with the most recent activity so the
+  // dashboard reflects the latest signal.
+  const gradebookByCourseId = new Map<string, B4BGradebookReport>();
+  for (const row of gradebookReports) {
+    const courseId = (row.courseId ?? '').trim();
+    if (!courseId) continue;
+    const existing = gradebookByCourseId.get(courseId);
+    if (!existing) {
+      gradebookByCourseId.set(courseId, row);
+      continue;
+    }
+    const existingActivity = typeof existing.lastActivityAt === 'number' ? existing.lastActivityAt : 0;
+    const candidateActivity = typeof row.lastActivityAt === 'number' ? row.lastActivityAt : 0;
+    const existingProgress = typeof existing.overallProgress === 'number' ? existing.overallProgress : 0;
+    const candidateProgress = typeof row.overallProgress === 'number' ? row.overallProgress : 0;
+    if (
+      candidateActivity > existingActivity ||
+      (candidateActivity === existingActivity && candidateProgress > existingProgress)
+    ) {
+      gradebookByCourseId.set(courseId, row);
+    }
   }
 
   // ────────── 2. Map Coursera contentIds → WAP (programSlug, courseSlug) ──────
@@ -305,6 +356,165 @@ export async function syncUserFromB4B(args: {
     }
   }
 
+  // ────────── 3.5. Upsert per-course CourseProgress (gradebook-aware) ──────────
+  //
+  // The dashboard ring reads CourseProgress.percentComplete per course. When
+  // a learner has completed a single quiz of a multi-week course,
+  // `enrollmentReports.overallProgress` rounds to 0 — the ring sits at 0%
+  // even though they have genuine engagement. The gradebook endpoint
+  // returns finer-grained item-level percentages (e.g. 9% for "first quiz
+  // done"), so we merge whichever signal is higher and feed it through the
+  // existing `computeCourseProgressUpdate` ladder (which handles the no-
+  // downgrade rules described in `b4bSync.ts`).
+  //
+  // We also pick up gradebook-only courses (a courseId that appears in the
+  // gradebook fetch but not in the per-program enrollmentReports loop —
+  // happens when Coursera lags rolling a fresh enrollment into the program-
+  // wide enrollmentReports view). They still resolve through the same
+  // catalog mapping.
+  //
+  // TODO(persist-learning-hrs): once we add `CourseProgress.totalLearningHours`
+  // (Float?) we'll persist `gradebookRow.approxTotalLearningHrs` here. Held
+  // back from this PR to avoid expanding scope into a Prisma migration; the
+  // value is still surfaced through `courseGradebookReports` for the
+  // cohort-hours dashboard backlog item.
+  let courseProgressUpserted = 0;
+
+  // Build a map keyed by courseraContentId so we don't double-process a
+  // course that appeared in BOTH enrollmentReports and gradebook.
+  type PerCourseSignal = {
+    contentId: string;
+    wapProgramSlug: string;
+    wapCourseSlug: string;
+    enrollment: {
+      isCompleted: boolean;
+      overallProgress: number | null;
+      lastActivityAt: number | null;
+    } | null;
+    gradebook: {
+      overallProgress: number | null;
+      lastActivityAt: number | null;
+    } | null;
+  };
+  const perCourse = new Map<string, PerCourseSignal>();
+
+  for (const row of resolved) {
+    perCourse.set(row.courseraContentId, {
+      contentId: row.courseraContentId,
+      wapProgramSlug: row.wapProgramSlug,
+      wapCourseSlug: row.wapCourseSlug,
+      enrollment: {
+        isCompleted: row.isCompleted,
+        overallProgress: row.overallProgress,
+        lastActivityAt: row.lastActivityAt,
+      },
+      gradebook: null,
+    });
+  }
+
+  for (const [courseId, gbRow] of gradebookByCourseId.entries()) {
+    const existing = perCourse.get(courseId);
+    const gbSignal = {
+      overallProgress:
+        typeof gbRow.overallProgress === 'number' ? gbRow.overallProgress : null,
+      lastActivityAt:
+        typeof gbRow.lastActivityAt === 'number' ? gbRow.lastActivityAt : null,
+    };
+    if (existing) {
+      existing.gradebook = gbSignal;
+      continue;
+    }
+    // Gradebook-only course — try to resolve through the same catalog
+    // mapping. If it doesn't resolve we silently skip (gradebook can return
+    // courses outside the WAP catalog when learners self-enroll in adjacent
+    // Coursera content the program doesn't track).
+    const match = resolveContentIdToWapCourse(courseId);
+    if (!match) continue;
+    perCourse.set(courseId, {
+      contentId: courseId,
+      wapProgramSlug: match.wapProgramSlug,
+      wapCourseSlug: match.wapCourseSlug,
+      enrollment: null,
+      gradebook: gbSignal,
+    });
+  }
+
+  for (const signal of perCourse.values()) {
+    const merged = mergeB4BProgressSignals({
+      enrollment: signal.enrollment,
+      gradebook: signal.gradebook,
+    });
+
+    // Read-before-write: the ladder enforces "never downgrade an xAPI-credited
+    // COMPLETED back to IN_PROGRESS, never lower percentComplete". See
+    // `computeCourseProgressUpdate`'s doc-comment for the full rationale.
+    // CourseProgress is FK-scoped via User.organizationId; not in
+    // TENANT_SCOPED_MODELS so we use `prisma` directly (matches b4bSync.ts).
+    const existing = await prisma.courseProgress.findUnique({
+      where: {
+        userId_programSlug_courseSlug: {
+          userId: args.wapUserId,
+          programSlug: signal.wapProgramSlug,
+          courseSlug: signal.wapCourseSlug,
+        },
+      },
+      select: {
+        status: true,
+        percentComplete: true,
+        lastActivityAt: true,
+      },
+    });
+
+    const update = computeCourseProgressUpdate(existing, merged);
+
+    // `completedAt` is set the first time we see COMPLETED. If we've already
+    // recorded one we keep it — re-syncs shouldn't re-stamp the timestamp.
+    const completedAt =
+      update.status === CourseProgressStatus.COMPLETED &&
+      existing?.status !== CourseProgressStatus.COMPLETED
+        ? new Date()
+        : null;
+
+    try {
+      await prisma.courseProgress.upsert({
+        where: {
+          userId_programSlug_courseSlug: {
+            userId: args.wapUserId,
+            programSlug: signal.wapProgramSlug,
+            courseSlug: signal.wapCourseSlug,
+          },
+        },
+        create: {
+          userId: args.wapUserId,
+          programSlug: signal.wapProgramSlug,
+          courseSlug: signal.wapCourseSlug,
+          courseId: signal.contentId,
+          status: update.status,
+          percentComplete: update.percentComplete,
+          completedAt,
+          lastActivityAt: update.lastActivityAt,
+        },
+        update: {
+          courseId: signal.contentId,
+          status: update.status,
+          percentComplete: update.percentComplete,
+          // Set completedAt on the transition into COMPLETED; never clear it.
+          ...(update.status === CourseProgressStatus.COMPLETED &&
+          existing?.status !== CourseProgressStatus.COMPLETED
+            ? { completedAt: completedAt ?? new Date() }
+            : {}),
+          lastActivityAt: update.lastActivityAt,
+        },
+      });
+      courseProgressUpserted += 1;
+    } catch (err) {
+      console.warn(
+        `[syncUserFromB4B] courseProgress upsert failed for user=${args.wapUserId} course=${signal.wapCourseSlug}:`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+
   // ────────── 4. Replay xAPI for this identity ──────────
   let xapiReplayed = 0;
   let xapiCredited = 0;
@@ -347,6 +557,11 @@ export async function syncUserFromB4B(args: {
       `${droppedNoMapping.length} Coursera contentId(s) had no catalog mapping (TODO_courseId placeholders or unknown courses).`,
     );
   }
+  if (courseProgressUpserted > 0) {
+    messageParts.push(
+      `Upserted ${courseProgressUpserted} CourseProgress row(s) from merged enrollment+gradebook signal.`,
+    );
+  }
   messageParts.push(
     `Replayed ${xapiReplayed} xAPI statement(s); ${xapiCredited} now credited.`,
   );
@@ -365,6 +580,7 @@ export async function syncUserFromB4B(args: {
       primaryProgramSlug: chosenProgramSlug,
       enrolledProgramSlugs,
       droppedNoMapping,
+      courseProgressUpserted,
     },
     xapi: {
       statementsReplayed: xapiReplayed,

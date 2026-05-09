@@ -181,6 +181,78 @@ export type B4BProgressInput = {
   lastActivityAt: number | null | undefined;
 };
 
+/**
+ * Inputs to `mergeB4BProgressSignals`: the per-course rows from each B4B
+ * data source. Either side may be undefined (course missing from gradebook,
+ * or enrollment-reports fetch failed), but at least one must be supplied.
+ */
+export type B4BSignalSources = {
+  enrollment: {
+    isCompleted?: boolean;
+    overallProgress?: number | null;
+    lastActivityAt?: number | null;
+  } | null;
+  gradebook: {
+    overallProgress?: number | null;
+    lastActivityAt?: number | null;
+  } | null;
+};
+
+/**
+ * Combine the two B4B progress signals into the single `B4BProgressInput`
+ * shape the existing `computeCourseProgressUpdate` ladder accepts.
+ *
+ * Why both sources matter:
+ *
+ *   - `enrollmentReports.overallProgress` is COURSE-LEVEL and aggressively
+ *     rounded — a learner who has finished one quiz of a multi-week course
+ *     shows up as 0% there. That stuck the dashboard ring on 0% even when
+ *     the learner had genuine engagement.
+ *
+ *   - `courseGradebookReports.overallProgress` is item-level and surfaces
+ *     single-digit percentages for early progress (e.g. one quiz → 9%). It
+ *     also tracks `lastActivityAt` more reliably (the gradebook updates
+ *     immediately on item completion; the enrollment rollup lags).
+ *
+ * We pick the MAX of the two `overallProgress` values (gradebook is more
+ * granular but occasionally lags after re-aggregation), and the most recent
+ * `lastActivityAt`. `isCompleted` only comes from enrollmentReports —
+ * gradebook doesn't carry a course-level done flag.
+ *
+ * Pure: takes plain values, no I/O, no Date juggling. Safe to unit test
+ * without spinning up Prisma.
+ */
+export function mergeB4BProgressSignals(sources: B4BSignalSources): B4BProgressInput {
+  const enr = sources.enrollment;
+  const gb = sources.gradebook;
+
+  const isCompleted = enr?.isCompleted === true;
+
+  const enrPct = typeof enr?.overallProgress === 'number' ? enr.overallProgress : 0;
+  const gbPct = typeof gb?.overallProgress === 'number' ? gb.overallProgress : 0;
+  // Prefer the larger of the two — gradebook is more granular when present,
+  // but if enrollmentReports happens to be ahead (rare, during gradebook
+  // re-aggregation) we don't want to regress.
+  const overallProgress = Math.max(enrPct, gbPct);
+
+  const enrAct =
+    typeof enr?.lastActivityAt === 'number' && enr.lastActivityAt > 0
+      ? enr.lastActivityAt
+      : 0;
+  const gbAct =
+    typeof gb?.lastActivityAt === 'number' && gb.lastActivityAt > 0
+      ? gb.lastActivityAt
+      : 0;
+  const lastActivityMax = Math.max(enrAct, gbAct);
+  const lastActivityAt = lastActivityMax > 0 ? lastActivityMax : null;
+
+  return {
+    isCompleted,
+    overallProgress,
+    lastActivityAt,
+  };
+}
+
 /** Subset of the existing `CourseProgress` row needed for the merge. */
 export type ExistingCourseProgress = {
   status: CourseProgressStatus;
@@ -331,15 +403,15 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     }
   }
 
-  // TODO(coursera-sync-gradebook): merge `getCourseGradebookReports` for
-  // item-level granularity. `enrollmentReports.overallProgress` is course-level
-  // and rounds <5% engagement (e.g. one quiz done) to 0, so a "just-started"
-  // learner's percentComplete still shows 0% — only the IN_PROGRESS pill +
-  // lastActivityAt timestamp distinguish them. The per-user gradebook endpoint
-  // returns item-level breakdowns. Deferred because wiring it into THIS
-  // cron-style cross-tenant sync requires N per-user API calls and Coursera
-  // rate-limits aggressively; the single-user `syncUserFromB4B` path already
-  // fetches gradebook data and is the better place to stitch them together.
+  // NOTE: gradebook merging now lives in `syncUserFromB4B` (the single-user
+  // path used by dashboard auto-sync + admin "Sync from Coursera"). That path
+  // already fetches one learner at a time, so the N gradebook calls collapse
+  // to one per sync — no rate-limit concern. THIS cron-style cross-tenant
+  // sync still uses enrollmentReports only because adding gradebook here
+  // would mean one extra API call per learner per cron run (Coursera B4B
+  // rate-limits aggressively), and the per-user path already covers the
+  // dashboard ring case the gradebook signal was added for. See
+  // `mergeB4BProgressSignals` for the merge logic.
   for (const report of deduped.values()) {
     const email = report.email.trim().toLowerCase();
     const userId = userByEmail.get(email);

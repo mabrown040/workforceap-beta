@@ -662,46 +662,6 @@ export default async function AdminPage() {
                   <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fbbf24' }}>{pendingApplications}</span>
                 </Link>
               )}
-            </div>
-          </div>
-
-          {/* Quick Stats — replaces the previous "Recent Activity" timeline
-              which duplicated the Recent Signups data. */}
-          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-            <h3 className="portal-section-title" style={{ marginBottom: '1.5rem' }}>
-              Quick Stats
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <Link href="/admin/members" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden>groups</span>
-                  Total Members
-                </span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)' }}>{totalMembers}</span>
-              </Link>
-              <Link href="/admin/pipeline" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#80d99f' }} aria-hidden>model_training</span>
-                  Active in Training
-                </span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#80d99f' }}>{activeInTraining}</span>
-              </Link>
-              <Link href="/admin/assessments" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#3b82f6' }} aria-hidden>task_alt</span>
-                  Assessments Done
-                </span>
-                <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#3b82f6' }}>{assessmentsCompleted}</span>
-              </Link>
-              {pendingApplications > 0 && (
-                <Link href="/admin/members" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', textDecoration: 'none' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: '#fbbf24' }} aria-hidden>pending_actions</span>
-                    Pending Review
-                  </span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fbbf24' }}>{pendingApplications}</span>
-                </Link>
-              )}
               <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
                 <Link href="/admin/members" className="portal-section-action">
                   View all members

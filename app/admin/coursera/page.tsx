@@ -491,74 +491,71 @@ export default async function AdminCourseraPage({
             </div>
 
             {courseProgress.topLearners.length > 0 ? (
-              <div style={{ overflowX: 'auto' }}>
-                <DataTable
-                  density="compact"
-                  scrollX={false}
-                  rows={courseProgress.topLearners}
-                  rowKey={(learner) => learner.id}
-                  columns={[
-                    {
-                      key: 'learner',
-                      header: 'Learner',
-                      cell: (learner) =>
-                        learner.user ? (
-                          <>
-                            <strong>{learner.user.fullName}</strong>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
-                          </>
-                        ) : (
-                          <>
-                            <strong>{learner.externalName || learner.externalEmail}</strong>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                              {learner.externalEmail} · unmapped
-                            </div>
-                          </>
-                        ),
-                    },
-                    {
-                      key: 'course',
-                      header: 'Course',
-                      cell: (learner) => (
+              <DataTable
+                density="compact"
+                rows={courseProgress.topLearners}
+                rowKey={(learner) => learner.id}
+                columns={[
+                  {
+                    key: 'learner',
+                    header: 'Learner',
+                    cell: (learner) =>
+                      learner.user ? (
                         <>
-                          {learner.courseName}
-                          {learner.isCompleted ? (
-                            <span
-                              style={{
-                                marginLeft: '0.4rem',
-                                fontSize: '0.7rem',
-                                padding: '0.1rem 0.35rem',
-                                borderRadius: '0.4rem',
-                                background: 'rgba(34, 197, 94, 0.15)',
-                                color: 'rgb(22, 163, 74)',
-                              }}
-                            >
-                              completed
-                            </span>
-                          ) : null}
+                          <strong>{learner.user.fullName}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                        </>
+                      ) : (
+                        <>
+                          <strong>{learner.externalName || learner.externalEmail}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                            {learner.externalEmail} · unmapped
+                          </div>
                         </>
                       ),
-                    },
-                    {
-                      key: 'progress',
-                      header: 'Progress',
-                      align: 'right',
-                      cell: (learner) => `${learner.overallProgress.toFixed(2)}%`,
-                    },
-                    {
-                      key: 'hours',
-                      header: 'Hours',
-                      align: 'right',
-                      cell: (learner) => learner.learningHours.toFixed(2),
-                    },
-                    {
-                      key: 'last',
-                      header: 'Last activity',
-                      cell: (learner) => fmtDateTime(learner.lastActivityTime),
-                    },
-                  ]}
-                />
-              </div>
+                  },
+                  {
+                    key: 'course',
+                    header: 'Course',
+                    cell: (learner) => (
+                      <>
+                        {learner.courseName}
+                        {learner.isCompleted ? (
+                          <span
+                            style={{
+                              marginLeft: '0.4rem',
+                              fontSize: '0.7rem',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.4rem',
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              color: 'rgb(22, 163, 74)',
+                            }}
+                          >
+                            completed
+                          </span>
+                        ) : null}
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'progress',
+                    header: 'Progress',
+                    align: 'right',
+                    cell: (learner) => `${learner.overallProgress.toFixed(2)}%`,
+                  },
+                  {
+                    key: 'hours',
+                    header: 'Hours',
+                    align: 'right',
+                    cell: (learner) => learner.learningHours.toFixed(2),
+                  },
+                  {
+                    key: 'last',
+                    header: 'Last activity',
+                    cell: (learner) => fmtDateTime(learner.lastActivityTime),
+                  },
+                ]}
+              />
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
                 No course progress imported yet. Use “Import CSV” to upload the latest Coursera export.
@@ -602,87 +599,84 @@ export default async function AdminCourseraPage({
             </div>
 
             {xapiCourseProgress.courseLogRows.length > 0 ? (
-              <div style={{ overflowX: 'auto' }}>
-                <DataTable
-                  density="compact"
-                  scrollX={false}
-                  rows={xapiCourseProgress.courseLogRows}
-                  rowKey={(row) => row.key}
-                  columns={[
-                    {
-                      key: 'learner',
-                      header: 'Learner',
-                      cell: (row) => (
-                        <>
-                          <strong>{row.fullName}</strong>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
-                        </>
+              <DataTable
+                density="compact"
+                rows={xapiCourseProgress.courseLogRows}
+                rowKey={(row) => row.key}
+                columns={[
+                  {
+                    key: 'learner',
+                    header: 'Learner',
+                    cell: (row) => (
+                      <>
+                        <strong>{row.fullName}</strong>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{row.email}</div>
+                      </>
+                    ),
+                  },
+                  { key: 'program', header: 'Program', cell: (row) => row.programTitle },
+                  {
+                    key: 'course',
+                    header: 'Course',
+                    cell: (row) => (
+                      <>
+                        {row.courseName}
+                        {row.courseId ? (
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.courseId}</div>
+                        ) : null}
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'pct',
+                    header: 'Progress',
+                    align: 'right',
+                    cell: (row) => `${row.percentComplete}%`,
+                  },
+                  {
+                    key: 'status',
+                    header: 'Status',
+                    cell: (row) =>
+                      row.status === 'COMPLETED' ? (
+                        <span
+                          style={{
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.35rem',
+                            borderRadius: '0.4rem',
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: 'rgb(22, 163, 74)',
+                          }}
+                        >
+                          completed
+                        </span>
+                      ) : row.status === 'IN_PROGRESS' ? (
+                        <span
+                          style={{
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.35rem',
+                            borderRadius: '0.4rem',
+                            background: 'rgba(164, 127, 56, 0.14)',
+                            color: 'var(--color-accent)',
+                          }}
+                        >
+                          in progress
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
                       ),
-                    },
-                    { key: 'program', header: 'Program', cell: (row) => row.programTitle },
-                    {
-                      key: 'course',
-                      header: 'Course',
-                      cell: (row) => (
-                        <>
-                          {row.courseName}
-                          {row.courseId ? (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{row.courseId}</div>
-                          ) : null}
-                        </>
-                      ),
-                    },
-                    {
-                      key: 'pct',
-                      header: 'Progress',
-                      align: 'right',
-                      cell: (row) => `${row.percentComplete}%`,
-                    },
-                    {
-                      key: 'status',
-                      header: 'Status',
-                      cell: (row) =>
-                        row.status === 'COMPLETED' ? (
-                          <span
-                            style={{
-                              fontSize: '0.7rem',
-                              padding: '0.1rem 0.35rem',
-                              borderRadius: '0.4rem',
-                              background: 'rgba(34, 197, 94, 0.15)',
-                              color: 'rgb(22, 163, 74)',
-                            }}
-                          >
-                            completed
-                          </span>
-                        ) : row.status === 'IN_PROGRESS' ? (
-                          <span
-                            style={{
-                              fontSize: '0.7rem',
-                              padding: '0.1rem 0.35rem',
-                              borderRadius: '0.4rem',
-                              background: 'rgba(164, 127, 56, 0.14)',
-                              color: 'var(--color-accent)',
-                            }}
-                          >
-                            in progress
-                          </span>
-                        ) : (
-                          <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)' }}>not started</span>
-                        ),
-                    },
-                    {
-                      key: 'updated',
-                      header: 'Last updated',
-                      cell: (row) => fmtDateTime(row.lastUpdatedAt),
-                    },
-                    {
-                      key: 'activity',
-                      header: 'Last activity',
-                      cell: (row) => row.lastActivityAt ? fmtDateTime(row.lastActivityAt) : '—',
-                    },
-                  ]}
-                />
-              </div>
+                  },
+                  {
+                    key: 'updated',
+                    header: 'Last updated',
+                    cell: (row) => fmtDateTime(row.lastUpdatedAt),
+                  },
+                  {
+                    key: 'activity',
+                    header: 'Last activity',
+                    cell: (row) => row.lastActivityAt ? fmtDateTime(row.lastActivityAt) : '—',
+                  },
+                ]}
+              />
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
                 No enrolled member course log is available yet. Progress appears here when members enroll in Coursera-backed programs.
@@ -768,79 +762,76 @@ export default async function AdminCourseraPage({
             </div>
 
             {badgeProgress.topLearners.length > 0 ? (
-              <div style={{ overflowX: 'auto' }}>
-                <DataTable
-                  density="compact"
-                  scrollX={false}
-                  rows={badgeProgress.topLearners}
-                  rowKey={(learner) => learner.id}
-                  columns={[
-                    {
-                      key: 'learner',
-                      header: 'Learner',
-                      cell: (learner) =>
-                        learner.user ? (
-                          <>
-                            <strong>{learner.user.fullName}</strong>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
-                          </>
-                        ) : (
-                          <>
-                            <strong>{learner.externalName || learner.externalEmail}</strong>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                              {learner.externalEmail} · unmapped
-                            </div>
-                          </>
-                        ),
-                    },
-                    {
-                      key: 'badge',
-                      header: 'Badge',
-                      cell: (learner) => (
+              <DataTable
+                density="compact"
+                rows={badgeProgress.topLearners}
+                rowKey={(learner) => learner.id}
+                columns={[
+                  {
+                    key: 'learner',
+                    header: 'Learner',
+                    cell: (learner) =>
+                      learner.user ? (
                         <>
-                          {learner.badgeTitle}
-                          {learner.badgeCompleted ? (
-                            <span
-                              style={{
-                                marginLeft: '0.4rem',
-                                fontSize: '0.7rem',
-                                padding: '0.1rem 0.35rem',
-                                borderRadius: '0.4rem',
-                                background: 'rgba(34, 197, 94, 0.15)',
-                                color: 'rgb(22, 163, 74)',
-                              }}
-                            >
-                              completed
-                            </span>
-                          ) : null}
+                          <strong>{learner.user.fullName}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{learner.user.email}</div>
+                        </>
+                      ) : (
+                        <>
+                          <strong>{learner.externalName || learner.externalEmail}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+                            {learner.externalEmail} · unmapped
+                          </div>
                         </>
                       ),
-                    },
-                    {
-                      key: 'progress',
-                      header: 'Progress',
-                      align: 'right',
-                      cell: (learner) => `${learner.progressPercent.toFixed(2)}%`,
-                    },
-                    {
-                      key: 'courses',
-                      header: 'Courses done',
-                      align: 'right',
-                      cell: (learner) => `${learner.coursesCompleted}/${learner.numberOfCourses}`,
-                    },
-                    {
-                      key: 'current',
-                      header: 'Current course',
-                      cell: (learner) => learner.currentCourseName ?? '—',
-                    },
-                    {
-                      key: 'last',
-                      header: 'Last activity',
-                      cell: (learner) => fmtDateTime(learner.lastActivityTime),
-                    },
-                  ]}
-                />
-              </div>
+                  },
+                  {
+                    key: 'badge',
+                    header: 'Badge',
+                    cell: (learner) => (
+                      <>
+                        {learner.badgeTitle}
+                        {learner.badgeCompleted ? (
+                          <span
+                            style={{
+                              marginLeft: '0.4rem',
+                              fontSize: '0.7rem',
+                              padding: '0.1rem 0.35rem',
+                              borderRadius: '0.4rem',
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              color: 'rgb(22, 163, 74)',
+                            }}
+                          >
+                            completed
+                          </span>
+                        ) : null}
+                      </>
+                    ),
+                  },
+                  {
+                    key: 'progress',
+                    header: 'Progress',
+                    align: 'right',
+                    cell: (learner) => `${learner.progressPercent.toFixed(2)}%`,
+                  },
+                  {
+                    key: 'courses',
+                    header: 'Courses done',
+                    align: 'right',
+                    cell: (learner) => `${learner.coursesCompleted}/${learner.numberOfCourses}`,
+                  },
+                  {
+                    key: 'current',
+                    header: 'Current course',
+                    cell: (learner) => learner.currentCourseName ?? '—',
+                  },
+                  {
+                    key: 'last',
+                    header: 'Last activity',
+                    cell: (learner) => fmtDateTime(learner.lastActivityTime),
+                  },
+                ]}
+              />
             ) : (
               <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
                 No badge progress imported yet. Use “Import CSV” above and upload the
@@ -977,7 +968,7 @@ export default async function AdminCourseraPage({
           </div>
 
           {skillsetProgress.topMembers.length > 0 ? (
-            <div style={{ marginTop: '0.5rem', overflowX: 'auto' }}>
+            <div style={{ marginTop: '0.5rem', overflowX: 'auto', maxWidth: '100%', minWidth: 0 }}>
               <DataTable
                 density="compact"
                 scrollX={false}

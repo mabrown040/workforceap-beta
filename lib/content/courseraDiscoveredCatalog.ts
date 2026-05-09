@@ -1,3 +1,13 @@
+// Some `courseId` fields below are still `TODO_courseId_<N>` placeholders
+// from PR #1068. Resolve them by running:
+//
+//   COURSERA_B4B_CLIENT_ID=... COURSERA_B4B_CLIENT_SECRET=... \
+//   npm run coursera:backfill-catalog
+//   node scripts/backfill-coursera-courseids.cjs --write
+//
+// The script is idempotent (only `TODO_courseId_<digits>` lines are touched)
+// and leaves any course it can't match against B4B `listContents` as-is so
+// the rest of the catalog still builds. See docs/COURSERA-INTEGRATION-TEST.md.
 const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "comptia-a-plus": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",

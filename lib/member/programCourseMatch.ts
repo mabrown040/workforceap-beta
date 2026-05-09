@@ -1,8 +1,23 @@
 import 'server-only';
 
+import {
+  findCanonicalMappingForCourseraCourse,
+  type CanonicalMappingHit,
+  type CanonicalMappingIndex,
+} from '@/lib/coursera/canonicalMapping';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
-import type { Program } from '@/lib/content/programs';
+import { getProgramBySlug, type Program } from '@/lib/content/programs';
 import { COURSERA_TITLE_LOOSE_MIN_LEN, normalizeTitleForMatch } from '@/lib/member/courseraSkillsetMerge';
+
+// Re-export so existing call sites (`@/lib/member/programCourseMatch`)
+// continue to find these names. The actual implementation lives in
+// `@/lib/coursera/canonicalMapping` so it can be loaded by modules that
+// can't `import 'server-only'` (e.g. `b4bSync.ts` under node --test).
+export type { CanonicalMappingHit, CanonicalMappingIndex } from '@/lib/coursera/canonicalMapping';
+export {
+  findCanonicalMappingForCourseraCourse,
+  loadCanonicalMappingsForCourseraIds,
+} from '@/lib/coursera/canonicalMapping';
 
 function normalizeText(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -89,23 +104,96 @@ export function resolveProgramCourse(
 
 /**
  * Fallback resolver that also searches the Coursera discovered catalog.
- * Used by xAPI pipeline when the portal program course list doesn't match
- * Coursera's actual course names/slugs.
+ * Used by xAPI pipeline + course-completion path when the portal program
+ * course list doesn't match Coursera's actual course names/slugs.
+ *
+ * Lookup order (FIRST hit wins):
+ *
+ *   1. Admin-curated DB mapping in `coursera_canonical_course_mappings`,
+ *      matched by `courseraCourseId` (or `courseSlug` if courseId is
+ *      missing). This is the row created by the inline "Map this" action
+ *      on `/admin/training-progress` and lets admins fix unmapped courses
+ *      without a code change. Mirrors the SQL JOIN in
+ *      `csvImport.server.ts:promoteCsvProgressToCanonical`.
+ *
+ *   2. Static `DISCOVERED_COURSERA_PROGRAMS` catalog scoped to the
+ *      member's enrolled program (`resolveProgramCourse`).
+ *
+ *   3. Slug / display-name match against the WAP catalog
+ *      (`lib/content/programs.ts`) via `resolveProgramCourse`.
+ *
+ *   4. Per-program discovered-catalog fuzzy fallback.
+ *
+ *   5. Null.
+ *
+ * Async because step #1 hits the DB. The two consumers
+ * (`upsertCourseProgressFromXapiStatement`, `completeMemberCourse`) are
+ * already in async server-side context. B4B sync paths use
+ * `loadCanonicalMappingsForCourseraIds` directly — see
+ * `lib/coursera/b4bSync.ts` and `lib/coursera/syncUserFromB4B.ts`.
  */
-export function resolveProgramCourseWithCatalogFallback(
+export async function resolveProgramCourseWithCatalogFallback(
   program: Program,
   args: {
     courseSlug?: string;
     courseName?: string;
     courseraCourseId?: string | null;
     enrolledProgramSlug?: string;
+  },
+  options?: {
+    /** Pre-loaded mapping index (for batched callers). When omitted we fall
+     *  back to a single per-call DB lookup. */
+    canonicalMappings?: CanonicalMappingIndex;
+  },
+): Promise<{ slug: string; name: string } | null> {
+  // Step 1: admin-curated DB mapping wins outright. This is what makes the
+  // inline "Map this" admin action take effect for xAPI/B4B traffic without
+  // a redeploy. Same source-of-truth as the SQL JOIN in
+  // promoteCsvProgressToCanonical — keep these two paths consistent.
+  const courseraCourseId = args.courseraCourseId?.trim() || null;
+  const courseraCourseSlug = args.courseSlug?.trim() || null;
+  let dbHit: CanonicalMappingHit | null = null;
+  if (options?.canonicalMappings) {
+    if (courseraCourseId) {
+      dbHit = options.canonicalMappings.byCourseraCourseId.get(courseraCourseId) ?? null;
+    }
+    if (!dbHit && courseraCourseSlug) {
+      dbHit = options.canonicalMappings.byCourseraCourseSlug.get(courseraCourseSlug) ?? null;
+    }
+  } else if (courseraCourseId || courseraCourseSlug) {
+    dbHit = await findCanonicalMappingForCourseraCourse({
+      courseraCourseId,
+      courseraCourseSlug,
+    });
   }
-): { slug: string; name: string } | null {
-  // First try the portal program's course list (and courseId via discovered)
+  if (dbHit) {
+    // Confirm the mapped (programSlug, courseSlug) corresponds to a real
+    // catalog row so consumers that look up `program.courses` continue to
+    // work. The mapping table is admin-edited and could in principle point
+    // at a slug that no longer exists.
+    const mappedProgram = getProgramBySlug(dbHit.programSlug);
+    const mappedCourse = mappedProgram?.courses.find((c) => c.slug === dbHit!.courseSlug);
+    if (mappedCourse) {
+      return { slug: mappedCourse.slug, name: mappedCourse.name };
+    }
+    // Fall through to discovered metadata for a display name when the WAP
+    // program doesn't carry the row yet (rare; new mapping racing a deploy).
+    const discoveredMeta = DISCOVERED_COURSERA_PROGRAMS[dbHit.programSlug]?.courses.find(
+      (c) => c.slug === dbHit!.courseSlug,
+    );
+    if (discoveredMeta) {
+      return { slug: discoveredMeta.slug, name: discoveredMeta.name };
+    }
+    // Last resort — return the slug verbatim so we still bind progress to
+    // the canonical curriculum even if we don't have a display name yet.
+    return { slug: dbHit.courseSlug, name: dbHit.courseSlug };
+  }
+
+  // Step 2 + 3: existing portal/discovered/slug behavior.
   const fromProgram = resolveProgramCourse(program, args);
   if (fromProgram) return fromProgram;
 
-  // Fallback: search discovered catalog by program slug
+  // Step 4: per-program discovered-catalog fuzzy fallback.
   const discovered = DISCOVERED_COURSERA_PROGRAMS[program.slug];
   if (!discovered) return null;
 

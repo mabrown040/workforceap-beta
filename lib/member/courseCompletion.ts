@@ -40,7 +40,10 @@ export async function completeMemberCourse(args: {
     throw new Error('Invalid program');
   }
 
-  const matchedCourse = resolveProgramCourseWithCatalogFallback(program, {
+  // Resolution order: admin-curated `coursera_canonical_course_mappings` row
+  // (DB) → static DISCOVERED_COURSERA_PROGRAMS catalog → WAP slug match →
+  // discovered fuzzy fallback. See `resolveProgramCourseWithCatalogFallback`.
+  const matchedCourse = await resolveProgramCourseWithCatalogFallback(program, {
     courseraCourseId: args.courseraCourseId ?? null,
     enrolledProgramSlug: dbUser.enrolledProgram,
     courseSlug: args.courseSlug,

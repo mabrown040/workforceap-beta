@@ -541,7 +541,7 @@ export default async function TrainingPage({
         )}
 
         <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>
-          <CourseraProgressCard userId={user.id} />
+          <CourseraProgressCard userId={user.id} programSlug={activeProgramSlug} />
         </div>
 
         <div style={{ padding: '0 1rem', marginBottom: '1.25rem' }}>

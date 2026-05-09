@@ -366,20 +366,19 @@ function buildRecommendations(result: SelfTestResult): string[] {
 
   const okEndpoints = result.outbound.endpoints.filter((e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300);
   if (okEndpoints.length > 0) {
-    recs.push(`Build a B4B puller against these working endpoints:`);
-    for (const e of okEndpoints) recs.push(`  • ${e.label} → ${e.url}`);
-    recs.push(`Wire the puller into the xAPI auto-heal path: when /api/xapi/statements is missing data, backfill from the authoritative B4B response.`);
+    recs.push('B4B sync is active — pulls enrollmentReports every 6h into CourseProgress.');
+    recs.push('If a member shows 0% despite activity: Coursera may delay up to 24h, or the user enrolled directly (not via program portal).');
   } else if (result.outbound.tokenOk) {
-    recs.push(`No B4B endpoints returned 200 with the supplied credentials.`);
-    recs.push(`Likely causes: dev app missing 'For Business API' product enablement, or wrong org id.`);
+    recs.push('B4B OAuth works but no endpoints returned 200.');
+    recs.push('Likely causes: dev app missing For Business API product enablement, or wrong org id.');
   }
 
   if (result.inbound.tokenOk && result.inbound.statementOk) {
-    recs.push(`Inbound xAPI is healthy. Coursera-issued statements should be accepted in production.`);
+    recs.push('Inbound xAPI endpoints are healthy. If no statements arrive, verify Coursera admin panel has our endpoint URLs + credentials configured.');
   } else if (result.inbound.tokenOk === false) {
-    recs.push(`Inbound OAuth is failing. Verify XAPI_CLIENT_ID / XAPI_CLIENT_SECRET (or COURSERA_APP_ID/SECRET) on the WorkforceAP server match the values you handed to Coursera.`);
+    recs.push('Inbound OAuth is failing. Verify XAPI_CLIENT_ID / XAPI_CLIENT_SECRET (or COURSERA_APP_ID/SECRET) on the WorkforceAP server match the values you handed to Coursera.');
   } else if (result.inbound.statementOk === false) {
-    recs.push(`Inbound OAuth works but statement ingestion is failing. Inspect the response body and check lib/xapi/inboundStatementPipeline.ts.`);
+    recs.push('Inbound OAuth works but statement ingestion is failing. Inspect the response body and check lib/xapi/inboundStatementPipeline.ts.');
   }
 
   if (result.outbound.tokenScope) {

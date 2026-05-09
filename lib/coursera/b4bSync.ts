@@ -232,14 +232,74 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
     }
 
-    // Determine status
+    // Determine status: IN_PROGRESS if there's any activity, even if progress rounds to 0
     let status: CourseProgressStatus;
     if (report.isCompleted) {
       status = CourseProgressStatus.COMPLETED;
-    } else if (report.overallProgress > 0) {
+    } else if ((report.overallProgress ?? 0) > 0 || (report.lastActivityAt ?? 0) > 0) {
       status = CourseProgressStatus.IN_PROGRESS;
     } else {
       status = CourseProgressStatus.NOT_STARTED;
+    }
+
+    // Read-before-write guard: never downgrade completion or recent activity
+    const existing = await prisma.courseProgress.findUnique({
+      where: {
+        userId_programSlug_courseSlug: {
+          userId,
+          programSlug,
+          courseSlug,
+        },
+      },
+      select: {
+        status: true,
+        percentComplete: true,
+        lastActivityAt: true,
+      },
+    });
+
+    // Never overwrite a COMPLETED row with anything lower
+    if (existing?.status === CourseProgressStatus.COMPLETED && !report.isCompleted) {
+      // Still update lastActivityAt if Coursera has fresher data
+      const existingLastMs = existing.lastActivityAt ? existing.lastActivityAt.getTime() : 0;
+      const newLastMs = report.lastActivityAt ?? 0;
+      if (newLastMs > existingLastMs) {
+        await prisma.courseProgress.update({
+          where: { userId_programSlug_courseSlug: { userId, programSlug, courseSlug } },
+          data: { lastActivityAt: new Date(newLastMs) },
+        });
+      }
+      result.upserted += 1; // Count as handled
+      if (isKnown) result.upsertedKnown += 1;
+      else result.upsertedUnknown += 1;
+      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
+      userEntry.courses += 1;
+      result.byUser[email] = userEntry;
+      continue;
+    }
+
+    // Don't lower percentComplete unless the course is now completed
+    if (
+      existing &&
+      existing.percentComplete > (report.overallProgress ?? 0) &&
+      !report.isCompleted
+    ) {
+      // Still update lastActivityAt if Coursera has fresher data
+      const existingLastMs = existing.lastActivityAt ? existing.lastActivityAt.getTime() : 0;
+      const newLastMs = report.lastActivityAt ?? 0;
+      if (newLastMs > existingLastMs) {
+        await prisma.courseProgress.update({
+          where: { userId_programSlug_courseSlug: { userId, programSlug, courseSlug } },
+          data: { lastActivityAt: new Date(newLastMs) },
+        });
+      }
+      result.upserted += 1;
+      if (isKnown) result.upsertedKnown += 1;
+      else result.upsertedUnknown += 1;
+      const userEntry = result.byUser[email] ?? { courses: 0, unknownCourses: 0 };
+      userEntry.courses += 1;
+      result.byUser[email] = userEntry;
+      continue;
     }
 
     try {
@@ -260,6 +320,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           percentComplete: report.overallProgress,
           startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
           completedAt: report.isCompleted ? new Date(report.updatedAt) : null,
+          lastActivityAt: report.lastActivityAt ? new Date(report.lastActivityAt) : null,
         },
         update: {
           courseId: report.contentId,
@@ -267,6 +328,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
           percentComplete: report.overallProgress,
           startedAt: report.enrolledAt ? new Date(report.enrolledAt) : null,
           completedAt: report.isCompleted ? new Date(report.updatedAt) : null,
+          lastActivityAt: report.lastActivityAt ? new Date(report.lastActivityAt) : null,
         },
       });
 

@@ -64,6 +64,7 @@ type XapiCourseProgressSummary = {
     status: string;
     percentComplete: number;
     lastUpdatedAt: Date;
+    lastActivityAt: Date | null;
   }>;
   courseLogRows: Array<{
     key: string;
@@ -78,6 +79,7 @@ type XapiCourseProgressSummary = {
     status: string;
     percentComplete: number;
     lastUpdatedAt: Date | null;
+    lastActivityAt: Date | null;
   }>;
 };
 
@@ -107,6 +109,7 @@ async function loadXapiCourseProgressSummary(
         status: string;
         percentComplete: number;
         lastUpdatedAt: Date;
+        lastActivityAt: Date | null;
       }>
     >`
       SELECT
@@ -119,7 +122,8 @@ async function loadXapiCourseProgressSummary(
         cp.course_id AS "courseId",
         cp.status::text AS "status",
         cp.percent_complete AS "percentComplete",
-        cp.last_updated_at AS "lastUpdatedAt"
+        cp.last_updated_at AS "lastUpdatedAt",
+        cp.last_activity_at AS "lastActivityAt"
       FROM course_progress cp
       JOIN users u ON u.id = cp.user_id
       ORDER BY cp.last_updated_at DESC
@@ -139,6 +143,7 @@ async function loadXapiCourseProgressSummary(
         status: true,
         percentComplete: true,
         lastUpdatedAt: true,
+        lastActivityAt: true,
       },
     });
     const progressMap = new Map(
@@ -169,6 +174,7 @@ async function loadXapiCourseProgressSummary(
           status: progress?.status ?? 'NOT_STARTED',
           percentComplete: progress?.percentComplete ?? 0,
           lastUpdatedAt: progress?.lastUpdatedAt ?? null,
+          lastActivityAt: progress?.lastActivityAt ?? null,
         };
       });
     });
@@ -187,6 +193,7 @@ async function loadXapiCourseProgressSummary(
         status: row.status,
         percentComplete: row.percentComplete,
         lastUpdatedAt: row.lastUpdatedAt,
+        lastActivityAt: row.lastActivityAt,
       })),
       courseLogRows,
     };
@@ -667,6 +674,11 @@ export default async function AdminCourseraPage({
                       key: 'updated',
                       header: 'Last updated',
                       cell: (row) => fmtDateTime(row.lastUpdatedAt),
+                    },
+                    {
+                      key: 'activity',
+                      header: 'Last activity',
+                      cell: (row) => row.lastActivityAt ? fmtDateTime(row.lastActivityAt) : '—',
                     },
                   ]}
                 />

@@ -1,7 +1,9 @@
 import 'server-only';
 
+import { isAdmin } from '@/lib/auth/roles';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
+import { resolveStaffTrainingPreviewProgramSlug } from '@/lib/member/staffTrainingProgramFallback';
 import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
 import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/statements';
@@ -58,7 +60,11 @@ export async function handleInboundParsedStatement(
     where: { id: resolvedUser.userId },
     select: { enrolledProgram: true, courseEnrollments: { select: { programSlug: true }, orderBy: { enrolledAt: 'desc' }, take: 1 } },
   });
-  const enrolledProgram = dbUser?.courseEnrollments[0]?.programSlug ?? dbUser?.enrolledProgram ?? null;
+  let enrolledProgram = dbUser?.courseEnrollments[0]?.programSlug ?? dbUser?.enrolledProgram ?? null;
+
+  if (!enrolledProgram && (await isAdmin(resolvedUser.userId))) {
+    enrolledProgram = await resolveStaffTrainingPreviewProgramSlug(resolvedUser.userId);
+  }
 
   if (!enrolledProgram) {
     const message = 'No program enrolled';

@@ -112,8 +112,8 @@ async function handle(_req: NextRequest) {
     return NextResponse.json({ ok: true, skipped: 'disabled', members: 0 });
   }
 
-  // Pull active members. Match the admin/coursera page filter: every active user
-  // whose profile.role is 'member' (or has no profile yet — defaults to member).
+  // Pull active learners for Coursera polling: members, profile-less users, and
+  // admin/super_admin dogfood accounts (see cron query `profile.role` clause).
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,

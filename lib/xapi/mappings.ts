@@ -216,6 +216,8 @@ export async function resolveXapiUser(identity: XapiIdentity): Promise<ResolvedX
   const email = normalizeEmail(identity.email);
   if (!email) return null;
 
+  // Direct portal email match — no profile/role filter: super_admin and other
+  // platform accounts resolve the same way as members for xAPI ingest.
   const user = await prisma.user.findFirst({
     where: {
       email: {

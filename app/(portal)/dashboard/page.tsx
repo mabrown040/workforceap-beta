@@ -227,9 +227,21 @@ async function renderMemberDashboard(
       where: { memberId: user.id, status: 'PENDING' },
       orderBy: { priority: 'desc' },
       take: 2,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        ctaHref: true,
+        ctaLabel: true,
+        priority: true,
+      },
     }),
     prisma.jobApplication.findMany({
       where: { userId: user.id, status: 'OFFER' },
+      select: {
+        id: true,
+        company: true,
+      },
     }),
     getMemberPoints(user.id),
     prisma.pointsTransaction.findMany({

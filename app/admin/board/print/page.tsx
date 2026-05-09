@@ -73,6 +73,13 @@ export default async function FunderReportPrintPage({
           <a href="/admin/board" className="btn btn-secondary btn-small">
             ← Back to dashboard
           </a>
+          {/*
+            This page is a server component, so we can't attach onClick to a real
+            <button> without splitting into a client island. Using a javascript:
+            href anchor here is intentional for now — see TODO to extract a small
+            <PrintButton /> client component.
+          */}
+          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <a
             href="javascript:window.print()"
             className="btn btn-primary btn-small"

@@ -116,7 +116,7 @@ export default function ApplyEligibilityClient() {
             <p className="apply-eligibility-prompt">{ELIGIBILITY_QUESTIONS[0].prompt}</p>
             <div
               className="form-radio-cards"
-              role="group"
+              role="radiogroup"
               aria-invalid={attemptedContinue && q1 === null}
               aria-describedby={attemptedContinue && q1 === null ? 'apply-eligibility-q1-error' : undefined}
             >
@@ -142,7 +142,7 @@ export default function ApplyEligibilityClient() {
             <p className="apply-eligibility-prompt">{ELIGIBILITY_QUESTIONS[1].prompt}</p>
             <div
               className="form-radio-cards"
-              role="group"
+              role="radiogroup"
               aria-invalid={attemptedContinue && q2 === null}
               aria-describedby={attemptedContinue && q2 === null ? 'apply-eligibility-q2-error' : undefined}
             >
@@ -168,7 +168,7 @@ export default function ApplyEligibilityClient() {
             <p className="apply-eligibility-prompt">{ELIGIBILITY_QUESTIONS[2].prompt}</p>
             <div
               className="form-radio-cards"
-              role="group"
+              role="radiogroup"
               aria-invalid={attemptedContinue && q3 === null}
               aria-describedby={attemptedContinue && q3 === null ? 'apply-eligibility-q3-error' : undefined}
             >

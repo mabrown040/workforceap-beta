@@ -397,7 +397,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         />
       </div>
 
-      <ul className="program-cards program-comparison-cards-pick" role="list" aria-label="Program comparison cards">
+      <ul className="program-cards program-comparison-cards-pick" aria-label="Program comparison cards">
         {tracks.map((t) => {
           const extra = getProgramExtra(t.slug);
           return (

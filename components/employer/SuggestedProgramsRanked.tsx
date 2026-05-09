@@ -170,7 +170,7 @@ export default function SuggestedProgramsRanked({
       </div>
 
       <div className="employer-suggested-programs__section-label">Recommended first</div>
-      <ul className="employer-suggested-programs__list" role="list">
+      <ul className="employer-suggested-programs__list">
         {top.map((r) => (
           <li key={r.slug}>
             <label className="employer-suggested-programs__row">
@@ -197,7 +197,7 @@ export default function SuggestedProgramsRanked({
       {rest.length > 0 && (
         <details className="employer-suggested-programs__more">
           <summary>More tracks ({rest.length})</summary>
-          <ul className="employer-suggested-programs__list employer-suggested-programs__list--compact" role="list">
+          <ul className="employer-suggested-programs__list employer-suggested-programs__list--compact">
             {rest.map((r) => (
               <li key={r.slug}>
                 <label className="employer-suggested-programs__row employer-suggested-programs__row--compact">

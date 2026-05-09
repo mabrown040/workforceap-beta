@@ -25,7 +25,7 @@ export default function MemberPortalTopNav({
 
   return (
     <nav className="member-portal-top-nav" aria-label={t('memberPortal')}>
-      <ul className="member-portal-top-nav__list" role="list">
+      <ul className="member-portal-top-nav__list">
         {tabs.map((tab) => {
           const active = tab.matches(pathname);
           const badge = tab.badgeKey ? badgeCounts?.[tab.badgeKey] : undefined;

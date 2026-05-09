@@ -240,7 +240,6 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
               >
                 <div style={{ position: 'relative', flexShrink: 0 }}>
                   <div className="portal-messages-avatar">{counselorInitials}</div>
-                  <div className="portal-messages-online-dot" aria-hidden />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>

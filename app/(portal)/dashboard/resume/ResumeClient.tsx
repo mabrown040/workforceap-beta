@@ -226,29 +226,38 @@ export default function ResumeClient({
         }}
         onDragLeave={() => setDragover(false)}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
       >
         <input
           ref={fileInputRef}
+          id="resume-upload-input"
           type="file"
           accept=".pdf,.doc,.docx"
           onChange={handleFileInput}
           style={{ display: "none" }}
         />
-        <p style={{ margin: 0, color: "var(--color-on-surface-variant)" }}>
-          {uploading
-            ? "Uploading…"
-            : "Drag and drop your resume here, or click to choose a file"}
-        </p>
-        <p
+        <label
+          htmlFor="resume-upload-input"
           style={{
-            margin: "0.5rem 0 0",
-            fontSize: "0.85rem",
-            color: "var(--color-on-surface-variant)",
+            cursor: "pointer",
+            display: "block",
+            textAlign: "center",
           }}
         >
-          PDF, DOC, DOCX — max 5MB
-        </p>
+          <p style={{ margin: 0, color: "var(--color-on-surface-variant)" }}>
+            {uploading
+              ? "Uploading…"
+              : "Drag and drop your resume here, or click to choose a file"}
+          </p>
+          <p
+            style={{
+              margin: "0.5rem 0 0",
+              fontSize: "0.85rem",
+              color: "var(--color-on-surface-variant)",
+            }}
+          >
+            PDF, DOC, DOCX — max 5MB
+          </p>
+        </label>
       </div>
       {uploadError && (
         <p style={{ color: "#c00", marginTop: "0.5rem" }}>{uploadError}</p>
@@ -716,6 +725,8 @@ export default function ResumeClient({
     </section>
   );
 
+  const witDataEmpty = !witData.name && !witData.email && !witData.phone && !witData.recentEmployer && !witData.targetJob && !witData.skills;
+
   const witGuideSection = (
     <section className="counselor-wit-guide">
       <h2
@@ -729,8 +740,9 @@ export default function ResumeClient({
           color: "var(--color-on-surface-variant)",
         }}
       >
-        Pre-filled with your data. Use these steps when creating your
-        WorkInTexas profile.
+        {witDataEmpty
+          ? "Copy these from your profile. Use these steps when creating your WorkInTexas profile."
+          : "Pre-filled with your data. Use these steps when creating your WorkInTexas profile."}
       </p>
       <ol>
         <li>

@@ -12,6 +12,10 @@ import { CourseProgressStatus } from '@prisma/client';
 
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
+import {
+  loadCanonicalMappingsForCourseraIds,
+  type CanonicalMappingIndex,
+} from '@/lib/coursera/canonicalMapping';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
@@ -403,6 +407,18 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
     }
   }
 
+  // Pre-load all admin-curated mappings from `coursera_canonical_course_mappings`
+  // for the contentIds we're about to write. This is the same source of truth
+  // the CSV promote path JOINs against — without it an admin who maps a course
+  // via /admin/training-progress will see CSV imports updated immediately, but
+  // this cron-style B4B sync would still bypass the override and stamp the
+  // wrong (programSlug, courseSlug). One IN-list query keeps the loop O(N+M)
+  // instead of O(N) round-trips.
+  const canonicalMappings: CanonicalMappingIndex =
+    await loadCanonicalMappingsForCourseraIds(
+      Array.from(deduped.values()).map((r) => r.contentId),
+    );
+
   // NOTE: gradebook merging now lives in `syncUserFromB4B` (the single-user
   // path used by dashboard auto-sync + admin "Sync from Coursera"). That path
   // already fetches one learner at a time, so the N gradebook calls collapse
@@ -421,27 +437,37 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
       continue;
     }
 
-    // Determine program slug: catalog lookup first, then Coursera programId mapping, then fallback
+    // Resolution order for (programSlug, courseSlug):
+    //   1. Admin-curated row in `coursera_canonical_course_mappings` keyed by
+    //      contentId — overrides everything (lets admins fix unmapped courses
+    //      without a redeploy; same source-of-truth as the JOIN in
+    //      `csvImport.server.ts:promoteCsvProgressToCanonical`).
+    //   2. Static DISCOVERED_COURSERA_PROGRAMS catalog.
+    //   3. Coursera programId → WAP program reverse map.
+    //   4. Slugify the raw Coursera fields (generic fallback).
     let programSlug: string;
+    let courseSlug: string;
+    let isKnown = false;
+
+    const dbMapping = canonicalMappings.byCourseraCourseId.get(report.contentId) ?? null;
     const knownMetas = courseIdToMeta[report.contentId];
     const programSlugsFromId = programIdToSlugs[report.programId];
 
-    if (knownMetas && knownMetas.length > 0) {
+    if (dbMapping) {
+      programSlug = dbMapping.programSlug;
+      courseSlug = dbMapping.courseSlug;
+      isKnown = true;
+    } else if (knownMetas && knownMetas.length > 0) {
       programSlug = knownMetas[0].programSlug;
-    } else if (programSlugsFromId && programSlugsFromId.length > 0) {
-      programSlug = programSlugsFromId[0];
-    } else {
-      // Fallback: use Coursera's programSlug or a generic bucket
-      programSlug = slugify(report.programSlug || report.programName || 'coursera-unknown');
-    }
-
-    // Determine course slug: catalog lookup first, then slugify Coursera contentName
-    let courseSlug: string;
-    let isKnown = false;
-    if (knownMetas && knownMetas.length > 0) {
       courseSlug = knownMetas[0].courseSlug;
       isKnown = true;
     } else {
+      if (programSlugsFromId && programSlugsFromId.length > 0) {
+        programSlug = programSlugsFromId[0];
+      } else {
+        // Fallback: use Coursera's programSlug or a generic bucket
+        programSlug = slugify(report.programSlug || report.programName || 'coursera-unknown');
+      }
       courseSlug = slugify(report.contentName || report.contentSlug || report.contentId);
     }
 

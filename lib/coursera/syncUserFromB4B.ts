@@ -15,6 +15,10 @@ import {
 } from './b4bSync';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
+import {
+  loadCanonicalMappingsForCourseraIds,
+  type CanonicalMappingIndex,
+} from '@/lib/coursera/canonicalMapping';
 import { replayUnresolvedXapiStatementsForIdentity } from './replayPendingXapi';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
@@ -47,7 +51,9 @@ export type ResolvedCourse = {
   courseraContentId: string;
   wapProgramSlug: string;
   wapCourseSlug: string;
-  courseraProgramId: string;
+  /** May be null when the row was matched only via a DB canonical mapping
+   *  (the static catalog is the only source that carries `courseraProgramId`). */
+  courseraProgramId: string | null;
   isCompleted: boolean;
   overallProgress: number | null;
   lastActivityAt: number | null;
@@ -78,16 +84,57 @@ export type SyncUserFromB4BResult = {
 };
 
 /**
- * Look up a Coursera contentId across the entire DISCOVERED_COURSERA_PROGRAMS
- * catalog. Returns the (wapProgramSlug, courseSlug) the contentId belongs to,
- * or null if no entry matches. Catalog rows with `TODO_courseId_*` placeholder
- * courseIds will never match a real Coursera contentId.
+ * Look up a Coursera contentId, preferring an admin-curated DB mapping in
+ * `coursera_canonical_course_mappings` (when a pre-loaded index is supplied)
+ * before falling back to the static DISCOVERED_COURSERA_PROGRAMS catalog.
+ *
+ * Resolution order:
+ *   1. Admin-curated mapping in `coursera_canonical_course_mappings` (passed
+ *      in via `canonicalMappings` — same source the CSV promote SQL JOIN
+ *      uses; lets admins fix unmapped courses without a redeploy).
+ *   2. Static DISCOVERED_COURSERA_PROGRAMS catalog.
+ *   3. Null. Catalog rows with `TODO_courseId_*` placeholder courseIds will
+ *      never match a real Coursera contentId.
+ *
+ * `courseraProgramId` is only known when the static catalog matches (it's a
+ * Coursera-side identifier we keep on the discovered-program record). DB
+ * mappings don't carry it; callers that only need (programSlug, courseSlug)
+ * tolerate the null.
  */
 export function resolveContentIdToWapCourse(
   contentId: string,
-): { wapProgramSlug: string; wapCourseSlug: string; courseraProgramId: string } | null {
+  canonicalMappings?: CanonicalMappingIndex,
+): {
+  wapProgramSlug: string;
+  wapCourseSlug: string;
+  courseraProgramId: string | null;
+} | null {
   const needle = contentId.trim();
   if (!needle || needle.startsWith('TODO_')) return null;
+
+  const dbHit = canonicalMappings?.byCourseraCourseId.get(needle) ?? null;
+  if (dbHit) {
+    // Admin-curated row wins. We may also have a static-catalog row for the
+    // same contentId — pick its courseraProgramId opportunistically so
+    // downstream callers that need it (e.g. CourseEnrollment) keep working,
+    // but the (programSlug, courseSlug) always come from the DB row.
+    const staticForProgramId =
+      DISCOVERED_COURSERA_PROGRAMS[dbHit.programSlug]?.courseraProgramId ?? null;
+    let courseraProgramId: string | null = staticForProgramId;
+    if (!courseraProgramId) {
+      for (const prog of Object.values(DISCOVERED_COURSERA_PROGRAMS)) {
+        if (prog.courses.some((c) => c.courseId === needle)) {
+          courseraProgramId = prog.courseraProgramId ?? null;
+          break;
+        }
+      }
+    }
+    return {
+      wapProgramSlug: dbHit.programSlug,
+      wapCourseSlug: dbHit.courseSlug,
+      courseraProgramId,
+    };
+  }
 
   for (const [wapProgramSlug, prog] of Object.entries(DISCOVERED_COURSERA_PROGRAMS)) {
     const course = prog.courses.find((c) => c.courseId === needle);
@@ -188,6 +235,19 @@ export async function syncUserFromB4B(args: {
     B4BGradebookReport[],
   ] = await Promise.all([enrollmentReportsPromise, gradebookReportsPromise]);
 
+  // Pre-load admin-curated mappings from `coursera_canonical_course_mappings`
+  // for every contentId we're about to resolve (both enrollment and gradebook
+  // sides). This is the SAME source of truth the CSV promote path JOINs
+  // against — without it an admin who maps a course via /admin/training-progress
+  // would see CSV imports updated immediately, but this per-user sync would
+  // still bypass the override and stamp the wrong (programSlug, courseSlug).
+  // One IN-list query instead of one round-trip per row.
+  const canonicalMappings: CanonicalMappingIndex =
+    await loadCanonicalMappingsForCourseraIds([
+      ...enrollmentReports.map((r) => r.contentId),
+      ...gradebookReports.map((r) => r.courseId ?? null),
+    ]);
+
   // Index gradebook rows by courseId for O(1) lookup during the per-course
   // merge below. If Coursera returns multiple gradebook rows for the same
   // courseId (e.g. the learner is in both a standalone course AND a program
@@ -222,14 +282,16 @@ export async function syncUserFromB4B(args: {
   for (const report of enrollmentReports) {
     const contentId = (report.contentId ?? '').trim();
     if (!contentId) continue;
-    const match = resolveContentIdToWapCourse(contentId);
+    // Resolution order: admin-curated `coursera_canonical_course_mappings`
+    // row (DB) → static DISCOVERED_COURSERA_PROGRAMS catalog → null.
+    const match = resolveContentIdToWapCourse(contentId, canonicalMappings);
     if (!match) {
       if (!seenDropped.has(contentId)) {
         seenDropped.add(contentId);
         droppedNoMapping.push({
           courseraContentId: contentId,
           reason:
-            'No DISCOVERED_COURSERA_PROGRAMS entry has a course with this courseId (likely a TODO_courseId_* placeholder or unmapped catalog entry).',
+            'No coursera_canonical_course_mappings row or DISCOVERED_COURSERA_PROGRAMS entry has a course with this courseId (likely a TODO_courseId_* placeholder or unmapped catalog entry).',
         });
       }
       continue;
@@ -424,11 +486,12 @@ export async function syncUserFromB4B(args: {
       existing.gradebook = gbSignal;
       continue;
     }
-    // Gradebook-only course — try to resolve through the same catalog
-    // mapping. If it doesn't resolve we silently skip (gradebook can return
-    // courses outside the WAP catalog when learners self-enroll in adjacent
-    // Coursera content the program doesn't track).
-    const match = resolveContentIdToWapCourse(courseId);
+    // Gradebook-only course — try to resolve through the same DB-first
+    // canonical mapping → static catalog ladder. If it doesn't resolve we
+    // silently skip (gradebook can return courses outside the WAP catalog
+    // when learners self-enroll in adjacent Coursera content the program
+    // doesn't track).
+    const match = resolveContentIdToWapCourse(courseId, canonicalMappings);
     if (!match) continue;
     perCourse.set(courseId, {
       contentId: courseId,

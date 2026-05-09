@@ -147,7 +147,10 @@ export async function upsertCourseProgressFromXapiStatement(args: {
   if (!program) return;
 
   const slugFromObject = matchCourseSlugFromObjectId(enrolledProgramSlug, parsed.courseObjectId);
-  const matched = resolveProgramCourseWithCatalogFallback(program, {
+  // Resolution order: admin-curated `coursera_canonical_course_mappings` row
+  // (DB) → static DISCOVERED_COURSERA_PROGRAMS catalog → WAP slug match →
+  // discovered fuzzy fallback. See `resolveProgramCourseWithCatalogFallback`.
+  const matched = await resolveProgramCourseWithCatalogFallback(program, {
     courseraCourseId: parsed.courseraCourseId ?? null,
     enrolledProgramSlug,
     courseSlug: parsed.courseSlug ?? slugFromObject ?? undefined,

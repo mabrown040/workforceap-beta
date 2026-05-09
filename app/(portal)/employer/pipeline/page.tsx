@@ -12,6 +12,7 @@ import EmployerKanban from '@/components/employer/EmployerKanban';
 import EmployerMatchStatusSelect from '@/components/employer/EmployerMatchStatusSelect';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import { getProgramBySlug } from '@/lib/content/programs';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 
@@ -44,9 +45,36 @@ export default async function EmployerPipelinePage() {
           where: { jobId: { in: jobIds } },
           orderBy: [{ jobId: 'asc' }, { matchScore: 'desc' }],
           include: {
-            student: { select: { id: true, fullName: true, email: true, enrolledProgram: true } },
+            // Multi-program-aware: pull every enrollment so the pipeline row
+            // can list ALL programs comma-separated (primary first), instead
+            // of showing only the denormalized `User.enrolledProgram` slug.
+            student: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                enrolledProgram: true,
+                courseEnrollments: {
+                  select: { programSlug: true, isPrimary: true, enrolledAt: true },
+                  orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
+                },
+              },
+            },
           },
         });
+
+  // Comma-joined list of all programs each candidate is in (primary first).
+  // For single-program candidates this collapses to today's display.
+  function programDisplayFor(student: { enrolledProgram: string | null; courseEnrollments: { programSlug: string }[] }): string {
+    const titles = student.courseEnrollments.map(
+      (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+    );
+    if (titles.length > 0) return Array.from(new Set(titles)).join(' · ');
+    if (student.enrolledProgram) {
+      return getProgramBySlug(student.enrolledProgram)?.title ?? student.enrolledProgram;
+    }
+    return 'No program';
+  }
 
   const byJob = new Map<string, typeof allMatches>();
   for (const m of allMatches) {
@@ -132,7 +160,7 @@ export default async function EmployerPipelinePage() {
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div className="wa-truncate" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{m.student.fullName}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{m.student.enrolledProgram ?? 'No program'}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{programDisplayFor(m.student)}</div>
                           </div>
                           <div style={{ flexShrink: 0, textAlign: 'right', minWidth: 0, maxWidth: '42%' }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)' }}>{matchScoreAsPercent(m.matchScore)}%</div>

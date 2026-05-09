@@ -8,6 +8,7 @@ import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import { getProgramBySlug } from '@/lib/content/programs';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
 import {
@@ -88,6 +89,13 @@ export default async function EmployerCandidateProfilePage({
         email: true,
         enrolledProgram: true,
         assessmentCompleted: true,
+        // Multi-program-aware: pull every enrollment so the candidate card
+        // can list ALL programs comma-separated (primary first), instead of
+        // showing only the denormalized `User.enrolledProgram` slug.
+        courseEnrollments: {
+          select: { programSlug: true, isPrimary: true, enrolledAt: true },
+          orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
+        },
         profile: {
           select: {
             profileLinkedin: true,
@@ -108,6 +116,22 @@ export default async function EmployerCandidateProfilePage({
   ]);
 
   if (!student) notFound();
+
+  // Multi-program-aware program label. Joins every program the candidate
+  // has a `course_enrollments` row for, primary first. Falls back to the
+  // legacy `User.enrolledProgram` slug when no enrollment rows exist
+  // (legacy / seeded users), and to '—' when neither is available. For
+  // single-program candidates this collapses to the same string the page
+  // displayed before.
+  const enrollmentTitles = student.courseEnrollments.map(
+    (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
+  );
+  const enrolledProgramTitle = student.enrolledProgram
+    ? getProgramBySlug(student.enrolledProgram)?.title ?? student.enrolledProgram
+    : null;
+  const programDisplay = enrollmentTitles.length > 0
+    ? Array.from(new Set(enrollmentTitles)).join(' · ')
+    : enrolledProgramTitle ?? '—';
 
   const selectedMatch = (highlightJobId ? matches.find((match) => match.jobId === highlightJobId) : null) ?? matches[0] ?? null;
   const topMatchPct = selectedMatch ? matchScoreAsPercent(selectedMatch.matchScore) : null;
@@ -199,7 +223,7 @@ export default async function EmployerCandidateProfilePage({
             <div style={{ display: 'grid', gap: '0.6rem', marginTop: '0.75rem' }}>
               <div>
                 <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Program</p>
-                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.enrolledProgram ?? '—'}</p>
+                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{programDisplay}</p>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Assessment</p>
@@ -382,7 +406,7 @@ export default async function EmployerCandidateProfilePage({
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.9rem' }}>
                   <div>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Program</p>
-                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.enrolledProgram ?? '—'}</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{programDisplay}</p>
                   </div>
                   <div>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Assessment</p>

@@ -12,7 +12,8 @@ import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection
 import type { CareerMatchResult } from '@/lib/onet/types';
 import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
-import { isSuperAdmin } from '@/lib/auth/roles';
+import { canBypassMemberAssessment, isSuperAdmin } from '@/lib/auth/roles';
+import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
@@ -391,6 +392,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   } catch (e) {
     console.error('[dashboard] isSuperAdmin failed', e);
   }
+  let staffViewer = false;
+  try {
+    staffViewer = await canBypassMemberAssessment(user.id);
+  } catch (e) {
+    console.error('[dashboard] canBypassMemberAssessment failed', e);
+  }
 
   /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
   const mobilePct = progressPercentDisplay;
@@ -489,6 +496,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   return (
     <>
       <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
+
+      {staffViewer && (
+        <div style={{ padding: '0.75rem 1rem 0' }}>
+          <StaffViewBanner page="dashboard" />
+        </div>
+      )}
 
       {/* ΓöÇΓöÇ Recent in-office session card — shown to both mobile + desktop
           when a counselor or admin ran tools on the member's behalf in the

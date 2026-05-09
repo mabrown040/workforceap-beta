@@ -30,6 +30,8 @@ import {
 } from '@/lib/coursera/learnerProgress';
 import RefreshCourseraProgressButton from '@/components/portal/RefreshCourseraProgressButton';
 import TrainingProgramTabs from '@/components/portal/TrainingProgramTabs';
+import { canBypassMemberAssessment } from '@/lib/auth/roles';
+import StaffViewBanner from '@/components/portal/StaffViewBanner';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -114,9 +116,15 @@ export default async function TrainingPage({
     dbUser?.enrolledProgram ??
     null;
 
+  // Staff (super_admin / admin) viewing a member dashboard get a banner
+  // and a more-helpful empty state when they're not enrolled themselves.
+  // Members still hit the redirect-to-assessment gate below.
+  const bypassAssessment = await canBypassMemberAssessment(user.id);
+
   if (!activeProgramSlug) {
     return (
       <div className="portal-main-content">
+        {bypassAssessment && <StaffViewBanner page="training" />}
         <div className="content-card" style={{ maxWidth: '36rem', margin: '2rem auto', textAlign: 'center', padding: '2rem' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--color-accent)', marginBottom: '1rem', display: 'block' }}>school</span>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>Training starts after enrollment</h1>
@@ -124,12 +132,42 @@ export default async function TrainingPage({
             Your counselor will enroll you in a funded program before your Coursera courses unlock. Once enrolled, this page becomes your training hub.
           </p>
           <Link href="/dashboard/program" className="btn btn-primary">Choose my program</Link>
+          {bypassAssessment && (
+            <div
+              style={{
+                marginTop: '1.5rem',
+                padding: '1rem',
+                background: 'rgba(43,123,185,0.06)',
+                border: '1px dashed rgba(43,123,185,0.3)',
+                borderRadius: '0.75rem',
+                textAlign: 'left',
+                fontSize: '0.875rem',
+                lineHeight: 1.6,
+                color: 'var(--color-on-surface-variant)',
+              }}
+            >
+              <p style={{ margin: '0 0 0.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                Staff note: this is the empty state for unenrolled members.
+              </p>
+              <p style={{ margin: '0 0 0.75rem' }}>
+                Your <code>super_admin</code> account isn&apos;t enrolled in a program. To dogfood your own
+                Coursera data, open <Link href="/admin/coursera" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>/admin/coursera</Link> →
+                Inspect by email → Sync from Coursera, which will create a CourseEnrollment for you.
+              </p>
+              <Link href="/admin/coursera" className="btn btn-outline" style={{ fontSize: '0.8125rem' }}>
+                Open admin Coursera tools
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
-  if (!dbUser?.assessmentCompleted) {
+  // Members must complete the assessment before training unlocks.
+  // Staff (super_admin / admin) bypass — they need to view member surfaces
+  // for verification / dogfooding without being forced through the gauntlet.
+  if (!dbUser?.assessmentCompleted && !bypassAssessment) {
     redirect('/dashboard/assessment?redirect=/dashboard/training');
   }
 
@@ -295,6 +333,12 @@ export default async function TrainingPage({
             { label: tTraining('myTraining') },
           ]}
         />
+
+        {bypassAssessment && (
+          <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>
+            <StaffViewBanner page="training" />
+          </div>
+        )}
 
         {showProgramTabs && (
           <div style={{ padding: '0 1rem', marginBottom: '1rem' }}>

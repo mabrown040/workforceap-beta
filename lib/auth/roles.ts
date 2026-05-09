@@ -67,6 +67,28 @@ export async function isStaff(userId: string): Promise<boolean> {
   return roles.includes('admin') || roles.includes('case_manager');
 }
 
+/**
+ * Returns true if this user should bypass the member-assessment gate on
+ * member-side dashboard pages. Super-admins and platform-admins viewing
+ * member dashboards either to verify what members see, demo the platform,
+ * or dogfood their own Coursera-linked progress shouldn't be forced
+ * through the member assessment gauntlet.
+ *
+ * Members (`profileRole === 'member'` or no privileged role) still hit
+ * the gate — that's working as intended.
+ *
+ * Cached per request via React `cache()` so multiple page-level checks
+ * share one DB roundtrip.
+ */
+export const canBypassMemberAssessment = cache(async function canBypassMemberAssessment(
+  userId: string
+): Promise<boolean> {
+  const profileRole = await getProfileRole(userId);
+  if (profileRole === 'super_admin' || profileRole === 'admin') return true;
+  const roles = await getUserRoles(userId);
+  return roles.includes('admin');
+});
+
 export async function isCaseManager(userId: string): Promise<boolean> {
   const profileRole = await getProfileRole(userId);
   if (profileRole === 'case_manager') return true;

@@ -12,6 +12,8 @@ import { ProgramIcon } from '@/components/ProgramIcon';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import { canBypassMemberAssessment } from '@/lib/auth/roles';
+import StaffViewBanner from '@/components/portal/StaffViewBanner';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -55,12 +57,14 @@ export default async function ProgramPage() {
 
   const enrolledSlug = dbUser?.enrolledProgram ?? null;
   const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
+  const staffViewer = await canBypassMemberAssessment(user.id);
   // Product stake: members can choose an initial program, but self-serve switching should not
   // become a public free-for-all. Keep later reassignment counselor/admin-driven.
   if (!enrolledSlug || !program) {
     return (
       <>
         <div className="portal-pad-x" style={{ paddingBottom: '6rem' }}>
+          {staffViewer && <StaffViewBanner page="program" />}
           <PageHeader
             title="Choose your program"
             subtitle="Pick your track. Funding covers one program at a time — your counselor can help you switch later if your goals change."
@@ -87,6 +91,7 @@ export default async function ProgramPage() {
   return (
     <>
       <div className="portal-pad-x" style={{ paddingBottom: '6rem' }}>
+        {staffViewer && <StaffViewBanner page="program" />}
         <PageHeader
           title="My Program"
           subtitle={dbUser?.enrolledAt ? `Enrolled ${dbUser.enrolledAt.toLocaleDateString()}` : undefined}

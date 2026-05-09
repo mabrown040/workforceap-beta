@@ -912,8 +912,12 @@ async function renderMemberDashboard(
             </div>
             <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
               {PROGRAMS.slice(0, 3).map((prog, i) => (
-                <div
+                <Link
                   key={i}
+                  href={prog.slug ? `/programs/${prog.slug}` : '/programs'}
+                  style={{ textDecoration: 'none', color: 'inherit', flexShrink: 0 }}
+                >
+                <div
                   className="portal-card portal-card--flat"
                   style={{
                     width: mobileCarouselCardWidth,
@@ -930,6 +934,7 @@ async function renderMemberDashboard(
                     <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
                   </div>
                 </div>
+                </Link>
               ))}
             </div>
           </section>

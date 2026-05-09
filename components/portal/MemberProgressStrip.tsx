@@ -157,7 +157,7 @@ export default function MemberProgressStrip(props: Props) {
               aria-hidden
               style={{
                 marginTop: '0.3125rem',
-                fontSize: '0.5625rem',
+                fontSize: '0.75rem',
                 fontWeight: 800,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',

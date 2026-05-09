@@ -43,8 +43,9 @@ export default async function MemberMessagesPage() {
   const lastMsgTime = lastMsg
     ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
+  const memberLastReadTime = thread.memberLastReadAt ? new Date(thread.memberLastReadAt).getTime() : 0;
   const unreadCount = messages.filter(
-    (m) => m.authorId !== user.id
+    (m) => m.authorId !== user.id && new Date(m.createdAt).getTime() > memberLastReadTime
   ).length;
 
   const counselorName = counselor?.fullName ?? null;

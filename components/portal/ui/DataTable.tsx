@@ -273,7 +273,12 @@ export default function DataTable<TRow>({
 
   if (scrollX) {
     return (
-      <div style={{ overflowX: 'auto' }} className={className}>
+      // `maxWidth: 100%` + `minWidth: 0` make the scroll wrapper honor the
+      // parent's content box even when the parent is a flex/grid item with the
+      // default `min-width: auto` (which would otherwise let a wide table push
+      // the parent past the viewport — the bug that caused horizontal bleed
+      // on /admin/coursera). `overflowX: auto` then clips and scrolls cleanly.
+      <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0 }} className={className}>
         {tableElement}
       </div>
     );

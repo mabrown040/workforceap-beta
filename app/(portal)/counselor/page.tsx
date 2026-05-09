@@ -64,13 +64,21 @@ export default async function CounselorPortalPage() {
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: { id: true, memberId: true },
     });
+    const threadIds = threads.map((t) => t.id);
+    const allMessages = await prisma.message.findMany({
+      where: { threadId: { in: threadIds } },
+      orderBy: { createdAt: 'desc' },
+      select: { threadId: true, authorId: true },
+    });
+    const latestByThread = new Map<string, { threadId: string; authorId: string | null }>();
+    for (const m of allMessages) {
+      if (!latestByThread.has(m.threadId)) {
+        latestByThread.set(m.threadId, m);
+      }
+    }
     for (const t of threads) {
       if (!t.memberId) continue;
-      const lastMsg = await prisma.message.findFirst({
-        where: { threadId: t.id },
-        orderBy: { createdAt: 'desc' },
-        select: { authorId: true },
-      });
+      const lastMsg = latestByThread.get(t.id);
       if (lastMsg?.authorId === t.memberId) messagesNeedingReply += 1;
     }
   }

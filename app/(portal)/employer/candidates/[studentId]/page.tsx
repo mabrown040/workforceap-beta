@@ -18,7 +18,6 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 
 type Props = {
@@ -103,7 +102,6 @@ export default async function EmployerCandidateProfilePage({
         },
         courseProgress: {
           select: { programSlug: true, courseSlug: true, status: true, percentComplete: true },
-        },
         },
         profile: {
           select: {

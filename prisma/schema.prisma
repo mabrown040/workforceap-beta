@@ -1341,10 +1341,9 @@ model CourseEnrollment {
   programSlug       String   @map("program_slug")
   /// At most one row per user has `isPrimary = true` (enforced by partial
   /// unique index `course_enrollments_user_primary_uidx`). Mirrors what
-  /// /dashboard/training defaults to; xAPI ingestion still gates on
-  /// `User.enrolledProgram`, which the codebase keeps in sync with the
-  /// primary row until the dual-enrollment xAPI path lands (see
-  /// lib/xapi/inboundStatementPipeline.ts — deferred to a later PR).
+  /// /dashboard/training defaults to. xAPI ingest resolves program slug from
+  /// the user's most recent `CourseEnrollment` by `enrolledAt`, then falls
+  /// back to legacy `User.enrolledProgram` (see lib/xapi/inboundStatementPipeline.ts).
   isPrimary         Boolean  @default(false) @map("is_primary")
   enrolledAt        DateTime @default(now()) @map("enrolled_at")
   enrolledByAdminId String?  @map("enrolled_by_admin_id")

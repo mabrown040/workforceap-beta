@@ -40,6 +40,16 @@ export type CurriculumRow = {
   learnerRole: string;
   programSlug: string;
   programTitle: string;
+  /**
+   * Which CourseEnrollment row this curriculum block came from.
+   * - 'primary'   = the user's primary enrollment (or legacy
+   *                 `User.enrolledProgram` fallback for unmigrated users).
+   * - 'secondary' = a non-primary CourseEnrollment row. Surfaced with a
+   *                 `secondary` pill so admins can see at a glance which
+   *                 curriculum block is the headline vs. an additional
+   *                 program the learner is also enrolled in.
+   */
+  programRole: 'primary' | 'secondary';
   courseSlug: string;
   courseName: string;
   courseraCourseId: string | null;
@@ -511,7 +521,14 @@ export default function TrainingProgressClient({
     {
       key: 'programTitle',
       header: sortHeader('Program', 'programTitle'),
-      cell: (r) => r.programTitle,
+      cell: (r) => (
+        <>
+          {r.programTitle}
+          {r.programRole === 'secondary' && (
+            <StatusBadge label="secondary" variant="info" className="wa-ml-1" />
+          )}
+        </>
+      ),
       hideOnMobile: true,
     },
     {

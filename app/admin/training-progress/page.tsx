@@ -58,11 +58,16 @@ export default async function AdminTrainingProgressPage() {
       },
     }),
     prisma.courseraCourseProgress.findMany({
-      where: { userId: { in: learnerIds } },
+      // Intentionally NOT filtered by `userId in learnerIds`. We want to
+      // surface every Coursera enrollment the org has — including rows whose
+      // courseraEmail never matched a WAP user. Those orphans are exactly the
+      // ones an admin needs to reconcile (matching `/admin/coursera`'s
+      // unmatched-learners panel). The UI flags them as `(unmapped user)`.
       orderBy: [{ lastActivityTime: 'desc' }],
       select: {
         userId: true,
         externalEmail: true,
+        externalName: true,
         courseraCourseId: true,
         courseraCourseSlug: true,
         courseName: true,
@@ -155,9 +160,13 @@ export default async function AdminTrainingProgressPage() {
     return {
       key: `${row.userId ?? row.externalEmail}:${row.courseraCourseId}`,
       learnerId: row.userId,
-      learnerName: learner?.fullName ?? null,
+      // When a learner's Coursera email never matched a WAP user, fall back
+      // to the externalName from the Coursera CSV/API so the row is still
+      // identifiable in the table — and flag the identity gap explicitly.
+      learnerName: learner?.fullName ?? row.externalName ?? null,
       learnerEmail: learner?.email ?? row.externalEmail,
       learnerRole: learner?.profile?.role ?? null,
+      identityMatched: Boolean(learner),
       courseraCourseId: row.courseraCourseId,
       courseraCourseSlug: row.courseraCourseSlug,
       courseName: row.courseName,

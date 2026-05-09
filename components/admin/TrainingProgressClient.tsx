@@ -38,6 +38,7 @@ export type RawCourseraRow = {
   learnerName: string | null;
   learnerEmail: string;
   learnerRole: string | null;
+  identityMatched: boolean;
   courseraCourseId: string;
   courseraCourseSlug: string | null;
   courseName: string;
@@ -385,7 +386,18 @@ export default function TrainingProgressClient({
     {
       key: 'learnerName',
       header: sortHeader('Learner', 'learnerName'),
-      cell: (r) => learnerCell(r.learnerName ?? '(unmapped user)', r.learnerRole),
+      cell: (r) => (
+        <>
+          {learnerCell(r.learnerName ?? '(unknown)', r.learnerRole)}
+          {!r.identityMatched && (
+            <StatusBadge
+              label="identity unmatched"
+              variant="warning"
+              className="wa-ml-1"
+            />
+          )}
+        </>
+      ),
     },
     {
       key: 'learnerEmail',
@@ -521,8 +533,8 @@ export default function TrainingProgressClient({
 
       <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
         {view === 'curriculum'
-          ? 'Row per (learner × enrolled program × canonical course). Pulls from the DB course_progress table — what the member dashboard renders.'
-          : 'Row per (learner × actual Coursera course they’re enrolled in). Pulls from the coursera_course_progress table (CSV import + B4B refresh). Mapped column shows when a row links back to the canonical curriculum.'}
+          ? 'Row per (learner × enrolled program × canonical course). Pulls from the DB course_progress table — what the member dashboard renders. A learner showing 0% here when their portal shows progress means raw Coursera activity exists in the Raw view but never promoted into course_progress (usually because no canonical mapping exists yet — open the Raw view and click "Map this →").'
+          : 'Row per (learner × actual Coursera course they’re enrolled in). Pulls from coursera_course_progress (CSV import + B4B refresh). Includes orphan rows whose Coursera email never matched a WAP user — those are flagged "identity unmatched" and need an identity mapping in /admin/coursera before the rest of the pipeline can promote their progress.'}
       </p>
 
       {view === 'curriculum' ? (

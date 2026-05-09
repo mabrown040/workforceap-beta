@@ -11,17 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
-    env:
-      # The catalog currently ships with 53 known `TODO_courseId_<N>`
-      # placeholders carried over from PR #1068. They are scheduled to be
-      # resolved by running `scripts/backfill-coursera-courseids.cjs --write`
-      # with real B4B credentials. Until that lands, run the guard in
-      # advisory mode so it doesn't block unrelated PRs.
-      #
-      # Removing this env var (or setting it to an empty string) flips the
-      # guard into enforcing mode — any `TODO_courseId_` match in
-      # `lib/content/courseraDiscoveredCatalog.ts` will fail the check.
-      COURSERA_CATALOG_ALLOW_PLACEHOLDERS: "1"
+    # The script uses a BASELINE_COUNT (currently 53) and only fails when
+    # the catalog grows past that baseline. So this gate enforces "no NEW
+    # placeholders" from day one without blocking the existing 53. As the
+    # backfill script resolves placeholders, lower BASELINE_COUNT in
+    # `scripts/lint/check-coursera-catalog-placeholders.mjs` to lock in
+    # the improvement.
+    #
+    # The COURSERA_CATALOG_ALLOW_PLACEHOLDERS env var is still honored by
+    # the script for emergency local bypasses, but CI does not set it.
 
     steps:
       - name: Checkout

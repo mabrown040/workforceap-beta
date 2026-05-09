@@ -42,6 +42,20 @@ const CATALOG_REL = 'lib/content/courseraDiscoveredCatalog.ts';
 const CATALOG_ABS = resolve(REPO_ROOT, CATALOG_REL);
 const NEEDLE = 'TODO_courseId_';
 
+/**
+ * Known count of `TODO_courseId_` substring matches at the time this
+ * guard was introduced. Includes 2 occurrences in the file's doc-comment
+ * header (lines 1 and 8) explaining the placeholder system.
+ *
+ * The guard fails when count > BASELINE — its whole purpose is to stop
+ * NEW placeholders from creeping in. Decrease this number as the
+ * backfill script resolves placeholders (down to 2 — the doc-comment
+ * floor). Don't increase it just to silence the check; if a new
+ * placeholder is being added intentionally, run the backfill script
+ * instead.
+ */
+const BASELINE_COUNT = 53;
+
 function main() {
   let source;
   try {
@@ -69,36 +83,41 @@ function main() {
   const count = matches.length;
   const bypass = (process.env.COURSERA_CATALOG_ALLOW_PLACEHOLDERS ?? '').trim() !== '';
 
+  // Diff/CI-friendly: newline-separated `path:line:col` locations.
+  const locations = matches.map((m) => `${CATALOG_REL}:${m.line}:${m.col}`).join('\n');
+
   if (count === 0) {
     console.log(
-      `[check-coursera-catalog-placeholders] OK — no \`${NEEDLE}\` placeholders in ${CATALOG_REL}.`,
+      `[check-coursera-catalog-placeholders] OK — no \`${NEEDLE}\` placeholders in ${CATALOG_REL}. Consider lowering BASELINE_COUNT to 0 in this script.`,
     );
     process.exit(0);
   }
 
-  // Diff/CI-friendly: newline-separated `path:line:col` locations.
-  const locations = matches.map((m) => `${CATALOG_REL}:${m.line}:${m.col}`).join('\n');
+  if (count < BASELINE_COUNT) {
+    console.log(
+      `[check-coursera-catalog-placeholders] OK — count dropped from baseline ${BASELINE_COUNT} to ${count}. Update BASELINE_COUNT in this script to lock in the improvement.`,
+    );
+    process.exit(0);
+  }
 
+  if (count === BASELINE_COUNT) {
+    console.log(
+      `[check-coursera-catalog-placeholders] OK — at baseline ${BASELINE_COUNT}. No new \`${NEEDLE}\` placeholders. Run \`scripts/backfill-coursera-courseids.cjs --write\` with B4B credentials to start resolving them.`,
+    );
+    process.exit(0);
+  }
+
+  // count > BASELINE_COUNT — at least one NEW placeholder was added.
   if (bypass) {
     console.warn(
-      `[check-coursera-catalog-placeholders] WARN — found ${count} \`${NEEDLE}\` placeholder(s) in ${CATALOG_REL}.`,
-    );
-    console.warn(
-      `[check-coursera-catalog-placeholders] COURSERA_CATALOG_ALLOW_PLACEHOLDERS is set; treating as advisory (exit 0).`,
+      `[check-coursera-catalog-placeholders] WARN — count is ${count} (baseline ${BASELINE_COUNT}, ${count - BASELINE_COUNT} new). COURSERA_CATALOG_ALLOW_PLACEHOLDERS is set; treating as advisory.`,
     );
     console.warn(locations);
-    console.warn(
-      `[check-coursera-catalog-placeholders] Resolve by running with B4B credentials:`,
-    );
-    console.warn(`    node scripts/backfill-coursera-courseids.cjs --write`);
-    console.warn(
-      `[check-coursera-catalog-placeholders] See ${CATALOG_REL}:1-10 for the full doc-comment.`,
-    );
     process.exit(0);
   }
 
   console.error(
-    `[check-coursera-catalog-placeholders] FAIL — found ${count} \`${NEEDLE}\` placeholder(s) in ${CATALOG_REL}.`,
+    `[check-coursera-catalog-placeholders] FAIL — count is ${count}, baseline is ${BASELINE_COUNT}. ${count - BASELINE_COUNT} NEW \`${NEEDLE}\` placeholder(s) added.`,
   );
   console.error(
     `[check-coursera-catalog-placeholders] Each placeholder represents a Coursera course whose progress will be SILENTLY DROPPED from the learner dashboard (see lib/coursera/syncUserFromB4B.ts and lib/member/memberProgramTrainingView.ts).`,
@@ -112,7 +131,7 @@ function main() {
     `[check-coursera-catalog-placeholders] See ${CATALOG_REL}:1-10 for the full doc-comment.`,
   );
   console.error(
-    `[check-coursera-catalog-placeholders] To unblock CI temporarily, set env var COURSERA_CATALOG_ALLOW_PLACEHOLDERS=1 (advisory mode).`,
+    `[check-coursera-catalog-placeholders] To unblock CI temporarily, set COURSERA_CATALOG_ALLOW_PLACEHOLDERS=1 (advisory mode), but the right fix is to NOT add the placeholder.`,
   );
   process.exit(1);
 }

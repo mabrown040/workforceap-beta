@@ -45,6 +45,16 @@ export async function GET() {
       SELECT COUNT(DISTINCT user_id)::int as count FROM job_applications WHERE status <> 'SAVED'
     `;
 
+    // Members actively training in the last 7 days (CourseProgress.last_activity_at).
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const activeTrainingThisWeek = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(DISTINCT user_id)::int as count
+      FROM course_progress
+      WHERE last_activity_at >= ${sevenDaysAgo}
+        AND status IN ('IN_PROGRESS', 'COMPLETED')
+    `;
+
     // Weekly trend data (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -102,6 +112,7 @@ export async function GET() {
         activationRate: dashboardViewers > 0 ? Math.round((activated / dashboardViewers) * 100) : 0,
         aiToolRuns: aiRuns,
         jobApplicationsTracked: jobApps,
+        activeTrainingThisWeek: Number(activeTrainingThisWeek[0].count),
         totalPlacements: metrics.placementStats.placed,
         recentPlacements: Number(recentPlacements[0].count),
         avgPlacementSalary: Math.round(avgSalary[0].avg ?? 0),

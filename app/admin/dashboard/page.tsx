@@ -57,6 +57,7 @@ interface MetricsData {
     activationRate: number;
     aiToolRuns: number;
     jobApplicationsTracked: number;
+    activeTrainingThisWeek: number;
     totalPlacements: number;
     recentPlacements: number;
     avgPlacementSalary: number;
@@ -149,6 +150,7 @@ export default function ExecutiveDashboardPage() {
         <SummaryCard label="Dashboard Active" value={summary.activeDashboardUsers} />
         <SummaryCard label="Activation Rate" value={`${summary.activationRate}%`} color="var(--color-accent)" />
         <SummaryCard label="AI Tool Runs" value={summary.aiToolRuns} color="var(--color-gold)" />
+        <SummaryCard label="Active Training (7d)" value={summary.activeTrainingThisWeek ?? 0} color="var(--color-green)" />
         <SummaryCard label="Placements" value={summary.totalPlacements} color="var(--color-green)" />
         <SummaryCard label="Placement Rate" value={`${summary.placementRate}%`} color="var(--color-accent)" />
         <SummaryCard label="Avg Salary" value={`$${summary.avgPlacementSalary.toLocaleString()}`} color="var(--color-blue)" />

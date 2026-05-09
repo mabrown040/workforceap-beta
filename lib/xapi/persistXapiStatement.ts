@@ -21,6 +21,13 @@ export type PersistXapiStatementInput = {
    *  Typed as Prisma.InputJsonValue so the JSONB column accepts nested
    *  objects without per-call casts. */
   payload?: Prisma.InputJsonValue | null;
+  /** Coursera's per-item identifier (e.g. `rX6bE`), parsed from
+   *  `payload.object.id` when the URL contains `/item/<id>`. NULL for
+   *  course-level statements. Powers the per-item admin drill-down. */
+  courseItemId?: string | null;
+  /** Coursera's item-type extension (e.g. `ITEM_TYPE_LECTURE`,
+   *  `ITEM_TYPE_QUIZ`). NULL for course-level statements. */
+  itemType?: string | null;
 };
 
 /**
@@ -46,6 +53,8 @@ export async function persistXapiStatement(
         resultCompletion: input.resultCompletion ?? null,
         resultSuccess: input.resultSuccess ?? null,
         payload: input.payload == null ? Prisma.DbNull : input.payload,
+        courseItemId: input.courseItemId?.trim() || null,
+        itemType: input.itemType?.trim() || null,
       },
     });
     return 'inserted';

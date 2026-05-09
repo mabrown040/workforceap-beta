@@ -1388,6 +1388,15 @@ model XapiStatement {
   /// statement (object.definition.type, context.extensions.courseId,
   /// result.progress, etc.) instead of guessing from flat columns.
   payload            Json?
+  /// Coursera's per-item identifier extracted from `payload.object.id` when
+  /// the URL contains `/item/<id>` (e.g. `rX6bE`). NULL for course-level
+  /// statements. Lets the admin drill-down query per-item rollups in SQL
+  /// without re-parsing the JSONB payload on every read.
+  courseItemId       String?   @map("course_item_id")
+  /// From `context.extensions["http://coursera.org/xapi/extensions/itemType"]`
+  /// (e.g. `ITEM_TYPE_LECTURE`, `ITEM_TYPE_QUIZ`,
+  /// `ITEM_TYPE_PROGRAMMING_ASSIGNMENT`). NULL for course-level statements.
+  itemType           String?   @map("item_type")
   processed          Boolean   @default(false)
   processedAt        DateTime? @map("processed_at")
   createdAt          DateTime  @default(now()) @map("created_at")
@@ -1395,6 +1404,8 @@ model XapiStatement {
   @@index([actorEmail])
   @@index([actorAccountName, actorHomePage])
   @@index([createdAt])
+  @@index([courseId, courseItemId])
+  @@index([actorEmail, courseId])
   @@map("xapi_statements")
 }
 

@@ -29,6 +29,23 @@ function tailFromObjectId(objectId: string | null | undefined): string | null {
   }
 }
 
+/**
+ * Extract the per-item identifier from a Coursera xAPI `object.id` URL.
+ *
+ * Coursera emits two URL shapes:
+ *   - course-level: `.../course/<courseId>`           → returns null
+ *   - item-level:   `.../course/<courseId>/item/<id>` → returns `<id>`
+ *
+ * Mirrors the SQL backfill regex in
+ * `prisma/migrations/20260509200000_xapi_per_item_columns/migration.sql`
+ * so historical and live rows agree.
+ */
+function itemIdFromObjectId(objectId: string | null | undefined): string | null {
+  if (!objectId) return null;
+  const match = objectId.match(/\/item\/([^/?#]+)/);
+  return match?.[1] ?? null;
+}
+
 export async function POST(request: Request) {
   const token = parseBearerToken(request.headers.get('authorization'));
   if (!token) {
@@ -76,6 +93,8 @@ export async function POST(request: Request) {
       resultCompletion: parsed.resultCompletion,
       resultSuccess: parsed.resultSuccess,
       payload: raw as Record<string, never>, // raw is a parsed xAPI JSON object — Prisma.InputJsonValue at runtime
+      courseItemId: itemIdFromObjectId(parsed.courseObjectId),
+      itemType: parsed.itemType ?? null,
     });
 
     // Duplicate statementId (retries / races): row exists — skip completion side effects.

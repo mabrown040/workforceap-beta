@@ -43,6 +43,32 @@ const config = [
       ],
     },
   },
+  {
+    // High-signal jsx-a11y baseline. Intentionally narrower than the
+    // upstream `recommended` set so we don't drown the team in errors.
+    // The `jsx-a11y` plugin itself is already registered by
+    // `eslint-config-next/core-web-vitals`, so we only override rules here
+    // (re-declaring the plugin would error: "Cannot redefine plugin").
+    // Tighten / expand in follow-up PRs.
+    files: ["**/*.{tsx,jsx}"],
+    rules: {
+      "jsx-a11y/alt-text": "error",
+      "jsx-a11y/anchor-has-content": "error",
+      "jsx-a11y/anchor-is-valid": "error",
+      "jsx-a11y/aria-props": "error",
+      "jsx-a11y/aria-proptypes": "error",
+      "jsx-a11y/aria-role": "error",
+      "jsx-a11y/aria-unsupported-elements": "error",
+      "jsx-a11y/role-has-required-aria-props": "error",
+      "jsx-a11y/role-supports-aria-props": "error",
+      "jsx-a11y/heading-has-content": "error",
+      // High false-positive rate on custom <Label> wrappers; surface but
+      // don't block CI.
+      "jsx-a11y/label-has-associated-control": "warn",
+      "jsx-a11y/no-redundant-roles": "error",
+      "jsx-a11y/scope": "error",
+    },
+  },
 ];
 
 export default config;

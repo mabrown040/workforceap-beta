@@ -712,7 +712,7 @@ export default function EmployerJobsBoard({
         </div>
       ) : (
         <>
-          <ul className="employer-jobs-board__grid" role="list">
+          <ul className="employer-jobs-board__grid">
             {jobs.map((j) => {
               const deletable = canBulkDelete(j.status);
               const closable = canBulkClose(j.status);

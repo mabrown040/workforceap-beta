@@ -15,7 +15,7 @@ export default function LearningHubDestinationCards() {
           Two areas work together: a browsable library for every stage of your search, and a program page with AI tools,
           external guides, and curriculum-aligned links.
         </p>
-        <ul className="learning-hub-destinations" role="list">
+        <ul className="learning-hub-destinations">
           <li>
             <Link
               href="/dashboard/career-library"

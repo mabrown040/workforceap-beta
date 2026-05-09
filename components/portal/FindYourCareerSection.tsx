@@ -49,7 +49,7 @@ export default function FindYourCareerSection({ compact }: Props) {
           Use O*NET tools in two ways: discover what you like (Interest Profiler) and what roles require (skill mapper). Both
           complement your WorkforceAP program planning.
         </p>
-        <ul className="learning-hub-destinations" role="list">
+        <ul className="learning-hub-destinations">
           <li>
             <Link href="/dashboard/learning/find-your-career" className="learning-hub-card">
               <span className="learning-hub-card-icon" aria-hidden>

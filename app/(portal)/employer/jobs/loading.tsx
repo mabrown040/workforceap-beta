@@ -15,7 +15,7 @@ export default function EmployerJobsLoading() {
         <div className="employer-jobs-skeleton-chip" />
         <div className="employer-jobs-skeleton-chip" />
       </div>
-      <ul className="employer-jobs-board__grid" role="list">
+      <ul className="employer-jobs-board__grid">
         {[1, 2, 3].map((i) => (
           <li key={i}>
             <div className="employer-job-card employer-job-card--skeleton">

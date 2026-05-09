@@ -64,14 +64,37 @@ export default async function CounselorPortalPage() {
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: { id: true, memberId: true },
     });
-    for (const t of threads) {
-      if (!t.memberId) continue;
-      const lastMsg = await prisma.message.findFirst({
-        where: { threadId: t.id },
-        orderBy: { createdAt: 'desc' },
-        select: { authorId: true },
+    const threadIds = threads.map((t) => t.id);
+    if (threadIds.length > 0) {
+      // Batch: get the latest createdAt per thread, then fetch those messages in one query.
+      const latestByThread = await prisma.message.groupBy({
+        by: ['threadId'],
+        where: { threadId: { in: threadIds } },
+        _max: { createdAt: true },
       });
-      if (lastMsg?.authorId === t.memberId) messagesNeedingReply += 1;
+      const latestPairs = latestByThread
+        .map((g) => ({ threadId: g.threadId, createdAt: g._max.createdAt }))
+        .filter((p): p is { threadId: string; createdAt: Date } => p.createdAt !== null);
+      const latestMessages = latestPairs.length > 0
+        ? await prisma.message.findMany({
+            where: {
+              OR: latestPairs.map((p) => ({ threadId: p.threadId, createdAt: p.createdAt })),
+            },
+            select: { threadId: true, authorId: true, createdAt: true },
+          })
+        : [];
+      // Pick one message per thread (in case of identical createdAt collisions).
+      const latestByThreadId = new Map<string, { authorId: string | null }>();
+      for (const m of latestMessages) {
+        if (!latestByThreadId.has(m.threadId)) {
+          latestByThreadId.set(m.threadId, { authorId: m.authorId });
+        }
+      }
+      for (const t of threads) {
+        if (!t.memberId) continue;
+        const last = latestByThreadId.get(t.id);
+        if (last?.authorId === t.memberId) messagesNeedingReply += 1;
+      }
     }
   }
 

@@ -150,7 +150,7 @@ export default async function CounselorWorkQueuePage() {
                 return (
                   <li key={row.threadId}>
                     <Link
-                      href={`/counselor/students/${row.memberId}`}
+                      href={`/counselor/messages?studentId=${row.memberId}`}
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
                       <div

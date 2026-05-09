@@ -532,17 +532,26 @@ export default async function EmployerDashboardPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {recentApplications.map((app) => (
-              <div key={app.id} className="portal-card portal-card--flat portal-card--padded">
+              <Link
+                key={app.id}
+                href={`/employer/jobs/${app.jobId}`}
+                className="portal-card portal-card--flat portal-card--padded"
+                style={{ textDecoration: 'none', display: 'block' }}
+              >
                 <div style={{ marginBottom: '1rem' }}>
                   <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--color-on-surface)' }}>{app.student.fullName}</h4>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 500, marginBottom: '0.75rem' }}>
                     Applied to {app.job.title}
                   </p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
                     {app.appliedAt.toLocaleDateString()}
                   </p>
+                  <StatusBadge
+                    label={employerJobPostingApplicationStatusLabel(app.status)}
+                    variant={employerJobPostingApplicationStatusBadgeVariant(app.status)}
+                  />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

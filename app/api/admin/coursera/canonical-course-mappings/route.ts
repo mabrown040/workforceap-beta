@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -84,7 +85,29 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json({ ok: true, mapping });
+  // Re-run the raw → canonical promotion for every learner who has a row in
+  // coursera_course_progress for this courseraCourseId. Without this, the
+  // mapping wouldn't take effect on existing progress until the next CSV
+  // import or B4B refresh — admins expect the dashboard to update right
+  // after they hit "Save mapping".
+  const affectedUsers = await prisma.courseraCourseProgress.findMany({
+    where: { courseraCourseId, userId: { not: null } },
+    select: { userId: true },
+    distinct: ['userId'],
+  });
+  let promoted = 0;
+  for (const { userId } of affectedUsers) {
+    if (!userId) continue;
+    const result = await promoteCsvProgressToCanonical({ userId });
+    promoted += result.upserted;
+  }
+
+  return NextResponse.json({
+    ok: true,
+    mapping,
+    promotedRows: promoted,
+    affectedUsers: affectedUsers.length,
+  });
 }
 
 export async function DELETE(request: Request) {

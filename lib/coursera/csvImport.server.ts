@@ -534,6 +534,21 @@ export async function promoteCsvProgressToCanonical(
     ? Prisma.sql`AND ccp.user_id = ${options.userId}`
     : Prisma.sql``;
 
+  // Resolution order for the (program_slug, course_slug) we write to
+  // course_progress:
+  //   1. Admin-curated mapping in coursera_canonical_course_mappings
+  //      (overrides everything; this is the row created by the inline
+  //      "Map this" action on /admin/training-progress).
+  //   2. Raw Coursera (program_slug, coursera_course_slug) — the legacy
+  //      behavior. This works for courses where the Coursera slug happens
+  //      to match a canonical curriculum slug, and is harmless for others
+  //      (the dashboard simply won't render the row).
+  //
+  // Without #1 the dashboard misses real progress for any course whose
+  // Coursera slug differs from its canonical curriculum slug — which is
+  // why a learner enrolled in `introduction-to-artificial-intelligence-ai`
+  // shows 0/16 against the canonical AI Practitioner Certificate
+  // curriculum until an admin maps the course.
   try {
     const upserted = await prisma.$executeRaw`
       INSERT INTO course_progress (
@@ -550,8 +565,8 @@ export async function promoteCsvProgressToCanonical(
       SELECT
         gen_random_uuid(),
         ccp.user_id,
-        ccp.program_slug,
-        ccp.coursera_course_slug,
+        COALESCE(m.canonical_program_slug, ccp.program_slug),
+        COALESCE(m.canonical_course_slug,  ccp.coursera_course_slug),
         ccp.coursera_course_id,
         CASE
           WHEN ccp.is_completed          THEN 'COMPLETED'::"CourseProgressStatus"
@@ -562,8 +577,10 @@ export async function promoteCsvProgressToCanonical(
         COALESCE(ccp.class_start_time, ccp.enrollment_time),
         ccp.completion_time
       FROM coursera_course_progress ccp
+      LEFT JOIN coursera_canonical_course_mappings m
+        ON m.coursera_course_id = ccp.coursera_course_id
       WHERE ccp.user_id IS NOT NULL
-        AND ccp.coursera_course_slug IS NOT NULL
+        AND COALESCE(m.canonical_course_slug, ccp.coursera_course_slug) IS NOT NULL
         AND ccp.is_removed_from_program = false
         ${userFilter}
       ON CONFLICT (user_id, program_slug, course_slug) DO UPDATE SET

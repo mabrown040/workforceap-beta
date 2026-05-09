@@ -31,6 +31,7 @@ import TrainingProgramTabs from '@/components/portal/TrainingProgramTabs';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
+import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -72,53 +73,38 @@ export default async function TrainingPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/training');
 
-  // Multi-program: pull all enrollments (primary first), not just
-  // User.enrolledProgram. The active program is either ?program=<slug>
-  // (must be one of the user's enrollments) or the primary enrollment.
+  // Multi-program: delegate active-slug resolution to the shared helper so
+  // the home `/dashboard` and `/dashboard/training` pages always agree on
+  // which program is "active". A small read for the assessment + Coursera
+  // approval flags stays inline because they're only used here.
   const dbUserPromise = prisma.user.findUnique({
     where: { id: user.id },
     select: {
-      enrolledProgram: true,
       assessmentCompleted: true,
       // Read-only signal for the new "Enroll in this course" tri-state.
       // The button itself is server-gated again at the route layer; this
       // selection is only a cache so the SSR HTML doesn't render an
       // Enroll button for unapproved members in the first place.
       courseraEnrollmentApproved: true,
-      courseEnrollments: {
-        select: {
-          id: true,
-          programSlug: true,
-          isPrimary: true,
-          enrolledAt: true,
-        },
-        orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'desc' }],
-      },
     },
   });
 
-  const [tTraining, dbUser, courseraMappings] = await Promise.all([
+  const [tTraining, dbUser, courseraMappings, activeProgramView] = await Promise.all([
     getTranslations('training'),
     dbUserPromise,
     listCourseraIdentityMappingsForUser(user.id).catch((error) => {
       console.warn('[dashboard/training] unable to load Coursera identity mappings:', error);
       return [];
     }),
+    getActiveProgramForDashboard({
+      userId: user.id,
+      requestedProgramSlug,
+    }),
   ]);
 
-  const enrollments = dbUser?.courseEnrollments ?? [];
+  const enrollments = activeProgramView.allEnrollments;
   const primaryEnrollment = enrollments.find((e) => e.isPrimary) ?? enrollments[0] ?? null;
-  // If ?program=<slug> is one of the user's enrollments, use it; otherwise
-  // fall back to the primary, then to User.enrolledProgram (legacy users
-  // whose CourseEnrollment row hasn't backfilled yet).
-  const matchingRequested = requestedProgramSlug
-    ? enrollments.find((e) => e.programSlug === requestedProgramSlug)
-    : null;
-  const activeProgramSlug =
-    matchingRequested?.programSlug ??
-    primaryEnrollment?.programSlug ??
-    dbUser?.enrolledProgram ??
-    null;
+  const activeProgramSlug = activeProgramView.activeProgramSlug;
 
   // Staff (super_admin / admin) viewing a member dashboard get a banner
   // and a more-helpful empty state when they're not enrolled themselves.

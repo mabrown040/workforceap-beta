@@ -18,6 +18,13 @@ type CourseraProgressCardProps = {
    * route, which redirects the member into the right enterprise URL.
    */
   launchHref?: string;
+  /**
+   * Optional: filter progress rows to a specific program slug. When provided,
+   * only rows whose programSlug matches will be shown — keeps the card
+   * accurate for multi-program members where the active program tab differs
+   * from the rows otherwise loaded.
+   */
+  programSlug?: string;
 };
 
 function slugToDiscoveredCourse(slug: string, programSlug: string | null) {
@@ -38,14 +45,19 @@ function slugToDiscoveredCourse(slug: string, programSlug: string | null) {
 export default async function CourseraProgressCard({
   userId,
   launchHref = '/api/member/coursera/launch',
+  programSlug,
 }: CourseraProgressCardProps) {
   const [csvRows, canonicalRows] = await Promise.all([
     prisma.courseraCourseProgress.findMany({
-      where: { userId },
+      where: { userId, ...(programSlug ? { programSlug } : {}) },
       orderBy: [{ overallProgress: 'desc' }, { lastActivityTime: 'desc' }],
     }),
     prisma.courseProgress.findMany({
-      where: { userId, status: { not: 'NOT_STARTED' } },
+      where: {
+        userId,
+        status: { not: 'NOT_STARTED' },
+        ...(programSlug ? { programSlug } : {}),
+      },
       orderBy: [{ lastUpdatedAt: 'desc' }],
     }),
   ]);

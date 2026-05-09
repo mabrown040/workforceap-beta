@@ -118,7 +118,7 @@ async function handle(_req: NextRequest) {
     where: {
       deletedAt: null,
       email: { not: '' },
-      OR: [{ profile: { is: null } }, { profile: { role: 'member' } }],
+      OR: [{ profile: { is: null } }, { profile: { role: { in: ['member', 'admin', 'super_admin'] } } }],
     },
     select: { id: true, email: true, enrolledProgram: true },
     orderBy: { createdAt: 'asc' },

@@ -56,9 +56,9 @@ export async function handleInboundParsedStatement(
 
   const dbUser = await prisma.user.findUnique({
     where: { id: resolvedUser.userId },
-    select: { enrolledProgram: true },
+    select: { enrolledProgram: true, courseEnrollments: { select: { programSlug: true }, orderBy: { enrolledAt: 'desc' }, take: 1 } },
   });
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  const enrolledProgram = dbUser?.courseEnrollments[0]?.programSlug ?? dbUser?.enrolledProgram ?? null;
 
   if (!enrolledProgram) {
     const message = 'No program enrolled';

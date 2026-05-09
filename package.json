@@ -31,6 +31,7 @@
     "test:unit": "node --import tsx --test lib/**/*.test.ts",
     "elevenlabs:apply-patches": "node scripts/elevenlabs/apply-agent-patches.mjs",
     "coursera:test": "tsx scripts/coursera-integration-test.ts",
+    "coursera:backfill-catalog": "node scripts/backfill-coursera-courseids.cjs",
     "email": "email dev -p 3001"
   },
   "prisma": {

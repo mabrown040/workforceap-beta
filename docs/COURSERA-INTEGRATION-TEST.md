@@ -166,3 +166,48 @@ unrestricted egress (some sandboxed CI runners cannot reach Coursera).
 - It does send one synthetic xAPI statement to the target's persistence layer
   on each successful inbound run. Use a non-prod target unless you have
   cleared this with ops.
+
+## Companion script: `npm run coursera:backfill-catalog`
+
+PR #1068 landed seven Learning Path entries in
+`lib/content/courseraDiscoveredCatalog.ts` whose `courseId` fields are
+`TODO_courseId_<N>` placeholders (Coursera's catalog page wasn't fully
+loaded when the rows were authored). Now that the B4B credentials are
+working, run the one-shot backfill to swap those placeholders for the
+real Coursera content IDs.
+
+```bash
+# 1. Same B4B creds as `coursera:test` — read-only, /contents only
+export COURSERA_B4B_CLIENT_ID=...
+export COURSERA_B4B_CLIENT_SECRET=...
+
+# 2. Dry run first — prints which placeholders resolved + which didn't
+npm run coursera:backfill-catalog
+
+# 3. Inspect output, then re-run with --write to rewrite the file in place
+node scripts/backfill-coursera-courseids.cjs --write
+
+# 4. `git diff` the change, commit, PR
+```
+
+What it does:
+
+1. OAuth via `client_credentials` (same path as the integration test).
+2. Paginates `GET /api/businesses.v1/{orgId}/contents` to exhaustion.
+3. For each `TODO_courseId_<N>` placeholder in the catalog, matches by
+   exact course **name** first (Coursera's catalog uses canonical names),
+   then falls back to **slug** match, then to a slug derived from the
+   B4B `name`.
+4. Rewrites the catalog source — only lines with placeholders we resolved
+   change. Pre-existing real IDs are left alone.
+
+Idempotent: running it twice produces the same file (the regex only
+matches `TODO_courseId_<digits>`, so resolved lines no longer match).
+
+Sandboxed runners with no egress to `api.coursera.com` exit with code 3
+and a clear "run this locally" message. Never attempts to write the file
+on failure.
+
+Unmatched placeholders stay as `TODO_courseId_<N>` in the file and are
+listed in the script's output; chase them down by hand on Coursera's
+admin UI and follow up with another run.

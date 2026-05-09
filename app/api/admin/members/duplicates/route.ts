@@ -26,10 +26,12 @@ export async function GET(_req: NextRequest) {
     HAVING count(*) > 1
   `;
 
-  const groups = await Promise.all(
-    rows.map(async (row) => {
-      const members = await prisma.user.findMany({
-        where: { id: { in: row.ids } },
+  // Single findMany over all duplicate IDs, then group by lower(email) in JS.
+  // This collapses the previous N+1 (one query per duplicate group) into one query.
+  const allIds = rows.flatMap((r) => r.ids);
+  const allMembers = allIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: allIds } },
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
@@ -73,17 +75,34 @@ export async function GET(_req: NextRequest) {
             },
           },
         },
-      });
-      return {
-        canonicalEmail: row.email,
-        members: members.map((m) => ({
-          ...m,
-          createdAt: m.createdAt.toISOString(),
-          updatedAt: m.updatedAt.toISOString(),
-        })),
-      };
-    })
-  );
+      })
+    : [];
+
+  // Bucket members by lowercased email. The findMany above already returns
+  // them in createdAt desc order, so per-bucket order is preserved.
+  const membersByEmail = new Map<string, typeof allMembers>();
+  for (const member of allMembers) {
+    const key = member.email.toLowerCase();
+    const bucket = membersByEmail.get(key);
+    if (bucket) {
+      bucket.push(member);
+    } else {
+      membersByEmail.set(key, [member]);
+    }
+  }
+
+  // Walk rows in their original order to preserve group ordering.
+  const groups = rows.map((row) => {
+    const members = membersByEmail.get(row.email) ?? [];
+    return {
+      canonicalEmail: row.email,
+      members: members.map((m) => ({
+        ...m,
+        createdAt: m.createdAt.toISOString(),
+        updatedAt: m.updatedAt.toISOString(),
+      })),
+    };
+  });
 
   return NextResponse.json({ groups, totalGroups: groups.length, totalDuplicates: groups.reduce((s, g) => s + g.members.length, 0) });
 }

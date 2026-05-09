@@ -47,7 +47,7 @@ export function SplitHero({ eyebrow, headline, subheadline, sidebar }: SplitHero
           {headline}
         </h1>
         {subheadline && (
-          <p
+          <div
             className="split-hero-subheadline"
             style={{
               fontSize: '1.125rem',
@@ -57,7 +57,7 @@ export function SplitHero({ eyebrow, headline, subheadline, sidebar }: SplitHero
             }}
           >
             {subheadline}
-          </p>
+          </div>
         )}
       </div>
       {sidebar && (

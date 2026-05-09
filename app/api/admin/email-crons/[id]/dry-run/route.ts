@@ -59,12 +59,19 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const weekStart = new Date();
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
       weekStart.setHours(0, 0, 0, 0);
+      // Mirror the production weekly-recap recipient filter: a user is
+      // eligible if they have ANY course_enrollments row OR the legacy
+      // `enrolledProgram` pointer is set (covers unmigrated users).
+      const recipientWhere = {
+        deletedAt: null,
+        OR: [
+          { courseEnrollments: { some: {} } },
+          { enrolledProgram: { not: null } },
+        ],
+        weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
+      };
       const members = await prisma.user.findMany({
-        where: {
-          deletedAt: null,
-          enrolledProgram: { not: null },
-          weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
-        },
+        where: recipientWhere,
         select: { email: true, fullName: true },
         take: 1,
       });
@@ -74,7 +81,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const html = brandedEmailLayout({ title: 'Your Weekly Recap', bodyHtml: body, ctaText: 'View Dashboard', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.user.count({ where: { deletedAt: null, enrolledProgram: { not: null }, weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } } } }),
+        recipientCount: await prisma.user.count({ where: recipientWhere }),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'Your WorkforceAP Weekly Recap',
         htmlPreview: html,
@@ -109,8 +116,20 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
       const recentActiveIds = await prisma.memberEvent.findMany({ where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
+      // Mirror the production inactivity-nudge recipient filter: a user
+      // is eligible if they have ANY course_enrollments row OR the legacy
+      // `enrolledProgram` pointer is set (covers unmigrated users).
+      const recipientWhere = {
+        deletedAt: null,
+        OR: [
+          { courseEnrollments: { some: {} } },
+          { enrolledProgram: { not: null } },
+        ],
+        notificationsReminders: true,
+        id: { notIn: [...activeSet] },
+      };
       const members = await prisma.user.findMany({
-        where: { deletedAt: null, enrolledProgram: { not: null }, notificationsReminders: true, id: { notIn: [...activeSet] } },
+        where: recipientWhere,
         select: { email: true, fullName: true },
         take: 1,
       });
@@ -120,7 +139,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const html = brandedEmailLayout({ title: 'We Miss You', bodyHtml: body, ctaText: 'Resume Training', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.user.count({ where: { deletedAt: null, enrolledProgram: { not: null }, notificationsReminders: true, id: { notIn: [...activeSet] } } }),
+        recipientCount: await prisma.user.count({ where: recipientWhere }),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'We Miss You at WorkforceAP',
         htmlPreview: html,

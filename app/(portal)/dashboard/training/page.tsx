@@ -22,9 +22,7 @@ import { trackTrainingTabViewed } from '@/lib/analytics/track';
 import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import {
-  averageProgramProgressFromB4B,
   fetchLearnerProgressFromB4B,
-  filterRecognizedCourseraCourseIds,
   getLearnerProgressLastActivity,
   type LearnerProgressByContent,
 } from '@/lib/coursera/learnerProgress';
@@ -32,6 +30,7 @@ import RefreshCourseraProgressButton from '@/components/portal/RefreshCourseraPr
 import TrainingProgramTabs from '@/components/portal/TrainingProgramTabs';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
+import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -183,23 +182,30 @@ export default async function TrainingPage({
   // so the page still renders with local CourseProgress rows.
   const courseraProgramIdForActive =
     DISCOVERED_COURSERA_PROGRAMS[activeProgramSlug]?.courseraProgramId;
-  const [progressRows, programRollup, b4bProgress] = await Promise.all([
+  // B4B fetch first so we can pass it to the shared training-view helper.
+  // The helper is the single source of truth for hero numbers (completed
+  // count, overall %), shared with /dashboard. We still load the per-course
+  // CourseProgress rows separately because the per-course UI map merges
+  // status + percent in a way the helper doesn't return.
+  const b4bProgress = await (user.email
+    ? fetchLearnerProgressFromB4B(user.email, { programId: courseraProgramIdForActive }).catch(
+        (error) => {
+          console.warn('[dashboard/training] B4B learner progress unavailable:', error);
+          return new Map() as LearnerProgressByContent;
+        },
+      )
+    : Promise.resolve(new Map() as LearnerProgressByContent));
+
+  const [progressRows, trainingView] = await Promise.all([
     prisma.courseProgress.findMany({
       where: { userId: user.id, programSlug: activeProgramSlug },
       select: { courseSlug: true, status: true, percentComplete: true },
     }),
-    prisma.memberProgramProgress.findUnique({
-      where: { userId_programSlug: { userId: user.id, programSlug: activeProgramSlug } },
-      select: { coursesCompleted: true, averagePercent: true },
+    loadMemberProgramTrainingView({
+      userId: user.id,
+      programSlug: activeProgramSlug,
+      b4bProgress,
     }),
-    user.email
-      ? fetchLearnerProgressFromB4B(user.email, { programId: courseraProgramIdForActive }).catch(
-          (error) => {
-            console.warn('[dashboard/training] B4B learner progress unavailable:', error);
-            return new Map() as LearnerProgressByContent;
-          },
-        )
-      : Promise.resolve(new Map() as LearnerProgressByContent),
   ]);
 
   trackTrainingTabViewed(user.id);
@@ -251,24 +257,15 @@ export default async function TrainingPage({
     .filter(([, row]) => row.status === 'COMPLETED')
     .map(([slug]) => slug);
   const completedFromRows = program.courses.filter((c) => progressBySlug[c.slug]?.status === 'COMPLETED').length;
-  const completedCount =
-    programRollup != null
-      ? Math.max(programRollup.coursesCompleted, completedFromRows)
-      : completedFromRows;
-  // Prefer the average across B4B `overallProgress` when every course in
-  // the program has fresh authoritative data so the hero number matches
-  // the learner's view inside Coursera. All-or-nothing logic lives in
-  // averageProgramProgressFromB4B.
-  const b4bAverage = averageProgramProgressFromB4B({
-    progress: b4bProgress,
-    courseraCourseIds: filterRecognizedCourseraCourseIds(coursesWithIds.map((c) => c.courseraCourseId)),
-  });
-  const progressPct = (() => {
-    if (b4bAverage != null) return b4bAverage;
-    if (program.courses.length === 0) return 0;
-    if (programRollup != null) return programRollup.averagePercent;
-    return Math.round((completedFromRows / program.courses.length) * 100);
-  })();
+  // Hero numbers come from the same helper the dashboard uses so the
+  // "Overall Progress" card here can never disagree with /dashboard or
+  // the per-program rollup. Falls back to a local completion count when
+  // the helper hasn't returned yet (program lookup failed inside).
+  const completedCount = Math.max(trainingView?.completedCount ?? 0, completedFromRows);
+  const progressPct = trainingView?.progressPercentDisplay
+    ?? (program.courses.length === 0
+      ? 0
+      : Math.round((completedFromRows / program.courses.length) * 100));
 
   const b4bLastActivity = getLearnerProgressLastActivity(b4bProgress);
   const b4bHasData = b4bProgress.size > 0;

@@ -21,11 +21,18 @@ async function handle(_request: Request) {
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
   weekStart.setHours(0, 0, 0, 0);
 
-  // Get active members who have not had a recap opened this week
+  // Get active members who have not had a recap opened this week.
+  // Recipient is anyone with at least one row in `course_enrollments`
+  // (multi-program members may not have `enrolledProgram` set), OR who
+  // still has the legacy `enrolledProgram` denormalized pointer set
+  // (covers unmigrated single-program users).
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
-      enrolledProgram: { not: null },
+      OR: [
+        { courseEnrollments: { some: {} } },
+        { enrolledProgram: { not: null } },
+      ],
       // Members who have no recap for this week yet
       weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
     },

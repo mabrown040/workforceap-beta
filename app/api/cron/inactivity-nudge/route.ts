@@ -25,10 +25,17 @@ async function handle(_req: NextRequest) {
   });
   const activeSet = new Set(recentActiveUserIds.map(r => r.userId));
 
+  // Recipient is anyone with at least one row in `course_enrollments`
+  // (covers multi-program users whose `enrolledProgram` may be null), OR
+  // who still has the legacy `enrolledProgram` pointer set (covers
+  // unmigrated single-program users).
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
-      enrolledProgram: { not: null },
+      OR: [
+        { courseEnrollments: { some: {} } },
+        { enrolledProgram: { not: null } },
+      ],
       notificationsReminders: true,
       id: { notIn: [...activeSet] },
     },

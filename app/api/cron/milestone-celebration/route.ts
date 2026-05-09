@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 
@@ -34,10 +35,31 @@ async function handle(_req: NextRequest) {
 
   for (const member of completed) {
     try {
+      // Source the program name from the milestone (the most recently
+      // completed `course_progress` row) instead of `member.enrolledProgram`.
+      // Multi-program learners may have hit this milestone in their
+      // secondary program; congratulating them on their primary program
+      // is a user-visible bug.
+      const milestone = await prisma.courseProgress.findFirst({
+        where: {
+          userId: member.id,
+          status: 'COMPLETED',
+          completedAt: { gte: yesterday },
+        },
+        orderBy: { completedAt: 'desc' },
+        select: { programSlug: true },
+      });
+
+      const programSlug = milestone?.programSlug ?? member.enrolledProgram ?? null;
+      const program = programSlug ? getProgramBySlug(programSlug) : undefined;
+      const programName = program
+        ? getProgramDisplayTitle(program)
+        : programSlug ?? 'your program';
+
       await sendCourseCompletedEmail({
         to: member.email,
         fullName: member.fullName ?? member.email,
-        courseName: member.enrolledProgram ?? 'your program',
+        courseName: programName,
       });
       sent++;
     } catch {

@@ -6,9 +6,12 @@ import {
   _getCachedTokenForTesting,
   _resetTokenCacheForTesting,
   _setFetchForTesting,
+  createProgramMembership,
+  enrollUserInCourse,
   fetchB4B,
   getEnrollmentReports,
   getOrgInfo,
+  inviteUserToProgram,
   listPrograms,
   listUsers,
 } from './b4bClient';
@@ -241,6 +244,208 @@ test('OAuth failure throws B4BApiError before any API call', async (t) => {
       err instanceof B4BApiError && err.status === 401 && err.body.includes('invalid_client'),
   );
   assert.equal(apiCalls, 0, 'no API call attempted when OAuth fails');
+});
+
+/* ------------------------------------------------------------------ */
+/*  Write endpoints                                                    */
+/* ------------------------------------------------------------------ */
+
+test('inviteUserToProgram POSTs JSON body, reuses cached token, returns ok=true with parsed data', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  let oauthCalls = 0;
+  const apiCalls: Call[] = [];
+  _setFetchForTesting(async (url, init) => {
+    if (url.includes('/oauth2/')) {
+      oauthCalls += 1;
+      return jsonResponse({ access_token: 'tok-W', expires_in: 1799 });
+    }
+    apiCalls.push({ url, init });
+    return jsonResponse({
+      id: 'INV-1',
+      externalId: 'drew@example.com',
+      state: 'PENDING',
+    }, { status: 201 });
+  });
+
+  // Two writes back-to-back so we can verify the OAuth token cache is
+  // reused (single client_credentials hit, two API calls).
+  const r1 = await inviteUserToProgram('ORG-1', 'PRG-1', {
+    externalId: 'drew@example.com',
+    fullName: 'Drew Harris',
+    email: 'drew@example.com',
+  });
+  const r2 = await inviteUserToProgram('ORG-1', 'PRG-1', {
+    externalId: 'two@example.com',
+    email: 'two@example.com',
+    sendEmail: false,
+  });
+
+  assert.equal(oauthCalls, 1, 'token cache reused across writes');
+  assert.equal(apiCalls.length, 2);
+  assert.equal(
+    apiCalls[0].url,
+    'https://api.coursera.com/ent/api/businesses.v1/ORG-1/programs/PRG-1/invitations',
+  );
+
+  const headers = new Headers(apiCalls[0].init?.headers);
+  assert.equal(headers.get('Authorization'), 'Bearer tok-W');
+  assert.equal(headers.get('Content-Type'), 'application/json');
+  assert.equal(apiCalls[0].init?.method, 'POST');
+
+  const body1 = JSON.parse(apiCalls[0].init?.body as string) as Record<string, unknown>;
+  assert.equal(body1.externalId, 'drew@example.com');
+  assert.equal(body1.email, 'drew@example.com');
+  assert.equal(body1.fullName, 'Drew Harris');
+  assert.equal(body1.sendEmail, true, 'sendEmail defaults to true');
+
+  const body2 = JSON.parse(apiCalls[1].init?.body as string) as Record<string, unknown>;
+  assert.equal(body2.sendEmail, false, 'caller-supplied sendEmail=false respected');
+
+  assert.equal(r1.ok, true);
+  if (r1.ok) {
+    assert.equal(r1.status, 201);
+    assert.equal(r1.data.id, 'INV-1');
+    assert.equal(r1.data.externalId, 'drew@example.com');
+  }
+  assert.equal(r2.ok, true);
+});
+
+test('createProgramMembership posts to /memberships with sendWelcomeEmail default false', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  const apiCalls: Call[] = [];
+  _setFetchForTesting(async (url, init) => {
+    if (url.includes('/oauth2/')) {
+      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+    }
+    apiCalls.push({ url, init });
+    return jsonResponse({
+      id: 'MEM-9',
+      externalId: 'd@example.com',
+      programId: 'PRG-9',
+      state: 'ACTIVE',
+    });
+  });
+
+  const result = await createProgramMembership('ORG-9', 'PRG-9', {
+    externalId: 'd@example.com',
+    email: 'd@example.com',
+  });
+
+  assert.equal(apiCalls.length, 1);
+  assert.equal(
+    apiCalls[0].url,
+    'https://api.coursera.com/ent/api/businesses.v1/ORG-9/programs/PRG-9/memberships',
+  );
+  const body = JSON.parse(apiCalls[0].init?.body as string) as Record<string, unknown>;
+  assert.equal(body.sendWelcomeEmail, false, 'sendWelcomeEmail defaults to false (we use our own toast)');
+
+  assert.equal(result.ok, true);
+  if (result.ok) {
+    assert.equal(result.data.id, 'MEM-9');
+    assert.equal(result.data.programId, 'PRG-9');
+  }
+});
+
+test('enrollUserInCourse posts contentType + action and returns ok=true', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  const apiCalls: Call[] = [];
+  _setFetchForTesting(async (url, init) => {
+    if (url.includes('/oauth2/')) {
+      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+    }
+    apiCalls.push({ url, init });
+    return jsonResponse({
+      id: 'ENR-1',
+      externalId: 'd@example.com',
+      contentId: 'CRS-7',
+      contentType: 'Course',
+      state: 'ENROLLED',
+    });
+  });
+
+  const result = await enrollUserInCourse('ORG-A', 'PRG-A', {
+    externalId: 'd@example.com',
+    contentType: 'Course',
+    contentId: 'CRS-7',
+    action: 'ENROLL',
+  });
+
+  assert.equal(apiCalls.length, 1);
+  assert.equal(
+    apiCalls[0].url,
+    'https://api.coursera.com/ent/api/businesses.v1/ORG-A/programs/PRG-A/programEnrollments',
+  );
+  const body = JSON.parse(apiCalls[0].init?.body as string) as Record<string, unknown>;
+  assert.equal(body.contentId, 'CRS-7');
+  assert.equal(body.contentType, 'Course');
+  assert.equal(body.action, 'ENROLL');
+
+  assert.equal(result.ok, true);
+  if (result.ok) {
+    assert.equal(result.status, 200);
+    assert.equal(result.data.id, 'ENR-1');
+  }
+});
+
+test('write methods do NOT throw on 4xx — they return ok=false with status + error', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  _setFetchForTesting(async (url) => {
+    if (url.includes('/oauth2/')) {
+      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+    }
+    return new Response(
+      JSON.stringify({ errorCode: 'ALREADY_ENROLLED', message: 'User already enrolled' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  });
+
+  const result = await enrollUserInCourse('ORG-X', 'PRG-X', {
+    externalId: 'e@example.com',
+    contentType: 'Course',
+    contentId: 'CRS-X',
+    action: 'ENROLL',
+  });
+
+  // Critical: discriminated union — caller must be able to switch on
+  // status WITHOUT a try/catch wrapper, so the state-machine route can
+  // fold a 400 ALREADY_ENROLLED into status='already-enrolled' instead
+  // of 500ing the request.
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.status, 400);
+    assert.match(result.error, /already enrolled/i);
+    assert.match(result.body ?? '', /ALREADY_ENROLLED/);
+  }
+});
+
+test('write methods surface 5xx with body for caller diagnostics', async (t) => {
+  setupTestEnv();
+  t.after(teardownTestEnv);
+
+  _setFetchForTesting(async (url) => {
+    if (url.includes('/oauth2/')) {
+      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+    }
+    return new Response('upstream timeout', { status: 503 });
+  });
+
+  const result = await inviteUserToProgram('O', 'P', {
+    externalId: 'x@example.com',
+    email: 'x@example.com',
+  });
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.status, 503);
+    assert.equal(result.body, 'upstream timeout');
+  }
 });
 
 test('module load throws when credentials are missing (deferred to first call)', async (t) => {

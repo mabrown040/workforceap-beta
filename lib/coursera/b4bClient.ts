@@ -16,12 +16,23 @@
  * Endpoints (all confirmed live on prod against org "Workforce Advancement
  * Project" / id `8R2W4McwOMWJp9cCBV1kvw`):
  *
- *   GET /api/businesses.v1/{orgId}                                     → org info
- *   GET /api/businesses.v1/{orgId}/users                                → roster
- *   GET /api/businesses.v1/{orgId}/programs?excludeContent=true         → programs
- *   GET /api/businesses.v1/{orgId}/contents                             → catalog
- *   GET /api/businesses.v1/{orgId}/enrollmentReports                    → progress
- *   GET /api/businesses.v1/{orgId}/courseGradebookReports?q=search      → grades
+ *   GET  /api/businesses.v1/{orgId}                                     → org info
+ *   GET  /api/businesses.v1/{orgId}/users                                → roster
+ *   GET  /api/businesses.v1/{orgId}/programs?excludeContent=true         → programs
+ *   GET  /api/businesses.v1/{orgId}/contents                             → catalog
+ *   GET  /api/businesses.v1/{orgId}/enrollmentReports                    → progress
+ *   GET  /api/businesses.v1/{orgId}/courseGradebookReports?q=search      → grades
+ *
+ * Write endpoints (gated behind User.courseraEnrollmentApproved at the route
+ * layer — every call here costs a paid Coursera seat):
+ *
+ *   POST /api/businesses.v1/{orgId}/programs/{programId}/invitations          → email invite
+ *   POST /api/businesses.v1/{orgId}/programs/{programId}/memberships          → add to program
+ *   POST /api/businesses.v1/{orgId}/programs/{programId}/programEnrollments   → enroll/unenroll course
+ *
+ * Writes never throw on 4xx — they return a discriminated `{ ok, data?, error?, status? }`
+ * union so the calling state machine can route on the status code (e.g. swallow
+ * a 400 "already enrolled" vs surface a 403 "no permission").
  *
  * Auth: `POST https://api.coursera.com/oauth2/client_credentials/token`
  * with HTTP Basic (clientId:clientSecret) and form body
@@ -435,6 +446,197 @@ export async function getCourseGradebookReports(
   appendPagination(params, opts);
   const path = buildOrgPath(`/courseGradebookReports?${params.toString()}`);
   return envelopeFrom<B4BGradebookReport>(await getJsonOrThrow(path));
+}
+
+/* ------------------------------------------------------------------ */
+/*  Write endpoints                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Coursera's response shape for the three write endpoints is loosely
+ * documented and varies by case (enroll vs unenroll vs membership).
+ * We capture the fields the calling state machine actually reads
+ * (`id`, `externalId`, `state`, `message`) and preserve the rest as a
+ * passthrough Record so callers + tests can introspect without us
+ * re-versioning the type every time Coursera adds a field.
+ */
+export type B4BInvitation = {
+  id?: string;
+  externalId?: string;
+  email?: string;
+  state?: string;
+  invitedAt?: number;
+} & Record<string, unknown>;
+
+export type B4BMembership = {
+  id?: string;
+  externalId?: string;
+  email?: string;
+  state?: string;
+  programId?: string;
+  joinedAt?: number;
+} & Record<string, unknown>;
+
+export type B4BEnrollment = {
+  id?: string;
+  externalId?: string;
+  contentId?: string;
+  contentType?: string;
+  action?: string;
+  state?: string;
+  enrolledAt?: number;
+} & Record<string, unknown>;
+
+/** Discriminated-union return shape used by all three write methods. */
+export type B4BWriteResult<T> =
+  | { ok: true; status: number; data: T }
+  | { ok: false; status: number; error: string; body?: string };
+
+async function postJson<T>(
+  path: string,
+  body: unknown,
+): Promise<B4BWriteResult<T>> {
+  const response = await fetchB4B(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+  let parsed: unknown = null;
+  if (text) {
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      // Non-JSON 2xx is rare but possible; surface it as a soft error
+      // rather than crashing the route handler.
+      if (response.ok) {
+        return {
+          ok: false,
+          status: response.status,
+          error: 'Coursera B4B write succeeded but response was not valid JSON',
+          body: text,
+        };
+      }
+    }
+  }
+  if (!response.ok) {
+    // Try to surface Coursera's `message` / `errorCode` field if present.
+    let message = `Coursera B4B write failed (${response.status})`;
+    if (parsed && typeof parsed === 'object') {
+      const obj = parsed as Record<string, unknown>;
+      const msg = typeof obj.message === 'string' ? obj.message : null;
+      const code = typeof obj.errorCode === 'string' ? obj.errorCode : null;
+      if (msg) message = msg;
+      else if (code) message = code;
+    }
+    return {
+      ok: false,
+      status: response.status,
+      error: message,
+      body: text || undefined,
+    };
+  }
+  return {
+    ok: true,
+    status: response.status,
+    data: (parsed ?? {}) as T,
+  };
+}
+
+/**
+ * Send a Coursera-branded invitation email to `body.email`. Coursera will:
+ *   1. Send an email with a sign-up + program-join link
+ *   2. On click, create a Coursera account (if needed) tied to the
+ *      `externalId` we pass (we standardize on the WAP email)
+ *   3. Auto-add the user to the program
+ *
+ * This is the entry point for users who don't yet have a Coursera account.
+ * After they accept, our `listUsers` lookup will return them and the state
+ * machine in `/api/member/coursera/enroll-in-course` can proceed straight
+ * to `enrollUserInCourse` (membership is granted by accepting the invite).
+ */
+export async function inviteUserToProgram(
+  orgId: string,
+  programId: string,
+  body: {
+    externalId: string;
+    fullName?: string;
+    email: string;
+    sendEmail?: boolean;
+  },
+): Promise<B4BWriteResult<B4BInvitation>> {
+  const path =
+    `/api/businesses.v1/${encodeURIComponent(orgId)}` +
+    `/programs/${encodeURIComponent(programId)}/invitations`;
+  return postJson<B4BInvitation>(path, {
+    externalId: body.externalId,
+    fullName: body.fullName,
+    email: body.email,
+    // Coursera accepts `sendEmail` as the documented flag; default true
+    // because the whole point of this call is to ask Coursera to email
+    // the learner. Tests can pass false to suppress for fixture data.
+    sendEmail: body.sendEmail ?? true,
+  });
+}
+
+/**
+ * Add a user (who already has a Coursera account in our roster) to a
+ * specific program. Used when `listUsers` finds the user but their
+ * `membershipProgramIds` doesn't include the active program — typically
+ * a multi-program WAP member who joined Program A and is now being
+ * enrolled in Program B.
+ */
+export async function createProgramMembership(
+  orgId: string,
+  programId: string,
+  body: {
+    externalId: string;
+    fullName?: string;
+    email: string;
+    sendWelcomeEmail?: boolean;
+  },
+): Promise<B4BWriteResult<B4BMembership>> {
+  const path =
+    `/api/businesses.v1/${encodeURIComponent(orgId)}` +
+    `/programs/${encodeURIComponent(programId)}/memberships`;
+  return postJson<B4BMembership>(path, {
+    externalId: body.externalId,
+    fullName: body.fullName,
+    email: body.email,
+    // Default false: the welcome email is noisy when we then immediately
+    // enroll the user in a course. The state-machine route uses our own
+    // "Enrolled — refresh to see progress" toast instead.
+    sendWelcomeEmail: body.sendWelcomeEmail ?? false,
+  });
+}
+
+/**
+ * Toggle a user's enrollment in a specific Course or Specialization
+ * inside a program. `action: 'ENROLL'` is the happy path; `'UNENROLL'`
+ * is reserved for admin-driven seat reclamation.
+ *
+ * Coursera returns 400 with errorCode `ALREADY_ENROLLED` when re-enrolling;
+ * the calling route swallows that as `{ status: 'already-enrolled' }`.
+ */
+export async function enrollUserInCourse(
+  orgId: string,
+  programId: string,
+  body: {
+    externalId: string;
+    contentType: 'Course' | 'Specialization';
+    contentId: string;
+    action: 'ENROLL' | 'UNENROLL';
+  },
+): Promise<B4BWriteResult<B4BEnrollment>> {
+  const path =
+    `/api/businesses.v1/${encodeURIComponent(orgId)}` +
+    `/programs/${encodeURIComponent(programId)}/programEnrollments`;
+  return postJson<B4BEnrollment>(path, {
+    externalId: body.externalId,
+    contentType: body.contentType,
+    contentId: body.contentId,
+    action: body.action,
+  });
 }
 
 /* ------------------------------------------------------------------ */

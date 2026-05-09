@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 const patchSchema = z.object({
@@ -46,9 +47,22 @@ export async function PATCH(
     });
 
     if (nextStatus === 'APPROVED') {
+      // Approving a counselor-initiated program-change request is a strong
+      // signal that funding is confirmed for this learner: the counselor
+      // submitted the request and an admin is now signing off. We auto-set
+      // `courseraEnrollmentApproved` here so the member's "Enroll in this
+      // course" button unlocks immediately on the new program. The flag is
+      // never auto-set by DB defaults — only by explicit code paths like
+      // this one and the admin "Approve enrollment" toggle. See
+      // `docs/COURSERA-ENROLLMENT-FLOW.md`.
       await tx.user.update({
         where: { id: existing.userId },
-        data: { enrolledProgram: existing.requestedProgramSlug },
+        data: {
+          enrolledProgram: existing.requestedProgramSlug,
+          courseraEnrollmentApproved: true,
+          courseraEnrollmentApprovedAt: new Date(),
+          courseraEnrollmentApprovedById: user.id,
+        },
       });
 
       // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
@@ -106,6 +120,21 @@ export async function PATCH(
         from: existing.currentProgramSlug,
         to: existing.requestedProgramSlug,
         approvedBy: user.id,
+      },
+    }).catch(() => {});
+
+    // Audit-log the eligibility flag flip. Tracking this in the same place as
+    // the other audit_logs rows (B4B writes, WIOA reviews) means a single
+    // query on `target_id = <memberId>` shows the full Coursera-spend trail.
+    auditLog({
+      actorUserId: user.id,
+      action: 'coursera_enrollment_approved',
+      targetType: 'User',
+      targetId: existing.userId,
+      metadata: {
+        source: 'program_change_request_approved',
+        programChangeRequestId: id,
+        programSlug: existing.requestedProgramSlug,
       },
     }).catch(() => {});
   }

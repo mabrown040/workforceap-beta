@@ -24,6 +24,8 @@ import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberState } from '@/lib/member/getMemberState';
+import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
+import DashboardProgramSelector from '@/components/portal/DashboardProgramSelector';
 import {
   fetchLearnerProgressFromB4B,
   type LearnerProgressByContent,
@@ -50,13 +52,25 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ program?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
   const t = await getTranslations('dashboard');
 
+  // Multi-program: optional `?program=<slug>` switches the home hero +
+  // metric cards to a secondary enrollment. Validated server-side via
+  // `getActiveProgramForDashboard` (slug must be one of the user's
+  // enrollments).
+  const params = await searchParams;
+  const requestedProgramSlug =
+    typeof params?.program === 'string' ? params.program.trim() : null;
+
   try {
-    return await renderMemberDashboard(user, t);
+    return await renderMemberDashboard(user, t, { requestedProgramSlug });
   } catch (err) {
     console.error('[dashboard] unhandled render error', err);
     return (
@@ -78,7 +92,11 @@ export default async function DashboardPage() {
   }
 }
 
-async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof getUser>>>, t: Awaited<ReturnType<typeof getTranslations>>) {
+async function renderMemberDashboard(
+  user: NonNullable<Awaited<ReturnType<typeof getUser>>>,
+  t: Awaited<ReturnType<typeof getTranslations>>,
+  args: { requestedProgramSlug: string | null } = { requestedProgramSlug: null },
+) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) redirect('/login');
 
@@ -96,11 +114,37 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
     userEmail: user.email ?? null,
   });
 
+  // ── Multi-program resolution ──
+  // Drive the hero name + progress + selector chip from `CourseEnrollment`
+  // rows (with `?program=<slug>` to pick a secondary). Reading
+  // `User.enrolledProgram` directly here is what produced the
+  // hero/course-list mismatch when that legacy field went stale — the
+  // helper falls back to it only for never-migrated users.
+  const activeProgramView = await getActiveProgramForDashboard({
+    userId: user.id,
+    requestedProgramSlug: args.requestedProgramSlug,
+  });
+  if (
+    activeProgramView.legacyEnrolledProgramMismatch &&
+    activeProgramView.primaryProgramSlug
+  ) {
+    // We do NOT auto-reconcile (admin call). Just leave a breadcrumb so
+    // the drift is visible in logs and can be cleaned up by a counselor.
+    console.warn(
+      '[dashboard] User.enrolledProgram differs from primary CourseEnrollment',
+      {
+        userId: user.id,
+        legacyEnrolledProgram: dbUser.enrolledProgram,
+        primaryProgramSlug: activeProgramView.primaryProgramSlug,
+      },
+    );
+  }
+  const enrolledProgramSlug = activeProgramView.activeProgramSlug;
+
   // ── B4B authoritative progress for the hero ring ──
   // Pulled in parallel with the rest of the page data; the 60s cache in
   // learnerProgress.ts means a refresh + sub-page navigation reuses one
   // request. Failure → empty map → fall back to local rollup. No DB writes.
-  const enrolledProgramSlug = dbUser.enrolledProgram ?? null;
   const courseraProgramIdForEnrolled = enrolledProgramSlug
     ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgramSlug]?.courseraProgramId
     : undefined;
@@ -118,7 +162,10 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`
   // reflects Coursera's authoritative average when every catalog course has
   // a B4B row (all-or-nothing — see averageProgramProgressFromB4B).
-  const memberState = await getMemberState(user.id, { b4bProgress });
+  const memberState = await getMemberState(user.id, {
+    b4bProgress,
+    activeProgramSlug: enrolledProgramSlug,
+  });
 
   // Lightweight query for presentation-layer metadata not in getMemberState
   const intakePromise = prisma.user.findUnique({
@@ -310,7 +357,11 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const noApplicationOnFile = !applicationStatusView;
 
   const firstName = dbUser.fullName?.split(' ')[0] ?? 'there';
-  const enrolledProgram = dbUser.enrolledProgram ?? null;
+  // Use the active program (resolved from CourseEnrollment rows above)
+  // rather than `dbUser.enrolledProgram` so the hero, journey timeline,
+  // and "X of N courses" all key off the same enrollment that drives
+  // the course list below.
+  const enrolledProgram = enrolledProgramSlug;
   const assessmentCompleted = dbUser.assessmentCompleted ?? false;
   const userAge = intakeExtra?.profile?.dob 
     ? Math.floor((Date.now() - new Date(intakeExtra.profile.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
@@ -318,6 +369,18 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
   const isMinor = intakeExtra?.profile?.isMinor || (userAge !== null && userAge < 18);
 
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;
+
+  // Multi-program: build the dropdown options for the dashboard hero.
+  // Single-enrollment users see no chip — keeps the existing layout
+  // unchanged. The selector reloads `/dashboard?program=<slug>` so the
+  // server re-runs with a different active enrollment.
+  const programSelectorOptions = activeProgramView.allEnrollments.map((e) => ({
+    id: e.id,
+    programSlug: e.programSlug,
+    programTitle: getProgramBySlug(e.programSlug)?.title ?? e.programSlug,
+    isPrimary: e.isPrimary,
+  }));
+  const showProgramSelector = programSelectorOptions.length > 1 && !!enrolledProgram;
 
   // ── Training state ── (from memberState, single source of truth)
   const trainingView = memberState.trainingView;
@@ -605,6 +668,12 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                       {program.title}
                     </p>
                   </div>
+                )}
+                {showProgramSelector && enrolledProgram && (
+                  <DashboardProgramSelector
+                    options={programSelectorOptions}
+                    activeProgramSlug={enrolledProgram}
+                  />
                 )}
               </div>
 
@@ -1021,6 +1090,35 @@ async function renderMemberDashboard(user: NonNullable<Awaited<ReturnType<typeof
                 initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
               }}
             >
+              {showProgramSelector && enrolledProgram && (
+                <div
+                  style={{
+                    maxWidth: 1200,
+                    margin: '0 auto',
+                    padding: '0.75rem 2rem 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
+                      color: 'var(--color-on-surface-variant)',
+                    }}
+                  >
+                    Active program
+                  </span>
+                  <DashboardProgramSelector
+                    options={programSelectorOptions}
+                    activeProgramSlug={enrolledProgram}
+                  />
+                </div>
+              )}
               <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
                 <DashboardHomeClient
                   recommendedActions={recommendedActions}

@@ -191,6 +191,15 @@ export async function getMemberState(
      *  callers (resume / profile pages) can omit it; the local rollup is
      *  used as today. */
     b4bProgress?: LearnerProgressByContent;
+    /** Multi-program override for the program slug used to compute the
+     *  `trainingView` (and thus the hero progress + completed count). The
+     *  dashboard home page passes the active enrollment slug from
+     *  `getActiveProgramForDashboard`, so a member viewing a secondary
+     *  program via `?program=<slug>` (or whose primary enrollment differs
+     *  from the legacy `User.enrolledProgram`) sees consistent numbers
+     *  with the program name in the hero. Defaults to `User.enrolledProgram`
+     *  for callers that don't yet know about the helper. */
+    activeProgramSlug?: string | null;
   } = {},
 ): Promise<MemberState> {
   const [user, engagement, latestResumeText] = await Promise.all([
@@ -206,10 +215,16 @@ export async function getMemberState(
   const profile = user.profile;
   const latestApplication = user.applications[0] ?? null;
 
-  const trainingView = user.enrolledProgram
+  // Multi-program: prefer the explicitly-passed active slug (from
+  // `getActiveProgramForDashboard`) so the trainingView we compute matches
+  // the program the dashboard hero is rendering. Fall back to the legacy
+  // single-program field for callers that haven't been wired through yet.
+  const programSlugForTraining = opts.activeProgramSlug ?? user.enrolledProgram;
+
+  const trainingView = programSlugForTraining
     ? await loadMemberProgramTrainingView({
         userId: user.id,
-        programSlug: user.enrolledProgram,
+        programSlug: programSlugForTraining,
         b4bProgress: opts.b4bProgress,
       })
     : null;
@@ -290,13 +305,18 @@ export async function getMemberState(
 
   const nextBestActions = buildNextBestActions(actionsCtx);
 
+  // Surface the active program (which may differ from the legacy
+  // `User.enrolledProgram` after multi-enrollment) so callers always see
+  // the title that matches the trainingView numbers above.
+  const surfacedProgram = programSlugForTraining;
+
   return {
     userId: user.id,
     email: user.email,
     fullName: user.fullName,
     application,
-    enrolledProgram: user.enrolledProgram,
-    programName: user.enrolledProgram ? getProgramBySlug(user.enrolledProgram)?.title ?? user.enrolledProgram : null,
+    enrolledProgram: surfacedProgram,
+    programName: surfacedProgram ? getProgramBySlug(surfacedProgram)?.title ?? surfacedProgram : null,
     trainingView,
     assessmentCompleted: user.assessmentCompleted,
     profileCompletenessPct,

@@ -23,11 +23,13 @@ export default async function CounselorWorkQueuePage() {
   if (!counselor && !admin) redirect('/dashboard');
 
   let rows: Awaited<ReturnType<typeof getCounselorWorkQueue>>;
+  let error = false;
   try {
     rows = await getCounselorWorkQueue(user.id, { isAdmin: admin });
   } catch (err) {
     console.error('[counselor/queue] getCounselorWorkQueue failed:', err);
     rows = [];
+    error = true;
   }
 
   return (
@@ -42,7 +44,38 @@ export default async function CounselorWorkQueuePage() {
       />
 
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
-        {rows.length === 0 ? (
+        {error ? (
+          <div
+            style={{
+              padding: '2rem',
+              textAlign: 'center',
+              background: 'var(--surface-container-low)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: '2rem', color: 'var(--color-error)', display: 'block', marginBottom: '1rem' }}
+              aria-hidden="true"
+            >
+              error
+            </span>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
+              Could not load work queue
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
+              Something went wrong fetching the queue. Try refreshing the page.
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="btn btn-primary"
+            >
+              Retry
+            </button>
+          </div>
+        ) : rows.length === 0 ? (
           <PortalEmptyState
             title="All caught up"
             description="No member is waiting more than 24 hours for a reply. Nice work."

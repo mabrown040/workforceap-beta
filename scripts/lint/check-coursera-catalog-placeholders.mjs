@@ -54,7 +54,7 @@ const NEEDLE = 'TODO_courseId_';
  * placeholder is being added intentionally, run the backfill script
  * instead.
  */
-const BASELINE_COUNT = 53;
+const BASELINE_COUNT = 0;
 
 function main() {
   let source;

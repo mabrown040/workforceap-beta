@@ -5,13 +5,11 @@ import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { getCourseraReadiness } from '@/lib/coursera/config';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
 import type { CourseraDiscoveredCourse } from '@/lib/content/courseraDiscoveredCatalog';
 import type { CourseProgressUi } from '@/components/portal/TrainingCourseList';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
 import TrainingDataFlowStrip from '@/components/portal/TrainingDataFlowStrip';
-import CourseraSyncCard from '@/components/portal/CourseraSyncCard';
 import CourseraAccountLinkCard from '@/components/portal/CourseraAccountLinkCard';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalStatCard from '@/components/portal/PortalStatCard';
@@ -256,7 +254,6 @@ export default async function TrainingPage({
   const b4bLastActivity = getLearnerProgressLastActivity(b4bProgress);
   const b4bHasData = b4bProgress.size > 0;
 
-  const courseraReadiness = getCourseraReadiness(activeProgramSlug);
   const savedCourseraEmail = courseraMappings.find((mapping) => mapping.courseraEmail)?.courseraEmail ?? null;
 
   // Multi-program: tabs only render when the user has 2+ enrollments.
@@ -553,15 +550,6 @@ export default async function TrainingPage({
 
         <div style={{ padding: '0 1rem' }}>
           <TrainingDataFlowStrip />
-          <details className="training-sync-details">
-            <summary>Optional: refresh progress &amp; Coursera tools</summary>
-            <div className="training-sync-details__body">
-              <p style={{ margin: '0 0 var(--space-4)', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
-                Pull the latest completion data from Coursera, then keep using this Training page as your single hub for launches and progress.
-              </p>
-              <CourseraSyncCard enabled={courseraReadiness.canSync} />
-            </div>
-          </details>
 
           <section
             className="portal-card portal-card--flat"

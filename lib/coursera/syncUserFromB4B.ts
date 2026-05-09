@@ -21,6 +21,8 @@ import {
 } from '@/lib/coursera/canonicalMapping';
 import { replayUnresolvedXapiStatementsForIdentity } from './replayPendingXapi';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
+import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 
 /**
  * Shared core for "pull a learner's enrollment + progress from Coursera For
@@ -595,6 +597,28 @@ export async function syncUserFromB4B(args: {
       err instanceof Error ? err.message : err,
     );
   }
+
+  // ────────── 4.5. Partner / employer rollups + render-path cache ──────────
+  //
+  // `CourseProgress` rows alone don't update `MemberProgramProgress`; partner
+  // referred-member and employer candidate views read the rollup. Bulk B4B
+  // cron calls `updateRollups`, but per-user sync must rebuild too.
+  try {
+    const slugRows = await prisma.courseProgress.findMany({
+      where: { userId: args.wapUserId },
+      select: { programSlug: true },
+      distinct: ['programSlug'],
+    });
+    for (const row of slugRows) {
+      await refreshMemberProgramProgressRollup(args.wapUserId, row.programSlug);
+    }
+  } catch (err) {
+    console.warn(
+      `[syncUserFromB4B] MemberProgramProgress rollup refresh failed for user=${args.wapUserId}:`,
+      err instanceof Error ? err.message : err,
+    );
+  }
+  invalidateLearnerProgressCacheForEmail(email);
 
   // ────────── 5. Build summary ──────────
   const messageParts: string[] = [];

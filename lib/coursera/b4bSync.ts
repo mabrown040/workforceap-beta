@@ -17,6 +17,7 @@ import {
   type CanonicalMappingIndex,
 } from '@/lib/coursera/canonicalMapping';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -566,6 +567,10 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
   // Update MemberProgramProgress rollups for affected users
   await updateRollups(Object.keys(result.byUser));
+
+  for (const emailKey of Object.keys(result.byUser)) {
+    invalidateLearnerProgressCacheForEmail(emailKey);
+  }
 
   return result;
 }

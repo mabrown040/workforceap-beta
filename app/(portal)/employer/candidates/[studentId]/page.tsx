@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CheckCircle } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
+import { CourseProgressStatus } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -16,6 +18,8 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getProgramBySlug } from '@/lib/content/programs';
+import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 
 type Props = {
   params: Promise<{ studentId: string }>;
@@ -89,12 +93,17 @@ export default async function EmployerCandidateProfilePage({
         email: true,
         enrolledProgram: true,
         assessmentCompleted: true,
-        // Multi-program-aware: pull every enrollment so the candidate card
-        // can list ALL programs comma-separated (primary first), instead of
-        // showing only the denormalized `User.enrolledProgram` slug.
+        // Multi-program-aware: pull every enrollment + progress data
         courseEnrollments: {
           select: { programSlug: true, isPrimary: true, enrolledAt: true },
           orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
+        },
+        memberProgramProgress: {
+          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+        },
+        courseProgress: {
+          select: { programSlug: true, courseSlug: true, status: true, percentComplete: true },
+        },
         },
         profile: {
           select: {
@@ -117,12 +126,7 @@ export default async function EmployerCandidateProfilePage({
 
   if (!student) notFound();
 
-  // Multi-program-aware program label. Joins every program the candidate
-  // has a `course_enrollments` row for, primary first. Falls back to the
-  // legacy `User.enrolledProgram` slug when no enrollment rows exist
-  // (legacy / seeded users), and to '—' when neither is available. For
-  // single-program candidates this collapses to the same string the page
-  // displayed before.
+  // Multi-program-aware program label + training progress
   const enrollmentTitles = student.courseEnrollments.map(
     (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
   );
@@ -132,6 +136,15 @@ export default async function EmployerCandidateProfilePage({
   const programDisplay = enrollmentTitles.length > 0
     ? Array.from(new Set(enrollmentTitles)).join(' · ')
     : enrolledProgramTitle ?? '—';
+
+  // Training progress from CourseProgress + MemberProgramProgress
+  const trainingProgramSlug = student.enrolledProgram;
+  const trainingProgram = trainingProgramSlug ? getProgramBySlug(trainingProgramSlug) : null;
+  const trainingRollupPct = memberProgramProgressPct(trainingProgramSlug, null, student.memberProgramProgress);
+  const trainingCourseRows = trainingProgramSlug
+    ? student.courseProgress.filter((r) => r.programSlug === trainingProgramSlug)
+    : [];
+  const trainingCourseBySlug = new Map(trainingCourseRows.map((r) => [r.courseSlug, r]));
 
   const selectedMatch = (highlightJobId ? matches.find((match) => match.jobId === highlightJobId) : null) ?? matches[0] ?? null;
   const topMatchPct = selectedMatch ? matchScoreAsPercent(selectedMatch.matchScore) : null;
@@ -239,6 +252,68 @@ export default async function EmployerCandidateProfilePage({
                 </a>
               ) : null}
             </div>
+          </section>
+
+          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+            <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+              Coursera training
+            </p>
+            <p style={{ margin: '0.45rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
+              CourseProgress and MemberProgramProgress from Coursera for Business sync (same sources as the partner referral view).
+            </p>
+            {!trainingProgramSlug ? (
+              <p style={{ margin: '0.75rem 0 0', fontWeight: 700 }}>No training program on file.</p>
+            ) : (
+              <>
+                <div style={{ marginTop: '0.75rem' }}>
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Program rollup</p>
+                  <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>
+                    {trainingRollupPct}% · {trainingProgram?.title ?? trainingProgramSlug}
+                  </p>
+                </div>
+                {trainingProgram ? (
+                  <ul style={{ margin: '0.65rem 0 0', padding: 0, listStyle: 'none' }}>
+                    {trainingProgram.courses.map((course) => {
+                      const row = trainingCourseBySlug.get(course.slug);
+                      const done =
+                        row?.status === CourseProgressStatus.COMPLETED || (row?.percentComplete ?? 0) >= 100;
+                      const pct = row?.percentComplete ?? 0;
+                      return (
+                        <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                          {done ? (
+                            <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} aria-hidden />
+                          ) : (
+                            <span
+                              aria-hidden
+                              style={{
+                                display: 'inline-block',
+                                width: 18,
+                                height: 18,
+                                border: '2px solid var(--outline-variant)',
+                                borderRadius: 4,
+                                flexShrink: 0,
+                              }}
+                            />
+                          )}
+                          <span style={{ flex: 1 }}>
+                            {course.name}
+                            {!done ? (
+                              <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                                {row ? ` — ${pct}%` : ' — not started'}
+                              </span>
+                            ) : null}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p style={{ margin: '0.65rem 0 0', color: 'var(--color-on-surface-variant)' }}>
+                    Program catalog not found for this slug.
+                  </p>
+                )}
+              </>
+            )}
           </section>
 
           {student.profile?.profileBio ? (
@@ -430,6 +505,66 @@ export default async function EmployerCandidateProfilePage({
                 {student.profile?.profileBio ? (
                   <p style={{ margin: '1rem 0 0', lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>{student.profile.profileBio}</p>
                 ) : null}
+              </div>
+
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Coursera training</h2>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                  CourseProgress and MemberProgramProgress from Coursera for Business sync (same sources as the partner referral view).
+                </p>
+                {!trainingProgramSlug ? (
+                  <p style={{ margin: '0.85rem 0 0', fontWeight: 700 }}>No training program on file.</p>
+                ) : (
+                  <>
+                    <div style={{ marginTop: '0.85rem' }}>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Program rollup</p>
+                      <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
+                        {trainingRollupPct}% · {trainingProgram?.title ?? trainingProgramSlug}
+                      </p>
+                    </div>
+                    {trainingProgram ? (
+                      <ul style={{ margin: '0.75rem 0 0', padding: 0, listStyle: 'none' }}>
+                        {trainingProgram.courses.map((course) => {
+                          const row = trainingCourseBySlug.get(course.slug);
+                          const done =
+                            row?.status === CourseProgressStatus.COMPLETED || (row?.percentComplete ?? 0) >= 100;
+                          const pct = row?.percentComplete ?? 0;
+                          return (
+                            <li key={course.slug} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                              {done ? (
+                                <CheckCircle size={18} style={{ color: 'var(--color-green)', flexShrink: 0 }} aria-hidden />
+                              ) : (
+                                <span
+                                  aria-hidden
+                                  style={{
+                                    display: 'inline-block',
+                                    width: 18,
+                                    height: 18,
+                                    border: '2px solid var(--outline-variant)',
+                                    borderRadius: 4,
+                                    flexShrink: 0,
+                                  }}
+                                />
+                              )}
+                              <span style={{ flex: 1 }}>
+                                {course.name}
+                                {!done ? (
+                                  <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                                    {row ? ` — ${pct}%` : ' — not started'}
+                                  </span>
+                                ) : null}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <p style={{ margin: '0.75rem 0 0', color: 'var(--color-on-surface-variant)' }}>
+                        Program catalog not found for this slug.
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
 
               {matches.length > 0 ? (

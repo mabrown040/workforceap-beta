@@ -119,12 +119,16 @@ export async function markCourseProgressCompleted(args: {
       scoreRaw: null,
       startedAt: now,
       completedAt: now,
+      lastActivityAt: now,
+      statementCount: 1,
     },
     update: {
       courseId: courseId ?? undefined,
       status: CourseProgressStatus.COMPLETED,
       percentComplete: 100,
       completedAt: now,
+      lastActivityAt: now,
+      statementCount: { increment: 1 },
     },
   });
 
@@ -227,6 +231,8 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       scoreRaw: parsed.resultScoreRaw ?? null,
       startedAt: startedAt ?? undefined,
       completedAt: completedAt ?? undefined,
+      lastActivityAt: now,
+      statementCount: 1,
     },
     update: {
       courseId: courseId ?? undefined,
@@ -236,6 +242,8 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       scoreRaw: parsed.resultScoreRaw ?? undefined,
       startedAt: startedAt ?? undefined,
       completedAt: completedAt ?? undefined,
+      lastActivityAt: now,
+      statementCount: { increment: 1 },
     },
   });
 

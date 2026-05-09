@@ -1,0 +1,36 @@
+name: Coursera Catalog Placeholders
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check-placeholders:
+    name: Check Coursera catalog for TODO_courseId_ placeholders
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      # The catalog currently ships with 53 known `TODO_courseId_<N>`
+      # placeholders carried over from PR #1068. They are scheduled to be
+      # resolved by running `scripts/backfill-coursera-courseids.cjs --write`
+      # with real B4B credentials. Until that lands, run the guard in
+      # advisory mode so it doesn't block unrelated PRs.
+      #
+      # Removing this env var (or setting it to an empty string) flips the
+      # guard into enforcing mode — any `TODO_courseId_` match in
+      # `lib/content/courseraDiscoveredCatalog.ts` will fail the check.
+      COURSERA_CATALOG_ALLOW_PLACEHOLDERS: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run placeholder guard
+        run: node scripts/lint/check-coursera-catalog-placeholders.mjs

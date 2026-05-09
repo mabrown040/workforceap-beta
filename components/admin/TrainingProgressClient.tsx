@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
+import StatusBadge from '@/components/portal/StatusBadge';
 
 export type CurriculumRow = {
   key: string;
@@ -46,8 +48,7 @@ type SortDir = 'asc' | 'desc';
 
 const fmtDate = (iso: string | null) => {
   if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleString('en-US', {
+  return new Date(iso).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -63,87 +64,30 @@ function compare(a: unknown, b: unknown): number {
   return String(a).localeCompare(String(b));
 }
 
-function SortHeader<R>({
-  label,
-  sortKey,
-  current,
-  dir,
-  onClick,
-}: {
-  label: string;
-  sortKey: keyof R | string;
-  current: keyof R | string | null;
-  dir: SortDir;
-  onClick: (key: keyof R | string) => void;
-}) {
-  const active = current === sortKey;
-  return (
-    <th
-      onClick={() => onClick(sortKey)}
-      style={{
-        textAlign: 'left',
-        padding: '0.5rem 0.6rem',
-        cursor: 'pointer',
-        userSelect: 'none',
-        borderBottom: '1px solid var(--color-outline-variant, #d8d6d2)',
-        background: active ? 'rgba(43,123,185,0.08)' : 'transparent',
-        fontSize: '0.78rem',
-        fontWeight: 700,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {label}
-      {active && <span style={{ marginLeft: 4 }}>{dir === 'asc' ? '▲' : '▼'}</span>}
-    </th>
-  );
-}
-
-const cell: React.CSSProperties = {
-  padding: '0.5rem 0.6rem',
-  borderBottom: '1px solid var(--color-outline-variant, #ededed)',
-  fontSize: '0.85rem',
-  verticalAlign: 'top',
+const STATUS_VARIANT: Record<string, 'success' | 'accent' | 'neutral'> = {
+  COMPLETED: 'success',
+  IN_PROGRESS: 'accent',
+  NOT_STARTED: 'neutral',
+};
+const STATUS_LABEL: Record<string, string> = {
+  COMPLETED: 'completed',
+  IN_PROGRESS: 'in progress',
+  NOT_STARTED: 'not started',
 };
 
-function StatusPill({ status }: { status: string }) {
-  const palette: Record<string, { bg: string; fg: string; label: string }> = {
-    COMPLETED: { bg: 'rgba(34,197,94,0.15)', fg: 'rgb(22,163,74)', label: 'completed' },
-    IN_PROGRESS: { bg: 'rgba(164,127,56,0.14)', fg: 'var(--color-accent)', label: 'in progress' },
-    NOT_STARTED: { bg: 'rgba(120,120,120,0.10)', fg: 'var(--color-on-surface-variant)', label: 'not started' },
-  };
-  const p = palette[status] ?? palette.NOT_STARTED;
+function SortLabel({
+  label,
+  active,
+  dir,
+}: {
+  label: string;
+  active: boolean;
+  dir: SortDir;
+}) {
   return (
-    <span
-      style={{
-        fontSize: '0.7rem',
-        padding: '0.1rem 0.4rem',
-        borderRadius: '0.4rem',
-        background: p.bg,
-        color: p.fg,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {p.label}
-    </span>
-  );
-}
-
-function RolePill({ role }: { role: string | null }) {
-  if (!role || role === 'member') return null;
-  return (
-    <span
-      style={{
-        fontSize: '0.65rem',
-        padding: '0.05rem 0.3rem',
-        borderRadius: '0.3rem',
-        background: 'rgba(124, 58, 237, 0.12)',
-        color: 'rgb(109, 40, 217)',
-        marginLeft: '0.4rem',
-        whiteSpace: 'nowrap',
-      }}
-      title="Admin / super_admin dogfooding member experience"
-    >
-      {role}
+    <span style={{ cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}>
+      {label}
+      {active && <span style={{ marginLeft: 4 }}>{dir === 'asc' ? '▲' : '▼'}</span>}
     </span>
   );
 }
@@ -181,11 +125,10 @@ export default function TrainingProgressClient({
           r.courseName.toLowerCase().includes(q),
       );
     }
-    const sorted = [...rows].sort((a, b) => {
+    return [...rows].sort((a, b) => {
       const v = compare(a[sortKey as keyof CurriculumRow], b[sortKey as keyof CurriculumRow]);
       return sortDir === 'asc' ? v : -v;
     });
-    return sorted;
   }, [curriculumRows, filter, sortKey, sortDir]);
 
   const filteredRaw = useMemo(() => {
@@ -201,12 +144,164 @@ export default function TrainingProgressClient({
           (r.courseraProgramName ?? '').toLowerCase().includes(q),
       );
     }
-    const sorted = [...rows].sort((a, b) => {
+    return [...rows].sort((a, b) => {
       const v = compare(a[sortKey as keyof RawCourseraRow], b[sortKey as keyof RawCourseraRow]);
       return sortDir === 'asc' ? v : -v;
     });
-    return sorted;
   }, [rawRows, filter, sortKey, sortDir]);
+
+  const sortHeader = (label: string, key: string) => (
+    <span onClick={() => handleSort(key)}>
+      <SortLabel label={label} active={sortKey === key} dir={sortDir} />
+    </span>
+  );
+
+  const learnerCell = (name: string | null, role: string | null) => (
+    <>
+      <strong>{name || '—'}</strong>
+      {role && role !== 'member' && (
+        <StatusBadge label={role} variant="info" className="wa-ml-1" />
+      )}
+    </>
+  );
+
+  const curriculumColumns: DataTableColumn<CurriculumRow>[] = [
+    {
+      key: 'learnerName',
+      header: sortHeader('Learner', 'learnerName'),
+      cell: (r) => learnerCell(r.learnerName, r.learnerRole),
+    },
+    {
+      key: 'learnerEmail',
+      header: sortHeader('Email', 'learnerEmail'),
+      cell: (r) => r.learnerEmail,
+      hideOnMobile: true,
+    },
+    {
+      key: 'programTitle',
+      header: sortHeader('Program', 'programTitle'),
+      cell: (r) => r.programTitle,
+      hideOnMobile: true,
+    },
+    {
+      key: 'courseName',
+      header: sortHeader('Course', 'courseName'),
+      cell: (r) => (
+        <>
+          {r.courseName}
+          {r.courseraCourseId && (
+            <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+              {r.courseraCourseId}
+            </div>
+          )}
+        </>
+      ),
+    },
+    {
+      key: 'percentComplete',
+      header: sortHeader('Progress', 'percentComplete'),
+      cell: (r) => `${r.percentComplete}%`,
+      align: 'right',
+    },
+    {
+      key: 'status',
+      header: sortHeader('Status', 'status'),
+      cell: (r) => (
+        <StatusBadge
+          label={STATUS_LABEL[r.status] ?? r.status.toLowerCase()}
+          variant={STATUS_VARIANT[r.status] ?? 'neutral'}
+        />
+      ),
+    },
+    {
+      key: 'lastActivityAt',
+      header: sortHeader('Last activity', 'lastActivityAt'),
+      cell: (r) => fmtDate(r.lastActivityAt),
+      hideOnMobile: true,
+    },
+    {
+      key: 'lastUpdatedAt',
+      header: sortHeader('Last updated', 'lastUpdatedAt'),
+      cell: (r) => fmtDate(r.lastUpdatedAt),
+      hideOnMobile: true,
+    },
+  ];
+
+  const rawColumns: DataTableColumn<RawCourseraRow>[] = [
+    {
+      key: 'learnerName',
+      header: sortHeader('Learner', 'learnerName'),
+      cell: (r) => learnerCell(r.learnerName ?? '(unmapped user)', r.learnerRole),
+    },
+    {
+      key: 'learnerEmail',
+      header: sortHeader('Email', 'learnerEmail'),
+      cell: (r) => r.learnerEmail,
+      hideOnMobile: true,
+    },
+    {
+      key: 'courseraProgramName',
+      header: sortHeader('Coursera program', 'courseraProgramName'),
+      cell: (r) => (
+        <>
+          {r.courseraProgramName ?? r.courseraProgramSlug}
+          {r.courseraProgramSlug && r.courseraProgramName && (
+            <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+              {r.courseraProgramSlug}
+            </div>
+          )}
+        </>
+      ),
+      hideOnMobile: true,
+    },
+    {
+      key: 'courseName',
+      header: sortHeader('Coursera course', 'courseName'),
+      cell: (r) => (
+        <>
+          {r.courseName}
+          {r.courseraCourseSlug && (
+            <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+              {r.courseraCourseSlug}
+            </div>
+          )}
+        </>
+      ),
+    },
+    {
+      key: 'mappedCourseSlug',
+      header: sortHeader('Mapped to canonical', 'mappedCourseSlug'),
+      cell: (r) =>
+        r.mappedCourseSlug ? (
+          <span style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
+            {r.mappedProgramSlug}
+            <br />
+            {r.mappedCourseSlug}
+          </span>
+        ) : (
+          <StatusBadge label="unmapped" variant="error" />
+        ),
+    },
+    {
+      key: 'percentComplete',
+      header: sortHeader('Progress', 'percentComplete'),
+      cell: (r) => `${Math.round(r.percentComplete)}%`,
+      align: 'right',
+    },
+    {
+      key: 'learningHours',
+      header: sortHeader('Hours', 'learningHours'),
+      cell: (r) => r.learningHours.toFixed(1),
+      align: 'right',
+      hideOnMobile: true,
+    },
+    {
+      key: 'lastActivityTime',
+      header: sortHeader('Last activity', 'lastActivityTime'),
+      cell: (r) => fmtDate(r.lastActivityTime),
+      hideOnMobile: true,
+    },
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -222,7 +317,7 @@ export default function TrainingProgressClient({
           borderRadius: '0.5rem',
         }}
       >
-        <div role="tablist" aria-label="Training progress view" style={{ display: 'flex', gap: '0.25rem' }}>
+        <div role="tablist" aria-label="Training progress view" style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
           <button
             role="tab"
             aria-selected={view === 'curriculum'}
@@ -255,7 +350,7 @@ export default function TrainingProgressClient({
           onChange={(e) => setFilter(e.target.value)}
           style={{
             flex: 1,
-            minWidth: 220,
+            minWidth: 180,
             padding: '0.4rem 0.6rem',
             borderRadius: '0.4rem',
             border: '1px solid var(--color-outline-variant, #d8d6d2)',
@@ -270,123 +365,31 @@ export default function TrainingProgressClient({
           : 'Row per (learner × actual Coursera course they’re enrolled in). Pulls from the coursera_course_progress table (CSV import + B4B refresh). Mapped column shows when a row links back to the canonical curriculum.'}
       </p>
 
-      <div style={{ overflowX: 'auto', background: 'var(--color-surface, #fff)', border: '1px solid var(--color-outline-variant, #ededed)', borderRadius: '0.5rem' }}>
-        {view === 'curriculum' ? (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr>
-                <SortHeader<CurriculumRow> label="Learner" sortKey="learnerName" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Email" sortKey="learnerEmail" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Program" sortKey="programTitle" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Course" sortKey="courseName" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Progress" sortKey="percentComplete" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Status" sortKey="status" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Last activity" sortKey="lastActivityAt" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<CurriculumRow> label="Last updated" sortKey="lastUpdatedAt" current={sortKey} dir={sortDir} onClick={handleSort} />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCurriculum.length === 0 ? (
-                <tr>
-                  <td colSpan={8} style={{ ...cell, textAlign: 'center', color: 'var(--color-on-surface-variant)', padding: '1.5rem' }}>
-                    No rows. Curriculum rows only exist when a learner has an enrolledProgram set.
-                  </td>
-                </tr>
-              ) : (
-                filteredCurriculum.map((r) => (
-                  <tr key={r.key}>
-                    <td style={cell}>
-                      <strong>{r.learnerName || '—'}</strong>
-                      <RolePill role={r.learnerRole} />
-                    </td>
-                    <td style={cell}>{r.learnerEmail}</td>
-                    <td style={cell}>{r.programTitle}</td>
-                    <td style={cell}>
-                      {r.courseName}
-                      {r.courseraCourseId && (
-                        <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{r.courseraCourseId}</div>
-                      )}
-                    </td>
-                    <td style={{ ...cell, textAlign: 'right' }}>{r.percentComplete}%</td>
-                    <td style={cell}><StatusPill status={r.status} /></td>
-                    <td style={cell}>{fmtDate(r.lastActivityAt)}</td>
-                    <td style={cell}>{fmtDate(r.lastUpdatedAt)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-            <thead>
-              <tr>
-                <SortHeader<RawCourseraRow> label="Learner" sortKey="learnerName" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Email" sortKey="learnerEmail" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Coursera program" sortKey="courseraProgramName" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Coursera course" sortKey="courseName" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Mapped to canonical" sortKey="mappedCourseSlug" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Progress" sortKey="percentComplete" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Hours" sortKey="learningHours" current={sortKey} dir={sortDir} onClick={handleSort} />
-                <SortHeader<RawCourseraRow> label="Last activity" sortKey="lastActivityTime" current={sortKey} dir={sortDir} onClick={handleSort} />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRaw.length === 0 ? (
-                <tr>
-                  <td colSpan={8} style={{ ...cell, textAlign: 'center', color: 'var(--color-on-surface-variant)', padding: '1.5rem' }}>
-                    No raw Coursera rows. Either no learner has triggered a B4B refresh or no CSV import has run.
-                  </td>
-                </tr>
-              ) : (
-                filteredRaw.map((r) => (
-                  <tr key={r.key}>
-                    <td style={cell}>
-                      <strong>{r.learnerName || '(unmapped user)'}</strong>
-                      <RolePill role={r.learnerRole} />
-                    </td>
-                    <td style={cell}>{r.learnerEmail}</td>
-                    <td style={cell}>
-                      {r.courseraProgramName ?? r.courseraProgramSlug}
-                      {r.courseraProgramSlug && r.courseraProgramName && (
-                        <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{r.courseraProgramSlug}</div>
-                      )}
-                    </td>
-                    <td style={cell}>
-                      {r.courseName}
-                      {r.courseraCourseSlug && (
-                        <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{r.courseraCourseSlug}</div>
-                      )}
-                    </td>
-                    <td style={cell}>
-                      {r.mappedCourseSlug ? (
-                        <span style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>
-                          {r.mappedProgramSlug} <br /> {r.mappedCourseSlug}
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            fontSize: '0.7rem',
-                            padding: '0.1rem 0.4rem',
-                            borderRadius: '0.4rem',
-                            background: 'rgba(220, 38, 38, 0.10)',
-                            color: 'rgb(185, 28, 28)',
-                          }}
-                          title="Not yet linked to a canonical curriculum course. Add the courseraCourseId to the program definition in lib/content/programs.ts to map."
-                        >
-                          unmapped
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ ...cell, textAlign: 'right' }}>{Math.round(r.percentComplete)}%</td>
-                    <td style={{ ...cell, textAlign: 'right' }}>{r.learningHours.toFixed(1)}</td>
-                    <td style={cell}>{fmtDate(r.lastActivityTime)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {view === 'curriculum' ? (
+        <DataTable<CurriculumRow>
+          columns={curriculumColumns}
+          rows={filteredCurriculum}
+          rowKey={(r) => r.key}
+          density="compact"
+          emptyState={
+            <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', padding: '1.5rem' }}>
+              No rows. Curriculum rows only exist when a learner has an enrolledProgram set.
+            </p>
+          }
+        />
+      ) : (
+        <DataTable<RawCourseraRow>
+          columns={rawColumns}
+          rows={filteredRaw}
+          rowKey={(r) => r.key}
+          density="compact"
+          emptyState={
+            <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', padding: '1.5rem' }}>
+              No raw Coursera rows. Either no learner has triggered a B4B refresh or no CSV import has run.
+            </p>
+          }
+        />
+      )}
     </div>
   );
 }

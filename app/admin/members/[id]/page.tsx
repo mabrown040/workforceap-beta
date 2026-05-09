@@ -13,6 +13,7 @@ import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
+import MemberCourseraEnrollmentApproval from '@/components/admin/MemberCourseraEnrollmentApproval';
 import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
@@ -94,6 +95,9 @@ export default async function AdminMemberDetailPage({
     wioaReviewedAt: true,
     wioaReviewedByUserId: true,
     wioaReviewNotes: true,
+    courseraEnrollmentApproved: true,
+    courseraEnrollmentApprovedAt: true,
+    courseraEnrollmentApprovedById: true,
     profile: true,
     learningProgress: true,
     courseProgress: {
@@ -135,6 +139,9 @@ export default async function AdminMemberDetailPage({
     interviewCompletedAt: true,
     workspaceEmail: true,
     workspaceEmailProvisioned: true,
+    courseraEnrollmentApproved: true,
+    courseraEnrollmentApprovedAt: true,
+    courseraEnrollmentApprovedById: true,
     profile: true,
   } as const;
 
@@ -539,6 +546,22 @@ export default async function AdminMemberDetailPage({
             currentProgramSlug={member.enrolledProgram}
             assessmentCompleted={member.assessmentCompleted}
             programOptions={programOptions ?? []}
+          />
+
+          {/* Coursera enrollment approval — gates the "Enroll in this course"
+              button on the member's training page. Each approval can lead to
+              a paid Coursera seat being consumed. See
+              docs/COURSERA-ENROLLMENT-FLOW.md. */}
+          <MemberCourseraEnrollmentApproval
+            memberId={member.id}
+            memberName={member.fullName}
+            initialApproved={Boolean(member.courseraEnrollmentApproved)}
+            approvedAt={
+              member.courseraEnrollmentApprovedAt
+                ? member.courseraEnrollmentApprovedAt.toISOString()
+                : null
+            }
+            approvedByName={null}
           />
         </section>
 

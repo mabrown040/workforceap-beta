@@ -80,6 +80,15 @@ model User {
   /// xAPI for this user from B4B; the dashboard home auto-sync trigger reads
   /// this to dedupe and skip the call when fresh (≤1h). NULL = never auto-synced.
   lastCourseraAutoSyncAt       DateTime?           @map("last_coursera_auto_sync_at")
+  /// Eligibility gate for self-service Coursera For Business enrollment via the
+  /// "Enroll in this course" button on /dashboard/training. Default false; never
+  /// flipped by DB defaults — only by explicit code paths (counselor program-
+  /// change approval, admin "Approve enrollment" toggle). Every flip is recorded
+  /// in `audit_logs` with the actor's user id. Every B4B paid seat starts here:
+  /// see `docs/COURSERA-ENROLLMENT-FLOW.md`.
+  courseraEnrollmentApproved      Boolean          @default(false) @map("coursera_enrollment_approved")
+  courseraEnrollmentApprovedAt    DateTime?        @map("coursera_enrollment_approved_at")
+  courseraEnrollmentApprovedById  String?          @map("coursera_enrollment_approved_by")
   /// O*NET-backed quiz snapshot for dashboard / consistency (JSON CareerMatchResult shape).
   careerRecommendationJson     Json?               @map("career_recommendation_json")
   /// Self-service WIA/WIOA screening answers + eligibility signal (not a legal determination).
@@ -179,6 +188,7 @@ model User {
   @@index([email])
   @@index([staleTrainingDetectedAt])
   @@index([lastCourseraAutoSyncAt])
+  @@index([courseraEnrollmentApproved])
   @@map("users")
 }
 

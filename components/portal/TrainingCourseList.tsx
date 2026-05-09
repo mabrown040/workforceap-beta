@@ -17,6 +17,19 @@ type TrainingCourseListProps = {
   programSlug?: string;
   /** When set, overrides status/percent from `completedSlugs` alone (xAPI + stored progress). */
   progressBySlug?: Record<string, CourseProgressUi>;
+  /**
+   * Eligibility gate for the new "Enroll in this course" CTA. When false
+   * (the default for new members until counselor / admin approval), the
+   * Enroll button is replaced by a locked-state explanation. The server
+   * also re-checks this — the prop is purely for UI conditional render.
+   */
+  eligibilityApproved?: boolean;
+  /**
+   * Set of Coursera courseIds (NOT slugs) the learner is currently
+   * enrolled in on Coursera. Used to hide "Enroll" for courses already
+   * enrolled and surface the existing "Continue Learning" CTA instead.
+   */
+  enrolledCourseraCourseIds?: string[];
 };
 
 function chipClass(status: 'complete' | 'in_progress' | 'not_started', isUpNext: boolean): string {
@@ -30,11 +43,22 @@ export default function TrainingCourseList({
   courses,
   completedSlugs,
   progressBySlug,
+  eligibilityApproved = false,
+  enrolledCourseraCourseIds = [],
 }: TrainingCourseListProps) {
   const router = useRouter();
   const [marking, setMarking] = useState<string | null>(null);
   const [markError, setMarkError] = useState<string | null>(null);
+  /** Course slug currently being enrolled (button → "Enrolling…"). */
+  const [enrolling, setEnrolling] = useState<string | null>(null);
+  const [enrollNotice, setEnrollNotice] = useState<{
+    kind: 'success' | 'invited' | 'error';
+    message: string;
+  } | null>(null);
+  /** Open when the state machine returned `status: 'invited'`. */
+  const [invitedModalOpen, setInvitedModalOpen] = useState(false);
   const completedSet = new Set(completedSlugs);
+  const enrolledCourseraSet = new Set(enrolledCourseraCourseIds);
 
   const getStatus = (slug: string): 'complete' | 'in_progress' | 'not_started' => {
     const row = progressBySlug?.[slug];
@@ -45,6 +69,65 @@ export default function TrainingCourseList({
     }
     if (completedSet.has(slug)) return 'complete';
     return 'not_started';
+  };
+
+  const handleEnroll = async (course: ProgramCourse) => {
+    if (!course.courseraCourseId) {
+      setEnrollNotice({
+        kind: 'error',
+        message: "This course isn't linked to Coursera yet. Try again later.",
+      });
+      return;
+    }
+    setEnrolling(course.slug);
+    setEnrollNotice(null);
+    try {
+      const res = await fetch('/api/member/coursera/enroll-in-course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseraCourseId: course.courseraCourseId }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        status?: string;
+        message?: string;
+        error?: string;
+        code?: string;
+      };
+      if (!res.ok) {
+        // Server-side eligibility refusal. The button shouldn't have been
+        // visible — but if a stale tab was cached, this is the safety net.
+        const msg =
+          payload.code === 'NOT_APPROVED'
+            ? 'Enrollment is locked. Your counselor will enable this when funding is confirmed.'
+            : payload.error ?? 'Could not enroll. Please try again.';
+        setEnrollNotice({ kind: 'error', message: msg });
+        return;
+      }
+      if (payload.status === 'invited') {
+        setInvitedModalOpen(true);
+        setEnrollNotice({
+          kind: 'invited',
+          message:
+            payload.message ?? 'Check your email — Coursera sent an invite.',
+        });
+        return;
+      }
+      // 'enrolled', 'membership-created-and-enrolled', or 'already-enrolled':
+      // refetch to pull the latest progress (including the seeded
+      // CourseProgress rows the server's auto-sync may have just created).
+      setEnrollNotice({
+        kind: 'success',
+        message: payload.message ?? 'Enrolled.',
+      });
+      router.refresh();
+    } catch {
+      setEnrollNotice({
+        kind: 'error',
+        message: 'Could not reach the server. Check your connection and try again.',
+      });
+    } finally {
+      setEnrolling(null);
+    }
   };
 
   const handleMarkComplete = async (slug: string) => {
@@ -91,6 +174,86 @@ export default function TrainingCourseList({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {enrollNotice && (
+        <div
+          role={enrollNotice.kind === 'error' ? 'alert' : 'status'}
+          aria-live="polite"
+          style={{
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            background:
+              enrollNotice.kind === 'error'
+                ? 'rgba(200, 50, 50, 0.08)'
+                : enrollNotice.kind === 'invited'
+                  ? 'rgba(43,123,185,0.08)'
+                  : 'rgba(74,155,79,0.08)',
+            border:
+              enrollNotice.kind === 'error'
+                ? '1px solid rgba(200, 50, 50, 0.25)'
+                : enrollNotice.kind === 'invited'
+                  ? '1px solid rgba(43,123,185,0.25)'
+                  : '1px solid rgba(74,155,79,0.25)',
+            color:
+              enrollNotice.kind === 'error'
+                ? 'var(--color-error, #c83232)'
+                : 'var(--color-on-surface)',
+            fontSize: '0.9rem',
+          }}
+        >
+          {enrollNotice.message}
+        </div>
+      )}
+      {invitedModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="enroll-invited-title"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+          onClick={() => setInvitedModalOpen(false)}
+        >
+          <div
+            style={{
+              maxWidth: '28rem',
+              background: 'var(--color-surface, #fff)',
+              borderRadius: 'var(--radius-lg, 0.75rem)',
+              padding: '1.5rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="enroll-invited-title" style={{ margin: '0 0 0.75rem', fontSize: '1.1rem', fontWeight: 700 }}>
+              Check your email
+            </h3>
+            <p style={{ margin: '0 0 1rem', lineHeight: 1.5, fontSize: '0.95rem' }}>
+              We&apos;ve asked Coursera to send you an invitation. Open the email,
+              accept the invite, finish creating your Coursera account, then come
+              back here and click <strong>Enroll</strong> again to start the course.
+            </p>
+            <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              No email after a few minutes? Check spam, or message your counselor — we
+              can resend the invite.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setInvitedModalOpen(false)}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {markError && (
         <div
           role="alert"
@@ -149,14 +312,72 @@ export default function TrainingCourseList({
             </div>
             <div className="training-course-card__actions">
               <span className={chipClass(status, isUpNext)}>{statusLabel(c.slug)}</span>
-              <TrackedCourseraLaunchLink
-                href={`/api/member/coursera/launch?course=${encodeURIComponent(c.slug)}`}
-                className="btn btn-primary training-course-cta-primary"
-                aria-label={`${primaryCta}: ${c.name} (opens in a new tab)`}
-                courseSlug={c.slug}
-              >
-                {primaryCta}
-              </TrackedCourseraLaunchLink>
+              {/* Enroll / Continue / Locked tri-state. The B4B "Enroll" path is
+                  gated behind two checks:
+                    1. eligibilityApproved — server-truth flag, hides button
+                       entirely for unapproved members.
+                    2. enrolledCourseraSet — once enrolled on Coursera the
+                       Continue button is the right CTA, not Enroll.
+                  Already-complete courses skip both — they get the existing
+                  "Open in Coursera" review link. */}
+              {!isComplete &&
+              c.courseraCourseId &&
+              !enrolledCourseraSet.has(c.courseraCourseId) ? (
+                eligibilityApproved ? (
+                  <button
+                    type="button"
+                    className="btn btn-primary training-course-cta-primary"
+                    data-course-slug={c.slug}
+                    data-course-id={c.courseraCourseId}
+                    onClick={() => handleEnroll(c)}
+                    disabled={enrolling !== null}
+                    aria-busy={enrolling === c.slug}
+                    aria-label={
+                      enrolling === c.slug
+                        ? `Enrolling in ${c.name}`
+                        : `Enroll in this course: ${c.name}`
+                    }
+                  >
+                    {enrolling === c.slug ? 'Enrolling…' : 'Enroll in this course'}
+                  </button>
+                ) : (
+                  <span
+                    className="training-course-locked"
+                    role="note"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      padding: '0.45rem 0.75rem',
+                      borderRadius: 'var(--radius-md, 0.5rem)',
+                      background: 'rgba(0,0,0,0.04)',
+                      border: '1px dashed rgba(0,0,0,0.18)',
+                      fontSize: '0.85rem',
+                      color: 'var(--color-on-surface-variant)',
+                      maxWidth: '22rem',
+                    }}
+                  >
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: '1rem' }}
+                      aria-hidden="true"
+                    >
+                      lock
+                    </span>
+                    Enrollment locked — your counselor will enable this when
+                    funding is confirmed.
+                  </span>
+                )
+              ) : (
+                <TrackedCourseraLaunchLink
+                  href={`/api/member/coursera/launch?course=${encodeURIComponent(c.slug)}`}
+                  className="btn btn-primary training-course-cta-primary"
+                  aria-label={`${primaryCta}: ${c.name} (opens in a new tab)`}
+                  courseSlug={c.slug}
+                >
+                  {primaryCta}
+                </TrackedCourseraLaunchLink>
+              )}
               {!isComplete && (
                 <button
                   type="button"

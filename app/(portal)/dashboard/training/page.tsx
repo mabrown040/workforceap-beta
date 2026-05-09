@@ -81,6 +81,11 @@ export default async function TrainingPage({
     select: {
       enrolledProgram: true,
       assessmentCompleted: true,
+      // Read-only signal for the new "Enroll in this course" tri-state.
+      // The button itself is server-gated again at the route layer; this
+      // selection is only a cache so the SSR HTML doesn't render an
+      // Enroll button for unapproved members in the first place.
+      courseraEnrollmentApproved: true,
       courseEnrollments: {
         select: {
           id: true,
@@ -619,6 +624,11 @@ export default async function TrainingPage({
               completedSlugs={coursesCompleted}
               programSlug={activeProgramSlug}
               progressBySlug={progressBySlug}
+              eligibilityApproved={dbUser?.courseraEnrollmentApproved ?? false}
+              // Any course with B4B progress is, by Coursera's definition,
+              // already enrolled — `b4bProgress` only contains rows for
+              // contentIds the learner has joined. Use the keyset directly.
+              enrolledCourseraCourseIds={Array.from(b4bProgress.keys())}
             />
           </section>
         </div>

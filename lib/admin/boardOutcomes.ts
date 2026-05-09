@@ -101,6 +101,39 @@ function bucketCount<T extends string | null>(rows: Array<{ value: T }>, buckets
   return out.filter((r) => r.count > 0);
 }
 
+/**
+ * Pick which program a placement should be credited to when the learner is
+ * enrolled in multiple programs simultaneously.
+ *
+ * Heuristic: among the learner's `course_enrollments`, choose the one whose
+ * `enrolledAt <= placedAt` and is most-recently started (i.e. the program
+ * the learner had most recently entered at the time of placement). If no
+ * enrollment row predates the placement (e.g. data was backfilled in an odd
+ * order), fall back to the earliest enrollment so we still credit *some*
+ * program. If the learner has zero `course_enrollments` rows, fall back to
+ * the legacy `User.enrolledProgram` cache so unmigrated/seeded users keep
+ * the old behavior. Returns `null` only if both signals are missing.
+ *
+ * Used by funder-facing program rollups and the placements export — see
+ * audit punch list items #2 and #6.
+ */
+function attributeProgramAtPlacement(
+  enrollments: ReadonlyArray<{ programSlug: string; enrolledAt: Date }>,
+  placedAt: Date,
+  legacyEnrolledProgram: string | null,
+): string | null {
+  if (enrollments.length === 0) return legacyEnrolledProgram ?? null;
+  if (enrollments.length === 1) return enrollments[0].programSlug;
+  const placedMs = placedAt.getTime();
+  const eligible = enrollments.filter((e) => e.enrolledAt.getTime() <= placedMs);
+  const pool = eligible.length > 0 ? eligible : enrollments;
+  let best = pool[0];
+  for (const e of pool) {
+    if (e.enrolledAt.getTime() > best.enrolledAt.getTime()) best = e;
+  }
+  return best.programSlug;
+}
+
 const VETERAN_BUCKETS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
 const EMPLOYMENT_BUCKETS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const INCOME_BUCKETS = ['Under $20K', '$20K–$40K', '$40K–$60K', 'Over $60K'];
@@ -142,6 +175,14 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
         memberProgramProgress: {
           select: { programSlug: true, averagePercent: true, coursesCompleted: true },
         },
+        // Multi-program: a learner can be enrolled in several programs at
+        // once (rows in course_enrollments). The legacy `enrolledProgram`
+        // text field only tracks the primary, so for funder-facing program
+        // counts we need every program the learner is in. See audit punch
+        // list item #1.
+        courseEnrollments: {
+          select: { programSlug: true, enrolledAt: true },
+        },
         profile: {
           select: {
             veteranStatus: true,
@@ -164,7 +205,15 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
         salaryOffered: true,
         placedAt: true,
         user: {
-          select: { enrolledProgram: true, enrolledAt: true },
+          select: {
+            enrolledProgram: true,
+            enrolledAt: true,
+            // Pull all enrollments so we can pick the one active at
+            // placement time — see attributeProgramAtPlacement().
+            courseEnrollments: {
+              select: { programSlug: true, enrolledAt: true },
+            },
+          },
         },
       },
     }),
@@ -213,34 +262,55 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
       : null;
 
   // Programs breakdown
+  //
+  // Multi-program correctness: a learner can be enrolled in several programs
+  // simultaneously. The previous implementation grouped by the legacy
+  // `User.enrolledProgram` (the primary slug only), which under-counted any
+  // secondary enrollments — e.g. a learner with primary=IT-Support and
+  // secondary=AI-Practitioner only showed up under IT-Support. We now JOIN
+  // through `course_enrollments` so each (learner, program) pair is counted
+  // once. Falls back to `enrolledProgram` for unmigrated users with zero
+  // enrollment rows. See audit punch list item #1.
   const programs = new Map<
     string,
     { programSlug: string; enrolled: number; certified: number; placed: number }
   >();
   for (const m of enrolledMembers) {
-    if (!m.enrolledProgram) continue;
-    const cur = programs.get(m.enrolledProgram) ?? {
-      programSlug: m.enrolledProgram,
-      enrolled: 0,
-      certified: 0,
-      placed: 0,
-    };
-    cur.enrolled += 1;
-    if (memberProgramCompleted(m.enrolledProgram, null, m.memberProgramProgress)) {
-      cur.certified += 1;
+    const slugs =
+      m.courseEnrollments.length > 0
+        ? Array.from(new Set(m.courseEnrollments.map((e) => e.programSlug)))
+        : m.enrolledProgram
+          ? [m.enrolledProgram]
+          : [];
+    for (const slug of slugs) {
+      const cur = programs.get(slug) ?? {
+        programSlug: slug,
+        enrolled: 0,
+        certified: 0,
+        placed: 0,
+      };
+      cur.enrolled += 1;
+      if (memberProgramCompleted(slug, null, m.memberProgramProgress)) {
+        cur.certified += 1;
+      }
+      programs.set(slug, cur);
     }
-    programs.set(m.enrolledProgram, cur);
   }
   for (const p of placements) {
-    if (!p.user.enrolledProgram) continue;
-    const cur = programs.get(p.user.enrolledProgram) ?? {
-      programSlug: p.user.enrolledProgram,
+    const programSlug = attributeProgramAtPlacement(
+      p.user.courseEnrollments,
+      p.placedAt,
+      p.user.enrolledProgram,
+    );
+    if (!programSlug) continue;
+    const cur = programs.get(programSlug) ?? {
+      programSlug,
       enrolled: 0,
       certified: 0,
       placed: 0,
     };
     cur.placed += 1;
-    programs.set(p.user.enrolledProgram, cur);
+    programs.set(programSlug, cur);
   }
   const programsList = [...programs.values()]
     .map((p) => ({
@@ -300,11 +370,19 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
       ethnicityBreakdown,
     },
     programs: programsList,
+    // Each placement records the program credited for it. With multi-program
+    // enrollments we credit the program the learner had most recently
+    // entered at placement time (see attributeProgramAtPlacement); with a
+    // single enrollment behavior is unchanged. Audit punch list item #2.
     placements: placements.map((p) => ({
       jobTitle: p.jobTitle,
       employerIndustry: null,
       annualSalary: p.salaryOffered,
-      enrolledProgram: p.user.enrolledProgram,
+      enrolledProgram: attributeProgramAtPlacement(
+        p.user.courseEnrollments,
+        p.placedAt,
+        p.user.enrolledProgram,
+      ),
       weeksFromEnrollmentToPlacement:
         p.user.enrolledAt
           ? Math.max(0, Math.round((p.placedAt.getTime() - p.user.enrolledAt.getTime()) / (7 * 24 * 60 * 60 * 1000)))

@@ -4,6 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import FAQContent from './FAQContent';
+import JsonLdFAQPage from '@/components/JsonLdFAQPage';
 import { PageSection, InfoCard, SectionHeader } from '@/components/marketing/ui';
 import { getTranslations } from 'next-intl/server';
 
@@ -104,6 +105,7 @@ export default async function FAQPage() {
       </PageSection>
 
       <FAQContent />
+      <JsonLdFAQPage />
       <Footer />
       <MobileBottomNav />
       {/* Spacer for mobile bottom nav — ensures footer content is not hidden */}

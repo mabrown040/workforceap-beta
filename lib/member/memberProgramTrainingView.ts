@@ -191,7 +191,13 @@ export async function loadMemberProgramTrainingView(args: {
       : null;
 
     if (b4bAverage != null) {
-      progressPercentDisplay = Math.max(0, Math.min(100, b4bAverage));
+      // Same 1% floor as the rows-derived branch: a learner with 0.4%
+      // raw average rounds to 0, but the dashboard then displays "0%
+      // overall" while a course card shows "6%" on the same screen.
+      // Floor at 1% when there's any real progress so the two never
+      // disagree visually.
+      const clamped = Math.max(0, Math.min(100, b4bAverage));
+      progressPercentDisplay = clamped > 0 && clamped < 1 ? 1 : clamped;
     } else if (rows.length > 0) {
       // CourseProgress rows are the source of truth — `MemberProgramProgress`
       // is a denormalized cache that periodically goes stale (the writer in

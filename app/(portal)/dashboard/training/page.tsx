@@ -18,6 +18,7 @@ import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import { trackTrainingTabViewed } from '@/lib/analytics/track';
 import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
+import { loadProgramCoursesFromDb } from '@/lib/member/loadProgramCoursesFromDb';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import {
   fetchLearnerProgressFromB4B,
@@ -80,6 +81,7 @@ export default async function TrainingPage({
     where: { id: user.id },
     select: {
       assessmentCompleted: true,
+      organizationId: true,
       // Read-only signal for the new "Enroll in this course" tri-state.
       // The button itself is server-gated again at the route layer; this
       // selection is only a cache so the SSR HTML doesn't render an
@@ -198,8 +200,20 @@ export default async function TrainingPage({
   const program = getProgramBySlug(activeProgramSlug);
   if (!program) redirect('/dashboard/program');
 
+  // CEO call (2026-05-10): course list comes from the live `Course` DB rows
+  // (synced from Coursera B4B / admin), not the static catalog. Falls back to
+  // `program.courses` only when the org hasn't been seeded yet so unseeded
+  // installs still render. Run scripts/backfill-courses.ts to populate.
+  const dbCourses = dbUser?.organizationId
+    ? await loadProgramCoursesFromDb({
+        organizationId: dbUser.organizationId,
+        programSlug: activeProgramSlug,
+      })
+    : null;
+  const effectiveCourses = dbCourses ?? program.courses;
+
   const discovered = getDiscoveredProgram(program);
-  const coursesWithIds = program.courses.map((c) => ({
+  const coursesWithIds = effectiveCourses.map((c) => ({
     ...c,
     courseraCourseId: discovered?.courses.find((dc: CourseraDiscoveredCourse) => dc.slug === c.slug)?.courseId ?? c.courseraCourseId,
   }));
@@ -241,16 +255,16 @@ export default async function TrainingPage({
   const coursesCompleted = Object.entries(progressBySlug)
     .filter(([, row]) => row.status === 'COMPLETED')
     .map(([slug]) => slug);
-  const completedFromRows = program.courses.filter((c) => progressBySlug[c.slug]?.status === 'COMPLETED').length;
+  const completedFromRows = effectiveCourses.filter((c) => progressBySlug[c.slug]?.status === 'COMPLETED').length;
   // Hero numbers come from the same helper the dashboard uses so the
   // "Overall Progress" card here can never disagree with /dashboard or
   // the per-program rollup. Falls back to a local completion count when
   // the helper hasn't returned yet (program lookup failed inside).
   const completedCount = Math.max(trainingView?.completedCount ?? 0, completedFromRows);
   const progressPct = trainingView?.progressPercentDisplay
-    ?? (program.courses.length === 0
+    ?? (effectiveCourses.length === 0
       ? 0
-      : Math.round((completedFromRows / program.courses.length) * 100));
+      : Math.round((completedFromRows / effectiveCourses.length) * 100));
 
   const b4bLastActivity = getLearnerProgressLastActivity(b4bProgress);
   const b4bHasData = b4bProgress.size > 0;
@@ -307,7 +321,7 @@ export default async function TrainingPage({
       <div style={{ flex: 1, minWidth: '12rem' }}>
         <p style={{ margin: 0, fontWeight: 700, fontSize: '1rem' }}>Your path starts here</p>
         <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-          Course 1 of {program.courses.length} is unlocked and ready.
+          Course 1 of {effectiveCourses.length} is unlocked and ready.
         </p>
       </div>
       <TrackedCourseraLaunchLink
@@ -408,7 +422,7 @@ export default async function TrainingPage({
               <p className="portal-kpi-card__hint">Coursera partner</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
-              <PortalKpiCard accent="neutral" label="Courses" value={`${completedCount}/${program.courses.length}`} hint="Completed" />
+              <PortalKpiCard accent="neutral" label="Courses" value={`${completedCount}/${effectiveCourses.length}`} hint="Completed" />
               <PortalKpiCard accent="accent" label="Progress" value={`${progressPct}%`} hint="Overall" />
             </div>
           </div>
@@ -455,7 +469,7 @@ export default async function TrainingPage({
             <PortalStatCard
               icon="task_alt"
               label="Courses Completed"
-              value={`${completedCount} / ${program.courses.length}`}
+              value={`${completedCount} / ${effectiveCourses.length}`}
               iconColor="var(--color-green)"
               iconBg="rgba(74,155,79,0.12)"
             />

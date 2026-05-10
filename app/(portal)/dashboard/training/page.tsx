@@ -18,7 +18,7 @@ import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
 import TrackedCourseraLaunchLink from '@/components/portal/TrackedCourseraLaunchLink';
 import { trackTrainingTabViewed } from '@/lib/analytics/track';
 import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
-import { loadProgramCoursesFromDb } from '@/lib/member/loadProgramCoursesFromDb';
+import { loadProgramCourses } from '@/lib/member/loadProgramCourses';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import {
   fetchLearnerProgressFromB4B,
@@ -200,17 +200,18 @@ export default async function TrainingPage({
   const program = getProgramBySlug(activeProgramSlug);
   if (!program) redirect('/dashboard/program');
 
-  // CEO call (2026-05-10): course list comes from the live `Course` DB rows
-  // (synced from Coursera B4B / admin), not the static catalog. Falls back to
-  // `program.courses` only when the org hasn't been seeded yet so unseeded
-  // installs still render. Run scripts/backfill-courses.ts to populate.
-  const dbCourses = dbUser?.organizationId
-    ? await loadProgramCoursesFromDb({
+  // Three-layer authority: B4B live (cached 1h) → Course DB → static
+  // catalog. Same chain that drives loadMemberProgramTrainingView and the
+  // rollup writer, so the dashboard hero numbers can never disagree with
+  // the course-list section below them.
+  const liveCourses = dbUser?.organizationId
+    ? await loadProgramCourses({
         organizationId: dbUser.organizationId,
         programSlug: activeProgramSlug,
+        programTitleOverride: program.title,
       })
     : null;
-  const effectiveCourses = dbCourses ?? program.courses;
+  const effectiveCourses = liveCourses ?? program.courses;
 
   const discovered = getDiscoveredProgram(program);
   const coursesWithIds = effectiveCourses.map((c) => ({

@@ -10,6 +10,7 @@ import {
   localFallbackUrl,
 } from '@/lib/coursera/orgScopedUrls';
 import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
+import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 
 export async function GET(request: Request) {
   const user = await getUser();
@@ -31,7 +32,17 @@ export async function GET(request: Request) {
     },
   });
 
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  // Use the same active-program resolution as `/dashboard/training` and
+  // the home dashboard so the launch button never disagrees with what the
+  // member is looking at. Pre-fix this used `User.enrolledProgram` (legacy
+  // single-program field) directly — when a member had multiple
+  // CourseEnrollment rows with a primary that diverged from the legacy
+  // field, the dashboard showed Program A while the launch button opened
+  // Program B's course.
+  const activeProgramView = await getActiveProgramForDashboard({
+    userId: user.id,
+  });
+  const enrolledProgram = activeProgramView.activeProgramSlug;
   /* Optional ?course=<slug> deep-links to a specific course in the enrolled program. */
   const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
 

@@ -38,6 +38,11 @@ function slugToDiscoveredCourse(slug: string, programSlug: string | null) {
  * Read-only Coursera per-course progress card. Server component — fetches
  * directly via Prisma so the consumer just passes a userId.
  *
+ * ⚠️ Multi-program bleed risk: when `programSlug` is omitted, the card loads
+ * ALL progress rows for the user across every program. Member-facing pages
+ * should ALWAYS pass `programSlug` to keep the card scoped to the active
+ * program. Admin/counselor pages may intentionally omit it for a full rollup.
+ *
  * Visible to members (their own progress), counselors (in-session view of the
  * subject member), and admins (per-learner drill-down). Authorization is the
  * caller's responsibility — this component does not gate access.

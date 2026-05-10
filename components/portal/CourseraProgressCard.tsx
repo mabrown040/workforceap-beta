@@ -59,14 +59,6 @@ export default async function CourseraProgressCard({
         ...(programSlug ? { programSlug } : {}),
       },
       orderBy: [{ lastUpdatedAt: 'desc' }],
-      select: {
-        id: true,
-        courseSlug: true,
-        programSlug: true,
-        percentComplete: true,
-        status: true,
-        lastUpdatedAt: true,
-      },
     }),
   ]);
 

@@ -402,7 +402,9 @@ export async function sendEnrollmentConfirmationEmail(params: {
   // Subject names the program per /plan-design-review day-1 storyboard:
   // "Specific subject" so the cohort member's first inbox impression is
   // about *their* program, not generic platform onboarding.
-  const subject = `Welcome to ${params.programName} — your WorkforceAP enrollment is confirmed`;
+  const subject = sanitizeEmailSubjectLine(
+    `Welcome to ${params.programName} — your WorkforceAP enrollment is confirmed`,
+  );
   const html = brandedEmailLayout({
     title: subject,
     bodyHtml: enrollmentConfirmationHtml({
@@ -1045,7 +1047,7 @@ export async function sendApplicationConfirmationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: params.to,
-      subject: 'Application Received — Workforce Advancement Project',
+      subject: sanitizeEmailSubjectLine('Application Received — Workforce Advancement Project'),
       html,
     });
     return { ok: true };
@@ -1214,7 +1216,7 @@ export async function sendAssessmentResetNotificationEmail(params: {
     await resend.emails.send({
       from: getFrom(),
       to: ['info@workforceap.org', ADMIN_EMAIL],
-      subject: `Assessment Reset — ${params.memberName}`,
+      subject: sanitizeEmailSubjectLine(`Assessment Reset — ${params.memberName}`),
       html,
     });
     return { ok: true };

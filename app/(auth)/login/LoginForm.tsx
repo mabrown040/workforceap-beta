@@ -320,7 +320,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const signupHref = `/signup?redirectTo=${encodeURIComponent('/dashboard')}`;
-  const partnerSignupHref = '/partner-signup';
+  const partnerSignupHref = '/partners#partner-signup';
   const isPartnerLogin = redirectTo === '/partner' || redirectTo.startsWith('/partner/');
   const isStaffLikeLogin =
     redirectTo === '/admin' ||

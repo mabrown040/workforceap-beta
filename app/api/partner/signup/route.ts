@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/db/prisma';
 import { checkPartnerSignupRateLimit } from '@/lib/rate-limit';
+import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 
 const TO_EMAIL = 'info@workforceap.org';
 
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
         from: emailFrom,
         to: TO_EMAIL,
         replyTo: d.contactEmail,
-        subject: `Partner signup: ${d.organizationName}`,
+        subject: sanitizeEmailSubjectLine(`Partner signup: ${d.organizationName}`),
         text,
       });
     } catch (e) {

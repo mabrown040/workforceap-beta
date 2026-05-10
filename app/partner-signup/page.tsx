@@ -1,39 +1,17 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { buildPageMetadataAsync } from '@/app/seo';
-import Footer from '@/components/Footer';
-import PageHero from '@/components/PageHero';
-import PartnerSignupForm from './PartnerSignupForm';
+'use client';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadataAsync({
-  title: 'Partner organization registration',
-  description:
-    'Register your organization as a WorkforceAP community partner. Refer members to training offered at no cost to members and track outcomes in the partner portal.',
-  path: '/partner-signup',
-});
-}
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function PartnerSignupPage() {
+/** Canonical signup is on `/partners#partner-signup` (single self-service path). */
+export default function PartnerSignupRedirectPage() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/partners#partner-signup');
+  }, [router]);
   return (
-    <div className="inner-page">
-      <PageHero
-        title="Register your organization as a WorkforceAP partner"
-        subtitle="Partner organizations refer community members to WorkforceAP programs. There is no cost to register. We'll set up your partner portal account within 1–2 business days."
-      />
-      <section className="content-section">
-        <div className="container" style={{ maxWidth: 560 }}>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-            Already a partner?{' '}
-            <Link href="/login?redirectTo=/partner" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Sign in
-            </Link>
-            .
-          </p>
-          <PartnerSignupForm />
-        </div>
-      </section>
-      <Footer />
+    <div className="inner-page" style={{ padding: '3rem 1rem', textAlign: 'center' }}>
+      <p style={{ color: 'var(--color-on-surface-variant)' }}>Opening partner registration…</p>
     </div>
   );
 }

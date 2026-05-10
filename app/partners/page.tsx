@@ -8,6 +8,7 @@ import { CTABand, HeroSection, PageSection, PartnershipCard, SectionHeader, Valu
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
+import PartnerSignupForm from '@/components/partner/PartnerSignupForm';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.partners');
@@ -23,6 +24,7 @@ export default async function PartnersPage() {
   const locale = await getRequestLocale();
   const partnershipContactHref = `${withLocalePrefix('/contact', locale)}?topic=partnership`;
   const employersMarketingHref = withLocalePrefix('/employers', locale);
+  const partnerSignupHref = `${withLocalePrefix('/partners', locale)}#partner-signup`;
 
   return (
     <div className="inner-page">
@@ -84,7 +86,7 @@ export default async function PartnersPage() {
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginTop: '2.5rem' }}>
           <Link
-            href={partnershipContactHref}
+            href={partnerSignupHref}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -174,7 +176,7 @@ export default async function PartnersPage() {
                 {t('referralWhy')}
               </p>
               <Link
-                href={partnershipContactHref}
+                href={partnerSignupHref}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -222,6 +224,48 @@ export default async function PartnersPage() {
               ctaHref={partnershipContactHref}
             />
           </div>
+        </div>
+      </section>
+
+      {/* ── Referral partner self-service signup (single path) ── */}
+      <section
+        id="partner-signup"
+        style={{ padding: '4rem 0', scrollMarginTop: '5rem', background: 'var(--surface-container-low)' }}
+      >
+        <div className="container" style={{ maxWidth: '560px' }}>
+          <p
+            className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-2"
+            style={{ color: 'var(--color-accent)' }}
+          >
+            {t('signupEyebrow')}
+          </p>
+          <h2
+            style={{
+              fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              color: 'var(--color-on-surface)',
+              margin: '0 0 0.75rem',
+            }}
+          >
+            {t('signupTitle')}
+          </h2>
+          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: '0 0 1.5rem' }}>
+            {t('signupSubtitle')}
+          </p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
+            {t('signupAlready')}{' '}
+            <Link href={`${withLocalePrefix('/login', locale)}?redirectTo=/partner`} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              {t('signupSignIn')}
+            </Link>
+          </p>
+          <PartnerSignupForm />
+          <p style={{ marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+            {t('signupOtherPaths')}{' '}
+            <Link href={partnershipContactHref} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+              {t('signupContactTeam')}
+            </Link>
+          </p>
         </div>
       </section>
 
@@ -460,7 +504,7 @@ export default async function PartnersPage() {
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
               <Link
-                href={partnershipContactHref}
+                href={partnerSignupHref}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

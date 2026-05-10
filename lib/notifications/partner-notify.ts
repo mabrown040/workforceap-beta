@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/db/prisma';
+import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 
 export type PartnerMilestone =
   | 'Program enrollment'
@@ -71,7 +72,7 @@ export async function sendPartnerMilestoneEmail(
   }
 
   const first = memberFirstName(referral.member.fullName);
-  const subject = `[WorkforceAP] Update on ${first} - ${milestone}`;
+  const subject = sanitizeEmailSubjectLine(`[WorkforceAP] Update on ${first} - ${milestone}`);
 
   const detailLines: string[] = [];
   if (details) {
@@ -136,7 +137,9 @@ export async function sendPartnerNewMemberAssignedEmail(
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
     const partnerPortalUrl = `${siteUrl}/partner`;
 
-    const subject = `[WorkforceAP] New member assigned — ${member.fullName || 'Member'}`;
+    const subject = sanitizeEmailSubjectLine(
+      `[WorkforceAP] New member assigned — ${member.fullName || 'Member'}`,
+    );
     const text = [
       `Hello,`,
       '',

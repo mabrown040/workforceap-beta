@@ -10,13 +10,15 @@ import EmployerWorkQueueClient from '@/components/employer/EmployerWorkQueueClie
 import EmployerWorkflowTimeline from '@/components/employer/EmployerWorkflowTimeline';
 import { getEmployerWorkQueueSlices } from '@/lib/employer/workQueue';
 import { listEmployerWorkflowEvents } from '@/lib/portal/workflowEvents';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Employer work queue',
-  description: 'Prioritized hiring actions and SLA-style queues.',
-  path: '/employer/work-queue',
-});
+    title: t('workQueueTitle'),
+    description: 'Prioritized hiring actions and SLA-style queues.',
+    path: '/employer/work-queue',
+  });
 }
 
 export default async function EmployerWorkQueuePage({
@@ -29,6 +31,8 @@ export default async function EmployerWorkQueuePage({
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const sp = (await searchParams) ?? {};
   const focusRaw = sp.focus;
@@ -61,9 +65,9 @@ export default async function EmployerWorkQueuePage({
     <PortalPageFrame>
     <div className="employer-work-queue-page wa-pb-24 md:wa-pb-0">
       <PageHeader
-        title="Work Queue"
-        subtitle="Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Work Queue' }]}
+        title={t('workQueue')}
+        subtitle={t('needsReviewToday')}
+        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('workQueue') }]}
       />
 
       <EmployerWorkQueueClient

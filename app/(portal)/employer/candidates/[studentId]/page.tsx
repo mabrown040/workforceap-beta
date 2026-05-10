@@ -18,8 +18,9 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
+import { isSyncStale, staleSyncMessage } from '@/lib/sync/syncStatus';
+import { getTranslations } from 'next-intl/server';
 
 type Props = {
   params: Promise<{ studentId: string }>;
@@ -32,8 +33,9 @@ export async function generateMetadata({
   params: Promise<{ studentId: string }>;
 }): Promise<Metadata> {
   const { studentId } = await params;
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: 'Candidate profile',
+    title: t('candidateProfile'),
     description: 'WorkforceAP member profile for your hiring pipeline.',
     path: `/employer/candidates/${studentId}`,
   });
@@ -60,6 +62,8 @@ export default async function EmployerCandidateProfilePage({
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const sp = (await searchParams) ?? {};
   const highlightJobId = typeof sp.jobId === 'string' ? sp.jobId : null;
@@ -93,7 +97,6 @@ export default async function EmployerCandidateProfilePage({
         email: true,
         enrolledProgram: true,
         assessmentCompleted: true,
-        // Multi-program-aware: pull every enrollment + progress data
         courseEnrollments: {
           select: { programSlug: true, isPrimary: true, enrolledAt: true },
           orderBy: [{ isPrimary: 'desc' }, { enrolledAt: 'asc' }],
@@ -102,8 +105,11 @@ export default async function EmployerCandidateProfilePage({
           select: { programSlug: true, averagePercent: true, coursesCompleted: true },
         },
         courseProgress: {
-          select: { programSlug: true, courseSlug: true, status: true, percentComplete: true },
+          select: { programSlug: true, courseSlug: true, status: true, percentComplete: true, lastUpdatedAt: true },
         },
+        userCertifications: {
+          select: { certName: true, earnedAt: true },
+          orderBy: { earnedAt: 'desc' },
         },
         profile: {
           select: {
@@ -126,7 +132,6 @@ export default async function EmployerCandidateProfilePage({
 
   if (!student) notFound();
 
-  // Multi-program-aware program label + training progress
   const enrollmentTitles = student.courseEnrollments.map(
     (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
   );
@@ -137,13 +142,15 @@ export default async function EmployerCandidateProfilePage({
     ? Array.from(new Set(enrollmentTitles)).join(' · ')
     : enrolledProgramTitle ?? '—';
 
-  // Training progress from CourseProgress + MemberProgramProgress
   const trainingProgramSlug = student.enrolledProgram;
   const trainingProgram = trainingProgramSlug ? getProgramBySlug(trainingProgramSlug) : null;
   const trainingRollupPct = memberProgramProgressPct(trainingProgramSlug, null, student.memberProgramProgress);
   const trainingCourseRows = trainingProgramSlug
     ? student.courseProgress.filter((r) => r.programSlug === trainingProgramSlug)
     : [];
+  const lastSyncAt = trainingCourseRows.length > 0
+    ? trainingCourseRows.reduce((latest, r) => (r.lastUpdatedAt > latest ? r.lastUpdatedAt : latest), trainingCourseRows[0].lastUpdatedAt)
+    : null;
   const trainingCourseBySlug = new Map(trainingCourseRows.map((r) => [r.courseSlug, r]));
 
   const selectedMatch = (highlightJobId ? matches.find((match) => match.jobId === highlightJobId) : null) ?? matches[0] ?? null;
@@ -151,23 +158,23 @@ export default async function EmployerCandidateProfilePage({
   const latestApplication = applications[0] ?? null;
   const activeRoles = new Map([...matches, ...applications].map((item) => [item.jobId, item.job.title]));
   const summaryStats = [
-    { label: 'Roles in pipeline', value: activeRoles.size },
-    { label: 'AI matches', value: matches.length },
-    { label: 'Applications', value: applications.length },
+    { label: t('applicationsCount'), value: applications.length },
+    { label: t('aiMatches'), value: matches.length },
+    { label: t('rolesInPipeline'), value: activeRoles.size },
   ];
 
   return (
     <>
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
-          title={student.fullName ?? 'Candidate'}
-          subtitle="Shared because this member matched or applied to one of your roles."
+          title={student.fullName ?? t('candidateProfile')}
+          subtitle={t('sharedBecauseMatched')}
           action={(
             <Link
               href="/employer/matches"
               style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
             >
-              Back to matches
+              {t('backToMatches')}
             </Link>
           )}
         />
@@ -177,7 +184,7 @@ export default async function EmployerCandidateProfilePage({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>
                 <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
-                  Candidate snapshot
+                  {t('candidateSnapshot')}
                 </p>
                 <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h1>
                 <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', overflowWrap: 'anywhere' }}>{student.email}</p>
@@ -195,13 +202,13 @@ export default async function EmployerCandidateProfilePage({
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
-                        Highlighted role
+                        {t('highlightedRole')}
                       </p>
                       <p style={{ margin: '0.35rem 0 0', fontWeight: 700, color: 'var(--color-on-surface)' }}>{selectedMatch.job.title}</p>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-accent)' }}>{topMatchPct}%</div>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>match</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t('matchPercent')}</div>
                     </div>
                   </div>
                   <div style={{ marginTop: '0.6rem' }}>
@@ -216,12 +223,12 @@ export default async function EmployerCandidateProfilePage({
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}>
                   {partnerReferral ? (
                     <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.35rem 0.6rem', borderRadius: '0.5rem' }}>
-                      Referred by {partnerReferral.partner.name}
+                      {t('referredBy')} {partnerReferral.partner.name}
                     </span>
                   ) : null}
                   {counselorAssign ? (
                     <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.35rem 0.6rem', borderRadius: '0.5rem' }}>
-                      Counselor: {counselorAssign.counselor.user.fullName}
+                      {t('counselorLabel')}: {counselorAssign.counselor.user.fullName}
                     </span>
                   ) : null}
                 </div>
@@ -231,19 +238,19 @@ export default async function EmployerCandidateProfilePage({
 
           <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
             <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
-              Readiness
+              {t('readiness')}
             </p>
             <div style={{ display: 'grid', gap: '0.6rem', marginTop: '0.75rem' }}>
               <div>
-                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Program</p>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{t('program')}</p>
                 <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{programDisplay}</p>
               </div>
               <div>
-                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Assessment</p>
-                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.assessmentCompleted ? 'Completed' : 'Not completed'}</p>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{t('assessment')}</p>
+                <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.assessmentCompleted ? t('completed') : t('notCompleted')}</p>
               </div>
               <div>
-                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>Employment status</p>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{t('employmentStatus')}</p>
                 <p style={{ margin: '0.2rem 0 0', fontWeight: 700 }}>{student.profile?.employmentStatus ?? '—'}</p>
               </div>
               {student.profile?.profileLinkedin ? (
@@ -256,13 +263,32 @@ export default async function EmployerCandidateProfilePage({
 
           <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
             <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
-              Coursera training
+              {t('trainingProgress')}
             </p>
             <p style={{ margin: '0.45rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
               CourseProgress and MemberProgramProgress from Coursera for Business sync (same sources as the partner referral view).
             </p>
+            {isSyncStale(lastSyncAt) && (
+              <div
+                style={{
+                  marginTop: '0.75rem',
+                  background: 'rgba(217,119,6,0.08)',
+                  border: '1px solid rgba(217,119,6,0.25)',
+                  borderRadius: '0.75rem',
+                  padding: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', fontSize: '1rem' }}>schedule</span>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+                  {staleSyncMessage(lastSyncAt)}
+                </p>
+              </div>
+            )}
             {!trainingProgramSlug ? (
-              <p style={{ margin: '0.75rem 0 0', fontWeight: 700 }}>No training program on file.</p>
+              <p style={{ margin: '0.75rem 0 0', fontWeight: 700 }}>{t('notEnrolled')}</p>
             ) : (
               <>
                 <div style={{ marginTop: '0.75rem' }}>
@@ -316,6 +342,39 @@ export default async function EmployerCandidateProfilePage({
             )}
           </section>
 
+          <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+            <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
+              {t('certifications')}
+            </p>
+            {student.userCertifications.length === 0 ? (
+              <p style={{ margin: '0.75rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>No certifications on file.</p>
+            ) : (
+              <ul style={{ margin: '0.65rem 0 0', padding: 0, listStyle: 'none' }}>
+                {student.userCertifications.map((cert) => (
+                  <li key={cert.certName} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green)', flexShrink: 0 }}>verified</span>
+                    <span style={{ flex: 1, fontSize: '0.78rem' }}>
+                      {cert.certName}
+                      <span style={{ color: 'var(--color-on-surface-variant)' }}>{cert.earnedAt ? ` · ${formatDateTime(cert.earnedAt)}` : ''}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {student.memberProgramProgress.length > 0 && (
+              <div style={{ marginTop: '0.75rem' }}>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--color-on-surface-variant)' }}>{t('courses')}</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.4rem' }}>
+                  {student.memberProgramProgress.map((prog) => (
+                    <span key={prog.programSlug} style={{ fontSize: '0.78rem' }}>
+                      {getProgramBySlug(prog.programSlug)?.title ?? prog.programSlug}: {prog.averagePercent}% · {prog.coursesCompleted} course{prog.coursesCompleted === 1 ? '' : 's'} completed
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
           {student.profile?.profileBio ? (
             <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
               <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
@@ -364,7 +423,7 @@ export default async function EmployerCandidateProfilePage({
           {applications.length > 0 ? (
             <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
               <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
-                Applications
+                {t('applicationsCount')}
               </p>
               <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.75rem' }}>
                 {applications.map((application) => (
@@ -379,7 +438,8 @@ export default async function EmployerCandidateProfilePage({
                       />
                     </div>
                     <p style={{ margin: '0.45rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                      Applied {formatDateTime(application.appliedAt)}
+                      {application.status === 'rejected' ? 'Submitted' : 'Applied'} {formatDateTime(application.appliedAt)}
+                      {application.status === 'rejected' && <span style={{ marginLeft: '0.5rem', color: 'var(--color-accent)' }}>· Outcome: declined</span>}
                     </p>
                   </div>
                 ))}
@@ -401,7 +461,7 @@ export default async function EmployerCandidateProfilePage({
                 textDecoration: 'none',
               }}
             >
-              Open pipeline
+              {t('openPipeline')}
             </Link>
             <Link
               href="/employer/messages"
@@ -416,7 +476,7 @@ export default async function EmployerCandidateProfilePage({
                 textDecoration: 'none',
               }}
             >
-              Contact member
+              {t('messageCandidate')}
             </Link>
           </div>
         </div>
@@ -426,11 +486,11 @@ export default async function EmployerCandidateProfilePage({
       <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
-            title={student.fullName ?? 'Candidate'}
-            subtitle="Shared because this member matched or applied to your roles."
+            title={student.fullName ?? t('candidateProfile')}
+            subtitle={t('sharedBecauseMatched')}
             action={
               <Link href="/employer/matches" className="btn btn-outline btn-sm">
-                Back to matches
+                {t('backToMatches')}
               </Link>
             }
           />
@@ -440,19 +500,19 @@ export default async function EmployerCandidateProfilePage({
               <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
                   <div style={{ minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>Candidate snapshot</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>{t('candidateSnapshot')}</p>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h2>
                     <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', overflowWrap: 'anywhere' }}>{student.email}</p>
                     {(partnerReferral || counselorAssign) ? (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem' }}>
                         {partnerReferral ? (
                           <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.3rem 0.55rem', borderRadius: '0.5rem' }}>
-                            Referred by {partnerReferral.partner.name}
+                            {t('referredBy')} {partnerReferral.partner.name}
                           </span>
                         ) : null}
                         {counselorAssign ? (
                           <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-on-surface)', background: 'var(--surface-container)', padding: '0.3rem 0.55rem', borderRadius: '0.5rem' }}>
-                            Counselor: {counselorAssign.counselor.user.fullName}
+                            {t('counselorLabel')}: {counselorAssign.counselor.user.fullName}
                           </span>
                         ) : null}
                       </div>
@@ -480,15 +540,15 @@ export default async function EmployerCandidateProfilePage({
                 <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Program and readiness</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.9rem' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Program</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('program')}</p>
                     <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{programDisplay}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Assessment</p>
-                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.assessmentCompleted ? 'Completed' : 'Not completed'}</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('assessment')}</p>
+                    <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.assessmentCompleted ? t('completed') : t('notCompleted')}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Employment status</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('employmentStatus')}</p>
                     <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{student.profile?.employmentStatus ?? '—'}</p>
                   </div>
                   <div>
@@ -508,12 +568,31 @@ export default async function EmployerCandidateProfilePage({
               </div>
 
               <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>Coursera training</h2>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>{t('trainingProgress')}</h2>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
                   CourseProgress and MemberProgramProgress from Coursera for Business sync (same sources as the partner referral view).
                 </p>
+                {isSyncStale(lastSyncAt) && (
+                  <div
+                    style={{
+                      marginTop: '0.85rem',
+                      background: 'rgba(217,119,6,0.08)',
+                      border: '1px solid rgba(217,119,6,0.25)',
+                      borderRadius: '0.75rem',
+                      padding: '0.85rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)', fontSize: '1rem' }}>schedule</span>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                      {staleSyncMessage(lastSyncAt)}
+                    </p>
+                  </div>
+                )}
                 {!trainingProgramSlug ? (
-                  <p style={{ margin: '0.85rem 0 0', fontWeight: 700 }}>No training program on file.</p>
+                  <p style={{ margin: '0.85rem 0 0', fontWeight: 700 }}>{t('notEnrolled')}</p>
                 ) : (
                   <>
                     <div style={{ marginTop: '0.85rem' }}>
@@ -567,6 +646,37 @@ export default async function EmployerCandidateProfilePage({
                 )}
               </div>
 
+              <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>{t('certifications')}</h2>
+                {student.userCertifications.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>No certifications on file.</p>
+                ) : (
+                  <ul style={{ margin: '0.65rem 0 0', padding: 0, listStyle: 'none' }}>
+                    {student.userCertifications.map((cert) => (
+                      <li key={cert.certName} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-green)', flexShrink: 0 }}>verified</span>
+                        <span style={{ flex: 1, fontSize: '0.85rem' }}>
+                          {cert.certName}
+                          <span style={{ color: 'var(--color-on-surface-variant)' }}>{cert.earnedAt ? ` · ${formatDateTime(cert.earnedAt)}` : ''}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {student.memberProgramProgress.length > 0 && (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('courses')}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.4rem' }}>
+                      {student.memberProgramProgress.map((prog) => (
+                        <span key={prog.programSlug} style={{ fontSize: '0.85rem' }}>
+                          {getProgramBySlug(prog.programSlug)?.title ?? prog.programSlug}: {prog.averagePercent}% · {prog.coursesCompleted} course{prog.coursesCompleted === 1 ? '' : 's'} completed
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {matches.length > 0 ? (
                 <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                   <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>AI match history</h2>
@@ -582,7 +692,7 @@ export default async function EmployerCandidateProfilePage({
                           </div>
                           <div style={{ textAlign: 'right', flexShrink: 0 }}>
                             <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-accent)' }}>{matchScoreAsPercent(match.matchScore)}%</div>
-                            <div style={{ fontSize: '0.68rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>match</div>
+                            <div style={{ fontSize: '0.68rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t('matchPercent')}</div>
                           </div>
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', marginTop: '0.65rem' }}>
@@ -600,7 +710,7 @@ export default async function EmployerCandidateProfilePage({
 
               {applications.length > 0 ? (
                 <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                  <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Applications</h2>
+                  <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>{t('applicationsCount')}</h2>
                   <div style={{ display: 'grid', gap: '0.75rem' }}>
                     {applications.map((application) => (
                       <div key={application.id} style={{ padding: '0.95rem 1rem', borderRadius: '0.9rem', background: 'var(--surface-container-low)' }}>
@@ -608,7 +718,8 @@ export default async function EmployerCandidateProfilePage({
                           <div style={{ minWidth: 0 }}>
                             <Link href={`/employer/jobs/${application.jobId}`} style={{ fontWeight: 700 }}>{application.job.title}</Link>
                             <p style={{ margin: '0.3rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                              Applied {formatDateTime(application.appliedAt)}
+                              {application.status === 'rejected' ? 'Submitted' : 'Applied'} {formatDateTime(application.appliedAt)}
+                              {application.status === 'rejected' && <span style={{ marginLeft: '0.5rem', color: 'var(--color-accent)' }}>· Outcome: declined</span>}
                             </p>
                           </div>
                           <StatusBadge
@@ -625,15 +736,15 @@ export default async function EmployerCandidateProfilePage({
 
             <aside style={{ display: 'grid', gap: '1rem' }}>
               <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Next best action</h2>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>{t('nextBestAction')}</h2>
                 {selectedMatch ? (
                   <>
                     <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                       Review the {selectedMatch.job.title} match first, then decide whether to move this candidate forward in your pipeline.
                     </p>
                     <div style={{ display: 'grid', gap: '0.65rem', marginTop: '1rem' }}>
-                      <Link href={`/employer/jobs/${selectedMatch.jobId}`} className="btn btn-primary">Open role</Link>
-                      <Link href="/employer/messages" className="btn btn-outline">Message candidate</Link>
+                      <Link href={`/employer/jobs/${selectedMatch.jobId}`} className="btn btn-primary">{t('openRole')}</Link>
+                      <Link href="/employer/messages" className="btn btn-outline">{t('messageCandidate')}</Link>
                     </div>
                   </>
                 ) : latestApplication ? (
@@ -642,28 +753,28 @@ export default async function EmployerCandidateProfilePage({
                       This member has already applied. Review the application status and keep outreach moving.
                     </p>
                     <div style={{ display: 'grid', gap: '0.65rem', marginTop: '1rem' }}>
-                      <Link href={`/employer/jobs/${latestApplication.jobId}`} className="btn btn-primary">Open latest application</Link>
-                      <Link href="/employer/pipeline" className="btn btn-outline">Open pipeline</Link>
+                      <Link href={`/employer/jobs/${latestApplication.jobId}`} className="btn btn-primary">{t('openLatestApplication')}</Link>
+                      <Link href="/employer/pipeline" className="btn btn-outline">{t('openPipeline')}</Link>
                     </div>
                   </>
                 ) : null}
               </div>
 
               <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>Pipeline notes</h2>
+                <h2 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.9rem' }}>{t('pipelineNotes')}</h2>
                 <div style={{ display: 'grid', gap: '0.85rem' }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Highlighted role</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('highlightedRole')}</p>
                     <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{selectedMatch?.job.title ?? latestApplication?.job.title ?? '—'}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Latest application</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('latestApplication')}</p>
                     <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>{latestApplication ? formatDateTime(latestApplication.appliedAt) : 'No application yet'}</p>
                   </div>
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>Profile completeness</p>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{t('profileCompleteness')}</p>
                     <p style={{ margin: '0.3rem 0 0', fontWeight: 700 }}>
-                      {student.profile?.profileBio || student.profile?.profileLinkedin ? 'Strong enough to review' : 'Light profile, verify details in outreach'}
+                      {student.profile?.profileBio || student.profile?.profileLinkedin ? t('strongEnough') : t('lightProfile')}
                     </p>
                   </div>
                 </div>

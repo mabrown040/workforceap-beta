@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
@@ -14,6 +16,14 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
+  return {
+    title: t('workQueue'),
+  };
+}
+
+
 export default async function CounselorWorkQueuePage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor/queue');
@@ -21,6 +31,8 @@ export default async function CounselorWorkQueuePage() {
   const counselor = await isCounselor(user.id);
   const admin = await isAdmin(user.id);
   if (!counselor && !admin) redirect('/dashboard');
+
+  const t = await getTranslations('counselor');
 
   let rows: Awaited<ReturnType<typeof getCounselorWorkQueue>>;
   let error = false;
@@ -35,11 +47,11 @@ export default async function CounselorWorkQueuePage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Work Queue"
-        subtitle={`Members waiting on a reply for more than 24 hours. Sorted oldest first.`}
+        title={t('workQueue')}
+        subtitle={t('membersWaiting')}
         breadcrumbs={[
-          { label: 'Counselor Portal', href: '/counselor' },
-          { label: 'Work Queue' },
+          { label: t('counselorPortal'), href: '/counselor' },
+          { label: t('workQueue') },
         ]}
       />
 
@@ -62,23 +74,23 @@ export default async function CounselorWorkQueuePage() {
               error
             </span>
             <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
-              Could not load work queue
+              {t('couldNotLoadQueue')}
             </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-              Something went wrong fetching the queue. Try refreshing the page.
+              {t('somethingWentWrongQueue')}
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
               className="btn btn-primary"
             >
-              Retry
+              {t('retry')}
             </button>
           </div>
         ) : rows.length === 0 ? (
           <PortalEmptyState
-            title="All caught up"
-            description="No member is waiting more than 24 hours for a reply. Nice work."
+            title={t('allCaughtUp')}
+            description={t('noMemberWaiting')}
             icon={
               <span
                 className="material-symbols-outlined"
@@ -88,8 +100,8 @@ export default async function CounselorWorkQueuePage() {
                 done_all
               </span>
             }
-            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Back to Dashboard', href: '/counselor' }}
+            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+            secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
           />
         ) : (
           <>
@@ -109,7 +121,7 @@ export default async function CounselorWorkQueuePage() {
                   fontWeight: 600,
                 }}
               >
-                {rows.length} member{rows.length === 1 ? '' : 's'} awaiting reply
+                {rows.length} member{rows.length === 1 ? '' : 's'} {t('awaitingReply')}
               </p>
               <Link
                 href="/counselor/messages"
@@ -119,7 +131,7 @@ export default async function CounselorWorkQueuePage() {
                   color: 'var(--color-accent)',
                 }}
               >
-                Open Messages →
+                {t('openMessages')} →
               </Link>
             </div>
 
@@ -229,7 +241,7 @@ export default async function CounselorWorkQueuePage() {
                               WebkitBoxOrient: 'vertical',
                             }}
                           >
-                            {previewMessageBody(row.lastMessageBody) || '(empty message)'}
+                            {previewMessageBody(row.lastMessageBody) || t('emptyMessage')}
                           </p>
                         </div>
                         <span

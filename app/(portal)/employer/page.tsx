@@ -20,13 +20,15 @@ import {
   employerJobPostingApplicationStatusLabel,
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Employer overview',
-  description: 'Manage your job postings and view applications.',
-  path: '/employer',
-});
+    title: t('overview'),
+    description: 'Manage your job postings and view applications.',
+    path: '/employer',
+  });
 }
 
 export default async function EmployerDashboardPage() {
@@ -56,6 +58,8 @@ export default async function EmployerDashboardPage() {
     if (superAdmin) redirect('/admin/employers');
     redirect('/dashboard');
   }
+
+  const t = await getTranslations('employer');
 
   const hiringIntents = await prisma.employerHiringIntent.findMany({
     where: { employerId: ctx.employerId },
@@ -153,40 +157,41 @@ export default async function EmployerDashboardPage() {
 
   const kpiCards = [
     {
-      label: 'Total Candidates',
+      label: t('totalCandidates'),
       value: totalApplications.toString(),
       trend: applicationsLast30d > 0 ? `${applicationsLast30d} in last 30d` : 'No recent applicants',
       trendColor: 'var(--color-on-surface-variant)',
       borderAccent: true,
     },
     {
-      label: 'Active Tracks',
+      label: t('activeTracks'),
       value: activeJobs.toString(),
       trend: inReview > 0 ? `${inReview} awaiting go-live` : 'All live or closed',
       trendColor: 'var(--color-on-surface-variant)',
     },
     {
-      label: 'Verified Hires',
+      label: t('verifiedHires'),
       value: hiresTotal.toString(),
       trend: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : 'No open offers',
       trendColor: 'var(--color-on-surface-variant)',
     },
     {
-      label: 'Avg. Time to Hire',
+      label: t('avgTimeToHire'),
       value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`,
       trend:
         avgMatchToHireDays !== null
-          ? `Match → hire (when tracked)`
+          ? `Match \u2192 hire (when tracked)`
           : 'Add hires to see timing',
       trendColor: 'var(--color-on-surface-variant)',
     },
   ];
 
   const placementCards = [
-    { label: 'Members matched to your roles', value: totalMatches, icon: 'auto_awesome' },
-    { label: 'Interviews or later (pipeline)', value: interviewPipelineCount, icon: 'calendar_today' },
-    { label: 'Hires (apps + filled roles)', value: hiresTotal, icon: 'person_check' },
-    { label: 'Avg. days match to hire', value: avgMatchToHireDays === null ? '\u2014' : avgMatchToHireDays, icon: 'timer' },
+    { label: t('membersMatched'), value: totalMatches, icon: 'auto_awesome' },
+    { label: t('applicationsCount'), value: totalApplications, icon: 'grading' },
+    { label: t('interviewsOrLater'), value: interviewPipelineCount, icon: 'calendar_today' },
+    { label: t('hiresTotal'), value: hiresTotal, icon: 'person_check' },
+    { label: t('avgDaysMatchToHire'), value: avgMatchToHireDays === null ? '\u2014' : avgMatchToHireDays, icon: 'timer' },
   ];
 
   return (
@@ -206,9 +211,9 @@ export default async function EmployerDashboardPage() {
     >
     <PortalPageFrame>
       <h1 className="wa-sr-only">
-        Employer overview — {employerRow.companyName}
+        {t('overview')} \u2014 {employerRow.companyName}
       </h1>
-      {/* ── Mobile Employer Dashboard (≤640px) ── */}
+      {/* \u2500\u2500 Mobile Employer Dashboard (\u2264640px) \u2500\u2500 */}
       <div className="wa-block md:wa-hidden portal-mobile-content">
         {/* Hero */}
         <div style={{ paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
@@ -216,18 +221,18 @@ export default async function EmployerDashboardPage() {
             className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
             style={{ marginBottom:"0.25rem", color: 'var(--color-accent)' }}
           >
-            Employer Portal
+            {t('employerPortal')}
           </p>
           <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
+            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : t('talentPipeline')}
           </h2>
         </div>
         {/* Stats row - horizontal scroll */}
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
           {[
-            { label: 'Open Roles', value: activeJobs, color: 'var(--color-on-surface)' },
-            { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
-            { label: 'In Review', value: inReview, color: 'var(--secondary)' },
+            { label: t('openRoles'), value: activeJobs, color: 'var(--color-on-surface)' },
+            { label: t('candidates'), value: totalApplications, color: 'var(--on-surface)' },
+            { label: t('inReview'), value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
             <div
               key={s.label}
@@ -242,10 +247,10 @@ export default async function EmployerDashboardPage() {
         {/* Pipeline summary strip */}
         <div className="portal-kpi-card" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"0.75rem", padding:"1rem", borderRadius:"0.75rem", display:"flex", justifyContent:"space-between", alignItems:"center", textAlign:"center" }}>
           {[
-            { label: 'Screened', value: screenedCount },
-            { label: 'Interview', value: interviewCount },
-            { label: 'Offer', value: offerStageCount },
-            { label: 'Hired', value: hiresFromApplications },
+            { label: t('screened'), value: screenedCount },
+            { label: t('interview'), value: interviewCount },
+            { label: t('offer'), value: offerStageCount },
+            { label: t('hired'), value: hiresFromApplications },
           ].map((s, i, arr) => (
             <div key={s.label} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
               <div style={{ flex:1, textAlign:"center" }}>
@@ -260,16 +265,16 @@ export default async function EmployerDashboardPage() {
           <VoiceAgentSurface {...employerVoiceSurface}>
             <PortalVoiceSession
               sessionEndpoint="/api/employer/voice-session"
-              title="Employer voice assistant"
-              description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
+              title={t('employerVoiceAssistant')}
+              description={t('askAboutPosting')}
               accent="var(--color-blue)"
               accentDark="var(--color-blue)"
-              speakingLabel="Assistant is speaking…"
-              listeningLabel="Listening — ask your question"
+              speakingLabel={t('assistantSpeaking')}
+              listeningLabel={t('listeningAskQuestion')}
             />
           </VoiceAgentSurface>
         </div>
-        {/* Quick actions — Review Apps is primary when candidates exist */}
+        {/* Quick actions \u2014 Review Apps is primary when candidates exist */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
           {totalApplications > 0 ? (
             <Link href="/employer/applications"
@@ -277,7 +282,7 @@ export default async function EmployerDashboardPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <span className="material-symbols-outlined" style={{ color: '#fff', fontVariationSettings: "'FILL' 1" }}>grading</span>
                 <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9375rem', letterSpacing: '-0.01em' }}>
-                  Review {totalApplications} Candidate{totalApplications !== 1 ? 's' : ''}
+                  {t('reviewApps')} {totalApplications} Candidate{totalApplications !== 1 ? 's' : ''}
                 </span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)' }}>arrow_forward</span>
@@ -287,7 +292,7 @@ export default async function EmployerDashboardPage() {
               style={{ gridColumn: 'span 2', padding: '1rem 1.25rem', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 16px rgba(173,44,77,0.3)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <span className="material-symbols-outlined" style={{ color: '#fff', fontVariationSettings: "'FILL' 1" }}>add_circle</span>
-                <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9375rem', letterSpacing: '-0.01em' }}>Post Your First Role</span>
+                <span style={{ fontWeight: 700, color: '#fff', fontSize: '0.9375rem', letterSpacing: '-0.01em' }}>{t('postRole')}</span>
               </div>
               <span className="material-symbols-outlined" style={{ color: 'rgba(255,255,255,0.7)' }}>arrow_forward</span>
             </Link>
@@ -295,33 +300,33 @@ export default async function EmployerDashboardPage() {
           <Link href="/employer/jobs/new"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }}>add_circle</span>
-            <span className="wa-text-sm wa-font-bold wa-leading-tight">Post a Role</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">{t('postRole')}</span>
           </Link>
           <Link href="/employer/messages"
             className="bg-surface-container-high text-on-surface active:scale-[0.98] wa-transition-all" style={{ padding:"1rem", borderRadius:"0.75rem", display:"flex", flexDirection:"column", gap:"0.5rem", alignItems:"flex-start", textDecoration:"none", minHeight:"44px" }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-gold)' }}>forum</span>
-            <span className="wa-text-sm wa-font-bold wa-leading-tight">Messages</span>
+            <span className="wa-text-sm wa-font-bold wa-leading-tight">{t('messages')}</span>
           </Link>
         </div>
         {/* Recent applicants */}
         <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1.5rem" }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"1rem" }}>
-            <h3 className="wa-text-xl wa-font-bold wa-tracking-tight text-on-surface">Recent Applicants</h3>
+            <h3 className="wa-text-xl wa-font-bold wa-tracking-tight text-on-surface">{t('latestApplicants')}</h3>
             <Link
               href="/employer/applications"
               className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-widest"
               style={{ textDecoration:"none", color: 'var(--color-accent)' }}
             >
-              View All
+              {t('viewAllLower')}
             </Link>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {recentApplications.length === 0 ? (
               <PortalEmptyState
-                title="No applications yet"
-                description="Post a role to start receiving candidates from the WorkforceAP talent pool."
+                title={t('noApplicationsYet')}
+                description={t('postRoleToStart')}
                 icon={<span className="material-symbols-outlined">inbox</span>}
-                primaryAction={{ label: 'Post a job', href: '/employer/jobs/new' }}
+                primaryAction={{ label: t('postJob'), href: '/employer/jobs/new' }}
               />
             ) : (
               recentApplications.slice(0, 5).map((app) => (
@@ -363,17 +368,17 @@ export default async function EmployerDashboardPage() {
         <EmployerHiringIntentPanel initialIntents={hiringIntents} />
       </div>
 
-      {/* ── Desktop View ── */}
+      {/* \u2500\u2500 Desktop View \u2500\u2500 */}
       <div className="wa-hidden md:wa-block">
-      {/* ── Header ── */}
+      {/* \u2500\u2500 Header \u2500\u2500 */}
       <PageHeader
-        title="Employer overview"
+        title={t('overview')}
         titleHeadingLevel={2}
-        subtitle="Manage job postings, review applicants, and track your hiring pipeline."
+        subtitle={t('manageJobPostingsSubtitle')}
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <Link href="/employer/jobs/import" className="btn btn-outline">Import Jobs</Link>
-            <Link href="/employer/jobs/new" data-tour="tour-post-job" className="btn btn-primary">Post a Job</Link>
+            <Link href="/employer/jobs/import" className="btn btn-outline">{t('importJobs')}</Link>
+            <Link href="/employer/jobs/new" data-tour="tour-post-job" className="btn btn-primary">{t('postJob')}</Link>
           </div>
         }
       />
@@ -382,36 +387,36 @@ export default async function EmployerDashboardPage() {
         <VoiceAgentSurface {...employerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/employer/voice-session"
-            title="Employer voice assistant"
-            description="Ask about posting roles, reviewing applicants, or navigating this portal."
+            title={t('employerVoiceAssistant')}
+            description={t('askAboutPosting')}
             accent="var(--color-blue)"
             accentDark="var(--color-blue)"
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
+            speakingLabel={t('assistantSpeaking')}
+            listeningLabel={t('listeningAskQuestion')}
           />
         </VoiceAgentSurface>
       </section>
 
-      {/* ── Empty State (shown first for cold-start clarity) ── */}
+      {/* \u2500\u2500 Empty State (shown first for cold-start clarity) \u2500\u2500 */}
       {jobs.length === 0 && (
         <section className="portal-section--lg">
           <PortalEmptyState
-            title="Welcome — start with your first posting"
-            description="You do not have any job drafts or live roles yet. Post a single role, or import a list from a spreadsheet or careers URL."
+            title={t('welcomeStartFirstPosting')}
+            description={t('noDraftsYet')}
             icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-on-surface-variant)' }}>work</span>}
-            primaryAction={{ label: 'Post your first job', href: '/employer/jobs/new' }}
-            secondaryAction={{ label: 'Import jobs', href: '/employer/jobs/import' }}
+            primaryAction={{ label: t('postYourFirstJob'), href: '/employer/jobs/new' }}
+            secondaryAction={{ label: t('importJobs'), href: '/employer/jobs/import' }}
           />
         </section>
       )}
 
-      {/* ── KPI Metric Strip ── */}
+      {/* \u2500\u2500 KPI Metric Strip \u2500\u2500 */}
       <section className="portal-metric-strip" style={{ marginBottom: '2rem' }}>
         {[
-          { label: 'Total Candidates', value: totalApplications, hint: applicationsLast30d > 0 ? `${applicationsLast30d} last 30d` : 'No recent', icon: 'groups', accent: 'accent' as const },
-          { label: 'Active Roles', value: activeJobs, hint: inReview > 0 ? `${inReview} awaiting go-live` : 'All live or closed', icon: 'work', accent: 'blue' as const },
-          { label: 'Verified Hires', value: hiresTotal, hint: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : 'No open offers', icon: 'person_check', accent: 'green' as const },
-          { label: 'Avg. Time to Hire', value: avgMatchToHireDays === null ? '—' : `${avgMatchToHireDays}d`, hint: avgMatchToHireDays !== null ? 'Match → hire' : 'Add hires to see', icon: 'timer', accent: 'gold' as const },
+          { label: t('totalCandidates'), value: totalApplications, hint: applicationsLast30d > 0 ? `${applicationsLast30d} last 30d` : 'No recent', icon: 'groups', accent: 'accent' as const },
+          { label: t('activeTracks'), value: activeJobs, hint: inReview > 0 ? `${inReview} awaiting go-live` : 'All live or closed', icon: 'work', accent: 'blue' as const },
+          { label: t('verifiedHires'), value: hiresTotal, hint: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : 'No open offers', icon: 'person_check', accent: 'green' as const },
+          { label: t('avgTimeToHire'), value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`, hint: avgMatchToHireDays !== null ? 'Match \u2192 hire' : 'Add hires to see', icon: 'timer', accent: 'gold' as const },
         ].map((card) => (
           <div key={card.label} className="portal-metric-card">
             <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${card.accent}`}>
@@ -428,16 +433,16 @@ export default async function EmployerDashboardPage() {
         <EmployerHiringIntentPanel initialIntents={hiringIntents} />
       </section>
 
-      {/* ── Talent Pipeline + Sidebar ── */}
+      {/* \u2500\u2500 Talent Pipeline + Sidebar \u2500\u2500 */}
       <section style={{ display: 'grid', gridTemplateColumns: 'minmax(0,2fr) minmax(0,1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
         {/* Pipeline */}
         <div className="portal-card portal-card--flat portal-card--padded-lg">
           <div className="portal-section-header" style={{ marginBottom: '2rem' }}>
-            <h2 className="portal-section-heading" style={{ margin: 0 }}>Talent Pipeline</h2>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>{t('talentPipeline')}</h2>
             <span className="material-symbols-outlined" style={{ padding: '0.5rem', background: 'var(--surface-container-lowest)', borderRadius: '0.375rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>filter_list</span>
           </div>
 
-          {/* Placement snapshot — icon mini-cards */}
+          {/* Placement snapshot \u2014 icon mini-cards */}
           <div className="portal-grid-metrics" style={{ marginBottom: '1.75rem' }}>
             {placementCards.map((card) => (
               <div key={card.label} className="portal-metric-card">
@@ -454,7 +459,7 @@ export default async function EmployerDashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {[
               { label: 'Create a posting', desc: 'Add a role, set pay and location, submit for review.', href: '/employer/jobs/new', icon: 'add_circle' },
-              { label: 'Manage postings', desc: 'Edit drafts, track what is live, close filled roles.', href: '/employer/jobs', icon: 'work' },
+              { label: t('managePostings'), desc: 'Edit drafts, track what is live, close filled roles.', href: '/employer/jobs', icon: 'work' },
               { label: 'Review applicants', desc: 'See recent submissions, respond, keep placements moving.', href: '/employer/applications', icon: 'grading' },
             ].map((item) => (
               <Link key={item.label} href={item.href} className="portal-quick-action-item">
@@ -493,29 +498,29 @@ export default async function EmployerDashboardPage() {
               ))}
             </div>
             <Link href="/employer/jobs" className="btn btn-outline" style={{ display: 'block', width: '100%', marginTop: '1.5rem', textAlign: 'center', fontSize: '0.75rem' }}>
-              Manage Postings
+              {t('managePostings')}
             </Link>
           </div>
 
           <div className="portal-card portal-card--flat" style={{ background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', padding: '1.5rem', overflow: 'hidden', position: 'relative' }}>
             <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '6rem', opacity: 0.08, color: '#fff' }}>school</span>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>Workforce Advancement</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>{t('workforceAdvancement')}</h3>
               <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                Access credentialed graduates from our training programs.
+                {t('accessCredentialedGrads')}
               </p>
               <Link href="/employer/jobs/new" style={{ display: 'inline-block', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.9)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700, textDecoration: 'none' }}>
-                Post a Job
+                {t('postJob')}
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Recent Applicants ── */}
+      {/* \u2500\u2500 Recent Applicants \u2500\u2500 */}
       <section style={{ marginBottom: '2rem' }}>
         <div className="portal-section-header">
-          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Latest Applicants</h2>
+          <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>{t('latestApplicants')}</h2>
           <Link href="/employer/applications" className="portal-section-action">
             View all
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
@@ -525,9 +530,9 @@ export default async function EmployerDashboardPage() {
         {recentApplications.length === 0 ? (
           <div className="portal-card portal-card--flat portal-card--padded-lg" style={{ textAlign: 'center' }}>
             <p style={{ color: 'var(--color-on-surface-variant)' }}>
-              No applications yet. Publish a job or import your current openings to start collecting candidates.
+              {t('noApplicationsYet')}
             </p>
-            <Link href="/employer/jobs/new" className="btn btn-primary" style={{ display: 'inline-flex' }}>Post your first job</Link>
+            <Link href="/employer/jobs/new" className="btn btn-primary" style={{ display: 'inline-flex' }}>{t('postYourFirstJob')}</Link>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>

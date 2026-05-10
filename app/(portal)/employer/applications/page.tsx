@@ -10,15 +10,17 @@ import EmployerApplicationsClient from '@/components/employer/EmployerApplicatio
 import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 
 const PAGE_SIZE = 25;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Applicants',
-  description: 'View applications from WorkforceAP members to your job postings.',
-  path: '/employer/applications',
-});
+    title: t('applicantsTitle'),
+    description: 'View applications from WorkforceAP members to your job postings.',
+    path: '/employer/applications',
+  });
 }
 
 export default async function EmployerApplicationsPage({
@@ -32,10 +34,11 @@ export default async function EmployerApplicationsPage({
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
+  const t = await getTranslations('employer');
+
   const sp = (await searchParams) ?? {};
   const page = Math.max(1, parseInt(String(sp.page ?? '1'), 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
-
   const whereEmployer = { job: { employerId: ctx.employerId } };
 
   const [applications, totalCount] = await Promise.all([
@@ -67,18 +70,20 @@ export default async function EmployerApplicationsPage({
   return (
     <PortalPageFrame>
       <PageHeader
-        title={`Applicants (${totalCount})`}
+        title={`${t('applicantsTitle')} (${totalCount})`}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Review candidates and update their status.</span>
-            <span className="wa-hidden md:wa-block">Review candidates and update their status as you move them through your hiring process.</span>
+            <span className="wa-block md:wa-hidden">{t('applicantsSubtitleMobile')}</span>
+            <span className="wa-hidden md:wa-block">{t('applicantsSubtitleDesktop')}</span>
           </>
         }
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
+        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('applicantsTitle') }]}
       />
       {/* ── Mobile Applications View (≤640px) ── */}
       <div className="wa-block md:wa-hidden wa-pb-24">
-        <MobileApplicationsClient initialRows={initialRows} />
+        <MobileApplicationsClient
+          initialRows={initialRows}
+        />
         <div className="wa-px-4">
           <EmployerApplicationsPager page={page} totalPages={totalPages} />
         </div>

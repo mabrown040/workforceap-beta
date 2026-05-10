@@ -15,10 +15,12 @@ import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { getProgramBySlug } from '@/lib/content/programs';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: 'Candidate pipeline',
+    title: t('candidatePipeline'),
     description: 'AI-suggested matches for your open roles.',
     path: '/employer/pipeline',
   });
@@ -30,6 +32,8 @@ export default async function EmployerPipelinePage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const jobs = await prisma.job.findMany({
     where: { employerId: ctx.employerId, status: 'live' },
@@ -45,9 +49,6 @@ export default async function EmployerPipelinePage() {
           where: { jobId: { in: jobIds } },
           orderBy: [{ jobId: 'asc' }, { matchScore: 'desc' }],
           include: {
-            // Multi-program-aware: pull every enrollment so the pipeline row
-            // can list ALL programs comma-separated (primary first), instead
-            // of showing only the denormalized `User.enrolledProgram` slug.
             student: {
               select: {
                 id: true,
@@ -63,8 +64,6 @@ export default async function EmployerPipelinePage() {
           },
         });
 
-  // Comma-joined list of all programs each candidate is in (primary first).
-  // For single-program candidates this collapses to today's display.
   function programDisplayFor(student: { enrolledProgram: string | null; courseEnrollments: { programSlug: string }[] }): string {
     const titles = student.courseEnrollments.map(
       (row) => getProgramBySlug(row.programSlug)?.title ?? row.programSlug,
@@ -73,7 +72,7 @@ export default async function EmployerPipelinePage() {
     if (student.enrolledProgram) {
       return getProgramBySlug(student.enrolledProgram)?.title ?? student.enrolledProgram;
     }
-    return 'No program';
+    return t('noProgram');
   }
 
   const byJob = new Map<string, typeof allMatches>();
@@ -85,14 +84,14 @@ export default async function EmployerPipelinePage() {
 
   const PIPELINE_STRIP = [
     {
-      label: 'New',
+      label: t('new'),
       count: allMatches.filter((m) =>
         ['suggested', 'employer_notified', 'student_notified'].includes(m.status)
       ).length,
     },
-    { label: 'Contact', count: allMatches.filter((m) => m.status === 'contacted').length },
-    { label: 'Interview', count: allMatches.filter((m) => m.status === 'interviewing').length },
-    { label: 'Hired', count: allMatches.filter((m) => m.status === 'hired').length },
+    { label: t('contact'), count: allMatches.filter((m) => m.status === 'contacted').length },
+    { label: t('interview'), count: allMatches.filter((m) => m.status === 'interviewing').length },
+    { label: t('hired'), count: allMatches.filter((m) => m.status === 'hired').length },
   ];
 
   const getInitials = (name: string) =>
@@ -106,15 +105,15 @@ export default async function EmployerPipelinePage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Candidate Pipeline"
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Candidate Pipeline' }]}
+        title={t('candidatePipeline')}
+        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('candidatePipeline') }]}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Suggested candidates across your open roles</span>
-            <span className="wa-hidden md:wa-block">Suggested matches from WorkforceAP. Update status as you progress intros and decisions.</span>
+            <span className="wa-block md:wa-hidden">{t('suggestedCandidatesMobile')}</span>
+            <span className="wa-hidden md:wa-block">{t('suggestedMatchesDesktop')}</span>
           </>
         }
-        action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Back to jobs</Link>}
+        action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>{t('backToJobs')}</Link>}
       />
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>
@@ -129,19 +128,19 @@ export default async function EmployerPipelinePage() {
           {jobs.length === 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>account_tree</span>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No pipeline yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post a job to receive matched candidates.</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{t('noPipelineYet')}</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>{t('postJobToReceive')}</p>
               <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>{t('postJob')}
               </Link>
             </div>
           ) : allMatches.length === 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>psychology</span>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Matches will appear once your jobs are live.</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{t('noMatchesYet')}</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>{t('matchesAppearLive')}</p>
               <Link href="/employer/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                View Your Jobs
+                {t('viewYourJobs')}
               </Link>
             </div>
           ) : (
@@ -183,16 +182,16 @@ export default async function EmployerPipelinePage() {
         {jobs.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>account_tree</span>
-            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No pipeline yet</h3>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Post a job to receive matched candidates here.</p>
-            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Post your first job</Link>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noPipelineYet')}</h3>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>{t('postJobToReceive')}</p>
+            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>{t('postYourFirstJobCapital')}</Link>
           </div>
         ) : allMatches.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>psychology</span>
-            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noMatchesYet')}</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>Matches appear here after admin runs job–candidate matching.</p>
-            <Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>View Your Jobs</Link>
+            <Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>{t('viewYourJobs')}</Link>
           </div>
         ) : (
           <EmployerKanban initialMatches={allMatches.map(m => ({ id: m.id, jobId: m.jobId, jobTitle: jobs.find(j => j.id === m.jobId)?.title ?? 'Job', matchScore: m.matchScore, matchReasons: m.matchReasons, status: m.status, student: m.student }))} />

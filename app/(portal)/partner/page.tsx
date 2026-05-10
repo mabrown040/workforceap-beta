@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
+import { PARTNER_ACTIVITY_LABELS } from '@/lib/partner/partnerActivityLabels';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import PageHeader from '@/components/portal/PageHeader';
@@ -20,25 +21,28 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
+import { getTranslations } from 'next-intl/server';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Partner Portal',
+  title: t('partnerDashboard'),
   description: 'Referral outcomes, training progress, and placements for your organization.',
   path: '/partner',
 });
 }
 
-const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
-const ACTIVE_STAGES = ['applied', 'enrolled', 'in_training', 'certified'] as const;
+const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'job_searching', 'placed'] as const;
+const ACTIVE_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'job_searching'] as const;
 
 export default async function PartnerDashboardPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
+  const t = await getTranslations('partner');
 
   const superAdmin = await isSuperAdmin(user.id);
 
@@ -180,32 +184,36 @@ export default async function PartnerDashboardPage() {
           className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
           style={{ color: 'var(--color-accent)' }}
         >
-          Partner Dashboard
+          {t('partnerDashboard')}
         </p>
         <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h2>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          {partnerRow.organizationType || 'Partner Organization'}
+          {partnerRow.organizationType || t('partnerOrganization')}
         </p>
       </div>
 
       {/* 2×2 KPI Grid */}
       <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
-        <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
-        <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
-        <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
+        <PortalKpiCard accent="accent" label={t('activeMembers')} value={activeMembersCount} hint={t('inProgress')} />
+        <PortalKpiCard accent="neutral" label={t('placements')} value={placements} hint={t('verifiedHires')} />
+        <PortalKpiCard accent="gold" label={t('certificates')} value={completions} hint={t('earnedByMembers')} />
+        <PortalKpiCard accent="gold" label={t('pendingReview')} value={pendingPlacementCount} hint={t('memberReportedOffers')} />
       </div>
 
       <div style={{ padding: '0 1.5rem 1rem' }}>
-        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>Referral link</p>
+        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{t('referralLink')}</p>
         <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
-          Applied via your link: <strong>{referredMembersAppliedViaLink}</strong>
+          {t('appliedViaLink')}: <strong>{referredMembersAppliedViaLink}</strong>
         </p>
         <p style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
-          Share: <strong>{referralApplyUrl}</strong>
+          {t('share')}: <strong>{referralApplyUrl}</strong>
         </p>
+        <a href={referralApplyUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm" style={{ marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>open_in_new</span>
+          Open application link
+        </a>
         <CopyReferralLink url={referralApplyUrl} />
       </div>
 
@@ -244,12 +252,12 @@ export default async function PartnerDashboardPage() {
             <VoiceAgentSurface {...partnerVoiceSurface}>
               <PortalVoiceSession
                 sessionEndpoint="/api/partner/voice-session"
-                title="Partner Assistant"
-                description="Ask about referrals, member progress, or using the partner portal."
+                title={t('partnerAssistant')}
+                description={t('askAboutReferrals')}
                 accent="var(--color-amber)"
                 accentDark="var(--color-amber)"
-                speakingLabel="Assistant is speaking…"
-                listeningLabel="Listening — ask your question"
+                speakingLabel={t('assistantSpeaking')}
+                listeningLabel={t('listeningAskQuestion')}
               />
             </VoiceAgentSurface>
           </div>
@@ -259,16 +267,16 @@ export default async function PartnerDashboardPage() {
       {/* Recent Members */}
       <div style={{ padding: '0 1.5rem 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)' }}>Recent Members</p>
-          <Link href="/partner/referred-members" className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>View All</Link>
+          <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)' }}>{t('recentMembers')}</p>
+          <Link href="/partner/referred-members" className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>{t('viewAllLower')}</Link>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {recentMembers.length === 0 ? (
             <PortalEmptyState
-              title="No members yet"
-              description="Share your referral link to start connecting applicants with WorkforceAP."
+              title={t('noMembersYet')}
+              description={t('shareReferralLinkToStart')}
               icon={<span className="material-symbols-outlined">group_add</span>}
-              primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
+              primaryAction={{ label: t('referralGuide'), href: '/partner/guide' }}
             />
           ) : (
             recentMembers.map((p) => {
@@ -369,18 +377,18 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Header ── */}
       <PageHeader
-        title="Partner Overview"
+        title={t('partnerOverview')}
         titleHeadingLevel={2}
         subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/partner/outcomes" className="btn btn-outline">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
-              Outcomes snapshot
+              {t('outcomesSnapshot')}
             </Link>
             <Link href={referralApplyUrl} className="btn btn-primary">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
-              New Referral
+              {t('newReferral')}
             </Link>
           </div>
         }
@@ -390,12 +398,12 @@ export default async function PartnerDashboardPage() {
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSession
             sessionEndpoint="/api/partner/voice-session"
-            title="Partner Assistant"
-            description="Ask about referrals, member progress, or using the partner portal."
+            title={t('partnerAssistant')}
+            description={t('askAboutReferrals')}
             accent="var(--color-amber)"
             accentDark="var(--color-amber)"
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
+            speakingLabel={t('assistantSpeaking')}
+            listeningLabel={t('listeningAskQuestion')}
           />
         </VoiceAgentSurface>
       </section>
@@ -403,16 +411,16 @@ export default async function PartnerDashboardPage() {
       {/* ── Referral Link Attribution ── */}
       <section
         className="partner-panel"
-        aria-label="Referral link applications"
+        aria-label={t('referralLinkApplications')}
         data-tour="tour-referral-link"
         style={{ marginBottom: '2rem' }}
       >
-        <p className="partner-section-eyebrow">Referral link</p>
+        <p className="partner-section-eyebrow">{t('referralLink')}</p>
         <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
-          Applied via your referral link: <strong>{referredMembersAppliedViaLink}</strong>
+          {t('appliedViaLink')}: <strong>{referredMembersAppliedViaLink}</strong>
         </p>
         <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-          Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
+          {t('share')}: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
         </p>
         <CopyReferralLink url={referralApplyUrl} />
       </section>
@@ -454,7 +462,7 @@ export default async function PartnerDashboardPage() {
       {total === 0 ? (
         <PortalEmptyState
           icon={<span className="material-symbols-outlined">group_add</span>}
-          title="No referred members yet"
+          title={t('noReferredMembersYet')}
           description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
           primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
         />
@@ -553,21 +561,21 @@ export default async function PartnerDashboardPage() {
                 border: '1px solid rgba(173,44,77,0.15)',
               }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>menu_book</span>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Resource Center</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>{t('resourceCenter')}</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                  Guides, templates, and tools to maximize your referral impact.
+                  {t('guidesTemplatesTools')}
                 </p>
                 <Link href="/partner/guide" className="btn btn-primary" style={{ fontSize: '0.75rem' }}>
-                  Explore Resources
+                  {t('exploreResources')}
                 </Link>
               </div>
 
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="portal-card portal-card--flat portal-card--padded">
-                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Near completion</p>
+                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>{t('nearCompletion')}</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-                    {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.
+                    {nearCompletion.length}{t('checkInCouldHelp')}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {nearCompletion.slice(0, 3).map((p) => (
@@ -587,15 +595,15 @@ export default async function PartnerDashboardPage() {
           {/* ── Activity ── */}
           <section className="partner-activity partner-panel">
             <details className="partner-activity-collapsed">
-              <summary>Recent activity</summary>
+              <summary>{t('recentActivity')}</summary>
               {events.length === 0 ? (
-                <p className="partner-activity-empty">No milestone events yet.</p>
+                <p className="partner-activity-empty">{t('noMilestoneEvents')}</p>
               ) : (
                 <ul>
                   {events.map((ev) => (
                     <li key={ev.id}>
                       <strong>{ev.user.fullName}</strong>
-                      <span> · {ev.eventName}</span>
+                      <span> · {PARTNER_ACTIVITY_LABELS[ev.eventName] ?? ev.eventName}</span>
                       {ev.metadata && typeof ev.metadata === 'object' && ev.metadata !== null && 'label' in ev.metadata && (
                         <span> — {String((ev.metadata as { label?: string }).label)}</span>
                       )}

@@ -15,8 +15,9 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Referred members',
+  title: t('referredMembers'),
   description: 'All members referred by your organization.',
   path: '/partner/referred-members',
 });
@@ -37,7 +38,7 @@ export default async function PartnerReferredMembersPage() {
     <PortalPageFrame>
       <PageHeader
         title={t('referredMembers')}
-        subtitle="Search and filter everyone your organization has referred to WorkforceAP."
+        subtitle={t('filterSubtitle')}
         action={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <PartnerInviteMemberButton />

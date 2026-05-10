@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -31,19 +33,29 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function wioaBadgeProps(status: string | null | undefined): { label: string; variant: 'info' | 'success' | 'error' | 'neutral'; tooltip: string } {
+function wioaBadgeProps(
+  status: string | null | undefined,
+  t: Awaited<ReturnType<typeof getTranslations>>,
+): { label: string; variant: 'info' | 'success' | 'error' | 'neutral'; tooltip: string } {
   switch (status) {
     case 'verified':
-      return { label: 'WIOA Verified', variant: 'success', tooltip: 'Member is WIOA-verified and eligible to enroll in training' };
+      return { label: t('wioaVerified'), variant: 'success', tooltip: 'Member is WIOA-verified and eligible to enroll in training' };
     case 'pending':
     case 'in_review':
-      return { label: 'WIOA Pending', variant: 'info', tooltip: 'Member submitted WIOA screening — awaiting counselor review' };
+      return { label: t('wioaPending'), variant: 'info', tooltip: 'Member submitted WIOA screening — awaiting counselor review' };
     case 'not_eligible':
     case 'needs_info':
-      return { label: 'Not Eligible', variant: 'error', tooltip: 'Member is not eligible for training enrollment until WorkforceAP resolves their WIOA status' };
+      return { label: t('notEligible'), variant: 'error', tooltip: 'Member is not eligible for training enrollment until WorkforceAP resolves their WIOA status' };
     default:
-      return { label: 'WIOA: Not Started', variant: 'info', tooltip: "Member hasn't submitted WIOA screening" };
+      return { label: t('wioaNotStarted'), variant: 'info', tooltip: "Member hasn't submitted WIOA screening" };
   }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
+  return {
+    title: t('myMembers'),
+  };
 }
 
 export default async function CounselorStudentsPage() {
@@ -114,9 +126,11 @@ export default async function CounselorStudentsPage() {
       })
     : [];
 
+  const t = await getTranslations('counselor');
+
   return (
     <PortalPageFrame>
-      <PageHeader title="My Members" subtitle="Members assigned to you for coaching and messaging." />
+      <PageHeader title={t('myMembers')} subtitle={t('membersAssigned')} />
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
@@ -130,9 +144,9 @@ export default async function CounselorStudentsPage() {
           }}
         >
           {[
-            { label: 'Active Members', value: activeCount, accent: 'var(--color-accent)' },
-            { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
-            { label: 'Hot Queue', value: hotQueue.length, accent: 'var(--color-amber)' },
+            { label: t('activeMembers'), value: activeCount, accent: 'var(--color-accent)' },
+            { label: t('enrolled'), value: enrolledCount, accent: 'var(--color-gold)' },
+            { label: t('hotQueue'), value: hotQueue.length, accent: 'var(--color-amber)' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
@@ -179,10 +193,10 @@ export default async function CounselorStudentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
-                    Hot member queue
+                    {t('hotMemberQueue')}
                   </p>
                   <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-                    Fresh completions that need counselor follow-up
+                    {t('freshCompletions')}
                   </h2>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
@@ -229,7 +243,7 @@ export default async function CounselorStudentsPage() {
             padding: '1rem 1rem 0.5rem',
           }}
         >
-          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Active Roster</span>
+          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('activeRoster')}</span>
           <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }} aria-hidden="true">
             sort
           </span>
@@ -239,11 +253,11 @@ export default async function CounselorStudentsPage() {
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {assignments.length === 0 ? (
             <PortalEmptyState
-              title="No members assigned yet"
-              description="Members will appear here once assigned by an administrator."
+              title={t('noMembersAssigned')}
+              description={t('assignedByAdmin')}
               icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-              primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-              secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
+              primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+              secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
             />
           ) : (
             assignments.map((a) => {
@@ -260,7 +274,7 @@ export default async function CounselorStudentsPage() {
                 enrolledProgram: a.member.enrolledProgram,
                 assessmentScorePct: a.member.assessmentScorePct,
               });
-              const wioa = wioaBadgeProps(a.member.wioaReviewStatus);
+              const wioa = wioaBadgeProps(a.member.wioaReviewStatus, t);
               return (
                 <Link
                   key={a.id}
@@ -316,7 +330,7 @@ export default async function CounselorStudentsPage() {
                       </p>
                       {trainingProgressPct === null ? (
                         <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                          {enrolledSlug ? t('trainingProgressUnavailable') : t('notEnrolled')}
                         </p>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -378,10 +392,10 @@ export default async function CounselorStudentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
-                    Hot member queue
+                    {t('hotMemberQueue')}
                   </p>
                   <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-                    Members who just became actionable
+                    {t('membersActionable')}
                   </h2>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
@@ -415,7 +429,7 @@ export default async function CounselorStudentsPage() {
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
                         {formatHotQueueTime(action.createdAt)}
                       </p>
-                      <span className="btn btn-primary btn-sm">Open member</span>
+                      <span className="btn btn-primary btn-sm">{t('openMember')}</span>
                     </div>
                   </Link>
                 ))}
@@ -426,16 +440,16 @@ export default async function CounselorStudentsPage() {
 
         {assignments.length === 0 ? (
           <PortalEmptyState
-            title="No members assigned yet"
-            description="Members will appear here once assigned by an administrator."
+            title={t('noMembersAssigned')}
+            description={t('assignedByAdmin')}
             icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
+            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+            secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
           />
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
             {assignments.map((a) => {
-              const wioa = wioaBadgeProps(a.member.wioaReviewStatus);
+              const wioa = wioaBadgeProps(a.member.wioaReviewStatus, t);
               return (
                 <li key={a.id}>
                   <Link

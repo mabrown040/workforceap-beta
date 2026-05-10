@@ -5,7 +5,7 @@ const LABELS: Record<string, string> = {
   suggested: 'Suggested',
   employer_notified: 'Notified',
   student_notified: 'Member notified',
-  rejected: 'Passed',
+  rejected: 'Declined',
   contacted: 'Contacted',
   interviewing: 'Interviewing',
   hired: 'Hired',

@@ -1,165 +1,171 @@
 /**
- * B4B-driven canonical-mapping seeder.
+ * B4B-driven canonical-mapping seeder (course-level).
  *
- * Companion to `seedCanonicalMappingsFromCatalog.ts`. The catalog seeder
- * walks the local `courses` table and only covers programs we already
- * have Coursera ids typed in for. The B4B seeder fills the gap for
- * programs the catalog has never been hand-mapped for: it pulls every
- * program + course Coursera knows about (`listPrograms({ excludeContent:
- * false })`), matches each B4B program to a `Program` in the static
- * catalog (by explicit `courseraB4BProgramId`, then by normalized name),
- * and upserts a canonical mapping for every course inside the matched
- * program.
+ * Pulls the org's flat content catalog from `listContents()` and, for
+ * each Coursera Course, finds the matching `Program` in our static
+ * catalog by comparing the Coursera course name against
+ * `Program.courses[].name`. Upserts a `CourseraCanonicalCourseMapping`
+ * for every match.
  *
- * Why this exists: 11 of 19 catalog programs had zero rows in
- * `coursera_canonical_course_mappings` as of 2026-05-10 because their
- * `courses` rows were never typed in. xAPI events for those programs
- * therefore land in `completion_status='ignored'` forever. Pulling B4B's
- * own program → course tree resolves the gap without manual data entry.
+ * Why course-level instead of program-level: our B4B org returns a
+ * single umbrella program ("Workforce Advancement Project") and every
+ * "program" in our static catalog is a Course or Specialization inside
+ * it — not a B4B program peer. A program-level matcher never resolves.
+ * Going course-level lets us bind real Coursera ids to our catalog
+ * regardless of how the umbrella is structured upstream.
  *
  * Idempotent — upserts on the unique `courseraCourseId` column.
  *
- * Pure on the matcher (`matchB4BProgramToCatalog`) so the unit test can
- * import it without the `'server-only'` chain. The seeder itself
- * imports prisma but accepts the B4B program list as a parameter so the
- * caller (server wrapper) handles the live fetch.
+ * `matchCourseToCatalog` is pure so it can be unit-tested without the
+ * `'server-only'` import chain.
  */
 import { prisma } from '@/lib/db/prisma';
-import { PROGRAMS, type Program } from '@/lib/content/programs';
+import { PROGRAMS, type Program, type ProgramCourse } from '@/lib/content/programs';
 
-/** Minimal B4B program shape — accepted as a parameter to keep the seeder pure-ish. */
-export type B4BProgramSeedInput = {
+export type B4BCourseSeedInput = {
   id: string;
   slug: string | null;
   name: string;
-  url?: string | null;
-  courses: Array<{ id: string; slug: string; name: string }>;
+  contentType?: string;
 };
 
-export type B4BSeedProgramResult = {
+export type B4BCourseSeedResult = {
+  courseraCourseId: string;
+  courseraCourseSlug: string | null;
+  courseraName: string;
   canonicalProgramSlug: string | null;
-  b4bProgramId: string;
-  b4bProgramName: string;
-  matchKind: 'manualId' | 'name' | 'unmatched';
-  scanned: number;
-  created: number;
-  updated: number;
-  skippedNoCourseId: number;
+  canonicalCourseSlug: string | null;
+  matchKind: 'name' | 'unmatched';
+  action: 'created' | 'updated' | 'skipped';
 };
 
 export type B4BSeedSummary = {
-  programsScanned: number;
-  programsMatched: number;
-  programsUnmatched: number;
+  contentsScanned: number;
+  coursesScanned: number;
+  coursesMatched: number;
+  coursesUnmatched: number;
   totalCreated: number;
   totalUpdated: number;
-  perProgram: B4BSeedProgramResult[];
+  /** First 50 per-course results, for the admin UI breakdown. Skip is
+   *  applied to results returned to the API to keep the payload small. */
+  perCourse: B4BCourseSeedResult[];
 };
 
-function normalizeName(name: string): string {
+function normalizeCourseName(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 /**
- * Match a B4B program to a `Program` in the static catalog.
- *
- * Resolution order:
- *   1. `Program.courseraB4BProgramId === b4b.id` (admin-bound id)
- *   2. Normalized name equality
- *   3. null — caller surfaces the program in the "unmatched" list
+ * Find the catalog (Program, ProgramCourse) pair whose course name
+ * normalizes to the same string as the B4B course name. First match
+ * wins — the static catalog has one course per (program, course) so
+ * collisions across programs are vanishingly rare in practice.
  */
-export function matchB4BProgramToCatalog(
-  b4b: { id: string; name: string },
+export function matchCourseToCatalog(
+  b4bCourseName: string,
   catalog: Program[] = PROGRAMS,
-): { program: Program; kind: 'manualId' | 'name' } | null {
-  const byManualId = catalog.find((p) => p.courseraB4BProgramId === b4b.id);
-  if (byManualId) return { program: byManualId, kind: 'manualId' };
-
-  const target = normalizeName(b4b.name);
+): { program: Program; course: ProgramCourse } | null {
+  const target = normalizeCourseName(b4bCourseName);
   if (!target) return null;
-  const byName = catalog.find((p) => normalizeName(p.title) === target);
-  if (byName) return { program: byName, kind: 'name' };
-
+  for (const program of catalog) {
+    for (const course of program.courses) {
+      if (normalizeCourseName(course.name) === target) {
+        return { program, course };
+      }
+    }
+  }
   return null;
 }
 
 export async function seedCanonicalMappingsFromB4B(args: {
-  programs: B4BProgramSeedInput[];
+  contents: B4BCourseSeedInput[];
   actorUserId?: string | null;
 }): Promise<B4BSeedSummary> {
   const actorUserId = args.actorUserId ?? null;
-  const b4bPrograms = args.programs;
+  const contents = args.contents;
 
   const summary: B4BSeedSummary = {
-    programsScanned: b4bPrograms.length,
-    programsMatched: 0,
-    programsUnmatched: 0,
+    contentsScanned: contents.length,
+    coursesScanned: 0,
+    coursesMatched: 0,
+    coursesUnmatched: 0,
     totalCreated: 0,
     totalUpdated: 0,
-    perProgram: [],
+    perCourse: [],
   };
 
-  for (const b4b of b4bPrograms) {
-    const match = matchB4BProgramToCatalog(b4b);
-    const result: B4BSeedProgramResult = {
-      canonicalProgramSlug: match?.program.slug ?? null,
-      b4bProgramId: b4b.id,
-      b4bProgramName: b4b.name,
-      matchKind: match ? match.kind : 'unmatched',
-      scanned: b4b.courses.length,
-      created: 0,
-      updated: 0,
-      skippedNoCourseId: 0,
-    };
+  // We only seed Course-type entries; Specializations don't carry an
+  // independently-trackable Coursera course id in this pipeline.
+  const courses = contents.filter(
+    (c) => !c.contentType || c.contentType === 'Course',
+  );
+  summary.coursesScanned = courses.length;
 
+  for (const c of courses) {
+    const courseraCourseId = c.id?.trim();
+    const courseraCourseSlug = c.slug?.trim() || null;
+    if (!courseraCourseId) continue;
+
+    const match = matchCourseToCatalog(c.name);
     if (!match) {
-      summary.programsUnmatched += 1;
-      summary.perProgram.push(result);
+      summary.coursesUnmatched += 1;
+      if (summary.perCourse.length < 50) {
+        summary.perCourse.push({
+          courseraCourseId,
+          courseraCourseSlug,
+          courseraName: c.name,
+          canonicalProgramSlug: null,
+          canonicalCourseSlug: null,
+          matchKind: 'unmatched',
+          action: 'skipped',
+        });
+      }
       continue;
     }
 
-    summary.programsMatched += 1;
+    summary.coursesMatched += 1;
 
-    for (const course of b4b.courses) {
-      const courseraCourseId = course.id?.trim();
-      if (!courseraCourseId) {
-        result.skippedNoCourseId += 1;
-        continue;
-      }
-      const courseraCourseSlug = course.slug?.trim() || null;
+    const existing = await prisma.courseraCanonicalCourseMapping.findUnique({
+      where: { courseraCourseId },
+      select: { id: true },
+    });
 
-      const existing = await prisma.courseraCanonicalCourseMapping.findUnique({
-        where: { courseraCourseId },
-        select: { id: true },
-      });
+    await prisma.courseraCanonicalCourseMapping.upsert({
+      where: { courseraCourseId },
+      create: {
+        courseraCourseId,
+        courseraCourseSlug,
+        canonicalProgramSlug: match.program.slug,
+        canonicalCourseSlug: match.course.slug,
+        notes: 'Auto-seeded from B4B listContents (course-name match)',
+        createdById: actorUserId,
+      },
+      update: {
+        courseraCourseSlug,
+        canonicalProgramSlug: match.program.slug,
+        canonicalCourseSlug: match.course.slug,
+        // Don't touch notes/createdById on update — preserve manual edits.
+      },
+    });
 
-      await prisma.courseraCanonicalCourseMapping.upsert({
-        where: { courseraCourseId },
-        create: {
-          courseraCourseId,
-          courseraCourseSlug,
-          canonicalProgramSlug: match.program.slug,
-          canonicalCourseSlug: courseraCourseSlug ?? course.id,
-          notes: 'Auto-seeded from B4B listPrograms',
-          createdById: actorUserId,
-        },
-        update: {
-          courseraCourseSlug,
-          canonicalProgramSlug: match.program.slug,
-          canonicalCourseSlug: courseraCourseSlug ?? course.id,
-        },
-      });
-
-      if (existing) {
-        result.updated += 1;
-        summary.totalUpdated += 1;
-      } else {
-        result.created += 1;
-        summary.totalCreated += 1;
-      }
+    const action: 'created' | 'updated' = existing ? 'updated' : 'created';
+    if (existing) {
+      summary.totalUpdated += 1;
+    } else {
+      summary.totalCreated += 1;
     }
 
-    summary.perProgram.push(result);
+    if (summary.perCourse.length < 50) {
+      summary.perCourse.push({
+        courseraCourseId,
+        courseraCourseSlug,
+        courseraName: c.name,
+        canonicalProgramSlug: match.program.slug,
+        canonicalCourseSlug: match.course.slug,
+        matchKind: 'name',
+        action,
+      });
+    }
   }
 
   return summary;

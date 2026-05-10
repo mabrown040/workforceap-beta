@@ -10,24 +10,24 @@
  */
 import { useState } from 'react';
 
-type ProgramResult = {
+type CourseResult = {
+  courseraCourseId: string;
+  courseraCourseSlug: string | null;
+  courseraName: string;
   canonicalProgramSlug: string | null;
-  b4bProgramId: string;
-  b4bProgramName: string;
-  matchKind: 'manualId' | 'name' | 'unmatched';
-  scanned: number;
-  created: number;
-  updated: number;
-  skippedNoCourseId: number;
+  canonicalCourseSlug: string | null;
+  matchKind: 'name' | 'unmatched';
+  action: 'created' | 'updated' | 'skipped';
 };
 
 type Summary = {
-  programsScanned: number;
-  programsMatched: number;
-  programsUnmatched: number;
+  contentsScanned: number;
+  coursesScanned: number;
+  coursesMatched: number;
+  coursesUnmatched: number;
   totalCreated: number;
   totalUpdated: number;
-  perProgram: ProgramResult[];
+  perCourse: CourseResult[];
 };
 
 const CONFIRM_PROMPT =
@@ -59,8 +59,8 @@ export default function SeedCanonicalMappingsFromB4BButton() {
       }
       if (
         !json ||
-        typeof (json as Summary).programsScanned !== 'number' ||
-        !Array.isArray((json as Summary).perProgram)
+        typeof (json as Summary).coursesScanned !== 'number' ||
+        !Array.isArray((json as Summary).perCourse)
       ) {
         throw new Error('Malformed server response');
       }
@@ -94,20 +94,23 @@ export default function SeedCanonicalMappingsFromB4BButton() {
       </button>
       {summary ? (
         <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-          Scanned {summary.programsScanned} B4B programs — matched{' '}
-          <strong>{summary.programsMatched}</strong> to catalog,{' '}
-          <strong>{summary.programsUnmatched}</strong> unmatched. Created{' '}
+          Scanned {summary.contentsScanned} B4B contents (
+          {summary.coursesScanned} courses) — matched{' '}
+          <strong>{summary.coursesMatched}</strong> to catalog,{' '}
+          <strong>{summary.coursesUnmatched}</strong> unmatched. Created{' '}
           <strong>{summary.totalCreated}</strong> new mapping{summary.totalCreated === 1 ? '' : 's'}, refreshed{' '}
           <strong>{summary.totalUpdated}</strong>.
-          {summary.perProgram.some((r) => r.matchKind === 'unmatched') ? (
+          {summary.perCourse.some((r) => r.matchKind === 'unmatched') ? (
             <details style={{ marginTop: '0.5rem' }}>
-              <summary style={{ cursor: 'pointer' }}>Unmatched B4B programs (review manually)</summary>
+              <summary style={{ cursor: 'pointer' }}>
+                Unmatched Coursera courses (review manually)
+              </summary>
               <ul style={{ margin: '0.4rem 0 0', paddingLeft: '1.25rem' }}>
-                {summary.perProgram
+                {summary.perCourse
                   .filter((r) => r.matchKind === 'unmatched')
                   .map((r) => (
-                    <li key={r.b4bProgramId}>
-                      <code>{r.b4bProgramId}</code> — {r.b4bProgramName} ({r.scanned} courses)
+                    <li key={r.courseraCourseId}>
+                      <code>{r.courseraCourseId}</code> — {r.courseraName}
                     </li>
                   ))}
               </ul>

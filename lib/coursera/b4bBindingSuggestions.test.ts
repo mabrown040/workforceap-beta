@@ -48,18 +48,27 @@ test('already-bound match counts only as alreadyBound, not exact', () => {
   assert.equal(report.suggestions[0]!.alreadyBound, true);
 });
 
-test('partial match catches name variants', () => {
+test('partial match catches name variants (multi-program org)', () => {
   const catalog = [mkProgram('ai-dev-ibm', 'AI Professional Practitioner Certificate')];
-  const b4b = [mkB4B('B4B-AI', 'AI Professional Practitioner Certificate (IBM)')];
+  // Provide 2 B4B programs so the single-umbrella branch doesn't engage.
+  const b4b = [
+    mkB4B('B4B-AI', 'AI Professional Practitioner Certificate (IBM)'),
+    mkB4B('B4B-PEER', 'Unrelated Peer Program'),
+  ];
   const report = computeBindingSuggestions(catalog, b4b);
+  assert.equal(report.umbrella, null);
   assert.equal(report.partialMatches, 1);
   assert.equal(report.suggestions[0]!.confidence, 'partial');
 });
 
-test('no candidate → unmatched', () => {
+test('no candidate → unmatched (multi-program org)', () => {
   const catalog = [mkProgram('digital-literacy', 'Digital Literacy Empowerment Class')];
-  const b4b = [mkB4B('B4B-OTHER', 'Some Unrelated Program')];
+  const b4b = [
+    mkB4B('B4B-OTHER', 'Some Unrelated Program'),
+    mkB4B('B4B-OTHER-2', 'Another Unrelated Program'),
+  ];
   const report = computeBindingSuggestions(catalog, b4b);
+  assert.equal(report.umbrella, null);
   assert.equal(report.unmatched, 1);
   assert.equal(report.suggestions[0]!.confidence, 'none');
   assert.equal(report.suggestions[0]!.suggestedB4BId, null);
@@ -89,9 +98,46 @@ test('multiple programs aggregate counts correctly', () => {
     // C has no B4B match
   ];
   const report = computeBindingSuggestions(catalog, b4b);
+  assert.equal(report.umbrella, null);
   assert.equal(report.alreadyBound, 1);
   assert.equal(report.exactMatches, 1);
   assert.equal(report.unmatched, 1);
   assert.equal(report.totalCatalogPrograms, 3);
   assert.equal(report.totalB4BPrograms, 2);
+});
+
+test('single-umbrella B4B org binds every catalog program to the umbrella', () => {
+  const catalog = [
+    mkProgram('it', 'IT Support'),
+    mkProgram('data', 'Data Analytics'),
+    mkProgram('ai', 'AI Practitioner'),
+  ];
+  const b4b = [mkB4B('UMB-ID', 'Workforce Advancement Project', 'wap-shell')];
+  const report = computeBindingSuggestions(catalog, b4b);
+
+  assert.deepEqual(report.umbrella, {
+    id: 'UMB-ID',
+    name: 'Workforce Advancement Project',
+    slug: 'wap-shell',
+  });
+  assert.equal(report.totalCatalogPrograms, 3);
+  assert.equal(report.totalB4BPrograms, 1);
+  assert.equal(report.exactMatches, 3);
+  assert.equal(report.alreadyBound, 0);
+  assert.equal(report.unmatched, 0);
+  for (const s of report.suggestions) {
+    assert.equal(s.suggestedB4BId, 'UMB-ID');
+    assert.equal(s.confidence, 'exact');
+  }
+});
+
+test('umbrella with already-bound program counts correctly', () => {
+  const catalog = [
+    mkProgram('it', 'IT Support', 'UMB-ID'),
+    mkProgram('data', 'Data Analytics'),
+  ];
+  const b4b = [mkB4B('UMB-ID', 'Umbrella')];
+  const report = computeBindingSuggestions(catalog, b4b);
+  assert.equal(report.alreadyBound, 1);
+  assert.equal(report.exactMatches, 1);
 });

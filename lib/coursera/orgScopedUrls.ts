@@ -53,6 +53,14 @@ type ProgramIndex = {
    * Coursera itself has duplicate names.
    */
   byNormalizedName: Map<string, string>;
+  /**
+   * When the org has exactly one B4B program (the umbrella WAP shell,
+   * e.g. "Workforce Advancement Project"), this is its url. All catalog
+   * programs are courses + specializations inside it — none has its own
+   * B4B program peer. Use as a deterministic fallback whenever the
+   * by-id / by-slug / by-name lookups all miss.
+   */
+  umbrellaUrl: string | null;
   fetchedAt: number;
 };
 
@@ -78,11 +86,13 @@ async function fetchProgramIndex(): Promise<ProgramIndex> {
     const bySlug = new Map<string, string>();
     const byId = new Map<string, string>();
     const byNormalizedName = new Map<string, string>();
+    const urlsSeen: string[] = [];
     try {
       const page = await listPrograms({ excludeContent: true, limit: 100 });
       for (const program of page.elements as B4BProgramWithUrl[]) {
         const url = program.url?.trim();
         if (!url) continue;
+        urlsSeen.push(url);
         if (program.slug?.trim()) bySlug.set(program.slug.trim(), url);
         if (program.id?.trim()) byId.set(program.id.trim(), url);
         if (program.name?.trim()) {
@@ -97,7 +107,19 @@ async function fetchProgramIndex(): Promise<ProgramIndex> {
         error instanceof Error ? error.message : error,
       );
     }
-    const idx: ProgramIndex = { bySlug, byId, byNormalizedName, fetchedAt: Date.now() };
+    // Single-umbrella detection: our B4B org returns 1 program ("Workforce
+    // Advancement Project") and every "program" in our static catalog is a
+    // course or specialization inside it. Stamp the lone program's url as
+    // the umbrella fallback so by-id/slug/name misses don't drop to the
+    // platform root.
+    const umbrellaUrl = urlsSeen.length === 1 ? urlsSeen[0]! : null;
+    const idx: ProgramIndex = {
+      bySlug,
+      byId,
+      byNormalizedName,
+      umbrellaUrl,
+      fetchedAt: Date.now(),
+    };
     cachedIndex = idx;
     return idx;
   })();
@@ -127,8 +149,12 @@ async function getProgramIndex(): Promise<ProgramIndex> {
  *      against the B4B `byNormalizedName` index. Stops the
  *      manual-paste-required gap that previously left every program
  *      falling through to the platform-root fallback.
- *   5. Local fallback (platform root — no longer 404s; see
- *      `localFallbackUrl` doc).
+ *   5. **Single-umbrella fallback**: when the B4B org has exactly one
+ *      program (the WAP umbrella shell — courses + specializations live
+ *      inside it), use its url. Every catalog program resolves to the
+ *      same umbrella URL, which is what we want: the learner lands in
+ *      the org-scoped program shell and picks a course from there.
+ *   6. Local platform-root fallback (no longer 404s; see `localFallbackUrl`).
  *
  * Always returns a string so call sites can use it directly in `<a href>`.
  */
@@ -154,6 +180,8 @@ export async function getOrgScopedProgramUrl(programSlug: string): Promise<strin
     const fromName = idx.byNormalizedName.get(normalizeProgramName(program.title));
     if (fromName) return fromName;
   }
+
+  if (idx.umbrellaUrl) return idx.umbrellaUrl;
 
   return localFallbackUrl(slug, 'program');
 }

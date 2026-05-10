@@ -10,6 +10,7 @@ import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearn
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
 import SeedCanonicalMappingsButton from '@/components/admin/SeedCanonicalMappingsButton';
+import B4BProgramsListButton from '@/components/admin/B4BProgramsListButton';
 import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
 import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
 import CourseraInspectByEmailCard from '@/components/admin/CourseraInspectByEmailCard';
@@ -463,6 +464,20 @@ export default async function AdminCourseraPage({
             </span>
           </div>
           <SeedCanonicalMappingsButton />
+        </div>
+
+        <div className="content-card" style={{ padding: '1rem 1.2rem', display: 'grid', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>B4B program directory</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              Pulls every Coursera For Business program known to our org via{' '}
+              <code>listPrograms()</code>. Use the <code>id</code> column to populate the
+              <code style={{ margin: '0 0.25rem' }}>Program.courseraB4BProgramId</code>
+              bridge so <code>getOrgScopedProgramUrl</code> resolves a real org-scoped URL
+              instead of falling back to the platform root. Read-only; B4B credentials only.
+            </span>
+          </div>
+          <B4BProgramsListButton />
         </div>
 
         {loadError ? (

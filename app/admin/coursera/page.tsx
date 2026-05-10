@@ -428,6 +428,29 @@ export default async function AdminCourseraPage({
           </p>
         </div>
 
+        <Link
+          href="/admin/coursera/health"
+          className="content-card"
+          style={{
+            padding: '1rem 1.2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            textDecoration: 'none',
+            color: 'inherit',
+            borderRadius: 'var(--radius-md)',
+          }}
+        >
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>Coursera health diagnostics →</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              Read-only overview of canonical mappings, xAPI traffic, B4B sync state, ignored events, and unmatched actors.
+            </span>
+          </div>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>Open</span>
+        </Link>
+
         {loadError ? (
           <div className="content-card" style={{ padding: '1rem 1.1rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
             <div style={{ display: 'grid', gap: '0.35rem' }}>

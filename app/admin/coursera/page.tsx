@@ -10,6 +10,8 @@ import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearn
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
 import SeedCanonicalMappingsButton from '@/components/admin/SeedCanonicalMappingsButton';
+import SeedCanonicalMappingsFromB4BButton from '@/components/admin/SeedCanonicalMappingsFromB4BButton';
+import B4BBindingsSuggestionsCard from '@/components/admin/B4BBindingsSuggestionsCard';
 import B4BProgramsListButton from '@/components/admin/B4BProgramsListButton';
 import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
 import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
@@ -464,6 +466,32 @@ export default async function AdminCourseraPage({
             </span>
           </div>
           <SeedCanonicalMappingsButton />
+        </div>
+
+        <div className="content-card" style={{ padding: '1rem 1.2rem', display: 'grid', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>Canonical mappings from live B4B</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              Pulls Coursera&apos;s own program → course tree (<code>listPrograms({'{'}excludeContent:false{'}'}</code>)
+              and seeds canonical mappings for every program matched to the catalog. Use this when the
+              catalog seeder above can&apos;t cover a program because no <code>courses</code> rows exist yet —
+              works regardless of what&apos;s typed in <code>lib/content/programs.ts</code>. Idempotent.
+            </span>
+          </div>
+          <SeedCanonicalMappingsFromB4BButton />
+        </div>
+
+        <div className="content-card" style={{ padding: '1rem 1.2rem', display: 'grid', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>B4B program-id bindings</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              Diff the catalog against the live B4B directory by name. Each row marks whether the
+              program is already bound, has an exact-name match ready to apply, or needs manual
+              review. The patch hint is a copy-paste TypeScript snippet for engineers to land in a
+              follow-up PR.
+            </span>
+          </div>
+          <B4BBindingsSuggestionsCard />
         </div>
 
         <div className="content-card" style={{ padding: '1rem 1.2rem', display: 'grid', gap: '0.5rem' }}>

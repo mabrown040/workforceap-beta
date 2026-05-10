@@ -1,0 +1,127 @@
+import { NextResponse } from 'next/server';
+
+import { getUser } from '@/lib/auth/server';
+import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+
+/**
+ * GET /api/admin/coursera/ignored-xapi-summary
+ *
+ * Diagnostic for the most common cause of a stuck Coursera pipeline:
+ * inbound xAPI events whose `course_slug` doesn't resolve through any of
+ * (a) `coursera_canonical_course_mappings`, (b) the discovered catalog,
+ * (c) the static `Program.courses[]` slug list. Those events land with
+ * `completion_status='ignored'` and never promote to `course_progress`.
+ *
+ * Returns the top N course slugs by ignored-event volume in the last 30
+ * days, plus an `outstandingTotal` so the admin UI can flag a backlog.
+ *
+ * Read-only. Auth: super_admin OR admin in the actor's org.
+ */
+
+const DEFAULT_LIMIT = 25;
+const LOOKBACK_DAYS = 30;
+
+type IgnoredSlugRow = {
+  course_slug: string | null;
+  course_name: string | null;
+  event_count: bigint;
+  distinct_learners: bigint;
+  first_seen: Date | null;
+  last_seen: Date | null;
+};
+
+export async function GET(request: Request) {
+  const actor = await getUser();
+  if (!actor) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  let orgId: string;
+  try {
+    orgId = await getActorOrganizationId(actor.id);
+  } catch (err) {
+    captureApiError(err, { route: 'admin/coursera/ignored-xapi-summary' });
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const superAdmin = await isSuperAdmin(actor.id);
+  if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const url = new URL(request.url);
+  const rawLimit = Number(url.searchParams.get('limit'));
+  const limit = Number.isFinite(rawLimit) && rawLimit > 0 && rawLimit <= 100
+    ? Math.floor(rawLimit)
+    : DEFAULT_LIMIT;
+
+  try {
+    const since = new Date(Date.now() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+
+    // Two raw queries: one for the top-N detail, one for the outstanding
+    // totals. Kept simple instead of a single window-function query so the
+    // shape is easy to read in admin diagnostics.
+    const rows = await prisma.$queryRaw<IgnoredSlugRow[]>`
+      SELECT
+        course_slug,
+        MAX(course_name) AS course_name,
+        COUNT(*)::bigint AS event_count,
+        COUNT(DISTINCT actor_email)::bigint AS distinct_learners,
+        MIN(received_at) AS first_seen,
+        MAX(received_at) AS last_seen
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('ignored', 'unmatched')
+        AND received_at >= ${since}
+      GROUP BY course_slug
+      ORDER BY event_count DESC
+      LIMIT ${limit}
+    `;
+
+    const totals = await prisma.$queryRaw<
+      { completion_status: string; total: bigint }[]
+    >`
+      SELECT completion_status, COUNT(*)::bigint AS total
+      FROM coursera_xapi_events
+      WHERE completion_status IN ('ignored', 'unmatched')
+        AND received_at >= ${since}
+      GROUP BY completion_status
+    `;
+
+    const outstandingTotal = totals.reduce((sum, t) => sum + Number(t.total), 0);
+    const ignoredTotal = Number(
+      totals.find((t) => t.completion_status === 'ignored')?.total ?? 0,
+    );
+    const unmatchedTotal = Number(
+      totals.find((t) => t.completion_status === 'unmatched')?.total ?? 0,
+    );
+
+    return NextResponse.json({
+      lookbackDays: LOOKBACK_DAYS,
+      outstandingTotal,
+      ignoredTotal,
+      unmatchedTotal,
+      topSlugs: rows.map((r) => ({
+        courseSlug: r.course_slug,
+        courseName: r.course_name,
+        eventCount: Number(r.event_count),
+        distinctLearners: Number(r.distinct_learners),
+        firstSeen: r.first_seen,
+        lastSeen: r.last_seen,
+      })),
+    });
+  } catch (err) {
+    captureApiError(err, { route: 'admin/coursera/ignored-xapi-summary' });
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error
+            ? err.message
+            : 'Failed to compute ignored xAPI summary',
+      },
+      { status: 500 },
+    );
+  }
+}

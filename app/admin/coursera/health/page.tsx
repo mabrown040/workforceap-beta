@@ -10,6 +10,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
 import { prisma } from '@/lib/db/prisma';
+import IgnoredXapiSummaryCard from '@/components/admin/IgnoredXapiSummaryCard';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -836,6 +837,11 @@ export default async function AdminCourseraHealthPage() {
             ) : null}
           </div>
         ))}
+      </section>
+
+      {/* Section 1.5 — ignored xAPI events (top stuck slugs). */}
+      <section style={{ marginBottom: '1rem' }}>
+        <IgnoredXapiSummaryCard />
       </section>
 
       {/* Section 2 — recent cron runs. */}

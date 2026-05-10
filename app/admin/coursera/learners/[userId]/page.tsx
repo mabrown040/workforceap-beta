@@ -35,24 +35,26 @@ type IdentityMappingRow = {
 };
 
 async function loadIdentityMappingsForUser(userId: string): Promise<IdentityMappingRow[]> {
-  // Raw query: the table is created on demand by lib/xapi/mappings.ts and is
-  // not modeled in Prisma yet. We tolerate "table does not exist" errors so
-  // the page still renders for users without xAPI activity.
+  // The table is now modeled as `CourseraIdentityMapping` in Prisma. We still
+  // tolerate "table does not exist" errors so the page renders against fresh
+  // DBs that haven't run `prisma migrate deploy` yet (the on-demand creator
+  // in lib/xapi/mappings.ts only fires on xAPI ingest, not on this page).
   try {
-    return await prisma.$queryRaw<IdentityMappingRow[]>`
-      SELECT
-        id,
-        coursera_email AS "courseraEmail",
-        actor_identifier AS "actorIdentifier",
-        actor_home_page AS "actorHomePage",
-        source,
-        notes,
-        last_seen_at AS "lastSeenAt",
-        created_at AS "createdAt"
-      FROM coursera_identity_mappings
-      WHERE user_id = ${userId}::uuid
-      ORDER BY updated_at DESC, created_at DESC
-    `;
+    const rows = await prisma.courseraIdentityMapping.findMany({
+      where: { userId },
+      orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        id: true,
+        courseraEmail: true,
+        actorIdentifier: true,
+        actorHomePage: true,
+        source: true,
+        notes: true,
+        lastSeenAt: true,
+        createdAt: true,
+      },
+    });
+    return rows;
   } catch (err) {
     console.error('[admin/coursera/learners] failed to load identity mappings:', err);
     return [];

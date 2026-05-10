@@ -9,6 +9,7 @@ import CourseraMappingsAdmin from '@/components/admin/CourseraMappingsAdmin';
 import CourseraUnmatchedLearners from '@/components/admin/CourseraUnmatchedLearners';
 import CourseraPipelineFlow from '@/components/admin/CourseraPipelineFlow';
 import CourseraSyncProgressButton from '@/components/admin/CourseraSyncProgressButton';
+import SeedCanonicalMappingsButton from '@/components/admin/SeedCanonicalMappingsButton';
 import CourseraSelfTest from '@/components/admin/CourseraSelfTest';
 import CourseraReconcileCard from '@/components/admin/CourseraReconcileCard';
 import CourseraInspectByEmailCard from '@/components/admin/CourseraInspectByEmailCard';
@@ -450,6 +451,19 @@ export default async function AdminCourseraPage({
           </div>
           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>Open</span>
         </Link>
+
+        <div className="content-card" style={{ padding: '1rem 1.2rem', display: 'grid', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gap: '0.2rem' }}>
+            <strong style={{ fontSize: '1rem' }}>Canonical course mappings</strong>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              If the canonical mapping table is empty, every xAPI event from Coursera is silently marked
+              <code style={{ margin: '0 0.25rem' }}>completion_status=&apos;ignored&apos;</code>
+              and never promotes to <code>course_progress</code>. This action upserts a mapping for every
+              Course in the catalog with a real (non-placeholder) Coursera course id. Idempotent.
+            </span>
+          </div>
+          <SeedCanonicalMappingsButton />
+        </div>
 
         {loadError ? (
           <div className="content-card" style={{ padding: '1rem 1.1rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>

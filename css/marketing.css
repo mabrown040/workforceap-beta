@@ -355,3 +355,20 @@ html.has-marketing-main-nav {
     gap: 2rem !important;
   }
 }
+
+/* /programs sticky-bottom quiz CTA: clear MobileBottomNav.
+   `.programs-quiz-sticky` is positioned at `bottom: 0.75rem` inline in
+   ProgramsContent.tsx (cursor audit item 11 — "the CTA catches when you
+   scroll down"). On mobile the MobileBottomNav is fixed at `bottom: 0`
+   with ~3.75rem of nav-link height + safe-area inset, so the sticky
+   CTA gets pinned UNDER the nav as the user scrolls. Override the
+   bottom offset to clear the nav; also bump z-index above the nav so a
+   tap goes to the CTA, not the nav button beneath. The locked-stakes
+   guard prevents direct edits to ProgramsContent.tsx, so we do this in
+   marketing.css with `!important` to win over the inline @media block. */
+@media (max-width: 767px) {
+  .programs-quiz-sticky {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 65 !important;
+  }
+}

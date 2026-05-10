@@ -31,11 +31,16 @@ export async function loadProgramCourses(args: {
   const program = getProgramBySlug(args.programSlug);
   const title = args.programTitleOverride ?? program?.title ?? null;
 
-  // 1. B4B live (cached). Match by slug equality (rare) then normalized
-  // title. Once #1158 adds `Program.courseraB4BProgramId`, an explicit
-  // override id lookup will join this chain ahead of slug.
+  // 1. B4B live (cached). Resolution order inside the B4B index:
+  //    a. Program.courseraB4BProgramId — explicit manual override paste-able
+  //       from /admin/coursera "List B4B programs" (added in #1158). Wins
+  //       when set so a renamed WAP program doesn't silently match the
+  //       wrong Coursera program.
+  //    b. slug equality (rare; only when our slug coincidentally matches
+  //       Coursera's).
+  //    c. normalized program title — automatic primary path.
   const fromB4B = await loadProgramCoursesFromB4B({
-    programId: null,
+    programId: program?.courseraB4BProgramId ?? null,
     slug: args.programSlug,
     title,
   });

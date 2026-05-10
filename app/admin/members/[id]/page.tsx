@@ -32,6 +32,7 @@ import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReview
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 import '@/css/counselor.css';
 
 type AdminCourseProgressRow = {
@@ -329,6 +330,24 @@ export default async function AdminMemberDetailPage({
 
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
 
+  // Coursera B4B / xAPI learner detail — surfaces CSV-imported course
+  // progress, specialization badges, and last activity timestamps on the
+  // main member detail so admins do not have to context-switch to
+  // /admin/coursera/learners/[userId] to see what's actually flowing in.
+  const courseraDetail = await loadLearnerProgressByUserId(member.id);
+  const courseraCourseCount = courseraDetail?.courses.length ?? 0;
+  const courseraCompletedCount = courseraDetail?.courses.filter((c) => c.isCompleted).length ?? 0;
+  const courseraBadgeCount = courseraDetail?.badges.length ?? 0;
+  const courseraCompletedBadgeCount =
+    courseraDetail?.badges.filter((b) => b.badgeCompleted).length ?? 0;
+  const courseraLastActivity = courseraDetail
+    ? courseraDetail.courses.reduce<Date | null>((latest, c) => {
+        if (!c.lastActivityTime) return latest;
+        if (!latest || c.lastActivityTime > latest) return c.lastActivityTime;
+        return latest;
+      }, null)
+    : null;
+
   const counselorChatInitial = {
     staffUserId: user.id,
     member: { id: member.id, fullName: member.fullName },
@@ -563,6 +582,72 @@ export default async function AdminMemberDetailPage({
             }
             approvedByName={null}
           />
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Coursera training</h2>
+            <Link
+              href={`/admin/coursera/learners/${member.id}`}
+              style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+            >
+              Open full Coursera detail →
+            </Link>
+          </div>
+          {courseraDetail && (courseraCourseCount > 0 || courseraBadgeCount > 0) ? (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Courses</p>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                    {courseraCompletedCount}/{courseraCourseCount} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>complete</span>
+                  </p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Specializations</p>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                    {courseraCompletedBadgeCount}/{courseraBadgeCount} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>earned</span>
+                  </p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Last activity</p>
+                  <p style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
+                    {courseraLastActivity ? courseraLastActivity.toLocaleDateString() : '—'}
+                  </p>
+                </div>
+              </div>
+              {courseraCourseCount > 0 ? (
+                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'grid', gap: '0.35rem' }}>
+                  {courseraDetail.courses.slice(0, 5).map((c) => (
+                    <li key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem' }}>
+                      {c.isCompleted ? (
+                        <CheckCircle size={16} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
+                      ) : (
+                        <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />
+                      )}
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.courseName}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
+                        {Number(c.overallProgress).toFixed(0)}%
+                      </span>
+                    </li>
+                  ))}
+                  {courseraCourseCount > 5 ? (
+                    <li style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', paddingLeft: '1.6rem' }}>
+                      + {courseraCourseCount - 5} more — see full detail
+                    </li>
+                  ) : null}
+                </ul>
+              ) : null}
+            </>
+          ) : (
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+              No Coursera activity recorded yet. Data populates from the B4B sync (every 6h),
+              xAPI webhook, or manual CSV import on{' '}
+              <Link href="/admin/coursera/csv-import" style={{ color: 'var(--color-accent)' }}>
+                /admin/coursera/csv-import
+              </Link>.
+            </p>
+          )}
         </section>
 
         <MemberPartnerSection

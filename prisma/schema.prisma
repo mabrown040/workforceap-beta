@@ -1949,6 +1949,35 @@ model CourseraCanonicalCourseMapping {
   @@map("coursera_canonical_course_mappings")
 }
 
+/// Identity bridge from a Coursera learner (by Coursera email or xAPI actor)
+/// to a WorkforceAP user. Originally created on demand by
+/// `lib/xapi/mappings.ts` via raw SQL — now modeled in Prisma so reads can use
+/// the typed client. The on-demand `CREATE TABLE IF NOT EXISTS` in
+/// `lib/xapi/mappings.ts` is preserved for back-compat / fresh DBs that
+/// haven't run migrations yet.
+///
+/// Note: `userId` is `text` (not a relation) because existing prod rows are
+/// not guaranteed to be valid UUIDs that round-trip through Prisma's UUID
+/// validator. The on-demand SQL also writes it as text. Switching to a
+/// relation would require a data migration; see #coursera-canonical-mappings.
+model CourseraIdentityMapping {
+  id               String    @id @default(uuid())
+  userId           String    @map("user_id")
+  courseraEmail    String?   @map("coursera_email")
+  actorIdentifier  String?   @map("actor_identifier")
+  actorHomePage    String?   @map("actor_home_page")
+  source           String    @map("source")
+  notes            String?   @map("notes")
+  createdByUserId  String?   @map("created_by_user_id")
+  lastSeenAt       DateTime? @map("last_seen_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([actorIdentifier, actorHomePage])
+  @@map("coursera_identity_mappings")
+}
+
 /// Per-learner-per-badge (specialization) progress imported from the Coursera
 /// "Learner activity & progress" CSV report (LearningPathActivity tab). The raw
 /// CSV has one row per (learner, course-within-badge); the ingester deduplicates

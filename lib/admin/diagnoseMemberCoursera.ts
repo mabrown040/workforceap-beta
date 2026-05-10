@@ -97,17 +97,17 @@ export async function diagnoseMemberCoursera(
 
   let identityMappings: IdentityMappingRaw[] = [];
   try {
-    identityMappings = await prisma.$queryRaw<IdentityMappingRaw[]>`
-      SELECT
-        coursera_email AS "courseraEmail",
-        actor_identifier AS "actorIdentifier",
-        actor_home_page AS "actorHomePage",
-        source,
-        last_seen_at AS "lastSeenAt"
-      FROM coursera_identity_mappings
-      WHERE user_id = ${memberId}
-      ORDER BY last_seen_at DESC NULLS LAST
-    `;
+    identityMappings = await prisma.courseraIdentityMapping.findMany({
+      where: { userId: memberId },
+      orderBy: [{ lastSeenAt: { sort: 'desc', nulls: 'last' } }],
+      select: {
+        courseraEmail: true,
+        actorIdentifier: true,
+        actorHomePage: true,
+        source: true,
+        lastSeenAt: true,
+      },
+    });
   } catch (err) {
     console.error('[diagnoseMemberCoursera] identity_mappings query failed:', err);
   }

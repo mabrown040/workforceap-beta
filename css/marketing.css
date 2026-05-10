@@ -340,3 +340,18 @@ html.has-marketing-main-nav {
     padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* SplitHero: 2-col on desktop, single column stacked on mobile.
+   The component hardcodes `gridTemplateColumns: '2fr 1fr'` inline so the
+   sidebar otherwise squeezes the headline + body on small screens
+   (cursor audit item 10). Override via CSS-class specificity on small
+   viewports — the `.split-hero-grid` class is already on the wrapper.
+   Inline styles win against single-class selectors, so we use `!important`
+   here; this is the cleanest path that doesn't require touching the
+   component's inline-style block. */
+@media (max-width: 767px) {
+  .split-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+}

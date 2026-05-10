@@ -1988,7 +1988,7 @@ html.dark .employer-applications-table.admin-table thead th {
 }
 
 .portal-journey-step__detail {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-on-surface-variant);
   margin: 0;
 }
@@ -2073,7 +2073,7 @@ html.dark .employer-applications-table.admin-table thead th {
 }
 
 .portal-quick-grid-item__label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-on-surface);
   text-align: center;

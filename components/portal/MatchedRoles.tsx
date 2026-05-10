@@ -15,17 +15,21 @@ type MatchedJob = {
 export default function MatchedRoles() {
   const [jobs, setJobs] = useState<MatchedJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
     fetch('/api/member/matched-jobs', { signal: controller.signal })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         if (Array.isArray(data.jobs)) setJobs(data.jobs);
       })
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => {
         clearTimeout(timeout);
         setLoading(false);
@@ -43,6 +47,17 @@ export default function MatchedRoles() {
         <h2 className="dashboard-today-label">Roles that match you</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
           Finding jobs that match your skills...
+        </p>
+      </section>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
+        <h2 className="dashboard-today-label">Roles that match you</h2>
+        <p style={{ color: 'var(--color-accent, #b00020)', fontSize: '0.9rem' }}>
+          Couldn’t load matched roles right now. Try refreshing, or browse the <Link href="/dashboard/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link>.
         </p>
       </section>
     );

@@ -81,7 +81,7 @@ export default async function AdminMemberStakeholderPage({
       enrolledProgram: true,
       enrolledAt: true,
       assessmentCompleted: true,
-      profile: true,
+      onboardingCompletedAt: true,
       courseProgress: {
         orderBy: { lastUpdatedAt: 'desc' },
         select: {
@@ -109,26 +109,60 @@ export default async function AdminMemberStakeholderPage({
 
   if (!member || member.deletedAt) notFound();
 
-  // Same pattern as the admin detail page: tolerate the older PlacedOutcome
-  // table while PlacementRecord ramps up. Stakeholder view reads from the
-  // legacy table to match the field shape the spec asked for.
-  const placedOutcomeRow = await prisma.placedOutcome
+  // Read placement data from the current source of truth (PlacementRecord),
+  // falling back to the legacy PlacedOutcome table only if missing. This
+  // ensures stakeholders see the same data as admins.
+  const placementRecordRow = await prisma.placementRecord
     .findUnique({
       where: { userId: id },
       select: {
         employerName: true,
         jobTitle: true,
-        startingSalary: true,
+        salaryOffered: true,
+        startDate: true,
         placedAt: true,
       },
     })
     .catch(() => null);
 
+  const placedOutcomeLegacy = !placementRecordRow
+    ? await prisma.placedOutcome
+        .findUnique({
+          where: { userId: id },
+          select: {
+            employerName: true,
+            jobTitle: true,
+            startingSalary: true,
+            placedAt: true,
+          },
+        })
+        .catch(() => null)
+    : null;
+
+  // Normalized placement row — always use PlacementRecord field names
+  const placedOutcomeRow = placementRecordRow
+    ? {
+        employerName: placementRecordRow.employerName,
+        jobTitle: placementRecordRow.jobTitle,
+        startingSalary: placementRecordRow.salaryOffered,
+        placedAt: placementRecordRow.startDate ?? placementRecordRow.placedAt,
+      }
+    : placedOutcomeLegacy
+      ? {
+          employerName: placedOutcomeLegacy.employerName,
+          jobTitle: placedOutcomeLegacy.jobTitle,
+          startingSalary: placedOutcomeLegacy.startingSalary,
+          placedAt: placedOutcomeLegacy.placedAt,
+        }
+      : null;
+
   // Pre-screening flag drives the "intake" step on the journey strip,
-  // mirroring the admin detail page logic.
-  const preScreeningCount = await prisma.preScreeningResponse.count({
+  // mirroring the admin detail page logic exactly.
+  const preScreening = await prisma.preScreeningResponse.findUnique({
     where: { userId: id },
   });
+
+  const preScreeningCount = preScreening ? 1 : 0;
 
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const liveCourseProgress = (member.courseProgress ?? []) as CourseProgressRow[];
@@ -150,7 +184,7 @@ export default async function AdminMemberStakeholderPage({
     program.courses.every((c) => liveProgressBySlug.get(c.slug)?.status === 'COMPLETED');
 
   const progressStripProps = {
-    intake: preScreeningCount > 0,
+    intake: !!preScreening || !!(member as { onboardingCompletedAt?: unknown }).onboardingCompletedAt,
     assessment: !!member.assessmentCompleted,
     trainingStarted: liveCourseProgress.length > 0,
     certsComplete: allCoursesComplete,
@@ -196,7 +230,7 @@ export default async function AdminMemberStakeholderPage({
           { label: 'Stakeholder view' },
         ]}
         title={`${member.fullName} — stakeholder view`}
-        subtitle="Read-only summary for board, partner, and WIOA reviewer demos."
+        subtitle="Read-only summary for admin review."
         action={
           <Link href={`/admin/members/${id}`} className="btn btn-outline">
             ← Back to admin detail

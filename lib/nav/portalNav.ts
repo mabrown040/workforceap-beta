@@ -149,7 +149,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
-  { href: '/dashboard/counselor', label: 'AI Counselor', group: 'workflows', tab: 'me', Icon: Mic },
+  { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
@@ -179,7 +179,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/weekly-recap', label: 'Weekly Recap', group: 'insights', tab: 'journey', Icon: BarChart3 },
   {
     href: '/dashboard/messages',
-    label: 'Counselor Chat',
+    label: 'Advisor Chat',
     group: 'primary',
     tab: 'journey',
     Icon: MessageSquare,

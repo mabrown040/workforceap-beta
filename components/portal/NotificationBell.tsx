@@ -25,7 +25,7 @@ function buildNotifications(badges: Partial<Record<NavBadgeKey, number>>, role: 
 
   if (role === 'member') {
     if ((badges.counselor_messages_unread ?? 0) > 0) {
-      items.push({ key: 'msg', label: 'New message from counselor', href: '/dashboard/messages', icon: 'forum', count: badges.counselor_messages_unread! });
+      items.push({ key: 'msg', label: 'New message from advisor', href: '/dashboard/messages', icon: 'forum', count: badges.counselor_messages_unread! });
     }
   }
 

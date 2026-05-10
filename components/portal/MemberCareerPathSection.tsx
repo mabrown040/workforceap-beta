@@ -32,7 +32,7 @@ export default function MemberCareerPathSection({
       </h2>
       <h3 style={{ fontSize: '1.05rem', margin: '0 0 0.5rem', fontWeight: 700 }}>{top.title}</h3>
       <p style={{ margin: '0 0 0.75rem', fontSize: '0.92rem', lineHeight: 1.55 }}>{top.description}</p>
-      {top.skills.length > 0 && (
+      {(top.skills?.length ?? 0) > 0 && (
         <div style={{ marginBottom: '0.75rem' }}>
           <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>Skills employers often look for</p>
           <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.88rem' }}>

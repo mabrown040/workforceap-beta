@@ -246,6 +246,52 @@ export async function autoHealUnmatchedXapiEvents(limit = 50): Promise<Reprocess
   return result;
 }
 
+/**
+ * Sister to `autoHealUnmatchedXapiEvents` that drains `'ignored'` events
+ * whose `course_slug` now has a canonical mapping. The "ignored" bucket
+ * holds events where the actor was bound to a user but the course slug
+ * couldn't translate into our program/course slugs — typically because
+ * `coursera_canonical_course_mappings` was empty for that program at
+ * ingest time. Once the B4B-driven seeder fills the gap, those events
+ * can promote to `course_progress` if we re-run them.
+ *
+ * Filters to only ignored events whose `course_slug` is now mapped, so
+ * dead events (system telemetry, unmappable test slugs) don't churn on
+ * every cron tick.
+ */
+export async function reprocessIgnoredXapiEventsWithMappings(
+  limit = 100,
+): Promise<ReprocessResult> {
+  const events = await prisma.$queryRaw<
+    Array<{
+      statement_id: string | null;
+      actor_email: string | null;
+      actor_identifier: string | null;
+      raw_payload: unknown;
+    }>
+  >`
+    SELECT
+      cxe.statement_id,
+      cxe.actor_email,
+      cxe.actor_identifier,
+      cxe.raw_payload
+    FROM coursera_xapi_events cxe
+    WHERE cxe.completion_status = 'ignored'
+      AND cxe.raw_payload IS NOT NULL
+      AND cxe.statement_id IS NOT NULL
+      AND cxe.course_slug IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM coursera_canonical_course_mappings m
+        WHERE m.coursera_course_slug = cxe.course_slug
+           OR m.canonical_course_slug = cxe.course_slug
+      )
+    ORDER BY cxe.received_at DESC
+    LIMIT ${limit}
+  `;
+
+  return runReprocessPipeline(events);
+}
+
 async function runReprocessPipeline(
   events: Array<{
     statement_id: string | null;

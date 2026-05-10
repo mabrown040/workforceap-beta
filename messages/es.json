@@ -333,14 +333,6 @@
     "startYourApplication": "Comienza tu solicitud",
     "ifFormDoesntLoad": "Si el formulario no carga, llama",
     "orEmail": "o envía un correo a",
-    "eligibility": {
-      "question": "¿Vives en el Centro de Texas?",
-      "yes": "Sí",
-      "no": "No",
-      "result": "Resultado de elegibilidad",
-      "qualified": "Puedes calificar para fondos WIOA",
-      "notQualified": "Aún puedes unirte — contáctanos"
-    },
     "referral": {
       "source": "¿Cómo te enteraste de nosotros?",
       "capitalArea": "Capital Area",

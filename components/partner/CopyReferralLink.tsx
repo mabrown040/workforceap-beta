@@ -16,8 +16,15 @@ export default function CopyReferralLink({ url }: { url: string }) {
     }
   };
 
+  const fallbackLink = (
+    <a href={url} className="btn btn-secondary btn-sm" style={{ textDecoration: 'none', marginLeft: '0.5rem' }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '4px' }} aria-hidden="true">open_in_new</span>
+      Open link
+    </a>
+  );
+
   return (
-    <div style={{ marginTop: '0.75rem' }}>
+    <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
       <button type="button" className="btn btn-secondary btn-sm" onClick={() => void copy()} aria-label={state === 'copied' ? 'Copied referral link' : state === 'err' ? 'Copy failed — try again' : 'Copy referral link'}>
         <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
           {state === 'copied' ? (
@@ -38,6 +45,7 @@ export default function CopyReferralLink({ url }: { url: string }) {
           )}
         </span>
       </button>
+      {state === 'err' && fallbackLink}
     </div>
   );
 }

@@ -206,7 +206,12 @@ export default async function PartnerDashboardPage() {
         <p style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
           Share: <strong>{referralApplyUrl}</strong>
         </p>
-        <CopyReferralLink url={referralApplyUrl} />
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <CopyReferralLink url={referralApplyUrl} />
+          <a href={referralApplyUrl} className="btn btn-secondary btn-sm" style={{ textDecoration: 'none' }}>
+            Open application link
+          </a>
+        </div>
       </div>
 
       {/* Next Step Guidance */}

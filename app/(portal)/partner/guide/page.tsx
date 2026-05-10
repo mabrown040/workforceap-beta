@@ -61,6 +61,12 @@ export default async function PartnerGuidePage() {
 
   const partnerName = ctx.partner.name;
 
+  const partnerRow = await prisma.partner.findUnique({
+    where: { id: ctx.partnerId },
+    select: { referralCode: true, slug: true },
+  });
+  const refParam = partnerRow?.referralCode ?? partnerRow?.slug ?? ctx.partner.slug;
+
   return (
     <div style={{ maxWidth: '56rem', margin: '0 auto', paddingBottom: '6rem' }} className="md:wa-pb-12">
       {/* Breadcrumb */}
@@ -117,7 +123,7 @@ export default async function PartnerGuidePage() {
               desc: 'Direct them to workforceap.org/apply — the application takes about 10 minutes.',
               detail: `Ask them to list "${partnerName}" as how they heard about us so the referral is attributed to your organization.`,
               icon: 'open_in_new',
-              link: { label: 'workforceap.org/apply', href: '/apply' },
+              link: { label: 'workforceap.org/apply', href: `/apply?ref=${encodeURIComponent(refParam)}` },
             },
             {
               num: '3',

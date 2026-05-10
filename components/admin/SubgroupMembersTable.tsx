@@ -207,7 +207,7 @@ export default function SubgroupMembersTable({ subgroupId, members }: Props) {
       )}
 
       {removeTarget && (
-        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !removing && setRemoveTarget(null)} tabIndex={-1} aria-hidden="true">
+        <div className="admin-confirm-modal-overlay" role="presentation" onClick={() => !removing && setRemoveTarget(null)} tabIndex={-1}>
           <div
             className="admin-confirm-modal"
             role="dialog"

@@ -28,6 +28,7 @@
 import 'server-only';
 import { listPrograms, type B4BProgram } from '@/lib/coursera/b4bClient';
 import { resolveCourseraPublicProgramUrl } from '@/lib/coursera/configCore';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 const PLATFORM_URL = 'https://www.coursera.org';
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
@@ -44,8 +45,25 @@ type ProgramIndex = {
   bySlug: Map<string, string>;
   /** programId → org-scoped url (B4B doesn't always populate slug) */
   byId: Map<string, string>;
+  /**
+   * Normalized program-name (lowercased, alphanumeric only) → org-scoped
+   * url. Used as an automatic bridge when our internal slug doesn't match
+   * Coursera's slug. Two programs with identical normalized names from
+   * different sources collide (last-wins) — acceptable because that means
+   * Coursera itself has duplicate names.
+   */
+  byNormalizedName: Map<string, string>;
   fetchedAt: number;
 };
+
+/**
+ * Lower-case, strip everything but alphanumerics, so "AI Professional
+ * Practitioner Certificate" matches "ai professional practitioner
+ * certificate" matches "AI-Professional-Practitioner-Certificate".
+ */
+function normalizeProgramName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
 
 let cachedIndex: ProgramIndex | null = null;
 let inFlightFetch: Promise<ProgramIndex> | null = null;
@@ -59,6 +77,7 @@ async function fetchProgramIndex(): Promise<ProgramIndex> {
   inFlightFetch = (async () => {
     const bySlug = new Map<string, string>();
     const byId = new Map<string, string>();
+    const byNormalizedName = new Map<string, string>();
     try {
       const page = await listPrograms({ excludeContent: true, limit: 100 });
       for (const program of page.elements as B4BProgramWithUrl[]) {
@@ -66,6 +85,9 @@ async function fetchProgramIndex(): Promise<ProgramIndex> {
         if (!url) continue;
         if (program.slug?.trim()) bySlug.set(program.slug.trim(), url);
         if (program.id?.trim()) byId.set(program.id.trim(), url);
+        if (program.name?.trim()) {
+          byNormalizedName.set(normalizeProgramName(program.name.trim()), url);
+        }
       }
     } catch (error) {
       // Swallow — credentials may not be configured in dev/test. We still
@@ -75,7 +97,7 @@ async function fetchProgramIndex(): Promise<ProgramIndex> {
         error instanceof Error ? error.message : error,
       );
     }
-    const idx: ProgramIndex = { bySlug, byId, fetchedAt: Date.now() };
+    const idx: ProgramIndex = { bySlug, byId, byNormalizedName, fetchedAt: Date.now() };
     cachedIndex = idx;
     return idx;
   })();
@@ -94,8 +116,21 @@ async function getProgramIndex(): Promise<ProgramIndex> {
 /**
  * Returns the org-scoped Coursera program URL.
  *
- * Resolution: catalog → B4B → local fallback. Always returns a string —
- * never null — so call sites can use it directly in `<a href>`.
+ * Resolution order:
+ *   1. Discovered-catalog `publicProgramUrl` (admin-curated override).
+ *   2. B4B `byId` lookup via the program's optional
+ *      `courseraB4BProgramId` field — explicit manual override paste-able
+ *      from `/admin/coursera` "List B4B programs".
+ *   3. B4B `bySlug` — works when our internal slug coincidentally equals
+ *      Coursera's slug.
+ *   4. **Automatic name match**: lookup by normalized program title
+ *      against the B4B `byNormalizedName` index. Stops the
+ *      manual-paste-required gap that previously left every program
+ *      falling through to the platform-root fallback.
+ *   5. Local fallback (platform root — no longer 404s; see
+ *      `localFallbackUrl` doc).
+ *
+ * Always returns a string so call sites can use it directly in `<a href>`.
  */
 export async function getOrgScopedProgramUrl(programSlug: string): Promise<string> {
   const slug = programSlug?.trim();
@@ -104,9 +139,21 @@ export async function getOrgScopedProgramUrl(programSlug: string): Promise<strin
   const fromCatalog = resolveCourseraPublicProgramUrl(slug);
   if (fromCatalog) return fromCatalog;
 
+  const program = getProgramBySlug(slug);
   const idx = await getProgramIndex();
-  const fromB4B = idx.bySlug.get(slug);
-  if (fromB4B) return fromB4B;
+
+  if (program?.courseraB4BProgramId) {
+    const fromManualId = idx.byId.get(program.courseraB4BProgramId);
+    if (fromManualId) return fromManualId;
+  }
+
+  const fromB4BSlug = idx.bySlug.get(slug);
+  if (fromB4BSlug) return fromB4BSlug;
+
+  if (program?.title) {
+    const fromName = idx.byNormalizedName.get(normalizeProgramName(program.title));
+    if (fromName) return fromName;
+  }
 
   return localFallbackUrl(slug, 'program');
 }

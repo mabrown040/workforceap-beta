@@ -36,6 +36,16 @@ export interface Program {
   skills: string[];
   courses: ProgramCourse[];
   partner: string;
+  /**
+   * Coursera For Business program id (returned by `listPrograms()`). When
+   * set, `getOrgScopedProgramUrl` resolves the org-scoped learner URL via
+   * `idx.byId.get(courseraB4BProgramId)` directly, ahead of name matching.
+   *
+   * Populate from `/admin/coursera` → "List B4B programs" → copy the
+   * row's `id` for the matching program. Leave undefined to fall back to
+   * automatic name matching against `program.title`.
+   */
+  courseraB4BProgramId?: string;
 }
 
 function normalizeDiscoveredProgramTitle(title: string): string {

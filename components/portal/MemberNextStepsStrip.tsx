@@ -138,15 +138,20 @@ export default function MemberNextStepsStrip({
                 onClick={() => dismiss(a.id)}
                 style={{
                   position: 'absolute',
-                  top: compact ? '0.5rem' : '0.65rem',
-                  right: compact ? '0.5rem' : '0.65rem',
+                  top: compact ? '0.25rem' : '0.35rem',
+                  right: compact ? '0.25rem' : '0.35rem',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   color: 'var(--color-on-surface-variant)',
                   fontSize: '1rem',
                   lineHeight: 1,
-                  padding: '0.15rem',
+                  padding: '0.75rem',
+                  minWidth: '44px',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   borderRadius: '4px',
                   opacity: 0.6,
                 }}

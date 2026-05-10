@@ -333,14 +333,6 @@
     "startYourApplication": "Start your application",
     "ifFormDoesntLoad": "If the form doesn't load, call",
     "orEmail": "or email",
-    "eligibility": {
-      "question": "Do you live in Central Texas?",
-      "yes": "Yes",
-      "no": "No",
-      "result": "Eligibility result",
-      "qualified": "You may qualify for WIOA funding",
-      "notQualified": "You may still join — contact us"
-    },
     "referral": {
       "source": "How did you hear about us?",
       "capitalArea": "Capital Area",

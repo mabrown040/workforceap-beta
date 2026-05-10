@@ -69,13 +69,17 @@ async function getMemberBadgeCounts(userId: string): Promise<NavBadgeCounts> {
 
   let counselor_messages_unread = 0;
   if (thread) {
-    counselor_messages_unread = await prisma.message.count({
-      where: {
-        threadId: thread.id,
-        authorId: { not: userId },
-        ...(thread.memberLastReadAt ? { createdAt: { gt: thread.memberLastReadAt } } : {}),
-      },
-    });
+    // If memberLastReadAt is null, the member hasn't explicitly read the thread.
+    // Counting every message as unread inflates the badge and undermines trust.
+    counselor_messages_unread = thread.memberLastReadAt
+      ? await prisma.message.count({
+          where: {
+            threadId: thread.id,
+            authorId: { not: userId },
+            createdAt: { gt: thread.memberLastReadAt },
+          },
+        })
+      : 0;
   }
 
   return {
@@ -112,13 +116,15 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
   let employer_messages_unread = 0;
   if (thread && employerRow) {
     const staffUserId = employerRow.userId;
-    employer_messages_unread = await prisma.message.count({
-      where: {
-        threadId: thread.id,
-        authorId: { not: staffUserId },
-        ...(thread.portalUserLastReadAt ? { createdAt: { gt: thread.portalUserLastReadAt } } : {}),
-      },
-    });
+    employer_messages_unread = thread.portalUserLastReadAt
+      ? await prisma.message.count({
+          where: {
+            threadId: thread.id,
+            authorId: { not: staffUserId },
+            createdAt: { gt: thread.portalUserLastReadAt },
+          },
+        })
+      : 0;
   }
 
   return {
@@ -161,13 +167,15 @@ async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCou
   const unreadCounts = await Promise.all(
     threads.map(async (thread) => {
       if (!thread.memberId) return 0;
-      return prisma.message.count({
-        where: {
-          threadId: thread.id,
-          authorId: thread.memberId,
-          ...(thread.counselorLastReadAt ? { createdAt: { gt: thread.counselorLastReadAt } } : {}),
-        },
-      });
+      return thread.counselorLastReadAt
+        ? prisma.message.count({
+            where: {
+              threadId: thread.id,
+              authorId: thread.memberId,
+              createdAt: { gt: thread.counselorLastReadAt },
+            },
+          })
+        : 0;
     })
   );
 
@@ -217,13 +225,15 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
   const partnerUserIds = partnerUsers.map((p) => p.userId);
   let partner_messages_unread = 0;
   if (thread && partnerUserIds.length > 0) {
-    partner_messages_unread = await prisma.message.count({
-      where: {
-        threadId: thread.id,
-        authorId: { notIn: partnerUserIds },
-        ...(thread.portalUserLastReadAt ? { createdAt: { gt: thread.portalUserLastReadAt } } : {}),
-      },
-    });
+    partner_messages_unread = thread.portalUserLastReadAt
+      ? await prisma.message.count({
+          where: {
+            threadId: thread.id,
+            authorId: { notIn: partnerUserIds },
+            createdAt: { gt: thread.portalUserLastReadAt },
+          },
+        })
+      : 0;
   }
 
   return {

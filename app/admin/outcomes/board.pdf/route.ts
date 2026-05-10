@@ -66,10 +66,10 @@ export async function GET(req: NextRequest) {
       : 'all-time';
 
   // Resolve the actor's organization so the printable board shows the
-  // admin's tenant and the title carries the org name. Falls through to the
-  // unscoped snapshot if the user has no org row (matches the existing
-  // /admin/outcomes behavior in single-tenant pilot mode).
-  let organizationId: string | undefined;
+  // admin's tenant and the title carries the org name. If the user has no
+  // org row or resolution fails, we return 403 — never default to unscoped
+  // data, which would leak cross-tenant outcomes.
+  let organizationId: string;
   let organizationName = 'WorkforceAP';
   try {
     organizationId = await getActorOrganizationId(user.id);
@@ -80,6 +80,10 @@ export async function GET(req: NextRequest) {
     if (org?.name) organizationName = org.name;
   } catch (err) {
     console.error('[outcomes/board.pdf] org lookup failed', err);
+    return NextResponse.json(
+      { error: 'Organization scope required' },
+      { status: 403 }
+    );
   }
 
   let snapshot;

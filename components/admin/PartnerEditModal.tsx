@@ -96,7 +96,7 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
   }
 
   return (
-    <div className="partner-modal-overlay" onClick={onClose} role="presentation" tabIndex={-1} aria-hidden="true">
+    <div className="partner-modal-overlay" onClick={onClose} role="presentation" tabIndex={-1}>
       <div
         className="partner-modal"
         onClick={(e) => e.stopPropagation()}

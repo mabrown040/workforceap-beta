@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 
 const MAX_BODY = 8000;
 
@@ -74,8 +74,13 @@ export async function assertStaffCanAccessThread(staffUserId: string, threadId: 
 
   if (thread.counselorUserId === staffUserId) return thread;
 
-  const hasAdmin = await isAdmin(staffUserId);
-  if (hasAdmin) return thread;
+  // Tenant-scoped admin access: super_admin is cross-tenant by design;
+  // org admins may only access threads for members in their own org.
+  const memberOrgId = thread.memberId
+    ? (await prisma.user.findUnique({ where: { id: thread.memberId }, select: { organizationId: true } }))?.organizationId ?? null
+    : null;
+  if (memberOrgId && (await isSuperAdmin(staffUserId))) return thread;
+  if (memberOrgId && (await isAdminInOrg(staffUserId, memberOrgId))) return thread;
 
   if (!thread.memberId) return null;
 

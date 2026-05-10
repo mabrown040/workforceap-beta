@@ -17,13 +17,19 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const [fetchError, setFetchError] = useState(false);
+
   const fetchNotes = useCallback(async () => {
     try {
       const res = await fetch(`/api/counselor/members/${memberId}/notes`);
+      if (!res.ok) {
+        setFetchError(true);
+        return;
+      }
       const data = await res.json();
       if (Array.isArray(data)) setNotes(data);
     } catch {
-      // ignore
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -149,9 +155,15 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
         </div>
       )}
 
+      {fetchError && (
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-accent, #b00020)', margin: '0 0 0.5rem' }}>
+          Couldn’t load notes. Try refreshing the page.
+        </p>
+      )}
+
       {loading && <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>Loading notes…</p>}
 
-      {!loading && notes.length === 0 && !adding && (
+      {!loading && !fetchError && notes.length === 0 && !adding && (
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
           No notes yet. Add one to track progress.
         </p>

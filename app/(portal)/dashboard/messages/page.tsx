@@ -43,12 +43,13 @@ export default async function MemberMessagesPage() {
   const lastMsgTime = lastMsg
     ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
+  // If memberLastReadAt is null, the member has never explicitly read the thread.
+  // Counting every message as unread is misleading and inflates the badge.
+  // Treat null as "no unread" for the badge; the thread itself is still visible.
   const lastRead = thread.memberLastReadAt ? new Date(thread.memberLastReadAt) : null;
-  const unreadCount = messages.filter((m) => {
-    if (m.authorId === user.id) return false;
-    if (!lastRead) return true;
-    return new Date(m.createdAt) > lastRead;
-  }).length;
+  const unreadCount = lastRead
+    ? messages.filter((m) => m.authorId !== user.id && new Date(m.createdAt) > lastRead).length
+    : 0;
 
   const counselorName = counselor?.fullName ?? null;
   const counselorInitials = counselorName

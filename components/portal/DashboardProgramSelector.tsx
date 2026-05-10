@@ -64,7 +64,7 @@ export default function DashboardProgramSelector({
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.4rem',
-          padding: '0.4rem 0.7rem',
+          padding: '0.5rem 0.875rem',
           borderRadius: '999px',
           border: '1px solid color-mix(in srgb, var(--color-accent) 14%, var(--outline-variant))',
           background: 'rgba(255,255,255,0.92)',
@@ -73,6 +73,7 @@ export default function DashboardProgramSelector({
           fontWeight: 700,
           cursor: isPending ? 'wait' : 'pointer',
           letterSpacing: '0.02em',
+          minHeight: '44px',
         }}
       >
         <span
@@ -129,7 +130,7 @@ export default function DashboardProgramSelector({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '0.5rem',
-                    padding: '0.5rem 0.6rem',
+                    padding: '0.65rem 0.75rem',
                     borderRadius: '0.4rem',
                     border: 'none',
                     background: isActive
@@ -140,6 +141,7 @@ export default function DashboardProgramSelector({
                     fontWeight: isActive ? 700 : 500,
                     cursor: 'pointer',
                     textAlign: 'left',
+                    minHeight: '44px',
                   }}
                 >
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

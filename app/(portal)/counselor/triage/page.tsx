@@ -39,10 +39,12 @@ export default async function CounselorTriagePage() {
   if (!counselor && !admin) redirect('/dashboard');
 
   let queue: TriageQueue;
+  let loadError = false;
   try {
     queue = await getTriageQueue(user.id, { isAdmin: admin });
   } catch (err) {
     console.error('[counselor/triage] getTriageQueue failed:', err);
+    loadError = true;
     queue = {
       red: [],
       yellow: [],
@@ -81,7 +83,23 @@ export default async function CounselorTriagePage() {
         <PriorityBucket priority="yellow" rows={queue.yellow} />
         <PriorityBucket priority="blue" rows={queue.blue} />
 
-        {queue.totals.total === 0 ? (
+        {loadError ? (
+          <div
+            className="content-card"
+            style={{
+              padding: '1rem 1.25rem',
+              borderLeft: '4px solid var(--color-accent, #b00020)',
+              background: 'var(--color-surface-variant, #fafafa)',
+            }}
+          >
+            <p style={{ margin: 0, fontWeight: 600, color: 'var(--color-accent, #b00020)' }}>
+              Couldn’t load triage queue
+            </p>
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              The queue data failed to load. This is a temporary issue — try refreshing the page.
+            </p>
+          </div>
+        ) : queue.totals.total === 0 ? (
           <PortalEmptyState
             title="Queue is clear"
             description="No member matches any triage flag right now. The queue refreshes automatically as activity, messages, training, and milestones change."

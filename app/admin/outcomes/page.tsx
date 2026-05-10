@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -74,8 +75,11 @@ export default async function AdminOutcomesPage() {
   if (!user) redirect('/login?redirectTo=/admin/outcomes');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  const orgId = await getActorOrganizationId(user.id);
+  const superUser = await isSuperAdmin(user.id);
+
   const [snapshot, placementBundle] = await Promise.all([
-    getBoardSnapshot('all-time'),
+    getBoardSnapshot('all-time', superUser ? undefined : orgId),
     getPublicPlacementOutcomes(prisma),
   ]);
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   getBoardSnapshot,
   formatBoardSnapshotMarkdown,
@@ -30,8 +31,11 @@ export async function GET(req: NextRequest) {
       ? (periodParam as BoardOutcomesPeriod)
       : 'all-time';
 
+  const orgId = await getActorOrganizationId(user.id);
+  const superUser = await isSuperAdmin(user.id);
+
   try {
-    const snapshot = await getBoardSnapshot(period);
+    const snapshot = await getBoardSnapshot(period, superUser ? undefined : orgId);
     const markdown = formatBoardSnapshotMarkdown(snapshot);
 
     const date = new Date().toISOString().slice(0, 10);

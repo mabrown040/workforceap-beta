@@ -9,7 +9,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { EMPLOYER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { employerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -227,7 +227,7 @@ export default async function EmployerDashboardPage() {
           {[
             { label: 'Open Roles', value: activeJobs, color: 'var(--color-on-surface)' },
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
-            { label: 'In Review', value: inReview, color: 'var(--secondary)' },
+            { label: 'Awaiting go-live', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
             <div
               key={s.label}
@@ -258,7 +258,7 @@ export default async function EmployerDashboardPage() {
         </div>
         <div style={{ marginLeft: '1.5rem', marginRight: '1.5rem', marginTop: '1rem' }}>
           <VoiceAgentSurface {...employerVoiceSurface}>
-            <PortalVoiceSession
+            <PortalVoiceSessionLazy
               sessionEndpoint="/api/employer/voice-session"
               title="Employer voice assistant"
               description="Ask about posting roles, reviewing applicants, or navigating the employer portal."
@@ -380,7 +380,7 @@ export default async function EmployerDashboardPage() {
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...employerVoiceSurface}>
-          <PortalVoiceSession
+          <PortalVoiceSessionLazy
             sessionEndpoint="/api/employer/voice-session"
             title="Employer voice assistant"
             description="Ask about posting roles, reviewing applicants, or navigating this portal."

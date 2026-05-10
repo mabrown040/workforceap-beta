@@ -7735,6 +7735,7 @@ body { animation: fadeIn 0.4s ease; }
     .program-card details summary { min-height: 44px; padding: 0.5rem 0; }
     .program-card:hover { transform: none; }
     input, select, textarea { min-height: 44px; font-size: 16px; }
+    .application-status-select { min-height: 44px; padding: 0.5rem 0.75rem; }
     .dashboard-sidebar-link, .admin-sidebar-link { min-height: 44px; }
 }
 

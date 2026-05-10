@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { isAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 
 /**
  * Resolves the subject of an AI tool run when a counselor or admin runs the
@@ -49,7 +49,7 @@ export async function resolveActOnBehalf(
   // On-behalf-of: validate authority
   const subject = await prisma.user.findUnique({
     where: { id: subjectMemberId, deletedAt: null },
-    select: { id: true },
+    select: { id: true, organizationId: true },
   });
   if (!subject) {
     return { ok: false, status: 404, error: 'Member not found' };
@@ -61,7 +61,18 @@ export async function resolveActOnBehalf(
     prisma.user.findUnique({ where: { id: actorUserId }, select: { fullName: true } }),
   ]);
 
-  if (superUser || adminUser) {
+  // super_admin is intentionally cross-tenant for platform ops.
+  // org admins may only act on behalf of members in their own org.
+  if (superUser) {
+    return {
+      ok: true,
+      subjectUserId: subjectMemberId,
+      isOnBehalf: true,
+      actorUserId,
+      actorName: actor?.fullName ?? null,
+    };
+  }
+  if (adminUser && subject.organizationId && (await isAdminInOrg(actorUserId, subject.organizationId))) {
     return {
       ok: true,
       subjectUserId: subjectMemberId,

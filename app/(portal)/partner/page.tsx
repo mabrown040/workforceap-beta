@@ -17,7 +17,7 @@ import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -246,7 +246,7 @@ export default async function PartnerDashboardPage() {
           </summary>
           <div className="portal-card__body">
             <VoiceAgentSurface {...partnerVoiceSurface}>
-              <PortalVoiceSession
+              <PortalVoiceSessionLazy
                 sessionEndpoint="/api/partner/voice-session"
                 title="Partner Assistant"
                 description="Ask about referrals, member progress, or using the partner portal."
@@ -407,7 +407,7 @@ export default async function PartnerDashboardPage() {
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>
-          <PortalVoiceSession
+          <PortalVoiceSessionLazy
             sessionEndpoint="/api/partner/voice-session"
             title="Partner Assistant"
             description="Ask about referrals, member progress, or using the partner portal."

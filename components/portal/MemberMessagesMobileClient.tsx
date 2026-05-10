@@ -379,7 +379,7 @@ export default function MemberMessagesMobileClient({ initial }: { initial: Initi
         <button
           type="submit"
           disabled={sending || !draft.trim()}
-          className="wa-flex-shrink-0 wa-w-10 wa-h-10 wa-rounded-full wa-flex wa-items-center wa-justify-center active:wa-scale-95 wa-transition-all"
+          className="wa-flex-shrink-0 wa-w-11 wa-h-11 wa-rounded-full wa-flex wa-items-center wa-justify-center active:wa-scale-95 wa-transition-all"
           style={{
             background: draft.trim() ? 'var(--color-accent-dark, #6b0c29)' : 'var(--surface-container-high)',
             color: draft.trim() ? '#fff' : 'var(--color-on-surface-variant)',

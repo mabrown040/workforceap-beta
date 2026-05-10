@@ -67,13 +67,9 @@ export default async function CounselorWorkQueuePage() {
             <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
               Something went wrong fetching the queue. Try refreshing the page.
             </p>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="btn btn-primary"
-            >
+            <Link href="/counselor/queue" className="btn btn-primary">
               Retry
-            </button>
+            </Link>
           </div>
         ) : rows.length === 0 ? (
           <PortalEmptyState

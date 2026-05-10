@@ -1,0 +1,277 @@
+'use server';
+
+import { prisma } from '@/lib/db/prisma';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+
+export type CourseraDiagnoseReport = {
+  ok: true;
+  user: {
+    id: string;
+    email: string;
+    fullName: string | null;
+    enrolledProgram: string | null;
+    courseraEnrollmentApproved: boolean;
+  };
+  identityMappings: Array<{
+    courseraEmail: string | null;
+    actorIdentifier: string | null;
+    actorHomePage: string | null;
+    source: string;
+    lastSeenAt: Date | null;
+  }>;
+  enrollments: Array<{
+    programSlug: string;
+    isPrimary: boolean;
+    enrolledAt: Date | null;
+  }>;
+  xapi: {
+    totalForActor: number;
+    ignoredForActor: number;
+    processedForActor: number;
+    erroredForActor: number;
+    latestIgnored: Array<{
+      courseSlug: string | null;
+      verbId: string;
+      receivedAt: Date;
+    }>;
+  };
+  canonical: {
+    courseProgressRows: number;
+    courseraCourseProgressRows: number;
+    courseraBadgeProgressRows: number;
+    canonicalMappingsTotal: number;
+  };
+  verdict: Array<{
+    status: 'ok' | 'warn' | 'fail';
+    title: string;
+    detail: string;
+  }>;
+} | { ok: false; error: string };
+
+type IdentityMappingRaw = {
+  courseraEmail: string | null;
+  actorIdentifier: string | null;
+  actorHomePage: string | null;
+  source: string;
+  lastSeenAt: Date | null;
+};
+
+type XapiAggRaw = {
+  total: bigint | number;
+  ignored: bigint | number;
+  processed: bigint | number;
+  errored: bigint | number;
+};
+
+type IgnoredXapiRaw = {
+  course_slug: string | null;
+  verb_id: string;
+  received_at: Date;
+};
+
+export async function diagnoseMemberCoursera(
+  memberId: string,
+): Promise<CourseraDiagnoseReport> {
+  const actor = await getUser();
+  if (!actor) return { ok: false, error: 'Not authenticated' };
+  if (!(await isAdmin(actor.id))) return { ok: false, error: 'Forbidden' };
+
+  const member = await prisma.user.findUnique({
+    where: { id: memberId, deletedAt: null },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      enrolledProgram: true,
+      courseraEnrollmentApproved: true,
+    },
+  });
+  if (!member) return { ok: false, error: 'Member not found' };
+
+  const enrollmentsRaw = await prisma.courseEnrollment.findMany({
+    where: { userId: memberId },
+    select: { programSlug: true, isPrimary: true, enrolledAt: true },
+    orderBy: { enrolledAt: 'desc' },
+  });
+
+  let identityMappings: IdentityMappingRaw[] = [];
+  try {
+    identityMappings = await prisma.$queryRaw<IdentityMappingRaw[]>`
+      SELECT
+        coursera_email AS "courseraEmail",
+        actor_identifier AS "actorIdentifier",
+        actor_home_page AS "actorHomePage",
+        source,
+        last_seen_at AS "lastSeenAt"
+      FROM coursera_identity_mappings
+      WHERE user_id = ${memberId}
+      ORDER BY last_seen_at DESC NULLS LAST
+    `;
+  } catch (err) {
+    console.error('[diagnoseMemberCoursera] identity_mappings query failed:', err);
+  }
+
+  let xapiAgg: XapiAggRaw = {
+    total: 0,
+    ignored: 0,
+    processed: 0,
+    errored: 0,
+  };
+  let latestIgnored: IgnoredXapiRaw[] = [];
+  try {
+    const aggRows = await prisma.$queryRaw<XapiAggRaw[]>`
+      SELECT
+        COUNT(*) AS total,
+        SUM(CASE WHEN completion_status = 'ignored' THEN 1 ELSE 0 END) AS ignored,
+        SUM(CASE WHEN completion_status NOT IN ('ignored') AND error IS NULL THEN 1 ELSE 0 END) AS processed,
+        SUM(CASE WHEN error IS NOT NULL THEN 1 ELSE 0 END) AS errored
+      FROM coursera_xapi_events
+      WHERE actor_email = ${member.email}
+         OR matched_user_id = ${memberId}
+    `;
+    if (aggRows[0]) xapiAgg = aggRows[0];
+    latestIgnored = await prisma.$queryRaw<IgnoredXapiRaw[]>`
+      SELECT course_slug, verb_id, received_at
+      FROM coursera_xapi_events
+      WHERE (actor_email = ${member.email} OR matched_user_id = ${memberId})
+        AND completion_status = 'ignored'
+      ORDER BY received_at DESC
+      LIMIT 5
+    `;
+  } catch (err) {
+    console.error('[diagnoseMemberCoursera] xapi events query failed:', err);
+  }
+
+  const [
+    courseProgressRows,
+    courseraCourseProgressRows,
+    courseraBadgeProgressRows,
+    canonicalMappingsTotal,
+  ] = await Promise.all([
+    prisma.courseProgress.count({ where: { userId: memberId } }),
+    prisma.courseraCourseProgress.count({
+      where: {
+        OR: [{ userId: memberId }, { externalEmail: member.email }],
+      },
+    }),
+    prisma.courseraBadgeProgress.count({
+      where: {
+        OR: [{ userId: memberId }, { externalEmail: member.email }],
+      },
+    }),
+    prisma.courseraCanonicalCourseMapping.count(),
+  ]);
+
+  const verdict: Array<{
+    status: 'ok' | 'warn' | 'fail';
+    title: string;
+    detail: string;
+  }> = [];
+
+  if (identityMappings.length === 0) {
+    verdict.push({
+      status: 'fail',
+      title: 'No Coursera identity link',
+      detail:
+        "This member hasn't linked their Coursera email. xAPI events arriving from Coursera will not be matched to this account.",
+    });
+  } else {
+    verdict.push({
+      status: 'ok',
+      title: `Linked Coursera email (${identityMappings.length})`,
+      detail: identityMappings
+        .map((m) => m.courseraEmail || m.actorIdentifier || 'unknown')
+        .join(', '),
+    });
+  }
+
+  if (canonicalMappingsTotal === 0) {
+    verdict.push({
+      status: 'fail',
+      title: 'Canonical course mappings table is empty (org-wide)',
+      detail:
+        'No CourseraCanonicalCourseMapping rows exist. Every xAPI event for every learner is being marked "ignored" because the system cannot translate Coursera course IDs into our program/course slugs. Populate via /admin/coursera "Map this" actions or backfill from B4B.',
+    });
+  } else {
+    verdict.push({
+      status: 'ok',
+      title: `${canonicalMappingsTotal} canonical course mapping${canonicalMappingsTotal === 1 ? '' : 's'} configured`,
+      detail: 'xAPI events have a path to canonical course progress.',
+    });
+  }
+
+  const xapiTotal = Number(xapiAgg.total);
+  const xapiIgnored = Number(xapiAgg.ignored);
+  if (xapiTotal === 0) {
+    verdict.push({
+      status: 'warn',
+      title: 'No xAPI events received',
+      detail:
+        "Coursera hasn't posted any xAPI activity for this member. Either the member hasn't engaged with course content, the LRS webhook isn't configured, or the actor identity doesn't match.",
+    });
+  } else if (xapiIgnored === xapiTotal) {
+    verdict.push({
+      status: 'fail',
+      title: `All ${xapiTotal} xAPI events ignored`,
+      detail:
+        'Every xAPI event was matched to this member but skipped during canonical promotion. Almost always caused by missing canonical course mappings. Use the "Map this" action on /admin/coursera for the course slugs listed below.',
+    });
+  } else if (xapiIgnored > 0) {
+    verdict.push({
+      status: 'warn',
+      title: `${xapiIgnored} of ${xapiTotal} xAPI events ignored`,
+      detail:
+        'Partial canonical promotion. Review ignored events and add missing mappings.',
+    });
+  } else {
+    verdict.push({
+      status: 'ok',
+      title: `${xapiTotal} xAPI events received and processed`,
+      detail: 'Pipeline healthy for this member.',
+    });
+  }
+
+  if (courseraCourseProgressRows === 0 && enrollmentsRaw.length > 0) {
+    verdict.push({
+      status: 'warn',
+      title: 'No Coursera B4B course rows',
+      detail:
+        "The member is enrolled in WorkforceAP but the B4B sync hasn't pulled per-course progress. Either the cron hasn't run since enrollment, or the member's email isn't on the Coursera Enterprise roster yet. Trigger via /admin/coursera/inspect-by-email or /admin/coursera/csv-import.",
+    });
+  }
+
+  if (member.enrolledProgram && !member.courseraEnrollmentApproved) {
+    verdict.push({
+      status: 'warn',
+      title: 'Coursera enrollment not yet approved',
+      detail:
+        'The member has an enrolled program but has not been approved for a Coursera seat. Approve below to consume a seat.',
+    });
+  }
+
+  return {
+    ok: true,
+    user: member,
+    identityMappings,
+    enrollments: enrollmentsRaw,
+    xapi: {
+      totalForActor: xapiTotal,
+      ignoredForActor: xapiIgnored,
+      processedForActor: Number(xapiAgg.processed),
+      erroredForActor: Number(xapiAgg.errored),
+      latestIgnored: latestIgnored.map((row) => ({
+        courseSlug: row.course_slug,
+        verbId: row.verb_id,
+        receivedAt: row.received_at,
+      })),
+    },
+    canonical: {
+      courseProgressRows,
+      courseraCourseProgressRows,
+      courseraBadgeProgressRows,
+      canonicalMappingsTotal,
+    },
+    verdict,
+  };
+}

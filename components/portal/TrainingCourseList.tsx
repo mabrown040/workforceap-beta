@@ -313,16 +313,27 @@ export default function TrainingCourseList({
             <div className="training-course-card__actions">
               <span className={chipClass(status, isUpNext)}>{statusLabel(c.slug)}</span>
               {/* Enroll / Continue / Locked tri-state. The B4B "Enroll" path is
-                  gated behind two checks:
+                  gated behind three checks:
                     1. eligibilityApproved — server-truth flag, hides button
                        entirely for unapproved members.
                     2. enrolledCourseraSet — once enrolled on Coursera the
                        Continue button is the right CTA, not Enroll.
-                  Already-complete courses skip both — they get the existing
-                  "Open in Coursera" review link. */}
+                    3. status/pct — if the learner already has progress
+                       (status='in_progress' OR percentComplete > 0), they're
+                       effectively studying the course already; B4B sometimes
+                       still rejects Enroll calls in that state with
+                       "Cannot find courses" because the course isn't in this
+                       org's B4B program (the user reached it via direct
+                       Coursera access). Showing the Enroll button there
+                       produces a 400 error banner on click. Treat any real
+                       progress as enrolled for UI purposes.
+                  Already-complete courses skip all of this — they get the
+                  existing "Open in Coursera" review link. */}
               {!isComplete &&
               c.courseraCourseId &&
-              !enrolledCourseraSet.has(c.courseraCourseId) ? (
+              !enrolledCourseraSet.has(c.courseraCourseId) &&
+              status === 'not_started' &&
+              (pct ?? 0) === 0 ? (
                 eligibilityApproved ? (
                   <button
                     type="button"

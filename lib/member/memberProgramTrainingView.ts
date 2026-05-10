@@ -175,7 +175,15 @@ export async function loadMemberProgramTrainingView(args: {
       // rows, compute from them directly and treat the rollup as a fallback
       // for the rare case where the writer ran but rows haven't synced into
       // this read transaction yet.
-      progressPercentDisplay = Math.round(sumPercentForAverage / totalCourses);
+      //
+      // Floor at 1% when the learner has any real progress so a member with
+      // 6% on 1 of 16 courses (raw avg = 0.375%, round = 0%) doesn't see
+      // "0% Overall" while their course card simultaneously shows 6%. Capped
+      // at 100; only kicks in when sumPercentForAverage > 0.
+      const raw = sumPercentForAverage / totalCourses;
+      const rounded = Math.round(raw);
+      progressPercentDisplay =
+        rounded === 0 && sumPercentForAverage > 0 ? 1 : Math.max(0, Math.min(100, rounded));
     } else if (rollup != null) {
       progressPercentDisplay = Math.max(0, Math.min(100, rollup.averagePercent));
     } else {

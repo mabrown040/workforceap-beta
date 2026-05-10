@@ -203,6 +203,15 @@ export async function diagnoseMemberCoursera(
 
   const xapiTotal = Number(xapiAgg.total);
   const xapiIgnored = Number(xapiAgg.ignored);
+  const xapiErrored = Number(xapiAgg.errored);
+  // The xAPI pipeline upserts CourseProgress unconditionally for matched
+  // identities (see lib/xapi/inboundStatementPipeline.ts:98). The
+  // `completion_status='ignored'` label means "not a completion verb" (e.g.
+  // a `progressed` event), which is NORMAL for in-progress learners — it
+  // does NOT mean the event was skipped or that CourseProgress wasn't
+  // updated. The real failure signal is `error` rows or zero CourseProgress
+  // rows alongside non-zero events. We previously flagged all-ignored as a
+  // RED failure, which scared admins about a pipeline that was working fine.
   if (xapiTotal === 0) {
     verdict.push({
       status: 'warn',
@@ -210,25 +219,28 @@ export async function diagnoseMemberCoursera(
       detail:
         "Coursera hasn't posted any xAPI activity for this member. Either the member hasn't engaged with course content, the LRS webhook isn't configured, or the actor identity doesn't match.",
     });
-  } else if (xapiIgnored === xapiTotal) {
+  } else if (xapiErrored > 0) {
     verdict.push({
       status: 'fail',
-      title: `All ${xapiTotal} xAPI events ignored`,
+      title: `${xapiErrored} of ${xapiTotal} xAPI events errored`,
       detail:
-        'Every xAPI event was matched to this member but skipped during canonical promotion. Almost always caused by missing canonical course mappings. Use the "Map this" action on /admin/coursera for the course slugs listed below.',
+        'Errored events failed during processing — typically because no enrolled program could be resolved. Check enrollment + identity mapping and reprocess via /admin/coursera.',
     });
-  } else if (xapiIgnored > 0) {
+  } else if (courseProgressRows === 0 && xapiTotal > 0) {
     verdict.push({
       status: 'warn',
-      title: `${xapiIgnored} of ${xapiTotal} xAPI events ignored`,
+      title: `${xapiTotal} xAPI events received but 0 CourseProgress rows`,
       detail:
-        'Partial canonical promotion. Review ignored events and add missing mappings.',
+        'Events arrived and matched the learner, but none promoted to CourseProgress. Likely cause: course slug in the events does not match any CourseraCanonicalCourseMapping or the program catalog. Inspect ignored event slugs below.',
     });
   } else {
     verdict.push({
       status: 'ok',
-      title: `${xapiTotal} xAPI events received and processed`,
-      detail: 'Pipeline healthy for this member.',
+      title: `${xapiTotal} xAPI events received · ${courseProgressRows} CourseProgress rows`,
+      detail:
+        xapiIgnored === xapiTotal
+          ? 'All events are non-completion verbs (e.g. progressed). That is normal — completion arrives on the final event. Pipeline healthy.'
+          : 'Pipeline healthy for this member.',
     });
   }
 

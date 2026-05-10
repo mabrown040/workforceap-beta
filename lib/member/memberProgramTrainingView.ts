@@ -166,10 +166,18 @@ export async function loadMemberProgramTrainingView(args: {
 
     if (b4bAverage != null) {
       progressPercentDisplay = Math.max(0, Math.min(100, b4bAverage));
+    } else if (rows.length > 0) {
+      // CourseProgress rows are the source of truth — `MemberProgramProgress`
+      // is a denormalized cache that periodically goes stale (the writer in
+      // `refreshMemberProgramProgressRollup` divides by the discovered-catalog
+      // course count, which can disagree with `program.courses.length` here
+      // and produce a 0 even when underlying rows show 6%). When we have
+      // rows, compute from them directly and treat the rollup as a fallback
+      // for the rare case where the writer ran but rows haven't synced into
+      // this read transaction yet.
+      progressPercentDisplay = Math.round(sumPercentForAverage / totalCourses);
     } else if (rollup != null) {
       progressPercentDisplay = Math.max(0, Math.min(100, rollup.averagePercent));
-    } else if (rows.length > 0) {
-      progressPercentDisplay = Math.round(sumPercentForAverage / totalCourses);
     } else {
       progressPercentDisplay = Math.round((completedCount / totalCourses) * 100);
     }

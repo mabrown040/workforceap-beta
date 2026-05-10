@@ -333,6 +333,26 @@ export function recommendProgramsForGaps(
 
 export const PROGRAM_TITLES = PROGRAMS.map((p) => p.title) as readonly string[];
 
+/**
+ * Legacy / alternate program slugs that older enrollment / progress rows in
+ * production may carry. These must resolve to canonical catalog slugs so a
+ * stale `User.enrolledProgram` doesn't strand the member at /dashboard/program
+ * (the picker) when their data is otherwise sound.
+ *
+ * If you rename a program slug in PROGRAMS, add the OLD slug here pointing at
+ * the new one. The map is checked AFTER direct + slugified-title matches so
+ * canonical lookups stay zero-cost.
+ *
+ * Discovered tonight (2026-05-10) on mabrown040@gmail.com: an enrollment row
+ * with `ai-practitioner-professional-certificate` had no catalog match,
+ * causing /dashboard/training to redirect to the picker.
+ */
+const PROGRAM_SLUG_ALIASES: Readonly<Record<string, string>> = {
+  'ai-practitioner-professional-certificate': 'ai-professional-developer-certificate-ibm',
+  'ai-professional-practitioner-certificate': 'ai-professional-developer-certificate-ibm',
+  'comptia-a-plus': 'comptia-a-professional-certificate',
+};
+
 /** Resolve program from stored interest (slug or full title from apply/signup lists). */
 export function getProgramByInterestValue(interest: string): Program | undefined {
   const trimmed = interest.trim();
@@ -342,6 +362,11 @@ export function getProgramByInterestValue(interest: string): Program | undefined
   const slugGuess = slugify(trimmed);
   const bySlugGuess = PROGRAMS.find((p) => p.slug === slugGuess);
   if (bySlugGuess) return bySlugGuess;
+  const aliasedSlug = PROGRAM_SLUG_ALIASES[trimmed] ?? PROGRAM_SLUG_ALIASES[slugGuess];
+  if (aliasedSlug) {
+    const byAlias = PROGRAMS.find((p) => p.slug === aliasedSlug);
+    if (byAlias) return byAlias;
+  }
   return PROGRAMS.find((p) => p.title === trimmed);
 }
 

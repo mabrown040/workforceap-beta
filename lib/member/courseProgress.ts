@@ -36,7 +36,15 @@ function mergePercent(current: number, incoming: number | null | undefined): num
 export async function refreshMemberProgramProgressRollup(userId: string, programSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
   const program = getProgramBySlug(programSlug);
-  const totalCourses = disc?.courses.length ?? program?.courses.length ?? 0;
+  // Catalog (`program.courses.length`) is the denominator the member dashboard
+  // and admin view both use to render "X / Y complete" and "Z% overall". The
+  // discovered Coursera catalog can list more courses than our program
+  // catalog (e.g. Coursera shows 13 IBM AI courses while our program lists
+  // 10), so dividing by `disc.courses.length` produced a smaller %, then the
+  // dashboard rounded the rollup's already-too-low value to 0 even when
+  // underlying CourseProgress rows had 6% on a course. Use catalog first;
+  // disc is only the fallback when this slug isn't in the program catalog.
+  const totalCourses = program?.courses.length ?? disc?.courses.length ?? 0;
 
   const rows = await prisma.courseProgress.findMany({
     where: { userId, programSlug },

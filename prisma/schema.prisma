@@ -875,12 +875,12 @@ model MessageThread {
 model Message {
   id        String   @id @default(uuid())
   threadId  String   @map("thread_id")
-  authorId  String   @map("author_id")
+  authorId  String?  @map("author_id")
   body      String   @db.Text
   createdAt DateTime @default(now()) @map("created_at")
 
   thread MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([threadId, createdAt])
   @@map("messages")
@@ -1055,14 +1055,14 @@ model PartnerSignupRequest {
 
 model CounselorNote {
   id        String   @id @default(uuid())
-  memberId  String   @map("member_id")
-  authorId  String   @map("author_id")
-  content   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  memberId  String?   @map("member_id")
+  authorId  String?   @map("author_id")
+  content   String    @db.Text
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
-  member User @relation("MemberNotes", fields: [memberId], references: [id], onDelete: Cascade)
-  author User @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  member User? @relation("MemberNotes", fields: [memberId], references: [id], onDelete: SetNull)
+  author User? @relation("NoteAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([memberId])
   @@index([authorId])
@@ -1547,13 +1547,13 @@ model JobPostingApplication {
 model ApplicationMessage {
   id            String    @id @default(uuid())
   applicationId String    @map("application_id")
-  authorId      String    @map("author_id")
+  authorId      String?   @map("author_id")
   body          String    @db.Text
   createdAt     DateTime  @default(now()) @map("created_at")
   readAt        DateTime? @map("read_at")
 
   application JobPostingApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  author      User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      User?                 @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([applicationId])
   @@index([authorId])
@@ -1566,12 +1566,12 @@ model PartnerOutreachLog {
   memberId        String   @map("member_id")
   channel         String
   note            String   @db.Text
-  createdByUserId String   @map("created_by_user_id")
+  createdByUserId String?  @map("created_by_user_id")
   createdAt       DateTime @default(now()) @map("created_at")
 
   partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
   member    User    @relation("PartnerOutreachMember", fields: [memberId], references: [id], onDelete: Cascade)
-  createdBy User    @relation("PartnerOutreachAuthor", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdBy User?   @relation("PartnerOutreachAuthor", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
   @@index([partnerId])
   @@index([memberId])

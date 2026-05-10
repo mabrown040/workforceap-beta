@@ -36,6 +36,7 @@ import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import PortalLoadingState from '@/components/portal/PortalLoadingState';
+import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
@@ -1036,6 +1037,9 @@ async function renderMemberDashboard(
               </a>
             ))}
           </div>
+          <div style={{ marginTop: '0.75rem' }}>
+            <RequestHelpButton />
+          </div>
         </section>
 
         <section style={{ padding: '0 1.25rem 1.25rem' }}>
@@ -1180,6 +1184,9 @@ async function renderMemberDashboard(
                 }}
               >
                 <MemberProgressStrip {...progressStripProps} />
+              </div>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem' }}>
+                <RequestHelpButton />
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />

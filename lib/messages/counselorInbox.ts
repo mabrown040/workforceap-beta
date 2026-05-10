@@ -6,6 +6,8 @@ export type CounselorInboxRow = {
   memberName: string;
   threadId: string;
   programSubtitle: string;
+  enrollmentStatus: 'enrolled' | 'not_enrolled';
+  lastActivityLabel: string | null;
   preview: string;
   timeLabel: string;
   sortAt: string;
@@ -24,9 +26,9 @@ function formatTimeLabel(iso: string): string {
   }
   const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
   if (diff < 7) {
-    return d.toLocaleDateString([], { weekday: 'short' });
+    return d.toLocaleDateString([], { weekday: 'short' }) + ', ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
 export async function buildCounselorInboxRows(
@@ -73,11 +75,32 @@ export async function buildCounselorInboxRows(
     const preview =
       lastMsg?.body?.slice(0, 100) ?? 'Tap to open conversation';
 
+    const lastMsgAt = lastMsg?.createdAt ?? null;
+    const lastEvent = await prisma.memberEvent.findFirst({
+      where: { userId: memberId },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
+    });
+    const lastEventAt = lastEvent?.createdAt ?? null;
+
+    let activityAt: Date | null = null;
+    if (lastMsgAt && lastEventAt) {
+      activityAt = lastMsgAt > lastEventAt ? lastMsgAt : lastEventAt;
+    } else {
+      activityAt = lastMsgAt ?? lastEventAt ?? null;
+    }
+
+    const lastActivityLabel = activityAt
+      ? `Last activity ${formatTimeLabel(activityAt.toISOString())}`
+      : null;
+
     rows.push({
       memberId,
       memberName: m.fullName ?? 'Member',
       threadId: thread.id,
       programSubtitle: program,
+      enrollmentStatus: m.enrolledProgram ? 'enrolled' : 'not_enrolled',
+      lastActivityLabel,
       preview,
       timeLabel: formatTimeLabel(sortAt.toISOString()),
       sortAt: sortAt.toISOString(),

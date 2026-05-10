@@ -103,6 +103,13 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
             >
               <InboxRowLayout
                 title={r.memberName}
+                subtitle={
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)' }}>
+                    {r.programSubtitle}
+                    {r.enrollmentStatus === 'enrolled' ? ' · Enrolled' : ' · Not enrolled'}
+                    {r.lastActivityLabel ? ` · ${r.lastActivityLabel}` : ''}
+                  </span>
+                }
                 meta={r.timeLabel}
                 preview={r.preview}
                 badge={<InboxUnreadBadge count={r.unreadCount} />}
@@ -153,7 +160,13 @@ export default function CounselorMessagesInboxClient({ staffUserId, rows }: Prop
         <div style={{ minWidth: 0 }}>
           <p style={{ fontWeight: 700, fontSize: '0.875rem', margin: 0 }}>{chat.member.fullName}</p>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: 0 }} className="wa-truncate">
-            {rows.find((x) => x.memberId === chat.member.id)?.programSubtitle ?? '—'}
+            {(() => {
+              const row = rows.find((x) => x.memberId === chat.member.id);
+              const enrollment =
+                row?.enrollmentStatus === 'enrolled' ? 'Enrolled' : 'Not enrolled';
+              const activity = row?.lastActivityLabel ?? 'No activity logged';
+              return `${row?.programSubtitle ?? '—'} · ${enrollment} · ${activity}`;
+            })()}
           </p>
         </div>
       </div>

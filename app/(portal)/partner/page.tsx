@@ -190,11 +190,15 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      {/* 2×2 KPI Grid */}
+      {/* Primary KPI strip */}
       <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="accent" label="Active Members" value={activeMembersCount} hint="In progress" />
-        <PortalKpiCard accent="neutral" label="Placements" value={placements} hint="Verified hires" />
-        <PortalKpiCard accent="gold" label="Certificates" value={completions} hint="Earned by members" />
+        <PortalKpiCard accent="accent" label="Referrals" value={total} hint="Referred members" />
+        <PortalKpiCard accent="neutral" label="Members in Progress" value={activeMembersCount} hint="Active stages" />
+        <PortalKpiCard accent="gold" label="Payouts" value={placements} hint="Verified hires" href="/partner/outcomes" />
+      </div>
+
+      <div className="portal-kpi-grid portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PortalKpiCard accent="neutral" label="Certificates" value={completions} hint="Earned by members" />
         <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
       </div>
 
@@ -385,6 +389,21 @@ export default async function PartnerDashboardPage() {
           </div>
         }
       />
+
+      <section style={{ marginBottom: '1.5rem' }}>
+        <div
+          className="portal-grid-metrics"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: '1rem',
+          }}
+        >
+          <PortalKpiCard accent="accent" label="Referrals" value={total} hint="Referred members" />
+          <PortalKpiCard accent="neutral" label="Members in Progress" value={activeMembersCount} hint="Active stages" />
+          <PortalKpiCard accent="gold" label="Payouts" value={placements} hint="Verified hires" href="/partner/outcomes" />
+        </div>
+      </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>

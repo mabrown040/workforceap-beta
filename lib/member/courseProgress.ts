@@ -9,6 +9,7 @@ import type { ParsedXapiStatement } from '@/lib/xapi/statements';
 import { isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statements';
 import { inferCourseProgressStatusFromXapiVerb } from '@/lib/member/xapiVerbProgress';
 import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
+import { loadProgramCourseCount } from '@/lib/member/loadProgramCourses';
 
 function discoveredMetaForSlug(programSlug: string, courseSlug: string) {
   const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
@@ -34,17 +35,23 @@ function mergePercent(current: number, incoming: number | null | undefined): num
 }
 
 export async function refreshMemberProgramProgressRollup(userId: string, programSlug: string) {
-  const disc = DISCOVERED_COURSERA_PROGRAMS[programSlug];
-  const program = getProgramBySlug(programSlug);
-  // Catalog (`program.courses.length`) is the denominator the member dashboard
-  // and admin view both use to render "X / Y complete" and "Z% overall". The
-  // discovered Coursera catalog can list more courses than our program
-  // catalog (e.g. Coursera shows 13 IBM AI courses while our program lists
-  // 10), so dividing by `disc.courses.length` produced a smaller %, then the
-  // dashboard rounded the rollup's already-too-low value to 0 even when
-  // underlying CourseProgress rows had 6% on a course. Use catalog first;
-  // disc is only the fallback when this slug isn't in the program catalog.
-  const totalCourses = program?.courses.length ?? disc?.courses.length ?? 0;
+  // Denominator authority order: B4B live → Course DB → static catalog.
+  // Same chain the dashboard renders, so the rollup's averagePercent is
+  // computed against the same total the user sees on screen — no more
+  // divergence between rollup and dashboard. We resolve the user's org
+  // first because Course DB rows are tenant-scoped.
+  const userRow = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { organizationId: true },
+  });
+  const totalCourses = userRow?.organizationId
+    ? await loadProgramCourseCount({
+        organizationId: userRow.organizationId,
+        programSlug,
+      })
+    : (getProgramBySlug(programSlug)?.courses.length
+        ?? DISCOVERED_COURSERA_PROGRAMS[programSlug]?.courses.length
+        ?? 0);
 
   const rows = await prisma.courseProgress.findMany({
     where: { userId, programSlug },

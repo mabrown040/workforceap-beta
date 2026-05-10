@@ -52,6 +52,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
   const { id } = await params;
   const job = await prisma.job.findFirst({
     where: { id, employerId: ctx.employerId },
+    include: { _count: { select: { applications: true } } },
   });
 
   if (!job) notFound();
@@ -74,7 +75,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
   });
 
   const summaryStats = [
-    { label: 'Applications', value: job.applicationsCount },
+    { label: 'Applications', value: job._count.applications },
     { label: 'Requirements', value: job.requirements?.length ?? 0 },
     { label: 'Program matches', value: job.suggestedPrograms?.length ?? 0 },
   ];
@@ -112,7 +113,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
                     <h1>{job.title}</h1>
                     <span className="employer-job-edit__meta">
                       {job.status}
-                      {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}
+                      {job._count.applications > 0 && ` · ${job._count.applications} application${job._count.applications === 1 ? '' : 's'}`}
                     </span>
                   </div>
                   <div

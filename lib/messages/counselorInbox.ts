@@ -12,6 +12,8 @@ export type CounselorInboxRow = {
   timeLabel: string;
   sortAt: string;
   unreadCount: number;
+  /** Last message was from the member — counselor should reply. */
+  needsReply: boolean;
 };
 
 function formatTimeLabel(iso: string): string {
@@ -72,8 +74,8 @@ export async function buildCounselorInboxRows(
 
     const program = m.enrolledProgram ?? m.programInterest ?? '—';
     const sortAt = lastMsg?.createdAt ?? thread.createdAt;
-    const preview =
-      lastMsg?.body?.slice(0, 100) ?? 'Tap to open conversation';
+    const needsReply = lastMsg ? lastMsg.authorId === memberId : false;
+    const preview = lastMsg?.body?.slice(0, 100) ?? 'No messages yet';
 
     const lastMsgAt = lastMsg?.createdAt ?? null;
     const lastEvent = await prisma.memberEvent.findFirst({
@@ -105,10 +107,15 @@ export async function buildCounselorInboxRows(
       timeLabel: formatTimeLabel(sortAt.toISOString()),
       sortAt: sortAt.toISOString(),
       unreadCount,
+      needsReply,
     });
   }
 
-  rows.sort((a, b) => (a.sortAt < b.sortAt ? 1 : a.sortAt > b.sortAt ? -1 : 0));
+  rows.sort((a, b) => {
+    if (a.needsReply !== b.needsReply) return a.needsReply ? -1 : 1;
+    if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
+    return a.sortAt < b.sortAt ? 1 : a.sortAt > b.sortAt ? -1 : 0;
+  });
 
   return rows;
 }

@@ -1,13 +1,30 @@
 import Link from 'next/link';
+import type { JobPostingApplicationStatus } from '@prisma/client';
+import { employerApplicationsListHref, type EmployerApplicationsSort } from '@/lib/employer/employerApplicationsListQuery';
 
 export default function EmployerApplicationsPager({
   page,
   totalPages,
+  status,
+  sort,
 }: {
   page: number;
   totalPages: number;
+  status?: JobPostingApplicationStatus | null;
+  sort?: EmployerApplicationsSort;
 }) {
   if (totalPages <= 1) return null;
+  const sortVal = sort ?? 'applied_desc';
+  const prevHref = employerApplicationsListHref({
+    page: page - 1,
+    status: status ?? undefined,
+    sort: sortVal,
+  });
+  const nextHref = employerApplicationsListHref({
+    page: page + 1,
+    status: status ?? undefined,
+    sort: sortVal,
+  });
   return (
     <nav
       style={{
@@ -21,7 +38,7 @@ export default function EmployerApplicationsPager({
       aria-label="Applications pagination"
     >
       {page > 1 ? (
-        <Link href={`/employer/applications?page=${page - 1}`} className="btn btn-outline btn-sm">
+        <Link href={prevHref} className="btn btn-outline btn-sm">
           Previous
         </Link>
       ) : (
@@ -33,7 +50,7 @@ export default function EmployerApplicationsPager({
         Page {page} of {totalPages}
       </span>
       {page < totalPages ? (
-        <Link href={`/employer/applications?page=${page + 1}`} className="btn btn-outline btn-sm">
+        <Link href={nextHref} className="btn btn-outline btn-sm">
           Next
         </Link>
       ) : (

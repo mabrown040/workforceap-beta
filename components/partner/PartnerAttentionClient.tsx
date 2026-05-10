@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 type AttentionMember = {
   memberId: string;
@@ -32,7 +33,18 @@ type TeamUser = { id: string; fullName: string; email: string };
 
 type TierFilter = 'all' | 'high' | 'medium' | 'low' | 'watch';
 
-export default function PartnerAttentionClient({ initialTier = 'all' as TierFilter }) {
+const TIER_ORDER: Record<AttentionMember['riskTier'], number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+  watch: 3,
+};
+
+export default function PartnerAttentionClient({ initialTier = 'high' as TierFilter }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [rows, setRows] = useState<AttentionMember[] | null>(null);
   const [tierFilter, setTierFilter] = useState<TierFilter>(initialTier);
   const [team, setTeam] = useState<TeamUser[] | null>(null);
@@ -44,6 +56,29 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
   const [saving, setSaving] = useState(false);
   const [assignBusy, setAssignBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tr = searchParams.get('tier');
+    if (!tr) {
+      setTierFilter('high');
+      return;
+    }
+    if (tr === 'high' || tr === 'medium' || tr === 'low' || tr === 'watch' || tr === 'all') {
+      setTierFilter(tr);
+    }
+  }, [searchParams]);
+
+  const pushTierRoute = useCallback(
+    (t: TierFilter) => {
+      const next = new URLSearchParams(searchParams.toString());
+      if (t === 'high') next.delete('tier');
+      else next.set('tier', t);
+      const qs = next.toString();
+      router.replace(qs.length ? `${pathname}?${qs}` : pathname, { scroll: false });
+      setTierFilter(t);
+    },
+    [pathname, router, searchParams],
+  );
 
   const reload = useCallback(async () => {
     const [r1, r2, r3, r4] = await Promise.all([
@@ -74,10 +109,29 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
     void reload();
   }, [reload]);
 
+  const tierCounts = useMemo(() => {
+    if (!rows) return null;
+    let high = 0;
+    let medium = 0;
+    let low = 0;
+    let watch = 0;
+    for (const r of rows) {
+      if (r.riskTier === 'high') high++;
+      else if (r.riskTier === 'medium') medium++;
+      else if (r.riskTier === 'low') low++;
+      else watch++;
+    }
+    return { all: rows.length, high, medium, low, watch };
+  }, [rows]);
+
   const filtered = useMemo(() => {
     if (!rows) return [];
-    if (tierFilter === 'all') return rows;
-    return rows.filter((r) => r.riskTier === tierFilter);
+    const subset = tierFilter === 'all' ? rows : rows.filter((r) => r.riskTier === tierFilter);
+    return [...subset].sort((a, b) => {
+      const o = TIER_ORDER[a.riskTier] - TIER_ORDER[b.riskTier];
+      if (o !== 0) return o;
+      return b.staleDays - a.staleDays;
+    });
   }, [rows, tierFilter]);
 
   const submit = async (e: React.FormEvent) => {
@@ -127,9 +181,10 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
   return (
     <div className="partner-attention-console">
       <section className="partner-panel partner-attention-queue" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Risk-tiered attention queue</h2>
+        <h2 style={{ fontSize: '1rem', marginBottom: '0.35rem' }}>Who needs you right now</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-          Tier from days since last profile update. Use next actions and owner assignment to keep referrals moving.
+          Sorted with highest urgency first — quiet days show how long it has been since the member updated their profile. Assign owners
+          and log outreach so nothing slips through the cracks.
         </p>
         <div className="partner-tier-filters" role="tablist" aria-label="Risk tier">
           {(['all', 'high', 'medium', 'low', 'watch'] as const).map((t) => (
@@ -137,16 +192,22 @@ export default function PartnerAttentionClient({ initialTier = 'all' as TierFilt
               key={t}
               type="button"
               className={`partner-tier-filter${tierFilter === t ? ' is-active' : ''}`}
-              onClick={() => setTierFilter(t)}
+              onClick={() => pushTierRoute(t)}
+              aria-current={tierFilter === t ? 'true' : undefined}
             >
-              {t === 'all' ? 'All' : t}
+              <span className="partner-tier-filter-inner">
+                {t === 'all' ? 'All' : t}
+                {tierCounts ? (
+                  <span className="partner-tier-filter-count">{t === 'all' ? tierCounts.all : tierCounts[t]}</span>
+                ) : null}
+              </span>
             </button>
           ))}
         </div>
         {!rows ? (
           <p>Loading…</p>
         ) : filtered.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No members in this filter.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>No members in this filter. Try “All” or check back later.</p>
         ) : (
           <ul className="partner-attention-list">
             {filtered.map((m) => (

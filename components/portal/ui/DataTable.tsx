@@ -278,7 +278,10 @@ export default function DataTable<TRow>({
       // default `min-width: auto` (which would otherwise let a wide table push
       // the parent past the viewport — the bug that caused horizontal bleed
       // on /admin/coursera). `overflowX: auto` then clips and scrolls cleanly.
-      <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0 }} className={className}>
+      <div
+        style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0 }}
+        className={['wap-data-table-scroll', className].filter(Boolean).join(' ')}
+      >
         {tableElement}
       </div>
     );

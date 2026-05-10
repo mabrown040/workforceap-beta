@@ -32,8 +32,9 @@ export default async function PartnerAttentionPage({
 
   const sp = (await searchParams) ?? {};
   const tr = sp.tier;
+  /** Default to high urgency so partners land on actionable items first (`all` is one click away). */
   const initialTier =
-    tr === 'high' || tr === 'medium' || tr === 'low' || tr === 'watch' || tr === 'all' ? tr : 'all';
+    tr === 'high' || tr === 'medium' || tr === 'low' || tr === 'watch' || tr === 'all' ? tr : 'high';
 
   const rawEvents = await listPartnerWorkflowEvents(ctx.partnerId, 30);
   const events = rawEvents.map((e) => ({

@@ -32,6 +32,8 @@ export default function MemberSignupForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<MemberSignupInput>({
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     resolver: zodResolver(memberSignupSchema),
     defaultValues: {
       consentCommunications: false,
@@ -251,14 +253,14 @@ export default function MemberSignupForm() {
           Consent
         </legend>
         <div className="form-group">
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+          <label className="form-check">
             <input
               type="checkbox"
               aria-invalid={!!errors.consentTerms}
               aria-describedby={errors.consentTerms ? 'consentTerms-error' : undefined}
               {...register('consentTerms')}
             />
-            <span>
+            <span className="form-check__text">
               I agree to the{' '}
               <Link href="/terms" target="_blank" rel="noopener noreferrer">
                 Terms of Service
@@ -277,15 +279,15 @@ export default function MemberSignupForm() {
           )}
         </div>
         <div className="form-group">
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+          <label className="form-check">
             <input type="checkbox" {...register('consentCommunications')} />
-            <span>I agree to receive program updates and communications via email</span>
+            <span className="form-check__text">I agree to receive program updates and communications via email</span>
           </label>
         </div>
       </fieldset>
 
       {errorMessage && (
-        <div className="form-error-banner" role="alert" style={{ background: '#fff3f5', borderLeft: '4px solid var(--color-accent)', padding: '1rem', marginBottom: '1rem', borderRadius: '0 8px 8px 0' }}>
+        <div className="form-feedback-banner form-feedback-banner--error" role="alert">
           {errorMessage}
         </div>
       )}
@@ -295,6 +297,7 @@ export default function MemberSignupForm() {
         className="btn btn-primary"
         style={{ width: '100%', padding: '1rem', fontSize: '1.05rem' }}
         disabled={submitStatus === 'loading'}
+        aria-busy={submitStatus === 'loading'}
       >
         {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
       </button>

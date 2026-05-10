@@ -250,11 +250,11 @@ export default function DashboardHomeClient({
   ];
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="portal-member-dashboard-home">
       {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
 
       {/* ── Page Header ── */}
-      <header style={{ marginBottom: '1.25rem', padding: '0 2rem' }}>
+      <header className="portal-dash-header portal-dash-inset">
         <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', letterSpacing: '0.08em', fontSize: '0.75rem', marginBottom: '0.375rem' }}>
           {weekEyebrow}
         </p>
@@ -285,7 +285,7 @@ export default function DashboardHomeClient({
       </header>
 
       {showStuckCounselorStrip && state === 'C' ? (
-        <div style={{ padding: '0 2rem', marginBottom: '1.25rem' }}>
+        <div className="portal-dash-inset" style={{ marginBottom: '1.25rem' }}>
           <MemberStuckCounselorStrip />
         </div>
       ) : null}
@@ -294,7 +294,7 @@ export default function DashboardHomeClient({
 
       {/* ── 1. STATUS CARD — where am I, what's next ── */}
       {((state === 'A' || state === 'B') && (noApplicationOnFile || applicationStatus)) && (
-        <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
+        <div className="portal-dash-inset" style={{ marginBottom: '1.5rem' }}>
           <section
             className="portal-card portal-card--flat"
             style={{ borderLeft: '4px solid var(--color-accent)' }}
@@ -395,17 +395,7 @@ export default function DashboardHomeClient({
       )}
 
       {/* ── 2. HELP STRIP — counselor contact + support CTA ── */}
-      <div
-        className="portal-card portal-card--flat"
-        style={{
-          margin: '0 2rem 1.5rem',
-          padding: '1rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="portal-card portal-card--flat portal-dashboard-help-strip">
         <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.25rem', flexShrink: 0 }}>support_agent</span>
         <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', flex: 1, minWidth: '12rem' }}>
           Have questions? Your counselor is here to help.
@@ -429,7 +419,7 @@ export default function DashboardHomeClient({
 
       {/* ── 3. METRIC CARDS ── */}
       {(state === 'C' || state === 'D') && (
-        <div style={{ padding: '0 2rem', marginBottom: '1.25rem' }}>
+        <div className="portal-dash-inset" style={{ marginBottom: '1.25rem' }}>
           <div className="portal-metric-strip">
             {metricCards.map((m) => (
               <PortalMetricCard key={m.label} {...m} />
@@ -440,7 +430,7 @@ export default function DashboardHomeClient({
 
       {/* ── 4. MORE NEXT STEPS — remaining actions after dominant card ── */}
       {nextStripActions.length > 0 && (
-        <div style={{ padding: '0 2rem', marginBottom: '1.5rem' }}>
+        <div className="portal-dash-inset" style={{ marginBottom: '1.5rem' }}>
           <MemberNextStepsStrip actions={nextStripActions.slice(0, 2)} />
         </div>
       )}
@@ -452,7 +442,7 @@ export default function DashboardHomeClient({
         {(state === 'B' || state === 'C' || state === 'D') && programTitle && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>
                 <div style={{ minWidth: 0 }}>
                   <h2 style={{ fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.35rem', color: 'var(--color-on-surface)' }}>
                     {progressCardTitle}

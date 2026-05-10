@@ -38,10 +38,20 @@ function SectionLabel({ title, sub }: { title: string; sub?: string }) {
 }
 
 const tooltipStyle = {
-  contentStyle: { background: 'var(--surface-container-high)', border: 'none', borderRadius: '0.625rem', fontSize: '0.8125rem', color: 'var(--color-on-surface)' },
-  labelStyle: { fontWeight: 700, color: 'var(--color-on-surface)' },
-  itemStyle: { color: 'var(--color-on-surface-variant)' },
+  contentStyle: {
+    background: 'var(--surface-container-high)',
+    border: '1px solid var(--outline-variant)',
+    borderRadius: '0.625rem',
+    fontSize: '0.875rem',
+    color: 'var(--color-on-surface)',
+    padding: '0.65rem 0.85rem',
+    boxShadow: '0 8px 28px rgba(0,0,0,0.18)',
+  },
+  labelStyle: { fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.25rem' },
+  itemStyle: { color: 'var(--color-on-surface-variant)', paddingTop: '0.15rem' },
 };
+
+const axisTick = { fontSize: 12, fill: MUTED };
 
 function ActivityLegend({ payload }: { payload?: Array<{ color?: string; value?: string }> }) {
   if (!payload?.length) return null;

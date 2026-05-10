@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Filter, Plus } from 'lucide-react';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -39,14 +39,7 @@ type Member = {
   partnerId: string | null;
   fitScore?: number;
   healthStatus?: HealthStatus;
-  /**
-   * Multi-program-aware: every program slug the member has a
-   * `course_enrollments` row for. The program-filter dropdown is built from
-   * the union of these across all rows, and matching tests against this
-   * list rather than just the primary `enrolledProgram` slug.
-   */
   enrollmentProgramSlugs: string[];
-  /** Title-by-slug lookup so the dropdown can render real program titles. */
   enrollmentProgramTitleBySlug: Record<string, string>;
 };
 
@@ -78,28 +71,63 @@ function formatTraining(m: Member, variant: 'table' | 'card' = 'table'): string 
   return '—';
 }
 
+function csvEscape(s: string) {
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function HeaderSelectAll({
+  filtered,
+  selectedIds,
+  onBulkSelect,
+}: {
+  filtered: Member[];
+  selectedIds: Set<string>;
+  onBulkSelect: (selectAllInView: boolean) => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const ids = filtered.map((m) => m.id);
+  const selectedInView = ids.filter((id) => selectedIds.has(id)).length;
+  const all = ids.length > 0 && selectedInView === ids.length;
+  const some = selectedInView > 0 && !all;
+
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = some;
+  }, [some]);
+
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={all}
+      onChange={() => onBulkSelect(!all)}
+      aria-label={all ? 'Deselect all rows in current view' : 'Select all rows in current view'}
+      className="admin-members-row-check"
+    />
+  );
+}
+
 export default function MembersTable({ members }: MembersTableProps) {
   const [search, setSearch] = useState('');
   const [programFilter, setProgramFilter] = useState('');
   const [partnerFilter, setPartnerFilter] = useState('');
   const [healthFilter, setHealthFilter] = useState('');
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [bulkHint, setBulkHint] = useState<string | null>(null);
 
-  const filtered = members.filter((m) => {
-    const q = search.toLowerCase();
-    const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
-    // Multi-program-aware: a member matches the program filter if ANY of
-    // their `course_enrollments` rows is for the chosen program (not just
-    // the denormalized primary on `enrolledProgram`).
-    const matchProgram = !programFilter || m.enrollmentProgramSlugs.includes(programFilter);
-    const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
-    const matchHealth = !healthFilter || m.healthStatus === healthFilter;
-    return matchSearch && matchProgram && matchPartner && matchHealth;
-  });
+  const filtered = useMemo(() => {
+    return members.filter((m) => {
+      const q = search.toLowerCase();
+      const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
+      const matchProgram = !programFilter || m.enrollmentProgramSlugs.includes(programFilter);
+      const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
+      const matchHealth = !healthFilter || m.healthStatus === healthFilter;
+      return matchSearch && matchProgram && matchPartner && matchHealth;
+    });
+  }, [members, search, programFilter, partnerFilter, healthFilter]);
 
-  // Build the program-filter dropdown from the DISTINCT union of every
-  // member's enrolled program slugs (multi-program members contribute every
-  // program they're in, not just the primary).
-  const programs = (() => {
+  const programs = useMemo(() => {
     const titleBySlug = new Map<string, string>();
     for (const m of members) {
       for (const slug of m.enrollmentProgramSlugs) {
@@ -111,30 +139,238 @@ export default function MembersTable({ members }: MembersTableProps) {
     return [...titleBySlug.entries()]
       .map(([slug, title]) => ({ slug, title }))
       .sort((a, b) => a.title.localeCompare(b.title));
-  })();
-  const partnerOptions = [...new Map(members.filter((m) => m.partnerId).map((m) => [m.partnerId!, m.partnerName!])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  }, [members]);
+
+  const partnerOptions = useMemo(
+    () =>
+      [...new Map(members.filter((m) => m.partnerId).map((m) => [m.partnerId!, m.partnerName!])).entries()].sort((a, b) =>
+        a[1].localeCompare(b[1]),
+      ),
+    [members],
+  );
+
+  const activeFilterCount =
+    (search.trim() ? 1 : 0) + (programFilter ? 1 : 0) + (partnerFilter ? 1 : 0) + (healthFilter ? 1 : 0);
+
+  const selectedInCurrentView = useMemo(
+    () => filtered.filter((m) => selectedIds.has(m.id)).length,
+    [filtered, selectedIds],
+  );
+
+  const selectedRows = useMemo(() => members.filter((m) => selectedIds.has(m.id)), [members, selectedIds]);
+
+  function clearAllFilters() {
+    setSearch('');
+    setProgramFilter('');
+    setPartnerFilter('');
+    setHealthFilter('');
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setBulkHint(null);
+  }
+
+  function onHeaderSelect(selectAllInView: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const ids = filtered.map((m) => m.id);
+      if (selectAllInView) {
+        for (const id of ids) next.add(id);
+      } else {
+        for (const id of ids) next.delete(id);
+      }
+      return next;
+    });
+    setBulkHint(null);
+  }
+
+  function copySelectedEmails() {
+    const text = selectedRows.map((m) => m.email).join('\n');
+    void navigator.clipboard.writeText(text).then(() => {
+      setBulkHint(`Copied ${selectedRows.length} email${selectedRows.length === 1 ? '' : 's'}`);
+      window.setTimeout(() => setBulkHint(null), 3500);
+    });
+  }
+
+  function downloadSelectedCsv() {
+    const header = ['fullName', 'email', 'program', 'partner', 'health', 'phone', 'memberUrl'];
+    const lines = [
+      header.join(','),
+      ...selectedRows.map((m) =>
+        [
+          csvEscape(m.fullName ?? ''),
+          csvEscape(m.email ?? ''),
+          csvEscape(m.programTitle ?? ''),
+          csvEscape(m.partnerName ?? ''),
+          csvEscape(m.healthStatus ?? ''),
+          csvEscape(formatPhone(m.profile?.profilePhone ?? m.phone) ?? ''),
+          csvEscape(`${typeof window !== 'undefined' ? window.location.origin : ''}/admin/members/${m.id}`),
+        ].join(','),
+      ),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `members-selected-${selectedRows.length}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    setBulkHint(`Downloaded ${selectedRows.length} row${selectedRows.length === 1 ? '' : 's'}`);
+    window.setTimeout(() => setBulkHint(null), 3500);
+  }
 
   return (
-    <div>
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <input type="text" placeholder="Search by name or email" value={search} onChange={(e) => setSearch(e.target.value)} style={{ padding: '0.5rem', width: '220px' }} />
-        <select value={programFilter} onChange={(e) => setProgramFilter(e.target.value)} style={{ padding: '0.5rem', width: '200px' }}><option value="">All programs</option>{programs.map((p) => <option key={p.slug} value={p.slug}>{p.title}</option>)}</select>
-        <select value={partnerFilter} onChange={(e) => setPartnerFilter(e.target.value)} style={{ padding: '0.5rem', width: '220px' }}><option value="">All partners</option><option value="__none">No partner</option>{partnerOptions.map(([pid, pname]) => <option key={pid} value={pid}>{pname}</option>)}</select>
-        <select value={healthFilter} onChange={(e) => setHealthFilter(e.target.value)} style={{ padding: '0.5rem', width: '140px' }}><option value="">All health</option><option value="green">Active</option><option value="yellow">At Risk</option><option value="red">Inactive</option></select>
+    <div className="admin-members-table-root">
+      <div className="admin-members-toolbar">
+        <div className="admin-members-toolbar__primary">
+          <label className="admin-members-search-label">
+            <span className="admin-members-search-label__text">Search members</span>
+            <input
+              type="search"
+              placeholder="Name or email — ⌘F-style quick find"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="admin-members-search-input"
+              autoComplete="off"
+            />
+          </label>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm md:wa-hidden admin-members-filter-toggle"
+            onClick={() => setFiltersExpanded((v) => !v)}
+            aria-expanded={filtersExpanded}
+          >
+            <Filter size={14} aria-hidden style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
+            Refine list
+            {activeFilterCount > 0 ? <span className="admin-members-filter-badge">{activeFilterCount}</span> : null}
+          </button>
+        </div>
+
+        <p className="admin-members-count-line" aria-live="polite">
+          <strong>{filtered.length.toLocaleString()}</strong> shown
+          {members.length !== filtered.length ? (
+            <>
+              {' '}
+              of <strong>{members.length.toLocaleString()}</strong>
+            </>
+          ) : null}
+          {activeFilterCount > 0 ? <span className="admin-members-count-line__filters"> · {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} on</span> : null}
+        </p>
+
+        <div
+          className={['admin-members-filters', filtersExpanded ? 'admin-members-filters--open' : ''].filter(Boolean).join(' ')}
+        >
+          <label className="admin-members-filter-field">
+            <span>Program</span>
+            <select value={programFilter} onChange={(e) => setProgramFilter(e.target.value)} className="admin-members-filter-select">
+              <option value="">All programs</option>
+              {programs.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="admin-members-filter-field">
+            <span>Partner</span>
+            <select value={partnerFilter} onChange={(e) => setPartnerFilter(e.target.value)} className="admin-members-filter-select">
+              <option value="">All partners</option>
+              <option value="__none">No partner</option>
+              {partnerOptions.map(([pid, pname]) => (
+                <option key={pid} value={pid}>
+                  {pname}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="admin-members-filter-field">
+            <span>Health</span>
+            <select value={healthFilter} onChange={(e) => setHealthFilter(e.target.value)} className="admin-members-filter-select">
+              <option value="">All health</option>
+              <option value="green">Active</option>
+              <option value="yellow">At Risk</option>
+              <option value="red">Inactive</option>
+            </select>
+          </label>
+          {activeFilterCount > 0 ? (
+            <div className="admin-members-filter-actions">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={clearAllFilters}>
+                Clear all filters
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
+
+      {selectedIds.size > 0 && (
+        <div className="admin-members-bulk-bar" role="region" aria-label="Bulk actions for selected members">
+          <div className="admin-members-bulk-bar__lead">
+            <span className="admin-members-bulk-bar__count">{selectedIds.size}</span>
+            <span>
+              selected
+              {selectedInCurrentView < selectedIds.size ? (
+                <span className="admin-members-bulk-bar__sub"> ({selectedInCurrentView} in current view)</span>
+              ) : null}
+            </span>
+          </div>
+          <div className="admin-members-bulk-bar__actions">
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => onHeaderSelect(true)} disabled={filtered.length === 0}>
+              Select all in view
+            </button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setSelectedIds(new Set()); setBulkHint(null); }}>
+              Clear selection
+            </button>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void copySelectedEmails()}>
+              Copy emails
+            </button>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => void downloadSelectedCsv()}>
+              Download CSV
+            </button>
+          </div>
+          {bulkHint ? <p className="admin-members-bulk-hint">{bulkHint}</p> : null}
+        </div>
+      )}
 
       <div className="admin-table-scroll admin-members-desktop">
         <DataTable
           variant="admin"
-          tableClassName="admin-table"
+          tableClassName="admin-table admin-table--dense"
           scrollX={false}
           rows={filtered}
           rowKey={(m) => m.id}
           getRowProps={(m) => ({
             onClick: () => window.location.assign(`/admin/members/${m.id}`),
             style: { cursor: 'pointer' },
+            'data-clickable': 'true',
           })}
           columns={[
+            {
+              key: 'sel',
+              header: <HeaderSelectAll filtered={filtered} selectedIds={selectedIds} onBulkSelect={onHeaderSelect} />,
+              width: 40,
+              align: 'center',
+              columnClassName: 'admin-members-col-select',
+              cell: (m) => (
+                <span
+                  role="presentation"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(m.id)}
+                    onChange={() => toggleSelect(m.id)}
+                    aria-label={`Select ${m.fullName}`}
+                    className="admin-members-row-check"
+                  />
+                </span>
+              ),
+            },
             {
               key: 'name',
               header: 'Name',
@@ -248,30 +484,90 @@ export default function MembersTable({ members }: MembersTableProps) {
           const rawPhone = m.profile?.profilePhone ?? m.phone;
           const phoneDisplay = formatPhone(rawPhone);
           const lastActive = formatMemberDate(m.updatedAt) ?? '—';
-          return (<li key={m.id} className="admin-portal-card" style={{ cursor: 'pointer' }} onClick={() => window.location.assign(`/admin/members/${m.id}`)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') window.location.assign(`/admin/members/${m.id}`); }} aria-label={`View details for ${m.fullName}`}>
-            <div className="admin-portal-card__header"><Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)' }}>{m.healthStatus && <HealthDot status={m.healthStatus} />}{m.fullName}</Link>{m.healthStatus ? <span className="admin-portal-card__badge" style={{ background: m.healthStatus === 'green' ? 'rgba(22,163,74,0.12)' : m.healthStatus === 'yellow' ? 'rgba(217,119,6,0.12)' : 'rgba(220,38,38,0.12)', color: m.healthStatus === 'green' ? '#166534' : m.healthStatus === 'yellow' ? '#b45309' : '#991b1b' }}>{m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}</span> : null}</div>
-            <p className="admin-portal-card__meta">{m.email}</p>
-            {rawPhone ? <p className="admin-portal-card__meta">{phoneDisplay}</p> : null}
-            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Program</span> {m.programTitle ?? '—'}</p>
-            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Partner</span> {m.partnerName ?? '—'}</p>
-            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Fit</span> {m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}</p>
-            <p className="admin-portal-card__row"><span className="admin-portal-card__label">Training</span> {formatTraining(m, 'card')}</p>
-            <p className="admin-portal-card__meta">Last active {lastActive}</p>
-            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-              <Link
-                href={`/counselor/sessions/${m.id}/run`}
-                onClick={(e) => e.stopPropagation()}
-                className="btn btn-sm btn-outline"
-                style={{ fontSize: '0.75rem', flex: 1, textAlign: 'center' }}
-              >
-                Start session
-              </Link>
-            </div>
-          </li>);
+          return (
+            <li
+              key={m.id}
+              className="admin-portal-card"
+              style={{ cursor: 'pointer' }}
+              onClick={() => window.location.assign(`/admin/members/${m.id}`)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') window.location.assign(`/admin/members/${m.id}`);
+              }}
+              aria-label={`View details for ${m.fullName}`}
+            >
+              <div className="admin-portal-card__header" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', flex: 1 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(m.id)}
+                    onChange={() => toggleSelect(m.id)}
+                    aria-label={`Select ${m.fullName}`}
+                  />
+                  <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)' }} onClick={(e) => e.stopPropagation()}>
+                    {m.healthStatus && <HealthDot status={m.healthStatus} />}
+                    {m.fullName}
+                  </Link>
+                </label>
+                {m.healthStatus ? (
+                  <span
+                    className="admin-portal-card__badge"
+                    style={{
+                      background:
+                        m.healthStatus === 'green'
+                          ? 'rgba(22,163,74,0.12)'
+                          : m.healthStatus === 'yellow'
+                            ? 'rgba(217,119,6,0.12)'
+                            : 'rgba(220,38,38,0.12)',
+                      color: m.healthStatus === 'green' ? '#166534' : m.healthStatus === 'yellow' ? '#b45309' : '#991b1b',
+                    }}
+                  >
+                    {m.healthStatus === 'green' ? 'Active' : m.healthStatus === 'yellow' ? 'At Risk' : 'Inactive'}
+                  </span>
+                ) : null}
+              </div>
+              <p className="admin-portal-card__meta">{m.email}</p>
+              {rawPhone ? <p className="admin-portal-card__meta">{phoneDisplay}</p> : null}
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Program</span> {m.programTitle ?? '—'}
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Partner</span> {m.partnerName ?? '—'}
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Fit</span> {m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'}
+              </p>
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Training</span> {formatTraining(m, 'card')}
+              </p>
+              <p className="admin-portal-card__meta">Last active {lastActive}</p>
+              <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                <Link
+                  href={`/counselor/sessions/${m.id}/run`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', flex: 1, textAlign: 'center' }}
+                >
+                  Start session
+                </Link>
+              </div>
+            </li>
+          );
         })}
       </ul>
 
-      {filtered.length === 0 && <div className="admin-empty-state"><h3>{members.length === 0 ? 'No members yet' : 'No matches'}</h3><p>{members.length === 0 ? 'Add your first member to get started.' : 'Try adjusting your search or filters.'}</p>{members.length === 0 && <a href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> Add Member</a>}</div>}
+      {filtered.length === 0 && (
+        <div className="admin-empty-state">
+          <h3>{members.length === 0 ? 'No members yet' : 'No matches'}</h3>
+          <p>{members.length === 0 ? 'Add your first member to get started.' : 'Try adjusting your search or filters.'}</p>
+          {members.length === 0 && (
+            <a href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Plus size={16} /> Add Member
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }

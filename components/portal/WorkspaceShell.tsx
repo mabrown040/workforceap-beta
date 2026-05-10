@@ -109,6 +109,8 @@ export default function WorkspaceShell({
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
   const [badges, setBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
+  const isCollapsedDesktop = collapsed && wide;
+  const isMobileDrawer = drawerOpen && !wide;
   const fetchedIsSuperAdmin = useIsSuperAdmin();
   const isSuperAdmin = superAdmin ?? fetchedIsSuperAdmin;
   const tNav = useTranslations('nav');
@@ -166,7 +168,11 @@ export default function WorkspaceShell({
   };
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
-  const trapRef = useFocusTrap(drawerOpen, closeDrawer);
+  const trapRef = useFocusTrap(isMobileDrawer, closeDrawer);
+
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
 
   const collapseKey = `wa_nav_collapsed_${portalRole}`;
 
@@ -175,7 +181,7 @@ export default function WorkspaceShell({
     if (!el) return;
     try {
       if ('inert' in el) {
-        (el as HTMLElement & { inert?: boolean }).inert = drawerOpen;
+        (el as HTMLElement & { inert?: boolean }).inert = isMobileDrawer;
       }
     } catch {
       /* Safari / older browsers — skip; drawer overlay still blocks interaction */
@@ -189,11 +195,11 @@ export default function WorkspaceShell({
         /* ignore */
       }
     };
-  }, [drawerOpen]);
+  }, [isMobileDrawer]);
 
   // Body scroll lock with scroll position preservation
   useEffect(() => {
-    if (drawerOpen) {
+    if (isMobileDrawer) {
       const scrollY = window.scrollY;
       document.body.style.top = `-${scrollY}px`;
       document.body.classList.add('sidebar-open');
@@ -207,7 +213,7 @@ export default function WorkspaceShell({
       document.body.classList.remove('sidebar-open');
       document.body.style.top = '';
     };
-  }, [drawerOpen]);
+  }, [isMobileDrawer]);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
@@ -275,8 +281,6 @@ export default function WorkspaceShell({
     });
   };
 
-  const isCollapsedDesktop = collapsed && wide;
-  const isMobileDrawer = drawerOpen && !wide;
   const headerRef = useRef<HTMLElement>(null);
   const tabBarRef = useRef<HTMLElement | null>(null);
 
@@ -320,6 +324,8 @@ export default function WorkspaceShell({
             className="workspace-menu-btn"
             onClick={() => setDrawerOpen(true)}
             aria-label={tNav('openMenu')}
+            aria-expanded={drawerOpen}
+            aria-controls="workspace-sidebar"
           >
             <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
@@ -347,7 +353,7 @@ export default function WorkspaceShell({
           {contextLogoUrl ? (
             <span className="workspace-shell-context-logo-wrap" aria-hidden>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={contextLogoUrl} alt="" className="workspace-shell-context-logo" width={32} height={32} />
+              <img src={contextLogoUrl} alt="" className="workspace-shell-context-logo" width={36} height={36} />
             </span>
           ) : null}
           <span className="workspace-shell-context workspace-shell-context--chip" title={contextLabel}>

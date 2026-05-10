@@ -106,11 +106,14 @@ export function InboxList({ children }: { children: React.ReactNode }) {
 export function InboxRowButton({
   active,
   unread,
+  needsReply,
   onClick,
   children,
 }: {
   active: boolean;
   unread?: boolean;
+  /** Last message from member — prioritize in list styling */
+  needsReply?: boolean;
   onClick: () => void;
   children: React.ReactNode;
 }) {
@@ -119,7 +122,7 @@ export function InboxRowButton({
       type="button"
       className={`portal-inbox-row${active ? ' portal-inbox-row--active' : ''}${
         unread ? ' portal-inbox-row--unread' : ''
-      }`}
+      }${needsReply ? ' portal-inbox-row--needs-reply' : ''}`}
       onClick={onClick}
     >
       {children}

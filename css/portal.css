@@ -41,6 +41,7 @@
 /* Touch target minimum 44x44 for icon-only and small buttons */
 @media (max-width: 768px) {
   .btn-sm,
+  .btn-small,
   .btn-icon,
   button[aria-label] {
     min-width: 44px;
@@ -650,6 +651,154 @@
   max-width: 70%;
 }
 
+/* ── Member dashboard (home) — gutters, empty states, loading ── */
+.portal-member-dashboard-home {
+  max-width: 1200px;
+  margin: 0 auto;
+  --portal-dash-inline: clamp(1.125rem, 3.6vw, 2rem);
+}
+
+.portal-dash-inset {
+  padding-left: var(--portal-dash-inline);
+  padding-right: var(--portal-dash-inline);
+}
+
+.portal-member-dashboard-home > .portal-bento-grid {
+  padding-left: var(--portal-dash-inline);
+  padding-right: var(--portal-dash-inline);
+}
+
+.portal-dash-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+}
+
+@media (max-width: 640px) {
+  .portal-dash-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+  }
+}
+
+.portal-dashboard-help-strip {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-left: var(--portal-dash-inline);
+  margin-right: var(--portal-dash-inline);
+  margin-bottom: 1.5rem;
+  padding: 1.125rem 1.375rem;
+  border-radius: var(--radius-xl, 16px);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 58%, transparent);
+  background: linear-gradient(
+    180deg,
+    var(--surface-container-lowest) 0%,
+    color-mix(in srgb, var(--surface-container-low) 40%, var(--surface-container-lowest)) 100%
+  );
+  box-shadow: 0 4px 20px rgba(17, 24, 39, 0.045);
+}
+
+.portal-member-dashboard-mobile {
+  --portal-dash-gutter: clamp(1rem, 4.2vw, 1.375rem);
+}
+
+.portal-dash-empty-state {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 62%, transparent) !important;
+  background: linear-gradient(
+    165deg,
+    var(--surface-container-lowest) 0%,
+    color-mix(in srgb, var(--surface-container-low) 24%, var(--surface-container-lowest)) 100%
+  ) !important;
+  box-shadow: 0 2px 16px rgba(17, 24, 39, 0.05);
+}
+
+.portal-dash-trio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.portal-dash-trio-grid > .portal-card.portal-card--flat {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.125rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 52%, transparent);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+@media (hover: hover) {
+  .portal-dash-trio-grid > .portal-card.portal-card--flat:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 22%, var(--outline-variant));
+    box-shadow: 0 8px 26px rgba(17, 24, 39, 0.08);
+  }
+}
+
+@keyframes portal-skeleton-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+.portal-route-loading .portal-skeleton {
+  background: linear-gradient(
+    105deg,
+    var(--surface-container-high) 0%,
+    color-mix(in srgb, var(--surface-container-highest) 75%, var(--surface-container-high)) 42%,
+    var(--surface-container-high) 78%
+  );
+  background-size: 200% 100%;
+  animation: portal-skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
+.portal-skeleton-grid--dashboard-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+  .portal-skeleton-grid--dashboard-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.portal-skeleton--dashboard-metric {
+  min-height: 5.35rem;
+}
+
+.portal-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.35rem;
+}
+
+.portal-skeleton--line {
+  height: 0.62rem;
+  border-radius: 999px;
+}
+
+.portal-skeleton--line.portal-skeleton--lg {
+  width: min(40%, 13rem);
+}
+
+.portal-skeleton--line.portal-skeleton--md {
+  width: min(68%, 21rem);
+  opacity: 0.92;
+}
+
+.portal-skeleton--dashboard-list {
+  height: 7.25rem;
+}
+
 /* ===== Hamburger button (mobile only) ===== */
 .portal-hamburger {
   display: none;
@@ -666,8 +815,10 @@
   gap: 4px;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  /* 44px minimum touch target */
+  width: 2.75rem;
+  height: 2.75rem;
+  box-sizing: border-box;
 }
 .portal-hamburger-bar {
   display: block;
@@ -1492,9 +1643,21 @@ html.dark .employer-applications-table.admin-table thead th {
   padding: 1.25rem 1rem;
   background: var(--surface-container-low);
   border-radius: var(--radius-xl, 16px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 42%, transparent);
   position: relative;
   overflow: hidden;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+@media (hover: hover) {
+  a:hover .portal-metric-card {
+    border-color: color-mix(in srgb, var(--color-accent) 22%, var(--outline-variant));
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.09);
+    transform: translateY(-1px);
+  }
 }
 
 .portal-metric-card__icon-wrap {
@@ -2041,7 +2204,7 @@ html.dark .employer-applications-table.admin-table thead th {
 .portal-quick-grid-2x2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.625rem;
+  gap: 0.75rem;
 }
 
 .portal-quick-grid-item {
@@ -2053,9 +2216,18 @@ html.dark .employer-applications-table.admin-table thead th {
   padding: 1rem 0.75rem;
   background: var(--surface-container-lowest);
   border-radius: 0.875rem;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
   text-decoration: none;
-  transition: transform 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+@media (hover: hover) {
+  .portal-quick-grid-item:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 20%, var(--outline-variant));
+    box-shadow: 0 4px 16px rgba(17, 24, 39, 0.06);
+  }
 }
 .portal-quick-grid-item:active {
   transform: scale(0.96);
@@ -2088,7 +2260,16 @@ html.dark .employer-applications-table.admin-table thead th {
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
   background: var(--surface-container-low);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 38%, transparent);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+@media (hover: hover) {
+  .portal-activity-item:hover {
+    background: color-mix(in srgb, var(--surface-container) 55%, var(--surface-container-low));
+    border-color: color-mix(in srgb, var(--outline-variant) 52%, transparent);
+  }
 }
 
 .portal-activity-item__icon {
@@ -2110,7 +2291,7 @@ html.dark .employer-applications-table.admin-table thead th {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 0.875rem;
+  margin-bottom: 1rem;
 }
 
 .portal-dash-section-header__title {

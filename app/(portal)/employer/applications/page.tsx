@@ -10,6 +10,10 @@ import EmployerApplicationsClient from '@/components/employer/EmployerApplicatio
 import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import {
+  parseEmployerApplicationStatusFilter,
+  parseEmployerApplicationsSort,
+} from '@/lib/employer/employerApplicationsListQuery';
 
 const PAGE_SIZE = 25;
 
@@ -24,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function EmployerApplicationsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ page?: string }>;
+  searchParams?: Promise<{ page?: string; status?: string; sort?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/applications');
@@ -36,12 +40,18 @@ export default async function EmployerApplicationsPage({
   const page = Math.max(1, parseInt(String(sp.page ?? '1'), 10) || 1);
   const skip = (page - 1) * PAGE_SIZE;
 
-  const whereEmployer = { job: { employerId: ctx.employerId } };
+  const statusFilter = parseEmployerApplicationStatusFilter(sp.status ?? undefined);
+  const sortOrder = parseEmployerApplicationsSort(sp.sort ?? undefined);
+
+  const whereEmployer = {
+    job: { employerId: ctx.employerId },
+    ...(statusFilter ? { status: statusFilter } : {}),
+  };
 
   const [applications, totalCount] = await Promise.all([
     prisma.jobPostingApplication.findMany({
       where: whereEmployer,
-      orderBy: { appliedAt: 'desc' },
+      orderBy: { appliedAt: sortOrder === 'applied_asc' ? 'asc' : 'desc' },
       skip,
       take: PAGE_SIZE,
       include: {
@@ -67,7 +77,7 @@ export default async function EmployerApplicationsPage({
   return (
     <PortalPageFrame>
       <PageHeader
-        title={`Applicants (${totalCount})`}
+        title={statusFilter ? `Applicants — filtered (${totalCount})` : `Applicants (${totalCount})`}
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">Review candidates and update their status.</span>
@@ -80,13 +90,17 @@ export default async function EmployerApplicationsPage({
       <div className="wa-block md:wa-hidden wa-pb-24">
         <MobileApplicationsClient initialRows={initialRows} />
         <div className="wa-px-4">
-          <EmployerApplicationsPager page={page} totalPages={totalPages} />
+          <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
         </div>
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden md:wa-block">
-        <EmployerApplicationsClient initialRows={initialRows} />
-        <EmployerApplicationsPager page={page} totalPages={totalPages} />
+        <EmployerApplicationsClient
+          initialRows={initialRows}
+          activeStatusFilter={statusFilter}
+          activeSort={sortOrder}
+        />
+        <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
       </div>
     </PortalPageFrame>
   );

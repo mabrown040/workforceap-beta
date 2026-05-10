@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import { SignOutButton } from './SignOutButton';
 import LanguageToggle from './LanguageToggle';
 import { MEMBER_PORTAL_NAV_ITEMS, PORTAL_NAV } from '@/lib/nav/portalNav';
@@ -11,7 +10,6 @@ import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import type { PortalRole } from '@/lib/nav/portalNav';
 
 export default function PortalNav({ className, currentRole, currentPath }: { className?: string; currentRole?: PortalRole; currentPath?: string; }) {
-  const { t } = useTranslation('common');
   const pathname = currentPath ?? usePathname() ?? '';
 
   // Get nav items for current role
@@ -27,7 +25,7 @@ export default function PortalNav({ className, currentRole, currentPath }: { cla
             return (
               <li key={href}>
                 <Link href={href} className={isActive ? 'active' : undefined}>
-                  {t(label)}
+                  {label}
                 </Link>
               </li>
             );

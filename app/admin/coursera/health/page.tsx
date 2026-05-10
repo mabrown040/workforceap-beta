@@ -8,6 +8,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
 import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,6 +56,41 @@ type IgnoredSlugRow = {
 
 type UnmatchedActorRow = {
   actorEmail: string;
+  eventCount: number;
+};
+
+type DriftRow = {
+  key: string;
+  email: string;
+  courseName: string;
+  b4bPercent: number;
+  ourPercent: number;
+  delta: number;
+  lastActivityTime: Date | null;
+};
+
+type OutOfCatalogRow = {
+  courseSlug: string;
+  eventCount: number;
+  distinctLearners: number;
+  lastSeen: Date | null;
+};
+
+type SyncDriftRow = {
+  key: string;
+  email: string;
+  courseName: string;
+  b4bLastActivity: Date | null;
+  ourLastUpdated: Date | null;
+  deltaHours: number;
+};
+
+type WrongProgramRow = {
+  key: string;
+  email: string;
+  primaryProgramSlug: string | null;
+  courseStudied: string;
+  courseStudiedProgram: string;
   eventCount: number;
 };
 
@@ -281,6 +317,227 @@ async function loadTopUnmatchedActors(now: Date): Promise<UnmatchedActorRow[]> {
   }
 }
 
+// ─── B4B vs xAPI cross-check loaders ──────────────────────────────────────
+//
+// These four queries surface drift between the two Coursera data sources we
+// now run in parallel (B4B sync → coursera_course_progress; xAPI webhook →
+// coursera_xapi_events + course_progress). Each loader returns [] on failure
+// so the page always renders.
+
+async function loadB4BvsOursDrift(): Promise<DriftRow[]> {
+  try {
+    const rows = await prisma.$queryRaw<
+      Array<{
+        userId: string;
+        email: string | null;
+        courseName: string;
+        courseraCourseId: string;
+        b4bPercent: string | number;
+        ourPercent: number;
+        delta: number;
+        lastActivityTime: Date | null;
+      }>
+    >`
+      SELECT
+        ccp.user_id AS "userId",
+        u.email AS "email",
+        ccp.course_name AS "courseName",
+        ccp.coursera_course_id AS "courseraCourseId",
+        ccp.overall_progress AS "b4bPercent",
+        cp.percent_complete AS "ourPercent",
+        ABS(ccp.overall_progress - cp.percent_complete)::int AS "delta",
+        ccp.last_activity_time AS "lastActivityTime"
+      FROM coursera_course_progress ccp
+      JOIN course_progress cp
+        ON cp.user_id = ccp.user_id
+        AND cp.course_id = ccp.coursera_course_id
+      JOIN users u ON u.id = ccp.user_id
+      WHERE ccp.user_id IS NOT NULL
+        AND ABS(ccp.overall_progress - cp.percent_complete) > 20
+      ORDER BY ABS(ccp.overall_progress - cp.percent_complete) DESC
+      LIMIT 20
+    `;
+    return rows.map((r) => ({
+      key: `${r.userId}::${r.courseraCourseId}`,
+      email: r.email ?? '(unknown)',
+      courseName: r.courseName,
+      b4bPercent: Number(r.b4bPercent) || 0,
+      ourPercent: Number(r.ourPercent) || 0,
+      delta: Number(r.delta) || 0,
+      lastActivityTime: r.lastActivityTime,
+    }));
+  } catch (error) {
+    console.error('[admin/coursera/health] B4B vs ours drift failed:', error);
+    return [];
+  }
+}
+
+async function loadOutOfCatalogXapi(
+  now: Date,
+  b4bCourseSlugs: Set<string>,
+): Promise<OutOfCatalogRow[]> {
+  try {
+    const since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const rows = await prisma.$queryRaw<
+      Array<{
+        courseSlug: string | null;
+        eventCount: bigint | number;
+        distinctLearners: bigint | number;
+        lastSeen: Date | null;
+      }>
+    >`
+      SELECT
+        course_slug AS "courseSlug",
+        COUNT(*)::bigint AS "eventCount",
+        COUNT(DISTINCT COALESCE(matched_user_id, LOWER(actor_email), actor_identifier))::bigint AS "distinctLearners",
+        MAX(received_at) AS "lastSeen"
+      FROM coursera_xapi_events
+      WHERE received_at >= ${since}
+        AND course_slug IS NOT NULL
+        AND course_slug <> ''
+      GROUP BY course_slug
+      ORDER BY COUNT(*) DESC
+    `;
+    // Filter in JS — the B4B program list comes from an in-memory cache that
+    // the SQL layer can't see.
+    return rows
+      .filter((r): r is { courseSlug: string; eventCount: bigint | number; distinctLearners: bigint | number; lastSeen: Date | null } => Boolean(r.courseSlug))
+      .filter((r) => !b4bCourseSlugs.has(r.courseSlug))
+      .slice(0, 20)
+      .map((r) => ({
+        courseSlug: r.courseSlug,
+        eventCount: Number(r.eventCount ?? 0),
+        distinctLearners: Number(r.distinctLearners ?? 0),
+        lastSeen: r.lastSeen,
+      }));
+  } catch (error) {
+    console.error('[admin/coursera/health] out-of-catalog xapi failed:', error);
+    return [];
+  }
+}
+
+async function loadSyncDriftPairs(): Promise<SyncDriftRow[]> {
+  try {
+    const rows = await prisma.$queryRaw<
+      Array<{
+        userId: string;
+        email: string | null;
+        courseName: string;
+        courseraCourseId: string;
+        b4bLastActivity: Date | null;
+        ourLastUpdated: Date | null;
+        deltaSeconds: number | null;
+      }>
+    >`
+      SELECT
+        ccp.user_id AS "userId",
+        u.email AS "email",
+        ccp.course_name AS "courseName",
+        ccp.coursera_course_id AS "courseraCourseId",
+        ccp.last_activity_time AS "b4bLastActivity",
+        cp.last_updated_at AS "ourLastUpdated",
+        EXTRACT(EPOCH FROM ABS(ccp.last_activity_time - cp.last_updated_at))::int AS "deltaSeconds"
+      FROM coursera_course_progress ccp
+      JOIN course_progress cp
+        ON cp.user_id = ccp.user_id
+        AND cp.course_id = ccp.coursera_course_id
+      JOIN users u ON u.id = ccp.user_id
+      WHERE ccp.user_id IS NOT NULL
+        AND ccp.last_activity_time IS NOT NULL
+        AND cp.last_updated_at IS NOT NULL
+        AND ABS(ccp.last_activity_time - cp.last_updated_at) > INTERVAL '24 hours'
+      ORDER BY ABS(ccp.last_activity_time - cp.last_updated_at) DESC
+      LIMIT 20
+    `;
+    return rows.map((r) => ({
+      key: `${r.userId}::${r.courseraCourseId}`,
+      email: r.email ?? '(unknown)',
+      courseName: r.courseName,
+      b4bLastActivity: r.b4bLastActivity,
+      ourLastUpdated: r.ourLastUpdated,
+      deltaHours: r.deltaSeconds == null ? 0 : Math.round(Number(r.deltaSeconds) / 3600),
+    }));
+  } catch (error) {
+    console.error('[admin/coursera/health] sync drift pairs failed:', error);
+    return [];
+  }
+}
+
+async function loadWrongProgramStudying(
+  now: Date,
+  slugToProgram: Map<string, { slug: string | null; name: string }>,
+): Promise<WrongProgramRow[]> {
+  try {
+    const since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const rows = await prisma.$queryRaw<
+      Array<{
+        userId: string;
+        email: string | null;
+        courseSlug: string;
+        primaryProgramSlug: string | null;
+        eventCount: bigint | number;
+      }>
+    >`
+      SELECT
+        cxe.matched_user_id AS "userId",
+        u.email AS "email",
+        cxe.course_slug AS "courseSlug",
+        ce.program_slug AS "primaryProgramSlug",
+        COUNT(*)::bigint AS "eventCount"
+      FROM coursera_xapi_events cxe
+      JOIN users u ON u.id = cxe.matched_user_id
+      LEFT JOIN course_enrollments ce
+        ON ce.user_id = cxe.matched_user_id
+        AND ce.is_primary = true
+      WHERE cxe.received_at >= ${since}
+        AND cxe.matched_user_id IS NOT NULL
+        AND cxe.course_slug IS NOT NULL
+        AND cxe.course_slug <> ''
+      GROUP BY cxe.matched_user_id, u.email, cxe.course_slug, ce.program_slug
+      ORDER BY COUNT(*) DESC
+      LIMIT 200
+    `;
+    const findings: WrongProgramRow[] = [];
+    for (const r of rows) {
+      const program = slugToProgram.get(r.courseSlug);
+      if (!program) continue; // Course isn't in any B4B program → handled by out-of-catalog check.
+      const programIdent = program.slug ?? program.name;
+      // No primary enrollment to compare against, or the course's program
+      // matches the user's primary program — not a wrong-program signal.
+      if (!r.primaryProgramSlug) continue;
+      // Compare normalized: B4B program slug vs WAP enrollment program slug
+      // can differ in casing or punctuation, so use a loose match.
+      const norm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+      if (program.slug && norm(program.slug) === norm(r.primaryProgramSlug)) continue;
+      if (norm(program.name) === norm(r.primaryProgramSlug)) continue;
+      findings.push({
+        key: `${r.userId}::${r.courseSlug}`,
+        email: r.email ?? '(unknown)',
+        primaryProgramSlug: r.primaryProgramSlug,
+        courseStudied: r.courseSlug,
+        courseStudiedProgram: programIdent,
+        eventCount: Number(r.eventCount ?? 0),
+      });
+      if (findings.length >= 20) break;
+    }
+    return findings;
+  } catch (error) {
+    console.error('[admin/coursera/health] wrong-program studying failed:', error);
+    return [];
+  }
+}
+
+async function loadB4BProgramsSafe(): Promise<
+  Awaited<ReturnType<typeof loadB4BPrograms>>
+> {
+  try {
+    return await loadB4BPrograms();
+  } catch (error) {
+    console.error('[admin/coursera/health] loadB4BPrograms failed:', error);
+    return [];
+  }
+}
+
 const cardStyle: CSSProperties = {
   padding: '1.1rem 1.2rem',
   borderRadius: 'var(--radius-md)',
@@ -383,6 +640,9 @@ export default async function AdminCourseraHealthPage() {
     cronRuns,
     topIgnoredSlugs,
     topUnmatchedActors,
+    b4bPrograms,
+    driftRows,
+    syncDriftRows,
   ] = await Promise.all([
     loadCanonicalMappingCount(),
     loadXapiTrafficSummary(now),
@@ -391,6 +651,30 @@ export default async function AdminCourseraHealthPage() {
     loadRecentCronRuns(),
     loadTopIgnoredSlugs(now),
     loadTopUnmatchedActors(now),
+    loadB4BProgramsSafe(),
+    loadB4BvsOursDrift(),
+    loadSyncDriftPairs(),
+  ]);
+
+  // Build the B4B course-slug index used by the out-of-catalog and wrong-
+  // program checks. We do this once and pass it into both loaders so a single
+  // B4B fetch supports two cross-checks.
+  const b4bCourseSlugs = new Set<string>();
+  const slugToProgram = new Map<string, { slug: string | null; name: string }>();
+  for (const program of b4bPrograms) {
+    for (const course of program.courses) {
+      if (course.slug) {
+        b4bCourseSlugs.add(course.slug);
+        if (!slugToProgram.has(course.slug)) {
+          slugToProgram.set(course.slug, { slug: program.slug, name: program.name });
+        }
+      }
+    }
+  }
+
+  const [outOfCatalogRows, wrongProgramRows] = await Promise.all([
+    loadOutOfCatalogXapi(now, b4bCourseSlugs),
+    loadWrongProgramStudying(now, slugToProgram),
   ]);
 
   // --- Build the four summary cards. ---
@@ -726,6 +1010,288 @@ export default async function AdminCourseraHealthPage() {
                   >
                     Inspect →
                   </Link>
+                ),
+              },
+            ]}
+          />
+        )}
+      </section>
+
+      {/* Cross-check intro — B4B vs xAPI alerts. */}
+      <section style={{ marginBottom: '0.6rem' }}>
+        <h2 style={{ ...sectionHeadingStyle, fontSize: '1.15rem', marginBottom: '0.35rem' }}>
+          B4B vs xAPI cross-checks
+        </h2>
+        <p style={cardSecondaryStyle}>
+          Coursera now feeds us through two channels: the B4B sync (authoritative
+          progress + lastActivity, cron-pulled into <code>coursera_course_progress</code>)
+          and the realtime xAPI webhook (events into <code>coursera_xapi_events</code>,
+          rolled up into <code>course_progress</code>). The four sections below surface
+          disagreements between those two views — drift means a missing canonical
+          mapping, stale ingest, an out-of-curriculum course, or a learner studying
+          the wrong program. Empty tables mean things agree.
+        </p>
+      </section>
+
+      {/* Section 5 — B4B vs ours drift > 20pts (last 7d). */}
+      <section className="content-card" style={sectionStyle}>
+        <h2 style={sectionHeadingStyle}>Drift &gt; 20pts (B4B vs our progress)</h2>
+        <p style={{ ...cardSecondaryStyle, marginBottom: '0.6rem' }}>
+          Members where B4B&apos;s <code>overall_progress</code> disagrees with our{' '}
+          <code>course_progress.percent_complete</code> by more than 20 points for the
+          same (userId, courseraCourseId). Indicates a missing canonical mapping, a
+          stale xAPI replay, or a learner Coursera knows about that our pipeline
+          hasn&apos;t caught up on.
+        </p>
+        {driftRows.length === 0 ? (
+          <span style={cardSecondaryStyle}>
+            No (userId, courseraCourseId) pairs with &gt; 20pt drift right now.
+          </span>
+        ) : (
+          <DataTable
+            density="compact"
+            rows={driftRows}
+            rowKey={(row) => row.key}
+            columns={[
+              {
+                key: 'email',
+                header: 'Member',
+                cell: (row) => <code style={{ fontSize: '0.85rem' }}>{row.email}</code>,
+              },
+              {
+                key: 'course',
+                header: 'Course',
+                cell: (row) => <span style={{ fontSize: '0.85rem' }}>{row.courseName}</span>,
+              },
+              {
+                key: 'b4b',
+                header: 'B4B %',
+                align: 'right',
+                cell: (row) => (
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {row.b4bPercent.toFixed(0)}
+                  </span>
+                ),
+              },
+              {
+                key: 'ours',
+                header: 'Our %',
+                align: 'right',
+                cell: (row) => (
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {row.ourPercent.toFixed(0)}
+                  </span>
+                ),
+              },
+              {
+                key: 'delta',
+                header: 'Δ',
+                align: 'right',
+                cell: (row) => (
+                  <span
+                    style={{
+                      fontVariantNumeric: 'tabular-nums',
+                      fontWeight: 600,
+                      color: 'rgb(185, 28, 28)',
+                    }}
+                  >
+                    {row.delta}
+                  </span>
+                ),
+              },
+              {
+                key: 'lastActivity',
+                header: 'B4B last activity',
+                cell: (row) => (
+                  <span style={{ fontSize: '0.85rem' }}>{fmtDateTime(row.lastActivityTime)}</span>
+                ),
+              },
+            ]}
+          />
+        )}
+      </section>
+
+      {/* Section 6 — out-of-catalog xAPI activity (7d). */}
+      <section className="content-card" style={sectionStyle}>
+        <h2 style={sectionHeadingStyle}>xAPI events on out-of-catalog courses (last 7 days)</h2>
+        <p style={{ ...cardSecondaryStyle, marginBottom: '0.6rem' }}>
+          xAPI events arriving for a <code>course_slug</code> that isn&apos;t in any
+          B4B program (per <code>loadB4BPrograms()</code>). Means the learner is on a
+          course that&apos;s not in the org&apos;s curriculum — curriculum changed,
+          course was added on Coursera without WAP knowing, or the canonical mapping
+          is wrong.
+        </p>
+        {outOfCatalogRows.length === 0 ? (
+          <span style={cardSecondaryStyle}>
+            All recent xAPI traffic is on courses that exist in B4B programs.
+          </span>
+        ) : (
+          <DataTable
+            density="compact"
+            rows={outOfCatalogRows}
+            rowKey={(row) => row.courseSlug}
+            columns={[
+              {
+                key: 'slug',
+                header: 'course_slug',
+                cell: (row) => <code style={{ fontSize: '0.85rem' }}>{row.courseSlug}</code>,
+              },
+              {
+                key: 'events',
+                header: 'Events',
+                align: 'right',
+                cell: (row) => (
+                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                    {row.eventCount.toLocaleString()}
+                  </span>
+                ),
+              },
+              {
+                key: 'learners',
+                header: 'Distinct learners',
+                align: 'right',
+                cell: (row) => (
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {row.distinctLearners.toLocaleString()}
+                  </span>
+                ),
+              },
+              {
+                key: 'lastSeen',
+                header: 'Last seen',
+                cell: (row) => (
+                  <span style={{ fontSize: '0.85rem' }}>
+                    {fmtDateTime(row.lastSeen)}{' '}
+                    <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                      ({relativeAge(row.lastSeen, now)})
+                    </span>
+                  </span>
+                ),
+              },
+            ]}
+          />
+        )}
+      </section>
+
+      {/* Section 7 — sync drift (lastActivity > 24h apart). */}
+      <section className="content-card" style={sectionStyle}>
+        <h2 style={sectionHeadingStyle}>B4B/xAPI sync drift (lastActivity &gt; 24h apart)</h2>
+        <p style={{ ...cardSecondaryStyle, marginBottom: '0.6rem' }}>
+          Pairs where B4B&apos;s <code>last_activity_time</code> and our{' '}
+          <code>course_progress.last_updated_at</code> disagree by more than 24 hours
+          for the same (userId, courseraCourseId). Big gap = sync staleness signal —
+          one feed is ahead of the other.
+        </p>
+        {syncDriftRows.length === 0 ? (
+          <span style={cardSecondaryStyle}>
+            B4B and our internal lastActivity are within 24h on every matched pair.
+          </span>
+        ) : (
+          <DataTable
+            density="compact"
+            rows={syncDriftRows}
+            rowKey={(row) => row.key}
+            columns={[
+              {
+                key: 'email',
+                header: 'Member',
+                cell: (row) => <code style={{ fontSize: '0.85rem' }}>{row.email}</code>,
+              },
+              {
+                key: 'course',
+                header: 'Course',
+                cell: (row) => <span style={{ fontSize: '0.85rem' }}>{row.courseName}</span>,
+              },
+              {
+                key: 'b4bAt',
+                header: 'B4B last activity',
+                cell: (row) => (
+                  <span style={{ fontSize: '0.85rem' }}>{fmtDateTime(row.b4bLastActivity)}</span>
+                ),
+              },
+              {
+                key: 'ourAt',
+                header: 'Our last updated',
+                cell: (row) => (
+                  <span style={{ fontSize: '0.85rem' }}>{fmtDateTime(row.ourLastUpdated)}</span>
+                ),
+              },
+              {
+                key: 'deltaHours',
+                header: 'Δ hours',
+                align: 'right',
+                cell: (row) => (
+                  <span
+                    style={{
+                      fontVariantNumeric: 'tabular-nums',
+                      fontWeight: 600,
+                      color: 'rgb(146, 90, 0)',
+                    }}
+                  >
+                    {row.deltaHours.toLocaleString()}
+                  </span>
+                ),
+              },
+            ]}
+          />
+        )}
+      </section>
+
+      {/* Section 8 — wrong-program studying (7d). */}
+      <section className="content-card" style={sectionStyle}>
+        <h2 style={sectionHeadingStyle}>
+          Members studying outside their primary program (last 7 days)
+        </h2>
+        <p style={{ ...cardSecondaryStyle, marginBottom: '0.6rem' }}>
+          Members whose primary <code>CourseEnrollment.programSlug</code> is one
+          program but whose recent xAPI activity is on courses scoped to a different
+          B4B program. Counselor signal (member needs realignment) and billing
+          signal (we may be paying for a program they aren&apos;t actually using).
+        </p>
+        {wrongProgramRows.length === 0 ? (
+          <span style={cardSecondaryStyle}>
+            No members studying outside their primary program in the last 7 days.
+          </span>
+        ) : (
+          <DataTable
+            density="compact"
+            rows={wrongProgramRows}
+            rowKey={(row) => row.key}
+            columns={[
+              {
+                key: 'email',
+                header: 'Member',
+                cell: (row) => <code style={{ fontSize: '0.85rem' }}>{row.email}</code>,
+              },
+              {
+                key: 'primary',
+                header: 'Primary program',
+                cell: (row) => (
+                  <span style={{ fontSize: '0.85rem' }}>{row.primaryProgramSlug ?? '—'}</span>
+                ),
+              },
+              {
+                key: 'studied',
+                header: 'Course studied',
+                cell: (row) => (
+                  <code style={{ fontSize: '0.85rem' }}>{row.courseStudied}</code>
+                ),
+              },
+              {
+                key: 'studiedProgram',
+                header: 'Course belongs to',
+                cell: (row) => (
+                  <span style={{ fontSize: '0.85rem' }}>{row.courseStudiedProgram}</span>
+                ),
+              },
+              {
+                key: 'count',
+                header: 'Events',
+                align: 'right',
+                cell: (row) => (
+                  <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+                    {row.eventCount.toLocaleString()}
+                  </span>
                 ),
               },
             ]}

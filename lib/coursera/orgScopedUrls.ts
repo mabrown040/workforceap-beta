@@ -146,6 +146,17 @@ export async function getOrgScopedCourseUrl(
  * fallback when neither the catalog nor B4B can resolve the slug. Also
  * exported so non-async callers (client components) have a deterministic
  * URL builder available.
+ *
+ * IMPORTANT: For `kind: 'program'`, our internal program slug (e.g.
+ * `it-support-professional-certificate-ibm`) is NOT a Coursera program
+ * slug — Coursera only recognizes org-scoped slugs registered via B4B
+ * (e.g. `workforce-advancement-project-8a3f0`). Building
+ * `coursera.org/programs/{ourSlug}` produces a 404. We therefore fall
+ * back to the Coursera platform root when no real org-scoped program
+ * URL is resolvable; callers that need a usable program-context link
+ * should resolve via the catalog or B4B (`getOrgScopedProgramUrl`) and
+ * route members to a course-level `/learn/{courseraSlug}` if neither is
+ * available.
  */
 export function localFallbackUrl(
   slug: string,
@@ -159,7 +170,7 @@ export function localFallbackUrl(
     case 'specialization':
       return `${PLATFORM_URL}/specializations/${trimmed}`;
     case 'program':
-      return `${PLATFORM_URL}/programs/${trimmed}`;
+      return PLATFORM_URL;
   }
 }
 

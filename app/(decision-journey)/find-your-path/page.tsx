@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
   title: 'Find Your Path — Program Quiz',
   description:
-    'Take our 2-minute quiz to discover which WorkforceAP program best fits your interests, experience, and goals. No-cost training for qualifying members.',
+    'Take our 6-question quiz to discover which WorkforceAP programs best fit your interests, experience, and goals — a starting point for conversations with your counselor. No-cost training for qualifying members.',
   path: '/find-your-path',
 });
 }
@@ -65,7 +65,7 @@ export default function FindYourPathPage() {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <a href="#find-your-path-quiz" className="btn btn-primary">
-              Take the 2-minute quiz
+              Take the 6-question quiz
             </a>
             <Link href="/apply" className="btn btn-outline">
               Already know your path? Apply now
@@ -158,7 +158,7 @@ export default function FindYourPathPage() {
                 <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Why this matters</span>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-                Your answers help us match you with a program that fits your timeline, comfort level, and career goals. The quiz takes about 2 minutes and your results are saved locally.
+                Your answers help us suggest programs that fit your timeline, comfort level, and career goals — a starting point for the conversation, not a final decision. Six questions, your results saved locally.
               </p>
             </div>
 

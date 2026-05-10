@@ -228,7 +228,7 @@ export default function EmployerApplicationsClient({ initialRows }: { initialRow
             },
             {
               key: 'applied',
-              header: 'Applied',
+              header: 'Submitted',
               cell: (app) => (
                 <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
                   {new Date(app.appliedAt).toLocaleDateString()}

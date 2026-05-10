@@ -8,6 +8,7 @@ import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import ProgramDetailClient from './ProgramDetailClient';
+import JsonLdCourse from '@/components/JsonLdCourse';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
@@ -60,6 +61,7 @@ export default async function ProgramPage({ params }: Props) {
 
   return (
     <div className="inner-page program-detail-page">
+      <JsonLdCourse program={program} />
       <section className="page-hero">
         <div className="page-hero-content">
           <span

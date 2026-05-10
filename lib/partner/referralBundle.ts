@@ -12,6 +12,15 @@ const referralMemberSelect = {
   updatedAt: true,
   deletedAt: true,
   assessmentCompleted: true,
+  // Multi-program: load all enrollments so the partner-facing pipeline /
+  // referred-members views surface every program a learner is in, not just
+  // their primary `User.enrolledProgram` cache. The outer `as const` on this
+  // select would coerce a Prisma `orderBy` array to `readonly`, which the
+  // generated client rejects — so sort below in JS instead (1-2 rows per
+  // learner, no perf concern).
+  courseEnrollments: {
+    select: { programSlug: true, isPrimary: true, enrolledAt: true },
+  },
   placementRecord: {
     select: {
       employerName: true,
@@ -48,6 +57,7 @@ export type ReferralMember = {
   updatedAt: Date;
   deletedAt: Date | null;
   assessmentCompleted: boolean;
+  courseEnrollments: { programSlug: string; isPrimary: boolean; enrolledAt: Date }[];
   placementRecord: {
     employerName: string;
     jobTitle: string;
@@ -74,8 +84,15 @@ export type PipelineRow = {
   member: ReferralMember;
   referredAt: Date;
   stage: string;
+  /** Primary-program progress percent (kept for legacy callers). */
   progress: number;
+  /** Comma-joined display of every program the learner is enrolled in,
+   *  primary first. Falls back to the primary-only label when only one
+   *  program exists. */
   programTitle: string;
+  /** All program titles the learner is enrolled in, primary first.
+   *  Empty when the learner has no `course_enrollments` rows yet. */
+  allProgramTitles: string[];
 };
 
 export async function loadPartnerReferralBundle(partnerId: string) {
@@ -134,12 +151,41 @@ export async function loadPartnerReferralBundle(partnerId: string) {
       memberProgramProgress: m.memberProgramProgress,
     };
     const stage = getPipelineStage(student);
+
+    // Multi-program-aware program label: list every enrolled program (primary
+    // first), so partners viewing a referred member see all programs the
+    // learner is in, not just the one cached on `User.enrolledProgram`.
+    // De-dupe in case a slug appears in both `course_enrollments` and
+    // `enrolledProgram` after backfill collisions.
+    const allProgramTitles = (() => {
+      // Sort here (primary first, then earliest-enrolled) since we couldn't
+      // express orderBy in the readonly select above.
+      const sortedEnrollments = [...(m.courseEnrollments ?? [])].sort((a, b) => {
+        if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+        return a.enrolledAt.getTime() - b.enrolledAt.getTime();
+      });
+      const titles: string[] = [];
+      const seen = new Set<string>();
+      for (const enrollment of sortedEnrollments) {
+        if (seen.has(enrollment.programSlug)) continue;
+        seen.add(enrollment.programSlug);
+        titles.push(getProgramBySlug(enrollment.programSlug)?.title ?? enrollment.programSlug);
+      }
+      // Fallback to legacy enrolledProgram for unmigrated members.
+      if (titles.length === 0 && program) titles.push(program.title);
+      return titles;
+    })();
+
     pipelineMembers.push({
       member: m,
       referredAt: r.referredAt,
       stage,
+      // Progress still reflects the primary program — that's the headline
+      // % partners see today. Multi-program partners can read
+      // `allProgramTitles.length > 1` to know there's more.
       progress: memberProgramProgressPct(m.enrolledProgram, null, m.memberProgramProgress),
-      programTitle: program?.title ?? '—',
+      programTitle: allProgramTitles.length > 0 ? allProgramTitles.join(' · ') : '—',
+      allProgramTitles,
     });
   }
 
@@ -149,27 +195,36 @@ export async function loadPartnerReferralBundle(partnerId: string) {
 }
 
 export function toPartnerMembersListRows(pipelineMembers: PipelineRow[]) {
-  return pipelineMembers.map(({ member: m, referredAt, stage, progress, programTitle }) => {
-    const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS] ?? stage;
-    const story = m.placementRecord
-      ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
-      : progress >= 100
-        ? `Completed ${programTitle}`
-        : progress > 0
-          ? `${progress}% through ${programTitle}`
-          : stage === 'enrolled'
-            ? `Enrolled in ${programTitle}`
-            : stageLabel;
+  return pipelineMembers.map(
+    ({ member: m, referredAt, stage, progress, programTitle, allProgramTitles }) => {
+      const stageLabel = PIPELINE_STAGE_LABELS[stage as keyof typeof PIPELINE_STAGE_LABELS] ?? stage;
+      // For story copy, prefer the headline (primary) program title — the
+      // narrative reads cleaner ("12% through IT Support" not "12% through
+      // IT Support · AI Practitioner"). The full list lives on
+      // `allProgramTitles` and is rendered separately by callers that want
+      // the multi-program chip.
+      const headlineTitle = allProgramTitles[0] ?? programTitle;
+      const story = m.placementRecord
+        ? `Placed at ${m.placementRecord.employerName} as ${m.placementRecord.jobTitle}`
+        : progress >= 100
+          ? `Completed ${headlineTitle}`
+          : progress > 0
+            ? `${progress}% through ${headlineTitle}`
+            : stage === 'enrolled'
+              ? `Enrolled in ${headlineTitle}`
+              : stageLabel;
 
-    return {
-      id: m.id,
-      fullName: m.fullName,
-      stage,
-      stageLabel,
-      progress,
-      programTitle,
-      story,
-      referredAtLabel: referredAt.toLocaleDateString(),
-    };
-  });
+      return {
+        id: m.id,
+        fullName: m.fullName,
+        stage,
+        stageLabel,
+        progress,
+        programTitle,
+        allProgramTitles,
+        story,
+        referredAtLabel: referredAt.toLocaleDateString(),
+      };
+    },
+  );
 }

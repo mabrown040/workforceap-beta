@@ -442,7 +442,7 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.375rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: copied ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', transition: 'color 0.2s' }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: copied ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', transition: 'color 0.2s', minHeight: '44px' }}
     >
       <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
         {copied ? 'check' : 'content_copy'}
@@ -479,7 +479,7 @@ function DownloadPdfButton({ text, title, toolName }: { text: string; title?: st
           setLoading(false);
         }
       }}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.375rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', fontWeight: 700, fontSize: '0.8125rem', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1 }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.5rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', fontWeight: 700, fontSize: '0.8125rem', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.6 : 1, minHeight: '44px' }}
     >
       <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
         {loading ? 'hourglass_empty' : 'download'}

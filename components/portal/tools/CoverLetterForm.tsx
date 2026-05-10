@@ -128,7 +128,12 @@ export default function CoverLetterForm() {
           <div className="resume-rewriter-output-header">
             <h3>Cover letter</h3>
             <button type="button" className="btn btn-outline btn-sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy to clipboard'}
+              <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
+                  {copied ? 'check' : 'content_copy'}
+                </span>
+                {copied ? 'Copied!' : 'Copy to clipboard'}
+              </span>
             </button>
             <ExportPdfButton text={output} title="Cover Letter" toolName="Cover Letter Builder" />
           </div>

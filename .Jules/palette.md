@@ -54,3 +54,6 @@
 ## 2025-05-05 - [Add Member to Subgroup Modal]
 **Learning:** Found an instance of a custom modal (Add Member to Subgroup in Admin Dashboard) missing basic `role="dialog"` and `aria-labelledby` properties, which prevents screen readers from understanding the popup context.
 **Action:** Always verify custom modal implementations (e.g., popup divs on overlays) have proper ARIA dialog attributes before considering them complete, especially in older or hastily built components.
+## 2024-05-10 - Copy Button Accessibility vs Label Shadowing
+**Learning:** For micro-UX improvements on clipboard or asynchronous actions, if the dynamic text change (like "Copied!") is wrapped in a `<span aria-live="polite">`, any static or dynamic `aria-label` on the parent `<button>` will prevent screen readers from properly announcing the live region updates. The `aria-label` "shadows" the live text changes underneath it.
+**Action:** When adding `aria-live` state announcements to buttons with visible text that clearly explains the action (e.g. "Copy transcript"), do not add an `aria-label` to the button. Allow the screen reader to natively read the text and announce the dynamic updates within the `aria-live` region. Additionally, use existing utility classes (like Tailwind) over inline styles where possible to pass code reviews.

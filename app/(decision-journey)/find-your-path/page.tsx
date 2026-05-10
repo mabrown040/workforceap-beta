@@ -96,9 +96,9 @@ export default function FindYourPathPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem' }}>
                 <div>
                   <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
-                    Browse-first fallback
+                    Quick-start options
                   </p>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem' }}>If the quiz feels slow, start with a likely fit.</h2>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Not sure where to begin? Start with a common fit.</h2>
                 </div>
                 <Link href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
                   Browse the full catalog

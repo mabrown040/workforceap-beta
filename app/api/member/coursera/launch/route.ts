@@ -32,7 +32,6 @@ export async function GET(request: Request) {
   });
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
-
   /* Optional ?course=<slug> deep-links to a specific course in the enrolled program. */
   const requestedSlug = new URL(request.url).searchParams.get('course')?.trim() || '';
 
@@ -129,11 +128,53 @@ export async function GET(request: Request) {
     configuredLaunchUrl ??
     null;
 
-  if (!resolvedUrl) {
+  // The fallback in `getOrgScopedProgramUrl` produces
+  // `coursera.org/programs/{ourSlug}` when neither the discovered catalog
+  // nor B4B can resolve a real org-scoped URL. That path 404s on Coursera
+  // because our internal program slug isn't a registered Coursera program
+  // slug. When we detect the bad pattern, redirect instead to the first
+  // course's `/learn/{courseraSlug}` — a real Coursera page — so the
+  // member at least lands somewhere they can study.
+  // The fallback in `getOrgScopedProgramUrl` produces either
+  // `coursera.org/programs/{ourSlug}` (legacy 404 path) or the bare
+  // platform root when neither the discovered catalog nor B4B can
+  // resolve a real org-scoped URL. Both lose program context. When we
+  // detect either pattern, redirect instead to the first course's
+  // `/learn/{courseraSlug}` — a real Coursera page — so the member at
+  // least lands somewhere they can study.
+  let safeUrl = resolvedUrl;
+  const isUselessProgramFallback = (url: string | null) => {
+    if (!url) return false;
+    return (
+      /^https?:\/\/(www\.)?coursera\.org\/?$/.test(url) ||
+      /^https?:\/\/(www\.)?coursera\.org\/programs\/[^/?#]+\/?$/.test(url)
+    );
+  };
+  if (isUselessProgramFallback(safeUrl) && enrolledProgram && dbUser?.organizationId) {
+    const firstCourse = await prisma.course.findFirst({
+      where: {
+        organizationId: dbUser.organizationId,
+        programSlug: enrolledProgram,
+        courseraSlug: { not: null },
+      },
+      orderBy: { displayOrder: 'asc' },
+      select: { courseraSlug: true, courseraUrlType: true },
+    });
+    if (firstCourse?.courseraSlug) {
+      const urlType = firstCourse.courseraUrlType || 'learn';
+      const kind =
+        urlType === 'specializations' || urlType === 'specialization'
+          ? ('specialization' as const)
+          : ('course' as const);
+      safeUrl = localFallbackUrl(firstCourse.courseraSlug, kind);
+    }
+  }
+
+  if (!safeUrl) {
     const errorUrl = new URL('/dashboard/training', request.url);
     errorUrl.searchParams.set('error', 'launch_failed');
     return NextResponse.redirect(errorUrl);
   }
 
-  return NextResponse.redirect(resolvedUrl);
+  return NextResponse.redirect(safeUrl);
 }

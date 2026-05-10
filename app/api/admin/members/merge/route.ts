@@ -119,12 +119,6 @@ export async function POST(req: NextRequest) {
     };
     const secondaryCourseProgress = await tx.courseProgress.findMany({
       where: { userId: secondaryId },
-      select: {
-        programSlug: true,
-        courseSlug: true,
-        status: true,
-        percentComplete: true,
-      },
     });
     let mergedCourseProgress = 0;
     for (const row of secondaryCourseProgress) {

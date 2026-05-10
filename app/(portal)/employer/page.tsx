@@ -227,7 +227,7 @@ export default async function EmployerDashboardPage() {
           {[
             { label: 'Open Roles', value: activeJobs, color: 'var(--color-on-surface)' },
             { label: 'Candidates', value: totalApplications, color: 'var(--on-surface)' },
-            { label: 'In Review', value: inReview, color: 'var(--secondary)' },
+            { label: 'Awaiting go-live', value: inReview, color: 'var(--secondary)' },
           ].map((s) => (
             <div
               key={s.label}

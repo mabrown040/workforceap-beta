@@ -233,7 +233,7 @@ export default function ResumeClient({
           type="file"
           accept=".pdf,.doc,.docx"
           onChange={handleFileInput}
-          style={{ display: "none" }}
+          className="sr-only"
         />
         <label
           htmlFor="resume-upload-input"

@@ -10,6 +10,7 @@ import {
   type LearnerProgressByContent,
 } from '@/lib/coursera/learnerProgress';
 import { prisma } from '@/lib/db/prisma';
+import { loadProgramCourses } from '@/lib/member/loadProgramCourses';
 
 /** Days without training activity before we surface counselor escalation on the dashboard. */
 export const STALE_TRAINING_ACTIVITY_DAYS = 14;
@@ -54,6 +55,23 @@ export async function loadMemberProgramTrainingView(args: {
   const program = getProgramBySlug(args.programSlug);
   if (!program) return null;
 
+  // Resolve the user's organization once so we can ask `loadProgramCourses`
+  // for the authoritative course list (B4B live → Course DB → static
+  // catalog fallback). The static `program.courses` is the absolute last
+  // resort for unseeded orgs without B4B credentials.
+  const userRow = await prisma.user.findUnique({
+    where: { id: args.userId },
+    select: { organizationId: true },
+  });
+  const liveCourses = userRow?.organizationId
+    ? await loadProgramCourses({
+        organizationId: userRow.organizationId,
+        programSlug: args.programSlug,
+        programTitleOverride: program.title,
+      })
+    : null;
+  const courseList = liveCourses ?? program.courses;
+
   const [rows, rollup] = await Promise.all([
     prisma.courseProgress.findMany({
       where: { userId: args.userId, programSlug: args.programSlug },
@@ -89,19 +107,27 @@ export async function loadMemberProgramTrainingView(args: {
   // Build a slug→Coursera courseId map so we can fall back to the B4B
   // `isCompleted` / `overallProgress` signal when the local CourseProgress
   // row hasn't been seeded yet (never-synced learner — see #1076 / #1079).
-  // This is what makes the dashboard hero ring render correctly on a
-  // member's first visit before any auto-sync writes have landed.
-  const discovered = DISCOVERED_COURSERA_PROGRAMS[args.programSlug];
+  // Prefer ids carried by `courseList` (B4B-live or DB-sourced) and fall
+  // back to the static DISCOVERED catalog when courseList came from the
+  // static `program.courses` path that doesn't carry ids.
   const courseraIdBySlug = new Map<string, string>();
-  if (discovered) {
-    for (const c of discovered.courses) {
-      if (c.courseId && !c.courseId.startsWith('TODO_')) {
-        courseraIdBySlug.set(c.slug, c.courseId);
+  for (const c of courseList) {
+    if (c.courseraCourseId && !c.courseraCourseId.startsWith('TODO_')) {
+      courseraIdBySlug.set(c.slug, c.courseraCourseId);
+    }
+  }
+  if (courseraIdBySlug.size === 0) {
+    const discovered = DISCOVERED_COURSERA_PROGRAMS[args.programSlug];
+    if (discovered) {
+      for (const c of discovered.courses) {
+        if (c.courseId && !c.courseId.startsWith('TODO_')) {
+          courseraIdBySlug.set(c.slug, c.courseId);
+        }
       }
     }
   }
 
-  const totalCourses = program.courses.length;
+  const totalCourses = courseList.length;
   let completedCount = 0;
   let hasStartedTraining = false;
   let nextIncompleteCourseSlug: string | null = null;
@@ -110,7 +136,7 @@ export async function loadMemberProgramTrainingView(args: {
 
   let sumPercentForAverage = 0;
 
-  for (const c of program.courses) {
+  for (const c of courseList) {
     const row = bySlug.get(c.slug);
     const courseraId = courseraIdBySlug.get(c.slug);
     const b4bEntry =

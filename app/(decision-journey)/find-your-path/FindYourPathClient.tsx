@@ -251,10 +251,13 @@ function QuizResultsView({
             YOUR STRONGEST ROLE MATCH
           </p>
           {headlineTitle ? (
-            <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.25rem' }}>{headlineTitle}</h3>
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>{headlineTitle}</h3>
           ) : (
-            <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.25rem' }}>Your top career match</h3>
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>Your top career match</h3>
           )}
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
+            This is a starting point for the conversation with your counselor — not a final decision.
+          </p>
           {cleanDescription && (
             <p style={{ margin: 0, lineHeight: 1.65, color: 'var(--color-on-surface)' }}>{cleanDescription}</p>
           )}

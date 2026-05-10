@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getBoardOutcomes, type BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
 import { getProgramBySlug } from '@/lib/content/programs';
 import BoardOutcomesView from '@/components/admin/BoardOutcomesView';
@@ -39,7 +40,10 @@ export default async function FunderReportPrintPage({
     ? (sp.period as BoardOutcomesPeriod)
     : 'all-time';
 
-  const outcomes = await getBoardOutcomes(period);
+  const orgId = await getActorOrganizationId(user.id);
+  const superUser = await isSuperAdmin(user.id);
+
+  const outcomes = await getBoardOutcomes(period, superUser ? undefined : orgId);
   const programsWithTitles = outcomes.programs.map((p) => ({
     ...p,
     title: getProgramBySlug(p.programSlug)?.title ?? p.programSlug,

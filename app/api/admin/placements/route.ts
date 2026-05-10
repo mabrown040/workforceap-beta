@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
@@ -52,7 +53,11 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+  const orgId = await getActorOrganizationId(user.id);
+  const superUser = await isSuperAdmin(user.id);
+
   const placements = await prisma.placementRecord.findMany({
+    where: superUser ? undefined : { user: { organizationId: orgId } },
     take: 2000,
     orderBy: { placedAt: 'desc' },
     include: {

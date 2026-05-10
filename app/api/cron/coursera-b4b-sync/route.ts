@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { syncCourseraB4BEnrollmentReports } from '@/lib/coursera/b4bSync';
+import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
+import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -8,8 +10,13 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 /**
  * GET /api/cron/coursera-b4b-sync
  *
- * Recurring cron that pulls Coursera B4B enrollment reports and
- * persists course-level progress into CourseProgress.
+ * Recurring cron that:
+ *   1. Pulls Coursera B4B enrollment reports → CourseProgress
+ *   2. Refreshes canonical course mappings from the live B4B program
+ *      directory (idempotent upsert on `courseraCourseId`). Closes the
+ *      "11 / 19 catalog programs have zero canonical mappings" gap
+ *      automatically without an admin click. Failures here are
+ *      non-fatal — the enrollment-report sync is the primary work.
  *
  * Schedule: every 6 hours (e.g. 0 star/6 in vercel.json).
  * Auth: CRON_SECRET via withCronLogging.
@@ -19,6 +26,34 @@ const WORKFLOW_KEY = 'cron_coursera_b4b_sync';
 async function handle(_req: NextRequest) {
   try {
     const result = await syncCourseraB4BEnrollmentReports();
+
+    // Refresh canonical mappings from the live B4B directory. Best-effort:
+    // a B4B credential / network blip shouldn't fail the whole cron.
+    let canonicalSeed: { matched: number; unmatched: number; created: number; updated: number } | { error: string } = {
+      matched: 0,
+      unmatched: 0,
+      created: 0,
+      updated: 0,
+    };
+    try {
+      const programs = await loadB4BPrograms();
+      const seed = await seedCanonicalMappingsFromB4B({ programs, actorUserId: null });
+      canonicalSeed = {
+        matched: seed.programsMatched,
+        unmatched: seed.programsUnmatched,
+        created: seed.totalCreated,
+        updated: seed.totalUpdated,
+      };
+    } catch (seedErr) {
+      captureApiError(seedErr, {
+        route: 'cron/coursera-b4b-sync',
+        extra: { step: 'canonical-seed' },
+      });
+      canonicalSeed = {
+        error: seedErr instanceof Error ? seedErr.message : 'canonical seed failed',
+      };
+    }
+
     const runResult = {
       ok: true,
       scanned: result.scanned,
@@ -28,6 +63,7 @@ async function handle(_req: NextRequest) {
       skippedNoUser: result.skippedNoUser,
       errors: result.errors,
       byUserCount: Object.keys(result.byUser).length,
+      canonicalSeed,
     };
     await logCronRun(WORKFLOW_KEY, runResult, result.errors > 0 ? 'error' : 'ok');
     return NextResponse.json(runResult);

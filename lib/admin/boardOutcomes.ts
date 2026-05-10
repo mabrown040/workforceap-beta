@@ -146,7 +146,10 @@ const EDUCATION_BUCKETS = [
   'Graduate',
 ];
 
-export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time'): Promise<BoardOutcomes> {
+export async function getBoardOutcomes(
+  period: BoardOutcomesPeriod = 'all-time',
+  organizationId?: string,
+): Promise<BoardOutcomes> {
   const start = startOfPeriod(period);
   const end = endOfPeriod(period);
   const periodLabel = (
@@ -158,10 +161,16 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
     } as const
   )[period];
 
-  // Members enrolled within the period (or any time, for all-time)
+  // Members enrolled within the period (or any time, for all-time).
+  //
+  // Multi-tenant scoping: when `organizationId` is provided, every query is
+  // narrowed to that org. When omitted, behavior is unchanged (single-tenant
+  // pilot mode — see BoardOutcomes module header). The existing
+  // `/admin/outcomes` callers pass no org and still see the cumulative roll-up.
   const enrolledWhere = {
     deletedAt: null,
     enrolledProgram: { not: null },
+    ...(organizationId ? { organizationId } : {}),
     ...(start ? { enrolledAt: { gte: start, lte: end } } : {}),
   } as const;
 
@@ -195,7 +204,10 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
       },
     }),
     prisma.placementRecord.findMany({
-      where: start ? { placedAt: { gte: start, lte: end } } : undefined,
+      where: {
+        ...(start ? { placedAt: { gte: start, lte: end } } : {}),
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
       select: {
         id: true,
         userId: true,
@@ -220,7 +232,13 @@ export async function getBoardOutcomes(period: BoardOutcomesPeriod = 'all-time')
     prisma.profile.findMany({
       where: start
         ? { user: { ...enrolledWhere } }
-        : { user: { deletedAt: null, enrolledProgram: { not: null } } },
+        : {
+            user: {
+              deletedAt: null,
+              enrolledProgram: { not: null },
+              ...(organizationId ? { organizationId } : {}),
+            },
+          },
       select: {
         veteranStatus: true,
         employmentStatus: true,
@@ -471,8 +489,17 @@ export type BoardSnapshot = {
  * funnel, activity recency, certification counts, and data-quality flags.
  *
  * Period defaults to all-time so funders see the cumulative story.
+ *
+ * Optional `organizationId` narrows every roll-up to a single tenant. When
+ * omitted, behavior is unchanged from the single-tenant pilot mode — the
+ * `/admin/outcomes` page calls without it and still sees the cumulative
+ * roll-up. Passed in by surfaces (e.g. /admin/members/[id]) that want the
+ * member's org as the cohort denominator.
  */
-export async function getBoardSnapshot(period: BoardOutcomesPeriod = 'all-time'): Promise<BoardSnapshot> {
+export async function getBoardSnapshot(
+  period: BoardOutcomesPeriod = 'all-time',
+  organizationId?: string,
+): Promise<BoardSnapshot> {
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
@@ -494,38 +521,84 @@ export async function getBoardSnapshot(period: BoardOutcomesPeriod = 'all-time')
     placementsMissingSalary,
     enrolledWithoutEnrolledAt,
   ] = await Promise.all([
-    getBoardOutcomes(period),
-    prisma.application.groupBy({ by: ['status'], _count: { _all: true } }),
-    prisma.user.count({ where: { deletedAt: null } }),
-    prisma.memberEvent.findMany({
-      where: { createdAt: { gte: sevenDaysAgo } },
-      select: { userId: true },
-      distinct: ['userId'],
+    getBoardOutcomes(period, organizationId),
+    prisma.application.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+      ...(organizationId ? { where: { user: { organizationId } } } : {}),
     }),
-    prisma.memberEvent.findMany({
-      where: { createdAt: { gte: fourteenDaysAgo } },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
-    prisma.memberEvent.findMany({
-      where: { createdAt: { gte: thirtyDaysAgo } },
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
-    prisma.userCertification.count(),
-    prisma.userCertification.count({ where: { earnedAt: { gte: thirtyDaysAgo } } }),
-    prisma.userCertification.findMany({
-      select: { userId: true },
-      distinct: ['userId'],
-    }),
-    prisma.placementRecord.count({ where: { programSlug: null } }),
-    prisma.placementRecord.count({ where: { fundingSource: null } }),
-    prisma.placementRecord.count({
-      where: { AND: [{ retentionStatus: null }, { retentionDecision: null }] },
-    }),
-    prisma.placementRecord.count({ where: { salaryOffered: null } }),
     prisma.user.count({
-      where: { deletedAt: null, enrolledProgram: { not: null }, enrolledAt: null },
+      where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
+    }),
+    prisma.memberEvent.findMany({
+      where: {
+        createdAt: { gte: sevenDaysAgo },
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { userId: true },
+      distinct: ['userId'],
+    }),
+    prisma.memberEvent.findMany({
+      where: {
+        createdAt: { gte: fourteenDaysAgo },
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { userId: true },
+      distinct: ['userId'],
+    }),
+    prisma.memberEvent.findMany({
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { userId: true },
+      distinct: ['userId'],
+    }),
+    prisma.userCertification.count({
+      ...(organizationId ? { where: { user: { organizationId } } } : {}),
+    }),
+    prisma.userCertification.count({
+      where: {
+        earnedAt: { gte: thirtyDaysAgo },
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+    }),
+    prisma.userCertification.findMany({
+      ...(organizationId ? { where: { user: { organizationId } } } : {}),
+      select: { userId: true },
+      distinct: ['userId'],
+    }),
+    prisma.placementRecord.count({
+      where: {
+        programSlug: null,
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+    }),
+    prisma.placementRecord.count({
+      where: {
+        fundingSource: null,
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+    }),
+    prisma.placementRecord.count({
+      where: {
+        AND: [{ retentionStatus: null }, { retentionDecision: null }],
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+    }),
+    prisma.placementRecord.count({
+      where: {
+        salaryOffered: null,
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+    }),
+    prisma.user.count({
+      where: {
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        enrolledAt: null,
+        ...(organizationId ? { organizationId } : {}),
+      },
     }),
   ]);
 

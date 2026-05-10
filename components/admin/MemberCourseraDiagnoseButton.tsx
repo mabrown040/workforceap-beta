@@ -1,0 +1,153 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import {
+  diagnoseMemberCoursera,
+  type CourseraDiagnoseReport,
+} from '@/lib/admin/diagnoseMemberCoursera';
+
+const STATUS_COLORS: Record<'ok' | 'warn' | 'fail', { bg: string; fg: string; border: string }> = {
+  ok: { bg: 'rgba(34,197,94,0.1)', fg: 'rgb(22,128,68)', border: 'rgba(34,197,94,0.4)' },
+  warn: { bg: 'rgba(234,179,8,0.12)', fg: 'rgb(133,77,14)', border: 'rgba(234,179,8,0.5)' },
+  fail: { bg: 'rgba(239,68,68,0.12)', fg: 'rgb(153,27,27)', border: 'rgba(239,68,68,0.5)' },
+};
+
+export default function MemberCourseraDiagnoseButton({ memberId }: { memberId: string }) {
+  const [report, setReport] = useState<CourseraDiagnoseReport | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const run = () => {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const result = await diagnoseMemberCoursera(memberId);
+        setReport(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Diagnose failed');
+      }
+    });
+  };
+
+  return (
+    <div style={{ marginTop: '0.75rem' }}>
+      <button
+        type="button"
+        onClick={run}
+        disabled={isPending}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          padding: '0.5rem 0.85rem',
+          borderRadius: '0.4rem',
+          border: '1px solid var(--outline-variant)',
+          background: 'var(--surface-container-low)',
+          color: 'var(--color-on-surface)',
+          cursor: isPending ? 'wait' : 'pointer',
+        }}
+      >
+        {isPending ? 'Running diagnostic…' : report ? 'Re-run diagnostic' : 'Diagnose Coursera connection'}
+      </button>
+
+      {error ? (
+        <p role="alert" style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'rgb(153,27,27)' }}>
+          {error}
+        </p>
+      ) : null}
+
+      {report && !report.ok ? (
+        <p role="alert" style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'rgb(153,27,27)' }}>
+          {report.error}
+        </p>
+      ) : null}
+
+      {report && report.ok ? (
+        <div style={{ marginTop: '0.75rem', display: 'grid', gap: '0.5rem' }}>
+          {report.verdict.map((item, i) => {
+            const colors = STATUS_COLORS[item.status];
+            return (
+              <div
+                key={i}
+                style={{
+                  padding: '0.6rem 0.75rem',
+                  borderRadius: '0.4rem',
+                  border: `1px solid ${colors.border}`,
+                  background: colors.bg,
+                  color: colors.fg,
+                }}
+              >
+                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>{item.title}</p>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem' }}>{item.detail}</p>
+              </div>
+            );
+          })}
+
+          <details style={{ marginTop: '0.25rem' }}>
+            <summary style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
+              Raw diagnostic numbers
+            </summary>
+            <dl
+              style={{
+                marginTop: '0.5rem',
+                display: 'grid',
+                gridTemplateColumns: 'minmax(11rem, max-content) 1fr',
+                rowGap: '0.25rem',
+                columnGap: '1rem',
+                fontSize: '0.8rem',
+              }}
+            >
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>xAPI events (this learner)</dt>
+              <dd style={{ margin: 0 }}>
+                {report.xapi.totalForActor} total · {report.xapi.processedForActor} processed ·{' '}
+                {report.xapi.ignoredForActor} ignored · {report.xapi.erroredForActor} errored
+              </dd>
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>CourseProgress rows</dt>
+              <dd style={{ margin: 0 }}>{report.canonical.courseProgressRows}</dd>
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>CourseraCourseProgress rows</dt>
+              <dd style={{ margin: 0 }}>{report.canonical.courseraCourseProgressRows}</dd>
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>CourseraBadgeProgress rows</dt>
+              <dd style={{ margin: 0 }}>{report.canonical.courseraBadgeProgressRows}</dd>
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>Canonical mappings (org-wide)</dt>
+              <dd style={{ margin: 0 }}>{report.canonical.canonicalMappingsTotal}</dd>
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>Identity mappings</dt>
+              <dd style={{ margin: 0 }}>
+                {report.identityMappings.length === 0
+                  ? '—'
+                  : report.identityMappings
+                      .map((m) => `${m.courseraEmail || m.actorIdentifier || '?'} (${m.source})`)
+                      .join(', ')}
+              </dd>
+              <dt style={{ color: 'var(--color-on-surface-variant)' }}>Enrollments</dt>
+              <dd style={{ margin: 0 }}>
+                {report.enrollments.length === 0
+                  ? '—'
+                  : report.enrollments
+                      .map((e) => `${e.programSlug}${e.isPrimary ? ' (primary)' : ''}`)
+                      .join(', ')}
+              </dd>
+            </dl>
+
+            {report.xapi.latestIgnored.length > 0 ? (
+              <div style={{ marginTop: '0.6rem' }}>
+                <p style={{ margin: '0 0 0.3rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                  Latest ignored xAPI events
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.78rem' }}>
+                  {report.xapi.latestIgnored.map((ev, i) => (
+                    <li key={i}>
+                      <code>{ev.courseSlug ?? '(no course slug)'}</code> · {ev.verbId.split('/').pop()} ·{' '}
+                      {new Date(ev.receivedAt).toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </details>
+        </div>
+      ) : null}
+    </div>
+  );
+}

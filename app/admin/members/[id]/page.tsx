@@ -32,6 +32,9 @@ import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReview
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberAiMatches from './AdminMemberAiMatches';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
+import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
+import { getBoardSnapshot, SMALL_SAMPLE_THRESHOLD } from '@/lib/admin/boardOutcomes';
+import MemberCourseraDiagnoseButton from '@/components/admin/MemberCourseraDiagnoseButton';
 import '@/css/counselor.css';
 
 type AdminCourseProgressRow = {
@@ -72,6 +75,7 @@ export default async function AdminMemberDetailPage({
 
   const fullMemberSelect = {
     id: true,
+    organizationId: true,
     email: true,
     fullName: true,
     phone: true,
@@ -121,6 +125,7 @@ export default async function AdminMemberDetailPage({
 
   const fallbackMemberSelect = {
     id: true,
+    organizationId: true,
     email: true,
     fullName: true,
     phone: true,
@@ -329,6 +334,48 @@ export default async function AdminMemberDetailPage({
 
   const wioaSnap = parseWioaQualificationSnapshot(member.wioaQualificationJson);
 
+  // Coursera B4B / xAPI learner detail — surfaces CSV-imported course
+  // progress, specialization badges, and last activity timestamps on the
+  // main member detail so admins do not have to context-switch to
+  // /admin/coursera/learners/[userId] to see what's actually flowing in.
+  const courseraDetail = await loadLearnerProgressByUserId(member.id);
+  const courseraCourseCount = courseraDetail?.courses.length ?? 0;
+  const courseraCompletedCount = courseraDetail?.courses.filter((c) => c.isCompleted).length ?? 0;
+  const courseraBadgeCount = courseraDetail?.badges.length ?? 0;
+  const courseraCompletedBadgeCount =
+    courseraDetail?.badges.filter((b) => b.badgeCompleted).length ?? 0;
+  const courseraLastActivity = courseraDetail
+    ? courseraDetail.courses.reduce<Date | null>((latest, c) => {
+        if (!c.lastActivityTime) return latest;
+        if (!latest || c.lastActivityTime > latest) return c.lastActivityTime;
+        return latest;
+      }, null)
+    : null;
+
+  // Outcomes snapshot scoped to the member's organization. Pulled from
+  // `getBoardSnapshot()` — the single source of truth that also feeds
+  // /admin/outcomes and the printable /admin/outcomes/board.pdf — so the
+  // cohort numbers shown next to a member match what funders see on the
+  // public board. Org filter narrows the snapshot to the member's tenant
+  // so cross-org cohorts are not mixed.
+  const memberOrgId = (member as { organizationId?: string }).organizationId;
+  const outcomesSnapshot = await getBoardSnapshot('all-time', memberOrgId).catch(
+    (err: unknown) => {
+      console.error('[admin/member-detail] getBoardSnapshot failed', err);
+      return null;
+    },
+  );
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const placedLast90d = outcomesSnapshot
+    ? outcomesSnapshot.outcomes.placements.filter((p) => p.placedAt >= ninetyDaysAgo).length
+    : 0;
+  const orgPlacementRate = outcomesSnapshot?.outcomes.totals.placementRate ?? null;
+  const orgEnrolled = outcomesSnapshot?.outcomes.totals.membersEnrolled ?? 0;
+  const orgPlaced = outcomesSnapshot?.outcomes.totals.membersPlaced ?? 0;
+  const orgAvgWeeksToPlacement = outcomesSnapshot?.outcomes.totals.averageWeeksToPlacement ?? null;
+  const orgAvgDaysToPlacement =
+    orgAvgWeeksToPlacement === null ? null : Math.round(orgAvgWeeksToPlacement * 7);
+
   const counselorChatInitial = {
     staffUserId: user.id,
     member: { id: member.id, fullName: member.fullName },
@@ -356,6 +403,7 @@ export default async function AdminMemberDetailPage({
         subtitle={member.email}
         action={
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <Link href={`/admin/members/${id}/stakeholder`} className="btn btn-outline">Open stakeholder view</Link>
             <Link href={`/admin/members/${id}/lifecycle`} className="btn btn-outline">
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', marginRight: '0.25rem', verticalAlign: 'middle' }} aria-hidden="true">timeline</span>
               Lifecycle
@@ -563,6 +611,173 @@ export default async function AdminMemberDetailPage({
             }
             approvedByName={null}
           />
+        </section>
+
+        {/* Outcomes summary — same getBoardSnapshot() truth-set that drives
+            /admin/outcomes and /admin/outcomes/board.pdf. Shows the org-level
+            cohort context (placement rate, time-to-placement, recent placement
+            volume) so an admin reviewing one member can see how their case
+            fits the board's headline numbers. Per-member outcome detail is
+            shown when a placement_records row exists. */}
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Outcomes summary</h2>
+            <Link
+              href="/admin/outcomes"
+              style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+            >
+              Open full outcomes board →
+            </Link>
+          </div>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+            Cohort context for this member&apos;s organization — single source of truth via{' '}
+            <code>getBoardSnapshot()</code>.
+          </p>
+          {outcomesSnapshot ? (
+            <>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '0.75rem',
+                  marginBottom: placedOutcomeRow ? '1rem' : 0,
+                }}
+              >
+                <div style={{ padding: '0.625rem 0.75rem', borderRadius: 8, background: 'var(--color-surface-variant, #f5f5f5)' }}>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>
+                    Placed (last 90d)
+                  </p>
+                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0 }}>{placedLast90d}</p>
+                </div>
+                <div style={{ padding: '0.625rem 0.75rem', borderRadius: 8, background: 'var(--color-surface-variant, #f5f5f5)' }}>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>
+                    Placement rate
+                  </p>
+                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0 }}>
+                    {orgEnrolled < SMALL_SAMPLE_THRESHOLD
+                      ? `N=${orgEnrolled}`
+                      : `${orgPlacementRate ?? 0}%`}
+                  </p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.15rem 0 0' }}>
+                    {orgPlaced} of {orgEnrolled} enrolled
+                  </p>
+                </div>
+                <div style={{ padding: '0.625rem 0.75rem', borderRadius: 8, background: 'var(--color-surface-variant, #f5f5f5)' }}>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>
+                    Avg time to placement
+                  </p>
+                  <p style={{ fontSize: '1.35rem', fontWeight: 700, margin: 0 }}>
+                    {orgAvgDaysToPlacement === null ? '—' : `${orgAvgDaysToPlacement} d`}
+                  </p>
+                </div>
+              </div>
+              {placedOutcomeRow ? (
+                <div
+                  style={{
+                    padding: '0.75rem 0.875rem',
+                    borderRadius: 8,
+                    background: 'rgba(46, 125, 50, 0.08)',
+                    border: '1px solid rgba(46, 125, 50, 0.2)',
+                  }}
+                >
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.35rem' }}>
+                    This member&apos;s placement
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600 }}>
+                    {placedOutcomeRow.jobTitle} · {placedOutcomeRow.employerName}
+                  </p>
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                    Placed{' '}
+                    {placedOutcomeRow.placedAt instanceof Date
+                      ? placedOutcomeRow.placedAt.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })
+                      : new Date(placedOutcomeRow.placedAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                    {placedOutcomeRow.salaryOffered
+                      ? ` · $${placedOutcomeRow.salaryOffered.toLocaleString('en-US')}/yr at placement`
+                      : ''}
+                  </p>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+              Outcomes snapshot is unavailable right now.
+            </p>
+          )}
+        </section>
+
+        <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Coursera training</h2>
+            <Link
+              href={`/admin/coursera/learners/${member.id}`}
+              style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+            >
+              Open full Coursera detail →
+            </Link>
+          </div>
+          {courseraDetail && (courseraCourseCount > 0 || courseraBadgeCount > 0) ? (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Courses</p>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                    {courseraCompletedCount}/{courseraCourseCount} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>complete</span>
+                  </p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Specializations</p>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                    {courseraCompletedBadgeCount}/{courseraBadgeCount} <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-on-surface-variant)' }}>earned</span>
+                  </p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Last activity</p>
+                  <p style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
+                    {courseraLastActivity ? courseraLastActivity.toLocaleDateString() : '—'}
+                  </p>
+                </div>
+              </div>
+              {courseraCourseCount > 0 ? (
+                <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'grid', gap: '0.35rem' }}>
+                  {courseraDetail.courses.slice(0, 5).map((c) => (
+                    <li key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem' }}>
+                      {c.isCompleted ? (
+                        <CheckCircle size={16} style={{ color: 'var(--color-green)', flexShrink: 0 }} />
+                      ) : (
+                        <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid var(--outline-variant)', borderRadius: 4, flexShrink: 0 }} />
+                      )}
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.courseName}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>
+                        {Number(c.overallProgress).toFixed(0)}%
+                      </span>
+                    </li>
+                  ))}
+                  {courseraCourseCount > 5 ? (
+                    <li style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', paddingLeft: '1.6rem' }}>
+                      + {courseraCourseCount - 5} more — see full detail
+                    </li>
+                  ) : null}
+                </ul>
+              ) : null}
+            </>
+          ) : (
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+              No Coursera activity recorded yet. Data populates from the B4B sync (every 6h),
+              xAPI webhook, or manual CSV import on{' '}
+              <Link href="/admin/coursera/csv-import" style={{ color: 'var(--color-accent)' }}>
+                /admin/coursera/csv-import
+              </Link>.
+            </p>
+          )}
+          <MemberCourseraDiagnoseButton memberId={member.id} />
         </section>
 
         <MemberPartnerSection

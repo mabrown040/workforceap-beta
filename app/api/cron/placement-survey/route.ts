@@ -17,22 +17,29 @@ export async function POST(req: Request) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Find placements from ~30 days ago without surveys
-    const recentPlacements = await prisma.placementRecord.findMany({
+    const windowStart = new Date(thirtyDaysAgo.getTime() - 24 * 60 * 60 * 1000); // 31 days ago
+    const windowEnd = new Date(thirtyDaysAgo.getTime() + 24 * 60 * 60 * 1000); // 29 days ago
+
+    // Find users with a placement from ~30 days ago and no survey yet
+    const users = await prisma.user.findMany({
       where: {
-        placedAt: {
-          gte: new Date(thirtyDaysAgo.getTime() - 24 * 60 * 60 * 1000), // 31 days ago
-          lte: new Date(thirtyDaysAgo.getTime() + 24 * 60 * 60 * 1000), // 29 days ago
+        placementRecord: {
+          placedAt: {
+            gte: windowStart,
+            lte: windowEnd,
+          },
         },
-        placementSurvey: null, // no survey sent yet
+        placementSurvey: null,
       },
-      include: {
-        user: {
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        enrolledProgram: true,
+        placementRecord: {
           select: {
             id: true,
-            email: true,
-            fullName: true,
-            enrolledProgram: true,
+            placedAt: true,
           },
         },
       },
@@ -41,25 +48,28 @@ export async function POST(req: Request) {
     const sent: Array<{ userId: string; email: string }> = [];
     const skipped: Array<{ userId: string; reason: string }> = [];
 
-    for (const placement of recentPlacements) {
-      if (!placement.user?.email) {
-        skipped.push({ userId: placement.userId, reason: 'No email' });
+    for (const user of users) {
+      if (!user.email) {
+        skipped.push({ userId: user.id, reason: 'No email' });
+        continue;
+      }
+      if (!user.placementRecord) {
+        skipped.push({ userId: user.id, reason: 'No placement record' });
         continue;
       }
 
       // Create survey record
       await prisma.placementSurvey.create({
         data: {
-          userId: placement.userId,
-          placementId: placement.id,
+          userId: user.id,
+          placementId: user.placementRecord.id,
           sentAt: new Date(),
         },
       });
 
       // TODO: Send email with survey link
-      // For now, log it
-      console.log(`[placement-survey] Survey queued for ${placement.user.email} (placed ${placement.placedAt.toISOString()})`);
-      sent.push({ userId: placement.userId, email: placement.user.email });
+      console.log(`[placement-survey] Survey queued for ${user.email} (placed ${user.placementRecord.placedAt.toISOString()})`);
+      sent.push({ userId: user.id, email: user.email });
     }
 
     return NextResponse.json({

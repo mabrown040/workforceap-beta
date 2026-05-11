@@ -67,7 +67,7 @@ export async function analyzeToolEfficacy(): Promise<ToolEfficacyResult[]> {
             _count: {
               select: {
                 jobApplications: true,
-                courseProgress: { where: { status: 'completed' } },
+                courseProgress: true,
               },
             },
             placementRecord: {
@@ -87,7 +87,6 @@ export async function analyzeToolEfficacy(): Promise<ToolEfficacyResult[]> {
     const usersWithoutTool = await prisma.user.findMany({
       where: {
         deletedAt: null,
-        placementRecord: null,
         enrolledProgram: { not: null },
         id: {
           notIn: usersWithTool.map((u) => u.userId),
@@ -98,7 +97,7 @@ export async function analyzeToolEfficacy(): Promise<ToolEfficacyResult[]> {
         _count: {
           select: {
             jobApplications: true,
-            courseProgress: { where: { status: 'completed' } },
+            courseProgress: true,
           },
         },
         placementRecord: {

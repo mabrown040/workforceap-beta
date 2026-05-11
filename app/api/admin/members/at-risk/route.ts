@@ -36,11 +36,11 @@ export async function GET(req: Request) {
             enrolledProgram: true,
             enrolledAt: true,
             createdAt: true,
+            phone: true,
             profile: {
               select: {
                 employmentStatus: true,
                 educationLevel: true,
-                phone: true,
               },
             },
           },
@@ -53,6 +53,7 @@ export async function GET(req: Request) {
       userId: alert.userId,
       name: alert.user.fullName ?? 'Unknown',
       email: alert.user.email,
+      phone: alert.user.phone,
       score: alert.score,
       riskLevel: getRiskLevel(alert.score),
       status: alert.status,

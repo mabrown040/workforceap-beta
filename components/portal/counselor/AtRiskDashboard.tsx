@@ -21,6 +21,7 @@ interface AtRiskMember {
   alertId: string;
   name: string;
   email: string;
+  phone: string | null;
   score: number;
   riskLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
   status: 'open' | 'acknowledged' | 'resolved';
@@ -31,7 +32,7 @@ interface AtRiskMember {
   profile: {
     employmentStatus: string | null;
     educationLevel: string | null;
-    phone: string | null;
+
   } | null;
   alertCreatedAt: string;
   alertUpdatedAt: string;
@@ -77,6 +78,42 @@ function getSeverityThreshold(level: AtRiskMember['riskLevel']): number {
     case 'MEDIUM': return 30;
     case 'LOW': return 0;
   }
+}
+
+// ─── Render helpers ───────────────────────────────────────────────────────
+
+function RiskBadge({ level }: { level: AtRiskMember['riskLevel'] }) {
+  const cfg = RISK_CONFIG[level];
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+      <cfg.icon size={14} style={{ color: cfg.color }} aria-hidden />
+      <StatusBadge label={cfg.label} variant={cfg.variant} />
+    </span>
+  );
+}
+
+function ScoreBadge({ score }: { score: number }) {
+  const level = score >= 70 ? 'CRITICAL' : score >= 50 ? 'HIGH' : score >= 30 ? 'MEDIUM' : 'LOW';
+  const color = RISK_CONFIG[level].color;
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '2.5rem',
+        height: '2.5rem',
+        borderRadius: '50%',
+        fontWeight: 700,
+        fontSize: '0.85rem',
+        color,
+        background: 'color-mix(in srgb, ' + color + ' 12%, transparent)',
+        border: '2px solid ' + color + '40',
+      }}
+    >
+      {score}
+    </span>
+  );
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -227,42 +264,6 @@ export default function AtRiskDashboard() {
     } finally {
       setBulkActionLoading(false);
     }
-  }
-
-  // ─── Render helpers ───────────────────────────────────────────────────────
-
-  function RiskBadge({ level }: { level: AtRiskMember['riskLevel'] }) {
-    const cfg = RISK_CONFIG[level];
-    return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-        <cfg.icon size={14} style={{ color: cfg.color }} aria-hidden />
-        <StatusBadge label={cfg.label} variant={cfg.variant} />
-      </span>
-    );
-  }
-
-  function ScoreBadge({ score }: { score: number }) {
-    const level = score >= 70 ? 'CRITICAL' : score >= 50 ? 'HIGH' : score >= 30 ? 'MEDIUM' : 'LOW';
-    const color = RISK_CONFIG[level].color;
-    return (
-      <span
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '2.5rem',
-          height: '2.5rem',
-          borderRadius: '50%',
-          fontWeight: 700,
-          fontSize: '0.85rem',
-          color,
-          background: `color-mix(in srgb, ${color} 12%, transparent)`,
-          border: `2px solid ${color}40`,
-        }}
-      >
-        {score}
-      </span>
-    );
   }
 
   // ─── Loading / Error ──────────────────────────────────────────────────────
@@ -478,9 +479,9 @@ export default function AtRiskDashboard() {
                   <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                     {row.email}
                   </p>
-                  {row.profile?.phone && (
+                  {row.phone && (
                     <p style={{ margin: '0.15rem 0 0', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                      {row.profile.phone}
+                      {row.phone}
                     </p>
                   )}
                 </div>

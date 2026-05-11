@@ -358,8 +358,6 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'insights', Icon: ClipboardCheck },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'insights', Icon: MessageSquare },
-  { href: '/admin/placement-surveys', label: 'Placement Surveys', group: 'insights', Icon: ClipboardCheck },
-
   // ── Manage ──
   { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },
 ];

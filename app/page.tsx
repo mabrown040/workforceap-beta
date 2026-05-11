@@ -3,9 +3,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
-import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES } from '@/lib/content/programs';
+import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
-import { FUNDING_COLORS } from '@/components/FundingBadge';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 

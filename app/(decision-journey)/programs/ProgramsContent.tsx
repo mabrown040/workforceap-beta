@@ -13,6 +13,7 @@ import type { Program } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
+import FundingBadge from '@/components/FundingBadge';
 import { programMatchesSearchQuery } from '@/lib/content/programCatalogSearch';
 import {
   PROGRAM_SUBGROUPS,
@@ -65,7 +66,10 @@ function ProgramCard({ program }: { program: Program }) {
   return (
     <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-        <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+          <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
+          <FundingBadge source={program.fundingSource} />
+        </div>
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>

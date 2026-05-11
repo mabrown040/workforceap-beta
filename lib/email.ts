@@ -430,6 +430,48 @@ export async function sendEnrollmentConfirmationEmail(params: {
   }
 }
 
+/** Send at-risk member daily digest to admin/counselor emails */
+export async function sendAtRiskAlertDigestEmail(params: {
+  to: string[];
+  dateLabel: string;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  members: {
+    fullName: string | null;
+    email: string;
+    score: number;
+    level: string;
+    factors: string[];
+    recommendedAction: string;
+    adminUrl: string;
+  }[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendAtRiskAlertDigestEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `At-Risk Member Digest — ${params.dateLabel}`,
+    bodyHtml: atRiskDigestHtml(params),
+    ctaText: 'View At-Risk Dashboard',
+    ctaUrl: `${SITE_URL}/admin/members/at-risk`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`At-Risk Digest — ${params.criticalCount} critical, ${params.highCount} high (${params.dateLabel})`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendAtRiskAlertDigestEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /**
  * Send application accepted email to applicant.
  *

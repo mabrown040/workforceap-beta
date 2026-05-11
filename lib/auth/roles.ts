@@ -458,3 +458,30 @@ export async function isMentor(userId: string): Promise<boolean> {
   if (!row) return false;
   return row.isActive && !!row.approvedAt;
 }
+
+/**
+ * Require admin or counselor access for an API route.
+ * Checks user roles and counselor status.
+ * Returns { ok: true, userId: string } or { ok: false, error: string, status: number }.
+ */
+export async function requireAdminOrCounselor(req: Request): Promise<
+  | { ok: true; userId: string }
+  | { ok: false; error: string; status: number }
+> {
+  const { getUser } = await import('@/lib/auth/server');
+  const user = await getUser();
+  if (!user) {
+    return { ok: false, error: 'Unauthorized', status: 401 };
+  }
+
+  const [admin, counselor] = await Promise.all([
+    isAdmin(user.id),
+    isCounselor(user.id),
+  ]);
+
+  if (!admin && !counselor) {
+    return { ok: false, error: 'Forbidden: admin or counselor access required', status: 403 };
+  }
+
+  return { ok: true, userId: user.id };
+}

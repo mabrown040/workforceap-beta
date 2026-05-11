@@ -220,6 +220,20 @@ export const CRON_REGISTRY: CronDef[] = [
     audienceDescription: 'Members with stale training signals for counselors',
     workflowKey: 'cron_stale_training_check',
   },
+  {
+    id: 'at-risk-check',
+    name: 'At-Risk Member Check',
+    description:
+      'Nightly at-risk scoring for all active members. Calculates risk scores from engagement signals, training progress, and counselor contact recency. Persists alerts and flags members needing outreach.',
+    schedule: '0 6 * * *',
+    scheduleLabel: 'Daily 6AM UTC',
+    apiPath: '/api/cron/at-risk-check',
+    method: 'POST',
+    icon: 'crisis_alert',
+    category: 'admin',
+    audienceDescription: 'Internal counselor dashboard + admin alerts',
+    workflowKey: 'cron_at_risk_check',
+  },
 ];
 
 export const CRON_CATEGORY_COLOR: Record<CronDef['category'], string> = {

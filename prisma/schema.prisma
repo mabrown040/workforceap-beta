@@ -181,6 +181,7 @@ model User {
   courseraSkillsetProgress CourseraSkillsetProgress[]
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
+  placementSurvey          PlacementSurvey?
 
   @@index([organizationId])
   @@index([wioaReviewStatus])

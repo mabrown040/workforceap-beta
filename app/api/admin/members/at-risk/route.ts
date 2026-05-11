@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { requireAdminOrCounselor } from '@/lib/auth/adminAuth';
+import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { getRiskLevel, THRESHOLDS } from '@/lib/member/atRiskScoring';
 
 /**

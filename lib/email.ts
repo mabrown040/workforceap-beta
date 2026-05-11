@@ -506,43 +506,6 @@ export async function sendCourseraUnmatchedActorAlertEmail(params: {
   }
 }
 
-/** Post-placement survey request (cron ~30 days after placement). */
-export async function sendPlacementSurveyEmail(params: {
-  to: string;
-  fullName: string;
-  programName: string;
-  surveyUrl: string;
-}): Promise<{ ok: boolean; error?: string }> {
-  const resend = getResend();
-  if (!resend) {
-    console.warn('sendPlacementSurveyEmail: RESEND_API_KEY not set');
-    return { ok: false, error: 'Email not configured' };
-  }
-  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
-  const subject = sanitizeEmailSubjectLine('How is your placement going? Quick survey');
-  const html = brandedEmailLayout({
-    title: 'Share your placement feedback',
-    bodyHtml: placementSurveyHtml({
-      firstName: first,
-      programName: params.programName.trim(),
-    }),
-    ctaText: 'Take the survey',
-    ctaUrl: params.surveyUrl,
-  });
-  try {
-    await resend.emails.send({
-      from: getFrom(),
-      to: params.to,
-      subject,
-      html,
-    });
-    return { ok: true };
-  } catch (err) {
-    console.error('sendPlacementSurveyEmail failed:', err);
-    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
-  }
-}
-
 /** Send at-risk member daily digest to admin/counselor emails */
 export async function sendAtRiskAlertDigestEmail(params: {
   to: string[];
@@ -765,6 +728,40 @@ export async function sendCourseEnrolledEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendCourseEnrolledEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send the post-placement survey invite to a member ~30 days after placement */
+export async function sendPlacementSurveyEmail(params: {
+  to: string;
+  fullName: string;
+  programName: string | null;
+  surveyUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPlacementSurveyEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const subject = "How's the new job going? — quick 3-minute survey";
+  const html = brandedEmailLayout({
+    title: subject,
+    bodyHtml: placementSurveyHtml({ firstName: first, programName: params.programName }),
+    ctaText: 'Open the survey',
+    ctaUrl: params.surveyUrl,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(subject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPlacementSurveyEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

@@ -29,7 +29,7 @@ const programs = PROGRAMS;
 const STARTER_PROGRAM_SLUGS = [
   'digital-literacy-empowerment-class',
   'it-support-professional-certificate-ibm',
-  'project-management-professional-certificate-ibm',
+  'project-management-professional-certificate-microsoft',
 ];
 
 function subgroupCounts(): Record<ProgramSubgroupId, number> {

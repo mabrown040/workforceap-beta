@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const fallbackProgramSlugs = [
   'digital-literacy-empowerment-class',
   'it-support-professional-certificate-ibm',
-  'project-management-professional-certificate-google',
+  'project-management-professional-certificate-microsoft',
 ] as const;
 
 export default function FindYourPathPage() {

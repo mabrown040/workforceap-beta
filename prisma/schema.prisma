@@ -2063,36 +2063,6 @@ model PlacementSurvey {
   @@map("placement_surveys")
 }
 
-model PlacementSurvey {
-  id              String   @id @default(uuid())
-  userId          String   @unique @map("user_id")
-  placementId     String   @map("placement_id")
-  sentAt          DateTime @default(now()) @map("sent_at")
-  completedAt     DateTime? @map("completed_at")
-  
-  // Core questions (1-5 scale)
-  jobSatisfaction   Int? @map("job_satisfaction")     // "How satisfied are you with your job?"
-  trainingRelevance Int? @map("training_relevance")   // "How relevant was your training?"
-  supportQuality    Int? @map("support_quality")      // "How was the counselor support?"
-  
-  // Open feedback
-  whatHelpedMost    String? @map("what_helped_most") @db.Text
-  whatCouldImprove  String? @map("what_could_improve") @db.Text
-  
-  // Outcome tracking
-  stillEmployed     Boolean? @map("still_employed")
-  currentSalary     Int? @map("current_salary")       // annual, updated if changed
-  
-  // Consent for testimonial use
-  allowTestimonial  Boolean @default(false) @map("allow_testimonial")
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([sentAt])
-  @@map("placement_surveys")
-}
-
 // --- Coursera Active-Pull Sync ---
 
 /// Snapshot of Coursera Enterprise skillset progress for a member, written

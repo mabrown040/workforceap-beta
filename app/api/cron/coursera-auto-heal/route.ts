@@ -5,7 +5,7 @@ import {
 } from '@/lib/xapi/reprocess';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
-import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
+import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -36,11 +36,11 @@ async function handle(_request: Request) {
     | { matched: number; unmatched: number; created: number; updated: number }
     | { error: string } = { matched: 0, unmatched: 0, created: 0, updated: 0 };
   try {
-    const programs = await loadB4BPrograms();
-    const seed = await seedCanonicalMappingsFromB4B({ programs, actorUserId: null });
+    const contents = await loadB4BContents();
+    const seed = await seedCanonicalMappingsFromB4B({ contents, actorUserId: null });
     canonicalSeed = {
-      matched: seed.programsMatched,
-      unmatched: seed.programsUnmatched,
+      matched: seed.coursesMatched,
+      unmatched: seed.coursesUnmatched,
       created: seed.totalCreated,
       updated: seed.totalUpdated,
     };

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { matchB4BProgramToCatalog } from './seedCanonicalMappingsFromB4B';
+import { matchCourseToCatalog } from './seedCanonicalMappingsFromB4B';
 import type { Program } from '@/lib/content/programs';
 
-function mkProgram(slug: string, title: string, courseraB4BProgramId?: string): Program {
+function mkProgram(slug: string, title: string, courseNames: string[]): Program {
   return {
     slug,
     title,
@@ -16,45 +16,49 @@ function mkProgram(slug: string, title: string, courseraB4BProgramId?: string): 
     duration: '—',
     salary: '—',
     skills: [],
-    courses: [],
+    courses: courseNames.map((name, i) => ({
+      slug: `${slug}-course-${i + 1}`,
+      name,
+      estimatedHours: 10,
+    })),
     partner: 'Test',
-    courseraB4BProgramId,
   };
 }
 
-test('manual courseraB4BProgramId wins over name match', () => {
+test('matches a Coursera course name to the catalog program that contains it', () => {
   const catalog = [
-    mkProgram('a', 'Different Title Entirely', 'B4B-1'),
-    mkProgram('b', 'IT Support Professional Certificate (IBM)'),
+    mkProgram('it-support-ibm', 'IT Support', ['Introduction to Technical Support', 'Networking']),
+    mkProgram('data-analytics', 'Data Analytics', ['Foundations: Data, Data, Everywhere']),
   ];
-  const result = matchB4BProgramToCatalog(
-    { id: 'B4B-1', name: 'IT Support Professional Certificate (IBM)' },
-    catalog,
-  );
-  assert.ok(result);
-  assert.equal(result!.program.slug, 'a');
-  assert.equal(result!.kind, 'manualId');
+  const match = matchCourseToCatalog('Introduction to Technical Support', catalog);
+  assert.ok(match);
+  assert.equal(match!.program.slug, 'it-support-ibm');
+  assert.equal(match!.course.name, 'Introduction to Technical Support');
 });
 
-test('falls back to normalized name when no manual id is set', () => {
-  const catalog = [mkProgram('it-support-ibm', 'IT Support Professional Certificate (IBM)')];
-  const result = matchB4BProgramToCatalog(
-    { id: 'B4B-FREE', name: 'it-support-professional-certificate (IBM)' },
-    catalog,
-  );
-  assert.ok(result);
-  assert.equal(result!.program.slug, 'it-support-ibm');
-  assert.equal(result!.kind, 'name');
+test('match is case + whitespace + punctuation insensitive', () => {
+  const catalog = [mkProgram('p', 'P', ['Foundations: Data, Data, Everywhere'])];
+  const match = matchCourseToCatalog('FOUNDATIONS  DATA   DATA EVERYWHERE', catalog);
+  assert.ok(match);
+  assert.equal(match!.course.name, 'Foundations: Data, Data, Everywhere');
 });
 
-test('returns null when neither manual id nor name match', () => {
-  const catalog = [mkProgram('a', 'Program A')];
-  const result = matchB4BProgramToCatalog({ id: 'B4B-X', name: 'Unrelated Program' }, catalog);
-  assert.equal(result, null);
+test('returns null when no catalog course matches', () => {
+  const catalog = [mkProgram('p', 'P', ['Some Course'])];
+  assert.equal(matchCourseToCatalog('Unrelated Course', catalog), null);
 });
 
-test('empty B4B name returns null even with similar program', () => {
-  const catalog = [mkProgram('a', 'Program A')];
-  const result = matchB4BProgramToCatalog({ id: 'B4B-X', name: '' }, catalog);
-  assert.equal(result, null);
+test('returns null on empty input', () => {
+  const catalog = [mkProgram('p', 'P', ['Some Course'])];
+  assert.equal(matchCourseToCatalog('', catalog), null);
+});
+
+test('matches the first catalog hit when name collides across programs', () => {
+  const catalog = [
+    mkProgram('a', 'Program A', ['Shared Course']),
+    mkProgram('b', 'Program B', ['Shared Course']),
+  ];
+  const match = matchCourseToCatalog('Shared Course', catalog);
+  assert.ok(match);
+  assert.equal(match!.program.slug, 'a');
 });

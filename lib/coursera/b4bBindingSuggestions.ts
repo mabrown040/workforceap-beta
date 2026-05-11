@@ -46,6 +46,16 @@ export type B4BBindingsReport = {
   exactMatches: number;
   partialMatches: number;
   unmatched: number;
+  /**
+   * When the B4B org returns exactly 1 program (the WAP umbrella shell)
+   * and the catalog has many "programs" living as courses/specializations
+   * inside it, this carries the umbrella id + name so the admin UI can
+   * suggest binding every catalog program to it. Resolution-wise the
+   * `getOrgScopedProgramUrl` umbrella fallback already handles this at
+   * runtime, but stamping `Program.courseraB4BProgramId` makes the bind
+   * explicit and avoids relying on auto-detection.
+   */
+  umbrella: { id: string; name: string; slug: string | null } | null;
   suggestions: B4BBindingSuggestion[];
 };
 
@@ -57,6 +67,14 @@ export function computeBindingSuggestions(
   catalog: Program[],
   b4bPrograms: B4BProgramSummary[],
 ): B4BBindingsReport {
+  // Single-umbrella detection: if the org returns exactly one B4B
+  // program, every catalog program should bind to it (the umbrella shell
+  // holds all our courses + specializations).
+  const umbrella =
+    b4bPrograms.length === 1
+      ? { id: b4bPrograms[0]!.id, name: b4bPrograms[0]!.name, slug: b4bPrograms[0]!.slug }
+      : null;
+
   const report: B4BBindingsReport = {
     totalCatalogPrograms: catalog.length,
     totalB4BPrograms: b4bPrograms.length,
@@ -64,10 +82,31 @@ export function computeBindingSuggestions(
     exactMatches: 0,
     partialMatches: 0,
     unmatched: 0,
+    umbrella,
     suggestions: [],
   };
 
   for (const program of catalog) {
+    // Umbrella case wins over per-name matching — the B4B org has only
+    // one program, so each catalog entry's "match" is that umbrella.
+    if (umbrella) {
+      const currentB4BId = program.courseraB4BProgramId ?? null;
+      const alreadyBound = currentB4BId === umbrella.id;
+      if (alreadyBound) report.alreadyBound += 1;
+      else report.exactMatches += 1;
+      report.suggestions.push({
+        catalogSlug: program.slug,
+        catalogTitle: program.title,
+        currentB4BId,
+        suggestedB4BId: umbrella.id,
+        suggestedB4BName: umbrella.name,
+        suggestedB4BSlug: umbrella.slug,
+        confidence: 'exact',
+        alreadyBound,
+      });
+      continue;
+    }
+
     const targetNormalized = normalize(program.title);
     let confidence: SuggestionConfidence = 'none';
     let suggested: B4BProgramSummary | null = null;
@@ -127,6 +166,20 @@ export function computeBindingSuggestions(
 }
 
 export function renderPatchHint(report: B4BBindingsReport): string {
+  // Umbrella case: a single line because every catalog program binds to
+  // the same id. The runtime resolver already handles this via the
+  // single-umbrella fallback, so populating the catalog is optional but
+  // nice for documentation.
+  if (report.umbrella) {
+    return [
+      `// All ${report.totalCatalogPrograms} catalog programs share the single B4B umbrella`,
+      `// program (${report.umbrella.name}). The runtime resolver auto-detects this`,
+      `// so no catalog change is required. To make it explicit, set every program's`,
+      `// courseraB4BProgramId to:`,
+      `const COURSERA_UMBRELLA_B4B_ID = '${report.umbrella.id}';`,
+    ].join('\n');
+  }
+
   const ready = report.suggestions.filter(
     (s) => s.confidence === 'exact' && !s.alreadyBound && s.suggestedB4BId,
   );

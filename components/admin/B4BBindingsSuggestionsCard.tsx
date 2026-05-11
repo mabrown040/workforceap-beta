@@ -34,6 +34,7 @@ type Report = {
   exactMatches: number;
   partialMatches: number;
   unmatched: number;
+  umbrella: { id: string; name: string; slug: string | null } | null;
   suggestions: Suggestion[];
   patchHint: string;
 };
@@ -137,6 +138,22 @@ export default function B4BBindingsSuggestionsCard() {
 
       {report ? (
         <>
+          {report.umbrella ? (
+            <div
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: '0.5rem',
+                background: 'rgba(34, 197, 94, 0.10)',
+                fontSize: '0.85rem',
+                lineHeight: 1.5,
+              }}
+            >
+              <strong>Umbrella org detected.</strong> The B4B account returns exactly one
+              program — <strong>{report.umbrella.name}</strong>. Every catalog program is
+              a course or specialization inside it, so the URL resolver auto-binds them
+              all to the umbrella URL. No catalog change required.
+            </div>
+          ) : null}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.5rem', fontSize: '0.8rem' }}>
             <div>Catalog: <strong>{report.totalCatalogPrograms}</strong></div>
             <div>B4B: <strong>{report.totalB4BPrograms}</strong></div>

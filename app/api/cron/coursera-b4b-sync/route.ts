@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { syncCourseraB4BEnrollmentReports } from '@/lib/coursera/b4bSync';
-import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
+import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { logCronRun } from '@/lib/admin/logCronRun';
@@ -29,18 +29,15 @@ async function handle(_req: NextRequest) {
 
     // Refresh canonical mappings from the live B4B directory. Best-effort:
     // a B4B credential / network blip shouldn't fail the whole cron.
-    let canonicalSeed: { matched: number; unmatched: number; created: number; updated: number } | { error: string } = {
-      matched: 0,
-      unmatched: 0,
-      created: 0,
-      updated: 0,
-    };
+    let canonicalSeed:
+      | { matched: number; unmatched: number; created: number; updated: number }
+      | { error: string } = { matched: 0, unmatched: 0, created: 0, updated: 0 };
     try {
-      const programs = await loadB4BPrograms();
-      const seed = await seedCanonicalMappingsFromB4B({ programs, actorUserId: null });
+      const contents = await loadB4BContents();
+      const seed = await seedCanonicalMappingsFromB4B({ contents, actorUserId: null });
       canonicalSeed = {
-        matched: seed.programsMatched,
-        unmatched: seed.programsUnmatched,
+        matched: seed.coursesMatched,
+        unmatched: seed.coursesUnmatched,
         created: seed.totalCreated,
         updated: seed.totalUpdated,
       };

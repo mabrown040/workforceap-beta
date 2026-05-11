@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
-import { loadB4BPrograms } from '@/lib/coursera/programContentsCache';
+import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
@@ -41,8 +41,8 @@ export async function POST(_request: NextRequest) {
   }
 
   try {
-    const programs = await loadB4BPrograms();
-    const summary = await seedCanonicalMappingsFromB4B({ actorUserId: actor.id, programs });
+    const contents = await loadB4BContents();
+    const summary = await seedCanonicalMappingsFromB4B({ actorUserId: actor.id, contents });
     return NextResponse.json(summary);
   } catch (err) {
     captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { listPrograms, type B4BProgram, type B4BContent } from '@/lib/coursera/b4bClient';
+import { listContents, listPrograms, type B4BProgram, type B4BContent } from '@/lib/coursera/b4bClient';
 import type { ProgramCourse } from '@/lib/content/programs';
 
 /**
@@ -153,9 +153,84 @@ export async function loadProgramCoursesFromB4B(opts: {
   }));
 }
 
+/* ------------------------------------------------------------------ */
+/*  Org-level contents cache (flat — for course-level matching)        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * B4B `listContents()` returns the org's full content catalog as a flat
+ * list — every Course and Specialization the org has access to, mixed.
+ * This is the right shape for course-level canonical mapping because our
+ * static catalog programs are courses + specializations *inside* the
+ * single B4B umbrella program, not B4B program peers.
+ *
+ * See `seedCanonicalMappingsFromB4B` for the consumer.
+ */
+export type B4BContentEntry = {
+  id: string;
+  slug: string | null;
+  name: string;
+  contentType: 'Course' | 'Specialization' | string;
+};
+
+let cachedContents: B4BContentEntry[] | null = null;
+let contentsCachedAt = 0;
+let contentsInFlight: Promise<B4BContentEntry[]> | null = null;
+
+function contentsFresh(): boolean {
+  return cachedContents !== null && Date.now() - contentsCachedAt < CACHE_TTL_MS;
+}
+
+async function fetchContents(): Promise<B4BContentEntry[]> {
+  try {
+    // B4B paginates; 1000 is plenty for our org and stays well under the
+    // 500 hard cap we picked for admin routes. Drain in one shot.
+    const page = await listContents({ limit: 1000 });
+    return (page.elements as B4BContent[])
+      .map((c) => {
+        if (!c.id) return null;
+        const name = (c.name ?? '').trim();
+        if (!name) return null;
+        const slug = c.slug?.trim() || slugifyName(name);
+        return {
+          id: c.id,
+          slug,
+          name,
+          contentType: c.contentType ?? 'Course',
+        } as B4BContentEntry;
+      })
+      .filter((c): c is B4BContentEntry => c !== null);
+  } catch (error) {
+    console.warn(
+      '[coursera/programContentsCache] listContents failed; returning empty list:',
+      error instanceof Error ? error.message : error,
+    );
+    return [];
+  }
+}
+
+export async function loadB4BContents(): Promise<B4BContentEntry[]> {
+  if (contentsFresh()) return cachedContents!;
+  if (contentsInFlight) return contentsInFlight;
+  contentsInFlight = (async () => {
+    const contents = await fetchContents();
+    cachedContents = contents;
+    contentsCachedAt = Date.now();
+    return contents;
+  })();
+  try {
+    return await contentsInFlight;
+  } finally {
+    contentsInFlight = null;
+  }
+}
+
 /** Test-only cache reset. */
 export function _resetB4BProgramContentsCacheForTesting(): void {
   cachedPrograms = null;
   cachedAt = 0;
   inFlight = null;
+  cachedContents = null;
+  contentsCachedAt = 0;
+  contentsInFlight = null;
 }

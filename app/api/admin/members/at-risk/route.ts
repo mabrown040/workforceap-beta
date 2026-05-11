@@ -49,6 +49,7 @@ export async function GET(req: Request) {
     });
 
     const results = alerts.map((alert) => ({
+      alertId: alert.id,
       userId: alert.userId,
       name: alert.user.fullName ?? 'Unknown',
       email: alert.user.email,

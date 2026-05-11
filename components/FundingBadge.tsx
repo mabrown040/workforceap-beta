@@ -2,18 +2,7 @@
 
 import { useState } from 'react';
 import type { FundingSource } from '@/lib/content/programs';
-import { FUNDING_SOURCES } from '@/lib/content/programs';
-
-const FUNDING_COLORS: Record<FundingSource, { bg: string; text: string; border: string }> = {
-  WIOA:        { bg: 'rgba(43,123,185,0.18)',  text: '#6bb3f0', border: 'rgba(43,123,185,0.35)' },
-  Partners:    { bg: 'rgba(139,74,155,0.18)',  text: '#c47fd4', border: 'rgba(139,74,155,0.35)' },
-  Employer:    { bg: 'rgba(255,187,0,0.18)',   text: '#ffd966', border: 'rgba(255,187,0,0.35)' },
-  WorkforceAP: { bg: 'rgba(173,44,77,0.18)',   text: '#e06b8a', border: 'rgba(173,44,77,0.35)' },
-  Grant:       { bg: 'rgba(74,155,79,0.18)',   text: '#6dd372', border: 'rgba(74,155,79,0.35)' },
-  Donation:    { bg: 'rgba(156,163,175,0.18)', text: '#c4c8cf', border: 'rgba(156,163,175,0.35)' },
-};
-
-export { FUNDING_COLORS };
+import { FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
 
 export default function FundingBadge({ source, showTooltip = true }: { source?: FundingSource | string; showTooltip?: boolean }) {
   const [open, setOpen] = useState(false);

@@ -9,6 +9,16 @@ import {
   type CourseraDiscoveredCourse,
 } from '@/lib/content/courseraDiscoveredCatalog';
 
+export const FUNDING_SOURCES = [
+  'WIOA',
+  'Partners',
+  'Employer',
+  'WorkforceAP',
+  'Grant',
+  'Donation',
+] as const;
+export type FundingSource = typeof FUNDING_SOURCES[number];
+
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -36,6 +46,10 @@ export interface Program {
   skills: string[];
   courses: ProgramCourse[];
   partner: string;
+  /**
+   * Funding source that makes this program available at no cost to members.
+   */
+  fundingSource?: string;
   /**
    * Coursera For Business program id (returned by `listPrograms()`). When
    * set, `getOrgScopedProgramUrl` resolves the org-scoped learner URL via
@@ -115,7 +129,8 @@ function mkProgram(
   partner: string,
   defaultHours = 10,
   /** Preserve slug when display title changes (URLs, enrollments). */
-  slugOverride?: string
+  slugOverride?: string,
+  fundingSource: string = 'WIOA'
 ): Program {
   const slug = slugOverride ?? slugify(title);
   const canonicalCategoryColor = PROGRAM_CATEGORY_COLORS[category] ?? categoryColor;
@@ -144,15 +159,16 @@ function mkProgram(
     skills,
     courses,
     partner,
+    fundingSource,
   };
 }
 
 const DIGITAL_LITERACY_PROGRAM_DURATION = '6 weeks, 5 hrs/week (30 hours total)';
 
 export const PROGRAMS: Program[] = [
-  mkProgram('Digital Literacy Empowerment Class', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'WorkforceAP', 5),
+  mkProgram('Digital Literacy Empowerment Class', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'WorkforceAP', 5, undefined, 'WorkforceAP'),
   mkProgram('IT Support Professional Certificate (IBM)', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '💻', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$72K', ['Help desk', 'Hardware', 'Software', 'Customer service'], ['Introduction to Technical Support', 'Introduction to Hardware and Operating Systems', 'Introduction to Software, Programming, and Databases', 'Introduction to Networking and Storage', 'Introduction to Cybersecurity Essentials', 'Introduction to Cloud Computing', 'Technical Support Case Studies and Capstone Project'], 'IBM'),
-  mkProgram('AI Professional Practitioner Certificate', 'ai-software', 'AI & Software Dev', '#8b4a9b', '🤖', '3-5 months, 10 hrs/week', 'Starting salary: $85K-$135K', ['Python', 'AI/ML', 'Generative AI', 'Flask'], ['Introduction to Software Engineering', 'Introduction to Artificial Intelligence (AI)', 'Generative AI: Introduction and Applications', 'Generative AI: Prompt Engineering Basics', 'Introduction to HTML, CSS, & JavaScript', 'Python for Data Science, AI & Development', 'Developing AI Applications with Python and Flask', 'Building Generative AI-Powered Applications with Python', 'Generative AI: Elevate your Software Development Career', 'Software Developer Career Guide and Interview Preparation'], 'IBM', 10, 'ai-professional-developer-certificate-ibm'),
+  mkProgram('AI Professional Practitioner Certificate', 'ai-software', 'AI & Software Dev', '#8b4a9b', '🤖', '3-5 months, 10 hrs/week', 'Starting salary: $85K-$135K', ['Python', 'AI/ML', 'Generative AI', 'Flask'], ['Introduction to Software Engineering', 'Introduction to Artificial Intelligence (AI)', 'Generative AI: Introduction and Applications', 'Generative AI: Prompt Engineering Basics', 'Introduction to HTML, CSS, & JavaScript', 'Python for Data Science, AI & Development', 'Developing AI Applications with Python and Flask', 'Building Generative AI-Powered Applications with Python', 'Generative AI: Elevate your Software Development Career', 'Software Developer Career Guide and Interview Preparation'], 'IBM', 10, 'ai-professional-developer-certificate-ibm', 'WIOA'),
   mkProgram('Project Management Professional Certificate (Microsoft)', 'business', 'Business', '#a47f38', '💼', '3-5 months, 10 hrs/week', 'Starting salary: $82K-$112K', ['Agile', 'Scrum', 'MS Project', 'Risk management'], ['Project Management Foundations', 'Initiating and Planning Projects', 'Project Scheduling and Cost Management', 'Managing Project Risks, Changes and Stakeholders', 'Project Leadership, Communication and Stakeholder Management', 'Agile Project Management', 'Microsoft Project & Power BI for Project Managers', 'Project Management Capstone'], 'Microsoft'),
   mkProgram('Data Analytics Professional Certificate (Google)', 'cloud-data', 'Cloud & Data', '#a47f38', '📊', '3-5 months, 10 hrs/week', 'Starting salary: $72K-$102K', ['Spreadsheets', 'SQL', 'R', 'Tableau', 'Data viz'], ['Foundations: Data, Data, Everywhere', 'Ask Questions to Make Data-Driven Decisions', 'Prepare Data for Exploration', 'Process Data from Dirty to Clean', 'Analyze Data to Answer Questions', 'Share Data Through the Art of Visualization', 'Data Analysis with R Programming', 'Google Data Analytics Capstone'], 'Google'),
   mkProgram('Data Science Professional Certificate (IBM)', 'cloud-data', 'Cloud & Data', '#a47f38', '📊', '3-5 months, 10 hrs/week', 'Starting salary: $88K-$130K', ['Python', 'SQL', 'Machine Learning', 'Jupyter'], ['What is Data Science?', 'Tools for Data Science', 'Data Science Methodology', 'Python for Data Science, AI & Development', 'Python Project for Data Science', 'Databases and SQL for Data Science with Python', 'Data Analysis with Python', 'Data Visualization with Python', 'Machine Learning with Python', 'Applied Data Science Capstone'], 'IBM'),
@@ -186,11 +202,12 @@ export const PROGRAMS: Program[] = [
     ],
     'Healthcare Career Pathway',
     10,
-    'health-information-technology-mchit'
+    'health-information-technology-mchit',
+    'Grant'
   ),
-  mkProgram('Certified Production Technician (CPT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $48K-$70K', ['Safety', 'Quality practices', 'Manufacturing processes', 'Maintenance awareness'], ['Introduction to Manufacturing', 'Blueprint Reading and Technical Drawing', 'Machining and CNC Operations', 'Welding Fundamentals', 'Quality Control and Inspection', 'Safety and OSHA Compliance', 'Lean Manufacturing Principles', 'Production Technology Capstone'], 'MSSC / NAM'),
-  mkProgram('Certified Logistics Technician (CLT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$78K', ['Logistics fundamentals', 'Safety', 'Inventory', 'Material handling', 'Transportation'], ['Introduction to Supply Chain Management', 'Inventory Management and Control', 'Transportation and Distribution', 'Warehouse Operations', 'Procurement and Vendor Management', 'Supply Chain Technology and SAP', 'Global Supply Chain and Trade', 'CLT Certification Preparation'], 'MSSC / NAM'),
-  mkProgram('Core Construction', 'manufacturing', 'Construction & Trades', '#1a1a1a', '🏗️', '5 hours per section', 'Starting salary: $48K-$68K', ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'], ['Introduction to Construction Industry', 'Blueprint Reading and Construction Math', 'Construction Safety and OSHA-10', 'Hand and Power Tools', 'Concrete and Masonry Fundamentals', 'Carpentry and Framing Basics', 'Electrical and Plumbing Basics', 'Construction Readiness Capstone'], 'OSHA-10 / WorkforceAP', 10, 'core-construction-training-certificate'),
+  mkProgram('Certified Production Technician (CPT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $48K-$70K', ['Safety', 'Quality practices', 'Manufacturing processes', 'Maintenance awareness'], ['Introduction to Manufacturing', 'Blueprint Reading and Technical Drawing', 'Machining and CNC Operations', 'Welding Fundamentals', 'Quality Control and Inspection', 'Safety and OSHA Compliance', 'Lean Manufacturing Principles', 'Production Technology Capstone'], 'MSSC / NAM', 10, undefined, 'Grant'),
+  mkProgram('Certified Logistics Technician (CLT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$78K', ['Logistics fundamentals', 'Safety', 'Inventory', 'Material handling', 'Transportation'], ['Introduction to Supply Chain Management', 'Inventory Management and Control', 'Transportation and Distribution', 'Warehouse Operations', 'Procurement and Vendor Management', 'Supply Chain Technology and SAP', 'Global Supply Chain and Trade', 'CLT Certification Preparation'], 'MSSC / NAM', 10, undefined, 'Grant'),
+  mkProgram('Core Construction', 'manufacturing', 'Construction & Trades', '#1a1a1a', '🏗️', '5 hours per section', 'Starting salary: $48K-$68K', ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'], ['Introduction to Construction Industry', 'Blueprint Reading and Construction Math', 'Construction Safety and OSHA-10', 'Hand and Power Tools', 'Concrete and Masonry Fundamentals', 'Carpentry and Framing Basics', 'Electrical and Plumbing Basics', 'Construction Readiness Capstone'], 'OSHA-10 / WorkforceAP', 10, 'core-construction-training-certificate', 'Grant'),
 ];
 
 /** Canonical number of training tracks in the public catalog (keep stats + hero aligned). */

@@ -3,7 +3,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
-import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES } from '@/lib/content/programs';
+import type { FundingSource } from '@/lib/content/programs';
 import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -221,6 +222,42 @@ export default async function HomePage() {
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ {t('trustNoCost')}</span>
             </p>
+            {/* Funding source chips */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.25rem' }}>
+              {FUNDING_SOURCES.map((fs) => {
+                const chipColors: Record<FundingSource, { bg: string; text: string; border: string }> = {
+                  WIOA:        { bg: 'rgba(43,123,185,0.18)',  text: '#6bb3f0', border: 'rgba(43,123,185,0.35)' },
+                  Partners:    { bg: 'rgba(139,74,155,0.18)',  text: '#c47fd4', border: 'rgba(139,74,155,0.35)' },
+                  Employer:    { bg: 'rgba(255,187,0,0.18)',   text: '#ffd966', border: 'rgba(255,187,0,0.35)' },
+                  WorkforceAP: { bg: 'rgba(173,44,77,0.18)',   text: '#e06b8a', border: 'rgba(173,44,77,0.35)' },
+                  Grant:       { bg: 'rgba(74,155,79,0.18)',   text: '#6dd372', border: 'rgba(74,155,79,0.35)' },
+                  Donation:    { bg: 'rgba(156,163,175,0.18)', text: '#c4c8cf', border: 'rgba(156,163,175,0.35)' },
+                };
+                const c = chipColors[fs];
+                return (
+                  <span
+                    key={fs}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '50px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      background: c.bg,
+                      color: c.text,
+                      border: `1px solid ${c.border}`,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.75rem' }} aria-hidden="true">account_balance</span>
+                    {fs}
+                  </span>
+                );
+              })}
+            </div>
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
               <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
@@ -430,6 +467,7 @@ export default async function HomePage() {
             }}>
               <span style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>$0</span>
               <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>{t('statMemberCost')}</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', marginTop: '0.35rem', opacity: 0.75, fontWeight: 400, textTransform: 'none', letterSpacing: 'normal' }}>For qualifying members</span>
             </div>
           </div>
         </div>

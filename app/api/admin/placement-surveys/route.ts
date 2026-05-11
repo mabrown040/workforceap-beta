@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { requireAdminOrCounselor } from '@/lib/auth/roles';
 
 /**
  * GET /api/admin/placement-surveys
@@ -7,7 +8,11 @@ import { prisma } from '@/lib/db/prisma';
  * Query params: ?status=completed|pending&limit=50&offset=0
  */
 export async function GET(req: Request) {
-  // Simple auth check — production should use requireAdminOrCounselor
+  const auth = await requireAdminOrCounselor(req);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status') ?? undefined;
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);

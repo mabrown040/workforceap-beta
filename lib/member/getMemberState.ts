@@ -351,14 +351,123 @@ export async function getMemberStateFull(userId: string): Promise<MemberStateFul
 }
 
 // ─── Full Context Loader (admin/counselor) ─────────────────────────────────
-// TODO: implement Prisma queries with correct field names after schema audit
 async function loadMemberFullContext(userId: string): Promise<Omit<MemberStateFull, keyof MemberState>> {
+  const [placement, courseEnrollment, counselorAssignment, recentMessagesRaw, memberEvents, partnerReferral] = await Promise.all([
+    prisma.placementRecord.findUnique({
+      where: { userId },
+      select: {
+        placedAt: true,
+        retentionDecision: true,
+        onboardingWindowEnd: true,
+        employerName: true,
+        jobTitle: true,
+        salaryOffered: true,
+      },
+    }),
+    prisma.courseEnrollment.findFirst({
+      where: { userId, isPrimary: true },
+      orderBy: { enrolledAt: 'desc' },
+      select: {
+        id: true,
+        enrolledByAdminId: true,
+        programSlug: true,
+        enrolledAt: true,
+        fundingSource: true,
+      },
+    }),
+    prisma.counselorAssignment.findFirst({
+      where: { memberId: userId, active: true },
+      orderBy: { assignedAt: 'desc' },
+      select: {
+        assignedAt: true,
+        counselor: {
+          select: {
+            user: { select: { fullName: true } },
+          },
+        },
+      },
+    }),
+    prisma.messageThread.findFirst({
+      where: { memberId: userId },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        updatedAt: true,
+        memberLastReadAt: true,
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { createdAt: true, body: true },
+        },
+      },
+    }),
+    prisma.memberEvent.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      select: {
+        eventName: true,
+        createdAt: true,
+        metadata: true,
+        sourcePage: true,
+      },
+    }),
+    prisma.partnerReferral.findFirst({
+      where: { memberId: userId },
+      orderBy: { referredAt: 'desc' },
+      select: {
+        partner: { select: { name: true } },
+        referredAt: true,
+      },
+    }),
+  ]);
+
+  // Count unread messages properly (messages where member hasn't read since last message)
+  const messageThreadLastReadAt = recentMessagesRaw?.memberLastReadAt;
+  const unreadCount = await prisma.message.count({
+    where: {
+      thread: { memberId: userId },
+      authorId: { not: userId }, // messages from counselor/staff, not member
+      createdAt: {
+        gt: messageThreadLastReadAt ?? new Date(0),
+      },
+    },
+  });
+
   return {
-    placement: null,
-    courseEnrollment: null,
-    counselorAssignment: null,
-    recentMessages: { unreadCount: 0, lastMessageAt: null },
-    memberEvents: [],
-    partnerContext: null,
+    placement: placement
+      ? {
+          placedAt: placement.placedAt,
+          retentionDecision: placement.retentionDecision,
+          onboardingWindowEnd: placement.onboardingWindowEnd,
+        }
+      : null,
+    courseEnrollment: courseEnrollment
+      ? {
+          enrolledByAdminId: courseEnrollment.enrolledByAdminId,
+          id: courseEnrollment.id,
+        }
+      : null,
+    counselorAssignment: counselorAssignment
+      ? {
+          counselorName: counselorAssignment.counselor?.user?.fullName ?? null,
+          assignedAt: counselorAssignment.assignedAt,
+        }
+      : null,
+    recentMessages: {
+      unreadCount,
+      lastMessageAt: recentMessagesRaw?.messages[0]?.createdAt ?? null,
+    },
+    memberEvents: memberEvents.map((e) => ({
+      type: e.eventName,
+      createdAt: e.createdAt,
+      metadata: (e.metadata ?? undefined) as Record<string, unknown> | undefined,
+    })),
+    partnerContext: partnerReferral
+      ? {
+          partnerName: partnerReferral.partner.name,
+          referralSource: partnerReferral.partner.name,
+        }
+      : null,
   };
 }

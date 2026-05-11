@@ -180,6 +180,7 @@ model User {
   courseraBadgeProgress    CourseraBadgeProgress[]
   courseraSkillsetProgress CourseraSkillsetProgress[]
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
+  atRiskAlerts             AtRiskAlert[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2009,6 +2010,27 @@ model CourseraBadgeProgress {
   @@index([userId])
   @@index([badgeSlug])
   @@map("coursera_badge_progress")
+}
+
+// --- At-Risk Alert System ---
+
+model AtRiskAlert {
+  id             String    @id @default(uuid())
+  userId         String    @map("user_id")
+  score          Int
+  factors        Json      // array of {name, weight, description}
+  status         String    // "open" | "acknowledged" | "resolved"
+  counselorId    String?   @map("counselor_id")
+  acknowledgedAt DateTime? @map("acknowledged_at")
+  resolvedAt     DateTime? @map("resolved_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status, score])
+  @@map("at_risk_alerts")
 }
 
 // --- Coursera Active-Pull Sync ---

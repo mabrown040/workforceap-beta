@@ -23,5 +23,6 @@ export { applicantFollowupHtml } from './applicant-followup';
 export { adminPendingApplicantsHtml } from './admin-pending-applicants';
 export { adminWeeklyRecapHtml } from './admin-weekly-recap';
 export { partnerWeeklyDigestHtml } from './partner-weekly-digest';
+export { atRiskDigestHtml } from './at-risk-digest';
 export { counselorAssignedHtml } from './counselor-assigned';
 export { partnerReferralInviteHtml } from './partner-referral-invite';

@@ -71,7 +71,7 @@ export default function FundingBadge({ source, showTooltip = true }: { source?: 
             ))}
           </ul>
           <p style={{ margin: '0.35rem 0 0', fontSize: '0.7rem', opacity: 0.7, lineHeight: 1.4 }}>
-            Programs are offered at no cost to qualifying members through these funding sources.
+            Programs are offered through Workforce Funded Training for qualified members.
           </p>
         </div>
       )}

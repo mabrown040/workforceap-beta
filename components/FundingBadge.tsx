@@ -5,13 +5,15 @@ import type { FundingSource } from '@/lib/content/programs';
 import { FUNDING_SOURCES } from '@/lib/content/programs';
 
 const FUNDING_COLORS: Record<FundingSource, { bg: string; text: string; border: string }> = {
-  WIOA:        { bg: 'rgba(43,123,185,0.12)',  text: '#2b7bb9', border: 'rgba(43,123,185,0.25)' },
-  Partners:    { bg: 'rgba(139,74,155,0.12)',  text: '#8b4a9b', border: 'rgba(139,74,155,0.25)' },
-  Employer:    { bg: 'rgba(255,187,0,0.15)',   text: '#a47f38', border: 'rgba(255,187,0,0.3)' },
-  WorkforceAP: { bg: 'rgba(173,44,77,0.12)',   text: '#ad2c4d', border: 'rgba(173,44,77,0.25)' },
-  Grant:       { bg: 'rgba(74,155,79,0.12)',   text: '#4a9b4f', border: 'rgba(74,155,79,0.25)' },
-  Donation:    { bg: 'rgba(107,114,128,0.12)', text: '#6b7280', border: 'rgba(107,114,128,0.25)' },
+  WIOA:        { bg: 'rgba(43,123,185,0.18)',  text: '#6bb3f0', border: 'rgba(43,123,185,0.35)' },
+  Partners:    { bg: 'rgba(139,74,155,0.18)',  text: '#c47fd4', border: 'rgba(139,74,155,0.35)' },
+  Employer:    { bg: 'rgba(255,187,0,0.18)',   text: '#ffd966', border: 'rgba(255,187,0,0.35)' },
+  WorkforceAP: { bg: 'rgba(173,44,77,0.18)',   text: '#e06b8a', border: 'rgba(173,44,77,0.35)' },
+  Grant:       { bg: 'rgba(74,155,79,0.18)',   text: '#6dd372', border: 'rgba(74,155,79,0.35)' },
+  Donation:    { bg: 'rgba(156,163,175,0.18)', text: '#c4c8cf', border: 'rgba(156,163,175,0.35)' },
 };
+
+export { FUNDING_COLORS };
 
 export default function FundingBadge({ source, showTooltip = true }: { source?: FundingSource | string; showTooltip?: boolean }) {
   const [open, setOpen] = useState(false);

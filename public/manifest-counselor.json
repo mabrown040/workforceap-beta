@@ -1,0 +1,47 @@
+{
+  "name": "Workforce Advancement Project — Counselor",
+  "short_name": "WAP Counselor",
+  "description": "Support your WorkforceAP members from enrollment through employment.",
+  "start_url": "/pwa-start",
+  "display": "standalone",
+  "background_color": "#121416",
+  "theme_color": "#ad2c4d",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/images/wap_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/wap_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Overview",
+      "url": "/counselor",
+      "description": "Counselor home"
+    },
+    {
+      "name": "My members",
+      "url": "/counselor/students",
+      "description": "Roster and member progress"
+    },
+    {
+      "name": "Messages",
+      "url": "/counselor/messages",
+      "description": "Member counselor chat"
+    },
+    {
+      "name": "Resources",
+      "url": "/counselor/resources",
+      "description": "Counselor resources"
+    }
+  ]
+}

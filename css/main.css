@@ -16858,3 +16858,5 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
     will-change: auto;
 }
 
+/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed. */
+@tailwind utilities;

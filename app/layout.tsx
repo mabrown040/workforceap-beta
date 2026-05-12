@@ -13,11 +13,11 @@ import PortalMetrics from '@/components/analytics/PortalMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
+import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavLayout';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/portal.css';
 import '@/css/language-toggle.css';
-import '@/app/globals-onboarding.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
@@ -55,6 +55,8 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.workforceap.org'),
+  /** Default member-portal manifest; counselor routes override via `manifest` in `(portal)/counselor/layout.tsx`. */
+  manifest: '/manifest.json',
   title: {
     default: 'Career Training at No Cost to Members | Workforce Advancement Project',
     template: '%s - Workforce Advancement Project',
@@ -82,8 +84,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const messages = pickRootClientMessages(await getMessages());
+  const reserveMobileBottomNav = h.get(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER) === '1';
+  const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
   return (
-    <html lang={htmlLang} suppressHydrationWarning>
+    <html lang={htmlLang} suppressHydrationWarning className={htmlClassName}>
       <head>
         <ThemeInitScript />
         <script
@@ -91,8 +95,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             __html: `(function(){try{var KEY='wap:chunk-reload-once';try{sessionStorage.removeItem(KEY);}catch(_s){}var shouldRecover=function(input){var text='';if(typeof input==='string')text=input;else if(input&&typeof input==='object'){text=[input.name,input.message,input.reason,input.request].filter(Boolean).join(' ');}text=String(text||'').toLowerCase();return text.includes('chunkloaderror')||text.includes('loading chunk')||text.includes('failed to fetch dynamically imported module');};var reloadOnce=function(){try{if(sessionStorage.getItem(KEY)==='1')return;sessionStorage.setItem(KEY,'1');}catch(_e){}window.location.reload();};window.addEventListener('error',function(event){var err=event&&event.error?event.error:null;var message=(event&&event.message)|| (err&&err.message) || err; if(shouldRecover(message)) reloadOnce();},{capture:true});window.addEventListener('unhandledrejection',function(event){var reason=event&&'reason' in event?event.reason:null; if(shouldRecover(reason)){if(event&&event.preventDefault)event.preventDefault();reloadOnce();}},{capture:true});}catch(_e){}})();`,
           }}
         />
-        {/* PWA manifest */}
-        <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

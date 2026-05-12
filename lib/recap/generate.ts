@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
+import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { computeReadinessScore } from '@/lib/readiness/score';
 
 export function getWeekBounds(date: Date): { start: Date; end: Date } {
@@ -23,14 +24,85 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
     return e;
   })();
 
-  const [goals, jobApps, aiResults, resourceProgress, pathwayProgress, certs] = await Promise.all([
-    prisma.goal.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-    prisma.jobApplication.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-    prisma.aIToolResult.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-    prisma.resourceProgress.findMany({ where: { userId } }),
-    prisma.pathwayStepProgress.findMany({ where: { userId } }),
-    prisma.userCertification.findMany({ where: { userId } }),
-  ]);
+  const now = new Date();
+
+  const userCtx = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      organizationId: true,
+      enrolledProgram: true,
+      courseEnrollments: { select: { programSlug: true } },
+    },
+  });
+
+  if (!userCtx) {
+    console.error('[generateWeeklyRecap] user not found', userId);
+    return null;
+  }
+
+  const programSlugs = [
+    ...new Set(
+      [
+        ...userCtx.courseEnrollments.map((e) => e.programSlug),
+        userCtx.enrolledProgram,
+      ].filter((s): s is string => !!s?.trim()),
+    ),
+  ];
+  const programOr: { suggestedPrograms: { equals: string[] } | { hasSome: string[] } }[] = [
+    { suggestedPrograms: { equals: [] } },
+  ];
+  if (programSlugs.length > 0) {
+    programOr.push({ suggestedPrograms: { hasSome: programSlugs } });
+  }
+
+  const [goals, jobApps, aiResults, resourceProgress, pathwayProgress, certs, upcomingSessions, newJobsRaw] =
+    await Promise.all([
+      prisma.goal.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.jobApplication.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.aIToolResult.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.resourceProgress.findMany({ where: { userId } }),
+      prisma.pathwayStepProgress.findMany({ where: { userId } }),
+      prisma.userCertification.findMany({ where: { userId } }),
+      prisma.mentorSession.findMany({
+        where: {
+          memberId: userId,
+          scheduledAt: { gte: now },
+          status: { in: ['PENDING', 'CONFIRMED'] },
+        },
+        orderBy: { scheduledAt: 'asc' },
+        take: 5,
+        select: { scheduledAt: true, topic: true },
+      }),
+      prisma.job.findMany({
+        where: {
+          status: 'live',
+          organizationId: userCtx.organizationId,
+          createdAt: { gte: weekStart, lte: end },
+          OR: programOr,
+        },
+        select: {
+          title: true,
+          employer: { select: { companyName: true } },
+        },
+      }),
+    ]);
+
+  const newLiveJobsThisWeek = newJobsRaw.filter(
+    (j) =>
+      !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+  ).length;
+
+  const upcomingCounselorSessions = upcomingSessions.map((s) => ({
+    at: s.scheduledAt.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    }),
+    topic: s.topic,
+  }));
 
   // Use direct counts from source tables (reliable; works even without event tracking)
   const applicationsAdded = jobApps.filter(
@@ -55,7 +127,15 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
   }
 
   const recapData = {
-    weekInReview: { applicationsAdded, resourcesCompleted, aiToolsUsed, pathwayStepsCompleted },
+    weekInReview: {
+      applicationsAdded,
+      resourcesCompleted,
+      aiToolsUsed,
+      pathwayStepsCompleted,
+      newLiveJobsThisWeek,
+    },
+    upcomingCounselorSessions,
+    readinessScoreSnapshot: score,
     goalsSnapshot: goals.slice(0, 3).map((g) => ({
       id: g.id,
       title: g.title,

@@ -1,6 +1,6 @@
 # Notification Audit
 
-**Last reviewed:** 2026-05-07
+**Last reviewed:** 2026-05-12
 
 This file tracks notification gaps. The priority labels reflect impact: HIGH means a stakeholder reaches for the platform and finds silence in a moment that erodes trust.
 
@@ -21,6 +21,8 @@ This file tracks notification gaps. The priority labels reflect impact: HIGH mea
 | **Pre-screening interview ready (admin alert)** | Member completes pre-screening | `info@workforceap.org` | `sendPreScreeningReadyEmail` (called from pre-screening completion) |
 | **Partner weekly digest** | Cron | Partner contact | `sendPartnerWeeklyDigest` |
 | **Partner milestone events** (enrollment, course, certification, placement) | Per-event triggers | Partner contact (per opt-in) | `lib/notifications/partner-notify.ts` (fire-and-forget) |
+| **Member weekly recap email** | Cron (Vercel) Sun 18:00 UTC | Enrolled members without a recap row for current week | `app/api/cron/weekly-recap/route.ts`, `sendWeeklyRecapEmail`, `lib/recap/generate.ts` |
+| **Admin weekly recap email** | Cron (Vercel) Fri 22:00 UTC | Internal admin recipients (`sendAdminWeeklyRecapEmail`) | `app/api/cron/weekly-recap-email/route.ts` |
 
 ---
 
@@ -34,26 +36,11 @@ This file tracks notification gaps. The priority labels reflect impact: HIGH mea
 **Priority:** Low — partner already gets the milestone email; member sees the completion in the UI; counselor triage already surfaces a milestone-celebrate flag for outbound nudge. Acceptable to defer.
 **Helper:** `sendCourseCompletedEmail` exists in `lib/email.ts` (template: `emails/course-completed.ts`).
 
-### Weekly recap email to member
-
-**Trigger:** Cron — Monday morning, generates `WeeklyRecap` row and emails it.
-**Recipient:** Member email.
-**Priority:** Medium — increases engagement.
-**Helper:** `sendWeeklyRecapEmail` exists; cron not deployed.
-**Status:** Generation logic in `lib/recap/generate.ts`; no scheduled cron route yet.
-
 ### Deadline reminders
 
 **Trigger:** Cron — members with upcoming program/course deadlines.
 **Recipient:** Member email.
 **Priority:** Low — depends on whether deadlines are tracked. Currently they aren't, so no-op until they are.
-
-### Admin weekly summary report
-
-**Trigger:** Cron — Monday morning.
-**Recipient:** Admin email.
-**Priority:** Low — admin has `/admin/outcomes` for live numbers; weekly email is convenience, not critical.
-**Helper:** `sendAdminWeeklySummaryEmail` exists (template: `emails/admin-weekly-recap.ts`); cron not deployed.
 
 ### System errors / Sentry alerts
 

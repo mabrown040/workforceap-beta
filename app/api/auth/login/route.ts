@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
+import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
@@ -119,12 +119,7 @@ export async function POST(request: Request) {
     : null;
   const needsMfa = staffMfaEnabled && aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2';
   const isStaff = profile?.role === 'super_admin' || profile?.role === 'admin' || profile?.role === 'counselor';
-  const roleAwareRedirect =
-    profile?.role === 'super_admin'
-      ? '/admin'
-      : redirectTo === '/dashboard' && profile?.role === 'admin'
-        ? '/admin'
-        : redirectTo;
+  const roleAwareRedirect = resolveRoleAwarePostLoginRedirect(redirectTo, profile?.role);
 
   // If staff and no MFA enrolled yet, redirect to setup
   if (staffMfaEnabled && isStaff && !needsMfa) {

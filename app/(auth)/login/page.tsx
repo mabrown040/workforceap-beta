@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
+import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getUser } from '@/lib/auth/server';
+import { getProfileRole } from '@/lib/auth/roles';
 import LoginForm from './LoginForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,7 +26,8 @@ export default async function LoginPage({
   const normalizedRedirect = normalizePostLoginRedirect(rawRedirect, '/dashboard');
 
   if (user) {
-    redirect(normalizedRedirect);
+    const profileRole = await getProfileRole(user.id);
+    redirect(resolveRoleAwarePostLoginRedirect(normalizedRedirect, profileRole));
   }
 
   if (rawRedirect && rawRedirect !== normalizedRedirect) {

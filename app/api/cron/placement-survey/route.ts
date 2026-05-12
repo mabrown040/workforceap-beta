@@ -1,102 +1,109 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
+import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail } from '@/lib/email';
-import { logCronRun } from '@/lib/admin/logCronRun';
-import { withCronLogging } from '@/lib/cron/withCronLogging';
-import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
 /**
- * Daily cron: emails post-placement survey link to members placed ~30 days ago
- * who have not received a survey yet.
+ * POST /api/cron/placement-survey
  *
- * Deploy: `placement-survey` in vercel.json. Vercel invokes GET.
+ * Daily cron: for each PlacementRecord placed ~30 days ago that has no
+ * PlacementSurvey, create the survey row, mint a signed link, and email
+ * the member. Idempotent: re-runs skip placements that already have a
+ * survey row (PlacementSurvey.userId is @unique).
  */
-async function handle(_request: Request) {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+export async function POST(req: Request) {
+  const unauthorized = authorizeCronRequest(req);
+  if (unauthorized) return unauthorized;
 
-  const windowStart = new Date(thirtyDaysAgo.getTime() - 24 * 60 * 60 * 1000);
-  const windowEnd = new Date(thirtyDaysAgo.getTime() + 24 * 60 * 60 * 1000);
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const surveyUrl = `${SITE_URL}/dashboard/survey`;
-
-  const users = await prisma.user.findMany({
-    where: {
-      placementRecord: {
+    const recentPlacements = await prisma.placementRecord.findMany({
+      where: {
         placedAt: {
-          gte: windowStart,
-          lte: windowEnd,
+          gte: new Date(thirtyDaysAgo.getTime() - 24 * 60 * 60 * 1000),
+          lte: new Date(thirtyDaysAgo.getTime() + 24 * 60 * 60 * 1000),
         },
+        user: { placementSurvey: { is: null } },
       },
-      placementSurvey: null,
-    },
-    select: {
-      id: true,
-      email: true,
-      fullName: true,
-      enrolledProgram: true,
-      placementRecord: {
-        select: {
-          id: true,
-          placedAt: true,
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            enrolledProgram: true,
+          },
         },
-      },
-    },
-  });
-
-  const sent: Array<{ userId: string; email: string }> = [];
-  const skipped: Array<{ userId: string; reason: string }> = [];
-
-  for (const user of users) {
-    if (!user.email) {
-      skipped.push({ userId: user.id, reason: 'No email' });
-      continue;
-    }
-    if (!user.placementRecord) {
-      skipped.push({ userId: user.id, reason: 'No placement record' });
-      continue;
-    }
-
-    const slug = user.enrolledProgram ?? undefined;
-    const program = slug ? getProgramBySlug(slug) : undefined;
-    const programName = program ? getProgramDisplayTitle(program) : slug ? slug : '';
-
-    const mail = await sendPlacementSurveyEmail({
-      to: user.email,
-      fullName: user.fullName ?? user.email,
-      programName,
-      surveyUrl,
-    });
-
-    if (!mail.ok) {
-      skipped.push({ userId: user.id, reason: mail.error ?? 'Email send failed' });
-      continue;
-    }
-
-    await prisma.placementSurvey.create({
-      data: {
-        userId: user.id,
-        placementId: user.placementRecord.id,
-        sentAt: new Date(),
       },
     });
 
-    sent.push({ userId: user.id, email: user.email });
+    const sent: Array<{ userId: string; email: string }> = [];
+    const skipped: Array<{ userId: string; reason: string }> = [];
+    const emailFailures: Array<{ userId: string; error: string }> = [];
+
+    for (const placement of recentPlacements) {
+      const user = placement.user;
+      if (!user?.email) {
+        skipped.push({ userId: placement.userId, reason: 'No email on user' });
+        continue;
+      }
+
+      // PlacementSurvey.userId is @unique; if a row exists for this user
+      // we silently skip rather than crash the whole batch.
+      const existing = await prisma.placementSurvey.findUnique({
+        where: { userId: placement.userId },
+        select: { id: true },
+      });
+      if (existing) {
+        skipped.push({ userId: placement.userId, reason: 'Survey already exists' });
+        continue;
+      }
+
+      const survey = await prisma.placementSurvey.create({
+        data: {
+          userId: placement.userId,
+          placementId: placement.id,
+          sentAt: new Date(),
+        },
+        select: { id: true },
+      });
+
+      const token = await issuePlacementSurveyToken({ surveyId: survey.id });
+      const surveyUrl = `${SITE_URL}/placement-survey?token=${encodeURIComponent(token)}`;
+
+      const result = await sendPlacementSurveyEmail({
+        to: user.email,
+        fullName: user.fullName ?? '',
+        programName: user.enrolledProgram,
+        surveyUrl,
+      });
+
+      if (result.ok) {
+        sent.push({ userId: placement.userId, email: user.email });
+      } else {
+        emailFailures.push({ userId: placement.userId, error: result.error ?? 'Unknown send error' });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      sent: sent.length,
+      skipped: skipped.length,
+      emailFailures: emailFailures.length,
+      sentList: sent,
+      skippedList: skipped,
+      emailFailureList: emailFailures,
+    });
+  } catch (error) {
+    console.error('[placement-survey-cron] Failed:', error);
+    return NextResponse.json(
+      { error: 'Failed to send surveys', details: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    );
   }
-
-  const runResult = {
-    ok: true,
-    sent: sent.length,
-    skipped: skipped.length,
-    sentList: sent,
-    skippedList: skipped,
-    checkedAt: new Date().toISOString(),
-  };
-  await logCronRun('cron_placement_survey', runResult);
-  return NextResponse.json(runResult);
 }
-
-export const GET = withCronLogging('cron_placement_survey', handle);
-export const POST = withCronLogging('cron_placement_survey', handle);

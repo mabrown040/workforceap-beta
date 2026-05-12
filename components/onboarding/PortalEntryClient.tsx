@@ -1,19 +1,34 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState, type ComponentProps } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTour } from './TourContext';
-import MemberOnboardingWizard from '@/components/onboarding/MemberOnboardingWizard';
-import EmployerOnboardingWizard from '@/components/onboarding/EmployerOnboardingWizard';
-import PartnerOnboardingWizard from '@/components/onboarding/PartnerOnboardingWizard';
 import OnboardingDevReset from '@/components/onboarding/OnboardingDevReset';
 import type { TourStep } from './PortalTour';
 
+const MemberOnboardingWizard = dynamic(
+  () => import('@/components/onboarding/MemberOnboardingWizard'),
+);
+const EmployerOnboardingWizard = dynamic(
+  () => import('@/components/onboarding/EmployerOnboardingWizard'),
+);
+const PartnerOnboardingWizard = dynamic(
+  () => import('@/components/onboarding/PartnerOnboardingWizard'),
+);
+
 type Portal = 'member' | 'employer' | 'partner';
 
-type MemberWizardProps = ComponentProps<typeof MemberOnboardingWizard>;
-type EmployerWizardProps = ComponentProps<typeof EmployerOnboardingWizard>;
-type PartnerWizardProps = ComponentProps<typeof PartnerOnboardingWizard>;
+/** Props of the wizard components themselves (avoid `dynamic()` wrapper typing) */
+type MemberWizardProps = ComponentProps<
+  (typeof import('@/components/onboarding/MemberOnboardingWizard'))['default']
+>;
+type EmployerWizardProps = ComponentProps<
+  (typeof import('@/components/onboarding/EmployerOnboardingWizard'))['default']
+>;
+type PartnerWizardProps = ComponentProps<
+  (typeof import('@/components/onboarding/PartnerOnboardingWizard'))['default']
+>;
 
 type PortalEntryClientProps =
   | {

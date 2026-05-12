@@ -26,7 +26,7 @@ export default async function AccessibilityPage() {
   const t = await getTranslations('marketing.accessibility');
 
   return (
-    <div className="inner-page marketing-mobile-pb-for-bottom-nav">
+    <div className="inner-page">
       <section className="content-section">
         <div style={sectionStyle}>
           <SectionHeader

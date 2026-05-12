@@ -1,9 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { isMarketingChromeHidden } from '@/lib/nav/marketing-chrome';
-import MainNav from './MainNav';
+
+/** Code-split MainNav (~ThemeToggle/LanguageToggle/chrome) away from `/dashboard`/portal routes that never render it */
+const MainNav = dynamic(() => import('./MainNav'), {
+  loading: () => <div className="main-nav-layout-spacer" aria-hidden="true" />,
+});
 
 /**
  * Renders MainNav only on public marketing routes.

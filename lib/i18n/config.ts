@@ -58,7 +58,13 @@ export function isLocaleBypassPath(pathname: string): boolean {
   if (pathname.startsWith('/api')) return true;
   if (pathname.startsWith('/_next')) return true;
   if (pathname.startsWith('/ingest')) return true;
-  if (pathname === '/manifest.json' || pathname === '/sw.js' || pathname === '/robots.txt') return true;
+  if (
+    pathname === '/manifest.json' ||
+    pathname === '/manifest-counselor.json' ||
+    pathname === '/sw.js' ||
+    pathname === '/robots.txt'
+  )
+    return true;
   if (pathname.startsWith('/images/')) return true;
   return false;
 }

@@ -16,6 +16,10 @@ import {
 } from '@/lib/i18n/config';
 import { customDomainCache, NO_ORG_SENTINEL } from '@/lib/tenant/customDomainCache';
 import { isCanonicalHost, normalizeHost } from '@/lib/tenant/hostMatch';
+import {
+  WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER,
+  shouldReserveMobileBottomNavClearance,
+} from '@/lib/nav/mobileBottomNavLayout';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
 const WAP_ORG_ID_HEADER = 'x-wap-org-id';
@@ -83,6 +87,10 @@ export async function middleware(request: NextRequest) {
 
   const inferredLocale = resolvePreferredLocale(request);
   requestHeaders.set(WAP_LOCALE_HEADER, prefixLocale ?? inferredLocale);
+
+  if (shouldReserveMobileBottomNavClearance(effectivePath)) {
+    requestHeaders.set(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER, '1');
+  }
 
   // Custom-domain → organization resolution (Track E.1).
   // We CANNOT call Prisma from Edge runtime, so middleware only consults

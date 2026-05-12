@@ -48,7 +48,7 @@ export default async function ContactPage({
   const t = await getTranslations('marketing.contact');
 
   return (
-    <div className="inner-page contact-page marketing-mobile-pb-for-bottom-nav">
+    <div className="inner-page contact-page">
       <section className="content-section" style={{ paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 1400 }}>
           <SectionHeader

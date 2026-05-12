@@ -18,7 +18,6 @@ import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/portal.css';
 import '@/css/language-toggle.css';
-import '@/app/globals-onboarding.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 

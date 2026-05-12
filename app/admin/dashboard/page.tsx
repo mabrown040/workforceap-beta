@@ -125,10 +125,32 @@ export default function ExecutiveDashboardPage() {
           <span style={{ margin: '0 0.35rem' }}>/</span>
           <span style={{ fontWeight: 600 }}>Executive Dashboard</span>
         </nav>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Executive Dashboard</h1>
-        <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', fontSize: '0.9rem' }}>
-          Real-time metrics across all 7 CEO funnels and placement KPIs
-        </p>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Executive Dashboard</h1>
+            <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', fontSize: '0.9rem' }}>
+              Real-time metrics across all 7 CEO funnels and placement KPIs
+            </p>
+          </div>
+          <a
+            href="/api/admin/funder-program-summary"
+            className="btn btn-outline"
+            style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+              download
+            </span>
+            Export funder CSV
+          </a>
+        </div>
       </div>
 
       {/* MFA Status Banner for staff */}

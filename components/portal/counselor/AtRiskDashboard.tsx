@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback, type ReactNode } from 'react
 import Link from 'next/link';
 import {
   AlertTriangle,
+  BookOpen,
   Check,
   Filter,
   Loader2,
@@ -91,6 +92,20 @@ const STATUS_CONFIG: Record<AtRiskMember['status'], { label: string; variant: Ba
   resolved: { label: 'Resolved', variant: 'success' },
 };
 
+/** Hover tooltips for severity chips (matches THRESHOLDS in lib/member/atRiskScoring.ts). */
+const SEVERITY_TOOLTIP: Record<AtRiskMember['riskLevel'], string> = {
+  CRITICAL: 'Score ≥70. Highest urgency—call or message within 24–48 hours.',
+  HIGH: 'Score 50–69. Strong risk signals—contact this week.',
+  MEDIUM: 'Score 30–49. Watch and nudge if the score climbs.',
+  LOW: 'Score under 30. Normal support cadence unless it worsens.',
+};
+
+const STATUS_TOOLTIP: Record<AtRiskMember['status'], string> = {
+  open: 'Not yet acknowledged in the dashboard—triage these first in your weekly pass.',
+  acknowledged: 'You or your team started outreach or took ownership; still working the case.',
+  resolved: 'Risk mitigated, member exited, or situation documented—use when the case is truly closed.',
+};
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function formatDate(d: string | null): string {
@@ -102,7 +117,7 @@ function formatDate(d: string | null): string {
 function RiskBadge({ level }: { level: AtRiskMember['riskLevel'] }) {
   const cfg = RISK_CONFIG[level];
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }} title={SEVERITY_TOOLTIP[level]}>
       <cfg.icon size={14} style={{ color: cfg.color }} aria-hidden />
       <StatusBadge label={cfg.label} variant={cfg.variant} />
     </span>
@@ -114,6 +129,7 @@ function ScoreBadge({ score }: { score: number }) {
   const color = RISK_CONFIG[level].color;
   return (
     <span
+      title={`Risk score ${score}. ${SEVERITY_TOOLTIP[level]}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -359,6 +375,43 @@ export default function AtRiskDashboard() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div
+        className="content-card"
+        style={{
+          padding: '0.75rem 1rem',
+          fontSize: '0.82rem',
+          color: 'var(--color-on-surface-variant)',
+          lineHeight: 1.55,
+          borderLeft: '4px solid var(--color-blue)',
+        }}
+        title="Nightly job scores login gaps, training progress, counselor messages, and more. Use this list once a week minimum—start with open Critical and High."
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <span>
+            <strong style={{ color: 'var(--color-on-surface)' }}>How to use this screen:</strong>{' '}
+            Turn on <strong>Only unacknowledged</strong>, sort <strong>Severity ↑</strong>, then{' '}
+            <strong>Message</strong> or call top rows. Click <strong>Ack</strong> after you reach out; click{' '}
+            <strong>Resolve</strong> only when disengagement is fixed or the case is closed. Hover severity, status, and
+            column headers for detail.
+          </span>
+          <span
+            style={{
+              fontSize: '0.75rem',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              color: 'var(--color-on-surface-variant)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+            }}
+            title="See docs/COUNSELOR-RUNBOOK.md in the repo for the full weekly checklist, call script, and CSV guide."
+          >
+            <BookOpen size={13} />
+            Runbook
+          </span>
+        </div>
+      </div>
+
       {/* Summary bar */}
       <div
         className="content-card"
@@ -371,7 +424,10 @@ export default function AtRiskDashboard() {
           justifyContent: 'space-between',
         }}
       >
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+        <div
+          style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}
+          title="Click a severity to filter the table. Counts include every row returned by the server for your filters below."
+        >
           {RISK_LEVEL_ORDER.map((level) => (
             <SeverityChip
               key={level}
@@ -382,7 +438,10 @@ export default function AtRiskDashboard() {
             />
           ))}
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+        <div
+          style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}
+          title="Click a status to filter. Open = not yet acknowledged—your weekly triage queue."
+        >
           {(['open', 'acknowledged', 'resolved'] as const).map((s) => (
             <StatusChip
               key={s}
@@ -413,10 +472,18 @@ export default function AtRiskDashboard() {
           <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
             Sort
           </span>
-          <SortModeButton active={sortMode === 'risk'} onClick={() => setSortMode('risk')}>
+          <SortModeButton
+            active={sortMode === 'risk'}
+            onClick={() => setSortMode('risk')}
+            title="Highest severity first (Critical → Low), then score, then oldest activity."
+          >
             Severity ↑
           </SortModeButton>
-          <SortModeButton active={sortMode === 'last_activity'} onClick={() => setSortMode('last_activity')}>
+          <SortModeButton
+            active={sortMode === 'last_activity'}
+            onClick={() => setSortMode('last_activity')}
+            title="Members with the oldest activity signal first—use mid-week to catch quiet accounts."
+          >
             Oldest activity first
           </SortModeButton>
         </div>
@@ -430,12 +497,14 @@ export default function AtRiskDashboard() {
             cursor: 'pointer',
             userSelect: 'none',
           }}
+          title="Limits the table to alerts still in Open status—fastest way to see who still needs a first touch."
         >
           <input
             type="checkbox"
             checked={unacknowledgedOnly}
             onChange={(e) => setUnacknowledgedOnly(e.target.checked)}
             style={{ cursor: 'pointer', width: '1rem', height: '1rem' }}
+            title="Show only Open (unacknowledged) alerts"
           />
           Only unacknowledged (open alerts)
         </label>
@@ -506,7 +575,11 @@ export default function AtRiskDashboard() {
               type="button"
               className="btn btn-primary btn-sm"
               disabled={bulkActionLoading || openSelectedCount === 0}
-              title={openSelectedCount === 0 ? 'Select rows that are still open' : undefined}
+              title={
+                openSelectedCount === 0
+                  ? 'Select rows that are still Open'
+                  : 'Marks selected Open alerts as Acknowledged after you have actually contacted those members'
+              }
               onClick={bulkAcknowledge}
             >
               {bulkActionLoading ? (
@@ -567,20 +640,32 @@ export default function AtRiskDashboard() {
             },
             {
               key: 'score',
-              header: 'Score',
+              header: (
+                <span title="0–100 composite from the nightly risk job (logins, training, counselor contact, resume, etc.).">
+                  Score
+                </span>
+              ),
               cell: (row) => <ScoreBadge score={row.score} />,
               width: 72,
               align: 'center',
             },
             {
               key: 'severity',
-              header: 'Severity',
+              header: (
+                <span title="Bands: Critical ≥70, High ≥50, Medium ≥30, Low &lt;30. Matches the colored chips above.">
+                  Severity
+                </span>
+              ),
               cell: (row) => <RiskBadge level={row.riskLevel} />,
               width: 120,
             },
             {
               key: 'member',
-              header: 'Member',
+              header: (
+                <span title="Click a member’s name to open their full profile and training history.">
+                  Member
+                </span>
+              ),
               cell: (row) => (
                 <div>
                   <Link
@@ -602,7 +687,11 @@ export default function AtRiskDashboard() {
             },
             {
               key: 'factors',
-              header: 'Risk Factors',
+              header: (
+                <span title="Each pill is a weighted signal from last night’s scan; several can apply at once.">
+                  Risk factors
+                </span>
+              ),
               cell: (row) => (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                   {row.factors.map((f) => (
@@ -616,7 +705,7 @@ export default function AtRiskDashboard() {
                         color: 'var(--color-on-surface-variant)',
                         fontWeight: 500,
                       }}
-                      title={f.description}
+                      title={`${f.description} (weight ${f.weight}).`}
                     >
                       {f.description}
                     </span>
@@ -630,7 +719,11 @@ export default function AtRiskDashboard() {
             },
             {
               key: 'program',
-              header: 'Program',
+              header: (
+                <span title="Member’s current enrolled catalog program (if any).">
+                  Program
+                </span>
+              ),
               cell: (row) => (
                 <span style={{ fontSize: '0.85rem' }}>
                   {row.enrolledProgram ?? 'Not enrolled'}
@@ -640,7 +733,11 @@ export default function AtRiskDashboard() {
             },
             {
               key: 'lastActivity',
-              header: 'Last activity',
+              header: (
+                <span title="Best-known activity time: portal events, Coursera sync, or join date—used to spot silent members.">
+                  Last activity
+                </span>
+              ),
               cell: (row) => (
                 <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
                   {formatDate(row.lastActivityAt ?? row.memberSince)}
@@ -651,13 +748,21 @@ export default function AtRiskDashboard() {
             },
             {
               key: 'status',
-              header: 'Status',
+              header: (
+                <span title="Open = needs triage. Acknowledged = outreach started. Resolved = case closed from a risk perspective.">
+                  Status
+                </span>
+              ),
               cell: (row) => <StatusBadge label={STATUS_CONFIG[row.status].label} variant={STATUS_CONFIG[row.status].variant} />,
               width: 120,
             },
             {
               key: 'actions',
-              header: 'Actions',
+              header: (
+                <span title="Ack: first touch logged. Resolve: situation stable. Message: open thread. View: full profile.">
+                  Actions
+                </span>
+              ),
               cell: (row) => {
                 const isActing = actingIds.has(row.alertId);
                 return (
@@ -669,6 +774,7 @@ export default function AtRiskDashboard() {
                         disabled={isActing}
                         onClick={() => updateStatus(row.alertId, 'acknowledged')}
                         style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                        title="Mark that you have started outreach or taken ownership"
                       >
                         {isActing ? <Loader2 size={12} className="wa-animate-spin" /> : 'Ack'}
                       </button>
@@ -680,6 +786,7 @@ export default function AtRiskDashboard() {
                         disabled={isActing}
                         onClick={() => updateStatus(row.alertId, 'resolved')}
                         style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                        title="Close this alert when risk is cleared, member is placed/exited, or outcome documented"
                       >
                         {isActing ? <Loader2 size={12} className="wa-animate-spin" /> : 'Resolve'}
                       </button>
@@ -688,6 +795,7 @@ export default function AtRiskDashboard() {
                       href={`/dashboard/messages?to=${encodeURIComponent(row.userId)}`}
                       className="btn btn-outline btn-sm"
                       style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                      title="Open internal message thread with this member"
                     >
                       <MessageSquare size={12} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
                       Message
@@ -696,6 +804,7 @@ export default function AtRiskDashboard() {
                       href={`/counselor/students/${row.userId}`}
                       className="btn btn-outline btn-sm"
                       style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                      title="Counselor student profile and history"
                     >
                       View
                     </Link>
@@ -767,16 +876,19 @@ export default function AtRiskDashboard() {
 function SortModeButton({
   active,
   onClick,
+  title: tooltip,
   children,
 }: {
   active: boolean;
   onClick: () => void;
+  title?: string;
   children: ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={tooltip}
       className={active ? 'btn btn-primary btn-sm' : 'btn btn-muted btn-sm'}
       style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
     >
@@ -801,6 +913,7 @@ function SeverityChip({
     <button
       type="button"
       onClick={onClick}
+      title={SEVERITY_TOOLTIP[level]}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -843,6 +956,7 @@ function StatusChip({
     <button
       type="button"
       onClick={onClick}
+      title={STATUS_TOOLTIP[status]}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -954,13 +1068,17 @@ function MobileAtRiskCard({
               color: 'var(--color-on-surface-variant)',
               fontWeight: 500,
             }}
+            title={`${f.description} (weight ${f.weight}).`}
           >
             {f.description}
           </span>
         ))}
       </div>
 
-      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+      <p
+        style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}
+        title="Latest portal activity signal: member events, Coursera sync, or account created date."
+      >
         Last activity:{' '}
         <strong style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
           {formatDate(row.lastActivityAt ?? row.memberSince)}
@@ -968,17 +1086,25 @@ function MobileAtRiskCard({
       </p>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
-        <StatusBadge label={STATUS_CONFIG[row.status].label} variant={STATUS_CONFIG[row.status].variant} />
+        <span title={STATUS_TOOLTIP[row.status]}>
+          <StatusBadge label={STATUS_CONFIG[row.status].label} variant={STATUS_CONFIG[row.status].variant} />
+        </span>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
           <Link
             href={`/dashboard/messages?to=${encodeURIComponent(row.userId)}`}
             className="btn btn-outline btn-sm"
             style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+            title="Open internal message thread with this member"
           >
             <MessageSquare size={12} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
             Message
           </Link>
-          <Link href={`/counselor/students/${row.userId}`} className="btn btn-outline btn-sm" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}>
+          <Link
+            href={`/counselor/students/${row.userId}`}
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+            title="Counselor student profile and history"
+          >
             View
           </Link>
           {row.status === 'open' && (
@@ -988,6 +1114,7 @@ function MobileAtRiskCard({
               disabled={acting}
               onClick={onAcknowledge}
               style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+              title="Mark that you have started outreach or taken ownership"
             >
               {acting ? <Loader2 size={12} className="wa-animate-spin" /> : 'Ack'}
             </button>
@@ -999,6 +1126,7 @@ function MobileAtRiskCard({
               disabled={acting}
               onClick={onResolve}
               style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+              title="Close this alert when risk is cleared, member is placed/exited, or outcome documented"
             >
               {acting ? <Loader2 size={12} className="wa-animate-spin" /> : 'Resolve'}
             </button>

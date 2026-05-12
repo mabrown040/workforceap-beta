@@ -1,93 +1,136 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { calculateAllAtRiskScores, persistAtRiskAlert } from '@/lib/member/atRiskScoring';
-import { THRESHOLDS } from '@/lib/member/atRiskScoring';
+import {
+  calculateAllAtRiskScores,
+  persistAtRiskAlert,
+  getRiskLevel,
+  THRESHOLDS,
+} from '@/lib/member/atRiskScoring';
+import {
+  sendAtRiskAlertDigestEmail,
+  getAtRiskDigestRecipients,
+} from '@/lib/email';
+import { logCronRun } from '@/lib/admin/logCronRun';
+import { withCronLogging } from '@/lib/cron/withCronLogging';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
 /**
- * Nightly at-risk check — run via cron at 6 AM.
- * Scores all active members, persists alerts, sends counselor digests.
+ * Nightly at-risk check — run via cron at 6 AM UTC.
+ * Scores active members, persists alerts, sends counselor/admin digest email.
+ * Vercel Cron uses GET — both GET and POST are supported.
  */
-export async function POST(req: Request) {
-  // Verify cron secret
-  const authHeader = req.headers.get('authorization');
-  const expectedSecret = process.env.CRON_SECRET;
-  if (expectedSecret && authHeader !== `Bearer ${expectedSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+async function handle(_request: Request) {
+  const startTime = Date.now();
+  const scores = await calculateAllAtRiskScores();
+
+  const criticalCount = scores.filter((s) => s.score >= THRESHOLDS.CRITICAL).length;
+  const highRiskBucket = scores.filter((s) => s.score >= THRESHOLDS.HIGH);
+  const highCount = highRiskBucket.filter((s) => s.score < THRESHOLDS.CRITICAL).length;
+  const mediumCount = scores.filter(
+    (s) => s.score >= THRESHOLDS.MEDIUM && s.score < THRESHOLDS.HIGH,
+  ).length;
+
+  for (const score of scores.filter((s) => s.score >= THRESHOLDS.MEDIUM)) {
+    await persistAtRiskAlert(score);
   }
 
-  try {
-    const startTime = Date.now();
-    const scores = await calculateAllAtRiskScores();
+  const activeAlertUserIds = new Set(
+    scores.filter((s) => s.score >= THRESHOLDS.MEDIUM).map((s) => s.userId),
+  );
 
-    // Persist alerts for high-risk members
-    const highRiskCount = scores.filter((s) => s.score >= THRESHOLDS.HIGH).length;
-    const criticalCount = scores.filter((s) => s.score >= THRESHOLDS.CRITICAL).length;
+  const staleAlerts = await prisma.atRiskAlert.findMany({
+    where: {
+      status: { in: ['open', 'acknowledged'] },
+      userId: { notIn: Array.from(activeAlertUserIds) },
+    },
+    select: { id: true },
+  });
 
-    for (const score of scores.filter((s) => s.score >= THRESHOLDS.MEDIUM)) {
-      await persistAtRiskAlert(score);
-    }
-
-    // Resolve alerts for members whose score dropped below medium
-    const activeAlertUserIds = new Set(
-      scores.filter((s) => s.score >= THRESHOLDS.MEDIUM).map((s) => s.userId)
-    );
-    
-    const staleAlerts = await prisma.atRiskAlert.findMany({
+  if (staleAlerts.length > 0) {
+    await prisma.atRiskAlert.updateMany({
       where: {
-        status: { in: ['open', 'acknowledged'] },
-        userId: { notIn: Array.from(activeAlertUserIds) },
+        id: { in: staleAlerts.map((a) => a.id) },
       },
-      select: { id: true },
+      data: {
+        status: 'resolved',
+        resolvedAt: new Date(),
+      },
     });
-
-    if (staleAlerts.length > 0) {
-      await prisma.atRiskAlert.updateMany({
-        where: {
-          id: { in: staleAlerts.map((a) => a.id) },
-        },
-        data: {
-          status: 'resolved',
-          resolvedAt: new Date(),
-        },
-      });
-    }
-
-    // Build counselor digest
-    const criticalMembers = scores.filter((s) => s.score >= THRESHOLDS.CRITICAL).slice(0, 10);
-    const highMembers = scores
-      .filter((s) => s.score >= THRESHOLDS.HIGH && s.score < THRESHOLDS.CRITICAL)
-      .slice(0, 20);
-
-    // TODO: Send notification to counselors via existing notification system
-    // For now, log and store for admin dashboard
-    console.log(`[at-risk-check] Scored ${scores.length} members. Critical: ${criticalCount}, High: ${highRiskCount - criticalCount}`);
-
-    const durationMs = Date.now() - startTime;
-    return NextResponse.json({
-      success: true,
-      scored: scores.length,
-      critical: criticalCount,
-      high: highRiskCount - criticalCount,
-      medium: scores.filter((s) => s.score >= THRESHOLDS.MEDIUM && s.score < THRESHOLDS.HIGH).length,
-      alertsCreated: scores.filter((s) => s.score >= THRESHOLDS.MEDIUM).length,
-      alertsResolved: staleAlerts.length,
-      durationMs,
-      criticalMembers: criticalMembers.map((s) => ({
-        userId: s.userId,
-        score: s.score,
-        recommendedAction: s.recommendedAction,
-      })),
-      highMembers: highMembers.map((s) => ({
-        userId: s.userId,
-        score: s.score,
-        recommendedAction: s.recommendedAction,
-      })),
-    });
-  } catch (error) {
-    console.error('[at-risk-check] Cron failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to run at-risk check', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    );
   }
+
+  const digestScores = scores.filter((s) => s.score >= THRESHOLDS.MEDIUM).slice(0, 50);
+  const userRows =
+    digestScores.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: digestScores.map((s) => s.userId) } },
+          select: { id: true, email: true, fullName: true },
+        })
+      : [];
+  const userById = new Map(userRows.map((u) => [u.id, u]));
+
+  const digestMembers = digestScores.map((s) => {
+    const u = userById.get(s.userId);
+    return {
+      fullName: u?.fullName ?? null,
+      email: u?.email?.trim() ? u.email : '(no email on file)',
+      score: s.score,
+      level: getRiskLevel(s.score),
+      factors: s.factors.map((f) => f.description),
+      recommendedAction: s.recommendedAction,
+      adminUrl: `${SITE_URL}/admin/members/${s.userId}`,
+    };
+  });
+
+  const recipients = getAtRiskDigestRecipients();
+  const dateLabel = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+
+  let digestEmailSent = false;
+  let digestEmailError: string | undefined;
+
+  if (recipients.length > 0) {
+    const digest = await sendAtRiskAlertDigestEmail({
+      to: recipients,
+      dateLabel,
+      criticalCount,
+      highCount,
+      mediumCount,
+      members: digestMembers,
+    });
+    digestEmailSent = digest.ok;
+    digestEmailError = digest.error;
+  } else {
+    digestEmailError = 'No recipients';
+  }
+
+  const durationMs = Date.now() - startTime;
+  const runResult = {
+    success: true,
+    scored: scores.length,
+    critical: criticalCount,
+    high: highCount,
+    medium: mediumCount,
+    alertsCreated: scores.filter((s) => s.score >= THRESHOLDS.MEDIUM).length,
+    alertsResolved: staleAlerts.length,
+    durationMs,
+    digestEmailSent,
+    digestEmailError,
+    digestRecipientCount: recipients.length,
+    digestListedMembers: digestMembers.length,
+  };
+  await logCronRun(
+    'cron_at_risk_check',
+    runResult,
+    digestEmailSent || recipients.length === 0 ? 'ok' : 'error',
+  );
+  return NextResponse.json(runResult);
 }
+
+export const GET = withCronLogging('cron_at_risk_check', handle);
+export const POST = withCronLogging('cron_at_risk_check', handle);

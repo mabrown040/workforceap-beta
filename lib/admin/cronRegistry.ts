@@ -207,6 +207,20 @@ export const CRON_REGISTRY: CronDef[] = [
     workflowKey: 'cron_coursera_b4b_sync',
   },
   {
+    id: 'coursera-auto-heal',
+    name: 'Coursera xAPI auto-heal',
+    description:
+      'Hourly unmatched xAPI reconciliation and canonical course mapping refresh; replays ignored events when mappings exist.',
+    schedule: '15 * * * *',
+    scheduleLabel: 'Hourly at :15 UTC',
+    apiPath: '/api/cron/coursera-auto-heal',
+    method: 'GET',
+    icon: 'healing',
+    category: 'admin',
+    audienceDescription: 'Internal data repair (no outbound member email)',
+    workflowKey: 'cron_coursera_auto_heal',
+  },
+  {
     id: 'stale-training-check',
     name: 'Stale Coursera progress flag',
     description:
@@ -221,14 +235,28 @@ export const CRON_REGISTRY: CronDef[] = [
     workflowKey: 'cron_stale_training_check',
   },
   {
+    id: 'placement-survey',
+    name: 'Post-Placement Survey',
+    description:
+      'Emails members with a placement from ~30 days ago who do not yet have a survey record, then creates PlacementSurvey.sentAt.',
+    schedule: '0 12 * * *',
+    scheduleLabel: 'Daily 12:00 UTC',
+    apiPath: '/api/cron/placement-survey',
+    method: 'GET',
+    icon: 'rate_review',
+    category: 'member',
+    audienceDescription: 'Recently placed members (30-day window) with pending survey',
+    workflowKey: 'cron_placement_survey',
+  },
+  {
     id: 'at-risk-check',
     name: 'At-Risk Member Check',
     description:
-      'Nightly at-risk scoring for all active members. Calculates risk scores from engagement signals, training progress, and counselor contact recency. Persists alerts and flags members needing outreach.',
+      'Nightly at-risk scoring for all active members. Calculates risk scores from engagement signals, training progress, and counselor contact recency. Persists alerts, resolves stale alerts, and emails AT_RISK_DIGEST_EMAILS an at-risk digest (fallback: admin inbox).',
     schedule: '0 6 * * *',
     scheduleLabel: 'Daily 6AM UTC',
     apiPath: '/api/cron/at-risk-check',
-    method: 'POST',
+    method: 'GET',
     icon: 'crisis_alert',
     category: 'admin',
     audienceDescription: 'Internal counselor dashboard + admin alerts',

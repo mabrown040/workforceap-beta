@@ -30,6 +30,8 @@ import {
   partnerWeeklyDigestHtml,
   counselorAssignedHtml,
   partnerReferralInviteHtml,
+  atRiskDigestHtml,
+  placementSurveyHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -430,6 +432,55 @@ export async function sendEnrollmentConfirmationEmail(params: {
   }
 }
 
+/** Comma-separated `AT_RISK_DIGEST_EMAILS` or fallback to admin inbox */
+export function getAtRiskDigestRecipients(): string[] {
+  const parsed = (process.env.AT_RISK_DIGEST_EMAILS ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (parsed.length > 0) {
+    return Array.from(new Set(parsed));
+  }
+  return [ADMIN_EMAIL];
+}
+
+/** Post-placement survey request (cron ~30 days after placement). */
+export async function sendPlacementSurveyEmail(params: {
+  to: string;
+  fullName: string;
+  programName: string;
+  surveyUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPlacementSurveyEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const subject = sanitizeEmailSubjectLine('How is your placement going? Quick survey');
+  const html = brandedEmailLayout({
+    title: 'Share your placement feedback',
+    bodyHtml: placementSurveyHtml({
+      firstName: first,
+      programName: params.programName.trim(),
+    }),
+    ctaText: 'Take the survey',
+    ctaUrl: params.surveyUrl,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject,
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPlacementSurveyEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /** Send at-risk member daily digest to admin/counselor emails */
 export async function sendAtRiskAlertDigestEmail(params: {
   to: string[];
@@ -456,7 +507,7 @@ export async function sendAtRiskAlertDigestEmail(params: {
     title: `At-Risk Member Digest — ${params.dateLabel}`,
     bodyHtml: atRiskDigestHtml(params),
     ctaText: 'View At-Risk Dashboard',
-    ctaUrl: `${SITE_URL}/admin/members/at-risk`,
+    ctaUrl: `${SITE_URL}/counselor/at-risk`,
   });
   try {
     await resend.emails.send({

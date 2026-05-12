@@ -176,6 +176,6 @@ export function buildFunderProgramSummaryCsv(summaryRows: FunderProgramSummaryRo
   return buildCsv([...CSV_HEADERS], dataRows, {
     reportTitle: 'Program outcomes summary (funder / grant)',
     notes:
-      'Member-only cohort. Active = any member_events in trailing 30 days. At-risk = open or acknowledged alerts with score ≥50. Completed = full curriculum progress for catalog-backed programs.',
+      'Member-only cohort. Active = any member_events in trailing 30 days. At-risk = open or acknowledged alerts with score >=50 (HIGH threshold). Completed = full curriculum progress for catalog-backed programs.',
   });
 }

@@ -13,3 +13,4 @@ tmp/
 .gstack/
 .env*.local
 .claude/
+.venv-fonttools/

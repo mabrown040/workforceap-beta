@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import { ClipboardCheck, Star, Users, MessageSquare, TrendingUp, Clock } from 'lucide-react';
@@ -17,12 +18,59 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function loadSurveyStats() {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/api/admin/placement-surveys?limit=100`,
-      { cache: 'no-store' }
-    );
-    if (!res.ok) return null;
-    return res.json();
+    const [
+      surveys,
+      total,
+      completedCount,
+      pendingCount,
+      testimonialCount,
+      avgJobSatisfactionAgg,
+      avgTrainingRelevanceAgg,
+    ] = await Promise.all([
+      prisma.placementSurvey.findMany({
+        orderBy: { sentAt: 'desc' },
+        take: 100,
+        include: {
+          user: {
+            select: {
+              fullName: true,
+              email: true,
+              enrolledProgram: true,
+            },
+          },
+        },
+      }),
+      prisma.placementSurvey.count(),
+      prisma.placementSurvey.count({ where: { completedAt: { not: null } } }),
+      prisma.placementSurvey.count({ where: { completedAt: null } }),
+      prisma.placementSurvey.count({
+        where: { completedAt: { not: null }, allowTestimonial: true },
+      }),
+      prisma.placementSurvey.aggregate({
+        where: { completedAt: { not: null } },
+        _avg: { jobSatisfaction: true },
+      }),
+      prisma.placementSurvey.aggregate({
+        where: { completedAt: { not: null } },
+        _avg: { trainingRelevance: true },
+      }),
+    ]);
+
+    return {
+      total,
+      surveys,
+      stats: {
+        completed: completedCount,
+        pending: pendingCount,
+        avgJobSatisfaction: avgJobSatisfactionAgg._avg.jobSatisfaction
+          ? Math.round(avgJobSatisfactionAgg._avg.jobSatisfaction * 10) / 10
+          : null,
+        avgTrainingRelevance: avgTrainingRelevanceAgg._avg.trainingRelevance
+          ? Math.round(avgTrainingRelevanceAgg._avg.trainingRelevance * 10) / 10
+          : null,
+        testimonialCount,
+      },
+    };
   } catch {
     return null;
   }

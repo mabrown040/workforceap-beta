@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { JobApplication, JobApplicationStatus } from "@prisma/client";
+import type { JobApplication, JobApplicationStatus } from "@/types/job-application";
 
 interface JobApplicationCardProps {
   application: JobApplication;

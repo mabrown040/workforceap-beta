@@ -43,19 +43,33 @@ export async function GET(req: Request) {
       prisma.placementSurvey.count({ where }),
     ]);
 
-    // Aggregate stats for completed surveys
-    const completedSurveys = surveys.filter((s) => s.completedAt);
-    const avgJobSatisfaction = completedSurveys.length > 0
-      ? completedSurveys.reduce((sum, s) => sum + (s.jobSatisfaction ?? 0), 0) / completedSurveys.length
-      : null;
-    const avgTrainingRelevance = completedSurveys.length > 0
-      ? completedSurveys.reduce((sum, s) => sum + (s.trainingRelevance ?? 0), 0) / completedSurveys.length
-      : null;
-    const avgSupportQuality = completedSurveys.length > 0
-      ? completedSurveys.reduce((sum, s) => sum + (s.supportQuality ?? 0), 0) / completedSurveys.length
-      : null;
-
-    const testimonials = completedSurveys.filter((s) => s.allowTestimonial);
+    // Global stats — not page-local
+    const [
+      globalCompleted,
+      globalPending,
+      globalTestimonialCount,
+      avgJobSatisfactionAgg,
+      avgTrainingRelevanceAgg,
+      avgSupportQualityAgg,
+    ] = await Promise.all([
+      prisma.placementSurvey.count({ where: { completedAt: { not: null } } }),
+      prisma.placementSurvey.count({ where: { completedAt: null } }),
+      prisma.placementSurvey.count({
+        where: { completedAt: { not: null }, allowTestimonial: true },
+      }),
+      prisma.placementSurvey.aggregate({
+        where: { completedAt: { not: null } },
+        _avg: { jobSatisfaction: true },
+      }),
+      prisma.placementSurvey.aggregate({
+        where: { completedAt: { not: null } },
+        _avg: { trainingRelevance: true },
+      }),
+      prisma.placementSurvey.aggregate({
+        where: { completedAt: { not: null } },
+        _avg: { supportQuality: true },
+      }),
+    ]);
 
     return NextResponse.json({
       surveys,
@@ -63,19 +77,22 @@ export async function GET(req: Request) {
       offset,
       limit,
       stats: {
-        completed: completedSurveys.length,
-        pending: surveys.filter((s) => !s.completedAt).length,
-        avgJobSatisfaction: avgJobSatisfaction ? Math.round(avgJobSatisfaction * 10) / 10 : null,
-        avgTrainingRelevance: avgTrainingRelevance ? Math.round(avgTrainingRelevance * 10) / 10 : null,
-        avgSupportQuality: avgSupportQuality ? Math.round(avgSupportQuality * 10) / 10 : null,
-        testimonialCount: testimonials.length,
+        completed: globalCompleted,
+        pending: globalPending,
+        avgJobSatisfaction: avgJobSatisfactionAgg._avg.jobSatisfaction
+          ? Math.round(avgJobSatisfactionAgg._avg.jobSatisfaction * 10) / 10
+          : null,
+        avgTrainingRelevance: avgTrainingRelevanceAgg._avg.trainingRelevance
+          ? Math.round(avgTrainingRelevanceAgg._avg.trainingRelevance * 10) / 10
+          : null,
+        avgSupportQuality: avgSupportQualityAgg._avg.supportQuality
+          ? Math.round(avgSupportQualityAgg._avg.supportQuality * 10) / 10
+          : null,
+        testimonialCount: globalTestimonialCount,
       },
     });
   } catch (error) {
     console.error('[admin/placement-surveys] Failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch surveys', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch surveys' }, { status: 500 });
   }
 }

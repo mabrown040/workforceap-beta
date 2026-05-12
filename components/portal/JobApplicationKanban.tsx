@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { JobApplication, JobApplicationStatus } from "@prisma/client";
+import type { JobApplication, JobApplicationStatus } from "@/types/job-application";
 import JobApplicationCard from "./JobApplicationCard";
 
 interface JobApplicationKanbanProps {

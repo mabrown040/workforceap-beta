@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { JobApplication } from '@prisma/client';
+import type { JobApplication } from '@/types/job-application';
 import JobApplicationForm from './JobApplicationForm';
 import JobApplicationKanban from './JobApplicationKanban';
 import PortalEmptyState from './PortalEmptyState';

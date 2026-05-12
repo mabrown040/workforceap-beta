@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { JobApplicationSource } from '@prisma/client';
+import type { JobApplicationSource } from '@/types/job-application';
 
 interface JobApplicationFormProps {
   onSubmit: (data: any) => Promise<void>;

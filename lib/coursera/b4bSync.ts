@@ -18,6 +18,7 @@ import {
 } from '@/lib/coursera/canonicalMapping';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
+import { fetchCourseraWithTransientRetry } from '@/lib/coursera/b4bClient';
 
 const B4B_OAUTH_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
 const B4B_API_BASE = 'https://api.coursera.com/ent';
@@ -69,7 +70,7 @@ async function getB4BToken(): Promise<string> {
     throw new Error('Missing COURSERA_B4B_CLIENT_ID or COURSERA_B4B_CLIENT_SECRET');
   }
 
-  const resp = await fetch(B4B_OAUTH_URL, {
+  const resp = await fetchCourseraWithTransientRetry(B4B_OAUTH_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -99,7 +100,7 @@ async function fetchEnrollmentReports(token: string, orgId: string): Promise<B4B
 
   while (true) {
     const url = `${B4B_API_BASE}/api/businesses.v1/${orgId}/enrollmentReports?start=${start}&limit=${limit}`;
-    const resp = await fetch(url, {
+    const resp = await fetchCourseraWithTransientRetry(url, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     });
 
@@ -586,34 +587,41 @@ async function updateRollups(emails: string[]) {
   });
 
   for (const user of affectedUsers) {
-    const rows = await prisma.courseProgress.findMany({
-      where: { userId: user.id },
-      select: { programSlug: true, status: true, percentComplete: true },
-    });
+    try {
+      const rows = await prisma.courseProgress.findMany({
+        where: { userId: user.id },
+        select: { programSlug: true, status: true, percentComplete: true },
+      });
 
-    const byProgram = new Map<string, { total: number; completed: number; sumPct: number }>();
-    for (const r of rows) {
-      const p = byProgram.get(r.programSlug) ?? { total: 0, completed: 0, sumPct: 0 };
-      p.total += 1;
-      if (r.status === CourseProgressStatus.COMPLETED) p.completed += 1;
-      p.sumPct += r.percentComplete;
-      byProgram.set(r.programSlug, p);
-    }
+      const byProgram = new Map<string, { total: number; completed: number; sumPct: number }>();
+      for (const r of rows) {
+        const p = byProgram.get(r.programSlug) ?? { total: 0, completed: 0, sumPct: 0 };
+        p.total += 1;
+        if (r.status === CourseProgressStatus.COMPLETED) p.completed += 1;
+        p.sumPct += r.percentComplete;
+        byProgram.set(r.programSlug, p);
+      }
 
-    for (const [programSlug, stats] of byProgram) {
-      const avg = stats.total > 0 ? Math.round(stats.sumPct / stats.total) : 0;
-      await prisma.memberProgramProgress.upsert({
-        where: { userId_programSlug: { userId: user.id, programSlug } },
-        create: {
-          userId: user.id,
-          programSlug,
-          coursesCompleted: stats.completed,
-          averagePercent: avg,
-        },
-        update: {
-          coursesCompleted: stats.completed,
-          averagePercent: avg,
-        },
+      for (const [programSlug, stats] of byProgram) {
+        const avg = stats.total > 0 ? Math.round(stats.sumPct / stats.total) : 0;
+        await prisma.memberProgramProgress.upsert({
+          where: { userId_programSlug: { userId: user.id, programSlug } },
+          create: {
+            userId: user.id,
+            programSlug,
+            coursesCompleted: stats.completed,
+            averagePercent: avg,
+          },
+          update: {
+            coursesCompleted: stats.completed,
+            averagePercent: avg,
+          },
+        });
+      }
+    } catch (err) {
+      captureApiError(err, {
+        route: 'coursera/b4b-sync',
+        extra: { step: 'member-program-rollup', userId: user.id },
       });
     }
   }

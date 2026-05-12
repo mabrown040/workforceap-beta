@@ -11,6 +11,8 @@
 import { NextResponse } from 'next/server';
 
 import { trackXapiBatchProcessed } from '@/lib/analytics/track';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { checkXapiStatementsPostRateLimit } from '@/lib/rate-limit';
 import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipeline';
 import {
   flattenXapiStatementPayload,
@@ -18,6 +20,7 @@ import {
 } from '@/lib/xapi/statements';
 import { persistXapiStatement } from '@/lib/xapi/storage';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 function tailFromObjectId(objectId: string | null | undefined): string | null {
   if (!objectId) return null;
@@ -46,7 +49,49 @@ function itemIdFromObjectId(objectId: string | null | undefined): string | null 
   return match?.[1] ?? null;
 }
 
+const UNPARSED_VERB = 'xapi.ingest.unparsed';
+
+/** Best-effort actor fields when `parseXapiStatement` refuses the row (minimal identity). */
+function extractRawStatementActorFields(raw: Record<string, unknown>): {
+  statementId: string | null;
+  actorEmail: string | null;
+  actorAccountName: string | null;
+  actorHomePage: string | null;
+} {
+  const statementId = typeof raw.id === 'string' ? raw.id.trim() || null : null;
+  const actor =
+    raw.actor && typeof raw.actor === 'object' && !Array.isArray(raw.actor)
+      ? (raw.actor as Record<string, unknown>)
+      : null;
+  const mbox = typeof actor?.mbox === 'string' ? actor.mbox.trim() : '';
+  const emailLower = mbox.toLowerCase();
+  const actorEmail =
+    emailLower.startsWith('mailto:') ? mbox.slice(7).trim().toLowerCase() : emailLower;
+  const account =
+    actor?.account && typeof actor.account === 'object' && !Array.isArray(actor.account)
+      ? (actor.account as Record<string, unknown>)
+      : null;
+  const actorAccountName =
+    typeof account?.name === 'string' && account.name.trim() ? account.name.trim() : null;
+  const actorHomePage =
+    typeof account?.homePage === 'string' && account.homePage.trim()
+      ? account.homePage.trim()
+      : null;
+  return {
+    statementId,
+    actorEmail: actorEmail || null,
+    actorAccountName,
+    actorHomePage,
+  };
+}
+
 export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkXapiStatementsPostRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const token = parseBearerToken(request.headers.get('authorization'));
   if (!token) {
     return NextResponse.json({ error: 'Missing bearer token' }, { status: 401 });
@@ -73,36 +118,81 @@ export async function POST(request: Request) {
 
   const completions: Array<Record<string, unknown>> = [];
   let statementsHandled = 0;
+  const ingestErrors: Array<{ statementId?: string; message: string }> = [];
 
   for (const raw of rawStatements) {
-    const parsed = parseXapiStatement(raw);
-    if (!parsed) continue;
+    const sidHint =
+      typeof raw.id === 'string' ? raw.id : '(no statement id)';
+    try {
+      const parsed = parseXapiStatement(raw);
+      if (!parsed) {
+        const act = extractRawStatementActorFields(raw);
+        try {
+          await persistXapiStatement({
+            statementId: act.statementId,
+            actorEmail: act.actorEmail,
+            actorAccountName: act.actorAccountName,
+            actorHomePage: act.actorHomePage,
+            verb: UNPARSED_VERB,
+            courseId: null,
+            courseName: null,
+            resultScoreScaled: null,
+            resultScoreRaw: null,
+            resultCompletion: null,
+            resultSuccess: null,
+            payload: raw as Record<string, never>,
+            courseItemId: null,
+            itemType: null,
+          });
+        } catch (persistErr) {
+          captureApiError(persistErr, {
+            route: 'api/xapi/statements',
+            extra: { step: 'persist-unparsed', statementId: act.statementId },
+          });
+          ingestErrors.push({
+            statementId: act.statementId ?? undefined,
+            message:
+              persistErr instanceof Error ? persistErr.message : 'persist unparsed failed',
+          });
+        }
+        continue;
+      }
 
-    const verb = parsed.verbId?.trim() || 'unknown';
+      const verb = parsed.verbId?.trim() || 'unknown';
 
-    const persisted = await persistXapiStatement({
-      statementId: parsed.statementId,
-      actorEmail: parsed.email,
-      actorAccountName: parsed.actorIdentifier,
-      actorHomePage: parsed.actorHomePage,
-      verb,
-      courseId: parsed.courseraCourseId ?? tailFromObjectId(parsed.courseObjectId),
-      courseName: parsed.courseName ?? null,
-      resultScoreScaled: parsed.resultScoreScaled,
-      resultScoreRaw: parsed.resultScoreRaw,
-      resultCompletion: parsed.resultCompletion,
-      resultSuccess: parsed.resultSuccess,
-      payload: raw as Record<string, never>, // raw is a parsed xAPI JSON object — Prisma.InputJsonValue at runtime
-      courseItemId: itemIdFromObjectId(parsed.courseObjectId),
-      itemType: parsed.itemType ?? null,
-    });
+      const persisted = await persistXapiStatement({
+        statementId: parsed.statementId,
+        actorEmail: parsed.email,
+        actorAccountName: parsed.actorIdentifier,
+        actorHomePage: parsed.actorHomePage,
+        verb,
+        courseId: parsed.courseraCourseId ?? tailFromObjectId(parsed.courseObjectId),
+        courseName: parsed.courseName ?? null,
+        resultScoreScaled: parsed.resultScoreScaled,
+        resultScoreRaw: parsed.resultScoreRaw,
+        resultCompletion: parsed.resultCompletion,
+        resultSuccess: parsed.resultSuccess,
+        payload: raw as Record<string, never>, // raw is a parsed xAPI JSON object — Prisma.InputJsonValue at runtime
+        courseItemId: itemIdFromObjectId(parsed.courseObjectId),
+        itemType: parsed.itemType ?? null,
+      });
 
-    // Duplicate statementId (retries / races): row exists — skip completion side effects.
-    if (persisted === 'skipped') continue;
+      // Duplicate statementId (retries / races): row exists — skip completion side effects.
+      if (persisted === 'skipped') continue;
 
-    statementsHandled += 1;
-    const { completions: batch } = await handleInboundParsedStatement(parsed);
-    completions.push(...batch);
+      const { completions: batch } = await handleInboundParsedStatement(parsed);
+      completions.push(...batch);
+      statementsHandled += 1;
+    } catch (err) {
+      captureApiError(err, {
+        route: 'api/xapi/statements',
+        extra: { statementId: sidHint },
+      });
+      ingestErrors.push({
+        statementId: typeof raw.id === 'string' ? raw.id : undefined,
+        message: err instanceof Error ? err.message : 'statement pipeline failed',
+      });
+    }
   }
 
   trackXapiBatchProcessed({
@@ -114,12 +204,16 @@ export async function POST(request: Request) {
     received: true,
     processed: statementsHandled,
     completions,
+    ...(ingestErrors.length > 0 ? { errors: ingestErrors } : {}),
   });
 }
 
 export async function GET() {
-  return NextResponse.json({
-    error: 'Use POST to submit xAPI statements',
-    endpoint: '/api/xapi/statements',
-  }, { status: 405 });
+  return NextResponse.json(
+    {
+      error: 'Use POST to submit xAPI statements',
+      endpoint: '/api/xapi/statements',
+    },
+    { status: 405, headers: { Allow: 'POST' } },
+  );
 }

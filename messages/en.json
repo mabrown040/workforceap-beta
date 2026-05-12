@@ -131,7 +131,8 @@
     "lastUpdated": "Last updated",
     "today": "Today",
     "yesterday": "Yesterday",
-    "sending": "Sending…"
+    "sending": "Sending…",
+    "selectLanguage": "Select language"
   },
   "dashboard": {
     "welcome": "Welcome back",
@@ -381,7 +382,10 @@
     "completed": "Completed",
     "timeLeft": "Time left",
     "dueDate": "Due date",
-    "overdue": "Overdue"
+    "overdue": "Overdue",
+    "progressPercent": "Progress",
+    "gradePercent": "Grade",
+    "avgGrade": "Average grade (scored courses)"
   },
   "aitools": {
     "elevatorPitch": "Elevator Pitch",
@@ -504,7 +508,17 @@
     "viewCertificate": "View certificate",
     "completed": "Completed",
     "hours": "h",
-    "courses": "courses"
+    "courses": "courses",
+    "progressLabel": "Progress",
+    "gradeLabel": "Grade",
+    "relative": {
+      "noActivity": "No activity yet",
+      "justNow": "Just now",
+      "minutesAgo": "{count} min ago",
+      "hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+      "daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+      "monthsAgo": "{count, plural, one {# month ago} other {# months ago}}"
+    }
   },
   "partner": {
     "inviteMember": "Invite Member",

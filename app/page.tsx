@@ -21,10 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const HERO_IMAGE_SRC = '/images/hero-people.jpg';
+const HERO_IMAGE_SRC = '/images/hero-people.webp';
 const HOMEPAGE_PROGRAM_CARD_IMAGES = {
   community: '/images/austin-skyline.jpg',
-  technology: '/images/hero-people.jpg',
+  technology: '/images/hero-people.webp',
   handsOn: '/images/AdobeStock_78118914.jpeg',
 } as const;
 
@@ -43,7 +43,7 @@ function getHomepageProgramCardImage(
   const images = [
     '/images/AdobeStock_78118914.jpeg',
     '/images/austin-skyline.jpg',
-    '/images/hero-people.jpg',
+    '/images/hero-people.webp',
     '/images/image-asset.jpeg'
   ];
   return images[index % images.length];

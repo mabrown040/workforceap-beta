@@ -357,6 +357,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                   <div style={{ height: 6, background: 'var(--surface-container)', borderRadius: '9999px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-accent)', borderRadius: '9999px' }} />
                   </div>
+                  {trainingView?.averageGradePercentDisplay != null ? (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                        Grade (avg, scored courses)
+                      </span>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgb(79, 70, 229)' }}>
+                        {trainingView.averageGradePercentDisplay}%
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
                 {/* Course list */}
                 {programCourses.map((course) => {

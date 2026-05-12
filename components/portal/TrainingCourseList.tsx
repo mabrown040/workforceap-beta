@@ -9,6 +9,8 @@ import type { ProgramCourse } from '@/lib/content/programs';
 export type CourseProgressUi = {
   status: CourseProgressStatus;
   percentComplete: number;
+  /** Coursera course grade (0–100) when stored as `score_scaled` / synced. */
+  gradePercent?: number | null;
 };
 
 type TrainingCourseListProps = {
@@ -37,6 +39,11 @@ function chipClass(status: 'complete' | 'in_progress' | 'not_started', isUpNext:
   if (status === 'in_progress') return 'training-status-chip training-status-chip--progress';
   if (isUpNext) return 'training-status-chip training-status-chip--up-next';
   return 'training-status-chip training-status-chip--pending';
+}
+
+function formatGradeLine(pct: number): string {
+  const rounded = Math.round(pct * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
 }
 
 export default function TrainingCourseList({
@@ -274,6 +281,7 @@ export default function TrainingCourseList({
         const isComplete = status === 'complete';
         const isUpNext = !isComplete && c.slug === firstNotStartedSlug;
         const pct = progressBySlug?.[c.slug]?.percentComplete;
+        const gradePct = progressBySlug?.[c.slug]?.gradePercent;
         const showBar = !isComplete && pct != null && pct > 0 && pct < 100;
         const primaryCta =
           isUpNext || status === 'in_progress' ? 'Continue in Coursera' : 'Open in Coursera';
@@ -303,11 +311,34 @@ export default function TrainingCourseList({
                 </span>
               ) : null}
               {showBar ? (
-                <div className="training-course-progress">
-                  <div className="training-course-progress__track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${c.name} progress`}>
-                    <div className="training-course-progress__fill" style={{ width: `${pct}%` }} />
+                <>
+                  <p
+                    style={{
+                      fontSize: '0.78rem',
+                      margin: '0 0 0.25rem',
+                      color: 'var(--color-on-surface-variant)',
+                    }}
+                  >
+                    Progress: {pct}%
+                  </p>
+                  <div className="training-course-progress">
+                    <div className="training-course-progress__track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${c.name} progress`}>
+                      <div className="training-course-progress__fill" style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
-                </div>
+                </>
+              ) : null}
+              {gradePct != null && Number.isFinite(gradePct) ? (
+                <p
+                  style={{
+                    fontSize: '0.78rem',
+                    marginTop: showBar ? '0.35rem' : '0.5rem',
+                    marginBottom: 0,
+                    color: 'var(--color-on-surface-variant)',
+                  }}
+                >
+                  Grade: {formatGradeLine(gradePct)}% (Coursera)
+                </p>
               ) : null}
             </div>
             <div className="training-course-card__actions">

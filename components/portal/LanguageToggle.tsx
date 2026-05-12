@@ -3,27 +3,25 @@
 import { Globe } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { AppLocale } from '@/lib/i18n/config';
 import { isAppLocale, splitLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
 import { setLocaleCookie } from '@/lib/i18n/client';
 
-// `fr` / `pt` were removed from the picker on 2026-05-10 because their
-// translation files are still ~281 keys behind English (every missing
-// key falls back to English via the deep-merge in i18n/request.ts).
-// Showing them in the dropdown promised more localization than we
-// actually deliver. The locale codes themselves remain valid in URLs
-// and headers — AI features (interview practice, resume rewriter) can
-// still target French/Portuguese as a generation language even when
-// the UI chrome is English. Re-add here once the translation pass
-// lands or the dropdown becomes dishonest the moment a member picks it.
+// Shown locales match `messages/*.json` coverage (parity with English; French and
+// Portuguese strings still needing human polish are prefixed `[TODO translate] `).
+
 const languages: { code: AppLocale; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'pt', label: 'Português' },
 ];
 
 export default function LanguageToggle() {
   const router = useRouter();
   const pathname = usePathname() ?? '/';
+  const tCommon = useTranslations('common');
   const { locale, pathnameWithoutLocale } = splitLocalePrefix(pathname);
 
   const currentLocale: AppLocale = locale ?? 'en';
@@ -42,7 +40,7 @@ export default function LanguageToggle() {
       <select
         value={currentLocale}
         onChange={(e) => handleChange(e.target.value)}
-        aria-label="Select language"
+        aria-label={tCommon('selectLanguage')}
         className="language-toggle-select"
         suppressHydrationWarning
       >

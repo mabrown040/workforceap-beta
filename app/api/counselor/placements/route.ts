@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
 
 /**
  * GET /api/counselor/placements
@@ -17,13 +18,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: { role: true },
-  });
-
-  const isStaff = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'counselor';
-  if (!isStaff) {
+  const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
+  if (!admin && !counselor) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -65,13 +61,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id },
-    select: { role: true },
-  });
-
-  const isStaff = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'counselor';
-  if (!isStaff) {
+  const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
+  if (!admin && !counselor) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

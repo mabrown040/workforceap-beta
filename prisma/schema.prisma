@@ -61,6 +61,10 @@ model User {
   coursesCompleted             Json?               @map("courses_completed") // array of course slugs
   notificationsUpdates         Boolean             @default(true) @map("notifications_updates")
   notificationsReminders       Boolean             @default(true) @map("notifications_reminders")
+  /// Soft-delete for members (and other rows in `users`). Partner/employer/counselor
+  /// personas also use this `users` row; filters use `deletedAt: null` for active
+  /// accounts. Related portal tables (e.g. `employers`, `partner_users`) do not
+  /// duplicate `deletedAt` — lifecycle is anchored on `User`.
   deletedAt                    DateTime?           @map("deleted_at")
   createdAt                    DateTime            @default(now()) @map("created_at")
   updatedAt                    DateTime            @updatedAt @map("updated_at")
@@ -192,6 +196,7 @@ model User {
   @@index([staleTrainingDetectedAt])
   @@index([lastCourseraAutoSyncAt])
   @@index([courseraEnrollmentApproved])
+  @@index([wioaReviewedByUserId])
   @@map("users")
 }
 
@@ -440,6 +445,7 @@ model ProgramChangeRequest {
 
   @@index([userId])
   @@index([status])
+  @@index([reviewedById])
   @@map("program_change_requests")
 }
 
@@ -543,6 +549,8 @@ model MemberEvent {
   @@index([userId])
   @@index([eventName])
   @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([userId, eventName, createdAt])
   @@map("member_events")
 }
 
@@ -683,6 +691,7 @@ model ApplicationAiFeedback {
   primaryAiToolResult AIToolResult?  @relation("PrimaryAiToolResult", fields: [primaryAiToolResultId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([primaryAiToolResultId])
   @@map("application_ai_feedback")
 }
 
@@ -871,6 +880,8 @@ model MessageThread {
 
   @@index([counselorUserId])
   @@index([kind])
+  @@index([staffUserId])
+  @@index([kind, createdAt])
   @@map("message_threads")
 }
 
@@ -940,6 +951,7 @@ model Subgroup {
   @@index([type])
   @@index([leaderId])
   @@index([partnerId])
+  @@index([createdBy])
   @@map("subgroups")
 }
 
@@ -958,6 +970,7 @@ model MemberSubgroup {
   @@unique([memberId, subgroupId])
   @@index([memberId])
   @@index([subgroupId])
+  @@index([assignedBy])
   @@map("member_subgroups")
 }
 
@@ -1131,6 +1144,9 @@ model Invitation {
   @@index([status])
   @@index([invitedById])
   @@index([expiresAt])
+  @@index([partnerId])
+  @@index([subgroupId])
+  @@index([acceptedById])
   @@map("invitations")
 }
 
@@ -1274,6 +1290,7 @@ model Job {
   @@index([employerId])
   @@index([organizationId])
   @@index([status])
+  @@index([approvedById])
   @@map("jobs")
 }
 
@@ -1364,6 +1381,7 @@ model CourseEnrollment {
   @@index([organizationId])
   @@index([programSlug])
   @@index([userId, isPrimary])
+  @@index([enrolledByAdminId])
   @@map("course_enrollments")
 }
 
@@ -1577,6 +1595,7 @@ model PartnerOutreachLog {
 
   @@index([partnerId])
   @@index([memberId])
+  @@index([createdByUserId])
   @@map("partner_outreach_logs")
 }
 
@@ -1599,6 +1618,7 @@ model PortalWorkflowEvent {
 
   @@index([employerId, createdAt])
   @@index([partnerId, createdAt])
+  @@index([actorUserId])
   @@map("portal_workflow_events")
 }
 
@@ -1877,6 +1897,7 @@ model PointsTransaction {
   @@unique([userId, event, entityId])
   @@index([userId])
   @@index([createdAt])
+  @@index([awardedBy])
   @@map("points_transactions")
 }
 
@@ -1948,6 +1969,7 @@ model CourseraCanonicalCourseMapping {
 
   @@index([canonicalProgramSlug])
   @@index([canonicalCourseSlug])
+  @@index([createdById])
   @@map("coursera_canonical_course_mappings")
 }
 
@@ -2031,6 +2053,7 @@ model AtRiskAlert {
 
   @@index([userId, createdAt])
   @@index([status, score])
+  @@index([counselorId])
   @@map("at_risk_alerts")
 }
 
@@ -2061,6 +2084,7 @@ model PlacementSurvey {
   
   @@index([userId])
   @@index([sentAt])
+  @@index([placementId])
   @@map("placement_surveys")
 }
 

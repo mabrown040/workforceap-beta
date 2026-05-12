@@ -35,7 +35,8 @@
     "elevenlabs:apply-patches": "node scripts/elevenlabs/apply-agent-patches.mjs",
     "coursera:test": "tsx scripts/coursera-integration-test.ts",
     "coursera:backfill-catalog": "node scripts/backfill-coursera-courseids.cjs",
-    "email": "email dev -p 3001"
+    "email": "email dev -p 3001",
+    "analyze": "ANALYZE=true npm run build"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -78,6 +79,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@next/bundle-analyzer": "^16.2.6",
     "@playwright/test": "^1.49.1",
     "@react-email/preview-server": "^5.2.10",
     "@types/node": "^22",

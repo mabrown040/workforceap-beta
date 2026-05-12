@@ -444,6 +444,68 @@ export function getAtRiskDigestRecipients(): string[] {
   return [ADMIN_EMAIL];
 }
 
+/**
+ * Comma-separated `COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS`, else the same list as at-risk digests
+ * (ops already watching that inbox), else the default admin inbox.
+ */
+export function getCourseraUnmatchedActorAlertRecipients(): string[] {
+  const parsed = (process.env.COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (parsed.length > 0) {
+    return Array.from(new Set(parsed));
+  }
+  return getAtRiskDigestRecipients();
+}
+
+/** One-shot alert when Coursera xAPI records a first-seen unmatched actor email (see coursera_unmatched_actor_alerts). */
+export async function sendCourseraUnmatchedActorAlertEmail(params: {
+  actorEmail: string;
+  statementId: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  const recipients = getCourseraUnmatchedActorAlertRecipients();
+  if (!resend) {
+    console.warn('sendCourseraUnmatchedActorAlertEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  if (recipients.length === 0) {
+    return { ok: false, error: 'No recipients' };
+  }
+
+  const adminCourseraUrl = `${SITE_URL}/admin/coursera`;
+  const escapedEmail = escapeHtml(params.actorEmail);
+  const sid = params.statementId ? escapeHtml(params.statementId) : '—';
+  const bodyHtml = `
+    <p>A new Coursera xAPI / webhook learner identity arrived with <strong>no matching portal member</strong> (manual Coursera identity mapping is missing).</p>
+    <ul style="margin:1rem 0;padding-left:1.25rem;">
+      <li><strong>Actor email:</strong> ${escapedEmail}</li>
+      <li><strong>Statement / dedupe id:</strong> ${sid}</li>
+    </ul>
+    <p>Add a mapping under <strong>Admin → Coursera</strong>, or enroll the learner with the same inbox email so auto-match can apply.</p>
+  `;
+  const html = brandedEmailLayout({
+    title: 'Coursera: unmatched actor email',
+    bodyHtml,
+    ctaText: 'Open Admin → Coursera',
+    ctaUrl: adminCourseraUrl,
+  });
+
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: recipients,
+      subject: sanitizeEmailSubjectLine(`Coursera unmatched actor: ${params.actorEmail}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendCourseraUnmatchedActorAlertEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /** Post-placement survey request (cron ~30 days after placement). */
 export async function sendPlacementSurveyEmail(params: {
   to: string;

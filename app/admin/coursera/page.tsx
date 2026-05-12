@@ -28,8 +28,8 @@ import {
 } from '@/lib/admin/courseraOps';
 import {
   getCourseraSkillsetProgressSummary,
+  getCourseraUnmatchedActorAlertStats,
   listCourseraIdentityMappings,
-  listRecentUnmatchedXapiEvents,
 } from '@/lib/xapi/mappings';
 import {
   countHiddenTestAccountUnmatchedLearners,
@@ -357,6 +357,11 @@ export default async function AdminCourseraPage({
 
   let mappings = await Promise.resolve([] as Awaited<ReturnType<typeof listCourseraIdentityMappings>>);
   let xapiAttention = await Promise.resolve([] as Awaited<ReturnType<typeof listXapiStatementsNeedingAttention>>);
+  let unmatchedActorAlerts = await Promise.resolve({
+    distinctUnmatchedActorEmails: 0,
+    newAlertRowsLast7Days: 0,
+    recentFirstSeen: [] as Array<{ actorEmailLower: string; firstSeenAt: Date }>,
+  });
   let syncStatus = await Promise.resolve({
     lastXapiReceivedAt: null as Date | null,
     distinctMembersWithCourseProgress: 0,
@@ -369,10 +374,18 @@ export default async function AdminCourseraPage({
   let progressAuditError: string | null = null;
 
   try {
-    [mappings, xapiAttention, syncStatus] = await Promise.all([
+    [mappings, xapiAttention, syncStatus, unmatchedActorAlerts] = await Promise.all([
       listCourseraIdentityMappings(),
       listXapiStatementsNeedingAttention(100),
       getCourseraSyncStatus(),
+      getCourseraUnmatchedActorAlertStats().catch((error) => {
+        console.error('[admin/coursera] unmatched actor alert stats failed:', error);
+        return {
+          distinctUnmatchedActorEmails: 0,
+          newAlertRowsLast7Days: 0,
+          recentFirstSeen: [] as Array<{ actorEmailLower: string; firstSeenAt: Date }>,
+        };
+      }),
     ]);
   } catch (error) {
     loadError = error instanceof Error ? error.message : 'Unable to load Coursera mapping data right now.';
@@ -416,6 +429,66 @@ export default async function AdminCourseraPage({
         subtitle="Manually bind Coursera learners to WAP members, audit xAPI statements, and inspect member course progress."
         breadcrumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Coursera' }]}
       />
+
+      {unmatchedActorAlerts.distinctUnmatchedActorEmails > 0 ? (
+        <div
+          className="content-card"
+          role="alert"
+          style={{
+            marginBottom: '1rem',
+            padding: '1rem 1.2rem',
+            border: '1px solid rgba(239, 68, 68, 0.45)',
+            background: 'rgba(239, 68, 68, 0.10)',
+          }}
+        >
+          <div style={{ display: 'grid', gap: '0.55rem' }}>
+            <strong style={{ fontSize: '1.05rem', color: 'rgb(185, 28, 28)' }}>
+              Unmatched Coursera actor emails: {unmatchedActorAlerts.distinctUnmatchedActorEmails} distinct inbox
+              {unmatchedActorAlerts.distinctUnmatchedActorEmails === 1 ? '' : 'es'} in xAPI events
+            </strong>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+              Events are ingested, but these learner identities have no portal member mapping (
+              <code>mapping_method</code> null / <code>completion_status</code>{' '}
+              <code>unmatched</code>). New addresses trigger a server log line and an email to{' '}
+              <code>COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS</code> (or the at-risk digest list).
+              {unmatchedActorAlerts.newAlertRowsLast7Days > 0 ? (
+                <>
+                  {' '}
+                  <strong>{unmatchedActorAlerts.newAlertRowsLast7Days}</strong> first-seen alert row
+                  {unmatchedActorAlerts.newAlertRowsLast7Days === 1 ? '' : 's'} in the last 7 days.
+                </>
+              ) : null}
+            </p>
+            {unmatchedActorAlerts.recentFirstSeen.length > 0 ? (
+              <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1.25rem', fontSize: '0.88rem' }}>
+                {unmatchedActorAlerts.recentFirstSeen.slice(0, 5).map((row) => (
+                  <li key={row.actorEmailLower}>
+                    <Link href={`/admin/coursera/learners/unmatched/${encodeURIComponent(row.actorEmailLower)}`}>
+                      {row.actorEmailLower}
+                    </Link>
+                    <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                      {' '}
+                      — first seen {fmtDateTime(row.firstSeenAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.65rem', alignItems: 'center' }}>
+              <Link
+                href="/admin/coursera/health"
+                style={{ fontWeight: 700, fontSize: '0.9rem' }}
+              >
+                Coursera health → top unmatched actors
+              </Link>
+              <span style={{ color: 'var(--color-on-surface-variant)' }}>·</span>
+              <span style={{ fontSize: '0.9rem' }}>
+                Expand <strong>Unmatched learners</strong> below to map accounts.
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div style={{ display: 'grid', gap: '1rem', marginBottom: '1rem' }}>
         <div className="content-card coursera-admin-intro" style={{ padding: '1.25rem 1.35rem' }}>

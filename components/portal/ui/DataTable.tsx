@@ -105,8 +105,16 @@ const PADDING_BY_DENSITY: Record<NonNullable<DataTableProps<unknown>['density']>
 
 const FONT_BY_DENSITY: Record<NonNullable<DataTableProps<unknown>['density']>, string> = {
   standard: '0.9rem',
-  compact: '0.82rem',
+  compact: '0.875rem',
 };
+
+/** Mobile stacked `.admin-table` / `.dashboard-table` rows use `data-label`; derive from plain-text headers when unset. */
+function dataLabelForColumn(header: ReactNode, explicit?: string): string | undefined {
+  if (explicit != null && explicit !== '') return explicit;
+  if (typeof header === 'string') return header;
+  if (typeof header === 'number') return String(header);
+  return undefined;
+}
 
 export default function DataTable<TRow>({
   columns,
@@ -231,14 +239,19 @@ export default function DataTable<TRow>({
                         scope="row"
                         style={sharedStyle}
                         className={sharedClass}
-                        data-label={col.cellDataLabel}
+                        data-label={dataLabelForColumn(col.header, col.cellDataLabel)}
                       >
                         {col.cell(row, rowIndex)}
                       </th>
                     );
                   }
                   return (
-                    <td key={col.key} style={sharedStyle} className={sharedClass} data-label={col.cellDataLabel}>
+                    <td
+                      key={col.key}
+                      style={sharedStyle}
+                      className={sharedClass}
+                      data-label={dataLabelForColumn(col.header, col.cellDataLabel)}
+                    >
                       {col.cell(row, rowIndex)}
                     </td>
                   );

@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { publicApiCorsHeaders } from '@/lib/http/publicApiCors';
+import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
+
+const HEALTH_CORS = publicApiCorsHeaders('GET, HEAD, OPTIONS');
 
 /**
  * GET /api/health
@@ -41,12 +46,12 @@ async function checkDatabase(): Promise<DepReport> {
   try {
     await prisma.$queryRaw`SELECT 1`;
     return { name: 'database', status: 'ok', latencyMs: Date.now() - started };
-  } catch (err) {
+  } catch {
     return {
       name: 'database',
       status: 'fail',
       latencyMs: Date.now() - started,
-      note: err instanceof Error ? err.message.slice(0, 200) : 'unknown error',
+      note: 'database unreachable',
     };
   }
 }
@@ -135,7 +140,20 @@ function checkSentry(): DepReport {
   return { name: 'sentry', status: 'ok', note: 'configured (config-only check)' };
 }
 
-export async function GET() {
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: HEALTH_CORS });
+}
+
+export async function GET(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinHealthLimit } = await checkPublicHealthRateLimit(ip);
+  if (!withinHealthLimit) {
+    return NextResponse.json(
+      { error: 'Too many requests' },
+      { status: 429, headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' } },
+    );
+  }
+
   const startedAt = new Date();
   const [database, supabase, email, coursera, captcha, sentry] = await Promise.all([
     checkDatabase(),
@@ -169,7 +187,7 @@ export async function GET() {
     },
     {
       status: 200,
-      headers: { 'Cache-Control': 'no-store' },
+      headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' },
     },
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { awardPoints } from '@/lib/member/points';
 
 type Props = { params: Promise<{ memberId: string }> };
@@ -13,6 +14,9 @@ export async function POST(request: Request, { params }: Props) {
   if (!admin && !counselor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   let body: unknown;
   try { body = await request.json(); } catch {

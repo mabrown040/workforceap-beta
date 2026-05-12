@@ -678,6 +678,9 @@ export default async function AdminCourseraHealthPage() {
     loadWrongProgramStudying(now, slugToProgram),
   ]);
 
+  const lastB4bCron = cronRuns.find((r) => r.workflow === 'cron_coursera_b4b_sync');
+  const lastB4bCronFailed = lastB4bCron?.status === 'error';
+
   // --- Build the four summary cards. ---
 
   const cards: SummaryCard[] = [];
@@ -749,19 +752,28 @@ export default async function AdminCourseraHealthPage() {
     const lastSync = b4bSummary.latestSyncedAt ?? b4bSummary.latestActivityAt;
     const lastSyncMs = lastSync ? now.getTime() - lastSync.getTime() : null;
     const isStale = lastSyncMs === null ? true : lastSyncMs > 12 * 60 * 60 * 1000;
-    const severity: CardSeverity = b4bSummary.total === 0 || isStale ? 'bad' : 'ok';
+    let severity: CardSeverity = b4bSummary.total === 0 || isStale ? 'bad' : 'ok';
+    if (lastB4bCronFailed) severity = 'bad';
+
+    const hintParts: string[] = [];
+    if (b4bSummary.total === 0) {
+      hintParts.push('No CourseraCourseProgress rows. The B4B cron has never landed data.');
+    } else if (isStale) {
+      hintParts.push('Last sync > 12h ago — B4B cron may be failing.');
+    }
+    if (lastB4bCronFailed) {
+      hintParts.push(
+        'Latest cron_coursera_b4b_sync run logged an error — see workflow diagnostics below.',
+      );
+    }
+
     cards.push({
       title: 'B4B course rows',
       primary: b4bSummary.total.toLocaleString(),
       secondary: lastSync
         ? `last sync ${fmtDateTime(lastSync)} (${relativeAge(lastSync, now)})`
         : 'no sync timestamp on file',
-      hint:
-        b4bSummary.total === 0
-          ? 'No CourseraCourseProgress rows. The B4B cron has never landed data.'
-          : isStale
-            ? 'Last sync > 12h ago — B4B cron may be failing.'
-            : undefined,
+      hint: hintParts.length > 0 ? hintParts.join(' ') : undefined,
       severity,
     });
   }

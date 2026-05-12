@@ -1,8 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { checkXapiOAuthTokenRateLimit } from '@/lib/rate-limit';
 import { issueXapiAccessToken, parseBasicAuth } from '@/lib/xapi/token';
 
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Method not allowed' },
+    { status: 405, headers: { Allow: 'POST' } },
+  );
+}
+
 export async function POST(request: Request) {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkXapiOAuthTokenRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const readiness = getXapiReadiness({ request });
   if (!readiness.ready) {
     return NextResponse.json({ error: 'xAPI auth is not configured', missing: readiness.missing }, { status: 503 });

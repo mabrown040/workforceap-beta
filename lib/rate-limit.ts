@@ -25,6 +25,11 @@ let publicCareersGetRateLimiter: Ratelimit | null = null;
 let publicVoiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 let verifyMfaRateLimiter: Ratelimit | null = null;
+let publicHealthRateLimiter: Ratelimit | null = null;
+let xapiConfigGetRateLimiter: Ratelimit | null = null;
+let xapiOAuthTokenRateLimiter: Ratelimit | null = null;
+let xapiStatementsPostRateLimiter: Ratelimit | null = null;
+let placementSurveyRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -118,6 +123,33 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(10, '15 m'),
     prefix: 'ratelimit:verify-mfa',
+  });
+  publicHealthRateLimiter = new Ratelimit({
+    redis,
+    // Uptime monitors + scrapers: generous per IP without opening infinite abuse.
+    limiter: Ratelimit.slidingWindow(600, '1 h'),
+    prefix: 'ratelimit:public-health',
+  });
+  xapiConfigGetRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(120, '1 h'),
+    prefix: 'ratelimit:xapi-config-get',
+  });
+  xapiOAuthTokenRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(120, '1 h'),
+    prefix: 'ratelimit:xapi-oauth-token',
+  });
+  xapiStatementsPostRateLimiter = new Ratelimit({
+    redis,
+    // Ingest can batch; keep high enough for legitimate LRS traffic per egress IP.
+    limiter: Ratelimit.slidingWindow(3000, '1 h'),
+    prefix: 'ratelimit:xapi-statements-post',
+  });
+  placementSurveyRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(50, '1 h'),
+    prefix: 'ratelimit:placement-survey',
   });
 }
 
@@ -232,5 +264,40 @@ export async function checkInviteAcceptRateLimit(ip: string): Promise<{ success:
 export async function checkVerifyMfaRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!verifyMfaRateLimiter) return { success: true };
   const result = await verifyMfaRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** GET /api/health — fail-open without Redis (same as other public GET caps). */
+export async function checkPublicHealthRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicHealthRateLimiter) return { success: true };
+  const result = await publicHealthRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** GET /api/xapi/config */
+export async function checkXapiConfigGetRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!xapiConfigGetRateLimiter) return { success: true };
+  const result = await xapiConfigGetRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/xapi/oauth/token */
+export async function checkXapiOAuthTokenRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!xapiOAuthTokenRateLimiter) return { success: true };
+  const result = await xapiOAuthTokenRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/xapi/statements */
+export async function checkXapiStatementsPostRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!xapiStatementsPostRateLimiter) return { success: true };
+  const result = await xapiStatementsPostRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** GET + POST /api/placement-survey (unauthenticated) */
+export async function checkPlacementSurveyRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!placementSurveyRateLimiter) return { success: true };
+  const result = await placementSurveyRateLimiter.limit(ip);
   return { success: result.success };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 export type CourseraProgressRow = {
   id: string;
@@ -13,6 +13,11 @@ export type CourseraProgressRow = {
   learningHours: number;
   isCompleted: boolean;
   certificateUrl: string | null;
+  /**
+   * Course grade as shown in Coursera (from xAPI score_scaled, CSV course grade,
+   * or synced gradebook), 0–100; null when unknown.
+   */
+  gradePercent: number | null;
   /** ISO string — kept primitive so server -> client serialization is trivial. */
   lastActivityTime: string | null;
   /**
@@ -32,10 +37,15 @@ export type CourseraProgressCardViewProps = {
   launchUrl: string;
 };
 
-function formatRelative(locale: 'en' | 'es', iso: string | null): string {
-  if (!iso) return locale === 'es' ? 'sin actividad' : 'no activity yet';
+type CourseraRelativeTranslations = (
+  key: 'noActivity' | 'justNow' | 'minutesAgo' | 'hoursAgo' | 'daysAgo' | 'monthsAgo',
+  values?: { count?: number },
+) => string;
+
+function formatRelative(iso: string | null, tr: CourseraRelativeTranslations): string {
+  if (!iso) return tr('noActivity');
   const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return locale === 'es' ? 'sin actividad' : 'no activity yet';
+  if (Number.isNaN(then)) return tr('noActivity');
   const now = Date.now();
   const diffMs = Math.max(0, now - then);
   const sec = Math.floor(diffMs / 1000);
@@ -44,26 +54,18 @@ function formatRelative(locale: 'en' | 'es', iso: string | null): string {
   const day = Math.floor(hr / 24);
   if (day >= 30) {
     const months = Math.floor(day / 30);
-    return locale === 'es'
-      ? `hace ${months} mes${months === 1 ? '' : 'es'}`
-      : `${months} month${months === 1 ? '' : 's'} ago`;
+    return tr('monthsAgo', { count: months });
   }
   if (day >= 1) {
-    return locale === 'es'
-      ? `hace ${day} día${day === 1 ? '' : 's'}`
-      : `${day} day${day === 1 ? '' : 's'} ago`;
+    return tr('daysAgo', { count: day });
   }
   if (hr >= 1) {
-    return locale === 'es'
-      ? `hace ${hr} hora${hr === 1 ? '' : 's'}`
-      : `${hr} hour${hr === 1 ? '' : 's'} ago`;
+    return tr('hoursAgo', { count: hr });
   }
   if (min >= 1) {
-    return locale === 'es'
-      ? `hace ${min} min`
-      : `${min} min ago`;
+    return tr('minutesAgo', { count: min });
   }
-  return locale === 'es' ? 'hace instantes' : 'just now';
+  return tr('justNow');
 }
 
 /**
@@ -82,14 +84,19 @@ function buildCourseLink(
   return fallback;
 }
 
+function formatGradeDisplay(pct: number): string {
+  const rounded = Math.round(pct * 100) / 100;
+  if (Number.isInteger(rounded)) return String(rounded);
+  return rounded.toFixed(2);
+}
+
 export default function CourseraProgressCardView({
   rows,
   programHomeUrl,
   launchUrl,
 }: CourseraProgressCardViewProps) {
-  const rawLocale = useLocale();
-  const locale = rawLocale === 'es' ? 'es' : 'en';
   const t = useTranslations('courseraProgress');
+  const tr = useTranslations('courseraProgress.relative');
 
   const title = t('title');
 
@@ -165,6 +172,10 @@ export default function CourseraProgressCardView({
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem' }}>
           {rows.map((row) => {
             const pct = Math.max(0, Math.min(100, Math.round(row.overallProgress)));
+            const gradeLabel =
+              row.gradePercent != null && Number.isFinite(row.gradePercent)
+                ? formatGradeDisplay(row.gradePercent)
+                : null;
             const link = buildCourseLink(row.viewUrl ?? null, programHomeUrl);
             return (
               <li
@@ -247,10 +258,22 @@ export default function CourseraProgressCardView({
                   }}
                 >
                   <span>
-                    <strong style={{ color: 'var(--color-on-surface)' }}>{pct}%</strong> ·{' '}
-                    {row.learningHours.toFixed(1)} {t('hours')}
+                    <strong style={{ color: 'var(--color-on-surface)' }}>
+                      {t('progressLabel')}: {pct}%
+                    </strong>
+                    {gradeLabel != null ? (
+                      <>
+                        {' '}
+                        ·{' '}
+                        <strong style={{ color: 'var(--color-on-surface)' }}>
+                          {t('gradeLabel')}: {gradeLabel}%
+                        </strong>
+                      </>
+                    ) : null}
+                    {' '}
+                    · {row.learningHours.toFixed(1)} {t('hours')}
                   </span>
-                  <span>{formatRelative(locale, row.lastActivityTime)}</span>
+                  <span>{formatRelative(row.lastActivityTime, tr)}</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.55rem' }}>

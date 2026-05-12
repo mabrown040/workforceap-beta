@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
@@ -10,7 +11,7 @@ export type OrgBranding = {
 
 export { DEFAULT_BRAND_ACCENT, DEFAULT_BRAND_ACCENT_DARK } from '@/lib/platform/brandColors';
 
-export async function getDefaultOrgBranding(): Promise<OrgBranding> {
+async function loadDefaultOrgBranding(): Promise<OrgBranding> {
   if (process.env.__PRISMA_PLACEHOLDER_DB === '1' || shouldSkipOptionalDbQueriesAtBuild()) {
     return { primaryColor: null, logo: null };
   }
@@ -25,10 +26,16 @@ export async function getDefaultOrgBranding(): Promise<OrgBranding> {
       logo: resolveSupabasePublicAssetUrl('organization-branding', org?.logo ?? null),
     };
   } catch {
-    // Build-time / missing DB / missing org row — neutral branding
     return { primaryColor: null, logo: null };
   }
 }
+
+/** Cached 1h to avoid a Prisma read on every root layout render. */
+export const getDefaultOrgBranding = unstable_cache(
+  loadDefaultOrgBranding,
+  ['default-org-branding'],
+  { revalidate: 3600 },
+);
 
 /** Validated custom accent only; callers that need CSS vars should use OrgBrandingStyle. */
 export function orgAccentCss(branding: OrgBranding): string | null {

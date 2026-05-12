@@ -4,7 +4,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import AdminSuperMessagesClient from '@/components/admin/AdminSuperMessagesClient';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -19,14 +18,5 @@ export default async function AdminMessagesPage() {
   if (!user) redirect('/login?redirectTo=/admin/messages');
   if (!(await isSuperAdmin(user.id))) redirect('/admin');
 
-  return (
-    <>
-      <AdminSuperMessagesClient />
-      {/* Mobile bottom nav — only visible ≤md */}
-      <div className="md:wa-hidden">
-        <div className="mobile-bottom-nav-spacer" aria-hidden />
-        <MobileBottomNav variant="admin" />
-      </div>
-    </>
-  );
+  return <AdminSuperMessagesClient />;
 }

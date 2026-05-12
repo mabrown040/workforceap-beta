@@ -242,19 +242,20 @@ html.dark .marketing-bottom-nav {
 }
 
 .marketing-bottom-nav__label {
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: 1;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
   color: inherit;
 }
 
-/* Portal variants: ensure 44px min touch targets */
+/* Portal / workspace variants: 44px touch targets; readable captions (avoid sub-11px copy). */
 .mobile-bottom-nav--portal .marketing-bottom-nav__link,
 .mobile-bottom-nav--employer .marketing-bottom-nav__link,
 .mobile-bottom-nav--counselor .marketing-bottom-nav__link,
-.mobile-bottom-nav--partner .marketing-bottom-nav__link {
+.mobile-bottom-nav--partner .marketing-bottom-nav__link,
+.mobile-bottom-nav--admin .marketing-bottom-nav__link {
   padding: 8px 6px 10px;
   min-width: 0;
   min-height: 44px;
@@ -267,21 +268,19 @@ html.dark .marketing-bottom-nav {
 .mobile-bottom-nav--portal .marketing-bottom-nav__label,
 .mobile-bottom-nav--employer .marketing-bottom-nav__label,
 .mobile-bottom-nav--counselor .marketing-bottom-nav__label,
-.mobile-bottom-nav--partner .marketing-bottom-nav__label {
-  font-size: 10px;
-  letter-spacing: 0.01em;
-  line-height: 1.1;
+.mobile-bottom-nav--partner .marketing-bottom-nav__label,
+.mobile-bottom-nav--admin .marketing-bottom-nav__label {
+  font-size: clamp(0.8125rem, 2.7vw, 0.875rem);
+  letter-spacing: 0.02em;
+  line-height: 1.15;
   text-transform: none;
-}
-
-.mobile-bottom-nav--partner .marketing-bottom-nav__label {
-  font-size: 9px;
 }
 
 .mobile-bottom-nav--portal .marketing-bottom-nav__link--active,
 .mobile-bottom-nav--employer .marketing-bottom-nav__link--active,
 .mobile-bottom-nav--counselor .marketing-bottom-nav__link--active,
-.mobile-bottom-nav--partner .marketing-bottom-nav__link--active {
+.mobile-bottom-nav--partner .marketing-bottom-nav__link--active,
+.mobile-bottom-nav--admin .marketing-bottom-nav__link--active {
   transform: translateY(-1px);
 }
 

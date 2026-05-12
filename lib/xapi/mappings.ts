@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { sendCourseraUnmatchedActorAlertEmail } from '@/lib/email';
 
 export type XapiIdentity = {
   email?: string | null;
@@ -111,6 +112,21 @@ export async function ensureCourseraMappingTables() {
         CREATE INDEX IF NOT EXISTS coursera_xapi_events_status_idx
         ON coursera_xapi_events (completion_status, received_at DESC)
       `);
+
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS coursera_unmatched_actor_alerts (
+          actor_email_lower TEXT PRIMARY KEY,
+          first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          first_statement_id TEXT,
+          last_event_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          email_notified_at TIMESTAMPTZ
+        )
+      `);
+
+      await prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS coursera_unmatched_actor_alerts_seen_idx
+        ON coursera_unmatched_actor_alerts (first_seen_at DESC)
+      `);
     })().catch((error) => {
       ensureTablesPromise = null;
       throw error;
@@ -118,6 +134,56 @@ export async function ensureCourseraMappingTables() {
   }
 
   await ensureTablesPromise;
+}
+
+async function notifyIfNewUnmatchedActorEmail(args: {
+  actorEmailLower: string;
+  statementId: string | null;
+}): Promise<void> {
+  await ensureCourseraMappingTables();
+
+  const emailLower = args.actorEmailLower.trim().toLowerCase();
+  if (!emailLower) return;
+
+  const sid = args.statementId?.trim() || null;
+
+  const inserted = await prisma.$queryRaw<Array<{ one: number }>>`
+    INSERT INTO coursera_unmatched_actor_alerts (actor_email_lower, first_statement_id)
+    VALUES (${emailLower}, ${sid})
+    ON CONFLICT (actor_email_lower) DO NOTHING
+    RETURNING 1 AS one
+  `;
+
+  if (inserted.length === 0) {
+    await prisma.$executeRaw`
+      UPDATE coursera_unmatched_actor_alerts
+      SET last_event_at = now()
+      WHERE actor_email_lower = ${emailLower}
+    `;
+    return;
+  }
+
+  console.warn(
+    '[COURSERA UNMATCHED ACTOR] NEW Coursera actor email with no portal member mapping — ' +
+      `actor_email=${emailLower} statement_id=${sid ?? '(none)'}. ` +
+      'Add a Coursera identity mapping (Admin → Coursera).',
+  );
+
+  try {
+    const result = await sendCourseraUnmatchedActorAlertEmail({
+      actorEmail: emailLower,
+      statementId: sid,
+    });
+    if (result.ok) {
+      await prisma.$executeRaw`
+        UPDATE coursera_unmatched_actor_alerts
+        SET email_notified_at = now()
+        WHERE actor_email_lower = ${emailLower}
+      `;
+    }
+  } catch (error) {
+    console.error('[COURSERA UNMATCHED ACTOR] alert email failed:', error);
+  }
 }
 
 async function getMappingByActor(identity: XapiIdentity): Promise<MappingRow | null> {
@@ -323,38 +389,50 @@ export async function recordXapiEvent(args: {
         raw_payload = EXCLUDED.raw_payload,
         updated_at = now()
     `;
-    return;
+  } else {
+    await prisma.$executeRaw`
+      INSERT INTO coursera_xapi_events (
+        actor_email,
+        actor_identifier,
+        actor_home_page,
+        course_slug,
+        course_name,
+        verb_id,
+        matched_user_id,
+        mapping_method,
+        completion_status,
+        error,
+        raw_payload,
+        updated_at
+      ) VALUES (
+        ${actorEmail}::text,
+        ${actorIdentifier}::text,
+        ${actorHomePage}::text,
+        ${courseSlug}::text,
+        ${courseName}::text,
+        ${verbId}::text,
+        ${matchedUserId ? matchedUserId : null}::text,
+        ${mappingMethod}::text,
+        ${args.completionStatus}::text,
+        ${error}::text,
+        CAST(${rawPayload} AS jsonb),
+        now()
+      )
+    `;
   }
 
-  await prisma.$executeRaw`
-    INSERT INTO coursera_xapi_events (
-      actor_email,
-      actor_identifier,
-      actor_home_page,
-      course_slug,
-      course_name,
-      verb_id,
-      matched_user_id,
-      mapping_method,
-      completion_status,
-      error,
-      raw_payload,
-      updated_at
-    ) VALUES (
-      ${actorEmail}::text,
-      ${actorIdentifier}::text,
-      ${actorHomePage}::text,
-      ${courseSlug}::text,
-      ${courseName}::text,
-      ${verbId}::text,
-      ${matchedUserId ? matchedUserId : null}::text,
-      ${mappingMethod}::text,
-      ${args.completionStatus}::text,
-      ${error}::text,
-      CAST(${rawPayload} AS jsonb),
-      now()
-    )
-  `;
+  if (
+    args.completionStatus === 'unmatched'
+    && actorEmail
+    && !mappingMethod
+  ) {
+    void notifyIfNewUnmatchedActorEmail({
+      actorEmailLower: actorEmail,
+      statementId: statementId ?? null,
+    }).catch((err) => {
+      console.error('[recordXapiEvent] unmatched actor alert failed:', err);
+    });
+  }
 }
 
 export async function listCourseraIdentityMappings() {
@@ -469,6 +547,51 @@ export async function getCourseraSkillsetProgressSummary(
     console.warn('[xapi/mappings] coursera_skillset_progress unavailable:', error);
     return { totalRows: 0, latestSyncedAt: null, topMembers: [] };
   }
+}
+
+export type CourseraUnmatchedActorAlertStats = {
+  distinctUnmatchedActorEmails: number;
+  newAlertRowsLast7Days: number;
+  recentFirstSeen: Array<{ actorEmailLower: string; firstSeenAt: Date }>;
+};
+
+/**
+ * Admin surfacing: distinct unmatched actor inboxes in `coursera_xapi_events`, plus
+ * dedupe rows from `coursera_unmatched_actor_alerts` (first-seen tracking for alerts).
+ */
+export async function getCourseraUnmatchedActorAlertStats(): Promise<CourseraUnmatchedActorAlertStats> {
+  await ensureCourseraMappingTables();
+
+  const [distinctRow, recentRows, weekRow] = await Promise.all([
+    prisma.$queryRaw<Array<{ c: bigint | number }>>`
+      SELECT COUNT(DISTINCT LOWER(TRIM(actor_email)))::bigint AS c
+      FROM coursera_xapi_events
+      WHERE completion_status = 'unmatched'
+        AND mapping_method IS NULL
+        AND actor_email IS NOT NULL
+        AND TRIM(actor_email) <> ''
+    `,
+    prisma.$queryRaw<Array<{ actorEmailLower: string; firstSeenAt: Date }>>`
+      SELECT actor_email_lower AS "actorEmailLower", first_seen_at AS "firstSeenAt"
+      FROM coursera_unmatched_actor_alerts
+      ORDER BY first_seen_at DESC
+      LIMIT 8
+    `,
+    prisma.$queryRaw<Array<{ c: bigint | number }>>`
+      SELECT COUNT(*)::bigint AS c
+      FROM coursera_unmatched_actor_alerts
+      WHERE first_seen_at >= now() - interval '7 days'
+    `,
+  ]);
+
+  return {
+    distinctUnmatchedActorEmails: Number(distinctRow[0]?.c ?? 0),
+    newAlertRowsLast7Days: Number(weekRow[0]?.c ?? 0),
+    recentFirstSeen: recentRows.map((r) => ({
+      actorEmailLower: r.actorEmailLower,
+      firstSeenAt: r.firstSeenAt,
+    })),
+  };
 }
 
 export async function listRecentUnmatchedXapiEvents(limit = 50) {

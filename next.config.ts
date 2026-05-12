@@ -4,8 +4,13 @@ import { fileURLToPath } from 'url';
 import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
+import bundleAnalyzer from '@next/bundle-analyzer';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,6 +19,9 @@ const require = createRequire(import.meta.url);
 require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts'],
+  },
   // Locale routing is handled in middleware + `lib/i18n` (App Router does not use next.config i18n).
   // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.
   outputFileTracingRoot: path.join(__dirname),
@@ -216,6 +224,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(withNextIntl(nextConfig), {
-  silent: true,
-});
+export default withBundleAnalyzer(
+  withSentryConfig(withNextIntl(nextConfig), {
+    silent: true,
+  }),
+);

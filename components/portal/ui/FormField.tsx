@@ -47,7 +47,7 @@ export function FormField({ label, children, required, id, hint, error }: FormFi
         htmlFor={id}
         style={{
           display: 'block',
-          fontSize: '0.8125rem',
+          fontSize: '0.875rem',
           fontWeight: 600,
           color: 'var(--color-on-surface)',
           marginBottom: '0.4rem',
@@ -77,9 +77,11 @@ export function FormField({ label, children, required, id, hint, error }: FormFi
 }
 
 export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
+  const { className, style, ...rest } = props;
   return (
     <input
-      {...props}
+      {...rest}
+      className={['portal-form-control', className].filter(Boolean).join(' ') || undefined}
       style={{
         width: '100%',
         padding: '0.6rem 0.85rem',
@@ -87,18 +89,19 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
         borderRadius: 'var(--radius-md)',
         background: 'var(--surface-container-low)',
         color: 'var(--color-on-surface)',
-        fontSize: '0.875rem',
         transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-        ...(props.style || {}),
+        ...(style || {}),
       }}
     />
   );
 }
 
 export function SelectField(props: SelectHTMLAttributes<HTMLSelectElement>) {
+  const { className, style, ...rest } = props;
   return (
     <select
-      {...props}
+      {...rest}
+      className={['portal-form-control', className].filter(Boolean).join(' ') || undefined}
       style={{
         width: '100%',
         padding: '0.6rem 0.85rem',
@@ -106,18 +109,19 @@ export function SelectField(props: SelectHTMLAttributes<HTMLSelectElement>) {
         borderRadius: 'var(--radius-md)',
         background: 'var(--surface-container-low)',
         color: 'var(--color-on-surface)',
-        fontSize: '0.875rem',
         transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-        ...(props.style || {}),
+        ...(style || {}),
       }}
     />
   );
 }
 
 export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const { className, style, ...rest } = props;
   return (
     <textarea
-      {...props}
+      {...rest}
+      className={['portal-form-control', className].filter(Boolean).join(' ') || undefined}
       style={{
         width: '100%',
         padding: '0.6rem 0.85rem',
@@ -125,11 +129,10 @@ export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
         borderRadius: 'var(--radius-md)',
         background: 'var(--surface-container-low)',
         color: 'var(--color-on-surface)',
-        fontSize: '0.875rem',
         minHeight: '5rem',
         resize: 'vertical',
         transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-        ...(props.style || {}),
+        ...(style || {}),
       }}
     />
   );

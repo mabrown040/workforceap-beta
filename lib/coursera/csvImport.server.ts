@@ -38,6 +38,14 @@ async function resolveUserIdByEmail(email: string): Promise<string | null> {
  */
 let ensureProgressIndexPromise: Promise<void> | null = null;
 
+const CSV_UPSERT_CHUNK = 100;
+
+function chunkCsvRows<T>(arr: T[], size = CSV_UPSERT_CHUNK): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+  return chunks;
+}
+
 async function ensureProgressIndex() {
   if (!ensureProgressIndexPromise) {
     ensureProgressIndexPromise = (async () => {
@@ -51,6 +59,115 @@ async function ensureProgressIndex() {
     });
   }
   await ensureProgressIndexPromise;
+}
+
+async function bulkUpsertCourseProgressChunk(
+  items: Array<{
+    row: ParsedCourseActivityRow;
+    lowerEmail: string;
+    userId: string | null;
+    source: string;
+  }>,
+): Promise<{ inserted: number; updated: number }> {
+  if (items.length === 0) return { inserted: 0, updated: 0 };
+
+  const tuples = items.map(({ row, lowerEmail, userId, source }) =>
+    Prisma.sql`(
+      gen_random_uuid(),
+      ${userId},
+      ${lowerEmail},
+      ${row.name || null},
+      ${row.courseId},
+      ${row.courseSlug},
+      ${row.course},
+      ${row.university},
+      ${row.collectionName},
+      ${row.collectionId},
+      ${row.programSlug},
+      ${row.programName},
+      ${row.enrollmentTime},
+      ${row.classStartTime},
+      ${row.classEndTime},
+      ${row.lastActivityTime},
+      ${row.completionTime},
+      ${row.overallProgress},
+      ${row.learningHours},
+      ${row.completed},
+      ${row.removedFromProgram},
+      ${row.courseGrade},
+      ${row.courseCertificateUrl},
+      ${row.contractName},
+      ${row.isEnterpriseContractActive},
+      ${source},
+      now()
+    )`,
+  );
+
+  const rows = await prisma.$queryRaw<Array<{ inserted: boolean }>>`
+    INSERT INTO coursera_course_progress (
+      id,
+      user_id,
+      external_email,
+      external_name,
+      coursera_course_id,
+      coursera_course_slug,
+      course_name,
+      university,
+      collection_name,
+      collection_id,
+      program_slug,
+      program_name,
+      enrollment_time,
+      class_start_time,
+      class_end_time,
+      last_activity_time,
+      completion_time,
+      overall_progress,
+      learning_hours,
+      is_completed,
+      is_removed_from_program,
+      course_grade,
+      certificate_url,
+      contract_name,
+      contract_active,
+      source,
+      last_synced_at
+    ) VALUES ${Prisma.join(tuples, Prisma.sql`, `)}
+    ON CONFLICT (LOWER(external_email), coursera_course_id) DO UPDATE SET
+      user_id = COALESCE(EXCLUDED.user_id, coursera_course_progress.user_id),
+      external_name = EXCLUDED.external_name,
+      coursera_course_slug = EXCLUDED.coursera_course_slug,
+      course_name = EXCLUDED.course_name,
+      university = EXCLUDED.university,
+      collection_name = EXCLUDED.collection_name,
+      collection_id = EXCLUDED.collection_id,
+      program_slug = EXCLUDED.program_slug,
+      program_name = EXCLUDED.program_name,
+      enrollment_time = EXCLUDED.enrollment_time,
+      class_start_time = EXCLUDED.class_start_time,
+      class_end_time = EXCLUDED.class_end_time,
+      last_activity_time = EXCLUDED.last_activity_time,
+      completion_time = EXCLUDED.completion_time,
+      overall_progress = EXCLUDED.overall_progress,
+      learning_hours = EXCLUDED.learning_hours,
+      is_completed = EXCLUDED.is_completed,
+      is_removed_from_program = EXCLUDED.is_removed_from_program,
+      course_grade = EXCLUDED.course_grade,
+      certificate_url = EXCLUDED.certificate_url,
+      contract_name = EXCLUDED.contract_name,
+      contract_active = EXCLUDED.contract_active,
+      source = EXCLUDED.source,
+      last_synced_at = now()
+    RETURNING (xmax = 0) AS inserted
+  `;
+
+  let inserted = 0;
+  let updated = 0;
+  for (const r of rows) {
+    if (r.inserted) inserted += 1;
+    else updated += 1;
+  }
+  return { inserted, updated };
 }
 
 /**
@@ -80,6 +197,15 @@ export async function ingestCourseActivityRows(
   // Cache lookups within a single ingest batch — a typical CSV has many rows
   // per learner across courses.
   const userIdCache = new Map<string, string | null>();
+
+  type PreparedCourseRow = {
+    row: ParsedCourseActivityRow;
+    lowerEmail: string;
+    userId: string | null;
+    source: string;
+  };
+
+  const pending: PreparedCourseRow[] = [];
 
   for (const row of rows) {
     const lowerEmail = row.email.toLowerCase();
@@ -111,102 +237,31 @@ export async function ingestCourseActivityRows(
       });
     }
 
+    pending.push({ row, lowerEmail, userId, source });
+  }
+
+  const upsertPreparedChunk = async (chunk: PreparedCourseRow[]) => {
     try {
-      const upsertRows = await prisma.$queryRaw<Array<{ inserted: boolean }>>`
-        INSERT INTO coursera_course_progress (
-          id,
-          user_id,
-          external_email,
-          external_name,
-          coursera_course_id,
-          coursera_course_slug,
-          course_name,
-          university,
-          collection_name,
-          collection_id,
-          program_slug,
-          program_name,
-          enrollment_time,
-          class_start_time,
-          class_end_time,
-          last_activity_time,
-          completion_time,
-          overall_progress,
-          learning_hours,
-          is_completed,
-          is_removed_from_program,
-          course_grade,
-          certificate_url,
-          contract_name,
-          contract_active,
-          source,
-          last_synced_at
-        ) VALUES (
-          gen_random_uuid(),
-          ${userId},
-          ${lowerEmail},
-          ${row.name || null},
-          ${row.courseId},
-          ${row.courseSlug},
-          ${row.course},
-          ${row.university},
-          ${row.collectionName},
-          ${row.collectionId},
-          ${row.programSlug},
-          ${row.programName},
-          ${row.enrollmentTime},
-          ${row.classStartTime},
-          ${row.classEndTime},
-          ${row.lastActivityTime},
-          ${row.completionTime},
-          ${row.overallProgress},
-          ${row.learningHours},
-          ${row.completed},
-          ${row.removedFromProgram},
-          ${row.courseGrade},
-          ${row.courseCertificateUrl},
-          ${row.contractName},
-          ${row.isEnterpriseContractActive},
-          ${source},
-          now()
-        )
-        ON CONFLICT (LOWER(external_email), coursera_course_id) DO UPDATE SET
-          user_id = COALESCE(EXCLUDED.user_id, coursera_course_progress.user_id),
-          external_name = EXCLUDED.external_name,
-          coursera_course_slug = EXCLUDED.coursera_course_slug,
-          course_name = EXCLUDED.course_name,
-          university = EXCLUDED.university,
-          collection_name = EXCLUDED.collection_name,
-          collection_id = EXCLUDED.collection_id,
-          program_slug = EXCLUDED.program_slug,
-          program_name = EXCLUDED.program_name,
-          enrollment_time = EXCLUDED.enrollment_time,
-          class_start_time = EXCLUDED.class_start_time,
-          class_end_time = EXCLUDED.class_end_time,
-          last_activity_time = EXCLUDED.last_activity_time,
-          completion_time = EXCLUDED.completion_time,
-          overall_progress = EXCLUDED.overall_progress,
-          learning_hours = EXCLUDED.learning_hours,
-          is_completed = EXCLUDED.is_completed,
-          is_removed_from_program = EXCLUDED.is_removed_from_program,
-          course_grade = EXCLUDED.course_grade,
-          certificate_url = EXCLUDED.certificate_url,
-          contract_name = EXCLUDED.contract_name,
-          contract_active = EXCLUDED.contract_active,
-          source = EXCLUDED.source,
-          last_synced_at = now()
-        RETURNING (xmax = 0) AS inserted
-      `;
-      if (upsertRows[0]?.inserted) {
-        inserted += 1;
-      } else {
-        updated += 1;
+      const sums = await bulkUpsertCourseProgressChunk(chunk);
+      inserted += sums.inserted;
+      updated += sums.updated;
+    } catch {
+      for (const item of chunk) {
+        try {
+          const sums = await bulkUpsertCourseProgressChunk([item]);
+          inserted += sums.inserted;
+          updated += sums.updated;
+        } catch (error) {
+          errors.push(
+            `Upsert failed for ${item.row.email} / ${item.row.courseId}: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
       }
-    } catch (error) {
-      errors.push(
-        `Upsert failed for ${row.email} / ${row.courseId}: ${error instanceof Error ? error.message : String(error)}`
-      );
     }
+  };
+
+  for (const chunk of chunkCsvRows(pending)) {
+    await upsertPreparedChunk(chunk);
   }
 
   const promotion = await promoteCsvProgressToCanonical();
@@ -263,6 +318,91 @@ type BadgeAggregate = {
   collectionId: string | null;
   collectionName: string | null;
 };
+
+async function bulkUpsertBadgeProgressChunk(
+  items: Array<{
+    row: BadgeAggregate;
+    lowerEmail: string;
+    userId: string | null;
+    source: string;
+  }>,
+): Promise<{ inserted: number; updated: number }> {
+  if (items.length === 0) return { inserted: 0, updated: 0 };
+
+  const tuples = items.map(({ row, lowerEmail, userId, source }) =>
+    Prisma.sql`(
+      gen_random_uuid(),
+      ${userId},
+      ${lowerEmail},
+      ${row.name || null},
+      ${row.badgeSlug},
+      ${row.badgeTitle},
+      ${row.badgeLink},
+      ${row.numberOfCourses},
+      ${row.progressPercent},
+      ${row.coursesCompleted},
+      ${row.currentCourseName},
+      ${row.badgeCompleted},
+      ${row.badgeCompletionTime},
+      ${row.lastActivityTime},
+      ${row.totalLearningHours},
+      ${row.collectionId},
+      ${row.collectionName},
+      ${source},
+      now()
+    )`,
+  );
+
+  const upsertRows = await prisma.$queryRaw<Array<{ inserted: boolean }>>`
+    INSERT INTO coursera_badge_progress (
+      id,
+      user_id,
+      external_email,
+      external_name,
+      badge_slug,
+      badge_title,
+      badge_link,
+      number_of_courses,
+      progress_percent,
+      courses_completed,
+      current_course_name,
+      badge_completed,
+      badge_completion_time,
+      last_activity_time,
+      total_learning_hours,
+      collection_id,
+      collection_name,
+      source,
+      last_synced_at
+    ) VALUES ${Prisma.join(tuples, Prisma.sql`, `)}
+    ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET
+      user_id = COALESCE(EXCLUDED.user_id, coursera_badge_progress.user_id),
+      external_name = EXCLUDED.external_name,
+      badge_title = EXCLUDED.badge_title,
+      badge_link = EXCLUDED.badge_link,
+      number_of_courses = EXCLUDED.number_of_courses,
+      progress_percent = EXCLUDED.progress_percent,
+      courses_completed = EXCLUDED.courses_completed,
+      current_course_name = EXCLUDED.current_course_name,
+      badge_completed = EXCLUDED.badge_completed,
+      badge_completion_time = EXCLUDED.badge_completion_time,
+      last_activity_time = EXCLUDED.last_activity_time,
+      total_learning_hours = EXCLUDED.total_learning_hours,
+      collection_id = EXCLUDED.collection_id,
+      collection_name = EXCLUDED.collection_name,
+      source = EXCLUDED.source,
+      last_synced_at = now()
+    RETURNING (xmax = 0) AS inserted
+  `;
+
+  let inserted = 0;
+  let updated = 0;
+  for (const r of upsertRows) {
+    if (r.inserted) inserted += 1;
+    else updated += 1;
+  }
+  return { inserted, updated };
+}
 
 /**
  * Group the per-(learner, course-within-badge) rows from the CSV into one
@@ -373,6 +513,15 @@ export async function ingestLearningPathActivityRows(
 
   const userIdCache = new Map<string, string | null>();
 
+  type PreparedBadgeRow = {
+    row: BadgeAggregate;
+    lowerEmail: string;
+    userId: string | null;
+    source: string;
+  };
+
+  const pending: PreparedBadgeRow[] = [];
+
   for (const row of aggregates) {
     const lowerEmail = row.email.toLowerCase();
 
@@ -403,78 +552,31 @@ export async function ingestLearningPathActivityRows(
       });
     }
 
+    pending.push({ row, lowerEmail, userId, source });
+  }
+
+  const upsertPreparedChunk = async (chunk: PreparedBadgeRow[]) => {
     try {
-      const upsertRows = await prisma.$queryRaw<Array<{ inserted: boolean }>>`
-        INSERT INTO coursera_badge_progress (
-          id,
-          user_id,
-          external_email,
-          external_name,
-          badge_slug,
-          badge_title,
-          badge_link,
-          number_of_courses,
-          progress_percent,
-          courses_completed,
-          current_course_name,
-          badge_completed,
-          badge_completion_time,
-          last_activity_time,
-          total_learning_hours,
-          collection_id,
-          collection_name,
-          source,
-          last_synced_at
-        ) VALUES (
-          gen_random_uuid(),
-          ${userId},
-          ${lowerEmail},
-          ${row.name || null},
-          ${row.badgeSlug},
-          ${row.badgeTitle},
-          ${row.badgeLink},
-          ${row.numberOfCourses},
-          ${row.progressPercent},
-          ${row.coursesCompleted},
-          ${row.currentCourseName},
-          ${row.badgeCompleted},
-          ${row.badgeCompletionTime},
-          ${row.lastActivityTime},
-          ${row.totalLearningHours},
-          ${row.collectionId},
-          ${row.collectionName},
-          ${source},
-          now()
-        )
-        ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET
-          user_id = COALESCE(EXCLUDED.user_id, coursera_badge_progress.user_id),
-          external_name = EXCLUDED.external_name,
-          badge_title = EXCLUDED.badge_title,
-          badge_link = EXCLUDED.badge_link,
-          number_of_courses = EXCLUDED.number_of_courses,
-          progress_percent = EXCLUDED.progress_percent,
-          courses_completed = EXCLUDED.courses_completed,
-          current_course_name = EXCLUDED.current_course_name,
-          badge_completed = EXCLUDED.badge_completed,
-          badge_completion_time = EXCLUDED.badge_completion_time,
-          last_activity_time = EXCLUDED.last_activity_time,
-          total_learning_hours = EXCLUDED.total_learning_hours,
-          collection_id = EXCLUDED.collection_id,
-          collection_name = EXCLUDED.collection_name,
-          source = EXCLUDED.source,
-          last_synced_at = now()
-        RETURNING (xmax = 0) AS inserted
-      `;
-      if (upsertRows[0]?.inserted) {
-        inserted += 1;
-      } else {
-        updated += 1;
+      const sums = await bulkUpsertBadgeProgressChunk(chunk);
+      inserted += sums.inserted;
+      updated += sums.updated;
+    } catch {
+      for (const item of chunk) {
+        try {
+          const sums = await bulkUpsertBadgeProgressChunk([item]);
+          inserted += sums.inserted;
+          updated += sums.updated;
+        } catch (error) {
+          errors.push(
+            `Upsert failed for ${item.row.email} / ${item.row.badgeSlug}: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
       }
-    } catch (error) {
-      errors.push(
-        `Upsert failed for ${row.email} / ${row.badgeSlug}: ${error instanceof Error ? error.message : String(error)}`
-      );
     }
+  };
+
+  for (const chunk of chunkCsvRows(pending)) {
+    await upsertPreparedChunk(chunk);
   }
 
   return { inserted, updated, resolvedToUsers, unresolved, errors, unresolvedRows };
@@ -559,6 +661,7 @@ export async function promoteCsvProgressToCanonical(
         course_id,
         status,
         percent_complete,
+        score_scaled,
         started_at,
         completed_at
       )
@@ -574,6 +677,22 @@ export async function promoteCsvProgressToCanonical(
           ELSE                                'NOT_STARTED'::"CourseProgressStatus"
         END,
         LEAST(ROUND(ccp.overall_progress::numeric)::int, 100),
+        CASE
+          WHEN ccp.course_grade IS NOT NULL
+               AND TRIM(ccp.course_grade) ~ '^[0-9]+(\.[0-9]+)?\s*%?\s*$'
+          THEN LEAST(
+                1.0::double precision,
+                GREATEST(
+                  0.0::double precision,
+                  CASE
+                    WHEN regexp_replace(TRIM(ccp.course_grade), '%$', '')::double precision > 1
+                    THEN regexp_replace(TRIM(ccp.course_grade), '%$', '')::double precision / 100.0
+                    ELSE regexp_replace(TRIM(ccp.course_grade), '%$', '')::double precision
+                  END
+                )
+              )
+          ELSE NULL
+        END,
         COALESCE(ccp.class_start_time, ccp.enrollment_time),
         ccp.completion_time
       FROM coursera_course_progress ccp
@@ -592,6 +711,7 @@ export async function promoteCsvProgressToCanonical(
                             ELSE EXCLUDED.status
                           END,
         percent_complete = GREATEST(course_progress.percent_complete, EXCLUDED.percent_complete),
+        score_scaled     = COALESCE(course_progress.score_scaled, EXCLUDED.score_scaled),
         started_at       = COALESCE(course_progress.started_at, EXCLUDED.started_at),
         completed_at     = COALESCE(EXCLUDED.completed_at, course_progress.completed_at),
         course_id        = COALESCE(EXCLUDED.course_id, course_progress.course_id)

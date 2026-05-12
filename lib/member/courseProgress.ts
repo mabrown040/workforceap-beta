@@ -200,6 +200,22 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       ? 100
       : mergePercent(0, parsed.resultProgressPercent ?? undefined);
 
+  // Same course-level guard as percent: item-level statements may carry scores for
+  // a single quiz — those must not overwrite the rolled-up course grade.
+  const incomingScoreScaled =
+    isCourseLevel &&
+    parsed.resultScoreScaled != null &&
+    Number.isFinite(parsed.resultScoreScaled)
+      ? parsed.resultScoreScaled
+      : null;
+
+  const incomingScoreRaw =
+    isCourseLevel &&
+    parsed.resultScoreRaw != null &&
+    Number.isFinite(parsed.resultScoreRaw)
+      ? parsed.resultScoreRaw
+      : null;
+
   const existing = await prisma.courseProgress.findUnique({
     where: {
       userId_programSlug_courseSlug: {
@@ -247,8 +263,8 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       courseId,
       status,
       percentComplete,
-      scoreScaled: parsed.resultScoreScaled ?? null,
-      scoreRaw: parsed.resultScoreRaw ?? null,
+      scoreScaled: incomingScoreScaled,
+      scoreRaw: incomingScoreRaw,
       startedAt: startedAt ?? undefined,
       completedAt: completedAt ?? undefined,
       lastActivityAt: now,
@@ -260,8 +276,8 @@ export async function upsertCourseProgressFromXapiStatement(args: {
       status,
       percentComplete,
       progressPct: percentComplete,
-      scoreScaled: parsed.resultScoreScaled ?? undefined,
-      scoreRaw: parsed.resultScoreRaw ?? undefined,
+      ...(incomingScoreScaled != null ? { scoreScaled: incomingScoreScaled } : {}),
+      ...(incomingScoreRaw != null ? { scoreRaw: incomingScoreRaw } : {}),
       startedAt: startedAt ?? undefined,
       completedAt: completedAt ?? undefined,
       lastActivityAt: now,

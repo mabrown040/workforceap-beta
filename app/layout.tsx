@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale } from '@/lib/i18n/config';
+import type { AbstractIntlMessages } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
-import ChunkLoadRecovery from '@/components/ChunkLoadRecovery';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import ConversionMetrics from '@/components/analytics/ConversionMetrics';
 import PortalMetrics from '@/components/analytics/PortalMetrics';
@@ -20,6 +20,32 @@ import '@/css/language-toggle.css';
 import '@/app/globals-onboarding.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+
+/** Matches every `useTranslations('…')` namespace used under this provider (omit server-only bundles). */
+function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMessages {
+  type MsgRecord = Record<string, unknown>;
+  const m = messages as MsgRecord;
+  const mk = m.marketing as MsgRecord | undefined;
+  const out: MsgRecord = {
+    nav: m.nav,
+    cta: m.cta,
+    footer: m.footer,
+    form: m.form,
+    common: m.common,
+    dashboard: m.dashboard,
+    messages: m.messages,
+    profile: m.profile,
+    jobs: m.jobs,
+    workspace: m.workspace,
+    courseraProgress: m.courseraProgress,
+    partner: m.partner,
+    group: m.group,
+  };
+  if (mk && mk.programs !== undefined) {
+    out.marketing = { programs: mk.programs };
+  }
+  return out as AbstractIntlMessages;
+}
 
 export const viewport = {
   width: 'device-width',
@@ -46,7 +72,7 @@ export const metadata: Metadata = {
     siteName: 'Workforce Advancement Project',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/images/hero-people.jpg', width: 1200, height: 630, alt: 'Workforce Advancement Project' }],
+    images: [{ url: '/images/hero-people.webp', width: 1200, height: 630, alt: 'Workforce Advancement Project' }],
   },
 };
 
@@ -55,14 +81,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const h = await headers();
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
-  const messages = await getMessages();
+  const messages = pickRootClientMessages(await getMessages());
   return (
     <html lang={htmlLang} suppressHydrationWarning>
       <head>
         <ThemeInitScript />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var KEY='wap:chunk-reload-once';var shouldRecover=function(input){var text='';if(typeof input==='string')text=input;else if(input&&typeof input==='object'){text=[input.name,input.message,input.reason,input.request].filter(Boolean).join(' ');}text=String(text||'').toLowerCase();return text.includes('chunkloaderror')||text.includes('loading chunk')||text.includes('failed to fetch dynamically imported module');};var reloadOnce=function(){try{if(sessionStorage.getItem(KEY)==='1')return;sessionStorage.setItem(KEY,'1');}catch(_e){}window.location.reload();};window.addEventListener('error',function(event){var err=event&&event.error?event.error:null;var message=(event&&event.message)|| (err&&err.message) || err; if(shouldRecover(message)) reloadOnce();},{capture:true});window.addEventListener('unhandledrejection',function(event){var reason=event&&'reason' in event?event.reason:null; if(shouldRecover(reason)){if(event&&event.preventDefault)event.preventDefault();reloadOnce();}},{capture:true});}catch(_e){}})();`,
+            __html: `(function(){try{var KEY='wap:chunk-reload-once';try{sessionStorage.removeItem(KEY);}catch(_s){}var shouldRecover=function(input){var text='';if(typeof input==='string')text=input;else if(input&&typeof input==='object'){text=[input.name,input.message,input.reason,input.request].filter(Boolean).join(' ');}text=String(text||'').toLowerCase();return text.includes('chunkloaderror')||text.includes('loading chunk')||text.includes('failed to fetch dynamically imported module');};var reloadOnce=function(){try{if(sessionStorage.getItem(KEY)==='1')return;sessionStorage.setItem(KEY,'1');}catch(_e){}window.location.reload();};window.addEventListener('error',function(event){var err=event&&event.error?event.error:null;var message=(event&&event.message)|| (err&&err.message) || err; if(shouldRecover(message)) reloadOnce();},{capture:true});window.addEventListener('unhandledrejection',function(event){var reason=event&&'reason' in event?event.reason:null; if(shouldRecover(reason)){if(event&&event.preventDefault)event.preventDefault();reloadOnce();}},{capture:true});}catch(_e){}})();`,
           }}
         />
         {/* PWA manifest */}
@@ -111,7 +137,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </>
         )}
         <JsonLd />
-        <ChunkLoadRecovery />
         <NextIntlClientProvider messages={messages}>
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>

@@ -11,12 +11,13 @@ const SITE_URL = 'https://www.workforceap.org';
  * sitemap entry (cursor audit item 14). The default locale's URL is the
  * canonical (un-prefixed) form; alternates inform Google which other
  * URLs serve the same content in another language. Stay aligned with
- * the picker in `components/portal/LanguageToggle.tsx` — fr/pt are
- * intentionally excluded until their translations reach >95%.
+ * the picker in `components/portal/LanguageToggle.tsx`.
  */
 const SITEMAP_LOCALES: { code: string; prefix: string }[] = [
   { code: 'en', prefix: '' },
   { code: 'es', prefix: '/es' },
+  { code: 'fr', prefix: '/fr' },
+  { code: 'pt', prefix: '/pt' },
 ];
 
 function buildAlternates(path: string) {

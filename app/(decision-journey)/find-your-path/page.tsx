@@ -168,7 +168,7 @@ export default function FindYourPathPage() {
               position: 'relative', height: '200px',
             }}>
               <Image
-                src="/images/hero-people.jpg"
+                src="/images/hero-people.webp"
                 alt="Members collaborating on career training"
                 fill
                 sizes="(min-width: 1024px) 280px, 100vw"

@@ -31,7 +31,7 @@ export async function enqueueTask(
 ): Promise<AgentTask> {
   const row = await prisma.$queryRawUnsafe<AgentTask[]>(
     `INSERT INTO agent_tasks (task, priority, max_retries, status, retries)
-     VALUES (?, ?, ?, 'pending', 0)
+     VALUES ($1, $2, $3, 'pending', 0)
      RETURNING *`,
     task,
     priority,
@@ -46,7 +46,7 @@ export async function enqueueTask(
 export async function claimNextTask(agentId: string): Promise<AgentTask | null> {
   const rows = await prisma.$queryRawUnsafe<AgentTask[]>(
     `UPDATE agent_tasks
-     SET status = 'running', assigned_agent = ?, started_at = NOW()
+     SET status = 'running', assigned_agent = $1, started_at = NOW()
      WHERE id = (
        SELECT id FROM agent_tasks
        WHERE status = 'pending'
@@ -65,8 +65,8 @@ export async function claimNextTask(agentId: string): Promise<AgentTask | null> 
 export async function completeTask(taskId: number, result: string): Promise<void> {
   await prisma.$queryRawUnsafe(
     `UPDATE agent_tasks
-     SET status = 'done', result = ?, completed_at = NOW()
-     WHERE id = ?`,
+     SET status = 'done', result = $1, completed_at = NOW()
+     WHERE id = $2`,
     result,
     taskId
   );
@@ -82,11 +82,11 @@ export async function failTask(taskId: number, error: string): Promise<void> {
        WHEN retries < max_retries THEN 'pending'
        ELSE 'failed'
      END,
-     error = ?,
+     error = $1,
      retries = retries + 1,
      assigned_agent = NULL,
      completed_at = CASE WHEN retries >= max_retries THEN NOW() ELSE NULL END
-     WHERE id = ?`,
+     WHERE id = $2`,
     error,
     taskId
   );
@@ -98,8 +98,8 @@ export async function failTask(taskId: number, error: string): Promise<void> {
 export async function blockTask(taskId: number, reason: string): Promise<void> {
   await prisma.$queryRawUnsafe(
     `UPDATE agent_tasks
-     SET status = 'blocked', error = ?, completed_at = NOW()
-     WHERE id = ?`,
+     SET status = 'blocked', error = $1, completed_at = NOW()
+     WHERE id = $2`,
     reason,
     taskId
   );
@@ -120,9 +120,9 @@ export async function getTaskSummary(since: Date): Promise<{
   >(
     `SELECT status, task, error
      FROM agent_tasks
-     WHERE created_at >= ?
+     WHERE created_at >= $1
      ORDER BY priority DESC, created_at ASC`,
-    since.toISOString()
+    since
   );
   return {
     done: rows.filter((r: { status: TaskStatus }) => r.status === 'done').length,

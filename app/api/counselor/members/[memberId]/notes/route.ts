@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { z } from 'zod';
 
 /**
@@ -23,30 +24,17 @@ const noteSchema = z.object({
   content: z.string().min(1).max(5000),
 });
 
-async function assertCounselorCanAccessMember(userId: string, memberId: string): Promise<boolean> {
-  const counselor = await prisma.counselor.findFirst({
-    where: { userId, active: true },
-    select: { id: true },
-  });
-  if (!counselor) return false;
-
-  const assignment = await prisma.counselorAssignment.findFirst({
-    where: { counselorId: counselor.id, memberId, active: true },
-    select: { id: true },
-  });
-  return Boolean(assignment);
-}
-
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> }
 ) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
+  if (!admin && !counselor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  if (!(await assertCounselorCanAccessMember(user.id, memberId))) {
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -65,10 +53,11 @@ export async function POST(
 ) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
+  if (!admin && !counselor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  if (!(await assertCounselorCanAccessMember(user.id, memberId))) {
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -95,10 +84,11 @@ export async function DELETE(
 ) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isCounselor(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
+  if (!admin && !counselor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { memberId } = await params;
-  if (!(await assertCounselorCanAccessMember(user.id, memberId))) {
+  if (!(await assertStaffCanAccessMemberRecord(user.id, memberId))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

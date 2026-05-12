@@ -18,6 +18,24 @@
   vertical-align: middle;
 }
 
+/* Portal form controls (shared by FormField primitives): ≥14px copy; mobile uses 16px to reduce iOS zoom-on-focus */
+.portal-form-control {
+  box-sizing: border-box;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 767px) {
+  .portal-form-control {
+    font-size: 1rem;
+    min-height: 44px;
+  }
+}
+
+/* Wide tables: momentum scrolling on iOS */
+.wap-data-table-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Portal shell — glassmorphic dark base */
 .portal-shell-root {
   background: var(--color-background-dark, #121416);
@@ -2990,7 +3008,8 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
   .member-portal-top-nav {
     display: block;
     position: sticky;
-    top: 0;
+    /* Sit below the sticky workspace header so tabs stay visible while scrolling */
+    top: var(--workspace-header-h, 3.25rem);
     z-index: 30;
     background: var(--surface, #fff);
     border-bottom: 1px solid var(--outline-variant, rgba(0, 0, 0, 0.08));

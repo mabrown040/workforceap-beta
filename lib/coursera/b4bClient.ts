@@ -216,6 +216,52 @@ function fetchImpl(): FetchLike {
   return (globalThis as any).fetch as FetchLike;
 }
 
+const TRANSIENT_B4B_STATUSES = new Set([429, 502, 503, 504]);
+const B4B_FETCH_MAX_ATTEMPTS = 3;
+const B4B_FETCH_BASE_DELAY_MS = 400;
+
+function isTransientHttpStatus(status: number): boolean {
+  return TRANSIENT_B4B_STATUSES.has(status);
+}
+
+/**
+ * Retries a few times on rate limits, upstream 5xx, and network failures.
+ * Used for OAuth + all B4B REST reads. Writes keep a single attempt so we
+ * never double-submit a Coursera enrollment POST after a timeout.
+ */
+async function fetchWithTransientRetry(operation: () => Promise<Response>): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= B4B_FETCH_MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await operation();
+      if (isTransientHttpStatus(response.status) && attempt < B4B_FETCH_MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
+        continue;
+      }
+      return response;
+    } catch (err) {
+      lastError = err;
+      if (attempt < B4B_FETCH_MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Coursera B4B fetch failed');
+}
+
+/**
+ * Exported for `b4bSync.ts` cron OAuth + enrollment report pulls (same fetch
+ * implementation + retry policy as the typed client, without doubling config).
+ */
+export async function fetchCourseraWithTransientRetry(
+  url: string,
+  init?: RequestInit,
+): Promise<Response> {
+  return fetchWithTransientRetry(() => fetchImpl()(url, init ?? {}));
+}
+
 /** Test-only: substitute fetch + reset the cached token. */
 export function _setFetchForTesting(impl: FetchLike | null) {
   injectedFetch = impl;
@@ -242,15 +288,17 @@ async function getAccessToken(): Promise<string> {
   const url = getOauthUrl();
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
-  const response = await fetchImpl()(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${basic}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-    },
-    body: 'grant_type=client_credentials',
-  });
+  const response = await fetchWithTransientRetry(() =>
+    fetchImpl()(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${basic}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: 'grant_type=client_credentials',
+    }),
+  );
 
   const text = await response.text();
   if (!response.ok) {
@@ -308,7 +356,12 @@ export async function fetchB4B(path: string, init: RequestInit = {}): Promise<Re
   headers.set('Authorization', `Bearer ${token}`);
   headers.set('Accept', 'application/json');
 
-  return fetchImpl()(url, { ...init, headers });
+  const method = (init.method ?? 'GET').toUpperCase();
+  const isSafeRead = method === 'GET' || method === 'HEAD';
+  const run = () => fetchImpl()(url, { ...init, headers });
+  // Never retry POST/PUT writes — Coursera may have applied the mutation
+  // before the connection dropped, and a retry would duplicate side effects.
+  return isSafeRead ? fetchWithTransientRetry(run) : run();
 }
 
 async function getJsonOrThrow<T>(path: string): Promise<T> {

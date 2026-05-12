@@ -68,7 +68,7 @@ export default async function ProgramsPage() {
                   }}
                 >
                   <Image
-                    src="/images/hero-people.jpg"
+                    src="/images/hero-people.webp"
                     alt="WorkforceAP members collaborating on training"
                     fill
                     sizes="(min-width: 1024px) 500px, 100vw"

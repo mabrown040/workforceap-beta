@@ -30,7 +30,7 @@ export default async function PartnersPage() {
     <div className="inner-page">
       {/* ── Hero ── */}
       <HeroSection
-        backgroundImage="/images/hero-people.jpg"
+        backgroundImage="/images/hero-people.webp"
         overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.92) 0%, rgba(18,20,22,0.75) 50%, rgba(173,44,77,0.25) 100%)"
         eyebrow={
           <span
@@ -401,7 +401,7 @@ export default async function PartnersPage() {
                 }}
               >
                 <Image
-                  src="/images/hero-people.jpg"
+                  src="/images/hero-people.webp"
                   alt=""
                   fill
                   aria-hidden="true"

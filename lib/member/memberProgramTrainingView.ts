@@ -9,6 +9,7 @@ import {
   filterRecognizedCourseraCourseIds,
   type LearnerProgressByContent,
 } from '@/lib/coursera/learnerProgress';
+import { scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
 import { prisma } from '@/lib/db/prisma';
 import { loadProgramCourses } from '@/lib/member/loadProgramCourses';
 
@@ -29,6 +30,8 @@ export type MemberProgramTrainingView = {
   hasCompletedFirstCourse: boolean;
   /** Latest touch from `CourseProgress` / rollup; null if no rows exist yet. */
   lastTrainingActivityAt: Date | null;
+  /** Mean of catalog-course grades where `CourseProgress.score_scaled` is set (xAPI / B4B / CSV promote). */
+  averageGradePercentDisplay: number | null;
   /** Catalog slugs that count as fully complete for UI (CourseProgress wins over stale JSON). */
   completedSlugsAuthoritative: string[];
 };
@@ -79,6 +82,7 @@ export async function loadMemberProgramTrainingView(args: {
         courseSlug: true,
         status: true,
         percentComplete: true,
+        scoreScaled: true,
         lastUpdatedAt: true,
       },
     }),
@@ -135,6 +139,8 @@ export async function loadMemberProgramTrainingView(args: {
   const completedSlugsAuthoritative: string[] = [];
 
   let sumPercentForAverage = 0;
+  let sumGradeDisplay = 0;
+  let gradeCount = 0;
 
   for (const c of courseList) {
     const row = bySlug.get(c.slug);
@@ -155,6 +161,12 @@ export async function loadMemberProgramTrainingView(args: {
     const pct = Math.max(localPct, row == null ? b4bPct : 0);
     sumPercentForAverage += Math.max(0, Math.min(100, pct));
 
+    const gradePct = scoreScaledToDisplayPercent(row?.scoreScaled ?? undefined);
+    if (gradePct != null) {
+      sumGradeDisplay += gradePct;
+      gradeCount += 1;
+    }
+
     const started =
       complete ||
       row?.status === CourseProgressStatus.IN_PROGRESS ||
@@ -171,6 +183,9 @@ export async function loadMemberProgramTrainingView(args: {
       nextIncompleteCourseName = c.name;
     }
   }
+
+  const averageGradePercentDisplay =
+    gradeCount > 0 ? Math.round((sumGradeDisplay / gradeCount) * 100) / 100 : null;
 
   const allCoursesComplete = totalCourses > 0 && completedCount >= totalCourses;
   const hasCompletedFirstCourse = completedCount >= 1;
@@ -233,6 +248,7 @@ export async function loadMemberProgramTrainingView(args: {
     hasStartedTraining,
     hasCompletedFirstCourse,
     lastTrainingActivityAt,
+    averageGradePercentDisplay,
     completedSlugsAuthoritative,
   };
 }

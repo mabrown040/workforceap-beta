@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchCounselorPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { cookies } from 'next/headers';
@@ -8,6 +9,11 @@ import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 export async function POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
+  if (!admin && !counselor) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const cookieStore = await cookies();
   const locale = getAppLocaleFromCookieStore(cookieStore);

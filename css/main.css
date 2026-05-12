@@ -8,7 +8,7 @@
 @font-face {
     font-family: 'Material Symbols Outlined';
     font-style: normal;
-    font-display: block;
+    font-display: swap;
     font-weight: 100 700;
     src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
 }
@@ -9239,7 +9239,7 @@ html:not(.dark) .workspace-sidebar.open::before {
     display: flex;
     flex-direction: column;
     min-height: 100%;
-    padding: 1rem 1rem 1.25rem;
+    padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
     gap: 0.5rem;
 }
 @media (max-width: 1023px) {
@@ -16691,16 +16691,25 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     color: var(--color-accent);
 }
 
-/* Mobile Stacked Card Layout for Admin Tables */
+/* Mobile stacked card layout for admin-style tables (needs data-label on cells for row captions) */
 @media (max-width: 767px) {
-    .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
+    .admin-table,
+    .admin-table tbody,
+    .admin-table tr,
+    .admin-table td,
+    .dashboard-table,
+    .dashboard-table tbody,
+    .dashboard-table tr,
+    .dashboard-table td {
         display: block;
         width: 100%;
     }
-    .admin-table thead {
+    .admin-table thead,
+    .dashboard-table thead {
         display: none;
     }
-    .admin-table tr {
+    .admin-table tr,
+    .dashboard-table tr {
         margin-bottom: 1rem;
         border-radius: 0.5rem;
         border: 1px solid var(--surface-container-high);
@@ -16708,7 +16717,8 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
         padding: 0.5rem;
         overflow: hidden;
     }
-    .admin-table td {
+    .admin-table td,
+    .dashboard-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -16716,13 +16726,15 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
         border-bottom: 1px solid var(--surface-container-high);
         text-align: right;
     }
-    .admin-table td:last-child {
+    .admin-table td:last-child,
+    .dashboard-table td:last-child {
         border-bottom: none;
     }
-    .admin-table td::before {
+    .admin-table td::before,
+    .dashboard-table td::before {
         content: attr(data-label);
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.8125rem;
         color: var(--color-on-surface-variant);
         text-transform: uppercase;
         margin-right: 1rem;

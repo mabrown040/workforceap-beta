@@ -19,10 +19,12 @@ import {
   loadCanonicalMappingsForCourseraIds,
   type CanonicalMappingIndex,
 } from '@/lib/coursera/canonicalMapping';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import { replayUnresolvedXapiStatementsForIdentity } from './replayPendingXapi';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
+import { extractGradebookCourseScoreScaled } from '@/lib/coursera/courseGradeDisplay';
 
 /**
  * Shared core for "pull a learner's enrollment + progress from Coursera For
@@ -211,6 +213,10 @@ export async function syncUserFromB4B(args: {
           `[syncUserFromB4B] enrollmentReports failed for program=${program.id} email=${email}:`,
           err instanceof Error ? err.message : err,
         );
+        captureApiError(err, {
+          route: 'coursera/sync-user-from-b4b',
+          extra: { step: 'enrollmentReports', programId: program.id, email },
+        });
       }
     }
     return out;
@@ -228,6 +234,10 @@ export async function syncUserFromB4B(args: {
         `[syncUserFromB4B] gradebook fetch failed for email=${email}:`,
         err instanceof Error ? err.message : err,
       );
+      captureApiError(err, {
+        route: 'coursera/sync-user-from-b4b',
+        extra: { step: 'courseGradebookReports', email },
+      });
       return [];
     }
   })();
@@ -527,10 +537,14 @@ export async function syncUserFromB4B(args: {
         status: true,
         percentComplete: true,
         lastActivityAt: true,
+        scoreScaled: true,
       },
     });
 
     const update = computeCourseProgressUpdate(existing, merged);
+
+    const gbRow = gradebookByCourseId.get(signal.contentId);
+    const gbGradeScaled = gbRow ? extractGradebookCourseScoreScaled(gbRow) : null;
 
     // `completedAt` is set the first time we see COMPLETED. If we've already
     // recorded one we keep it — re-syncs shouldn't re-stamp the timestamp.
@@ -556,6 +570,7 @@ export async function syncUserFromB4B(args: {
           courseId: signal.contentId,
           status: update.status,
           percentComplete: update.percentComplete,
+          ...(gbGradeScaled != null ? { scoreScaled: gbGradeScaled } : {}),
           completedAt,
           lastActivityAt: update.lastActivityAt,
         },
@@ -563,6 +578,7 @@ export async function syncUserFromB4B(args: {
           courseId: signal.contentId,
           status: update.status,
           percentComplete: update.percentComplete,
+          ...(gbGradeScaled != null ? { scoreScaled: gbGradeScaled } : {}),
           // Set completedAt on the transition into COMPLETED; never clear it.
           ...(update.status === CourseProgressStatus.COMPLETED &&
           existing?.status !== CourseProgressStatus.COMPLETED

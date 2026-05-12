@@ -226,7 +226,7 @@ export default async function WhatWeDoPage() {
                 }}
               >
               <Image
-                  src="/images/hero-people.jpg"
+                  src="/images/hero-people.webp"
                   alt="Diverse team collaborating on workforce development"
                   fill
                   style={{ objectFit: 'cover', objectPosition: 'center' }}

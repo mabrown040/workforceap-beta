@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
@@ -150,9 +151,20 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const needsValidatedUser =
+    isProtectedPath(effectivePath) ||
+    (isStaffMfaEnforcementEnabled() &&
+      (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)));
+
+  let user: User | null = null;
+  if (needsValidatedUser) {
+    const {
+      data: { user: u },
+    } = await supabase.auth.getUser();
+    user = u;
+  } else {
+    await supabase.auth.getSession();
+  }
 
   if (isProtectedPath(effectivePath) && !user) {
     const loginUrl = new URL('/login', request.url);

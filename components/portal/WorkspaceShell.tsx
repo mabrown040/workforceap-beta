@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
@@ -34,10 +35,11 @@ import { useTranslations } from 'next-intl';
 // Map non-member portal roles to MobileBottomNav variants. Member uses
 // MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
 // Decision 3 (2026-04-25).
-const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor'>> = {
+const ROLE_TO_NAV_VARIANT: Partial<Record<PortalRole, 'employer' | 'partner' | 'counselor' | 'admin'>> = {
   employer: 'employer',
   partner: 'partner',
   counselor: 'counselor',
+  admin: 'admin',
 };
 
 export default function WorkspaceShell({
@@ -352,8 +354,13 @@ export default function WorkspaceShell({
         <div className="workspace-shell-header__meta">
           {contextLogoUrl ? (
             <span className="workspace-shell-context-logo-wrap" aria-hidden>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={contextLogoUrl} alt="" className="workspace-shell-context-logo" width={36} height={36} />
+              <Image
+                src={contextLogoUrl}
+                alt=""
+                width={36}
+                height={36}
+                className="workspace-shell-context-logo"
+              />
             </span>
           ) : null}
           <span className="workspace-shell-context workspace-shell-context--chip" title={contextLabel}>

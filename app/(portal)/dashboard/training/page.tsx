@@ -20,6 +20,7 @@ import { trackTrainingTabViewed } from '@/lib/analytics/track';
 import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
 import { loadProgramCourses } from '@/lib/member/loadProgramCourses';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
 import {
   fetchLearnerProgressFromB4B,
   getLearnerProgressLastActivity,
@@ -186,7 +187,7 @@ export default async function TrainingPage({
   const [progressRows, trainingView] = await Promise.all([
     prisma.courseProgress.findMany({
       where: { userId: user.id, programSlug: activeProgramSlug },
-      select: { courseSlug: true, status: true, percentComplete: true },
+      select: { courseSlug: true, status: true, percentComplete: true, scoreScaled: true },
     }),
     loadMemberProgramTrainingView({
       userId: user.id,
@@ -225,7 +226,11 @@ export default async function TrainingPage({
   // refreshes within minutes versus xAPI's hours-to-days lag.
   const progressBySlug: Record<string, CourseProgressUi> = {};
   for (const row of progressRows) {
-    progressBySlug[row.courseSlug] = { status: row.status, percentComplete: row.percentComplete };
+    progressBySlug[row.courseSlug] = {
+      status: row.status,
+      percentComplete: row.percentComplete,
+      gradePercent: scoreScaledToDisplayPercent(row.scoreScaled),
+    };
   }
   // Keep local status when COMPLETED so a manually-completed course
   // can't be "downgraded" by stale B4B; otherwise reflect B4B's completion
@@ -250,6 +255,7 @@ export default async function TrainingPage({
       percentComplete: b4bEntry.isCompleted
         ? 100
         : Math.max(b4bEntry.overallProgress, existing?.percentComplete ?? 0),
+      gradePercent: existing?.gradePercent ?? null,
     };
   }
 
@@ -267,6 +273,7 @@ export default async function TrainingPage({
       ? 0
       : Math.round((completedFromRows / effectiveCourses.length) * 100));
 
+  const avgGradePct = trainingView?.averageGradePercentDisplay ?? null;
   const b4bLastActivity = getLearnerProgressLastActivity(b4bProgress);
   const b4bHasData = b4bProgress.size > 0;
 
@@ -422,9 +429,26 @@ export default async function TrainingPage({
               </p>
               <p className="portal-kpi-card__hint">Coursera partner</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns:
+                  avgGradePct != null
+                    ? 'repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr))'
+                    : 'repeat(2, minmax(0, 1fr))',
+                gap: '0.75rem',
+              }}
+            >
               <PortalKpiCard accent="neutral" label="Courses" value={`${completedCount}/${effectiveCourses.length}`} hint="Completed" />
-              <PortalKpiCard accent="accent" label="Progress" value={`${progressPct}%`} hint="Overall" />
+              <PortalKpiCard accent="accent" label={tTraining('progressPercent')} value={`${progressPct}%`} hint="Overall" />
+              {avgGradePct != null ? (
+                <PortalKpiCard
+                  accent="neutral"
+                  label={tTraining('gradePercent')}
+                  value={`${avgGradePct}%`}
+                  hint={tTraining('avgGrade')}
+                />
+              ) : null}
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem', marginTop: '0.75rem', marginBottom: '1rem' }}>
@@ -486,6 +510,20 @@ export default async function TrainingPage({
                 <div style={{ height: '100%', width: `${progressPct}%`, background: 'var(--color-blue)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
               </div>
             </PortalStatCard>
+
+            {avgGradePct != null ? (
+              <PortalStatCard
+                icon="assignment_turned_in"
+                label={tTraining('gradePercent')}
+                value={`${avgGradePct}%`}
+                iconColor="rgb(79, 70, 229)"
+                iconBg="rgba(79,70,229,0.12)"
+              >
+                <p style={{ margin: '0.75rem 0 0', fontSize: '0.8125rem', lineHeight: 1.45, color: 'var(--color-on-surface-variant)' }}>
+                  {tTraining('avgGrade')}
+                </p>
+              </PortalStatCard>
+            ) : null}
           </div>
 
           <div

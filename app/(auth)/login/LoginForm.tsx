@@ -107,7 +107,7 @@ const s = {
   brandBgOverlay: {
     position: 'absolute' as const,
     inset: 0,
-    backgroundImage: 'url(/images/hero-people.jpg)',
+    backgroundImage: 'url(/images/hero-people.webp)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     opacity: 0.12,

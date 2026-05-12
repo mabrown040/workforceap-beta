@@ -9,6 +9,10 @@ import {
 import CourseraProgressCardView, {
   type CourseraProgressRow,
 } from '@/components/portal/CourseraProgressCardView';
+import {
+  parseCourseGradeString,
+  scoreScaledToDisplayPercent,
+} from '@/lib/coursera/courseGradeDisplay';
 
 type CourseraProgressCardProps = {
   /** The subject member's WAP user id. */
@@ -60,10 +64,20 @@ export default async function CourseraProgressCard({
     prisma.courseProgress.findMany({
       where: {
         userId,
-        status: { not: 'NOT_STARTED' },
         ...(programSlug ? { programSlug } : {}),
+        OR: [{ status: { not: 'NOT_STARTED' } }, { scoreScaled: { not: null } }],
       },
       orderBy: [{ lastUpdatedAt: 'desc' }],
+      select: {
+        id: true,
+        programSlug: true,
+        courseSlug: true,
+        courseId: true,
+        status: true,
+        percentComplete: true,
+        scoreScaled: true,
+        lastUpdatedAt: true,
+      },
     }),
   ]);
 
@@ -83,6 +97,14 @@ export default async function CourseraProgressCard({
     csvRows.map((r) => r.courseraCourseSlug).filter(Boolean) as string[]
   );
 
+  const gradePercentByCourseraId = new Map<string, number>();
+  for (const c of canonicalRows) {
+    const cid = c.courseId?.trim();
+    if (!cid) continue;
+    const pct = scoreScaledToDisplayPercent(c.scoreScaled);
+    if (pct != null) gradePercentByCourseraId.set(cid, pct);
+  }
+
   const csvViewRows: CourseraProgressRow[] = await Promise.all(
     csvRows.map(async (row) => ({
       id: row.id,
@@ -90,6 +112,10 @@ export default async function CourseraProgressCard({
       university: row.university ?? null,
       courseraCourseSlug: row.courseraCourseSlug ?? null,
       overallProgress: Number(row.overallProgress) || 0,
+      gradePercent:
+        parseCourseGradeString(row.courseGrade)
+        ?? gradePercentByCourseraId.get(row.courseraCourseId?.trim() ?? '')
+        ?? null,
       learningHours: Number(row.learningHours) || 0,
       isCompleted: row.isCompleted,
       certificateUrl: row.certificateUrl ?? null,
@@ -124,6 +150,7 @@ export default async function CourseraProgressCard({
       university: discovered?.partner ?? null,
       courseraCourseSlug: c.courseSlug,
       overallProgress: c.percentComplete ?? 0,
+      gradePercent: scoreScaledToDisplayPercent(c.scoreScaled),
       learningHours: 0,
       isCompleted: c.status === 'COMPLETED',
       certificateUrl: null,

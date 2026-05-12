@@ -3,7 +3,7 @@ import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale, withLocalePrefix } from '@
 import { getRequestLocale } from '@/lib/i18n/server';
 
 export const SITE_URL = 'https://www.workforceap.org';
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/hero-people.jpg`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/hero-people.webp`;
 
 type PageSeoInput = {
   title: string;

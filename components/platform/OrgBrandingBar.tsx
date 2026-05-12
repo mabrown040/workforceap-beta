@@ -1,8 +1,10 @@
+import Image from 'next/image';
 import type { OrgBranding } from '@/lib/platform/defaultOrgTheme';
 
 /** Thin branded strip when org logo is configured (optional visual cue for white-label). */
 export default function OrgBrandingBar({ branding }: { branding: OrgBranding }) {
-  if (!branding.logo?.trim()) return null;
+  const logo = branding.logo?.trim();
+  if (!logo) return null;
   return (
     <div
       className="org-branding-bar"
@@ -16,8 +18,14 @@ export default function OrgBrandingBar({ branding }: { branding: OrgBranding }) 
         borderBottom: '1px solid var(--outline-variant)',
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={branding.logo} alt="" width={120} height={36} style={{ maxHeight: 36, width: 'auto', objectFit: 'contain' }} />
+      <Image
+        src={logo}
+        alt=""
+        width={120}
+        height={36}
+        style={{ maxHeight: 36, width: 'auto', height: 'auto', objectFit: 'contain' }}
+        sizes="120px"
+      />
     </div>
   );
 }

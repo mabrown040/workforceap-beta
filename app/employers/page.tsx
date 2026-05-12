@@ -79,7 +79,7 @@ export default async function EmployersPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: 'url(/images/hero-people.jpg)',
+            backgroundImage: 'url(/images/hero-people.webp)',
             backgroundSize: 'cover',
             backgroundPosition: 'center 35%',
           }}

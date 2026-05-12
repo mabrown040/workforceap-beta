@@ -1,8 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, type ReactNode } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Check, Filter, Loader2, RotateCcw, ShieldAlert, ShieldCheck, ShieldHalf } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  Filter,
+  Loader2,
+  MessageSquare,
+  RotateCcw,
+  ShieldAlert,
+  ShieldCheck,
+  ShieldHalf,
+} from 'lucide-react';
 import DataTable from '@/components/portal/ui/DataTable';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -36,6 +46,8 @@ interface AtRiskMember {
   } | null;
   alertCreatedAt: string;
   alertUpdatedAt: string;
+  /** ISO timestamp: latest portal activity signal from the API (member events → Coursera sync → joined). */
+  lastActivityAt?: string;
 }
 
 interface ApiResponse {
@@ -47,6 +59,21 @@ interface ApiResponse {
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const RISK_LEVEL_ORDER: Array<AtRiskMember['riskLevel']> = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+
+const RISK_SORT_INDEX: Record<AtRiskMember['riskLevel'], number> = {
+  CRITICAL: 0,
+  HIGH: 1,
+  MEDIUM: 2,
+  LOW: 3,
+};
+
+type SortMode = 'risk' | 'last_activity';
+
+function activityTimestamp(m: AtRiskMember): number {
+  const raw = m.lastActivityAt ?? m.memberSince;
+  const t = Date.parse(raw);
+  return Number.isFinite(t) ? t : 0;
+}
 
 const RISK_CONFIG: Record<
   AtRiskMember['riskLevel'],
@@ -71,16 +98,6 @@ function formatDate(d: string | null): string {
   return new Date(d).toLocaleDateString();
 }
 
-function getSeverityThreshold(level: AtRiskMember['riskLevel']): number {
-  switch (level) {
-    case 'CRITICAL': return 70;
-    case 'HIGH': return 50;
-    case 'MEDIUM': return 30;
-    case 'LOW': return 0;
-  }
-}
-
-// ─── Render helpers ───────────────────────────────────────────────────────
 
 function RiskBadge({ level }: { level: AtRiskMember['riskLevel'] }) {
   const cfg = RISK_CONFIG[level];
@@ -126,6 +143,8 @@ export default function AtRiskDashboard() {
   // Filters
   const [severityFilter, setSeverityFilter] = useState<AtRiskMember['riskLevel'] | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AtRiskMember['status'] | 'all'>('all');
+  const [unacknowledgedOnly, setUnacknowledgedOnly] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>('risk');
 
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -168,13 +187,31 @@ export default function AtRiskDashboard() {
     if (severityFilter !== 'all') {
       rows = rows.filter((m) => m.riskLevel === severityFilter);
     }
-    // status is already filtered server-side, but re-filter for safety
     if (statusFilter !== 'all') {
       rows = rows.filter((m) => m.status === statusFilter);
     }
-    // Sort by score descending
-    return rows.sort((a, b) => b.score - a.score);
-  }, [members, severityFilter, statusFilter]);
+    if (unacknowledgedOnly) {
+      rows = rows.filter((m) => m.status === 'open');
+    }
+    const ranked = [...rows];
+    if (sortMode === 'risk') {
+      ranked.sort((a, b) => {
+        const byRisk = RISK_SORT_INDEX[a.riskLevel] - RISK_SORT_INDEX[b.riskLevel];
+        if (byRisk !== 0) return byRisk;
+        if (b.score !== a.score) return b.score - a.score;
+        return activityTimestamp(a) - activityTimestamp(b);
+      });
+    } else {
+      ranked.sort((a, b) => {
+        const byActivity = activityTimestamp(a) - activityTimestamp(b);
+        if (byActivity !== 0) return byActivity;
+        const byRisk = RISK_SORT_INDEX[a.riskLevel] - RISK_SORT_INDEX[b.riskLevel];
+        if (byRisk !== 0) return byRisk;
+        return b.score - a.score;
+      });
+    }
+    return ranked;
+  }, [members, severityFilter, statusFilter, unacknowledgedOnly, sortMode]);
 
   const severityCounts = useMemo(() => {
     const counts: Record<AtRiskMember['riskLevel'], number> = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
@@ -242,20 +279,27 @@ export default function AtRiskDashboard() {
   }
 
   async function bulkAcknowledge() {
-    if (selectedIds.size === 0) return;
+    const openAlertIds = Array.from(selectedIds).filter((alertId) => {
+      const m = members.find((x) => x.alertId === alertId);
+      return m?.status === 'open';
+    });
+    if (openAlertIds.length === 0) {
+      alert('No open (unacknowledged) alerts among the selected rows.');
+      return;
+    }
     setBulkActionLoading(true);
     try {
-      const promises = Array.from(selectedIds).map((alertId) =>
+      const promises = openAlertIds.map((alertId) =>
         fetch('/api/admin/members/at-risk', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ alertId, status: 'acknowledged' }),
-        })
+        }),
       );
       const results = await Promise.all(promises);
       const failed = results.filter((r) => !r.ok).length;
       if (failed > 0) {
-        alert(`${failed} of ${selectedIds.size} updates failed. Refreshing...`);
+        alert(`${failed} of ${openAlertIds.length} updates failed. Refreshing…`);
       }
       setSelectedIds(new Set());
       await fetchData();
@@ -265,6 +309,15 @@ export default function AtRiskDashboard() {
       setBulkActionLoading(false);
     }
   }
+
+  const openSelectedCount = useMemo(() => {
+    let n = 0;
+    for (const alertId of selectedIds) {
+      const m = members.find((x) => x.alertId === alertId);
+      if (m?.status === 'open') n += 1;
+    }
+    return n;
+  }, [selectedIds, members]);
 
   // ─── Loading / Error ──────────────────────────────────────────────────────
 
@@ -342,8 +395,54 @@ export default function AtRiskDashboard() {
         </div>
       </div>
 
+      {/* Sort + triage toggle */}
+      <div
+        className="content-card"
+        role="toolbar"
+        aria-label="List sort and filters"
+        style={{
+          padding: '0.75rem 1rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+            Sort
+          </span>
+          <SortModeButton active={sortMode === 'risk'} onClick={() => setSortMode('risk')}>
+            Severity ↑
+          </SortModeButton>
+          <SortModeButton active={sortMode === 'last_activity'} onClick={() => setSortMode('last_activity')}>
+            Oldest activity first
+          </SortModeButton>
+        </div>
+        <label
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            userSelect: 'none',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={unacknowledgedOnly}
+            onChange={(e) => setUnacknowledgedOnly(e.target.checked)}
+            style={{ cursor: 'pointer', width: '1rem', height: '1rem' }}
+          />
+          Only unacknowledged (open alerts)
+        </label>
+      </div>
+
       {/* Active filter chips */}
-      {(severityFilter !== 'all' || statusFilter !== 'all') && (
+      {(severityFilter !== 'all' || statusFilter !== 'all' || unacknowledgedOnly) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
             <Filter size={12} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
@@ -361,10 +460,17 @@ export default function AtRiskDashboard() {
               onRemove={() => setStatusFilter('all')}
             />
           )}
+          {unacknowledgedOnly && (
+            <FilterTag label="Only open alerts" onRemove={() => setUnacknowledgedOnly(false)} />
+          )}
           <button
             type="button"
             className="btn btn-ghost btn-sm"
-            onClick={() => { setSeverityFilter('all'); setStatusFilter('all'); }}
+            onClick={() => {
+              setSeverityFilter('all');
+              setStatusFilter('all');
+              setUnacknowledgedOnly(false);
+            }}
             style={{ fontSize: '0.75rem' }}
           >
             Clear all
@@ -388,12 +494,19 @@ export default function AtRiskDashboard() {
         >
           <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>
             {selectedIds.size} selected
+            {openSelectedCount !== selectedIds.size ? (
+              <span style={{ fontWeight: 500, opacity: 0.85 }}>
+                {' '}
+                · {openSelectedCount} open
+              </span>
+            ) : null}
           </span>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
               type="button"
               className="btn btn-primary btn-sm"
-              disabled={bulkActionLoading}
+              disabled={bulkActionLoading || openSelectedCount === 0}
+              title={openSelectedCount === 0 ? 'Select rows that are still open' : undefined}
               onClick={bulkAcknowledge}
             >
               {bulkActionLoading ? (
@@ -404,7 +517,7 @@ export default function AtRiskDashboard() {
               ) : (
                 <>
                   <Check size={14} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
-                  Acknowledge selected
+                  Acknowledge ({openSelectedCount})
                 </>
               )}
             </button>
@@ -526,6 +639,17 @@ export default function AtRiskDashboard() {
               hideOnMobile: true,
             },
             {
+              key: 'lastActivity',
+              header: 'Last activity',
+              cell: (row) => (
+                <span style={{ fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
+                  {formatDate(row.lastActivityAt ?? row.memberSince)}
+                </span>
+              ),
+              width: 110,
+              hideOnMobile: true,
+            },
+            {
               key: 'status',
               header: 'Status',
               cell: (row) => <StatusBadge label={STATUS_CONFIG[row.status].label} variant={STATUS_CONFIG[row.status].variant} />,
@@ -561,6 +685,14 @@ export default function AtRiskDashboard() {
                       </button>
                     )}
                     <Link
+                      href={`/dashboard/messages?to=${encodeURIComponent(row.userId)}`}
+                      className="btn btn-outline btn-sm"
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                    >
+                      <MessageSquare size={12} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
+                      Message
+                    </Link>
+                    <Link
                       href={`/counselor/students/${row.userId}`}
                       className="btn btn-outline btn-sm"
                       style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
@@ -570,7 +702,7 @@ export default function AtRiskDashboard() {
                   </div>
                 );
               },
-              width: 180,
+              width: 268,
             },
           ]}
           rows={filteredMembers}
@@ -580,7 +712,15 @@ export default function AtRiskDashboard() {
               title="No at-risk members match your filters"
               description="Try adjusting severity or status filters, or check back after the next nightly risk scan."
               icon={<AlertTriangle size={32} style={{ color: 'var(--color-gold)' }} />}
-              primaryAction={{ label: 'Clear filters', href: '#', onClick: () => { setSeverityFilter('all'); setStatusFilter('all'); } }}
+              primaryAction={{
+                label: 'Clear filters',
+                href: '#',
+                onClick: () => {
+                  setSeverityFilter('all');
+                  setStatusFilter('all');
+                  setUnacknowledgedOnly(false);
+                },
+              }}
             />
           }
           scrollX
@@ -594,7 +734,15 @@ export default function AtRiskDashboard() {
             title="No at-risk members match your filters"
             description="Try adjusting severity or status filters, or check back after the next nightly risk scan."
             icon={<AlertTriangle size={32} style={{ color: 'var(--color-gold)' }} />}
-            primaryAction={{ label: 'Clear filters', href: '#', onClick: () => { setSeverityFilter('all'); setStatusFilter('all'); } }}
+            primaryAction={{
+              label: 'Clear filters',
+              href: '#',
+              onClick: () => {
+                setSeverityFilter('all');
+                setStatusFilter('all');
+                setUnacknowledgedOnly(false);
+              },
+            }}
           />
         ) : (
           filteredMembers.map((row) => (
@@ -615,6 +763,27 @@ export default function AtRiskDashboard() {
 }
 
 // ─── Sub-components ─────────────────────────────────────────────────────────
+
+function SortModeButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={active ? 'btn btn-primary btn-sm' : 'btn btn-muted btn-sm'}
+      style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+    >
+      {children}
+    </button>
+  );
+}
 
 function SeverityChip({
   level,
@@ -791,9 +960,27 @@ function MobileAtRiskCard({
         ))}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+        Last activity:{' '}
+        <strong style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
+          {formatDate(row.lastActivityAt ?? row.memberSince)}
+        </strong>
+      </p>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
         <StatusBadge label={STATUS_CONFIG[row.status].label} variant={STATUS_CONFIG[row.status].variant} />
-        <div style={{ display: 'flex', gap: '0.35rem' }}>
+        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+          <Link
+            href={`/dashboard/messages?to=${encodeURIComponent(row.userId)}`}
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+          >
+            <MessageSquare size={12} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
+            Message
+          </Link>
+          <Link href={`/counselor/students/${row.userId}`} className="btn btn-outline btn-sm" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}>
+            View
+          </Link>
           {row.status === 'open' && (
             <button
               type="button"

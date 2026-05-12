@@ -36,6 +36,7 @@ export async function GET(req: Request) {
             enrolledProgram: true,
             enrolledAt: true,
             createdAt: true,
+            lastCourseraAutoSyncAt: true,
             phone: true,
             profile: {
               select: {
@@ -48,23 +49,46 @@ export async function GET(req: Request) {
       },
     });
 
-    const results = alerts.map((alert) => ({
-      alertId: alert.id,
-      userId: alert.userId,
-      name: alert.user.fullName ?? 'Unknown',
-      email: alert.user.email,
-      phone: alert.user.phone,
-      score: alert.score,
-      riskLevel: getRiskLevel(alert.score),
-      status: alert.status,
-      factors: alert.factors as Array<{ name: string; weight: number; description: string }>,
-      enrolledProgram: alert.user.enrolledProgram,
-      enrolledAt: alert.user.enrolledAt,
-      memberSince: alert.user.createdAt,
-      profile: alert.user.profile,
-      alertCreatedAt: alert.createdAt,
-      alertUpdatedAt: alert.updatedAt,
-    }));
+    const userIds = [...new Set(alerts.map((a) => a.userId))];
+    const activityAgg =
+      userIds.length === 0
+        ? []
+        : await prisma.memberEvent.groupBy({
+            by: ['userId'],
+            where: { userId: { in: userIds } },
+            _max: { createdAt: true },
+          });
+    const lastActivityByUser = new Map(activityAgg.map((r) => [r.userId, r._max.createdAt]));
+
+    const results = alerts.map((alert) => {
+      const ev = lastActivityByUser.get(alert.userId);
+      const coursera = alert.user.lastCourseraAutoSyncAt;
+      const joined = alert.user.createdAt;
+      const lastActivityAt = [ev, coursera, joined].reduce<Date | undefined>((best, d) => {
+        if (!d) return best;
+        if (!best || d.getTime() > best.getTime()) return d;
+        return best;
+      }, undefined) ?? joined;
+      return {
+        alertId: alert.id,
+        userId: alert.userId,
+        name: alert.user.fullName ?? 'Unknown',
+        email: alert.user.email,
+        phone: alert.user.phone,
+        score: alert.score,
+        riskLevel: getRiskLevel(alert.score),
+        status: alert.status,
+        factors: alert.factors as Array<{ name: string; weight: number; description: string }>,
+        enrolledProgram: alert.user.enrolledProgram,
+        enrolledAt: alert.user.enrolledAt,
+        memberSince: alert.user.createdAt,
+        profile: alert.user.profile,
+        alertCreatedAt: alert.createdAt,
+        alertUpdatedAt: alert.updatedAt,
+        /** Best proxy for “last login”: latest member_activity event, else Coursera sync, else account created. */
+        lastActivityAt: lastActivityAt.toISOString(),
+      };
+    });
 
     return NextResponse.json({
       count: results.length,

@@ -26,7 +26,7 @@ const PHASES = (t: (key: string) => string) => [
     id: 1,
     label: t('phase1Label'),
     title: t('phase1Title'),
-    steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num <= 3).map((s) => ({
+    steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num <= 5).map((s) => ({
       num: s.num,
       title: s.title,
       desc: s.longDesc,
@@ -37,7 +37,7 @@ const PHASES = (t: (key: string) => string) => [
     id: 2,
     label: t('phase2Label'),
     title: t('phase2Title'),
-    steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 4 && s.num <= 6).map((s) => ({
+    steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 6 && s.num <= 8).map((s) => ({
       num: s.num,
       title: s.title,
       desc: s.longDesc,
@@ -48,7 +48,7 @@ const PHASES = (t: (key: string) => string) => [
     id: 3,
     label: t('phase3Label'),
     title: t('phase3Title'),
-    steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 7).map((s) => ({
+    steps: MARKETING_JOURNEY_STEPS.filter((s) => s.num >= 9).map((s) => ({
       num: s.num,
       title: s.title,
       desc: s.longDesc,
@@ -162,7 +162,7 @@ export default async function HowItWorksPage() {
         </div>
       </section>
 
-      {/* The Journey: 10-step process (same steps as homepage) */}
+      {/* The Journey: member milestones (same steps as homepage) */}
       <section className="bg-surface-container-low" style={{ padding: '6rem 0', overflow: 'hidden' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ marginBottom: '4rem' }}>
@@ -192,9 +192,6 @@ export default async function HowItWorksPage() {
                         ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
                       }}
                     >
-                      <span className="text-label-upper" style={{ color: isHighlight ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', marginBottom: '0.5rem', display: 'block' }}>
-                        {t('phaseLabel')} {String(step.num).padStart(2, '0')}
-                      </span>
                       <h4 style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{step.title}</h4>
                       {step.num === 2 && overviewVideoEmbed ? (
                         <div style={{ margin: '1rem 0' }}>

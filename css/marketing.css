@@ -22,6 +22,15 @@
   --wap-marketing-dark-on-surface-variant: rgba(232, 230, 227, 0.78);
 }
 
+/*
+ * Mirrors theme foreground on <html> only. `.marketing-mobile` overrides `--color-on-surface` for its
+ * subtree; `html.dark` stripes need document theme colors via `--wap-doc-*` (inherited, not circular).
+ */
+html {
+  --wap-doc-on-surface: var(--color-on-surface);
+  --wap-doc-on-surface-variant: var(--color-on-surface-variant);
+}
+
 @media (max-width: 767px) {
   html.wap-reserve-mobile-bottom-nav,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
@@ -98,16 +107,41 @@ html.dark .partner-logos-small span {
 }
 
 /*
- * Stitch mobile columns use a light cream surface. In `html.dark`, `body` uses light text; without an
- * explicit color, children inherit it and become unreadable on #fcf9f8. Default: lock foreground to
- * the light-surface tokens (--wap-marketing-light-on-*). For a dark marketing stripe, add
- * `marketing-mobile--on-dark-marketing-surface`. When this block sits on a dark/theme surface, add
- * `marketing-mobile--on-theme-surface` so `color` / `--color-on-surface*` follow the document theme.
+ * Stitch mobile columns default to a light cream surface (dark type). In `html.dark`, use the
+ * document theme foreground (`--wap-doc-on-surface*`) unless this stripe is still a pale/cream band
+ * (`marketing-mobile--on-light-marketing-surface`), sits on the parent surface
+ * (`marketing-mobile--on-theme-surface`), or is an explicitly dark band
+ * (`marketing-mobile--on-dark-marketing-surface`).
  */
 .marketing-mobile {
-  color: var(--wap-marketing-light-on-surface);
-  --color-on-surface: var(--wap-marketing-light-on-surface);
-  --color-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
+  color: var(--wap-marketing-mobile-text, var(--wap-marketing-light-on-surface));
+  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-marketing-light-on-surface));
+  --color-on-surface-variant: var(
+    --wap-marketing-mobile-c-on-surface-variant,
+    var(--wap-marketing-light-on-surface-variant)
+  );
+}
+
+html:not(.dark)
+  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(.marketing-mobile--on-dark-marketing-surface) {
+  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
+}
+
+html.dark
+  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(
+    .marketing-mobile--on-dark-marketing-surface
+  ):not(.marketing-mobile--on-light-marketing-surface) {
+  --wap-marketing-mobile-text: var(--wap-doc-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-doc-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-doc-on-surface-variant);
+}
+
+html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
+  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
 }
 
 .marketing-mobile.marketing-mobile--on-theme-surface {
@@ -117,9 +151,9 @@ html.dark .partner-logos-small span {
 }
 
 .marketing-mobile.marketing-mobile--on-dark-marketing-surface {
-  color: var(--wap-marketing-dark-on-surface);
-  --color-on-surface: var(--wap-marketing-dark-on-surface);
-  --color-on-surface-variant: var(--wap-marketing-dark-on-surface-variant);
+  --wap-marketing-mobile-text: var(--wap-marketing-dark-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-dark-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-dark-on-surface-variant);
 }
 
 .home-impact-bento {

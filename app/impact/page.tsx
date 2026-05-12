@@ -21,7 +21,7 @@ export default async function ImpactPage() {
 
   return (
     <div className="inner-page marketing-mobile-pb-for-bottom-nav">
-      <section className="content-section" style={{ paddingBottom: '2rem' }}>
+      <section id="donate" className="content-section" style={{ paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <SectionHeader
             eyebrow={t('eyebrow')}

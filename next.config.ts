@@ -20,7 +20,7 @@ require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts'],
+    optimizePackageImports: ['lucide-react', 'recharts', 'react-markdown', 'remark-gfm'],
   },
   // Locale routing is handled in middleware + `lib/i18n` (App Router does not use next.config i18n).
   // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.

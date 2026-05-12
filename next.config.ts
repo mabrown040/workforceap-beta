@@ -146,6 +146,32 @@ const nextConfig: NextConfig = {
       // Legacy .html redirects
       { source: '/index.html', destination: '/', permanent: true },
 
+      // Legacy fund/donate entry points → /impact#donate (anchor on `app/impact/page.tsx`)
+      { source: '/fund', destination: '/impact#donate', permanent: true },
+      { source: '/fund/', destination: '/impact#donate', permanent: true },
+      { source: '/donate', destination: '/impact#donate', permanent: true },
+      { source: '/donate/', destination: '/impact#donate', permanent: true },
+      {
+        source: '/:locale(en|es|fr|pt)/fund',
+        destination: '/:locale/impact#donate',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/fund/',
+        destination: '/:locale/impact#donate',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/donate',
+        destination: '/:locale/impact#donate',
+        permanent: true,
+      },
+      {
+        source: '/:locale(en|es|fr|pt)/donate/',
+        destination: '/:locale/impact#donate',
+        permanent: true,
+      },
+
       // Public marketing route aliases restored after responsive merge
       { source: '/about', destination: '/what-we-do', permanent: true },
       { source: '/about/', destination: '/what-we-do', permanent: true },

@@ -2,24 +2,17 @@
 
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import type { JobApplication, JobApplicationStatus } from "@/types/job-application";
+import type { JobApplication } from "@/types/job-application";
+import {
+  JOB_APPLICATION_PIPELINE_COLUMNS,
+  type JobApplicationStatus,
+} from "@/lib/jobApplications/constants";
 import JobApplicationCard from "./JobApplicationCard";
 
 interface JobApplicationKanbanProps {
   applications: JobApplication[];
   onStatusChange: (id: string, updates: Partial<JobApplication>) => void;
 }
-
-/** Full pipeline including saved leads and rejections (curated board "track only" lands in Saved). */
-const STATUSES: JobApplicationStatus[] = [
-  "SAVED",
-  "APPLIED",
-  "PHONE_SCREEN",
-  "INTERVIEWING",
-  "OFFER",
-  "ACCEPTED",
-  "REJECTED",
-];
 
 const STATUS_LABELS: Record<JobApplicationStatus, string> = {
   APPLIED: "Applied",
@@ -140,7 +133,7 @@ function MobileApplicationCard({
             }
             className="wa-w-full wa-px-3 wa-py-2 wa-border wa-border-gray-300 wa-rounded wa-text-sm wa-mb-3"
           >
-            {STATUSES.map((s) => (
+            {JOB_APPLICATION_PIPELINE_COLUMNS.map((s) => (
               <option key={s} value={s}>
                 {STATUS_LABELS[s]}
               </option>
@@ -180,7 +173,7 @@ export default function JobApplicationKanban({
   applications,
   onStatusChange,
 }: JobApplicationKanbanProps) {
-  const grouped = STATUSES.reduce(
+  const grouped = JOB_APPLICATION_PIPELINE_COLUMNS.reduce(
     (acc, status) => {
       acc[status] = applications.filter((app) => app.status === status);
       return acc;
@@ -198,7 +191,7 @@ export default function JobApplicationKanban({
           </div>
         ) : (
           <div>
-            {STATUSES.map((status) => {
+            {JOB_APPLICATION_PIPELINE_COLUMNS.map((status) => {
               const group = grouped[status];
               if (group.length === 0) return null;
               return (
@@ -230,7 +223,7 @@ export default function JobApplicationKanban({
       {/* Desktop kanban — hidden on mobile */}
       <div className="wa-hidden md:wa-block">
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 xl:wa-grid-cols-6 wa-gap-4">
-          {STATUSES.map((status) => (
+          {JOB_APPLICATION_PIPELINE_COLUMNS.map((status) => (
             <div
               key={status}
               className="portal-kanban-column"
@@ -258,7 +251,7 @@ export default function JobApplicationKanban({
                       key={app.id}
                       application={app}
                       onStatusChange={onStatusChange}
-                      availableStatuses={STATUSES}
+                      availableStatuses={[...JOB_APPLICATION_PIPELINE_COLUMNS]}
                     />
                   ))
                 )}

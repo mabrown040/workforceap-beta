@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import type { JobApplication, JobApplicationStatus } from "@/types/job-application";
+import type { JobApplication } from "@/types/job-application";
+import type { JobApplicationStatus } from "@/lib/jobApplications/constants";
 
 interface JobApplicationCardProps {
   application: JobApplication;

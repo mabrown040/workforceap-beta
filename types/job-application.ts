@@ -1,17 +1,12 @@
-export type JobApplicationStatus =
-  | 'SAVED'
-  | 'APPLIED'
-  | 'PHONE_SCREEN'
-  | 'INTERVIEWING'
-  | 'OFFER'
-  | 'ACCEPTED'
-  | 'REJECTED';
+import type {
+  JobApplicationSource,
+  JobApplicationStatus,
+} from "@/lib/jobApplications/constants";
 
-export type JobApplicationSource =
-  | 'INDEED'
-  | 'LINKEDIN'
-  | 'DIRECT'
-  | 'OTHER';
+export type {
+  JobApplicationSource,
+  JobApplicationStatus,
+} from "@/lib/jobApplications/constants";
 
 export interface JobApplication {
   id: string;

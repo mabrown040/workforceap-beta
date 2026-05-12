@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import type { JobApplicationSource } from '@/types/job-application';
+import { JobApplicationSourceMembers } from '@/lib/jobApplications/constants';
 
 interface JobApplicationFormProps {
   onSubmit: (data: any) => Promise<void>;
@@ -16,7 +16,7 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
     role: '',
     company: '',
     appliedAt: new Date().toISOString().split('T')[0],
-    source: 'OTHER' as JobApplicationSource,
+    source: JobApplicationSourceMembers.OTHER,
     notes: '',
     nextInterviewDate: '',
   });

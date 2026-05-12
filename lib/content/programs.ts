@@ -169,6 +169,7 @@ function mkProgram(
     courses,
     partner,
     fundingSource,
+    courseraB4BProgramId: 'TpIlAogTQ8-SJQKIE8PP9w',
   };
 }
 

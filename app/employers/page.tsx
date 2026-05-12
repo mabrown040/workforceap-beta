@@ -513,7 +513,7 @@ export default async function EmployersPage() {
       </section>
 
       {/* ── Contact Form Section ── */}
-      <section id="employer-contact-form" style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
+      <section style={{ padding: '6rem 0', background: 'var(--surface-container-low)' }}>
         <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
           <div
             style={{

@@ -166,7 +166,7 @@ export default function EmployerContactForm() {
         padding: '2rem',
       }}
     >
-    <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-intake-form">
+    <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
       <div
         style={{
           marginBottom: '1.25rem',

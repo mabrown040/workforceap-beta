@@ -32,16 +32,7 @@ export default async function LeadershipPage() {
           headline={
             <>
               {t('heroHeadline1')}{' '}
-              <span
-                style={{
-                  background:
-                    'linear-gradient(135deg, var(--color-accent-light), var(--color-accent))',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                {t('heroHeadlineAccent')}
-              </span>
+              <span className="marketing-text-gradient-aa">{t('heroHeadlineAccent')}</span>
             </>
           }
           subheadline={t('governanceBody')}

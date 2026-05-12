@@ -24,22 +24,13 @@ export default async function FAQPage() {
       <PageSection padding="lg" style={{ paddingBottom: 0 }}>
         <div style={{ marginBottom: '3rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-            <span
-              className="text-label-upper"
-              style={{
-                color: 'var(--color-accent)',
-                background: 'rgba(173,44,77,0.1)',
-                padding: '0.25rem 0.75rem',
-                borderRadius: 'var(--radius-full)',
-                border: '1px solid rgba(173,44,77,0.2)',
-                fontSize: '0.65rem',
-              }}
-            >
+            <span className="text-label-upper marketing-kb-chip">
               {t('knowledgeBase')}
             </span>
           </div>
           <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', maxWidth: '48rem', marginBottom: '1rem' }}>
-            {t('heroHeadline')} <span style={{ background: 'linear-gradient(to bottom right, var(--color-accent-light), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{t('heroHeadlineAccent')}</span>
+            {t('heroHeadline')}{' '}
+            <span className="marketing-text-gradient-aa">{t('heroHeadlineAccent')}</span>
           </h1>
           <p style={{ fontSize: '1.05rem', color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.7, fontWeight: 300, margin: 0 }}>
             {t('heroCopy')}

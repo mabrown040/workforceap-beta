@@ -21,13 +21,10 @@ export function SplitHero({ eyebrow, headline, subheadline, sidebar }: SplitHero
       <div className="split-hero-main">
         {eyebrow && (
           <span
-            className="text-label-upper split-hero-eyebrow"
+            className="text-label-upper split-hero-eyebrow marketing-kb-chip"
             style={{
               display: 'inline-block',
               padding: '0.3rem 0.85rem',
-              background: 'rgba(173,44,77,0.08)',
-              color: 'var(--color-accent)',
-              borderRadius: 'var(--radius-full)',
               marginBottom: '1.75rem',
               fontSize: '0.7rem',
               letterSpacing: '0.08em',

@@ -150,13 +150,7 @@ export default function SalaryGuidePage() {
     >
         {/* ===== Hero ===== */}
         <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-            padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
-            color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
-            letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
-          }}>
+          <span className="marketing-pill-chip-accent" style={{ marginBottom: '1rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">analytics</span>
             Salary Intelligence
           </span>
@@ -212,7 +206,7 @@ export default function SalaryGuidePage() {
                 padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
                 flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-gold)', marginBottom: '0.5rem' }} aria-hidden="true">apartment</span>
+                <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }} aria-hidden="true">apartment</span>
                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cost of Living Factor</span>
                 <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--color-on-surface)', marginTop: '0.25rem' }}>National</span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>Ranges anchored to national data</span>

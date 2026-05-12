@@ -3,6 +3,48 @@
  * Keep in sync with css/main.css until full extraction is complete.
  */
 
+/*
+ * Fixed `MobileBottomNav` (~64px row + device safe area).
+ * `html.wap-reserve-mobile-bottom-nav` is set in RootLayout from middleware so
+ * clearance applies on first paint (no :has() / client-nav timing).
+ */
+:root {
+  --wap-mobile-bottom-nav-clearance: calc(4rem + env(safe-area-inset-bottom, 0px));
+  /*
+   * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
+   * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
+   * the surface is actually dark (see .marketing-mobile--on-dark-marketing-surface).
+   */
+  --wap-marketing-light-on-surface: #1c1b1b;
+  --wap-marketing-light-on-surface-variant: #584144;
+  --wap-marketing-dark-on-surface: #e8e6e3;
+  --wap-marketing-dark-on-surface-variant: rgba(232, 230, 227, 0.78);
+}
+
+@media (max-width: 767px) {
+  html.wap-reserve-mobile-bottom-nav {
+    scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+  }
+
+  html.wap-reserve-mobile-bottom-nav #main-content {
+    padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+  }
+
+  /*
+   * Full-viewport heroes: padding on `#main-content` does not change flex-centered
+   * content — reserve space inside the hero so CTAs stay above the nav.
+   */
+  html.wap-reserve-mobile-bottom-nav .home-hero {
+    padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    box-sizing: border-box;
+  }
+
+  /* Extra lift for hero copy/CTAs inside the band (inline padding + nav clearance) */
+  html.wap-reserve-mobile-bottom-nav .home-hero .home-hero__inner {
+    padding-bottom: calc(clamp(3rem, 8vw, 6rem) + var(--wap-mobile-bottom-nav-clearance)) !important;
+  }
+}
+
 .trust-logos span,
 .partner-logos-small span {
   display: inline-flex;
@@ -52,31 +94,27 @@ html.dark .partner-logos-small span {
 
 /*
  * Stitch mobile columns use a light cream surface. In `html.dark`, `body` uses light text; without an
- * explicit color, children inherit it and become unreadable on #fcf9f8. Lock dark-on-light tokens here
- * (light and dark site theme).
+ * explicit color, children inherit it and become unreadable on #fcf9f8. Default: lock foreground to
+ * the light-surface tokens (--wap-marketing-light-on-*). For a dark marketing stripe, add
+ * `marketing-mobile--on-dark-marketing-surface`. When this block sits on a dark/theme surface, add
+ * `marketing-mobile--on-theme-surface` so `color` / `--color-on-surface*` follow the document theme.
  */
 .marketing-mobile {
-  color: #1c1b1b;
-  --color-on-surface: #1c1b1b;
-  --color-on-surface-variant: #584144;
+  color: var(--wap-marketing-light-on-surface);
+  --color-on-surface: var(--wap-marketing-light-on-surface);
+  --color-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
 }
 
-html.dark .marketing-mobile {
-  color: #1c1b1b;
-  --color-on-surface: #1c1b1b;
-  --color-on-surface-variant: #584144;
+.marketing-mobile.marketing-mobile--on-theme-surface {
+  color: inherit;
+  --color-on-surface: inherit;
+  --color-on-surface-variant: inherit;
 }
 
-/* Homepage: one responsive layout (no separate light mobile shell); clear MobileBottomNav on small viewports */
-@media (max-width: 767px) {
-  .homepage {
-    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-  }
-
-  .blog-page,
-  .blog-post-page {
-    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-  }
+.marketing-mobile.marketing-mobile--on-dark-marketing-surface {
+  color: var(--wap-marketing-dark-on-surface);
+  --color-on-surface: var(--wap-marketing-dark-on-surface);
+  --color-on-surface-variant: var(--wap-marketing-dark-on-surface-variant);
 }
 
 .home-impact-bento {
@@ -137,6 +175,121 @@ html.dark .wwd-photo-hero h1.wwd-photo-hero__title {
 .home-hero {
   --home-hero-fg: #f2f2f5;
   --home-hero-fg-muted: rgba(242, 242, 245, 0.88);
+}
+
+/*
+ * WCAG AA: extra localized veil behind headline/CTAs so accent (#ad2c4d) stays ≥4.5:1
+ * atop bright photo regions (full-bleed gradient alone is weakest at the top).
+ */
+.home-hero__inner {
+  isolation: isolate;
+}
+
+.home-hero__inner::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  /* Anchor behind the dominant left column copy; fades before the credibility cards grid */
+  top: clamp(-1.75rem, -3vw, -0.5rem);
+  right: clamp(0%, 12vw - 2rem, 26%);
+  bottom: auto;
+  left: clamp(-1.25rem, -3vw, -0.5rem);
+  height: min(72vh, 640px);
+  border-radius: 1.75rem;
+  background:
+    radial-gradient(
+      ellipse 120% 90% at 18% 12%,
+      rgba(14, 16, 20, 0.78) 0%,
+      rgba(14, 16, 20, 0.42) 48%,
+      transparent 74%
+    ),
+    linear-gradient(
+      205deg,
+      rgba(14, 16, 20, 0.62) 0%,
+      rgba(14, 16, 20, 0.28) 52%,
+      transparent 86%
+    );
+}
+
+.home-hero__inner > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Marketing chips / badges: AA contrast (gold & rose on light; accent on #121416-family dark) ── */
+
+.marketing-chip-text--gold {
+  color: var(--color-marketing-gold-on-light);
+}
+
+.marketing-text-gradient-aa {
+  background: linear-gradient(
+    to bottom right,
+    var(--color-marketing-rose-on-light),
+    var(--color-accent)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.marketing-cert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full, 50px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(173, 44, 77, 0.15);
+  border: 1px solid rgba(173, 44, 77, 0.28);
+  color: var(--color-accent-dark);
+}
+
+html.dark .marketing-cert-badge {
+  background: rgba(240, 120, 150, 0.12);
+  border-color: rgba(240, 120, 150, 0.28);
+  color: var(--color-marketing-accent-on-dark);
+}
+
+.marketing-pill-chip-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full, 50px);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(173, 44, 77, 0.15);
+  border: 1px solid rgba(173, 44, 77, 0.3);
+  color: var(--color-accent-dark);
+}
+
+html.dark .marketing-pill-chip-accent {
+  background: rgba(240, 120, 150, 0.12);
+  border-color: rgba(240, 120, 150, 0.28);
+  color: var(--color-marketing-accent-on-dark);
+}
+
+.marketing-kb-chip {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+  background: rgba(173, 44, 77, 0.1);
+  border: 1px solid rgba(173, 44, 77, 0.2);
+  color: var(--color-accent-dark);
+}
+
+.marketing-process-step__icon {
+  color: var(--color-accent);
+}
+
+html.dark .marketing-process-step__icon {
+  color: var(--color-marketing-accent-on-dark);
 }
 
 /*
@@ -304,16 +457,11 @@ html.has-marketing-main-nav {
 }
 
 /*
- * Fixed `MobileBottomNav` (~56px row + vertical padding) plus device safe area.
- * Only apply on mobile where the bottom nav is actually rendered.
+ * Sticky UI that must sit above the mobile bottom nav (fixed offset).
  */
 @media (max-width: 767px) {
-  .marketing-mobile-pb-for-bottom-nav {
-    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
-  }
-
   .marketing-mobile-sticky-above-bottom-nav {
-    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 }
 
@@ -328,9 +476,9 @@ html.has-marketing-main-nav {
 @media (max-width: 767px) {
   .program-detail-page .content-section.program-detail-shared {
     background: #fcf9f8;
-    color: #1c1b1b;
-    --color-on-surface: #1c1b1b;
-    --color-on-surface-variant: #584144;
+    color: var(--wap-marketing-light-on-surface);
+    --color-on-surface: var(--wap-marketing-light-on-surface);
+    --color-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
     --surface-container-low: #f0edec;
     --surface-container: #ebe7e7;
     --surface-container-high: #e5e2e1;

@@ -25,13 +25,7 @@ export default function ProgramComparisonPage() {
     >
       <section style={{ padding: 'clamp(2rem, 5vw, 5rem) 1.25rem 2.5rem', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ maxWidth: '720px' }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-            padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
-            color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
-            letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
-          }}>
+          <span className="marketing-pill-chip-accent" style={{ marginBottom: '1rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">compare_arrows</span>
             Program Comparison
           </span>

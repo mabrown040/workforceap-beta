@@ -32,10 +32,9 @@ export function ProcessStep({ step, icon, title, description, centered = false }
       </div>
       {icon && (
         <span
-          className="material-symbols-outlined"
+          className="material-symbols-outlined marketing-process-step__icon"
           style={{
             fontSize: '2rem',
-            color: 'var(--color-accent)',
             marginBottom: '0.75rem',
             display: 'block',
             '--ms-fill': 1,

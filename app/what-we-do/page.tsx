@@ -305,7 +305,7 @@ export default async function WhatWeDoPage() {
                     borderLeft: '3px solid var(--color-gold)',
                   }}
                 >
-                  <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-gold)', lineHeight: 1.3 }}>
+                  <div className="marketing-chip-text--gold" style={{ fontSize: '1.125rem', fontWeight: 800, lineHeight: 1.3 }}>
                     Nonprofit &amp; 501(c)(3)
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600 }}>

@@ -7,8 +7,8 @@
    The woff2 is served from /fonts/ so icons never degrade to plain text. */
 @font-face {
     font-family: 'Material Symbols Outlined';
-    font-style: normal;
     font-display: swap;
+    font-style: normal;
     font-weight: 100 700;
     src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
 }
@@ -59,6 +59,11 @@
     --color-green: #4a9b4f;
     --color-gold: #FFBB00;
     --color-gold-light: #ffd54f;
+    /**
+     * WCAG AA helpers for marketing chips/badges (not global replacements for brand primaries).
+     * Use on dark surfaces (~#121416) when #ad2c4d body copy fails ~4.5:1.
+     */
+    --color-marketing-accent-on-dark: #f07896;
     --color-amber: #c2410c;
     --color-amber-light: #fff7ed;
     --color-teal: #0d9488;
@@ -530,12 +535,18 @@ html:not(.dark) {
     --outline-variant: #debfc2;
     --glass-bg: rgba(255, 255, 255, 0.85);
     --shadow-glass: 0 4px 24px rgba(0,0,0,0.08);
+    /* Darker gold / rose for small text on white or light gray cards */
+    --color-marketing-gold-on-light: #b37400;
+    --color-marketing-rose-on-light: #b83b56;
 }
 
 html.dark {
     --color-primary: #e2e2e5;
     --color-gold: #FFBB00;
     --shadow-glow-gold: 0 0 30px rgba(255,187,0,0.25), 0 0 60px rgba(255,187,0,0.1);
+    /* On dark surfaces, keep vivid brand tints for “gold / rose on light card” utilities */
+    --color-marketing-gold-on-light: var(--color-gold);
+    --color-marketing-rose-on-light: var(--color-accent-light);
 }
 
 html.dark body {
@@ -1686,10 +1697,11 @@ h4 { font-size: var(--font-size-h4); font-weight: var(--font-weight-medium); }
     }
 }
 
-/* Mobile bottom nav spacing — ensures footer content isn't hidden behind fixed mobile nav */
+/* Legacy hook: clearance is handled globally in marketing.css (`#main-content`). */
 @media (max-width: 767px) {
   .mobile-bottom-nav-spacer {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: 0;
+    min-height: 0;
   }
 }
 
@@ -9553,15 +9565,6 @@ html.dark .workspace-sidebar-signout:hover {
     min-width: 0;
     padding: 1.25rem 1rem;
     width: 100%;
-}
-/* Clear fixed bottom nav on mobile for portal roles that show it */
-@media (max-width: 767px) {
-    html[data-portal-role="member"] .workspace-shell-main,
-    html[data-portal-role="employer"] .workspace-shell-main,
-    html[data-portal-role="partner"] .workspace-shell-main,
-    html[data-portal-role="counselor"] .workspace-shell-main {
-        padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
-    }
 }
 .workspace-super-admin-banner {
     max-width: var(--max-width);

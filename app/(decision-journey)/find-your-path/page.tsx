@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
   title: 'Find Your Path — Program Quiz',
   description:
-    'Take our 6-question quiz to discover which WorkforceAP programs best fit your interests, experience, and goals — a starting point for conversations with your counselor. No-cost training for qualifying members.',
+    'Take our 2-minute, 6-question quiz to discover which WorkforceAP programs best fit your interests, experience, and goals — a starting point for conversations with your counselor. No-cost training for qualifying members.',
   path: '/find-your-path',
 });
 }
@@ -42,13 +42,7 @@ export default function FindYourPathPage() {
         margin: '0 auto',
       }}>
         <div style={{ maxWidth: '720px' }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-            padding: '0.3rem 0.75rem', borderRadius: 'var(--radius-full, 50px)',
-            background: 'rgba(173,44,77,0.15)', border: '1px solid rgba(173,44,77,0.3)',
-            color: 'var(--color-accent)', fontSize: '0.7rem', fontWeight: 700,
-            letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '1rem',
-          }}>
+          <span className="marketing-pill-chip-accent" style={{ marginBottom: '1rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">explore</span>
             Career Path Quiz
           </span>
@@ -65,7 +59,7 @@ export default function FindYourPathPage() {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <a href="#find-your-path-quiz" className="btn btn-primary">
-              Take the 6-question quiz
+              Take the 2-minute, 6-question quiz
             </a>
             <Link href="/apply" className="btn btn-outline">
               Already know your path? Apply now
@@ -154,7 +148,7 @@ export default function FindYourPathPage() {
               padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-gold)' }} aria-hidden="true">tips_and_updates</span>
+                <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1.25rem' }} aria-hidden="true">tips_and_updates</span>
                 <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>Why this matters</span>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>

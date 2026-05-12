@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
-import { MARKETING_JOURNEY_STEPS } from '@/lib/content/marketingJourneySteps';
+import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
@@ -106,6 +106,12 @@ export default async function HomePage() {
   // only used to pick which 4 cards to feature in the showcase below.
   const programCount = WORKFORCEAP_PROGRAM_CATALOG_SIZE;
 
+  const journeyPhaseLabel = (phase: MarketingJourneyStep['homePhase']) => {
+    if (phase === 1) return t('journeyPhaseGetStarted');
+    if (phase === 2) return t('journeyPhaseTrain');
+    return t('journeyPhaseLaunch');
+  };
+
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
 
@@ -124,7 +130,7 @@ export default async function HomePage() {
           alt="Collaborative workspace"
           fill
           priority
-          sizes="100vw"
+          sizes="(max-width: 768px) 100vw, 100vw"
           placeholder="blur"
           blurDataURL={HERO_IMAGE_BLUR}
           style={{ objectFit: 'cover', objectPosition: 'center' }}
@@ -137,7 +143,9 @@ export default async function HomePage() {
           zIndex: 1,
         }} />
 
-        <div style={{
+        <div
+          className="home-hero__inner"
+          style={{
           position: 'relative',
           zIndex: 2,
           maxWidth: '1400px',
@@ -294,6 +302,69 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ===== Competitor contrast — factual positioning (below hero) ===== */}
+      <section className="home-contrast" aria-labelledby="home-contrast-heading" style={{
+        background: 'var(--surface-container-low)',
+        padding: 'clamp(1.75rem, 4vw, 2.75rem) 0',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
+          <h2 id="home-contrast-heading" className="text-label-upper" style={{
+            textAlign: 'center',
+            color: 'var(--color-on-surface-variant)',
+            marginBottom: '1.25rem',
+            letterSpacing: '0.12em',
+            fontSize: '0.625rem',
+          }}>
+            {t('contrastEyebrow')}
+          </h2>
+          <ul style={{
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+            gap: '0.75rem',
+          }}>
+            {([
+              { key: 'contrast1' as const, icon: 'work_outline' as const },
+              { key: 'contrast2' as const, icon: 'account_balance' as const },
+              { key: 'contrast3' as const, icon: 'schedule' as const },
+            ]).map((row) => (
+              <li key={row.key}>
+                <div className="portal-card portal-card--flat" style={{
+                  background: 'var(--surface-container-lowest)',
+                  padding: '1rem 1.1rem',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.65rem',
+                  border: '1px solid rgba(0,0,0,0.06)',
+                }}>
+                  <span className="material-symbols-outlined" style={{
+                    fontSize: '1.25rem',
+                    color: 'var(--color-accent)',
+                    flexShrink: 0,
+                    marginTop: '0.05rem',
+                  }} aria-hidden="true">
+                    {row.icon}
+                  </span>
+                  <p style={{
+                    margin: 0,
+                    fontSize: 'clamp(0.875rem, 0.35vw + 0.82rem, 0.95rem)',
+                    lineHeight: 1.55,
+                    color: 'var(--color-on-surface)',
+                    fontWeight: 600,
+                  }}>
+                    {t(row.key)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* ===== Social Proof / Credibility Bar ===== */}
       <section className="home-credibility-bar" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
@@ -387,21 +458,21 @@ export default async function HomePage() {
 
             {/* For Employers */}
             <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-lowest)', padding: '2rem' }}>
-              <div style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.2)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-gold)', marginBottom: '1.5rem' }}>
+              <div className="marketing-chip-text--gold" style={{ width: '3rem', height: '3rem', background: 'rgba(255,187,0,0.165)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
                 <span className="material-symbols-outlined" aria-hidden="true">business</span>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>{t('employerCardTitle')}</h3>
               <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
+                  <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1rem' }} aria-hidden="true">check_circle</span>
                   {t('employerCardCandidates')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
+                  <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1rem' }} aria-hidden="true">check_circle</span>
                   {t('employerCardTraining')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-gold)' }} aria-hidden="true">check_circle</span>
+                  <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1rem' }} aria-hidden="true">check_circle</span>
                   {t('employerCardGrads')}
                 </li>
               </ul>
@@ -440,7 +511,7 @@ export default async function HomePage() {
               background: 'var(--surface-container-high)', padding: '1.5rem',
               display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-gold)', lineHeight: 1 }}>2,000+</span>
+              <span className="marketing-chip-text--gold" style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1 }}>2,000+</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('statLearners')}</span>
             </div>
             <div className="portal-card portal-card--flat" style={{
@@ -468,8 +539,30 @@ export default async function HomePage() {
       <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>{t('journeyTitle')}</h2>
-          <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '3rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+          <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
             {t('journeySubtitle')}
+          </p>
+          <p style={{
+            textAlign: 'center',
+            fontSize: '0.95rem',
+            fontWeight: 700,
+            color: 'var(--color-accent)',
+            marginBottom: '0.75rem',
+            letterSpacing: '0.02em',
+          }}>
+            {t('journeyPhasesRibbon')}
+          </p>
+          <p style={{
+            textAlign: 'center',
+            color: 'var(--color-on-surface)',
+            marginBottom: '2.5rem',
+            maxWidth: '520px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            fontWeight: 600,
+            lineHeight: 1.55,
+          }}>
+            {t('journeySupportLine')}
           </p>
         </div>
         <div style={{
@@ -487,15 +580,8 @@ export default async function HomePage() {
               background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
               padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden',
             }}>
-              {/* Large background number */}
-              <span style={{
-                position: 'absolute', top: '-0.5rem', right: '0.5rem',
-                fontSize: '6rem', fontWeight: 900, lineHeight: 1,
-                color: 'var(--surface-container-highest)', opacity: 0.5,
-                pointerEvents: 'none', userSelect: 'none',
-              }}>{String(step.num).padStart(2, '0')}</span>
               <div style={{ position: 'relative', zIndex: 1 }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Step {String(step.num).padStart(2, '0')}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', letterSpacing: '0.02em' }}>{journeyPhaseLabel(step.homePhase)}</span>
                 <h4 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem', fontSize: '1.125rem' }}>{step.title}</h4>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.shortDesc}</p>
               </div>
@@ -569,12 +655,7 @@ export default async function HomePage() {
                     {p.duration ?? p.static?.duration ?? '3-5 months'}
                   </span>
                   {/* Cert badge */}
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-                    padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-full, 50px)',
-                    background: 'rgba(173,44,77,0.15)', color: 'var(--color-accent)',
-                    fontSize: '0.75rem', fontWeight: 600,
-                  }}>
+                  <span className="marketing-cert-badge">
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">verified</span>
                     {t('programsCertBadge')}
                   </span>

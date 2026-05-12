@@ -98,7 +98,18 @@ async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBr
   return breakdown.sort((a, b) => b.count - a.count);
 }
 
-/** Generate daily activity for the last N days (all ranges run in parallel) */
+function localCalendarDayKey(d: Date): string {
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function isEventOnlyAiToolMetadata(metadata: unknown): boolean {
+  if (!metadata || typeof metadata !== 'object') return false;
+  const tool = (metadata as Record<string, unknown>).tool;
+  const s = typeof tool === 'string' ? tool : '';
+  return (EVENT_ONLY_AI_TOOLS as readonly string[]).includes(s);
+}
+
+/** Generate daily activity for the last N days (batched fetches + in-memory bucketing) */
 async function getDailyActivity(days: number): Promise<{ date: string; events: number; aiTools: number; applications: number }[]> {
   const now = new Date();
   const ranges = Array.from({ length: days }, (_, i) => {
@@ -107,33 +118,92 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
     start.setHours(0, 0, 0, 0);
     const end = new Date(start);
     end.setHours(23, 59, 59, 999);
-    return { start, end, date: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) };
+    return {
+      start,
+      end,
+      date: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      dayKey: localCalendarDayKey(start),
+    };
   });
 
-  // Per-day Promise.allSettled so a single bad subquery on one of the 14
-  // days can't kill the whole chart. Fall back to 0 for that day's affected
-  // series and surface in logs. Prior to this and the AIToolType-enum fix
-  // above, a single rejection cascaded up via Promise.all and the chart
-  // rendered as an empty rectangle even though other admin counts showed
-  // real data.
-  return Promise.all(
-    ranges.map(async ({ start, end, date }) => {
-      const [eventsR, aiToolsR, applicationsR] = await Promise.allSettled([
-        prisma.memberEvent.count({ where: { createdAt: { gte: start, lte: end } } }),
-        countAiToolRunsBetween(start, end),
-        prisma.jobApplication.count({ where: { createdAt: { gte: start, lte: end }, status: { not: 'SAVED' } } }),
-      ]);
-      if (eventsR.status === 'rejected') logMetricsReason(`dailyActivity:events:${date}`, eventsR.reason);
-      if (aiToolsR.status === 'rejected') logMetricsReason(`dailyActivity:aiTools:${date}`, aiToolsR.reason);
-      if (applicationsR.status === 'rejected') logMetricsReason(`dailyActivity:applications:${date}`, applicationsR.reason);
-      return {
-        date,
-        events: eventsR.status === 'fulfilled' ? eventsR.value : 0,
-        aiTools: aiToolsR.status === 'fulfilled' ? aiToolsR.value : 0,
-        applications: applicationsR.status === 'fulfilled' ? applicationsR.value : 0,
-      };
-    })
-  );
+  const rangeStart = ranges[0].start;
+  const rangeEnd = ranges[ranges.length - 1].end;
+  const dayKeySet = new Set(ranges.map((r) => r.dayKey));
+
+  const initSeries = () => {
+    const m = new Map<string, number>();
+    for (const r of ranges) m.set(r.dayKey, 0);
+    return m;
+  };
+
+  const addTimestampToSeries = (series: Map<string, number>, at: Date) => {
+    const key = localCalendarDayKey(at);
+    if (!dayKeySet.has(key)) return;
+    series.set(key, (series.get(key) ?? 0) + 1);
+  };
+
+  // One round-trip: events, AI saved rows, AI event-only rows, applications — replaces 14×3 per-day counts (~42 queries for 14 days).
+  const [eventsR, aiSavedR, aiEventsR, applicationsR] = await Promise.allSettled([
+    prisma.memberEvent.findMany({
+      where: { createdAt: { gte: rangeStart, lte: rangeEnd } },
+      select: { createdAt: true },
+    }),
+    prisma.aIToolResult.findMany({
+      where: { createdAt: { gte: rangeStart, lte: rangeEnd } },
+      select: { createdAt: true },
+    }),
+    prisma.memberEvent.findMany({
+      where: {
+        createdAt: { gte: rangeStart, lte: rangeEnd },
+        eventName: 'ai_tool_run_started',
+        entityType: 'ai_tool',
+      },
+      select: { createdAt: true, metadata: true },
+    }),
+    prisma.jobApplication.findMany({
+      where: { createdAt: { gte: rangeStart, lte: rangeEnd }, status: { not: 'SAVED' } },
+      select: { createdAt: true },
+    }),
+  ]);
+
+  const eventsByDay = initSeries();
+  const aiByDay = initSeries();
+  const applicationsByDay = initSeries();
+
+  if (eventsR.status === 'rejected') {
+    logMetricsReason('dailyActivity:events:batch', eventsR.reason);
+  } else {
+    for (const row of eventsR.value) addTimestampToSeries(eventsByDay, row.createdAt);
+  }
+
+  if (aiSavedR.status === 'rejected') {
+    logMetricsReason('dailyActivity:aiTools:saved:batch', aiSavedR.reason);
+  } else {
+    for (const row of aiSavedR.value) addTimestampToSeries(aiByDay, row.createdAt);
+  }
+
+  if (aiEventsR.status === 'rejected') {
+    logMetricsReason('dailyActivity:aiTools:events:batch', aiEventsR.reason);
+  } else {
+    for (const row of aiEventsR.value) {
+      if (isEventOnlyAiToolMetadata(row.metadata)) {
+        addTimestampToSeries(aiByDay, row.createdAt);
+      }
+    }
+  }
+
+  if (applicationsR.status === 'rejected') {
+    logMetricsReason('dailyActivity:applications:batch', applicationsR.reason);
+  } else {
+    for (const row of applicationsR.value) addTimestampToSeries(applicationsByDay, row.createdAt);
+  }
+
+  return ranges.map(({ date, dayKey }) => ({
+    date,
+    events: eventsByDay.get(dayKey) ?? 0,
+    aiTools: aiByDay.get(dayKey) ?? 0,
+    applications: applicationsByDay.get(dayKey) ?? 0,
+  }));
 }
 
 /** Get program enrollment breakdown */

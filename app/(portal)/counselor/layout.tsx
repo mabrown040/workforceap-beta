@@ -9,11 +9,13 @@ import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { buildPageMetadataAsync } from '@/app/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadataAsync({
-  title: 'Counselor Portal',
-  description: 'Support your members from enrollment through employment.',
-  path: '/counselor',
-});
+  const base = await buildPageMetadataAsync({
+    title: 'Counselor Portal',
+    description: 'Support your members from enrollment through employment.',
+    path: '/counselor',
+  });
+  /** PWA install from counselor pages captures this manifest so start_url opens the counselor portal (not `/dashboard`). */
+  return { ...base, manifest: '/manifest-counselor.json' };
 }
 
 export default async function CounselorLayout({ children }: { children: React.ReactNode }) {

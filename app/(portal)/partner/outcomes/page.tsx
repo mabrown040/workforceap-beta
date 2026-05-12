@@ -46,7 +46,7 @@ export default async function PartnerOutcomesPage() {
           title="Outcomes Snapshot"
           subtitle={`Quick counts for ${ctx.partner.name}. See the overview for journey detail.`}
           action={
-            <Link href="/partner" className="btn btn-secondary btn-sm">
+            <Link href="/partner" className="btn btn-muted btn-sm">
               Partner overview
             </Link>
           }

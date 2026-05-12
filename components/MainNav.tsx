@@ -51,6 +51,18 @@ function isOnApplyFunnel(pathnameWithoutLocale: string): boolean {
   return pathnameWithoutLocale === '/apply' || pathnameWithoutLocale.startsWith('/apply/');
 }
 
+type SignInPortalCtaKey =
+  | 'memberSignIn'
+  | 'counselorSignIn'
+  | 'employerSignIn'
+  | 'partnerSignIn'
+  | 'adminSignIn';
+
+/** Flyout rows for `/login` entry points — use `cta` so labels always resolve from `cta.*`, not duplicated English strings. */
+type PortalSubmenuItem =
+  | { href: string; cta: SignInPortalCtaKey }
+  | { href: string; label: string };
+
 export default function MainNav() {
   const pathname = usePathname() ?? '/';
   const { pathnameWithoutLocale } = splitLocalePrefix(pathname);
@@ -61,15 +73,15 @@ export default function MainNav() {
   /** Primary nav target + optional submenu for portal entry points */
   const [portalState, setPortalState] = useState<{
     primary: { href: string; label: string };
-    submenu: Array<{ href: string; label: string }>;
+    submenu: PortalSubmenuItem[];
   }>({
       primary: { href: '/login', label: 'Login' },
       submenu: [
-      { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
-      { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
-      { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
-      { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
-      { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+      { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
+      { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
+      { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
+      { href: '/login?redirectTo=/partner', cta: 'partnerSignIn' },
+      { href: '/login?redirectTo=/admin', cta: 'adminSignIn' },
       ],
   });
   const menuRef = useRef<HTMLUListElement>(null);
@@ -102,15 +114,13 @@ export default function MainNav() {
     const ctaMap: Record<string, string> = {
       'Apply Now': tCta('applyNow'),
       'Login': tCta('logIn'),
-      'Member Sign In': tCta('memberSignIn'),
-      'Counselor Sign In': tCta('counselorSignIn'),
-      'Employer Sign In': tCta('employerSignIn'),
-      'Partner Sign In': tCta('partnerSignIn'),
-      'Admin Sign In': tCta('adminSignIn'),
     };
     if (label in ctaMap) return ctaMap[label];
     return label;
   };
+
+  const portalSubmenuLabel = (item: PortalSubmenuItem) =>
+    'cta' in item ? tCta(item.cta) : translateLabel(item.label);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -152,11 +162,11 @@ export default function MainNav() {
           setPortalState({
             primary: { href: '/login', label: 'Login' },
             submenu: [
-              { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
-              { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
-              { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
-              { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
-              { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+              { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
+              { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
+              { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
+              { href: '/login?redirectTo=/partner', cta: 'partnerSignIn' },
+              { href: '/login?redirectTo=/admin', cta: 'adminSignIn' },
             ],
           });
           return;
@@ -166,14 +176,14 @@ export default function MainNav() {
           setPortalState({
             primary: { href: '/partner', label: 'Partner' },
             submenu: [
-              { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
-              { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
-              { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+              { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
+              { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
+              { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
             ],
           });
           return;
         }
-        const sub: Array<{ href: string; label: string }> = [
+        const sub: PortalSubmenuItem[] = [
           { href: '/dashboard', label: 'Member dashboard' },
         ];
         if (data.employer) {
@@ -192,11 +202,11 @@ export default function MainNav() {
           setPortalState({
             primary: { href: '/login', label: 'Login' },
             submenu: [
-              { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
-              { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
-              { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
-              { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
-              { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+              { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
+              { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
+              { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
+              { href: '/login?redirectTo=/partner', cta: 'partnerSignIn' },
+              { href: '/login?redirectTo=/admin', cta: 'adminSignIn' },
             ],
           });
         }
@@ -417,7 +427,7 @@ export default function MainNav() {
                       className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
                       onClick={closeMobile}
                     >
-                      {translateLabel(item.label)}
+                      {portalSubmenuLabel(item)}
                     </Link>
                   </li>
                 ))}
@@ -426,7 +436,7 @@ export default function MainNav() {
           </li>
           {!isOnApplyFunnel(pathnameWithoutLocale) && (
           <li>
-            <LocalizedLink href="/apply" prefetch={true} className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
+            <LocalizedLink href="/apply" prefetch={true} className="btn btn-primary btn-radius-md nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
           </li>
           )}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">

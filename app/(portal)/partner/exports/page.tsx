@@ -38,10 +38,10 @@ export default async function PartnerExportsPage() {
         <a href="/api/partner/export/referrals" className="btn btn-primary">
           Download referrals.csv
         </a>
-        <a href="/api/partner/export/referrals?preset=outcomes" className="btn btn-secondary">
+        <a href="/api/partner/export/referrals?preset=outcomes" className="btn btn-muted">
           Outcomes preset (placement columns)
         </a>
-        <a href="/api/partner/export/referrals?preset=demographics" className="btn btn-secondary">
+        <a href="/api/partner/export/referrals?preset=demographics" className="btn btn-muted">
           Demographics + placement (funder reporting)
         </a>
       </div>

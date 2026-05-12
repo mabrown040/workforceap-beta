@@ -16,7 +16,6 @@ import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavLayout';
 import '@/css/main.css';
 import '@/css/marketing.css';
-import '@/css/portal.css';
 import '@/css/language-toggle.css';
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;

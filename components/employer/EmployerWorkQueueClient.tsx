@@ -168,7 +168,7 @@ export default function EmployerWorkQueueClient({
                     {sec.id === 'review' && a.status === 'pending' ? (
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-muted btn-sm"
                         disabled={busy === a.id}
                         onClick={() => void patchApp(a.id, 'reviewing')}
                       >
@@ -178,7 +178,7 @@ export default function EmployerWorkQueueClient({
                     {sec.id === 'stale' && (a.status === 'pending' || a.status === 'reviewing') ? (
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-muted btn-sm"
                         disabled={busy === a.id}
                         onClick={() => void patchApp(a.id, 'interview')}
                       >
@@ -188,7 +188,7 @@ export default function EmployerWorkQueueClient({
                     {sec.id === 'interview' ? (
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-muted btn-sm"
                         disabled={busy === a.id}
                         onClick={() => void patchApp(a.id, 'offered')}
                       >

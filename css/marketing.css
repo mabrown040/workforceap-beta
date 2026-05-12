@@ -4,13 +4,14 @@
  */
 
 /*
- * Fixed `MobileBottomNav` (~64–80px row + device safe area).
+ * Fixed `MobileBottomNav` (~64–88px row + device safe area via `--wap-mobile-bottom-nav-clearance`).
  * `html.wap-reserve-mobile-bottom-nav` is set in RootLayout from middleware for
  * first paint. `html:has(nav#mobile-bottom-nav)` applies the same clearance on
  * mobile whenever the bar is mounted (keeps layout in sync with the DOM).
  */
 :root {
-  --wap-mobile-bottom-nav-clearance: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  /* ~64px tab row + icon/label stack + device home indicator; keeps CTAs tappable above fixed nav */
+  --wap-mobile-bottom-nav-clearance: calc(5rem + env(safe-area-inset-bottom, 0px));
   /*
    * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
    * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
@@ -37,9 +38,16 @@ html {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
+  /* Body can participate as scroll container on some mobile browsers / overscroll chains */
+  html.wap-reserve-mobile-bottom-nav body,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) body {
+    scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+  }
+
   html.wap-reserve-mobile-bottom-nav #main-content,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) #main-content {
     padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
   /*
@@ -331,9 +339,25 @@ html.dark .marketing-process-step__icon {
   color: var(--color-marketing-accent-on-dark);
 }
 
+/* Step badge circle — used by `ProcessStep` (compose with `.marketing-process-step__badge`). */
+.marketing-num-pill__index {
+  flex-shrink: 0;
+  min-width: var(--btn-min-height);
+  min-height: var(--btn-min-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  border: none;
+  line-height: 1;
+}
+
 /*
- * Hero secondary CTA: must NOT use .btn-secondary — that applies a light surface fill and makes
- * light hero text invisible (white-on-white). Dark glass + light text works on any scrim.
+ * Hero secondary CTA uses `.btn.btn-secondary.btn-secondary--on-dark` (see css/main.css).
+ * These rules reinforce the outline-on-scrim stack for legacy class hooks.
  */
 .home-hero-partner-cta,
 .home-hero-outline-cta {

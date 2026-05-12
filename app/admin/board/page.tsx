@@ -93,7 +93,7 @@ function PeriodLink({
   return (
     <Link
       href={`/admin/board?period=${period}`}
-      className={active ? 'btn btn-primary btn-small' : 'btn btn-secondary btn-small'}
+      className={active ? 'btn btn-primary btn-small' : 'btn btn-muted btn-small'}
       aria-current={active ? 'page' : undefined}
     >
       {label}

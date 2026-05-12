@@ -267,7 +267,7 @@ export default function DeletedUsersClient({
                   {!r.isFreed ? (
                     <button
                       type="button"
-                      className="btn btn-secondary btn-small"
+                      className="btn btn-muted btn-small"
                       onClick={() => handleFreeEmail(r.id, r.originalEmail)}
                       disabled={isBusy}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
@@ -278,7 +278,7 @@ export default function DeletedUsersClient({
                   ) : null}
                   <button
                     type="button"
-                    className="btn btn-secondary btn-small"
+                    className="btn btn-muted btn-small"
                     onClick={() => handleRestore(r.id)}
                     disabled={isBusy}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}

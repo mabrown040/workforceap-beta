@@ -74,7 +74,7 @@ export default async function FunderReportPrintPage({
             marginBottom: '1rem',
           }}
         >
-          <a href="/admin/board" className="btn btn-secondary btn-small">
+          <a href="/admin/board" className="btn btn-muted btn-small">
             ← Back to dashboard
           </a>
           {/*

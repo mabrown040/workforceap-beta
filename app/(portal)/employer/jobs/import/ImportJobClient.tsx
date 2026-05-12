@@ -358,7 +358,7 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             <label>Or paste description text</label>
             <textarea rows={6} placeholder="Paste full job description..." value={rawText} onChange={(e) => setRawText(e.target.value)} disabled={loading || bulkLoading} />
           </div>
-          <button type="button" className="btn btn-secondary btn-sm" onClick={handleParse} disabled={loading || bulkLoading}>
+          <button type="button" className="btn btn-muted btn-sm" onClick={handleParse} disabled={loading || bulkLoading}>
             {loading ? 'Reading…' : 'Build draft from this job'}
           </button>
 

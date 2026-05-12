@@ -39,7 +39,7 @@ export default class DashboardPageErrorBoundary extends Component<Props, State> 
             <button type="button" className="btn btn-primary" onClick={() => this.setState({ error: null })}>
               Try again
             </button>
-            <Link href="/dashboard" className="btn btn-secondary">
+            <Link href="/dashboard" className="btn btn-muted">
               Reload overview
             </Link>
             <Link href="/" className="btn btn-ghost">

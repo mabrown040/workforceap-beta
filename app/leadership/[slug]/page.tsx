@@ -299,7 +299,7 @@ export default async function LeaderBioPage({ params }: Props) {
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>mail</span>
                 Get in Touch
               </Link>
-              <Link href="/leadership" className="ld-cta-btn-secondary">
+              <Link href="/leadership" className="ld-cta-btn-muted">
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>arrow_back</span>
                 Back to Team
               </Link>

@@ -25,7 +25,7 @@ export default function MemberPortalError({
         <button type="button" className="btn btn-primary" onClick={() => reset()}>
           Try again
         </button>
-        <Link href="/dashboard" className="btn btn-secondary">
+        <Link href="/dashboard" className="btn btn-muted">
           Back to dashboard
         </Link>
         <Link href="/" className="btn btn-ghost">

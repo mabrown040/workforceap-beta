@@ -130,7 +130,7 @@ export default async function HomePage() {
           alt="Collaborative workspace"
           fill
           priority={true}
-          sizes="100vw"
+          sizes="(min-width: 1921px) 1920px, 100vw"
           quality={85}
           placeholder="blur"
           blurDataURL={HERO_IMAGE_BLUR}

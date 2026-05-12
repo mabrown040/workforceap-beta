@@ -8,6 +8,7 @@ import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
+import '@/css/portal.css';
 
 export const dynamic = 'force-dynamic';
 

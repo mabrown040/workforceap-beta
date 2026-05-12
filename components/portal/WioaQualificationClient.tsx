@@ -177,7 +177,7 @@ export default function WioaQualificationClient({
                 <Link href="/apply" className="btn btn-primary">
                   Start the application
                 </Link>
-                <Link href="/contact?topic=wioa" className="btn btn-secondary">
+                <Link href="/contact?topic=wioa" className="btn btn-muted">
                   Talk to WorkforceAP
                 </Link>
               </>
@@ -186,7 +186,7 @@ export default function WioaQualificationClient({
                 <Link href="/dashboard/messages" className="btn btn-primary">
                   Message your counselor
                 </Link>
-                <Link href="/dashboard/learning" className="btn btn-secondary">
+                <Link href="/dashboard/learning" className="btn btn-muted">
                   Back to learning hub
                 </Link>
               </>
@@ -220,7 +220,7 @@ export default function WioaQualificationClient({
             role="tab"
             aria-selected={entryMode === 'voice'}
             onClick={() => setEntryMode('voice')}
-            className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-secondary'}
+            className={entryMode === 'voice' ? 'btn btn-primary' : 'btn btn-muted'}
           >
             Voice qualification check
           </button>
@@ -229,7 +229,7 @@ export default function WioaQualificationClient({
             role="tab"
             aria-selected={entryMode === 'form'}
             onClick={() => setEntryMode('form')}
-            className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-secondary'}
+            className={entryMode === 'form' ? 'btn btn-primary' : 'btn btn-muted'}
           >
             Fill out the assessment form
           </button>

@@ -144,7 +144,8 @@
     /* Mobile Interactions */
     --button-press-scale: 0.97;
     --card-hover-lift: -4px;
-    --touch-target-min: 48px;
+    --touch-target-min: 44px;
+    --btn-min-height: 44px;
     --nav-height-default: 80px;
     --nav-height-scrolled: 60px;
     /* Fixed .main-nav: bar height + notch / safe-area (used for layout spacer, sticky offsets, mobile panel) */
@@ -709,6 +710,8 @@ html.dark .blog-cta-card h3 {
     color: #ffffff;
 }
 html.dark .blog-cta-buttons .btn-accent,
+html.dark .blog-cta-buttons .btn-primary,
+html.dark .blog-cta-buttons .btn-secondary,
 html.dark .blog-cta-buttons .btn-ghost {
     color: #ffffff;
 }
@@ -1380,11 +1383,13 @@ html.dark .jobs-empty-state__title {
 html.dark .jobs-empty-state__text {
     color: var(--color-on-surface-variant);
 }
-html.dark .jobs-empty-state .btn-ghost {
-    border-color: rgba(255, 255, 255, 0.25);
+html.dark .jobs-empty-state .btn.btn-ghost,
+html.dark .jobs-empty-state a.btn.btn-ghost {
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: #f9fafb;
 }
-html.dark .jobs-empty-state .btn-ghost:hover {
+html.dark .jobs-empty-state .btn.btn-ghost:hover,
+html.dark .jobs-empty-state a.btn.btn-ghost:hover {
     background: rgba(255, 255, 255, 0.08);
     color: #fff;
 }
@@ -1469,22 +1474,6 @@ html.dark .admin-preview-placeholder {
     color: var(--color-on-surface-variant) !important;
 }
 
-html.dark .footer-cta {
-    background: #0b0d10;
-    color: #f9fafb;
-}
-html.dark .footer-cta h2,
-html.dark .footer-cta p {
-    color: #f9fafb;
-}
-html.dark .footer-cta .btn-primary {
-    background: var(--color-accent);
-    color: #ffffff;
-}
-html.dark .footer-cta .btn-primary:hover {
-    background: var(--color-accent-dark);
-    color: #ffffff;
-}
 html.dark .employer-dash-page,
 html.dark .partner-impact-console {
     color: var(--color-primary);
@@ -1596,13 +1585,10 @@ html.dark .portal-page-header p,
 html.dark .portal-page-header .portal-page-header-main p {
     color: var(--color-on-surface-variant);
 }
-html.dark .btn-outline {
+html.dark .btn-outline,
+html.dark .btn-secondary {
     border-color: var(--color-gray-300);
     color: var(--color-primary);
-}
-html.dark .btn-secondary {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
 }
 html.dark .app-system-page {
     background: var(--color-white);
@@ -2153,11 +2139,10 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     text-decoration: none;
     transition: all var(--transition-fast);
     white-space: nowrap;
-    /* WCAG / mobile touch target — primary CTA stays ≥ 48px. */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
+    min-height: var(--btn-min-height);
 }
 .nav-apply-btn:hover {
     background: var(--color-accent-dark);
@@ -2175,21 +2160,10 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     .nav-right-actions .nav-login-btn,
     .nav-right-actions .nav-apply-btn { display: none; }
 }
+/* .nav-cta composes .btn.btn-primary.btn-radius-md in MainNav — keep only menu-specific overrides */
 .nav-cta,
 a.nav-cta {
-    background: var(--color-accent) !important;
-    color: var(--color-white) !important;
-    padding: 12px 20px !important;
-    border-radius: var(--radius-md) !important;
-    font-weight: 700 !important;
-    font-size: 0.875rem !important;
-    transition: all var(--transition-fast) !important;
     white-space: nowrap !important;
-    /* WCAG / mobile touch target — primary CTA stays ≥ 48px tall. */
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 48px !important;
 }
 @media (max-width: 1024px) {
     .nav-container {
@@ -2198,20 +2172,20 @@ a.nav-cta {
     .nav-menu {
         gap: 1rem;
     }
-    .nav-cta,
-    a.nav-cta {
+    .nav-cta.btn,
+    a.nav-cta.btn {
         padding: 10px 14px !important;
         font-size: 0.8125rem !important;
-        min-height: 44px !important;
     }
 }
 .nav-cta:hover,
 a.nav-cta:hover {
-    background: var(--color-accent-dark) !important;
     transform: translateY(-1px);
 }
-.nav-cta::after,
-a.nav-cta::after { display: none !important; }
+.nav-cta.btn::after,
+a.nav-cta.btn::after {
+    display: none;
+}
 .mobile-nav-toggle {
     display: none;
     background: var(--surface-container, rgba(0,0,0,0.04));
@@ -2256,7 +2230,17 @@ body.mobile-nav-open {
 }
 
 /* =============================================
-   BUTTONS
+   BUTTONS — unified system
+   Process-step index capsule: `.marketing-num-pill__index` in css/marketing.css.
+   Base `.btn` sets min-height (`--btn-min-height`, 44px) and default radius md.
+   Compose: .btn + variant (.btn-primary | .btn-secondary | .btn-ghost)
+            + optional aliases: .btn-outline → same rules as .btn-secondary
+            + radius ladder (.btn-radius-sm | .btn-radius-md | .btn-radius-lg | .btn-radius-full)
+   Variants:
+     — primary: solid brand magenta (--color-accent)
+     — secondary: outline on light (+ .btn-secondary--on-dark for photo/dark scrims)
+     — ghost: text-only (use `.btn-secondary--on-dark` on photo scrims when outline contrast is needed)
+     — .btn-muted / .btn-dark / .btn-white: legacy product surfaces (not marketing ladder)
    ============================================= */
 .btn {
     display: inline-flex;
@@ -2264,7 +2248,7 @@ body.mobile-nav-open {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.8125rem 1.75rem;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     font-weight: 600;
     font-size: 0.9375rem;
     font-family: inherit;
@@ -2272,10 +2256,23 @@ body.mobile-nav-open {
     cursor: pointer;
     border: none;
     transition: all var(--transition-base);
-    min-height: 48px;
+    min-height: var(--btn-min-height);
     line-height: 1.2;
     position: relative;
     overflow: hidden;
+}
+/* Radius ladder — compose with .btn / .nav-cta */
+.btn-radius-sm {
+    border-radius: var(--radius-sm) !important;
+}
+.btn-radius-md {
+    border-radius: var(--radius-md) !important;
+}
+.btn-radius-lg {
+    border-radius: var(--radius-lg) !important;
+}
+.btn-radius-full {
+    border-radius: var(--radius-full) !important;
 }
 .btn::after {
     content: '';
@@ -2288,16 +2285,17 @@ body.mobile-nav-open {
 .btn:hover::after {
     transform: translateX(100%);
 }
+/* Variant: primary — solid brand magenta */
 .btn-primary,
 a.btn-primary,
 button.btn-primary {
-    background: linear-gradient(135deg, #8c0f37, #ad2c4d);
+    background: var(--color-accent);
     color: var(--color-white);
     border: none;
     border-radius: var(--radius-md);
 }
 .btn-primary:hover {
-    background: linear-gradient(135deg, #7a0d30, #9c2744);
+    background: var(--color-accent-dark);
     transform: translateY(-2px);
     box-shadow: 0 20px 40px rgba(28, 27, 27, 0.06);
 }
@@ -2306,18 +2304,19 @@ button.btn-primary {
     outline-offset: 2px;
     box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-accent);
 }
-.btn-secondary,
-a.btn-secondary {
+/* Muted filled — neutral emphasis (portal / secondary actions); not the marketing "secondary" variant */
+.btn-muted,
+a.btn-muted {
     background: var(--surface-container-high);
     color: var(--color-on-surface);
     border: none;
     border-radius: var(--radius-md);
 }
-.btn-secondary:hover {
+.btn-muted:hover {
     background: var(--surface-container-highest);
     transform: translateY(-2px);
 }
-.btn-secondary:focus-visible {
+.btn-muted:focus-visible {
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
 }
@@ -2332,6 +2331,9 @@ a.btn-tertiary {
 .btn-tertiary:hover {
     text-decoration: underline;
 }
+/* Variant: secondary — outline */
+.btn-secondary,
+a.btn-secondary,
 .btn-outline,
 a.btn-outline {
     background: transparent;
@@ -2339,14 +2341,79 @@ a.btn-outline {
     border: 1px solid var(--outline-variant);
     border-radius: var(--radius-md);
 }
-.btn-outline:hover {
+.btn-secondary:hover,
+a.btn-secondary:hover,
+.btn-outline:hover,
+a.btn-outline:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
     background: rgba(173, 44, 77, 0.04);
 }
-.btn-outline:focus-visible {
+.btn-secondary:focus-visible,
+a.btn-secondary:focus-visible,
+.btn-outline:focus-visible,
+a.btn-outline:focus-visible {
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
+}
+/* Outline on dark / photo scrims (shared with home hero secondary CTA) */
+.btn-secondary--on-dark,
+a.btn-secondary--on-dark {
+    background: rgba(0, 0, 0, 0.45) !important;
+    color: #f5f5f8 !important;
+    border: 2px solid rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+}
+.btn-secondary--on-dark:hover,
+a.btn-secondary--on-dark:hover {
+    background: rgba(0, 0, 0, 0.58) !important;
+    border-color: rgba(255, 255, 255, 0.78) !important;
+    color: #ffffff !important;
+}
+.btn-secondary--on-dark:focus-visible,
+a.btn-secondary--on-dark:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.btn-secondary--on-dark::after,
+a.btn-secondary--on-dark::after {
+    display: none;
+}
+/* Variant: ghost — text-only (no fill, no border) */
+.btn-ghost,
+a.btn-ghost,
+.btn-ghost-text,
+a.btn-ghost-text {
+    background: transparent;
+    color: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    box-shadow: none;
+}
+.btn-ghost:hover,
+a.btn-ghost:hover,
+.btn-ghost-text:hover,
+a.btn-ghost-text:hover {
+    text-decoration: underline;
+    color: var(--color-accent-dark);
+    transform: none;
+    background: transparent;
+}
+.btn-ghost:focus-visible,
+a.btn-ghost:focus-visible,
+.btn-ghost-text:focus-visible,
+a.btn-ghost-text:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.btn-ghost::after,
+a.btn-ghost::after,
+.btn-ghost-text::after,
+a.btn-ghost-text::after {
+    display: none;
 }
 .btn:disabled,
 button:disabled.btn,
@@ -2373,15 +2440,16 @@ a.btn-white {
     background: var(--color-gray-100);
     transform: translateY(-2px);
 }
-.btn-small { 
-    padding: 0.5rem 1rem; 
+.btn-small,
+.btn-sm {
+    padding: 0.5rem 1rem;
     font-size: var(--font-size-sm);
-    min-height: 36px;
+    min-height: var(--btn-min-height);
 }
 .btn-large { 
     padding: 1rem 2.5rem; 
     font-size: 1.0625rem;
-    min-height: var(--touch-target-min);
+    min-height: var(--btn-min-height);
 }
 .btn-full-width {
     width: 100%;
@@ -2396,16 +2464,6 @@ a.btn-white {
 }
 .btn-content-loading {
     opacity: 0.7;
-}
-.btn-ghost {
-    background: rgba(255,255,255,0.15);
-    color: var(--color-white);
-    border: 1px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(4px);
-}
-.btn-ghost:hover {
-    background: rgba(255,255,255,0.25);
-    transform: translateY(-2px);
 }
 
 /* =============================================
@@ -2460,8 +2518,23 @@ html.dark .homepage .hero .btn-accent,
 html.dark .homepage .hero a.btn-accent {
     color: #ffffff;
 }
-html.dark .homepage .hero .btn-ghost,
-html.dark .homepage .hero a.btn-ghost {
+/* Legacy `.homepage .hero` markup: frosted outline for secondary-style actions */
+.homepage .hero .btn.btn-ghost,
+.homepage .hero a.btn.btn-ghost {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-white);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-weight: 500;
+}
+.homepage .hero .btn.btn-ghost:hover,
+.homepage .hero a.btn.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+html.dark .homepage .hero .btn.btn-ghost,
+html.dark .homepage .hero a.btn.btn-ghost {
     color: #ffffff;
     border-color: rgba(255, 255, 255, 0.35);
 }
@@ -2599,17 +2672,23 @@ a.btn-accent:hover {
     box-shadow: 0 10px 50px rgba(173,44,77,0.6);
     transform: translateY(-3px);
 }
-.hero-actions-prominent .btn-ghost {
+.hero-actions-prominent .btn.btn-ghost,
+.hero-actions-prominent a.btn.btn-ghost {
     padding: 0.875rem 2rem;
     font-size: 0.9375rem;
     font-weight: 500;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--color-white);
     opacity: 0.9;
+    text-decoration: none;
 }
-.hero-actions-prominent .btn-ghost:hover {
-    background: rgba(255,255,255,0.15);
+.hero-actions-prominent .btn.btn-ghost:hover,
+.hero-actions-prominent a.btn.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.15);
     opacity: 1;
+    color: var(--color-white);
+    text-decoration: none;
 }
 .trust-strip {
     opacity: 0.85;
@@ -4195,6 +4274,32 @@ html.dark .employer-dash-empty-jobs p {
     color: var(--color-primary);
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
+.footer-cta .btn-primary,
+.footer-cta a.btn-primary {
+    border-radius: var(--radius-lg);
+}
+.footer-cta .btn-secondary,
+.footer-cta a.btn-secondary {
+    background: transparent;
+    color: var(--color-white);
+    border: 2px solid rgba(255, 255, 255, 0.92);
+    border-radius: var(--radius-lg);
+}
+.footer-cta .btn-secondary:hover,
+.footer-cta a.btn-secondary:hover {
+    border-color: #ffffff;
+    color: var(--color-white);
+    background: rgba(255, 255, 255, 0.1);
+}
+.footer-cta .btn-ghost,
+.footer-cta a.btn-ghost {
+    color: rgba(255, 255, 255, 0.92);
+}
+.footer-cta .btn-ghost:hover,
+.footer-cta a.btn-ghost:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
 
 /* =============================================
    TESTIMONIALS SECTION
@@ -4367,6 +4472,21 @@ html.dark .photo-highlight-content .section-label {
 html.dark .photo-highlight-content p {
     opacity: 1;
 }
+.photo-highlight-content .btn-secondary,
+.photo-highlight-content a.btn-secondary {
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--color-white);
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+.photo-highlight-content .btn-secondary:hover,
+.photo-highlight-content a.btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 255, 255, 0.82);
+    color: var(--color-white);
+}
+
 html.dark .program-card-skill-tag,
 html.dark .program-skill-tag {
     background: #1e2329 !important;
@@ -6597,7 +6717,7 @@ img.img-fade.loaded { opacity: 1; }
     .dropdown-menu a {
         font-size: 0.97rem;
         padding: 0.7rem 0.95rem;
-        min-height: 48px;
+        min-height: var(--btn-min-height);
         display: flex;
         align-items: center;
         border-radius: var(--radius-sm);
@@ -6680,13 +6800,13 @@ img.img-fade.loaded { opacity: 1; }
 
     /* Mobile touch target improvements */
     .btn, button, a.btn {
-        min-height: 48px;
+        min-height: var(--btn-min-height);
         min-width: 48px;
     }
     .hero-actions { gap: 0.75rem; }
     .hero-actions .btn {
         padding: 1rem 2rem;
-        min-height: 52px;
+        min-height: var(--btn-min-height);
     }
     nav a, .nav-link {
         min-height: 44px;
@@ -6694,12 +6814,12 @@ img.img-fade.loaded { opacity: 1; }
         align-items: center;
     }
     .program-sidebar-card .btn {
-        min-height: 52px;
+        min-height: var(--btn-min-height);
         font-size: 1rem;
     }
     details summary {
         padding: 1rem;
-        min-height: 48px;
+        min-height: var(--btn-min-height);
     }
     .page-hero { padding: 5rem 1.25rem 3rem; }
     .page-hero h1 { font-size: 1.75rem; }
@@ -7741,7 +7861,7 @@ body { animation: fadeIn 0.4s ease; }
 /* Responsive touch targets */
 @media (hover: none) {
     .btn { min-height: 44px; min-width: 44px; padding: 0.6rem 1rem; }
-    .btn.btn-large { min-height: 48px; }
+    .btn.btn-large { min-height: var(--btn-min-height); }
     .filter-chip { min-height: 44px; padding: 0.5rem 1rem; }
     .nav-menu a { min-height: 44px; display: flex; align-items: center; padding: 0.5rem 0.75rem; }
     .program-card details summary { min-height: 44px; padding: 0.5rem 0; }
@@ -8338,7 +8458,6 @@ body { animation: fadeIn 0.4s ease; }
     margin-bottom: 1rem;
 }
 .resume-rewriter-output-header h3 { font-size: 1.1rem; margin: 0; }
-.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 36px; }
 .headline-list { list-style: none; padding: 0; margin: 0; }
 .headline-item {
   display: flex;
@@ -10768,13 +10887,31 @@ html.dark .workspace-sidebar-signout:hover {
     background: var(--color-accent);
     color: var(--color-white);
 }
-.blog-cta-buttons .btn-ghost {
-    background: rgba(255,255,255,0.15);
+.blog-cta-buttons .btn.btn-secondary,
+.blog-cta-buttons a.btn.btn-secondary {
+    background: rgba(255, 255, 255, 0.12);
     color: var(--color-white);
-    border-color: rgba(255,255,255,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: none;
+    text-decoration: none;
 }
-.blog-cta-buttons .btn-ghost:hover {
-    background: rgba(255,255,255,0.25);
+.blog-cta-buttons .btn.btn-secondary:hover,
+.blog-cta-buttons a.btn.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.65);
+    color: var(--color-white);
+    text-decoration: none;
+}
+.blog-cta-card .btn.btn-ghost,
+.blog-cta-card a.btn.btn-ghost {
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 600;
+    text-decoration: none;
+}
+.blog-cta-card .btn.btn-ghost:hover,
+.blog-cta-card a.btn.btn-ghost:hover {
+    color: #ffffff;
+    text-decoration: underline;
 }
 .blog-post-related {
     padding-top: 4rem;
@@ -13630,14 +13767,19 @@ td.admin-members-col-select {
 /* =============================================
    EMPLOYERS PAGE
    ============================================= */
-.employers-hero .hero-actions .btn-ghost {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.3);
+.employers-hero .hero-actions .btn.btn-ghost,
+.employers-hero .hero-actions a.btn.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: var(--color-white);
+    font-weight: 500;
+    text-decoration: none;
 }
-.employers-hero .hero-actions .btn-ghost:hover {
-    background: rgba(255,255,255,0.2);
+.employers-hero .hero-actions .btn.btn-ghost:hover,
+.employers-hero .hero-actions a.btn.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.2);
     color: var(--color-white);
+    text-decoration: none;
 }
 
 .employers-three-col {
@@ -14910,15 +15052,21 @@ td.admin-members-col-select {
     }
 }
 /* Ghost buttons are styled for dark hero sections; on light workspace/cards use readable outline treatment. */
-.employer-jobs-board .btn-ghost,
-.employer-bulk-modal .btn-ghost {
+.employer-jobs-board .btn.btn-ghost,
+.employer-jobs-board a.btn.btn-ghost,
+.employer-bulk-modal .btn.btn-ghost,
+.employer-bulk-modal a.btn.btn-ghost {
     background: transparent;
     color: var(--color-primary);
     border: 2px solid var(--color-gray-300);
     backdrop-filter: none;
+    font-weight: 600;
+    text-decoration: none;
 }
-.employer-jobs-board .btn-ghost:hover,
-.employer-bulk-modal .btn-ghost:hover {
+.employer-jobs-board .btn.btn-ghost:hover,
+.employer-jobs-board a.btn.btn-ghost:hover,
+.employer-bulk-modal .btn.btn-ghost:hover,
+.employer-bulk-modal a.btn.btn-ghost:hover {
     background: rgba(173, 44, 77, 0.05);
     border-color: var(--color-accent);
     color: var(--color-accent-dark);

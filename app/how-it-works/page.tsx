@@ -238,7 +238,7 @@ export default async function HowItWorksPage() {
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
               <Link href="/apply" className="btn btn-primary">{t('ctaApply')}</Link>
-              <Link href="/find-your-path" className="btn btn-secondary">{t('heroCta1')}</Link>
+              <Link href="/find-your-path" className="btn btn-muted">{t('heroCta1')}</Link>
             </div>
           </div>
         </div>

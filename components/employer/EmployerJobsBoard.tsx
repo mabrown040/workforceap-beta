@@ -706,7 +706,7 @@ export default function EmployerJobsBoard({
       {totalInFilter === 0 ? (
         <div className="employer-jobs-board__filtered-empty">
           <p className="employer-jobs-board__empty">Nothing in this stage right now.</p>
-          <Link href={employerJobsListHref('all', 1)} className="btn btn-secondary btn-sm">
+          <Link href={employerJobsListHref('all', 1)} className="btn btn-muted btn-sm">
             Show all postings
           </Link>
         </div>

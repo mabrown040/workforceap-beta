@@ -402,7 +402,7 @@ export default function DashboardHomeClient({
         </span>
         <Link
           href="/dashboard/messages"
-          className="btn btn-secondary"
+          className="btn btn-muted"
           style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
           onClick={() => handleDashboardAction('help_counselor_clicked')}
         >
@@ -605,7 +605,7 @@ export default function DashboardHomeClient({
                 Ask questions, get unstuck, or check what happens next in your program.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
-                <Link href="/dashboard/messages" className="btn btn-secondary" onClick={() => handleDashboardAction('help_counselor_clicked')}>
+                <Link href="/dashboard/messages" className="btn btn-muted" onClick={() => handleDashboardAction('help_counselor_clicked')}>
                   Message counselor
                 </Link>
                 <Link href="/dashboard/resources" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction('help_resources_clicked')}>
@@ -625,7 +625,7 @@ export default function DashboardHomeClient({
                 Use voice tools for mock interviews, spoken answers, and confidence-building — without turning the homepage into a tool catalog.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
-                <Link href="/dashboard/ai-tools/voice-interview" className="btn btn-secondary" onClick={() => handleDashboardAction('ai_tools_clicked')}>
+                <Link href="/dashboard/ai-tools/voice-interview" className="btn btn-muted" onClick={() => handleDashboardAction('ai_tools_clicked')}>
                   Open voice coach
                 </Link>
                 <Link href={primaryAction?.href ?? '/dashboard/ai-tools'} style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction(primaryAction ? 'primary_recommended_action_clicked' : 'ai_tools_clicked')}>

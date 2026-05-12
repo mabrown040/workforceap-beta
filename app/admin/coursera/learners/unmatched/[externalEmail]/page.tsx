@@ -297,7 +297,7 @@ export default async function AdminCourseraUnmatchedLearnerPage({
                 </p>
                 <Link
                   href={eventsHref}
-                  className="btn btn-secondary"
+                  className="btn btn-muted"
                   style={{ fontSize: '0.85rem', padding: '0.4rem 0.85rem' }}
                 >
                   View all {totalUnmatchedEvents} events →

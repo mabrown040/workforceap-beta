@@ -33,21 +33,25 @@ function walk(dir, acc = []) {
   return acc;
 }
 
-function addCronIcons(content) {
-  for (const m of content.matchAll(/^\s*icon:\s*['"]([a-z0-9_]+)['"],?\s*$/gm)) {
+/** `icon: 'name'` in objects / nav config / data files (no `<span>` nearby). */
+function addIconPropGlyphs(content) {
+  for (const m of content.matchAll(/\bicon:\s*['"]([a-z0-9_]+)['"]/g)) {
     glyphs.add(m[1]);
   }
 }
 
-function addNavTabMetaIcons(content) {
-  const block = content.match(/export const NAV_TAB_META[^]*?\n};/);
-  if (!block) return;
-  for (const m of block[0].matchAll(/\bicon:\s*'([a-z0-9_]+)'/g)) {
-    glyphs.add(m[1]);
+/** Pathway milestones use const arrays without `icon:` keys. */
+function addPathwayIconArrays(content) {
+  for (const m of content.matchAll(
+    /(?:IT_SUPPORT_STEP_ICONS|FALLBACK_STEP_ICONS)\s*=\s*\[([\s\S]*?)\]\s*as\s+const/g
+  )) {
+    for (const x of m[1].matchAll(/'([a-z0-9_]+)'/g)) {
+      glyphs.add(x[1]);
+    }
   }
 }
 
-function addFromMaterialFile(content) {
+function addMaterialSymbolSpans(content) {
   const spanRe = /<span[^>]*material-symbols-outlined[^>]*>([\s\S]*?)<\/span>/gi;
   let m;
   while ((m = spanRe.exec(content))) {
@@ -56,27 +60,15 @@ function addFromMaterialFile(content) {
       glyphs.add(inner);
     }
   }
-  // Inline arrays / props that feed <span class="material-symbols-outlined">{row.icon}</span>
-  const dynamicMaterialIcon = /\{[^}]*\.icon[^}]*\}/.test(content);
-  if (dynamicMaterialIcon) {
-    for (const x of content.matchAll(/\bicon:\s*['"]([a-z0-9_]+)['"]/g)) {
-      glyphs.add(x[1]);
-    }
-  }
 }
 
 for (const top of SCAN_TOP) {
   for (const file of walk(top)) {
-  const rel = path.relative(ROOT, file);
-  const content = fs.readFileSync(file, 'utf8');
-  if (rel === path.join('lib', 'admin', 'cronRegistry.ts')) {
-    addCronIcons(content);
-  }
-  if (rel === path.join('lib', 'nav', 'portalNav.ts')) {
-    addNavTabMetaIcons(content);
-  }
+    const content = fs.readFileSync(file, 'utf8');
+    addIconPropGlyphs(content);
+    addPathwayIconArrays(content);
     if (content.includes('material-symbols-outlined')) {
-      addFromMaterialFile(content);
+      addMaterialSymbolSpans(content);
     }
   }
 }

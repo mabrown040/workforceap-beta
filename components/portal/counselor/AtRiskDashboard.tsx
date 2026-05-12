@@ -291,7 +291,7 @@ export default function AtRiskDashboard() {
         <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{error}</p>
         <button
           type="button"
-          className="btn btn-secondary btn-sm"
+          className="btn btn-muted btn-sm"
           onClick={fetchData}
           style={{ marginTop: '0.75rem' }}
         >
@@ -541,7 +541,7 @@ export default function AtRiskDashboard() {
                     {row.status === 'open' && (
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-muted btn-sm"
                         disabled={isActing}
                         onClick={() => updateStatus(row.alertId, 'acknowledged')}
                         style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
@@ -797,7 +797,7 @@ function MobileAtRiskCard({
           {row.status === 'open' && (
             <button
               type="button"
-              className="btn btn-secondary btn-sm"
+              className="btn btn-muted btn-sm"
               disabled={acting}
               onClick={onAcknowledge}
               style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}

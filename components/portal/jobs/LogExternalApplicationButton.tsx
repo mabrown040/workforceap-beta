@@ -118,7 +118,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`btn ${variant === 'primary' ? 'btn-primary' : 'btn-secondary'} btn-small`}
+        className={`btn ${variant === 'primary' ? 'btn-primary' : 'btn-muted'} btn-small`}
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}
       >
         <ExternalLink size={16} aria-hidden />
@@ -168,7 +168,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
                 />
               ) : null}
               <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-secondary btn-small" onClick={close}>
+                <button type="button" className="btn btn-muted btn-small" onClick={close}>
                   Done
                 </button>
                 <button type="button" className="btn btn-primary btn-small" onClick={reset}>
@@ -263,7 +263,7 @@ export default function LogExternalApplicationButton({ variant = 'secondary' }: 
               ) : null}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-secondary btn-small" onClick={close} disabled={submitting}>
+                <button type="button" className="btn btn-muted btn-small" onClick={close} disabled={submitting}>
                   Cancel
                 </button>
                 <button

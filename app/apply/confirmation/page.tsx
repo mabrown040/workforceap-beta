@@ -285,7 +285,7 @@ export default async function ApplyConfirmationPage() {
               <Link href="/programs" className="btn btn-outline">
                 Explore Programs
               </Link>
-              <Link href="/" className="btn btn-secondary">
+              <Link href="/" className="btn btn-muted">
                 Return Home
               </Link>
             </div>

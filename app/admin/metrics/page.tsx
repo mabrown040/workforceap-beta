@@ -47,6 +47,18 @@ export default async function AdminMetricsPage() {
       <PageHeader
         title="Analytics"
         subtitle="Platform engagement, enrollment, and placement outcomes."
+        action={
+          <a
+            href="/api/admin/funder-program-summary"
+            className="btn btn-outline"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+              download
+            </span>
+            Export funder CSV
+          </a>
+        }
       />
 
       {/* Summary metric strip */}

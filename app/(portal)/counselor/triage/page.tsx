@@ -304,7 +304,7 @@ function TriageRowCard({ row, priority }: { row: TriageRow; priority: 'red' | 'y
           {row.context.threadId ? (
             <Link
               href={`/counselor/messages?thread=${row.context.threadId}`}
-              className="btn btn-secondary"
+              className="btn btn-muted"
               style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
             >
               Open thread

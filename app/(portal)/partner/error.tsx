@@ -25,7 +25,7 @@ export default function PartnerPortalError({
         <button type="button" className="btn btn-primary" onClick={() => reset()}>
           Try again
         </button>
-        <Link href="/partner" className="btn btn-secondary">
+        <Link href="/partner" className="btn btn-muted">
           Back to partner overview
         </Link>
         <Link href="/" className="btn btn-ghost">

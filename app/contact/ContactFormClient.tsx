@@ -188,7 +188,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
           <p style={{ margin: '0 0 0.75rem' }}>{errorMsg}</p>
           <button
             type="button"
-            className="btn btn-outline btn-sm"
+            className="btn btn-secondary btn-sm btn-radius-sm"
             onClick={() => {
               setStatus('idle');
               setErrorMsg(null);
@@ -353,8 +353,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
       </div>
       <button
         type="submit"
-        className="btn btn-primary"
-        style={{ width: '100%', padding: '1rem' }}
+        className="btn btn-primary btn-full-width btn-radius-md"
         disabled={status === 'sending'}
       >
         {status === 'sending' ? tCommon('sending') : tMessages('sendMessage')}

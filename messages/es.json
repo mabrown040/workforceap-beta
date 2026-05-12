@@ -857,7 +857,7 @@
       "heroHeadline": "Construye el",
       "heroHeadlineAccent": "Futuro de tu Comunidad",
       "heroCopy": "Refiere miembros, sigue resultados y recibe reconocimiento. Empleadores, juntas de trabajo y financiadores también tienen un camino claro.",
-      "referralPayMicrocopy": "Los estipendios por referidos vienen de subvenciones y socios—no de comisiones. Sin costo para miembros; los socios solo refieren, nunca venden.",
+      "referralPayMicrocopy": "Los estipendios por referidos vienen de subvenciones y socios—no de comisiones. Los miembros no pagan por referir; los socios solo refieren, nunca venden.",
       "heroCta": "Ser socio de referidos",
       "heroSecondary": "Tipos de asociación",
       "heroCta2": "Ver tipos de asociación",
@@ -1011,7 +1011,7 @@
     },
     "outcomes": {
       "title": "Resumen de resultados",
-      "description": "Recuentos de colocación agregados de registros internos de WorkforceAP — no se garantizan resultados; acceso financiado para miembros calificados.",
+      "description": "Recuentos de colocación agregados de registros internos de WorkforceAP — no se garantizan resultados; capacitación financiada por Workforce para miembros calificados.",
       "eyebrow": "Transparencia",
       "heading": "Resultados de colocación (agregados)",
       "intro": "Estos recuentos provienen de registros internos de colocación — no son una promesa de resultados futuros. Los programas pueden estar disponibles mediante capacitación financiada por Workforce para miembros calificados a través de WorkforceAP y rutas respaldadas por socios.",

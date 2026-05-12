@@ -80,7 +80,7 @@ export default function TriageNudgePanel({ memberId, memberName, templates, mile
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="btn btn-secondary"
+        className="btn btn-muted"
         style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
       >
         Send nudge
@@ -110,7 +110,7 @@ export default function TriageNudgePanel({ memberId, memberName, templates, mile
             key={t.id}
             type="button"
             onClick={() => handleSelect(t.id)}
-            className={selected === t.id ? 'btn btn-primary' : 'btn btn-secondary'}
+            className={selected === t.id ? 'btn btn-primary' : 'btn btn-muted'}
             style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem' }}
           >
             {t.label}
@@ -149,7 +149,7 @@ export default function TriageNudgePanel({ memberId, memberName, templates, mile
             setBodyOverride('');
             setError(null);
           }}
-          className="btn btn-secondary"
+          className="btn btn-muted"
           style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
           disabled={isPending}
         >

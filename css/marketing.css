@@ -4,12 +4,13 @@
  */
 
 /*
- * Fixed `MobileBottomNav` (~64px row + device safe area).
- * `html.wap-reserve-mobile-bottom-nav` is set in RootLayout from middleware so
- * clearance applies on first paint (no :has() / client-nav timing).
+ * Fixed `MobileBottomNav` (~64–80px row + device safe area).
+ * `html.wap-reserve-mobile-bottom-nav` is set in RootLayout from middleware for
+ * first paint. `html:has(nav#mobile-bottom-nav)` applies the same clearance on
+ * mobile whenever the bar is mounted (keeps layout in sync with the DOM).
  */
 :root {
-  --wap-mobile-bottom-nav-clearance: calc(4rem + env(safe-area-inset-bottom, 0px));
+  --wap-mobile-bottom-nav-clearance: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   /*
    * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
    * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
@@ -22,11 +23,13 @@
 }
 
 @media (max-width: 767px) {
-  html.wap-reserve-mobile-bottom-nav {
+  html.wap-reserve-mobile-bottom-nav,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
-  html.wap-reserve-mobile-bottom-nav #main-content {
+  html.wap-reserve-mobile-bottom-nav #main-content,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) #main-content {
     padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
@@ -34,13 +37,15 @@
    * Full-viewport heroes: padding on `#main-content` does not change flex-centered
    * content — reserve space inside the hero so CTAs stay above the nav.
    */
-  html.wap-reserve-mobile-bottom-nav .home-hero {
+  html.wap-reserve-mobile-bottom-nav .home-hero,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .home-hero {
     padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     box-sizing: border-box;
   }
 
   /* Extra lift for hero copy/CTAs inside the band (inline padding + nav clearance) */
-  html.wap-reserve-mobile-bottom-nav .home-hero .home-hero__inner {
+  html.wap-reserve-mobile-bottom-nav .home-hero .home-hero__inner,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .home-hero .home-hero__inner {
     padding-bottom: calc(clamp(3rem, 8vw, 6rem) + var(--wap-mobile-bottom-nav-clearance)) !important;
   }
 }

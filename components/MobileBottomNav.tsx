@@ -75,7 +75,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
   return (
     <>
       {/* Mobile-only visibility: hidden on desktop (≥768px) */}
-      {/* Bottom clearance: `marketing.css` + `html.wap-reserve-mobile-bottom-nav` (middleware + RootLayout). */}
+      {/* Bottom clearance: `marketing.css` — middleware `html.wap-reserve-mobile-bottom-nav` + `html:has(nav#mobile-bottom-nav)` */}
       <style>{`
         @media (min-width: ${MOBILE_NAV_BREAKPOINT}px) {
           .mobile-bottom-nav-root {

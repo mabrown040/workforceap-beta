@@ -247,6 +247,12 @@ export default async function AdminPage() {
         subtitle="See who's signing up, how training is going, and where members are getting placed."
         action={
           <div className="employer-dash-header-actions" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <a href="/api/admin/funder-program-summary" className="btn btn-outline">
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                download
+              </span>
+              Export funder CSV
+            </a>
             <Link href="/admin/pipeline" className="btn btn-outline">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">account_tree</span>
               Pipeline

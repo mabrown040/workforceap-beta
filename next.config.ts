@@ -21,6 +21,8 @@ require('./scripts/ensure-prisma-env.cjs');
 const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'react-markdown', 'remark-gfm'],
+    /** Lightning CSS pipeline for smaller critical/global CSS chunks. */
+    optimizeCss: true,
   },
   // Locale routing is handled in middleware + `lib/i18n` (App Router does not use next.config i18n).
   // When a lockfile exists outside this repo (e.g. user home), Next may pick the wrong root — breaks tracing + route collection.
@@ -103,6 +105,7 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     formats: ['image/avif', 'image/webp'],
     // Allow Next.js's default q=75 in addition to the explicit q=85 used on
     // hero images. Restricting to [85] alone caused every <Image> without an

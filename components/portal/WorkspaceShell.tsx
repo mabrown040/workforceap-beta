@@ -332,13 +332,14 @@ export default function WorkspaceShell({
             <Menu size={22} strokeWidth={2} aria-hidden />
           </button>
           <div className="workspace-shell-brand-block">
-            <Link href={firstHref} className="workspace-shell-brand">
+            <Link href={firstHref} prefetch={false} className="workspace-shell-brand">
               WorkforceAP
             </Link>
             <span className="workspace-shell-tagline">{translateLabel(workspaceLabel)}</span>
             {marketingSiteHref ? (
               <Link
                 href={marketingSiteHref}
+                prefetch={false}
                 className="workspace-shell-public-site-link"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -413,7 +414,7 @@ export default function WorkspaceShell({
           <span className="workspace-resume-upload-hint__text">
             No resume on file yet — upload one to power AI tools and your coach.
           </span>
-          <Link href="/dashboard/resume" className="workspace-resume-upload-hint__cta">
+          <Link href="/dashboard/resume" prefetch={false} className="workspace-resume-upload-hint__cta">
             Upload resume
           </Link>
         </div>
@@ -422,7 +423,7 @@ export default function WorkspaceShell({
       {superAdmin && superAdminImpersonating && superAdminBackHref && (
         <div className="workspace-super-admin-banner">
           Viewing as <strong>{contextLabel}</strong>.{' '}
-          <Link href={superAdminBackHref}>{superAdminBackLabel ?? 'Switch'}</Link>
+          <Link href={superAdminBackHref} prefetch={false}>{superAdminBackLabel ?? 'Switch'}</Link>
         </div>
       )}
 
@@ -447,6 +448,7 @@ export default function WorkspaceShell({
                 <Link
                   key={tab}
                   href={firstItem?.href ?? '/dashboard'}
+                  prefetch={false}
                   className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
                   onClick={closeDrawer}
                 >
@@ -502,6 +504,7 @@ export default function WorkspaceShell({
                             <li key={item.href}>
                               <Link
                                 href={item.href}
+                                prefetch={false}
                                 className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
                                 onClick={closeDrawer}
                                 title={isCollapsedDesktop ? translateLabel(item.label) : undefined}
@@ -558,9 +561,6 @@ export default function WorkspaceShell({
           {topBanner}
           <div className="workspace-shell-main-inner">{children}</div>
           {footer}
-          {ROLE_TO_NAV_VARIANT[portalRole] ? (
-            <div className="mobile-bottom-nav-spacer" aria-hidden />
-          ) : null}
         </div>
       </div>
       {/* Mobile bottom nav for non-member roles. Members use MemberPortalTopNav. */}

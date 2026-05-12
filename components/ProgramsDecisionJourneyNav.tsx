@@ -63,6 +63,7 @@ export default function ProgramsDecisionJourneyNav({
             <li key={s.id}>
               <Link
                 href={s.href}
+                prefetch={s.id === 'quiz' || s.id === 'programs'}
                 scroll={false}
                 className={`pdj-nav__tab${isHere ? ' pdj-nav__tab--active' : ''}`}
                 aria-current={

@@ -24,7 +24,7 @@ export default function PortalNav({ className, currentRole, currentPath }: { cla
             const isActive = isActiveRoute(pathname, href, aliases);
             return (
               <li key={href}>
-                <Link href={href} className={isActive ? 'active' : undefined}>
+                <Link href={href} prefetch={false} className={isActive ? 'active' : undefined}>
                   {label}
                 </Link>
               </li>

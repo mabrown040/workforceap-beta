@@ -33,6 +33,7 @@ export default function MemberPortalTopNav({
             <li key={tab.href} className="member-portal-top-nav__item">
               <Link
                 href={tab.href}
+                prefetch={tab.href === '/dashboard'}
                 className={`member-portal-top-nav__link${active ? ' member-portal-top-nav__link--active' : ''}`}
                 aria-current={active ? 'page' : undefined}
               >

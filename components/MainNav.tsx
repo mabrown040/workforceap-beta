@@ -34,6 +34,13 @@ function dropdownMenuId(baseId: string, label: string) {
   return `${baseId}-${label.replace(/\s+/g, '-').toLowerCase()}`;
 }
 
+/** Limit viewport prefetch to high-intent funnel routes; cuts parallel `_rsc` requests from the chrome. */
+const PREFETCH_HIGH_PRIORITY = new Set(['/apply', '/programs', '/find-your-path']);
+function marketingNavPrefetch(pathname: string): boolean {
+  const path = pathname.split('?')[0] ?? pathname;
+  return PREFETCH_HIGH_PRIORITY.has(path);
+}
+
 /**
  * The user is already in the apply / pathfinder funnel — show the
  * page's own CTAs and suppress the nav "Apply Now" so we don't compete
@@ -58,10 +65,11 @@ export default function MainNav() {
   }>({
       primary: { href: '/login', label: 'Login' },
       submenu: [
-      { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-      { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
-      { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-      { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+      { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+      { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+      { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+      { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
+      { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
       ],
   });
   const menuRef = useRef<HTMLUListElement>(null);
@@ -94,10 +102,11 @@ export default function MainNav() {
     const ctaMap: Record<string, string> = {
       'Apply Now': tCta('applyNow'),
       'Login': tCta('logIn'),
-      'Counselor sign in': tCta('logIn'),
-      'Partner sign in': tCta('logIn'),
-      'Employer sign in': tCta('logIn'),
-      'Member sign in': tCta('logIn'),
+      'Member Sign In': tCta('memberSignIn'),
+      'Counselor Sign In': tCta('counselorSignIn'),
+      'Employer Sign In': tCta('employerSignIn'),
+      'Partner Sign In': tCta('partnerSignIn'),
+      'Admin Sign In': tCta('adminSignIn'),
     };
     if (label in ctaMap) return ctaMap[label];
     return label;
@@ -143,10 +152,11 @@ export default function MainNav() {
           setPortalState({
             primary: { href: '/login', label: 'Login' },
             submenu: [
-              { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-              { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
-              { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-              { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+              { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+              { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+              { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+              { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
+              { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
             ],
           });
           return;
@@ -156,9 +166,9 @@ export default function MainNav() {
           setPortalState({
             primary: { href: '/partner', label: 'Partner' },
             submenu: [
-              { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-              { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-              { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+              { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+              { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+              { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
             ],
           });
           return;
@@ -182,10 +192,11 @@ export default function MainNav() {
           setPortalState({
             primary: { href: '/login', label: 'Login' },
             submenu: [
-              { href: '/login?redirectTo=/counselor', label: 'Counselor sign in' },
-              { href: '/login?redirectTo=/partner', label: 'Partner sign in' },
-              { href: '/login?redirectTo=/employer', label: 'Employer sign in' },
-              { href: '/login?redirectTo=/dashboard', label: 'Member sign in' },
+              { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+              { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+              { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+              { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
+              { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
             ],
           });
         }
@@ -289,7 +300,7 @@ export default function MainNav() {
   return (
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container" ref={navContainerRef}>
-        <LocalizedLink href="/" className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
+        <LocalizedLink href="/" prefetch={false} className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
           <Image src="/images/wap_logo.png" alt="Workforce Advancement Project" width={1930} height={985} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
         </LocalizedLink>
 
@@ -325,7 +336,13 @@ export default function MainNav() {
                   <ul className="dropdown-menu" id={subMenuId} role="menu" aria-labelledby={`${subMenuId}-trigger`}>
                     {item.children.map((child) => (
                       <li key={child.href} role="none">
-                        <LocalizedLink href={child.href} role="menuitem" className={isActive(child.href) ? 'active' : undefined} onClick={closeMobile}>
+                        <LocalizedLink
+                          href={child.href}
+                          prefetch={false}
+                          role="menuitem"
+                          className={isActive(child.href) ? 'active' : undefined}
+                          onClick={closeMobile}
+                        >
                           {translateLabel(child.label)}
                         </LocalizedLink>
                       </li>
@@ -336,7 +353,12 @@ export default function MainNav() {
             }
             return [
               <li key={item.href}>
-                <LocalizedLink href={item.href!} className={isActive(item.href!) ? 'active' : undefined} onClick={closeMobile}>
+                <LocalizedLink
+                  href={item.href!}
+                  prefetch={marketingNavPrefetch(item.href!)}
+                  className={isActive(item.href!) ? 'active' : undefined}
+                  onClick={closeMobile}
+                >
                   {translateLabel(item.label)}
                 </LocalizedLink>
               </li>,
@@ -349,6 +371,7 @@ export default function MainNav() {
             <div className="nav-login-split">
               <Link
                 href={portalState.primary.href}
+                prefetch={false}
                 className={`nav-login-primary${portalHrefActive(portalState.primary.href) ? ' active' : ''}`}
                 onClick={closeMobile}
               >
@@ -389,6 +412,7 @@ export default function MainNav() {
                   <li key={item.href} role="none">
                     <Link
                       href={item.href}
+                      prefetch={false}
                       role="menuitem"
                       className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
                       onClick={closeMobile}
@@ -402,7 +426,7 @@ export default function MainNav() {
           </li>
           {!isOnApplyFunnel(pathnameWithoutLocale) && (
           <li>
-            <LocalizedLink href="/apply" className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
+            <LocalizedLink href="/apply" prefetch={true} className="nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
           </li>
           )}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">

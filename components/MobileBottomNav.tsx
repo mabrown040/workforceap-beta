@@ -9,7 +9,6 @@ import type { NavBadgeKey } from '@/lib/nav/portalNav';
  * Matches Tailwind md breakpoint (768px)
  */
 const MOBILE_NAV_BREAKPOINT = 768;
-const MOBILE_BOTTOM_NAV_CLEARANCE = 'calc(5.75rem + env(safe-area-inset-bottom, 0px))';
 
 const MARKETING_TABS = [
   { href: '/', label: 'Home', icon: 'home' },
@@ -52,6 +51,13 @@ interface MobileBottomNavProps {
   badgeCounts?: Partial<Record<NavBadgeKey, number>>;
 }
 
+function prefetchForBottomTab(variant: MobileBottomNavProps['variant'], href: string): boolean {
+  if (variant === 'marketing') {
+    return href === '/apply' || href === '/programs' || href === '/find-your-path';
+  }
+  return false;
+}
+
 export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: MobileBottomNavProps) {
   // Member portal switched from bottom-tab to sticky-top horizontal-scroll nav
   // (/plan-design-review Decision 3, 2026-04-25). The top nav is rendered by
@@ -69,9 +75,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
   return (
     <>
       {/* Mobile-only visibility: hidden on desktop (≥768px) */}
-      {/* On mobile, the fixed bottom nav otherwise overlaps page footer copy
-          and trailing content. Add bottom padding to #main-content equal to
-          the nav height + safe-area inset so all content is reachable. */}
+      {/* Bottom clearance: `marketing.css` + `html.wap-reserve-mobile-bottom-nav` (middleware + RootLayout). */}
       <style>{`
         @media (min-width: ${MOBILE_NAV_BREAKPOINT}px) {
           .mobile-bottom-nav-root {
@@ -81,9 +85,6 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
         @media (max-width: ${MOBILE_NAV_BREAKPOINT - 1}px) {
           .mobile-bottom-nav-root {
             display: flex !important;
-          }
-          #main-content {
-            padding-bottom: ${MOBILE_BOTTOM_NAV_CLEARANCE} !important;
           }
         }
       `}</style>
@@ -124,6 +125,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
           <Link
             key={href}
             href={href}
+            prefetch={prefetchForBottomTab(variant, href)}
             className={`marketing-bottom-nav__link${isActive ? ' marketing-bottom-nav__link--active' : ''}`}
             aria-current={isActive ? 'page' : undefined}
             {...(tourTarget ? { 'data-tour': tourTarget } : {})}

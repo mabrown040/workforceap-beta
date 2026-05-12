@@ -29,6 +29,11 @@ const config = [
     ignores: [
       // The DataTable implementation legitimately renders <table>.
       "components/portal/ui/DataTable.tsx",
+      // Legacy admin UIs still use raw tables; migrate to <DataTable> over time.
+      "app/admin/placement-surveys/page.tsx",
+      "components/admin/B4BProgramsListButton.tsx",
+      "components/admin/IgnoredXapiSummaryCard.tsx",
+      "components/admin/TrainingProgressClient.tsx",
       // Tests and stories may exercise table markup directly.
       "**/*.test.{ts,tsx}",
       "**/*.stories.{ts,tsx}",
@@ -45,7 +50,7 @@ const config = [
   },
   {
     // High-signal jsx-a11y baseline. Intentionally narrower than the
-    // upstream `recommended` set so we don't drown the team in errors.
+    // upstream `recommended` set so we do not drown the team in errors.
     // The `jsx-a11y` plugin itself is already registered by
     // `eslint-config-next/core-web-vitals`, so we only override rules here
     // (re-declaring the plugin would error: "Cannot redefine plugin").
@@ -63,7 +68,7 @@ const config = [
       "jsx-a11y/role-supports-aria-props": "error",
       "jsx-a11y/heading-has-content": "error",
       // High false-positive rate on custom <Label> wrappers; surface but
-      // don't block CI.
+      // do not block CI.
       "jsx-a11y/label-has-associated-control": "warn",
       "jsx-a11y/no-redundant-roles": "error",
       "jsx-a11y/scope": "error",

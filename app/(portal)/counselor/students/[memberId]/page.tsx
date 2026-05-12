@@ -824,7 +824,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             </div>
           </section>
 
-          <section style={{ marginTop: '1.5rem' }}>
+          <section id="counselor-member-messages" style={{ marginTop: '1.5rem' }}>
             <AdminMemberCounselorChatClient
               messagesApiBase={`/api/counselor/members/${member.id}/messages`}
               initial={{

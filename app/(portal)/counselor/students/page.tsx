@@ -5,11 +5,10 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
-import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import StatusBadge from '@/components/portal/StatusBadge';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
+import CounselorStudentsRosterClient from '@/components/portal/counselor/CounselorStudentsRosterClient';
+import { loadCounselorRosterRiskAndActivity } from '@/lib/counselor/counselorStudentsRoster';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 
@@ -19,31 +18,6 @@ function formatHotQueueTime(date: Date): string {
   if (diffHours < 24) return `${diffHours}h ago`;
   const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
   return `${diffDays}d ago`;
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
-function wioaBadgeProps(status: string | null | undefined): { label: string; variant: 'info' | 'success' | 'error' | 'neutral'; tooltip: string } {
-  switch (status) {
-    case 'verified':
-      return { label: 'WIOA Verified', variant: 'success', tooltip: 'Member is WIOA-verified and eligible to enroll in training' };
-    case 'pending':
-    case 'in_review':
-      return { label: 'WIOA Pending', variant: 'info', tooltip: 'Member submitted WIOA screening — awaiting counselor review' };
-    case 'not_eligible':
-    case 'needs_info':
-      return { label: 'Not Eligible', variant: 'error', tooltip: 'Member is not eligible for training enrollment until WorkforceAP resolves their WIOA status' };
-    default:
-      return { label: 'WIOA: Not Started', variant: 'info', tooltip: "Member hasn't submitted WIOA screening" };
-  }
 }
 
 export default async function CounselorStudentsPage() {
@@ -70,6 +44,7 @@ export default async function CounselorStudentsPage() {
               programInterest: true,
               assessmentScorePct: true,
               wioaReviewStatus: true,
+              createdAt: true,
               memberProgramProgress: {
                 select: { programSlug: true, averagePercent: true, coursesCompleted: true },
               },
@@ -83,6 +58,33 @@ export default async function CounselorStudentsPage() {
   const activeCount = assignments.length;
   const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
   const memberIds = assignments.map((a) => a.memberId);
+
+  const activityRiskByMember = await loadCounselorRosterRiskAndActivity(memberIds);
+
+  /** Oldest platform activity first — prioritize follow-up for dormant members. */
+  const rosterAssignments = [...assignments].sort((a, b) => {
+    const ta = activityRiskByMember.get(a.memberId)?.lastActivityAt.getTime() ?? 0;
+    const tb = activityRiskByMember.get(b.memberId)?.lastActivityAt.getTime() ?? 0;
+    return ta - tb;
+  });
+
+  const rosterRows = rosterAssignments.map((a) => {
+    const meta = activityRiskByMember.get(a.memberId);
+    return {
+      assignmentId: a.id,
+      memberId: a.member.id,
+      fullName: a.member.fullName,
+      email: a.member.email,
+      enrolledProgram: a.member.enrolledProgram,
+      programInterest: a.member.programInterest,
+      assessmentScorePct: a.member.assessmentScorePct,
+      wioaReviewStatus: a.member.wioaReviewStatus,
+      memberProgramProgress: a.member.memberProgramProgress,
+      riskScore: meta?.riskScore ?? null,
+      riskLevel: meta?.riskLevel ?? 'LOW',
+      lastActivityAt: (meta?.lastActivityAt ?? a.member.createdAt).toISOString(),
+    };
+  });
   const hotQueueCutoff = new Date(Date.now() - HOT_QUEUE_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
 
   const hotQueue = memberIds.length
@@ -220,24 +222,8 @@ export default async function CounselorStudentsPage() {
           </div>
         ) : null}
 
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1rem 1rem 0.5rem',
-          }}
-        >
-          <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Active Roster</span>
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '20px' }} aria-hidden="true">
-            sort
-          </span>
-        </div>
-
-        {/* Student list */}
-        <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {assignments.length === 0 ? (
+        {assignments.length === 0 ? (
+          <div style={{ padding: '0 1rem' }}>
             <PortalEmptyState
               title="No members assigned yet"
               description="Members will appear here once assigned by an administrator."
@@ -245,122 +231,10 @@ export default async function CounselorStudentsPage() {
               primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
               secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
             />
-          ) : (
-            assignments.map((a) => {
-              const initials = getInitials(a.member.fullName ?? 'U');
-              const program = a.member.enrolledProgram ?? a.member.programInterest ?? '—';
-              const enrolledSlug = a.member.enrolledProgram ?? null;
-              const progress = computeTrainingProgress(enrolledSlug, null, a.member.memberProgramProgress);
-              const trainingProgressPct = progress.totalCourses > 0 ? progress.pct : null;
-              const statusBadge = counselorStudentStatusBadge({
-                enrolledProgram: a.member.enrolledProgram,
-                assessmentScorePct: a.member.assessmentScorePct,
-              });
-              const statusVariant = counselorStudentStatusBadgeVariant({
-                enrolledProgram: a.member.enrolledProgram,
-                assessmentScorePct: a.member.assessmentScorePct,
-              });
-              const wioa = wioaBadgeProps(a.member.wioaReviewStatus);
-              return (
-                <Link
-                  key={a.id}
-                  href={`/counselor/students/${a.member.id}`}
-                  style={{ textDecoration: 'none' }}
-                >
-                  <div
-                    className="portal-kpi-card active:scale-[0.98] wa-transition-all"
-                    style={{
-                      padding: '1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.875rem',
-                      border: '1px solid var(--outline-variant)',
-                    }}
-                  >
-                    {/* Avatar */}
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '0.625rem',
-                        background: 'var(--color-accent)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span style={{ color: '#fff', fontWeight: 800, fontSize: '0.875rem' }}>{initials}</span>
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p
-                        className="wa-truncate"
-                        style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
-                      >
-                        {a.member.fullName}
-                      </p>
-                      <p
-                        className="wa-truncate"
-                        style={{
-                          fontSize: '10px',
-                          fontWeight: 700,
-                          color: 'var(--color-accent)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          margin: '0 0 0.375rem',
-                        }}
-                      >
-                        {program}
-                      </p>
-                      {trainingProgressPct === null ? (
-                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
-                        </p>
-                      ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div
-                            style={{
-                              flex: 1,
-                              height: 4,
-                              background: 'var(--surface-container)',
-                              borderRadius: '9999px',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <div
-                              style={{
-                                height: '100%',
-                                width: `${trainingProgressPct}%`,
-                                background: 'var(--color-accent)',
-                                borderRadius: '9999px',
-                              }}
-                            />
-                          </div>
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
-                            {trainingProgressPct}%
-                          </span>
-                        </div>
-                      )}
-                      <div style={{ marginTop: '0.375rem' }} title={wioa.tooltip}>
-                        <StatusBadge label={wioa.label} variant={wioa.variant} />
-                      </div>
-                    </div>
-
-                    {/* Status + chevron */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem' }}>
-                      <StatusBadge label={statusBadge.label} variant={statusVariant} />
-                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }} aria-hidden="true">
-                        chevron_right
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })
-          )}
-        </div>
+          </div>
+        ) : (
+          <CounselorStudentsRosterClient rows={rosterRows} />
+        )}
       </div>
 
       {/* ── Desktop ─────────────────────────────────────────── */}
@@ -433,30 +307,7 @@ export default async function CounselorStudentsPage() {
             secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
           />
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
-            {assignments.map((a) => {
-              const wioa = wioaBadgeProps(a.member.wioaReviewStatus);
-              return (
-                <li key={a.id}>
-                  <Link
-                    href={`/counselor/students/${a.member.id}`}
-                    className="btn btn-outline"
-                    style={{ display: 'inline-flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}
-                  >
-                    <span style={{ fontWeight: 600 }}>{a.member.fullName}</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-                      <span title={wioa.tooltip}>
-                        <StatusBadge label={wioa.label} variant={wioa.variant} />
-                      </span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                        {a.member.email}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <CounselorStudentsRosterClient rows={rosterRows} />
         )}
       </div>
 

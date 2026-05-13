@@ -1,16 +1,14 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
 import type { AbstractIntlMessages } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
-import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
-import ConversionMetrics from '@/components/analytics/ConversionMetrics';
-import PortalMetrics from '@/components/analytics/PortalMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
@@ -18,6 +16,10 @@ import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavL
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
+
+const SafeVercelMetrics = dynamic(() => import('@/components/SafeVercelMetrics'), { ssr: false });
+const ConversionMetrics = dynamic(() => import('@/components/analytics/ConversionMetrics'), { ssr: false });
+const PortalMetrics = dynamic(() => import('@/components/analytics/PortalMetrics'), { ssr: false });
 
 const inter = Inter({
   subsets: ['latin'],

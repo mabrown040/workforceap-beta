@@ -13,6 +13,7 @@ import {
   getCareerQuizPayloadFromStorage,
 } from '@/lib/apply/applyProgramStorage';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 
 // Persists in-progress account form fields so back-button / refresh / accidental
 // navigation does not wipe what the user already typed. Cleared on successful
@@ -846,7 +847,7 @@ export default function ApplyCreateAccountForm() {
       )}
       <button
         type="submit"
-        className="btn btn-primary btn-submit-full"
+        className={marketingButtonClasses({ variant: 'primary', radius: 'md', className: 'btn-submit-full' })}
         disabled={loading}
         aria-busy={loading}
       >

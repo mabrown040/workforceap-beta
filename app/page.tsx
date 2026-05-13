@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
+import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 
 import { getTranslations } from 'next-intl/server';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 
 // Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
 // keep the supporting copy immediately concrete, member-safe, and operational.
@@ -192,37 +192,46 @@ export default async function HomePage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>
             {([t('heroStep1'), t('heroStep2'), t('heroStep3')] as const).map((step, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.625rem',
-                  padding: '0.75rem 0.95rem',
-                  borderRadius: '9999px',
-                  background: 'rgba(15, 18, 24, 0.46)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  color: 'var(--home-hero-fg, #f2f2f5)',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                }}
-              >
-                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.35rem', height: '1.35rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.78rem', fontWeight: 700 }}>
-                  {index + 1}
-                </span>
+              <div key={index} className="marketing-hero-step-pill">
+                <span className="marketing-hero-step-pill__index">{index + 1}</span>
                 <span>{step}</span>
               </div>
             ))}
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-            <Link href="/apply" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)', fontWeight: 800 }}>
+            <Link
+              href="/apply"
+              className={marketingButtonClasses({
+                variant: 'primary',
+                radius: 'lg',
+                large: true,
+                className: 'home-hero__cta-primary',
+              })}
+            >
               {t('heroCtaPrimary')}
             </Link>
-            <Link href="/find-your-path" className="btn btn-outline btn-large" style={{ fontSize: 'clamp(1.02rem, 0.9vw + 0.88rem, 1.15rem)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--home-hero-fg, #f2f2f5)' }}>
+            <Link
+              href="/find-your-path"
+              className={marketingButtonClasses({
+                variant: 'secondary',
+                radius: 'lg',
+                large: true,
+                onDarkSecondary: true,
+                className: 'home-hero__cta-secondary home-hero-secondary-cta',
+              })}
+            >
               {t('heroCta')}
             </Link>
-            <Link href="/programs" className="home-hero-outline-cta" style={{ fontSize: '0.95rem', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.88))', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
+            <Link
+              href="/programs"
+              className={marketingButtonClasses({
+                variant: 'ghost',
+                radius: 'md',
+                large: true,
+                className: 'home-hero__cta-ghost',
+              })}
+            >
               {t('browsePrograms')}
             </Link>
           </div>
@@ -719,8 +728,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <MobileBottomNav />
-      <Footer variant="home" />
+      <DynamicMobileBottomNav />
+      <DynamicFooter variant="home" />
     </div>
   );
 }

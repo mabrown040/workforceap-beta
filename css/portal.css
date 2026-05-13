@@ -3192,3 +3192,53 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
 .dark .member-portal-top-nav__edge-fade {
   background: linear-gradient(to right, transparent, var(--surface, #1a1a1a));
 }
+
+/* After Tailwind utilities in main.css: portal/admin mobile stacking, tap targets, DataTable density.
+   Lives here so public routes do not ship these rules in the global layout CSS chunk. */
+
+@media (max-width: 480px) {
+  .portal-mobile-content .portal-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .portal-mobile-content .wa-grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-page .portal-card {
+    min-width: 0 !important;
+  }
+}
+
+a.portal-card,
+.portal-mobile-content a[href],
+.portal-inbox-row,
+.portal-quick-action-item {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+a.portal-card:active,
+.portal-mobile-content a[href]:active,
+.portal-inbox-row:active,
+.portal-quick-action-item:active {
+  transform: scale(var(--button-press-scale, 0.97));
+  transition: transform 0.1s ease;
+}
+
+.portal-section-action,
+.portal-card__action,
+.portal-pipeline-item,
+.portal-metric-card {
+  min-height: 44px;
+}
+
+@media (max-width: 640px) {
+  .wap-data-table-scroll td,
+  .wap-data-table-scroll th {
+    padding: 0.5rem 0.6rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .employer-quick-actions {
+    grid-template-columns: 1fr !important;
+  }
+}

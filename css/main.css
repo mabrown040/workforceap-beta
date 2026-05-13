@@ -17233,63 +17233,6 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
     will-change: auto;
 }
 
-/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed. */
+/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed.
+   Portal/admin-only rules that must load after utilities live in css/portal.css (imported by portal + admin layouts). */
 @tailwind utilities;
-
-/* =============================================
-   MOBILE UX FIXES — tap targets, card stacking, touch feedback
-   ============================================= */
-
-/* Partner dashboard: stack KPI cards to full width on very small screens */
-@media (max-width: 480px) {
-    .portal-mobile-content .portal-kpi-grid {
-        grid-template-columns: 1fr !important;
-    }
-    /* Employer dashboard: stack quick-action cards */
-    .portal-mobile-content .wa-grid-cols-2 {
-        grid-template-columns: 1fr !important;
-    }
-    /* Admin pipeline: stack stage cards */
-    .admin-page .portal-card {
-        min-width: 0 !important;
-    }
-}
-
-/* Touch feedback for tappable portal cards and links */
-a.portal-card,
-.portal-mobile-content a[href],
-.portal-inbox-row,
-.portal-quick-action-item {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-}
-a.portal-card:active,
-.portal-mobile-content a[href]:active,
-.portal-inbox-row:active,
-.portal-quick-action-item:active {
-    transform: scale(var(--button-press-scale, 0.97));
-    transition: transform 0.1s ease;
-}
-
-/* Ensure minimum tap target on small inline actions */
-.portal-section-action,
-.portal-card__action,
-.portal-pipeline-item,
-.portal-metric-card {
-    min-height: 44px;
-}
-
-/* DataTable compact mode: increase row height on mobile */
-@media (max-width: 640px) {
-    .wap-data-table-scroll td,
-    .wap-data-table-scroll th {
-        padding: 0.5rem 0.6rem !important;
-    }
-}
-
-/* Employer mobile quick actions: stack to 1 column on very small screens */
-@media (max-width: 360px) {
-    .employer-quick-actions {
-        grid-template-columns: 1fr !important;
-    }
-}

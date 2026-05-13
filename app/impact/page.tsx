@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
+import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
 import { SectionHeader, StatCard, InfoCard, PageSection } from '@/components/marketing/ui';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -294,8 +293,8 @@ export default async function ImpactPage() {
         </div>
       </PageSection>
 
-      <Footer />
-      <MobileBottomNav />
+      <DynamicFooter />
+      <DynamicMobileBottomNav />
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );

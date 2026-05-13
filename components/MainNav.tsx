@@ -7,6 +7,7 @@ import ThemeToggle from '@/components/theme/ThemeToggle';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
@@ -419,7 +420,14 @@ export default function MainNav() {
           </li>
           {!isOnApplyFunnel(pathnameWithoutLocale) && (
           <li>
-            <LocalizedLink href="/apply" prefetch={true} className="btn btn-primary btn-radius-md nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
+            <LocalizedLink
+              href="/apply"
+              prefetch={true}
+              className={marketingButtonClasses({ variant: 'primary', radius: 'md', className: 'nav-cta' })}
+              onClick={closeMobile}
+            >
+              {translateLabel('Apply Now')}
+            </LocalizedLink>
           </li>
           )}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">

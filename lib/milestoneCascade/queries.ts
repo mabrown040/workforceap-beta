@@ -1,0 +1,133 @@
+import 'server-only';
+
+import { prisma } from '@/lib/db/prisma';
+
+import { ActionDraftSchema, type ActionDraft } from './types';
+
+/**
+ * Server-side query helpers for the milestone-cascade pipeline.
+ *
+ * Centralizing reads here means UI surfaces (admin inbox, counselor dashboard,
+ * member-facing celebration feed eventually) all share the same shape and
+ * the same validation. Drafts come back from Prisma as untyped `Json` — these
+ * helpers re-validate them against the zod schema so callers can rely on the
+ * typed shape and we surface stale rows (drafts written by a previous
+ * schema) as discardable rather than runtime-crashing the page.
+ */
+
+export interface CascadeCardData {
+  id: string;
+  userId: string;
+  userFullName: string | null;
+  userEmail: string;
+  milestoneType: string;
+  milestoneRef: string;
+  programSlug: string | null;
+  counselorBrief: string | null;
+  drafts: ActionDraft[];
+  /** Drafts that failed schema validation (e.g. older prompt versions). The
+   *  inbox UI can show a "1 draft skipped" hint instead of hiding the whole
+   *  cascade. */
+  invalidDraftCount: number;
+  draftModel: string | null;
+  draftPromptVersion: string | null;
+  draftedAt: Date | null;
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+/** Validate the `drafts` JSON column against the zod schema. Per-element
+ *  parsing so one bad draft doesn't take the whole cascade off the inbox. */
+function parseDrafts(raw: unknown): { drafts: ActionDraft[]; invalid: number } {
+  if (!Array.isArray(raw)) return { drafts: [], invalid: 0 };
+  const drafts: ActionDraft[] = [];
+  let invalid = 0;
+  for (const item of raw) {
+    const parsed = ActionDraftSchema.safeParse(item);
+    if (parsed.success) drafts.push(parsed.data);
+    else invalid += 1;
+  }
+  return { drafts, invalid };
+}
+
+/**
+ * List cascades currently awaiting counselor approval, oldest first. Drives
+ * `/admin/agent-inbox`.
+ */
+export async function listAwaitingApprovalCascades(opts?: {
+  limit?: number;
+}): Promise<CascadeCardData[]> {
+  const rows = await prisma.milestoneCascade.findMany({
+    where: { status: 'awaiting_approval' },
+    orderBy: { createdAt: 'asc' },
+    take: opts?.limit ?? 100,
+    include: {
+      user: { select: { fullName: true, email: true } },
+    },
+  });
+
+  return rows.map((row) => {
+    const { drafts, invalid } = parseDrafts(row.drafts);
+    return {
+      id: row.id,
+      userId: row.userId,
+      userFullName: row.user?.fullName ?? null,
+      userEmail: row.user?.email ?? '(unknown)',
+      milestoneType: row.milestoneType,
+      milestoneRef: row.milestoneRef,
+      programSlug: row.programSlug,
+      counselorBrief: row.counselorBrief,
+      drafts,
+      invalidDraftCount: invalid,
+      draftModel: row.draftModel,
+      draftPromptVersion: row.draftPromptVersion,
+      draftedAt: row.draftedAt,
+      expiresAt: row.expiresAt,
+      createdAt: row.createdAt,
+    };
+  });
+}
+
+/**
+ * Fast count for nav badges. Cheaper than the full list when we just need a
+ * number ("Agent Inbox · 3").
+ */
+export async function countAwaitingApprovalCascades(): Promise<number> {
+  return prisma.milestoneCascade.count({
+    where: { status: 'awaiting_approval' },
+  });
+}
+
+/**
+ * Single-cascade fetch for the future detail / approve view. Returns null
+ * (not throws) when missing — caller decides how to surface "gone".
+ */
+export async function getCascadeForReview(
+  cascadeId: string,
+): Promise<CascadeCardData | null> {
+  const row = await prisma.milestoneCascade.findUnique({
+    where: { id: cascadeId },
+    include: {
+      user: { select: { fullName: true, email: true } },
+    },
+  });
+  if (!row) return null;
+  const { drafts, invalid } = parseDrafts(row.drafts);
+  return {
+    id: row.id,
+    userId: row.userId,
+    userFullName: row.user?.fullName ?? null,
+    userEmail: row.user?.email ?? '(unknown)',
+    milestoneType: row.milestoneType,
+    milestoneRef: row.milestoneRef,
+    programSlug: row.programSlug,
+    counselorBrief: row.counselorBrief,
+    drafts,
+    invalidDraftCount: invalid,
+    draftModel: row.draftModel,
+    draftPromptVersion: row.draftPromptVersion,
+    draftedAt: row.draftedAt,
+    expiresAt: row.expiresAt,
+    createdAt: row.createdAt,
+  };
+}

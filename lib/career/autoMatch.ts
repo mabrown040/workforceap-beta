@@ -131,7 +131,7 @@ export function scoreToRecommendationType(score: number): AutoMatchResult['recom
 }
 
 /** Infer an experience band from the occupation title and description tokens. */
-function inferExperienceBand(occ: OccupationForMatch): AutoMatchResult['experienceBand'] {
+export function inferExperienceBand(occ: OccupationForMatch): AutoMatchResult['experienceBand'] {
   const text = [occ.title, occ.description ?? ''].join(' ').toLowerCase();
   if (/\b(entry[- ]?level|junior|trainee|assistant|intern|beginner)\b/.test(text)) return 'beginner';
   if (/\b(senior|lead|principal|manager|director|expert|specialist)\b/.test(text)) return 'experienced';
@@ -253,3 +253,6 @@ export function rankPrograms(
 
   return ranked;
 }
+
+/** Alias for `rankPrograms` used by the AI career mapping engine. */
+export const autoMatchOccupationToPrograms = rankPrograms;

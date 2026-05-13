@@ -270,7 +270,7 @@ export default async function EmployerDashboardPage() {
           </VoiceAgentSurface>
         </div>
         {/* Quick actions — Review Apps is primary when candidates exist */}
-        <div style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
+        <div className="employer-quick-actions" style={{ marginLeft:"1.5rem", marginRight:"1.5rem", marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"0.75rem" }}>
           {totalApplications > 0 ? (
             <Link href="/employer/applications"
               style={{ gridColumn: 'span 2', padding: '1rem 1.25rem', borderRadius: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 4px 16px rgba(173,44,77,0.3)' }}>

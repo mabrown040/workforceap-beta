@@ -714,6 +714,7 @@ async function renderMemberDashboard(
                       textDecoration: 'none',
                       color: 'inherit',
                       textAlign: 'center',
+                      minHeight: '44px',
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
@@ -827,7 +828,7 @@ async function renderMemberDashboard(
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}
-                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box' }}
+                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', minHeight: '44px' }}
                 >
                   {t('takeAction')}
                 </Link>

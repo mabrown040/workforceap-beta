@@ -1,12 +1,33 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import WioaQualificationClient from '@/components/portal/WioaQualificationClient';
 import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
+
+const WioaQualificationClient = dynamic(() => import('@/components/portal/WioaQualificationClient'), {
+  loading: () => (
+    <div
+      role="status"
+      aria-live="polite"
+      className="portal-card portal-card--flat"
+      style={{
+        minHeight: 280,
+        padding: '2.5rem 1.25rem',
+        borderRadius: 12,
+        textAlign: 'center',
+        color: 'var(--color-on-surface-variant)',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+      }}
+    >
+      Loading WIOA screening…
+    </div>
+  ),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

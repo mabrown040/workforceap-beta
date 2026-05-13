@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { notFound, redirect } from 'next/navigation';
 import { randomUUID } from 'node:crypto';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -7,8 +8,29 @@ import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import PageHeader from '@/components/portal/PageHeader';
-import SessionRunClient from '@/components/portal/sessions/SessionRunClient';
 import CourseraProgressCard from '@/components/portal/CourseraProgressCard';
+
+const SessionRunClient = dynamic(() => import('@/components/portal/sessions/SessionRunClient'), {
+  loading: () => (
+    <div
+      role="status"
+      aria-live="polite"
+      className="portal-card portal-card--flat"
+      style={{
+        minHeight: 480,
+        margin: '0 1rem 1rem',
+        padding: '2.5rem 1.25rem',
+        borderRadius: 12,
+        textAlign: 'center',
+        color: 'var(--color-on-surface-variant)',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+      }}
+    >
+      Loading session workspace…
+    </div>
+  ),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

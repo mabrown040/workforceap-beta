@@ -1,10 +1,30 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import SkillMapperClient from '@/components/portal/tools/SkillMapperClient';
 import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
+
+const SkillMapperClient = dynamic(() => import('@/components/portal/tools/SkillMapperClient'), {
+  loading: () => (
+    <div
+      role="status"
+      aria-live="polite"
+      className="portal-card portal-card--flat"
+      style={{
+        padding: '2.5rem 1.25rem',
+        borderRadius: 12,
+        textAlign: 'center',
+        color: 'var(--color-on-surface-variant)',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+      }}
+    >
+      Loading Skill Mapper…
+    </div>
+  ),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

@@ -21,6 +21,7 @@ import {
 import { persistXapiStatement } from '@/lib/xapi/storage';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { invalidateCache } from '@/lib/cache';
 
 function tailFromObjectId(objectId: string | null | undefined): string | null {
   if (!objectId) return null;
@@ -200,6 +201,10 @@ export async function POST(request: Request) {
       statementsHandled,
       completionCount: completions.filter((c) => (c as { ok?: boolean }).ok === true).length,
     });
+
+    if (statementsHandled > 0) {
+      await invalidateCache('xapi:counts');
+    }
   
     return NextResponse.json({
       received: true,

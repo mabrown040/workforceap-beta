@@ -1,80 +1,115 @@
-/**
- * Process-local cache with a Redis-compatible API surface.
- *
- * This module is intentionally minimal — the same call sites
- * (getCacheOrFetch, invalidateCache) will work when a real Redis backend
- * is wired in later. For now it's an in-memory Map with TTL semantics:
- *   - get/set respects TTL (entries past their deadline are evicted lazily)
- *   - invalidate accepts an exact key OR a prefix-with-trailing-`*` pattern
- *   - the cache is per-process (one per Node worker / serverless instance),
- *     so reads of recently-written keys are NOT guaranteed to hit on the
- *     same connection — callers must already tolerate stale reads, which
- *     is consistent with the eventual Redis behavior under sharded reads.
- *
- * Why this exists: the routes added by this PR import getCacheOrFetch and
- * invalidateCache from `@/lib/cache` but the original implementation was
- * not committed. Without this stub the entire build fails with
- * "Cannot find module '@/lib/cache'". This file restores the build today
- * and gives the Redis upgrade a clean drop-in target.
- */
+import { Redis } from '@upstash/redis';
 
-type Entry = { value: unknown; expiresAt: number };
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const store = new Map<string, Entry>();
+let redis: Redis | null = null;
 
-function isExpired(entry: Entry, now: number): boolean {
-  return entry.expiresAt <= now;
+function getRedis(): Redis | null {
+  if (redis) return redis;
+  if (redisUrl && redisToken) {
+    redis = new Redis({ url: redisUrl, token: redisToken });
+  }
+  return redis;
+}
+
+/** Cache key prefix to avoid collisions with rate-limit keys. */
+const CACHE_PREFIX = 'cache:';
+
+function prefixed(key: string): string {
+  return `${CACHE_PREFIX}${key}`;
 }
 
 /**
- * Return the cached value for `key`, or compute + cache it with `fetcher`
- * if absent / expired. The same call site is safe to use whether or not
- * the underlying cache backend exists — falling back to `fetcher()` when
- * the cache misses, errors, or is disabled.
+ * Get a cached value by key.
+ * Returns null on miss or when Redis is not configured.
+ */
+export async function getCache<T>(key: string): Promise<T | null> {
+  const client = getRedis();
+  if (!client) return null;
+  try {
+    const value = await client.get(prefixed(key));
+    if (value === null || value === undefined) return null;
+    // Upstash Redis auto-deserializes JSON strings back to objects;
+    // if we stored via setCache the value is already parsed.
+    return value as T;
+  } catch (err) {
+    console.warn('[cache] get failed:', err);
+    return null;
+  }
+}
+
+/**
+ * Set a cached value with a TTL in seconds.
+ * No-op when Redis is not configured.
+ */
+export async function setCache<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
+  const client = getRedis();
+  if (!client) return;
+  try {
+    await client.set(prefixed(key), value, { ex: ttlSeconds });
+  } catch (err) {
+    console.warn('[cache] set failed:', err);
+  }
+}
+
+/**
+ * Delete a single cache key.
+ * No-op when Redis is not configured.
+ */
+export async function deleteCache(key: string): Promise<void> {
+  const client = getRedis();
+  if (!client) return;
+  try {
+    await client.del(prefixed(key));
+  } catch (err) {
+    console.warn('[cache] del failed:', err);
+  }
+}
+
+/**
+ * Get a cached value or fetch it via the provided function and cache the result.
  */
 export async function getCacheOrFetch<T>(
   key: string,
-  ttlSeconds: number,
   fetcher: () => Promise<T>,
+  ttlSeconds: number,
 ): Promise<T> {
-  const now = Date.now();
-  const hit = store.get(key);
-  if (hit && !isExpired(hit, now)) {
-    return hit.value as T;
-  }
-  if (hit) store.delete(key); // lazy eviction
+  const cached = await getCache<T>(key);
+  if (cached !== null) return cached;
 
-  let value: T;
-  try {
-    value = await fetcher();
-  } catch (err) {
-    // Never let a cache miss obscure a real fetch error.
-    throw err;
-  }
-
-  store.set(key, { value, expiresAt: now + ttlSeconds * 1000 });
+  const value = await fetcher();
+  await setCache(key, value, ttlSeconds);
   return value;
 }
 
 /**
- * Drop one key OR every key matching a prefix (when the input ends with
- * `*`). Examples:
- *   await invalidateCache('member-state:abc-123');   // exact key
- *   await invalidateCache('member-state:abc-123*');  // prefix match
+ * Invalidate cache keys matching a glob pattern (e.g. "programs:*").
+ * Uses SCAN to avoid blocking Redis on large keyspaces.
+ * No-op when Redis is not configured.
  */
-export async function invalidateCache(keyOrPattern: string): Promise<void> {
-  if (!keyOrPattern) return;
-  if (keyOrPattern.endsWith('*')) {
-    const prefix = keyOrPattern.slice(0, -1);
-    for (const k of Array.from(store.keys())) {
-      if (k.startsWith(prefix)) store.delete(k);
-    }
-    return;
-  }
-  store.delete(keyOrPattern);
-}
+export async function invalidateCache(pattern: string): Promise<void> {
+  const client = getRedis();
+  if (!client) return;
+  try {
+    const fullPattern = prefixed(pattern);
+    let cursor = '0';
+    const keysToDelete: string[] = [];
 
-/** Convenience for tests / dev tooling. */
-export async function _clearAllCache(): Promise<void> {
-  store.clear();
+    do {
+      const result = await client.scan(cursor, { match: fullPattern, count: 100 });
+      cursor = result[0];
+      const keys = result[1];
+      if (keys && keys.length > 0) {
+        keysToDelete.push(...keys);
+      }
+    } while (cursor !== '0');
+
+    if (keysToDelete.length > 0) {
+      // Upstash Redis supports DEL with multiple keys
+      await client.del(...keysToDelete);
+    }
+  } catch (err) {
+    console.warn('[cache] invalidate failed:', err);
+  }
 }

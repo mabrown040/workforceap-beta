@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import { captureApiError } from '@/lib/observability/captureApiError';
+import { handleApiError } from '@/lib/api/errors';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
@@ -29,16 +29,16 @@ export async function GET(request: NextRequest) {
     const salaryMaxParam = searchParams.get('salaryMax');
     const sort = searchParams.get('sort') || 'newest';
     const ageGroup = searchParams.get('ageGroup') as 'under14' | 'youth14to17' | 'adult18plus' | null;
-  
+
     const andConditions: Prisma.JobWhereInput[] = [];
-    
+
     // Age-based filtering
     if (ageGroup === 'under14') {
       // No jobs for under 14 (COPPA compliance)
       andConditions.push({ id: 'impossible-match' });
     } else if (ageGroup === 'youth14to17') {
       // Only youth-appropriate jobs for 14-17 year olds
-      andConditions.push({ 
+      andConditions.push({
         youthAppropriate: true,
         OR: [
           { minimumAge: null },
@@ -49,19 +49,19 @@ export async function GET(request: NextRequest) {
       // Adults: exclude youth-only jobs if they have high minimum age
       // (Most jobs are available, but some might be 21+ like alcohol service)
     }
-  
+
     if (locationType && ['remote', 'hybrid', 'onsite'].includes(locationType)) {
       andConditions.push({ locationType: locationType as 'remote' | 'hybrid' | 'onsite' });
     }
-  
+
     if (jobType && ['fulltime', 'parttime', 'contract'].includes(jobType)) {
       andConditions.push({ jobType: jobType as 'fulltime' | 'parttime' | 'contract' });
     }
-  
+
     if (program) {
       andConditions.push({ suggestedPrograms: { has: program } });
     }
-  
+
     const salaryMinNum = salaryMinParam ? parseInt(salaryMinParam, 10) : undefined;
     const salaryMaxNum = salaryMaxParam ? parseInt(salaryMaxParam, 10) : undefined;
     if (salaryMinNum !== undefined && !Number.isNaN(salaryMinNum)) {
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
         ],
       });
     }
-  
+
     if (keyword) {
       const k = keyword.toLowerCase();
       andConditions.push({
@@ -93,12 +93,12 @@ export async function GET(request: NextRequest) {
         ],
       });
     }
-  
+
     const where: Prisma.JobWhereInput = {
       status: 'live',
       ...(andConditions.length > 0 && { AND: andConditions }),
     };
-  
+
     const orderBy: Prisma.JobOrderByWithRelationInput[] =
       sort === 'salary-desc'
         ? [{ salaryMax: 'desc' }, { salaryMin: 'desc' }]
@@ -147,7 +147,6 @@ export async function GET(request: NextRequest) {
     );
     return NextResponse.json(visible);
   } catch (error) {
-    console.error('/(portal)/dashboard/jobs:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'GET /api/jobs');
   }
 }

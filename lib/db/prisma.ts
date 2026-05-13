@@ -74,6 +74,17 @@ function createPrismaClient(): PrismaClient {
     }
 
     const ctx = getGucContext();
+
+    // Development-only warning when queries run outside any GUC context.
+    // In production we silently fall back to anonymous so the site stays up.
+    if (!ctx && process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[prisma:guc] Query "${params.model ?? 'raw'}.${params.action}" ran without an active GUC context. ` +
+          `Wrap the call site in withApiGuc(), withAuthGuc(), runWithGucContext(), or ensure ` +
+          `the root layout gucContextStorage.run() is active.`
+      );
+    }
+
     const sql = buildGucSql(ctx ?? { userId: null, orgId: null, role: 'anonymous' });
     await (client as any).$executeRawUnsafe(sql);
 

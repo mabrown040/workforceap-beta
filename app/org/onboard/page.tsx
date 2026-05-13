@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 
 const TIERS = [
@@ -106,12 +106,12 @@ export default function OrgOnboardPage() {
             </a>
           </div>
           <div style={{ marginTop: 32, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href={`https://${successOrg}.workforceap.org`} className="btn btn-primary btn-large" style={{ fontWeight: 700 }}>
+            <LocalizedLink href={`https://${successOrg}.workforceap.org`} className="btn btn-primary btn-large" style={{ fontWeight: 700 }}>
               Open Portal
-            </Link>
-            <Link href={`/api/org/${successOrg}/settings`} className="btn btn-outline btn-large" style={{ fontWeight: 700 }}>
+            </LocalizedLink>
+            <LocalizedLink href={`/api/org/${successOrg}/settings`} className="btn btn-outline btn-large" style={{ fontWeight: 700 }}>
               Brand Settings
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </div>

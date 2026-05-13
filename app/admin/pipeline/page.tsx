@@ -1,155 +1,66 @@
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/db/prisma';
-import { getPipelineStage, type PipelineStage } from '@/lib/pipeline/stage';
-import Link from 'next/link';
-import PageHeader from '@/components/portal/PageHeader';
-import PortalKpiCard from '@/components/portal/PortalKpiCard';
-import AdminPipelineKanban, {
-  type PipelineKanbanMember,
-} from '@/components/admin/AdminPipelineKanban';
-import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
-import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
-import { getStaleApplications } from '@/lib/data/applications';
-import StaleApplicationsBanner from './StaleApplicationsBanner';
+'use client';
 
-import type { Metadata } from 'next';
-import { buildPageMetadataAsync } from '@/app/seo';
+import { useEffect, useState } from 'react';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadataAsync({
-  title: 'Admin - Hiring Pipeline',
-  description: 'View and manage the hiring pipeline.',
-  path: '/admin/pipeline',
-});
-}
+const STAGES = [
+  { key: 'holding', label: 'Holding Room', color: '#6b7280', desc: 'Invited, not yet in Coursera' },
+  { key: 'funding', label: 'Funding Evaluated', color: '#f59e0b', desc: 'WIOA/qualification complete' },
+  { key: 'coursera', label: 'Coursera Enrolled', color: '#3b82f6', desc: 'In training' },
+  { key: 'paid', label: 'Payment Received', color: '#10b981', desc: 'Funding secured' },
+  { key: 'complete', label: 'Training Complete', color: '#8b5cf6', desc: 'Certificates earned' },
+  { key: 'ready', label: 'Workforce Ready', color: '#06b6d4', desc: 'Resume, interview, job match' },
+  { key: 'placed', label: 'Placed', color: '#f59e0b', desc: 'Employed' },
+];
 
-function toKanbanMember(s: {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string | null;
-  enrolledProgram: string | null;
-  placementRecord: {
-    employerName: string;
-    jobTitle: string;
-    salaryOffered: number | null;
-  } | null;
-}): PipelineKanbanMember {
-  return {
-    id: s.id,
-    fullName: s.fullName,
-    email: s.email,
-    phone: s.phone,
-    enrolledProgram: s.enrolledProgram,
-    placementRecord: s.placementRecord
-      ? {
-          employerName: s.placementRecord.employerName,
-          jobTitle: s.placementRecord.jobTitle,
-          salaryOffered: s.placementRecord.salaryOffered,
-        }
-      : null,
-  };
-}
+export default function PipelinePage() {
+  const [data, setData] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
 
-export default async function AdminPipelinePage() {
-  const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/admin/pipeline');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  useEffect(() => {
+    fetch('/api/admin/pipeline')
+      .then((r) => r.json())
+      .then((d) => { setData(d.counts || {}); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
 
-  let students;
-  try {
-    students = await prisma.user.findMany({
-      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        assessmentCompleted: true,
-        deletedAt: true,
-        createdAt: true,
-        pipelineBoardStage: true,
-        placementRecord: {
-          select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
-        },
-        userCertifications: {
-          select: { certName: true, earnedAt: true },
-        },
-        applications: {
-          select: { status: true, submittedAt: true },
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-        },
-        memberProgramProgress: {
-          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-        },
-      },
-    });
-  } catch (e) {
-    console.error('[admin/pipeline] load failed', e);
-    return <AdminDataLoadError title="Pipeline unavailable" message="We could not load pipeline data. Try again shortly." />;
-  }
-
-  const byStage: Record<PipelineStage, PipelineKanbanMember[]> = {
-    applied: [],
-    enrolled: [],
-    in_training: [],
-    certified: [],
-    job_searching: [],
-    placed: [],
-    closed: [],
-  };
-
-  for (const s of students) {
-    const stage = getPipelineStage(s);
-    byStage[stage].push(toKanbanMember(s));
-  }
-
-  const totalActive = students.length;
-  const totalPlaced = byStage.placed.length;
-  const placedWithSalary = byStage.placed.filter((s) => s.placementRecord?.salaryOffered);
-  const avgSalary =
-    placedWithSalary.length > 0
-      ? Math.round(
-          placedWithSalary.reduce((sum, s) => sum + (s.placementRecord?.salaryOffered ?? 0), 0) /
-            placedWithSalary.length
-        )
-      : null;
-
-  const initialByStage = JSON.parse(JSON.stringify(byStage)) as Record<PipelineStage, PipelineKanbanMember[]>;
-  const staleApps = await getStaleApplications();
+  const total = Object.values(data).reduce((a, b) => a + (b || 0), 0);
 
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
-      <PageHeader
-        title="Member Pipeline"
-        subtitle="Drag cards between columns like a Trello board. Positions are saved for all admins. With no manual column set, a member's stage is derived from enrollment, courses, certifications, and placement."
-        action={
-          <Link href="/admin/placements/new" className="btn btn-primary">
-            Record Placement
-          </Link>
-        }
-      />
+    <div className="admin-page">
+      <h1 className="admin-page-title">Member Pipeline</h1>
+      <p className="admin-page-subtitle">7-stage journey from invitation to employment</p>
 
-      <div className="portal-grid-metrics" style={{ marginBottom: '1.5rem' }}>
-        <PortalKpiCard label="Total Active" value={totalActive} accent="neutral" />
-        <PortalKpiCard label="Placed" value={totalPlaced} accent="green" />
-        <PortalKpiCard
-          label="Placement Rate"
-          value={totalActive > 0 ? `${Math.round((totalPlaced / totalActive) * 100)}%` : '-'}
-          accent="blue"
-        />
-        <PortalKpiCard label="Avg Salary" value={avgSalary ? `$${avgSalary.toLocaleString()}` : '-'} accent="gold" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        {STAGES.map((stage) => (
+          <div key={stage.key} className="portal-card portal-card--flat" style={{ borderLeft: `4px solid ${stage.color}`, padding: '1.25rem' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stage.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
+              {stage.label}
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
+              {loading ? '—' : (data[stage.key] || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+              {stage.desc}
+            </div>
+          </div>
+        ))}
       </div>
 
-      <StaleApplicationsBanner staleApps={staleApps} />
-
-      <AdminPipelineKanban initialByStage={initialByStage} />
+      <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>Total Members in Pipeline</h3>
+          <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent)' }}>{total.toLocaleString()}</span>
+        </div>
+        <div style={{ height: '2rem', background: 'var(--surface-container)', borderRadius: '0.5rem', overflow: 'hidden', display: 'flex' }}>
+          {STAGES.map((stage) => {
+            const count = data[stage.key] || 0;
+            const pct = total > 0 ? (count / total) * 100 : 0;
+            return (
+              <div key={stage.key} style={{ width: `${pct}%`, background: stage.color, minWidth: count > 0 ? '2px' : 0 }} title={`${stage.label}: ${count}`} />
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

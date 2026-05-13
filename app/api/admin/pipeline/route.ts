@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { prisma } from '@/lib/db/prisma';
+
+export async function GET(req: NextRequest) {
+  const user = await getUser();
+  if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const orgId = await getActorOrganizationId(user.id);
+  const stage = req.nextUrl.searchParams.get('stage');
+
+  const counts = await withTenantScope(orgId, async (db) => {
+    const members = await db.user.findMany({
+      where: { deletedAt: null, role: 'member' },
+      select: {
+        id: true,
+        createdAt: true,
+        wioaQualificationJson: true,
+        wioaReviewStatus: true,
+        assessmentCompleted: true,
+        courseEnrollments: { select: { id: true, fundingSource: true } },
+        courseProgress: { select: { status: true } },
+        placementRecord: { select: { id: true } },
+        profile: { select: { hasResume: true } },
+        aiToolResults: { select: { id: true }, take: 1 },
+      },
+      take: 10000,
+    });
+
+    const c = {
+      holding: 0,
+      funding: 0,
+      coursera: 0,
+      paid: 0,
+      complete: 0,
+      ready: 0,
+      placed: 0,
+    };
+
+    const programCourses: Record<string, number> = {};
+
+    for (const m of members) {
+      // Stage 7: Placed
+      if (m.placementRecord) { c.placed++; continue; }
+
+      // Stage 6: Workforce Ready
+      const hasResume = m.profile?.hasResume;
+      const hasAITool = m.aiToolResults.length > 0;
+      if (m.assessmentCompleted && hasResume && hasAITool) { c.ready++; continue; }
+
+      // Stage 5: Training Complete
+      const allComplete = m.courseProgress.length > 0 && m.courseProgress.every((p) => p.status === 'COMPLETED');
+      if (allComplete) { c.complete++; continue; }
+
+      // Stage 4: Payment Received
+      const hasFunding = m.courseEnrollments.some((e) => e.fundingSource && e.fundingSource.length > 0);
+      if (hasFunding) { c.paid++; continue; }
+
+      // Stage 3: Coursera Enrolled
+      if (m.courseEnrollments.length > 0) { c.coursera++; continue; }
+
+      // Stage 2: Funding Evaluated
+      if (m.wioaQualificationJson || m.wioaReviewStatus) { c.funding++; continue; }
+
+      // Stage 1: Holding Room
+      c.holding++;
+    }
+
+    return c;
+  });
+
+  return NextResponse.json({ counts });
+}

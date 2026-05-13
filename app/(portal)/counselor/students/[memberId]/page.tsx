@@ -31,6 +31,8 @@ import AwardPointsButton from '@/components/portal/AwardPointsButton';
 import { getMemberPoints } from '@/lib/member/points';
 import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
+import MemberProgressTimeline from '@/components/portal/counselor/MemberProgressTimeline';
+import type { TimelineEvent } from '@/components/portal/counselor/MemberProgressTimeline';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -101,6 +103,90 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   } else if (!adminUser) {
     notFound();
   }
+
+  // ── Timeline data fetch ───────────────────────────────────────────
+  const [memberEvents, programAvg] = await Promise.all([
+    prisma.memberEvent.findMany({
+      where: { userId: memberId },
+      orderBy: { createdAt: 'asc' },
+      select: { eventName: true, createdAt: true, metadata: true },
+    }),
+    member.enrolledProgram
+      ? prisma.memberProgramProgress.groupBy({
+          by: ['programSlug'],
+          where: { programSlug: member.enrolledProgram },
+          _avg: { averagePercent: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const enrollmentEvent = memberEvents.find((e) => e.eventName === 'program_enrolled');
+  const assessmentEvent = memberEvents.find((e) => e.eventName === 'assessment_completed');
+  const firstCourseEvent = memberEvents.find((e) => e.eventName === 'course_completed');
+  const certEvent = memberEvents.find((e) => e.eventName === 'certification_earned');
+  const placementEvent = memberEvents.find((e) => e.eventName === 'placement_recorded');
+
+  function daysBetween(a: Date | null, b: Date | null): number | null {
+    if (!a || !b) return null;
+    return Math.max(0, Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24)));
+  }
+
+  const timelineEvents: TimelineEvent[] = [
+    {
+      stage: 'enrollment',
+      label: 'Enrollment',
+      date: member.courseEnrollments[0]?.enrolledAt?.toISOString() ?? member.createdAt.toISOString(),
+      durationDays: daysBetween(
+        member.createdAt,
+        member.courseEnrollments[0]?.enrolledAt ?? member.createdAt,
+      ),
+      status: member.courseEnrollments.length > 0 ? 'completed' : 'pending',
+    },
+    {
+      stage: 'assessment',
+      label: 'Assessment',
+      date: assessmentEvent?.createdAt.toISOString() ?? null,
+      durationDays: daysBetween(
+        member.courseEnrollments[0]?.enrolledAt ?? member.createdAt,
+        assessmentEvent?.createdAt ?? null,
+      ),
+      status: assessmentEvent ? 'completed' : member.assessmentScorePct != null ? 'in_progress' : 'pending',
+    },
+    {
+      stage: 'training',
+      label: 'Training',
+      date: firstCourseEvent?.createdAt.toISOString() ?? null,
+      durationDays: daysBetween(
+        assessmentEvent?.createdAt ?? member.courseEnrollments[0]?.enrolledAt ?? member.createdAt,
+        firstCourseEvent?.createdAt ?? null,
+      ),
+      status: firstCourseEvent ? 'completed' : member.enrolledProgram ? 'in_progress' : 'pending',
+    },
+    {
+      stage: 'certification',
+      label: 'Certification',
+      date: certEvent?.createdAt.toISOString() ?? null,
+      durationDays: daysBetween(
+        firstCourseEvent?.createdAt ?? assessmentEvent?.createdAt ?? member.courseEnrollments[0]?.enrolledAt ?? member.createdAt,
+        certEvent?.createdAt ?? null,
+      ),
+      status: certEvent ? 'completed' : member.enrolledProgram ? 'in_progress' : 'pending',
+    },
+    {
+      stage: 'placement',
+      label: 'Placement',
+      date: placementEvent?.createdAt.toISOString() ?? null,
+      durationDays: daysBetween(
+        certEvent?.createdAt ?? firstCourseEvent?.createdAt ?? assessmentEvent?.createdAt ?? member.courseEnrollments[0]?.enrolledAt ?? member.createdAt,
+        placementEvent?.createdAt ?? null,
+      ),
+      status: placementEvent ? 'completed' : applications.length > 0 ? 'in_progress' : 'pending',
+    },
+  ];
+
+  const programAvgDays = programAvg[0]?._avg.averagePercent
+    ? Math.round(100 / (programAvg[0]._avg.averagePercent || 1) * 30)
+    : null;
 
   const [applications, aiMatches, memberPts, recentTx, pitchDeployments] = await Promise.all([
     prisma.jobPostingApplication.findMany({
@@ -468,6 +554,11 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           </div>
         )}
 
+        {/* Progress Timeline */}
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <MemberProgressTimeline events={timelineEvents} programAvgDays={programAvgDays} />
+        </div>
+
         {/* Counselor Notes */}
         <div style={{ padding: '0 1rem 1rem' }}>
           <CounselorNotesPanel memberId={member.id} />
@@ -753,6 +844,11 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
               </div>
             </section>
           ) : null}
+
+          {/* Progress Timeline */}
+          <section style={{ marginTop: '1.5rem', maxWidth: 640 }}>
+            <MemberProgressTimeline events={timelineEvents} programAvgDays={programAvgDays} />
+          </section>
 
           {memberPts && (
             <section style={{ marginTop: '1.5rem', maxWidth: 480 }}>

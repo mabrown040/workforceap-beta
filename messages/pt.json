@@ -1487,7 +1487,9 @@
     "adminUnavailableDesc": "Não foi possível carregar o espaço de trabalho de admin (geralmente um problema temporário de banco de dados). Aguarde um momento e recarregue, ou tente novamente a partir da página inicial.",
     "retryAdminHome": "Tentar novamente a página inicial do admin",
     "memberDashboard": "Painel do membro",
-    "workforceAPHome": "Página inicial da WorkforceAP"
+    "workforceAPHome": "Página inicial da WorkforceAP",
+    "loadingCharts": "Carregando gráficos…",
+    "memberCount": "{count} membro{count, plural, =1 {} other {s}}"
   },
   "employer": {
     "employerOverview": "Visão geral do empregador",

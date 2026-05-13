@@ -8,25 +8,12 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
+import AdminChartsLoading from '@/components/admin/AdminChartsLoading';
 import { getTranslations } from 'next-intl/server';
 
 const AdminAnalyticsCharts = dynamic(
   () => import('@/components/admin/AdminAnalyticsCharts'),
-  { loading: () => (
-    <div style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
-      <div className="loading-spinner" style={{
-        width: '40px', height: '40px',
-        border: '3px solid var(--outline-variant)',
-        borderTop: '3px solid var(--color-accent)',
-        borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-        margin: '0 auto 1rem'
-      }} />
-      <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.95rem' }}>
-        Loading charts…
-      </p>
-    </div>
-  )}
+  { loading: AdminChartsLoading }
 );
 
 export async function generateMetadata(): Promise<Metadata> {

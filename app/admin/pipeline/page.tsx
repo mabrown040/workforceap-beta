@@ -99,7 +99,7 @@ export default function PipelinePage() {
                 <div key={c.email} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.375rem' }}>
                   <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{c.name}</span>
                   <span style={{ fontSize: '0.8125rem', color: '#dc2626', fontWeight: 700 }}>
-                    {c.memberCount} member{c.memberCount === 1 ? '' : 's'}
+                    {t('memberCount', { count: c.memberCount })}
                   </span>
                 </div>
               ))}

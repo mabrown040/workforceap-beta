@@ -8,6 +8,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 import EmployerJobPostForm from '@/components/employer/EmployerJobPostForm';
 import { EMPLOYER_TIERS } from '@/lib/stripe/client';
 
@@ -25,6 +26,8 @@ export default async function EmployerJobPostPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const employer = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -46,8 +49,8 @@ export default async function EmployerJobPostPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Post a job"
-        subtitle="Publish to the job board. You can edit, pause, or close anytime from Job Postings."
+        title={t('postAJobTitle')}
+        subtitle="{t('publishToJobBoard')}"
         breadcrumbs={[
           { label: 'Job Postings', href: '/employer/jobs' },
           { label: 'Post a job' },
@@ -63,7 +66,7 @@ export default async function EmployerJobPostPage() {
               textDecoration: 'none',
             }}
           >
-            Advanced editor
+            {t('advancedEditor')}
           </Link>
         }
       />
@@ -71,13 +74,13 @@ export default async function EmployerJobPostPage() {
       {atLimit && (
         <div className="portal-card portal-card--flat portal-card--padded" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--color-gold)', background: 'rgba(234,179,8,0.06)' }}>
           <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
-            Job limit reached
+            {t('jobLimitReached')}
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
-            You have {activeJobCount} active job{activeJobCount !== 1 ? 's' : ''} on the {tierConfig.name} plan (limit: {jobLimit}). Upgrade to post more.
+            {t('jobLimitDesc', { count: activeJobCount, plan: tierConfig.name, limit: jobLimit })}
           </p>
           <Link href="/employer/billing" className="btn btn-primary">
-            Upgrade plan
+            {t('upgradePlan')}
           </Link>
         </div>
       )}

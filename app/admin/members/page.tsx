@@ -13,12 +13,13 @@ import MembersTable from '@/components/admin/MembersTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Admin – Members',
-  description: 'Member list and management.',
+  title: t('adminMembers'),
+  description: t('memberListAndManagement'),
   path: '/admin/members',
 });
 }
@@ -29,6 +30,8 @@ export default async function AdminMembersPage() {
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
+
+  const t = await getTranslations('admin');
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -125,7 +128,7 @@ export default async function AdminMembersPage() {
     console.error('[admin/members] user list load failed', membersResult.reason);
     return (
       <PortalPageFrame>
-        <AdminDataLoadError title="Members list unavailable" />
+        <AdminDataLoadError title={t('membersListUnavailable')} />
       </PortalPageFrame>
     );
   }
@@ -256,14 +259,14 @@ export default async function AdminMembersPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Members"
-        subtitle="View and manage member accounts."
-        action={<Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> Add Member</Link>}
+        title={t('members')}
+        subtitle={t('viewAndManageAccounts')}
+        action={<Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> {t('addMember')}</Link>}
       />
 
       {members.length >= 2000 && (
         <p style={{ margin: '0 0 0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(173,44,77,0.07)', borderRadius: '6px', fontSize: '0.875rem', color: 'var(--color-accent)' }}>
-          Showing the 2,000 most recent members. Use the CSV export for a full list.
+          {t('showing2000MostRecent')}
         </p>
       )}
       <MembersTable members={membersWithProgram} />

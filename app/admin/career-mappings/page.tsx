@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
 import CareerMappingsClient, { type AuditEntry } from './CareerMappingsClient';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('admin');
   return buildPageMetadataAsync({
-    title: 'Career mappings (O*NET)',
-    description: 'Manage WorkforceAP role mappings and O*NET alignment for admin workflows.',
+    title: t('careerMappingsONET'),
+    description: t('manageRoleMappings'),
     path: '/admin/career-mappings',
   });
 }

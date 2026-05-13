@@ -11,6 +11,7 @@ import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
 import EmployerJobQuickActions from '@/components/employer/EmployerJobQuickActions';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 import StatusBadge from '@/components/portal/StatusBadge';
 import {
   EMPLOYER_JOBS_PAGE_SIZE,
@@ -24,8 +25,8 @@ import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/l
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'My Jobs',
-  description: 'Manage your job postings.',
+  title: t('myJobs'),
+  description: t('manageYourJobPostings'),
   path: '/employer/jobs',
 });
 }
@@ -38,6 +39,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const sp = await searchParams;
   const { filter, page } = parseEmployerJobsListQuery(sp);
@@ -112,10 +115,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   for (const r of titlesInFilter) titleByIdInFilter[r.id] = r.title;
 
   const FILTER_CHIPS = [
-    { value: '', label: 'All' },
-    { value: 'live', label: 'Live' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'filled', label: 'Filled' },
+    { value: '', label: t('all') },
+    { value: 'live', label: t('live') },
+    { value: 'draft', label: t('draft') },
+    { value: 'filled', label: t('filled') },
   ];
 
   return (
@@ -124,15 +127,15 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       {/* ── Mobile section ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
-          title="Job Postings"
-          subtitle="Manage your job postings and review candidate activity."
+          title={t('jobPostings')}
+          subtitle={t('managePostingsAndCandidates')}
           action={(
             <Link
               href="/employer/jobs/post"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
-              Post Job
+              {t('postJob')}
             </Link>
           )}
         />
@@ -164,27 +167,27 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           {boardItems.length === 0 && totalInDb > 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>filter_alt_off</span>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>Nothing in this view</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{t('nothingInThisView')}</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
-                Try another filter or see all postings.
+                {t('tryAnotherFilter')}
               </p>
               <Link
                 href="/employer/jobs"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
-                Show all postings
+                {t('showAllPostings')}
               </Link>
             </div>
           ) : boardItems.length === 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>work_outline</span>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No jobs yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving matched candidates.</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{t('noJobsYet')}</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>{t('postFirstRole')}</p>
               <Link
                 href="/employer/jobs/post"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>{t('postAJobBtn')}
               </Link>
             </div>
           ) : (
@@ -207,7 +210,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>person</span>
-                    {job.applicationsCount} application{job.applicationsCount === 1 ? '' : 's'}
+                    {job.applicationsCount} {t('applications', { count: job.applicationsCount })}
                   </span>
                 </div>
                 <EmployerJobQuickActions jobId={job.id} title={job.title} status={job.status} />
@@ -221,8 +224,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
-            title="Job Postings"
-            subtitle="Manage your job postings, review drafts, and track live roles."
+            title={t('jobPostings')}
+            subtitle={t('managePostingsAndCandidates')}
             action={(
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <Link
@@ -237,7 +240,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                     textDecoration: 'none',
                   }}
                 >
-                  Import Jobs
+                  {t('importJobsBtn')}
                 </Link>
                 <Link
                   href="/employer/jobs/post"
@@ -251,7 +254,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                     textDecoration: 'none',
                   }}
                 >
-                  Post a Job
+                  {t('postAJobBtn')}
                 </Link>
               </div>
             )}
@@ -260,16 +263,16 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           {totalInDb === 0 ? (
             <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>work_outline</span>
-              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No jobs yet</h3>
+              <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noJobsYet')}</h3>
               <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '28rem', marginInline: 'auto' }}>
-                Post a single role or import multiple jobs to start receiving matched candidates.
+                {t('postFirstRole')}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
                 <Link href="/employer/jobs/post" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                  Post your first job
+                  {t('postYourFirstJob')}
                 </Link>
                 <Link href="/employer/jobs/import" style={{ padding: '0.625rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                  Import jobs
+                  {t('importJobsBtn')}
                 </Link>
               </div>
             </div>

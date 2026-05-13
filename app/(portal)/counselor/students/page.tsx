@@ -7,6 +7,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 import CounselorStudentsRosterClient from '@/components/portal/counselor/CounselorStudentsRosterClient';
 import { loadCounselorRosterRiskAndActivity } from '@/lib/counselor/counselorStudentsRoster';
 
@@ -30,6 +31,8 @@ export default async function CounselorStudentsPage() {
     where: { userId: user.id, active: true },
   });
   if (!counselor && !(await isAdmin(user.id))) redirect('/dashboard');
+
+  const t = await getTranslations('counselor');
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
@@ -118,7 +121,7 @@ export default async function CounselorStudentsPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title="My Members" subtitle="Members assigned to you for coaching and messaging." />
+      <PageHeader title={t('myMembersTitle')} subtitle={t('membersAssignedForCoaching')} />
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
@@ -132,9 +135,9 @@ export default async function CounselorStudentsPage() {
           }}
         >
           {[
-            { label: 'Active Members', value: activeCount, accent: 'var(--color-accent)' },
-            { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
-            { label: 'Hot Queue', value: hotQueue.length, accent: 'var(--color-amber)' },
+            { label: t('activeMembers'), value: activeCount, accent: 'var(--color-accent)' },
+            { label: t('enrolled'), value: enrolledCount, accent: 'var(--color-gold)' },
+            { label: t('hotMemberQueue'), value: hotQueue.length, accent: 'var(--color-amber)' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
@@ -206,7 +209,7 @@ export default async function CounselorStudentsPage() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                          {action.member.fullName ?? 'Member'}
+                          {action.member.fullName ?? t('member')}
                         </p>
                         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)', whiteSpace: 'nowrap' }}>
                           {formatHotQueueTime(action.createdAt)}
@@ -225,11 +228,11 @@ export default async function CounselorStudentsPage() {
         {assignments.length === 0 ? (
           <div style={{ padding: '0 1rem' }}>
             <PortalEmptyState
-              title="No members assigned yet"
-              description="Members will appear here once assigned by an administrator."
+              title={t('noMembersAssignedYet')}
+              description={t('membersAppearOnceAssigned')}
               icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-              primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-              secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
+              primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+              secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
             />
           </div>
         ) : (
@@ -280,7 +283,7 @@ export default async function CounselorStudentsPage() {
                   >
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
-                        {action.member.fullName ?? 'Member'}
+                        {action.member.fullName ?? t('member')}
                       </p>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
                       <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
@@ -289,7 +292,7 @@ export default async function CounselorStudentsPage() {
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
                         {formatHotQueueTime(action.createdAt)}
                       </p>
-                      <span className="btn btn-primary btn-sm">Open member</span>
+                      <span className="btn btn-primary btn-sm">{t('openMember')}</span>
                     </div>
                   </Link>
                 ))}
@@ -300,11 +303,11 @@ export default async function CounselorStudentsPage() {
 
         {assignments.length === 0 ? (
           <PortalEmptyState
-            title="No members assigned yet"
-            description="Members will appear here once assigned by an administrator."
+            title={t('noMembersAssignedYet')}
+            description={t('membersAppearOnceAssigned')}
             icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
+            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+            secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
           />
         ) : (
           <CounselorStudentsRosterClient rows={rosterRows} />

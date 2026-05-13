@@ -6,11 +6,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { buildPageMetadataAsync } from '@/app/seo';
 import AtRiskDashboard from '@/components/portal/counselor/AtRiskDashboard';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
   return buildPageMetadataAsync({
-    title: 'At-Risk Members',
-    description: 'Monitor and manage members flagged by the at-risk scoring system.',
+    title: t('atRiskMembersTitle'),
+    description: t('atRiskSubtitle'),
     path: '/counselor/at-risk',
   });
 }
@@ -24,14 +26,16 @@ export default async function CounselorAtRiskPage() {
   const allowed = (await isCounselor(user.id)) || (await isAdmin(user.id));
   if (!allowed) redirect('/dashboard');
 
+  const t = await getTranslations('counselor');
+
   return (
     <PortalPageFrame>
       <PageHeader
-        title="At-Risk Members"
-        subtitle="Members flagged by the automated risk scoring system. Prioritize outreach by severity."
+        title={t('atRiskMembersTitle')}
+        subtitle={t('atRiskSubtitle')}
         breadcrumbs={[
-          { label: 'Counselor Portal', href: '/counselor' },
-          { label: 'At-Risk' },
+          { label: t('counselorPortalBreadcrumb'), href: '/counselor' },
+          { label: t('atRiskMembersTitle') },
         ]}
       />
       <section style={{ padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>

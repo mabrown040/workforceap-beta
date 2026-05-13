@@ -8,6 +8,7 @@ import AdminPortalShell from '@/components/portal/AdminPortalShell';
 import OrgBrandingBar from '@/components/platform/OrgBrandingBar';
 import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import '@/css/portal.css';
 
 export const dynamic = 'force-dynamic';
@@ -62,22 +63,22 @@ export default async function AdminLayout({
   } catch (err) {
     if (isRedirectError(err)) throw err;
     console.error('[admin/layout] Failed to load admin shell:', err);
+    const t = await getTranslations('admin');
     return (
       <div className="portal-route-fallback" style={{ padding: '2rem', maxWidth: '36rem' }}>
-        <h1 className="portal-route-fallback__title">Admin temporarily unavailable</h1>
+        <h1 className="portal-route-fallback__title">{t('adminTemporarilyUnavailable')}</h1>
         <p className="portal-route-fallback__desc">
-          We could not finish loading the admin workspace (often a short database issue). Wait a moment and reload,
-          or try again from the home page.
+          {t('adminUnavailableDesc')}
         </p>
         <nav className="portal-route-fallback__nav" aria-label="Helpful links">
           <Link href="/admin" className="btn btn-primary btn-sm">
-            Retry admin home
+            {t('retryAdminHome')}
           </Link>
           <Link href="/dashboard" className="btn btn-outline btn-sm">
-            Member dashboard
+            {t('memberDashboard')}
           </Link>
           <Link href="/" className="btn btn-ghost btn-sm">
-            WorkforceAP home
+            {t('workforceAPHome')}
           </Link>
         </nav>
       </div>

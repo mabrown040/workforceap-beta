@@ -8,6 +8,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
+import { getTranslations } from 'next-intl/server';
 
 const AdminAnalyticsCharts = dynamic(
   () => import('@/components/admin/AdminAnalyticsCharts'),
@@ -30,8 +31,8 @@ const AdminAnalyticsCharts = dynamic(
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Admin analytics',
-  description: 'Engagement and activity metrics.',
+  title: t('adminAnalytics'),
+  description: t('engagementAndActivity'),
   path: '/admin/metrics',
 });
 }
@@ -43,12 +44,13 @@ export default async function AdminMetricsPage() {
 
   const orgId = await getActorOrganizationId(user.id);
   const data = await getAdminMetrics(orgId);
+  const t = await getTranslations('admin');
 
   return (
     <div>
       <PageHeader
-        title="Analytics"
-        subtitle="Platform engagement, enrollment, and placement outcomes."
+        title={t('analytics')}
+        subtitle={t('platformEngagement')}
         action={
           <a
             href="/api/admin/funder-program-summary"
@@ -58,7 +60,7 @@ export default async function AdminMetricsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
               download
             </span>
-            Export funder CSV
+            {t('exportFunderCsv')}
           </a>
         }
       />
@@ -66,12 +68,12 @@ export default async function AdminMetricsPage() {
       {/* Summary metric strip */}
       <div className="portal-metric-strip" style={{ marginBottom: '1.5rem' }}>
         {[
-          { label: 'Total Members', value: data.totalMembers, icon: 'groups', accent: 'accent' as const },
-          { label: 'Weekly Active', value: data.weeklyActiveMembers, icon: 'trending_up', accent: 'green' as const },
-          { label: 'Placements', value: data.placementStats.placed, icon: 'person_check', accent: 'blue' as const },
-          { label: 'Placement Rate', value: `${data.placementStats.placementRate}%`, icon: 'analytics', accent: 'gold' as const },
-          { label: 'Certificates', value: data.placementStats.certifications, icon: 'workspace_premium', accent: 'green' as const },
-          { label: 'AI Tool Runs', value: data.aiToolRuns, icon: 'auto_awesome', accent: 'blue' as const },
+          { label: t('totalMembers'), value: data.totalMembers, icon: 'groups', accent: 'accent' as const },
+          { label: t('weeklyActive'), value: data.weeklyActiveMembers, icon: 'trending_up', accent: 'green' as const },
+          { label: t('placements'), value: data.placementStats.placed, icon: 'person_check', accent: 'blue' as const },
+          { label: t('placementRate'), value: `${data.placementStats.placementRate}%`, icon: 'analytics', accent: 'gold' as const },
+          { label: t('certificates'), value: data.placementStats.certifications, icon: 'workspace_premium', accent: 'green' as const },
+          { label: t('aiToolRuns'), value: data.aiToolRuns, icon: 'auto_awesome', accent: 'blue' as const },
         ].map(m => (
           <div key={m.label} className="portal-metric-card">
             <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${m.accent}`}>
@@ -86,15 +88,15 @@ export default async function AdminMetricsPage() {
       {/* Career OS funnel */}
       <div style={{ marginBottom: '1.5rem' }}>
         <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-          Career OS — True Completion Loop
+          {t('careerOsTrueCompletionLoop')}
         </p>
         <div className="portal-metric-strip">
           {[
-            { label: 'Completion Events', value: data.careerOsMetrics.completionEventsReceived, icon: 'school', accent: 'accent' as const },
-            { label: 'Actions Created', value: data.careerOsMetrics.actionsCreated, icon: 'auto_awesome', accent: 'blue' as const },
-            { label: 'Actions Pending', value: data.careerOsMetrics.actionsPending, icon: 'pending', accent: 'gold' as const },
-            { label: 'Actions Completed', value: data.careerOsMetrics.actionsCompleted, icon: 'task_alt', accent: 'green' as const },
-            { label: 'Completion Rate', value: `${data.careerOsMetrics.followThroughRate}%`, icon: 'trending_up', accent: 'green' as const },
+            { label: t('completionEvents'), value: data.careerOsMetrics.completionEventsReceived, icon: 'school', accent: 'accent' as const },
+            { label: t('actionsCreated'), value: data.careerOsMetrics.actionsCreated, icon: 'auto_awesome', accent: 'blue' as const },
+            { label: t('actionsPending'), value: data.careerOsMetrics.actionsPending, icon: 'pending', accent: 'gold' as const },
+            { label: t('actionsCompleted'), value: data.careerOsMetrics.actionsCompleted, icon: 'task_alt', accent: 'green' as const },
+            { label: t('completionRate'), value: `${data.careerOsMetrics.followThroughRate}%`, icon: 'trending_up', accent: 'green' as const },
           ].map(m => (
             <div key={m.label} className="portal-metric-card">
               <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${m.accent}`}>
@@ -106,7 +108,7 @@ export default async function AdminMetricsPage() {
           ))}
         </div>
         <p style={{ marginTop: '0.75rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-          Tracks Career OS learning-completion events, the follow-up actions created from them, and whether members actually finished the underlying resume or interview task.
+          {t('careerOsDescription')}
         </p>
       </div>
 
@@ -122,9 +124,9 @@ export default async function AdminMetricsPage() {
       />
 
       <p style={{ marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-        <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>View all members</Link>
+        <Link href="/admin/members" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{t('members')}</Link>
         {' · '}
-        <Link href="/admin/exports" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Export data</Link>
+        <Link href="/admin/exports" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{t('exportFunderCsv')}</Link>
       </p>
     </div>
   );

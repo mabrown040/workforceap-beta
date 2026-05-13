@@ -37,7 +37,7 @@ export default async function PartnerReferredMembersPage() {
     <PortalPageFrame>
       <PageHeader
         title={t('referredMembers')}
-        subtitle="Search and filter everyone your organization has referred to WorkforceAP."
+        subtitle={t('searchAndFilter')}
         action={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <PartnerInviteMemberButton />

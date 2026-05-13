@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const STAGES = [
   { key: 'holding', label: 'Holding Room', color: '#6b7280', desc: 'Invited, not yet in Coursera' },
@@ -19,6 +20,7 @@ type AtRiskStats = {
 };
 
 export default function PipelinePage() {
+  const t = useTranslations('admin');
   const [data, setData] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [riskStats, setRiskStats] = useState<AtRiskStats | null>(null);
@@ -42,20 +44,20 @@ export default function PipelinePage() {
 
   return (
     <div className="admin-page">
-      <h1 className="admin-page-title">Member Pipeline</h1>
-      <p className="admin-page-subtitle">7-stage journey from invitation to employment</p>
+      <h1 className="admin-page-title">{t('memberPipeline')}</h1>
+      <p className="admin-page-subtitle">{t('sevenStageJourney')}</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {STAGES.map((stage) => (
           <div key={stage.key} className="portal-card portal-card--flat" style={{ borderLeft: `4px solid ${stage.color}`, padding: '1.25rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stage.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
-              {stage.label}
+              {t(stage.key === 'holding' ? 'holdingRoom' : stage.key === 'funding' ? 'fundingEvaluated' : stage.key === 'coursera' ? 'courseraEnrolled' : stage.key === 'paid' ? 'paymentReceived' : stage.key === 'complete' ? 'trainingComplete' : stage.key === 'ready' ? 'workforceReady' : stage.key === 'placed' ? 'placed' : stage.label)}
             </div>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
               {loading ? '—' : (data[stage.key] || 0).toLocaleString()}
             </div>
             <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-              {stage.desc}
+              {t(stage.key === 'holding' ? 'invitedNotYetCoursera' : stage.key === 'funding' ? 'wioaQualificationComplete' : stage.key === 'coursera' ? 'inTraining' : stage.key === 'paid' ? 'fundingSecured' : stage.key === 'complete' ? 'certificatesEarned' : stage.key === 'ready' ? 'resumeInterviewJobMatch' : stage.key === 'placed' ? 'employed' : stage.desc)}
             </div>
           </div>
         ))}
@@ -64,16 +66,16 @@ export default function PipelinePage() {
       {/* At-Risk Alert Stats */}
       <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>At-Risk Alerts</h3>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>{t('atRiskAlerts')}</h3>
           <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-            Updated daily at 8am CDT
+            {t('updatedDaily8am')}
           </span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
           <div style={{ textAlign: 'center', padding: '1rem', background: '#fef2f2', borderRadius: '0.5rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Critical Members
+              {t('criticalMembers')}
             </div>
             <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#dc2626' }}>
               {riskLoading ? '—' : (riskStats?.criticalCount ?? 0).toLocaleString()}
@@ -81,7 +83,7 @@ export default function PipelinePage() {
           </div>
           <div style={{ textAlign: 'center', padding: '1rem', background: '#f0fdf4', borderRadius: '0.5rem' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Alerts Sent Today
+              {t('alertsSentToday')}
             </div>
             <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#16a34a' }}>
               {riskLoading ? '—' : (riskStats?.alertsSentToday ?? 0).toLocaleString()}
@@ -91,7 +93,7 @@ export default function PipelinePage() {
 
         {riskStats && riskStats.counselorsWithPending.length > 0 && (
           <div>
-            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9375rem', fontWeight: 700 }}>Counselors with Pending Alerts</h4>
+            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9375rem', fontWeight: 700 }}>{t('counselorsWithPendingAlerts')}</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {riskStats.counselorsWithPending.map((c) => (
                 <div key={c.email} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.375rem' }}>
@@ -108,7 +110,7 @@ export default function PipelinePage() {
 
       <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>Total Members in Pipeline</h3>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>{t('totalMembersInPipeline')}</h3>
           <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent)' }}>{total.toLocaleString()}</span>
         </div>
         <div style={{ height: '2rem', background: 'var(--surface-container)', borderRadius: '0.5rem', overflow: 'hidden', display: 'flex' }}>
@@ -116,7 +118,7 @@ export default function PipelinePage() {
             const count = data[stage.key] || 0;
             const pct = total > 0 ? (count / total) * 100 : 0;
             return (
-              <div key={stage.key} style={{ width: `${pct}%`, background: stage.color, minWidth: count > 0 ? '2px' : 0 }} title={`${stage.label}: ${count}`} />
+              <div key={stage.key} style={{ width: `${pct}%`, background: stage.color, minWidth: count > 0 ? '2px' : 0 }} title={`${t(stage.key === 'holding' ? 'holdingRoom' : stage.key === 'funding' ? 'fundingEvaluated' : stage.key === 'coursera' ? 'courseraEnrolled' : stage.key === 'paid' ? 'paymentReceived' : stage.key === 'complete' ? 'trainingComplete' : stage.key === 'ready' ? 'workforceReady' : stage.key === 'placed' ? 'placed' : stage.label)}: ${count}`} />
             );
           })}
         </div>

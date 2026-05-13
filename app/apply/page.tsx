@@ -189,6 +189,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           {t('heroLabel')}
         </div>
         <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
+        <p style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
         <p style={sPage.heroDesc}>
           {t('heroDesc')}
           <strong> {t('heroDescHighlight')}</strong>
@@ -306,7 +307,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             </p>
           </div>
 
-          <noscript dangerouslySetInnerHTML={{ __html: `<div><h2>Start your application</h2><p>If the form doesn’t load, call <a href="tel:+15127771808">(512) 777-1808</a> or email <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>` }} />
+          <noscript
+            dangerouslySetInnerHTML={{
+              __html: `<div><h2>${t('startYourApplication')}</h2><p>${t('ifFormDoesntLoad')} <a href="tel:+15127771808">(512) 777-1808</a> ${t('orEmail')} <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>`,
+            }}
+          />
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />

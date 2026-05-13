@@ -6,7 +6,7 @@ import { trackFunnelEvent } from '@/lib/analytics/events';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
 import { ProgramIcon } from '@/components/ProgramIcon';
-import { scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
+import { mergeQuizShortAnswers, scoreQuiz, type QuizAnswers } from '@/lib/content/quizScoring';
 import { getFitReasoning, getTopFitSummary } from '@/lib/content/quizReasoning';
 import { getTopProgramsFromQuiz } from '@/lib/content/quizProgramRecommendations';
 import type { CareerMatchResult } from '@/lib/onet/types';
@@ -18,6 +18,7 @@ import {
 } from '@/lib/content/quizIpMerge';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
+import { useTranslations } from 'next-intl';
 
 const QUIZ_STORAGE_KEY = 'find_your_path_results';
 const QUIZ_STORAGE_VERSION = 1;
@@ -90,36 +91,6 @@ const QUESTIONS = [
       { value: 'employed_switch' as const, label: "I'm currently employed but want to switch careers" },
     ],
   },
-  {
-    id: 'q4' as const,
-    question: 'What matters most to you in a career?',
-    answers: [
-      { value: 'salary' as const, label: 'Highest salary potential' },
-      { value: 'stability' as const, label: 'Job stability and demand' },
-      { value: 'remote' as const, label: 'Working remotely or from home' },
-      { value: 'community' as const, label: 'Making a difference in my community' },
-      { value: 'hands' as const, label: 'Working with my hands, not just a screen' },
-    ],
-  },
-  {
-    id: 'q5' as const,
-    question: "What's your comfort level with technology?",
-    answers: [
-      { value: 'comfortable' as const, label: 'I\'m comfortable with computers, email, and the internet' },
-      { value: 'basic_apps' as const, label: 'I can use a phone and basic apps but computers are tricky' },
-      { value: 'tech_savvy' as const, label: "I'm very tech-savvy — I just need the credential" },
-      { value: 'basics' as const, label: 'I need to start from the basics' },
-    ],
-  },
-  {
-    id: 'q6' as const,
-    question: 'Do you have a functional computer at home?',
-    answers: [
-      { value: 'yes_computer' as const, label: 'Yes, I have a working computer or laptop' },
-      { value: 'no_computer' as const, label: 'No, I do not have access to a computer' },
-      { value: 'needs_device' as const, label: 'I have a device but it needs repair or is not reliable' },
-    ],
-  },
 ];
 
 const CATEGORY_BORDER: Record<string, string> = {
@@ -166,6 +137,7 @@ function QuizResultsView({
   onRetake?: () => void;
   careerMatch?: CareerMatchResult | null;
 }) {
+  const t = useTranslations('findYourPath');
   const topProgram = programs[0];
   const topOcc = careerMatch?.topOccupations[0];
   const topApplyHref = topProgram ? getApplyHref(topProgram.slug) : '/apply';
@@ -473,7 +445,7 @@ function QuizResultsView({
           </>
         )}
       </div>
-      <p className="quiz-results-note">All programs are available at no cost for qualifying members.</p>
+      <p className="quiz-results-note">{t('programsFootnote')}</p>
     </div>
   );
 }
@@ -595,7 +567,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
     if (step < QUESTIONS.length - 1) {
       setStep(step + 1);
     } else {
-      const fullAnswers = newAnswers as QuizAnswers;
+      const fullAnswers = mergeQuizShortAnswers(newAnswers as Pick<QuizAnswers, 'q1' | 'q2' | 'q3'>);
       const weights = scoreQuiz(fullAnswers);
       trackFunnelEvent('find_your_path', 'quiz_completed', {
         answer_count: Object.keys(fullAnswers).length,
@@ -870,7 +842,7 @@ export default function FindYourPathClient({ idPrefix = 'fyp' }: { idPrefix?: st
           display: 'flex', gap: '2rem', marginTop: '2rem',
           flexWrap: 'wrap',
         }}>
-          {['Interest', 'Experience', 'Timeline', 'Values', 'Tech Comfort', 'Computer Access'].map((label, i) => (
+          {['Interest', 'Experience', 'Timeline'].map((label, i) => (
             <div key={label} style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
             }}>

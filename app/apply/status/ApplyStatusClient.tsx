@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function ApplyStatusClient() {
+  const t = useTranslations('apply');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,16 +23,16 @@ export default function ApplyStatusClient() {
       });
       const data = (await r.json()) as { error?: string; found?: boolean; message?: string };
       if (!r.ok) {
-        setError(data.error ?? 'Something went wrong. Please try again.');
+        setError(data.error ?? t('statusErrorGeneric'));
         return;
       }
       if (typeof data.found === 'boolean' && data.message) {
         setResult({ found: data.found, message: data.message });
       } else {
-        setError('Unexpected response. Please try again.');
+        setError(t('statusErrorUnexpected'));
       }
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('statusErrorNetwork'));
     } finally {
       setLoading(false);
     }
@@ -39,11 +41,11 @@ export default function ApplyStatusClient() {
   return (
     <div className="apply-status-card">
       <p className="apply-status-lead">
-        Enter the email you used on your application. We will show your current status — no password required.
+        {t('statusLead')}
       </p>
       <form onSubmit={handleSubmit} className="apply-status-form">
         <div className="form-group">
-          <label htmlFor="apply-status-email">Email</label>
+          <label htmlFor="apply-status-email">{t('statusEmailLabel')}</label>
           <input
             id="apply-status-email"
             name="email"
@@ -53,11 +55,11 @@ export default function ApplyStatusClient() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="form-control"
-            placeholder="you@example.com"
+            placeholder={t('statusEmailPlaceholder')}
           />
         </div>
         <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Checking…' : 'Check status'}
+          {loading ? t('statusChecking') : t('statusSubmit')}
         </button>
       </form>
       {error ? <p className="apply-status-error" role="alert">{error}</p> : null}
@@ -70,8 +72,8 @@ export default function ApplyStatusClient() {
         </div>
       ) : null}
       <p className="apply-status-footnote">
-        Logged in already? Open your{' '}
-        <a href="/dashboard">member dashboard</a> for full details.
+        {t('statusFootnoteBefore')}{' '}
+        <a href="/dashboard">{t('statusFootnoteDashboard')}</a> {t('statusFootnoteAfter')}
       </p>
     </div>
   );

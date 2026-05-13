@@ -23,10 +23,13 @@ model Organization {
   slug             String   @unique
   customDomain     String?  @unique @map("custom_domain")
   logo             String?
-  primaryColor     String?  @map("primary_color")
-  billingType      String   @default("flat") @map("billing_type")
-  plan             String   @default("nonprofit")
-  active           Boolean  @default(true)
+  primaryColor       String?  @map("primary_color")
+  accentColor        String?  @map("accent_color")
+  billingType        String   @default("flat") @map("billing_type")
+  plan               String   @default("nonprofit")
+  subscriptionTier   String   @default("starter") @map("subscription_tier")
+  subscriptionStatus String   @default("trial") @map("subscription_status")
+  active             Boolean  @default(true)
   overviewVideoUrl String?  @map("overview_video_url")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")

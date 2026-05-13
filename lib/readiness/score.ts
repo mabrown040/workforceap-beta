@@ -208,3 +208,98 @@ export async function getScoreBreakdownSafe(userId: string): Promise<ScoreBreakd
     return buildScoreBreakdownFromRelations(null, [], [], [], [], [], [], [], false, null);
   }
 }
+
+/** Batch version of getScoreBreakdown. Fetches all data in ~11 queries total. */
+export async function getScoreBreakdowns(userIds: string[]): Promise<Map<string, ScoreBreakdown>> {
+  if (userIds.length === 0) return new Map();
+
+  const [users, goals, aiResults, resourceProgress, learningProgress, pathwaySteps, jobApps, certs, interviewEvents, lastEvents] =
+    await Promise.all([
+      prisma.user.findMany({
+        where: { id: { in: userIds } },
+        include: {
+          profile: {
+            select: {
+              address: true,
+              city: true,
+              state: true,
+              zip: true,
+              profilePhone: true,
+              profileLinkedin: true,
+              profileBio: true,
+              resumeOriginalPath: true,
+              resumeEnhancedPath: true,
+            },
+          },
+        },
+      }),
+      prisma.goal.findMany({ where: { userId: { in: userIds } } }),
+      prisma.aIToolResult.findMany({ where: { userId: { in: userIds } }, select: { userId: true, toolType: true, createdAt: true } }),
+      prisma.resourceProgress.findMany({ where: { userId: { in: userIds } } }),
+      prisma.learningProgress.findMany({ where: { userId: { in: userIds } } }),
+      prisma.pathwayStepProgress.findMany({ where: { userId: { in: userIds } } }),
+      prisma.jobApplication.findMany({ where: { userId: { in: userIds } } }),
+      prisma.userCertification.findMany({ where: { userId: { in: userIds } } }),
+      prisma.memberEvent.findMany({
+        where: { userId: { in: userIds }, eventName: 'career_os.interview_practice_completed' },
+        select: { userId: true, id: true },
+      }),
+      prisma.memberEvent.findMany({
+        where: { userId: { in: userIds } },
+        orderBy: { createdAt: 'desc' },
+        select: { userId: true, createdAt: true },
+      }),
+    ]);
+
+  const goalsByUser = groupBy(goals, 'userId');
+  const aiByUser = groupBy(aiResults, 'userId');
+  const resourceByUser = groupBy(resourceProgress, 'userId');
+  const learningByUser = groupBy(learningProgress, 'userId');
+  const pathwayByUser = groupBy(pathwaySteps, 'userId');
+  const appsByUser = groupBy(jobApps, 'userId');
+  const certsByUser = groupBy(certs, 'userId');
+  const interviewByUser = new Set(interviewEvents.map((e) => e.userId));
+
+  // lastEvents is sorted desc globally, so first per user is the latest
+  const lastEventByUser = new Map<string, { createdAt: Date }>();
+  for (const e of lastEvents) {
+    if (!lastEventByUser.has(e.userId)) {
+      lastEventByUser.set(e.userId, e);
+    }
+  }
+
+  const userById = new Map(users.map((u) => [u.id, u]));
+  const result = new Map<string, ScoreBreakdown>();
+
+  for (const userId of userIds) {
+    const user = userById.get(userId) ?? null;
+    result.set(
+      userId,
+      buildScoreBreakdownFromRelations(
+        user,
+        goalsByUser.get(userId) ?? [],
+        aiByUser.get(userId) ?? [],
+        resourceByUser.get(userId) ?? [],
+        learningByUser.get(userId) ?? [],
+        pathwayByUser.get(userId) ?? [],
+        appsByUser.get(userId) ?? [],
+        certsByUser.get(userId) ?? [],
+        interviewByUser.has(userId),
+        lastEventByUser.get(userId) ?? null
+      )
+    );
+  }
+
+  return result;
+}
+
+function groupBy<T extends Record<string, unknown>>(arr: T[], key: keyof T): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  for (const item of arr) {
+    const k = String(item[key]);
+    const list = map.get(k) ?? [];
+    list.push(item);
+    map.set(k, list);
+  }
+  return map;
+}

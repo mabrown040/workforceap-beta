@@ -12,7 +12,7 @@ import ConversionMetrics from '@/components/analytics/ConversionMetrics';
 import PortalMetrics from '@/components/analytics/PortalMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
-import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
+import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavLayout';
 import '@/css/main.css';
 import '@/css/marketing.css';
@@ -78,8 +78,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const orgBranding = await getDefaultOrgBranding();
   const h = await headers();
+  const orgBranding = await getRequestOrgBranding(h);
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
   const messages = pickRootClientMessages(await getMessages());
@@ -101,6 +101,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="theme-color" content="#ad2c4d" />
         <link rel="apple-touch-icon" href="/images/wap_logo.png" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {/* Material Symbols Outlined is self-hosted via @font-face in main.css */}
         {/* Register service worker — updateViaCache:'none' ensures browser always fetches fresh sw.js */}
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}` }} />

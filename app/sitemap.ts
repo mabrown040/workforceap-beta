@@ -54,6 +54,8 @@ const routes = [
   '/wioa-qualification',
   '/privacy',
   '/mentor',
+  '/mentor/apply',
+  '/accessibility',
   '/outcomes',
 ] as const;
 

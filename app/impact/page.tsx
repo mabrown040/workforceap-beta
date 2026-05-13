@@ -12,6 +12,7 @@ import {
   getPublicImpactStats,
   type ImpactProgramRow,
 } from '@/lib/marketing/publicImpactStats';
+import JsonLdDataset from '@/components/JsonLdDataset';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -140,8 +141,18 @@ export default async function ImpactPage() {
     },
   ];
 
+  const datasetStats = [
+    { label: 'Members served', value: formatThousands(stats.membersServed) },
+    { label: 'Completion rate', value: `${stats.completionRatePct}%` },
+    { label: 'Placement rate', value: `${stats.placementRatePct}%` },
+    { label: 'Employer partners', value: formatThousands(stats.employersPartnered) },
+    { label: 'Jobs posted', value: formatThousands(stats.jobsPosted) },
+    { label: 'Hires on file', value: formatThousands(stats.hiresMade) },
+  ];
+
   return (
     <div className="inner-page marketing-mobile-pb-for-bottom-nav">
+      <JsonLdDataset stats={datasetStats} />
       <PageSection padding="lg" variant="default">
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader

@@ -15,6 +15,7 @@ import { PROGRAMS } from '@/lib/content/programs';
 import { ArrowRight } from 'lucide-react';
 import { getDefaultImage } from '@/lib/blog/defaultImages';
 import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
+import JsonLdArticle from '@/components/JsonLdArticle';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -107,6 +108,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <div className="inner-page blog-post-page">
+      <JsonLdArticle post={post} />
       <PageHero
         title={post.title}
         subtitle={[

@@ -5,6 +5,7 @@ import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
@@ -145,6 +146,7 @@ async function handle(_request: Request) {
   const skipped = results.filter(r => r.error === 'no_contact_email').length;
   const failed = results.filter(r => r.error && r.error !== 'no_contact_email').length;
   const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');
   return NextResponse.json({ ok: failed === 0, checkedAt: now.toISOString(), results });
 }

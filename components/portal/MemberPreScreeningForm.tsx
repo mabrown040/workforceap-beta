@@ -304,11 +304,11 @@ export default function MemberPreScreeningForm() {
       )}
       <div className="form-group">
         <label htmlFor="phone">Phone number</label>
-        <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required minLength={10} />
+        <input id="phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required minLength={10} />
       </div>
       <div className="form-group">
         <label htmlFor="addr">Physical address (street, city, state)</label>
-        <input id="addr" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={5} />
+        <input id="addr" type="text" autoComplete="street-address" value={address} onChange={(e) => setAddress(e.target.value)} required minLength={5} />
       </div>
       <fieldset className="form-group">
         <legend style={{ fontWeight: 600, marginBottom: '0.35rem' }}>

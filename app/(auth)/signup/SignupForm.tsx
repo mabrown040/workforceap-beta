@@ -138,6 +138,8 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 44,
+    minHeight: 44,
   } as React.CSSProperties,
 
   select: {
@@ -429,6 +431,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               <input
                 id="phone"
                 type="tel"
+                inputMode="tel"
                 autoComplete="tel"
                 placeholder="(512) 555-1234"
                 aria-invalid={!!errors.phone}

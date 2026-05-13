@@ -599,6 +599,7 @@ export default function ApplyCreateAccountForm() {
           <input
             id="phone"
             type="tel"
+            inputMode="tel"
             value={phone}
             onChange={(e) => {
               setPhone(e.target.value);

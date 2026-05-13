@@ -584,6 +584,23 @@ model WorkflowDiagnostic {
   @@map("workflow_diagnostics")
 }
 
+model CronExecution {
+  id               String   @id @default(uuid())
+  jobName          String   @map("job_name")
+  status           String   // RUNNING | SUCCESS | FAILED | SKIPPED
+  startedAt        DateTime @default(now()) @map("started_at")
+  completedAt      DateTime? @map("completed_at")
+  errorMessage     String?  @map("error_message")
+  recordsProcessed Int?     @map("records_processed")
+  durationMs       Int?     @map("duration_ms")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([jobName, createdAt])
+  @@index([status, createdAt])
+  @@index([startedAt])
+  @@map("cron_executions")
+}
+
 model WeeklyRecap {
   id                     String    @id @default(uuid())
   userId                 String    @map("user_id")

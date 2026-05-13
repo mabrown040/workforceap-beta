@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { replayPendingXapiStatements } from '@/lib/coursera/replayPendingXapi';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -16,6 +17,7 @@ async function handle(_request: Request) {
   try {
     const xapi = await replayPendingXapiStatements(200);
     const runResult = { xapi };
+    await setCronRecordsProcessed(xapi.replayed ?? xapi.processed ?? 0);
     await logCronRun('cron_coursera_training_sync', runResult, 'ok');
     return NextResponse.json(runResult);
   } catch (err) {

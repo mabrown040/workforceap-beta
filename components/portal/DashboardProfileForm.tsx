@@ -145,6 +145,7 @@ export default function DashboardProfileForm({
           <input
             id="firstName"
             type="text"
+            autoComplete="given-name"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
@@ -155,6 +156,7 @@ export default function DashboardProfileForm({
           <input
             id="lastName"
             type="text"
+            autoComplete="family-name"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
@@ -165,6 +167,8 @@ export default function DashboardProfileForm({
           <input
             id="phone"
             type="tel"
+            inputMode="tel"
+            autoComplete="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
@@ -174,13 +178,14 @@ export default function DashboardProfileForm({
           <input
             id="address"
             type="text"
+            autoComplete="street-address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
             minLength={5}
           />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
           <div className="form-group">
             <label htmlFor="city">City</label>
             <input id="city" type="text" value={city} onChange={(e) => setCity(e.target.value)} autoComplete="address-level2" />

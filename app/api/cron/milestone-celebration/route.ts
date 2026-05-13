@@ -3,8 +3,8 @@ import { prisma } from '@/lib/db/prisma';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
-
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * GET /api/cron/milestone-celebration
@@ -68,6 +68,7 @@ async function handle(_req: NextRequest) {
   }
 
   const runResult = { sent, total: completed.length };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_milestone_celebration', runResult);
   return NextResponse.json(runResult);
 }

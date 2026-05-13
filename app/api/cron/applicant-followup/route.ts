@@ -4,6 +4,7 @@ import { sendApplicantFollowupEmail, sendAdminPendingApplicantsEmail } from '@/l
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Cron endpoint to send Day 3 follow-up emails to applicants.
@@ -84,6 +85,7 @@ async function handle(_request: Request) {
   }
 
   const runResult = { ok: true, checkedAt: now.toISOString(), staleApplications: staleApplications.length, uniqueApplicants: seenUsers.size, applicantEmailsSent, adminEmailSent };
+  await setCronRecordsProcessed(applicantEmailsSent);
   await logCronRun('cron_applicant_followup', runResult);
   return NextResponse.json(runResult);
 }

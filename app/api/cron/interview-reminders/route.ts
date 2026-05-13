@@ -4,6 +4,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { sendInterviewDebriefPromptEmail, sendInterviewPrepReminderEmail } from '@/lib/email';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Daily: (1) ~24h before nextInterviewDate — prep reminder; (2) ~24h after — debrief prompt.
@@ -84,6 +85,7 @@ async function handle(_request: NextRequest) {
   }
 
   const runResult = { ok: true, checkedAt: now.toISOString(), preSent, postSent };
+  await setCronRecordsProcessed(preSent + postSent);
   await logCronRun('cron_interview_reminders', runResult);
   return NextResponse.json(runResult);
 }

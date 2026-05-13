@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { runDailyPlacementSurveyCron } from '@/lib/cron/placement-surveys';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * POST /api/cron/placement-survey
@@ -37,6 +38,7 @@ async function handle(_request: Request) {
         ? 'partial'
         : 'error';
 
+  await setCronRecordsProcessed(totalSent);
   await logCronRun('cron_placement_survey', runResult, status);
 
   return NextResponse.json(runResult);

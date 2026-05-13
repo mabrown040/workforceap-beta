@@ -12,6 +12,7 @@ import {
 } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -126,6 +127,7 @@ async function handle(_request: Request) {
     digestRecipientCount: recipients.length,
     digestListedMembers: digestMembers.length,
   };
+  await setCronRecordsProcessed(runResult.alertsCreated);
   await logCronRun(
     'cron_at_risk_check',
     runResult,

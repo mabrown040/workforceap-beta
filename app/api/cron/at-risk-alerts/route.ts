@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runDailyAtRiskCounselorAlerts } from '@/lib/cron/at-risk-alerts';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * POST /api/cron/at-risk-alerts
@@ -14,6 +15,7 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
  */
 async function handle(_request: Request) {
   const result = await runDailyAtRiskCounselorAlerts();
+  await setCronRecordsProcessed(result.sent ?? result.alertsSent ?? 0);
   return NextResponse.json(result);
 }
 

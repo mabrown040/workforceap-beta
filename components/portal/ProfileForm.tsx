@@ -99,6 +99,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
         <input
           id="fullName"
           type="text"
+          autoComplete="name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           required
@@ -110,6 +111,8 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
         <input
           id="phone"
           type="tel"
+          inputMode="tel"
+          autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           disabled={saving}
@@ -120,6 +123,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
         <input
           id="address"
           type="text"
+          autoComplete="street-address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           disabled={saving}
@@ -138,6 +142,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           <input
             id="city"
             type="text"
+            autoComplete="address-level2"
             value={city}
             onChange={(e) => setCity(e.target.value)}
             disabled={saving}
@@ -148,6 +153,7 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           <input
             id="state"
             type="text"
+            autoComplete="address-level1"
             value={state}
             onChange={(e) => setState(e.target.value)}
             placeholder="TX"
@@ -159,6 +165,8 @@ export default function ProfileForm({ initialUser, initialProfile }: ProfileForm
           <input
             id="zip"
             type="text"
+            inputMode="numeric"
+            autoComplete="postal-code"
             value={zip}
             onChange={(e) => setZip(e.target.value)}
             onBlur={handleZipBlur}

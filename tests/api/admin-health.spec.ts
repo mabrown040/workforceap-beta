@@ -84,7 +84,7 @@ describe('GET /api/admin/health', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -93,7 +93,7 @@ describe('GET /api/admin/health', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -114,7 +114,7 @@ describe('GET /api/admin/health', () => {
     vi.mocked(prisma.aIToolResult.count).mockResolvedValue(100);
     vi.mocked(prisma.workflowDiagnostic.count).mockResolvedValue(0);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     expect(res.status).toBe(200);
     const body = await res.json();
 
@@ -146,7 +146,7 @@ describe('GET /api/admin/health', () => {
     vi.mocked(prisma.aIToolResult.count).mockResolvedValue(100);
     vi.mocked(prisma.workflowDiagnostic.count).mockResolvedValue(0);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     expect(res.status).toBe(200);
     const body = await res.json();
 
@@ -167,7 +167,7 @@ describe('GET /api/admin/health', () => {
     vi.mocked(prisma.aIToolResult.count).mockResolvedValue(100);
     vi.mocked(prisma.workflowDiagnostic.count).mockResolvedValue(0);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     expect(res.status).toBe(200);
     const body = await res.json();
 
@@ -190,7 +190,7 @@ describe('GET /api/admin/health', () => {
     vi.mocked(prisma.aIToolResult.count).mockResolvedValue(100);
     vi.mocked(prisma.workflowDiagnostic.count).mockResolvedValue(0);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     const body = await res.json();
 
     expect(body.checks.redis.status).toBe('ok');
@@ -210,7 +210,7 @@ describe('GET /api/admin/health', () => {
     vi.mocked(prisma.aIToolResult.count).mockResolvedValue(100);
     vi.mocked(prisma.workflowDiagnostic.count).mockResolvedValue(0);
 
-    const res = await GET();
+    const res = await GET({} as any, {} as any);
     const body = await res.json();
 
     expect(body.checks.email.status).toBe('degraded');

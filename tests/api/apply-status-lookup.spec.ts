@@ -40,7 +40,7 @@ import { prisma } from '@/lib/db/prisma';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { applicationStatusForPublicLookup } from '@/lib/member/memberApplicationStatus';
 
-const makeRequest = (body: Record<string, unknown>) =>
+const makeRequest = (body: Record<string, unknown>): any =>
   new Request('http://localhost:3000/api/apply/status-lookup', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

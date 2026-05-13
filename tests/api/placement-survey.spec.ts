@@ -188,7 +188,7 @@ describe('POST /api/placement-survey (form submission)', () => {
     delete process.env.PLACEMENT_SURVEY_TOKEN_SECRET;
   });
 
-  const makeRequest = (body: Record<string, unknown>) =>
+  const makeRequest = (body: Record<string, unknown>): any =>
     new Request('http://localhost:3000/api/placement-survey', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

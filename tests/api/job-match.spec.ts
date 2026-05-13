@@ -286,7 +286,7 @@ describe('GET /api/(portal)/dashboard/jobs/[id]', () => {
     vi.clearAllMocks();
   });
 
-  const makeRequest = (id: string) =>
+  const makeRequest = (id: string): any =>
     new Request(`http://localhost:3000/api/dashboard/jobs/${id}`);
 
   it('returns job details for a live job', async () => {

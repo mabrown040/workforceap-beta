@@ -62,7 +62,7 @@ import { prisma } from '@/lib/db/prisma';
 import { counselorAtRiskBatchHtml } from '@/emails/counselor-at-risk-alert';
 
 // ─── Helpers ───
-function makeRequest(headers?: Record<string, string>): Request {
+function makeRequest(headers?: Record<string, string>): any {
   return new Request('http://localhost/api/cron/at-risk-alerts', {
     headers: headers ?? {},
   });

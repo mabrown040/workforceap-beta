@@ -61,7 +61,7 @@ import { prisma } from '@/lib/db/prisma';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
 // ─── Helpers ───
-function makeRequest(url: string, init?: RequestInit): Request {
+function makeRequest(url: string, init?: RequestInit): any {
   return new Request(url, init);
 }
 

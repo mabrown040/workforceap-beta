@@ -56,7 +56,7 @@ import { prisma } from '@/lib/db/prisma';
 import { buildWeeklyRecapEmailSummary } from '@/lib/recap/buildWeeklyRecapEmailSummary';
 
 // ─── Helpers ───
-function makeRequest(headers?: Record<string, string>): Request {
+function makeRequest(headers?: Record<string, string>): any {
   return new Request('http://localhost/api/cron/weekly-recap', {
     headers: headers ?? {},
   });

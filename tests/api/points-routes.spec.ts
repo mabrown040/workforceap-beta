@@ -60,7 +60,7 @@ const UUIDS = {
   member: '550e8400-e29b-41d4-a716-446655440003',
 };
 
-function makeRequest(body: Record<string, unknown>) {
+function makeRequest(body: Record<string, unknown>): any {
   return new Request('http://localhost:3000/api/award-points', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

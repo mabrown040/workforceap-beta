@@ -125,7 +125,7 @@ function makeRequest(body: Record<string, unknown>) {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
-  });
+  }) as any;
 }
 
 // ─────────────────────────────────────────────

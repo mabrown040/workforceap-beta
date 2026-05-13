@@ -42,7 +42,8 @@ import { GET as getNotifications } from '@/app/api/member/notifications/route';
 import { PUT as markRead } from '@/app/api/member/notifications/[id]/read/route';
 import { POST as dismissAll } from '@/app/api/member/notifications/dismiss-all/route';
 import { getUser } from '@/lib/auth/server';
-import { prisma } from '@/lib/db/prisma';
+import { prisma as _prisma } from '@/lib/db/prisma';
+const prisma = _prisma as any;
 
 const UUIDS = {
   user: '550e8400-e29b-41d4-a716-446655440001',

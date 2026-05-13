@@ -80,7 +80,7 @@ const UUIDS = {
 };
 
 // ─── Helpers ───
-function makeRequest(url: string, opts?: RequestInit) {
+function makeRequest(url: string, opts?: RequestInit): any {
   return new Request(url, { ...opts, headers: { 'content-type': 'application/json', ...(opts?.headers || {}) } });
 }
 

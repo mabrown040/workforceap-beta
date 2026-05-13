@@ -150,7 +150,7 @@ function mockProgram() {
   };
 }
 
-function makeGenerateRequest(body?: object) {
+function makeGenerateRequest(body?: object): any {
   return new Request('http://localhost:3000/api/member/resume/generate', {
     method: 'POST',
     body: body ? JSON.stringify(body) : undefined,

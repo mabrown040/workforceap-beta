@@ -1,0 +1,130 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { redirect, notFound } from 'next/navigation';
+import { buildPageMetadataAsync } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { getEmployerForUser } from '@/lib/auth/roles';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
+import { prisma } from '@/lib/db/prisma';
+import { getActivePrograms } from '@/lib/platform/programCatalog';
+import JobForm from '@/components/employer/JobForm';
+import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const fallback = await buildPageMetadataAsync({
+    title: 'Edit Job',
+    description: 'Edit job posting.',
+    path: `/employer/jobs/${id}/edit`,
+  });
+  const user = await getUser();
+  if (!user) return fallback;
+  const ctx = await getEmployerForUser(user.id);
+  if (!ctx) return fallback;
+  const job = await prisma.job.findFirst({
+    where: { id, employerId: ctx.employerId },
+    select: { title: true },
+  });
+  return buildPageMetadataAsync({
+    title: job ? `Edit: ${job.title}` : 'Edit Job',
+    description: 'Edit job posting.',
+    path: `/employer/jobs/${id}/edit`,
+  });
+}
+
+export default async function EmployerJobEditPage({ params }: Props) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/employer/jobs');
+
+  const ctx = await getEmployerForUser(user.id);
+  if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const { id } = await params;
+  const job = await prisma.job.findFirst({
+    where: { id, employerId: ctx.employerId },
+  });
+
+  if (!job) notFound();
+
+  const employer = await prisma.employer.findUnique({
+    where: { id: ctx.employerId },
+    select: { companyName: true },
+  });
+
+  const active = await getActivePrograms();
+  const programSlugs = active.map((p) => p.slug);
+
+  return (
+    <PortalPageFrame>
+      <PageHeader
+        title="Edit Job Posting"
+        subtitle="Update the details for this role."
+        breadcrumbs={[
+          { label: 'Job Postings', href: '/employer/jobs' },
+          { label: job.title, href: `/employer/jobs/${id}` },
+          { label: 'Edit' },
+        ]}
+        action={
+          <Link href={`/employer/jobs/${id}`} className="btn btn-outline btn-sm">
+            Back to job
+          </Link>
+        }
+      />
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
+        <div style={{ padding: '1rem', overflowY: 'auto' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
+            <JobForm
+              job={{
+                id: job.id,
+                title: job.title,
+                location: job.location,
+                locationType: job.locationType,
+                jobType: job.jobType,
+                salaryMin: job.salaryMin,
+                salaryMax: job.salaryMax,
+                description: job.description,
+                requirements: job.requirements,
+                preferredCertifications: job.preferredCertifications,
+                suggestedPrograms: job.suggestedPrograms,
+                status: job.status,
+                sourceUrl: job.sourceUrl,
+                importProvider: job.importProvider,
+                importMethod: job.importMethod,
+              }}
+              companyName={employer?.companyName ?? ''}
+              programSlugs={programSlugs}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="wa-hidden md:wa-block">
+        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+          <JobForm
+            job={{
+              id: job.id,
+              title: job.title,
+              location: job.location,
+              locationType: job.locationType,
+              jobType: job.jobType,
+              salaryMin: job.salaryMin,
+              salaryMax: job.salaryMax,
+              description: job.description,
+              requirements: job.requirements,
+              preferredCertifications: job.preferredCertifications,
+              suggestedPrograms: job.suggestedPrograms,
+              status: job.status,
+              sourceUrl: job.sourceUrl,
+              importProvider: job.importProvider,
+              importMethod: job.importMethod,
+            }}
+            companyName={employer?.companyName ?? ''}
+            programSlugs={programSlugs}
+          />
+        </div>
+      </div>
+    </PortalPageFrame>
+  );
+}

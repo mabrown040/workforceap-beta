@@ -1,0 +1,102 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { getEmployerForUser } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { z } from 'zod';
+
+const updateSchema = z.object({
+  status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),
+});
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { id } = await params;
+
+    const job = await prisma.job.findFirst({
+      where: { id, employerId: ctx.employerId },
+      select: { id: true, title: true },
+    });
+    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+
+    const applications = await prisma.jobPostingApplication.findMany({
+      where: { jobId: id },
+      orderBy: { appliedAt: 'desc' },
+      include: {
+        student: { select: { id: true, fullName: true, email: true } },
+      },
+      take: 200,
+    });
+
+    return NextResponse.json({
+      job: { id: job.id, title: job.title },
+      applicants: applications.map((app) => ({
+        id: app.id,
+        status: app.status,
+        appliedAt: app.appliedAt.toISOString(),
+        employerNotes: app.employerNotes ?? null,
+        student: app.student,
+      })),
+    });
+  } catch (error) {
+    console.error('/employer/jobs/[id]/applicants GET error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { id } = await params;
+
+    const job = await prisma.job.findFirst({
+      where: { id, employerId: ctx.employerId },
+      select: { id: true },
+    });
+    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+
+    const body = await request.json().catch(() => null);
+    const parsed = updateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid data', details: parsed.error.errors }, { status: 400 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const applicantId = searchParams.get('applicantId');
+    if (!applicantId) {
+      return NextResponse.json({ error: 'Missing applicantId query parameter' }, { status: 400 });
+    }
+
+    const application = await prisma.jobPostingApplication.findFirst({
+      where: { id: applicantId, jobId: id },
+      select: { id: true },
+    });
+    if (!application) return NextResponse.json({ error: 'Applicant not found' }, { status: 404 });
+
+    const updated = await prisma.jobPostingApplication.update({
+      where: { id: applicantId },
+      data: { status: parsed.data.status, statusUpdatedAt: new Date() },
+    });
+
+    return NextResponse.json({ ok: true, application: updated });
+  } catch (error) {
+    console.error('/employer/jobs/[id]/applicants PATCH error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

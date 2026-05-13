@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -8,13 +7,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
-import AdminChartsLoading from '@/components/admin/AdminChartsLoading';
+import AdminAnalyticsCharts from '@/components/admin/AdminAnalyticsChartsLazy';
 import { getTranslations } from 'next-intl/server';
-
-const AdminAnalyticsCharts = dynamic(
-  () => import('@/components/admin/AdminAnalyticsCharts'),
-  { loading: AdminChartsLoading }
-);
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { buildPageMetadataAsync } from '@/app/seo';
-import AIEfficacyDashboard from './AIEfficacyDashboard';
+import AIEfficacyDashboard from './AIEfficacyDashboardLazy';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

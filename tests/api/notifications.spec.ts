@@ -23,6 +23,9 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  isCounselor: vi.fn(),
+  isAdmin: vi.fn(),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, profileRole: null })),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -33,6 +36,8 @@ vi.mock('@/lib/db/prisma', () => ({
       count: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
+      delete: vi.fn(),
+      create: vi.fn(),
     },
   },
 }));
@@ -41,7 +46,10 @@ vi.mock('@/lib/db/prisma', () => ({
 import { GET as getNotifications } from '@/app/api/member/notifications/route';
 import { PUT as markRead } from '@/app/api/member/notifications/[id]/read/route';
 import { POST as dismissAll } from '@/app/api/member/notifications/dismiss-all/route';
-import { getUser } from '@/lib/auth/server';
+import { POST as readAll } from '@/app/api/member/notifications/read-all/route';
+import { DELETE as deleteNotification } from '@/app/api/member/notifications/[id]/route';
+import { GET as getCounselorNotifications } from '@/app/api/counselor/notifications/route';
+import { getUser, isCounselor } from '@/lib/auth/server';
 import { prisma as _prisma } from '@/lib/db/prisma';
 const prisma = _prisma as any;
 
@@ -92,7 +100,7 @@ describe('GET /api/member/notifications', () => {
       makeNotification({ id: 'n2', type: 'COUNSELOR_MESSAGE', title: 'Message from counselor', readAt: new Date() }),
     ];
     vi.mocked(prisma.notification.findMany).mockResolvedValue(notifs);
-    vi.mocked(prisma.notification.count).mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(1);
 
     const req = new Request('http://localhost:3000/api/member/notifications');
     const res = await getNotifications(req);
@@ -104,7 +112,7 @@ describe('GET /api/member/notifications', () => {
     expect(body.notifications[0].type).toBe('JOB_MATCH');
     expect(body.notifications[0].readAt).toBeNull();
     expect(body.notifications[1].readAt).toBeDefined();
-    expect(body.total).toBe(2);
+    expect(body.unreadCount).toBe(1);
     expect(body.page).toBe(1);
     expect(body.limit).toBe(20);
   });
@@ -112,7 +120,7 @@ describe('GET /api/member/notifications', () => {
   it('includes unread count', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(prisma.notification.findMany).mockResolvedValue([]);
-    vi.mocked(prisma.notification.count).mockResolvedValueOnce(5).mockResolvedValueOnce(12);
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(5);
 
     const req = new Request('http://localhost:3000/api/member/notifications');
     const res = await getNotifications(req);
@@ -120,14 +128,13 @@ describe('GET /api/member/notifications', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.unreadCount).toBe(5);
-    expect(body.total).toBe(12);
   });
 
   it('paginates results', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     const page2Notifs = [makeNotification({ id: 'n3', title: 'Page 2' })];
     vi.mocked(prisma.notification.findMany).mockResolvedValue(page2Notifs);
-    vi.mocked(prisma.notification.count).mockResolvedValueOnce(0).mockResolvedValueOnce(25);
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(0);
 
     const req = new Request('http://localhost:3000/api/member/notifications?page=2&limit=10');
     const res = await getNotifications(req);
@@ -137,6 +144,7 @@ describe('GET /api/member/notifications', () => {
     expect(body.page).toBe(2);
     expect(body.limit).toBe(10);
     expect(body.notifications).toHaveLength(1);
+    expect(body.unreadCount).toBe(0);
 
     expect(prisma.notification.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 10, take: 10 })
@@ -270,6 +278,134 @@ describe('POST /api/member/notifications/dismiss-all', () => {
 });
 
 // ─────────────────────────────────────────────
+// PATCH /api/member/notifications/[id]/read
+// ─────────────────────────────────────────────
+describe('PATCH /api/member/notifications/[id]/read', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('marks notification as read via PATCH alias', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    const notif = makeNotification({ id: UUIDS.notifJobMatch });
+    vi.mocked(prisma.notification.findUnique).mockResolvedValue(notif);
+    vi.mocked(prisma.notification.update).mockResolvedValue({ ...notif, readAt: new Date() });
+
+    const res = await markRead(new Request('http://localhost'), { params: Promise.resolve({ id: UUIDS.notifJobMatch }) });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────
+// DELETE /api/member/notifications/[id]
+// ─────────────────────────────────────────────
+describe('DELETE /api/member/notifications/[id]', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('deletes notification for owner', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    const notif = makeNotification({ id: UUIDS.notifJobMatch });
+    vi.mocked(prisma.notification.findUnique).mockResolvedValue(notif);
+    vi.mocked(prisma.notification.delete).mockResolvedValue(notif);
+
+    const res = await deleteNotification(new Request('http://localhost'), { params: Promise.resolve({ id: UUIDS.notifJobMatch }) });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(prisma.notification.delete).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: UUIDS.notifJobMatch } })
+    );
+  });
+
+  it('returns 404 for missing notification', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(prisma.notification.findUnique).mockResolvedValue(null);
+
+    const res = await deleteNotification(new Request('http://localhost'), { params: Promise.resolve({ id: 'missing-id' }) });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 403 for other users notification', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(prisma.notification.findUnique).mockResolvedValue(
+      makeNotification({ id: UUIDS.notifCounselor, userId: UUIDS.otherUser })
+    );
+
+    const res = await deleteNotification(new Request('http://localhost'), { params: Promise.resolve({ id: UUIDS.notifCounselor }) });
+
+    expect(res.status).toBe(403);
+    expect(prisma.notification.delete).not.toHaveBeenCalled();
+  });
+});
+
+// ─────────────────────────────────────────────
+// POST /api/member/notifications/read-all
+// ─────────────────────────────────────────────
+describe('POST /api/member/notifications/read-all', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('marks all notifications as read via read-all alias', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(prisma.notification.updateMany).mockResolvedValue({ count: 5 });
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(0);
+
+    const res = await readAll();
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.updatedCount).toBe(5);
+    expect(body.unreadCount).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────
+// GET /api/counselor/notifications
+// ─────────────────────────────────────────────
+describe('GET /api/counselor/notifications', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns notifications for counselor with filters', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(prisma.notification.findMany).mockResolvedValue([
+      makeNotification({ id: 'cn1', type: 'course_complete', title: 'Member completed course' }),
+    ]);
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(1);
+
+    const req = new Request('http://localhost:3000/api/counselor/notifications?limit=20&type=course_complete');
+    const res = await getCounselorNotifications(req);
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.notifications).toHaveLength(1);
+    expect(body.unreadCount).toBe(1);
+  });
+
+  it('returns 403 for non-counselor', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(isCounselor).mockResolvedValue(false);
+
+    const req = new Request('http://localhost:3000/api/counselor/notifications');
+    const res = await getCounselorNotifications(req);
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+});
+
+// ─────────────────────────────────────────────
 // Notification types
 // ─────────────────────────────────────────────
 describe('Notification types', () => {
@@ -332,7 +468,7 @@ describe('Notification types', () => {
         data: { courseId: 'course-789', certificateUrl: '/certificates/789' },
       }),
     ]);
-    vi.mocked(prisma.notification.count).mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(0);
 
     const req = new Request('http://localhost:3000/api/member/notifications');
     const res = await getNotifications(req);
@@ -354,7 +490,7 @@ describe('Notification types', () => {
         data: { maintenanceWindow: '2025-01-20T02:00:00Z' },
       }),
     ]);
-    vi.mocked(prisma.notification.count).mockResolvedValueOnce(1).mockResolvedValueOnce(1);
+    vi.mocked(prisma.notification.count).mockResolvedValueOnce(1);
 
     const req = new Request('http://localhost:3000/api/member/notifications');
     const res = await getNotifications(req);
@@ -363,5 +499,6 @@ describe('Notification types', () => {
     const body = await res.json();
     expect(body.notifications[0].type).toBe('SYSTEM_ANNOUNCEMENT');
     expect(body.notifications[0].title).toContain('maintenance');
+    expect(body.unreadCount).toBe(1);
   });
 });

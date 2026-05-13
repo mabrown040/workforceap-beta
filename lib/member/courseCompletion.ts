@@ -132,6 +132,22 @@ export async function completeMemberCourse(args: {
       data: { courseSlug: matchedCourse.slug, courseName: matchedCourse.name },
     });
 
+    const counselors = await prisma.counselorAssignment.findMany({
+      where: { memberId: args.userId, active: true },
+      select: { counselor: { select: { userId: true } } },
+    });
+    for (const assignment of counselors) {
+      if (assignment.counselor?.userId) {
+        void createNotification({
+          userId: assignment.counselor.userId,
+          type: 'course_complete',
+          title: `${dbUser.fullName ?? 'Member'} completed a course`,
+          body: `${dbUser.fullName ?? 'A member'} completed ${matchedCourse.name}.`,
+          data: { memberId: args.userId, courseSlug: matchedCourse.slug, courseName: matchedCourse.name },
+        });
+      }
+    }
+
     handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
       console.error('[career-os] learning completion workflow failed:', error)
     );

@@ -2273,3 +2273,20 @@ model WebhookEvent {
   @@index([eventId])
   @@map("webhook_events")
 }
+// --- Email Templates ---
+
+model EmailTemplate {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  name      String
+  subject   String
+  body      String   @db.Text
+  variables String[] @default([])
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([key])
+  @@index([active])
+  @@map("email_templates")
+}

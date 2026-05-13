@@ -123,11 +123,12 @@ html.dark .partner-logos-small span {
  * (`marketing-mobile--on-dark-marketing-surface`).
  */
 .marketing-mobile {
-  color: var(--wap-marketing-mobile-text, var(--wap-marketing-light-on-surface));
-  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-marketing-light-on-surface));
+  /* Fall back to document theme foreground so `html.dark` never uses a light-mode-only #1c1b1b default. */
+  color: var(--wap-marketing-mobile-text, var(--wap-doc-on-surface));
+  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-doc-on-surface));
   --color-on-surface-variant: var(
     --wap-marketing-mobile-c-on-surface-variant,
-    var(--wap-marketing-light-on-surface-variant)
+    var(--wap-doc-on-surface-variant)
   );
 }
 

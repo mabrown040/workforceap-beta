@@ -643,6 +643,7 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
             }}
             autoComplete="address-line1"
+            inputMode="text"
             aria-invalid={!!fieldErrors.addressLine1}
           />
           {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
@@ -655,6 +656,7 @@ export default function ApplyCreateAccountForm() {
             value={addressLine2}
             onChange={(e) => setAddressLine2(e.target.value)}
             autoComplete="address-line2"
+            inputMode="text"
           />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
@@ -669,6 +671,7 @@ export default function ApplyCreateAccountForm() {
                 if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
               }}
               autoComplete="address-level2"
+              inputMode="text"
               aria-invalid={!!fieldErrors.city}
             />
             {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
@@ -711,14 +714,14 @@ export default function ApplyCreateAccountForm() {
         </div>
       </details>
       <div className="form-group">
-        <label htmlFor="smsOptIn" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+        <label htmlFor="smsOptIn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', minHeight: 44 }}>
           <input
             id="smsOptIn"
             type="checkbox"
             checked={smsOptIn}
             onChange={(e) => setSmsOptIn(e.target.checked)}
             aria-describedby="sms-opt-in-hint"
-            style={{ marginTop: '0.2rem' }}
+            style={{ width: 20, height: 20, flexShrink: 0 }}
           />
           <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
             <strong>{t('accountSmsLabel')}</strong> {t('accountSmsBody')}
@@ -799,7 +802,7 @@ export default function ApplyCreateAccountForm() {
         <legend style={{ padding: '0 0.4rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {t('accountConsentLegend')}
         </legend>
-        <label htmlFor="contactConsent" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
+        <label htmlFor="contactConsent" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem', minHeight: 44 }}>
           <input
             id="contactConsent"
             type="checkbox"
@@ -812,7 +815,7 @@ export default function ApplyCreateAccountForm() {
             aria-required="true"
             aria-invalid={!!fieldErrors.contactConsent}
             aria-describedby={fieldErrors.contactConsent ? 'contact-consent-error' : 'contact-consent-hint'}
-            style={{ marginTop: '0.2rem' }}
+            style={{ width: 20, height: 20, flexShrink: 0 }}
           />
           <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
             <strong>{t('accountContactConsent')}</strong> {t('accountContactConsentRest')}

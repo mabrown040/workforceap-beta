@@ -697,6 +697,7 @@ export default function ApplyCreateAccountForm() {
             <input
               id="zip"
               type="text"
+              inputMode="numeric"
               value={zip}
               onChange={(e) => {
                 setZip(e.target.value);
@@ -747,7 +748,7 @@ export default function ApplyCreateAccountForm() {
             type="button"
             onClick={() => setShowPassword((v) => !v)}
             aria-label={showPassword ? t('accountHidePassword') : t('accountShowPassword')}
-            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showPassword ? 'visibility_off' : 'visibility'}
@@ -779,7 +780,7 @@ export default function ApplyCreateAccountForm() {
             type="button"
             onClick={() => setShowConfirmPassword((v) => !v)}
             aria-label={showConfirmPassword ? t('accountHidePassword') : t('accountShowPassword')}
-            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showConfirmPassword ? 'visibility_off' : 'visibility'}

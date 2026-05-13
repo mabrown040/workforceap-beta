@@ -9158,13 +9158,27 @@ html.dark .portal-nav {
     /* Icon-only mobile bottom nav — tighter than marketing full captions */
     --wap-portal-mobile-bottom-clearance-compact: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
-/* Anchor / in-page jumps: clear sticky workspace header (+ member top tab strip when present) */
-@media (max-width: 767px) {
+/* Anchor / focus scroll-into-view: clear sticky workspace chrome (+ member top tab strip when present) */
+@media (max-width: 768px) {
     html[data-portal-role="member"] {
-        scroll-padding-top: calc(var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem));
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
+        );
+    }
+    html[data-portal-role="member"] body {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
+        );
     }
     html[data-portal-role]:not([data-portal-role="member"]) {
-        scroll-padding-top: var(--workspace-header-h, 3.25rem);
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
+    }
+    html[data-portal-role]:not([data-portal-role="member"]) body {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
     }
 }
 .workspace-shell-header {
@@ -9186,13 +9200,39 @@ html.dark .portal-nav {
     z-index: 60;
     min-width: 0;
 }
-@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 768px) {
+    /* Single-row header: avoid wrapped meta/actions sandwiching the viewport */
+    .workspace-shell-header {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .workspace-shell-header__brand {
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+    .workspace-shell-header__meta {
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+        gap: 0.35rem 0.5rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+    .workspace-shell-header__meta::-webkit-scrollbar {
+        display: none;
+    }
+}
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
     .workspace-shell-header {
         transition: padding 0.2s ease, box-shadow 0.2s ease;
     }
 }
 /* Scroll-compacted chrome (see useWorkspaceMobileScrollChrome) */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     html.wap-portal-chrome-compact .workspace-shell-header {
         padding: 0.35rem 0.65rem;
         padding-top: max(0.32rem, env(safe-area-inset-top, 0.32rem));
@@ -9207,6 +9247,13 @@ html.dark .portal-nav {
     html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-tier-badge,
     html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-context-logo-wrap,
     html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-impersonating-chip {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-tagline,
+    html.wap-portal-chrome-compact .workspace-shell-public-site-link {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-attribution {
         display: none !important;
     }
     html.wap-portal-chrome-compact .workspace-shell-header--minimal-mobile {
@@ -9327,7 +9374,7 @@ html:not(.dark) .workspace-shell-header {
 }
 
 /* Member portal (mobile): bottom nav is primary; minimize top chrome. */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
     display: none;
   }
@@ -9822,7 +9869,7 @@ html.dark .workspace-sidebar-signout:hover {
     width: 100%;
 }
 /* Mobile: keep page ends clear of fixed MobileBottomNav (counselor / employer / partner / admin). */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
         padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     }
@@ -11474,7 +11521,7 @@ body:has(.dashboard-drawer-overlay.open) {
     }
 }
 /* Minimal mobile header for member portal — reduce chrome when bottom nav is primary navigation */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .workspace-shell-header--minimal-mobile {
         padding: 0.4rem 0.75rem;
         padding-top: max(0.4rem, env(safe-area-inset-top, 0.4rem));

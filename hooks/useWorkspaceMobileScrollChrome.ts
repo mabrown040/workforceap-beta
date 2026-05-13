@@ -5,9 +5,11 @@ import { useEffect, useRef } from 'react';
 /** Toggles compact portal chrome (header + tab strips + mobile bottom nav) on small viewports. */
 export const WAP_PORTAL_CHROME_COMPACT_CLASS = 'wap-portal-chrome-compact';
 
-const MOBILE_MQ = '(max-width: 767px)';
+/** Align with Tailwind `md` / MemberPortalTopNav / MobileBottomNav (768px). */
+const MOBILE_MQ = '(max-width: 768px)';
 const NEAR_TOP_PX = 14;
-const SCROLL_DOWN_MIN_Y = 52;
+/** Compact chrome after a short downward scroll so sticky bars free viewport sooner. */
+const SCROLL_DOWN_MIN_Y = 28;
 const DELTA_PX = 6;
 
 /**

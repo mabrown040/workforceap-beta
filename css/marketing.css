@@ -32,7 +32,7 @@ html {
   --wap-doc-on-surface-variant: var(--color-on-surface-variant);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   html.wap-reserve-mobile-bottom-nav,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
@@ -505,7 +505,7 @@ html.dark .marketing-bottom-nav {
 }
 
 /* Workspace portals only: shorter bar while scrolling (marketing keeps captions). */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   html.wap-portal-chrome-compact
     nav#mobile-bottom-nav.mobile-bottom-nav--employer
     .marketing-bottom-nav__label,

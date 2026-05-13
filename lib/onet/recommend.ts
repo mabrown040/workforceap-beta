@@ -123,7 +123,7 @@ export async function buildCareerMatchResult(
   const prismaBand = uiBandToPrisma(experienceBand);
   const supportFlags = { needsComputerSupport: needsComputerSupport(answers) };
 
-  const rules = await prisma.careerQuizRule.findMany({ where: { isActive: true } });
+  const rules = await prisma.careerQuizRule.findMany({ take: 5000, where: { isActive: true } });
   const boostMap = new Map<string, number>();
   for (const r of rules) {
     const sig = r.inputSignal as Record<string, unknown>;
@@ -133,6 +133,7 @@ export async function buildCareerMatchResult(
   }
 
   const mappings = await prisma.careerProgramMapping.findMany({
+    take: 5000,
     where: { isActive: true, experienceBand: prismaBand },
     include: { occupation: true },
   });

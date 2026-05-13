@@ -16,6 +16,7 @@ export async function GET() {
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const referrals = await prisma.partnerReferral.findMany({
+      take: 5000,
       where: { partnerId: ctx.partnerId },
       include: {
         member: {

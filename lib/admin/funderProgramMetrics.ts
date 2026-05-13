@@ -55,6 +55,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
       }),
     ),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: {
         createdAt: { gte: thirtyDaysAgo },
         user: { organizationId: orgId },
@@ -63,6 +64,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
       select: { userId: true },
     }),
     prisma.atRiskAlert.findMany({
+      take: 5000,
       where: {
         status: { in: ['open', 'acknowledged'] },
         score: { gte: THRESHOLDS.HIGH },

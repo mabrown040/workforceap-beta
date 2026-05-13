@@ -90,6 +90,7 @@ export default async function JobsPage() {
   if (user) {
     try {
       const apps = await prisma.jobApplication.findMany({
+        take: 500,
         where: { userId: user.id, status: { not: 'SAVED' }, curatedJobId: { not: null } },
         select: { curatedJobId: true },
       });

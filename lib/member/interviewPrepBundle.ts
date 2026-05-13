@@ -50,6 +50,7 @@ const TOOL_LABELS: Record<AIToolType, string> = {
  */
 export async function fetchInterviewPrepBundle(userId: string): Promise<InterviewPrepBundle> {
   const results = await prisma.aIToolResult.findMany({
+    take: 5000,
     where: {
       userId,
       toolType: { in: BUNDLE_TOOL_TYPES },

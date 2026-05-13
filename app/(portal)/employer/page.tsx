@@ -68,6 +68,7 @@ export default async function EmployerDashboardPage() {
   });
 
   const jobs = await prisma.job.findMany({
+    take: 5000,
     where: { employerId: ctx.employerId },
     include: { _count: { select: { applications: true } } },
   });
@@ -101,6 +102,7 @@ export default async function EmployerDashboardPage() {
       },
     }),
     prisma.jobPostingApplication.findMany({
+      take: 5000,
       where: { job: { employerId: ctx.employerId }, status: 'hired' },
       select: {
         jobId: true,
@@ -132,6 +134,7 @@ export default async function EmployerDashboardPage() {
   let avgMatchToHireDays: number | null = null;
   if (hiredApplications.length > 0) {
     const matchRows = await prisma.aIJobMatch.findMany({
+      take: 5000,
       where: {
         OR: hiredApplications.map((h) => ({ jobId: h.jobId, studentId: h.studentId })),
       },

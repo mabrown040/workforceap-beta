@@ -56,6 +56,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
   // Ensure alerts exist for all critical scores so we can track notifiedCounselorAt
   // Batch: find all existing alerts in one query, then create only missing ones.
   const existingAlerts = await prisma.atRiskAlert.findMany({
+    take: 5000,
     where: {
       userId: { in: criticalScores.map((s) => s.userId) },
       status: { in: ['open', 'acknowledged'] },
@@ -115,6 +116,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
 
   // Find all alerts for critical members (freshly created or existing)
   const alerts = await prisma.atRiskAlert.findMany({
+    take: 5000,
     where: {
       userId: { in: criticalScores.map((s) => s.userId) },
       status: { in: ['open', 'acknowledged'] },

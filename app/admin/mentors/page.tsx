@@ -62,6 +62,7 @@ export default async function AdminMentorsPage() {
   await requireAdmin(user.id);
 
   const mentors = await prisma.mentor.findMany({
+    take: 5000,
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,

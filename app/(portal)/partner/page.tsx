@@ -86,6 +86,7 @@ export default async function PartnerDashboardPage() {
       ? 0
       : (
           await prisma.application.findMany({
+            take: 5000,
             where: { referralPartnerId: ctx.partnerId, userId: { in: memberIds } },
             select: { userId: true },
             distinct: ['userId'],

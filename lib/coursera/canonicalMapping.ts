@@ -61,6 +61,7 @@ export async function loadCanonicalMappingsForCourseraIds(
   if (filtered.length === 0) return emptyCanonicalMappingIndex();
 
   const rows = await prisma.courseraCanonicalCourseMapping.findMany({
+    take: 5000,
     where: { courseraCourseId: { in: filtered } },
     select: {
       courseraCourseId: true,

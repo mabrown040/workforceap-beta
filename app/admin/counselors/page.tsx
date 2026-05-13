@@ -22,6 +22,7 @@ export default async function AdminCounselorsPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const partners = await prisma.partner.findMany({
+    take: 5000,
     where: { active: true },
     orderBy: { name: 'asc' },
     select: { id: true, name: true },

@@ -33,10 +33,12 @@ export default async function AdminNewInvitePage({ searchParams }: InviteFormPag
 
   const [subgroups, partners] = await Promise.all([
     prisma.subgroup.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
     prisma.partner.findMany({
+      take: 5000,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },

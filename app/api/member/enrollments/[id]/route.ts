@@ -30,6 +30,7 @@ export async function GET(
     }
 
     const courseProgress = await prisma.courseProgress.findMany({
+      take: 5000,
       where: {
         userId: user.id,
         programSlug: enrollment.programSlug,

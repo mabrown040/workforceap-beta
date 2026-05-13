@@ -20,6 +20,7 @@ export async function getSlaStatusForThreads(threadIds: string[]): Promise<Map<s
   if (threadIds.length === 0) return map;
 
   const threads = await prisma.messageThread.findMany({
+    take: 500,
     where: {
       id: { in: threadIds },
       kind: 'member',
@@ -65,6 +66,7 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
   const threshold = new Date(Date.now() - thresholdMs);
 
   const threads = await prisma.messageThread.findMany({
+    take: 500,
     where: {
       kind: 'member',
       messages: {
@@ -113,6 +115,7 @@ export async function countMessageThreadsWithActivity(): Promise<number> {
 /** Thread IDs where the latest member message has no staff reply after it and member message is older than `threshold`. */
 export async function getThreadIdsBreachingSla(threshold: Date, limit: number): Promise<string[]> {
   const threads = await prisma.messageThread.findMany({
+    take: 500,
     where: {
       kind: 'member',
       messages: {

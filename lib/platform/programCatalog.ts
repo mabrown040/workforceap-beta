@@ -53,6 +53,7 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
     const orgId = organizationId ?? (await getDefaultOrganizationId());
 
     const rows = await prisma.organizationProgramCatalog.findMany({
+      take: 5000,
       where: { organizationId: orgId, status: 'active' },
       orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
     });

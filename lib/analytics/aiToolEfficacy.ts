@@ -113,6 +113,7 @@ async function fetchEnrolledMembers(
   dateRange: AIEfficacyDateRange
 ): Promise<EnrolledMemberRow[]> {
   return prisma.user.findMany({
+    take: 5000,
     where: {
       deletedAt: null,
       organizationId: orgId,
@@ -143,6 +144,7 @@ async function fetchToolUsageMap(
   dateRange: AIEfficacyDateRange
 ): Promise<Map<string, Set<string>>> {
   const usage = await prisma.aIToolResult.findMany({
+    take: 5000,
     where: {
       userId: { in: userIds },
       createdAt: { gte: dateRange.start, lte: dateRange.end },

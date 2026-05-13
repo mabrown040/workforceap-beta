@@ -55,6 +55,7 @@ export default async function AdminWioaScreeningQueuePage({ searchParams }: Page
   let rows: WioaQueueRow[] = [];
   try {
     rows = await prisma.user.findMany({
+      take: 5000,
       where: {
         deletedAt: null,
         wioaQualificationJson: { not: Prisma.DbNull },

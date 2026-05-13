@@ -14,6 +14,7 @@ export async function mapIpCareerRowsToProgramSlugs(
   if (careers.length === 0) return [];
   const codes = [...new Set(careers.map((c) => c.code.trim()).filter(Boolean))];
   const mappings = await prisma.careerProgramMapping.findMany({
+    take: 5000,
     where: { isActive: true, onetCode: { in: codes } },
   });
   if (mappings.length === 0) return [];

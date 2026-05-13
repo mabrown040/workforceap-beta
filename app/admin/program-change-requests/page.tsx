@@ -21,6 +21,7 @@ export default async function AdminProgramChangeRequestsPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const rows = await prisma.programChangeRequest.findMany({
+    take: 5000,
     orderBy: { createdAt: 'desc' },
     include: {
       user: { select: { id: true, email: true, fullName: true, enrolledProgram: true } },

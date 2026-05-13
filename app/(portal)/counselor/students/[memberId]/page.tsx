@@ -104,6 +104,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const [applications, aiMatches, memberPts, recentTx, pitchDeployments] = await Promise.all([
     prisma.jobPostingApplication.findMany({
+      take: 5000,
       where: { studentId: memberId },
       orderBy: { appliedAt: 'desc' },
       include: {
@@ -111,6 +112,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       },
     }),
     prisma.aIJobMatch.findMany({
+      take: 5000,
       where: { studentId: memberId },
       orderBy: { matchScore: 'desc' },
       include: {
@@ -134,13 +136,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const messages = await prisma.message.findMany({
+    take: 5000,
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });
   const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
   const authors =
     authorIds.length > 0
-      ? await prisma.user.findMany({ where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
+      ? await prisma.user.findMany({ take: 5000, where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
       : [];
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 

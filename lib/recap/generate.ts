@@ -57,12 +57,12 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
 
   const [goals, jobApps, aiResults, resourceProgress, pathwayProgress, certs, upcomingSessions, newJobsRaw] =
     await Promise.all([
-      prisma.goal.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      prisma.jobApplication.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      prisma.aIToolResult.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      prisma.resourceProgress.findMany({ where: { userId } }),
-      prisma.pathwayStepProgress.findMany({ where: { userId } }),
-      prisma.userCertification.findMany({ where: { userId } }),
+      prisma.goal.findMany({ take: 5000, where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.jobApplication.findMany({ take: 5000, where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.aIToolResult.findMany({ take: 5000, where: { userId }, orderBy: { createdAt: 'desc' } }),
+      prisma.resourceProgress.findMany({ take: 5000, where: { userId } }),
+      prisma.pathwayStepProgress.findMany({ take: 5000, where: { userId } }),
+      prisma.userCertification.findMany({ take: 5000, where: { userId } }),
       prisma.mentorSession.findMany({
         where: {
           memberId: userId,
@@ -74,6 +74,7 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
         select: { scheduledAt: true, topic: true },
       }),
       prisma.job.findMany({
+        take: 5000,
         where: {
           status: 'live',
           organizationId: userCtx.organizationId,
@@ -233,6 +234,7 @@ export async function generateWeeklyRecaps(
 
   // 1. Batch fetch user contexts + course enrollments
   const userCtxs = await prisma.user.findMany({
+    take: 5000,
     where: { id: { in: memberIds } },
     select: {
       id: true,
@@ -263,12 +265,12 @@ export async function generateWeeklyRecaps(
   // 3. Batch fetch all related data
   const [goalsAll, jobAppsAll, aiResultsAll, resourceProgressAll, pathwayProgressAll, certsAll, upcomingSessionsAll, newJobsAll, scoreBreakdowns] =
     await Promise.all([
-      prisma.goal.findMany({ where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.jobApplication.findMany({ where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.aIToolResult.findMany({ where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.resourceProgress.findMany({ where: { userId: { in: memberIds } } }),
-      prisma.pathwayStepProgress.findMany({ where: { userId: { in: memberIds } } }),
-      prisma.userCertification.findMany({ where: { userId: { in: memberIds } } }),
+      prisma.goal.findMany({ take: 5000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.jobApplication.findMany({ take: 5000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.aIToolResult.findMany({ take: 5000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.resourceProgress.findMany({ take: 5000, where: { userId: { in: memberIds } } }),
+      prisma.pathwayStepProgress.findMany({ take: 5000, where: { userId: { in: memberIds } } }),
+      prisma.userCertification.findMany({ take: 5000, where: { userId: { in: memberIds } } }),
       prisma.mentorSession.findMany({
         where: { memberId: { in: memberIds }, scheduledAt: { gte: now }, status: { in: ['PENDING', 'CONFIRMED'] } },
         orderBy: { scheduledAt: 'asc' },
@@ -276,6 +278,7 @@ export async function generateWeeklyRecaps(
         select: { memberId: true, scheduledAt: true, topic: true },
       }),
       prisma.job.findMany({
+        take: 5000,
         where: { status: 'live', organizationId: { in: orgIds as string[] }, createdAt: { gte: weekStart, lte: end }, OR: programOr },
         select: { title: true, employer: { select: { companyName: true } }, organizationId: true, suggestedPrograms: true },
       }),

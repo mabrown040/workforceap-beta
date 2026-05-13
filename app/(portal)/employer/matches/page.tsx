@@ -27,6 +27,7 @@ export default async function EmployerMatchesPage() {
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const matches = await prisma.aIJobMatch.findMany({
+    take: 5000,
     where: { job: { employerId: ctx.employerId, status: 'live' } },
     orderBy: { createdAt: 'desc' },
     include: {
@@ -40,6 +41,7 @@ export default async function EmployerMatchesPage() {
     keys.length === 0
       ? []
       : await prisma.jobPostingApplication.findMany({
+        take: 5000,
           where: { OR: keys.map((k) => ({ jobId: k.jobId, studentId: k.studentId })) },
           select: { id: true, jobId: true, studentId: true },
         });

@@ -49,6 +49,7 @@ export async function replayPendingXapiStatementsForEmail(
   actorEmail: string,
 ): Promise<ReplayPendingXapiResult> {
   const rows = await prisma.xapiStatement.findMany({
+    take: 5000,
     where: { processed: false, actorEmail },
     orderBy: { createdAt: 'asc' },
   });
@@ -73,6 +74,7 @@ export async function replayUnresolvedXapiStatementsForIdentity(args: {
   }
 
   const rows = await prisma.xapiStatement.findMany({
+    take: 5000,
     where: {
       OR: [
         ...(email ? [{ actorEmail: email }] : []),

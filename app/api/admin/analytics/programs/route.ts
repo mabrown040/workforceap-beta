@@ -16,7 +16,8 @@ export async function GET() {
 
     const orgId = await getActorOrganizationId(user.id);
 
-    const programs = await prisma.program.findMany({
+    const programs = await prisma.organizationProgramCatalog.findMany({
+      take: 5000,
       where: { organizationId: orgId },
       select: { id: true, name: true },
     });
@@ -42,7 +43,7 @@ export async function GET() {
     const completionMap = new Map(completions.map((c) => [c.program, c.count]));
     const enrollmentMap = new Map(enrollments.map((e) => [e.enrolledProgram, e._count.id]));
 
-    const stats = programs.map((p) => {
+    const stats = programs.map((p: { id: string; name: string }) => {
       const enrolled = enrollmentMap.get(p.name) ?? 0;
       const completed = completionMap.get(p.name) ?? 0;
       return {

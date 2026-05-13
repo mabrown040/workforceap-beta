@@ -242,6 +242,7 @@ async function renderMemberDashboard(
       },
     }),
     prisma.jobApplication.findMany({
+      take: 500,
       where: { userId: user.id, status: 'OFFER' },
       select: {
         id: true,

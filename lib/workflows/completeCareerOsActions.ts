@@ -6,6 +6,7 @@ async function completeCareerOsActionsForMember(where: {
   ctaHrefStartsWith?: string;
 }) {
   const actions = await prisma.memberNextBestAction.findMany({
+    take: 5000,
     where: {
       memberId: where.memberId,
       status: 'PENDING',

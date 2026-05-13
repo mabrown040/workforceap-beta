@@ -96,6 +96,7 @@ export async function GET(
       skillsetProgress,
     ] = await Promise.all([
       prisma.jobPostingApplication.findMany({
+        take: 5000,
         where: { studentId: memberId },
         orderBy: { appliedAt: 'desc' },
         include: {
@@ -109,6 +110,7 @@ export async function GET(
         },
       }),
       prisma.aIJobMatch.findMany({
+        take: 5000,
         where: { studentId: memberId },
         orderBy: { matchScore: 'desc' },
         include: {

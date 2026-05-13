@@ -36,6 +36,7 @@ export default async function CounselorPortalPage() {
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
+      take: 5000,
         where: {
           counselor: { userId: user.id, active: true },
           active: true,
@@ -63,6 +64,7 @@ export default async function CounselorPortalPage() {
   if (counselor && assignments.length > 0) {
     const memberIds = assignments.map((a) => a.memberId);
     const threads = await prisma.messageThread.findMany({
+      take: 5000,
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: { id: true, memberId: true },
     });
@@ -79,6 +81,7 @@ export default async function CounselorPortalPage() {
         .filter((p): p is { threadId: string; createdAt: Date } => p.createdAt !== null);
       const latestMessages = latestPairs.length > 0
         ? await prisma.message.findMany({
+          take: 5000,
             where: {
               OR: latestPairs.map((p) => ({ threadId: p.threadId, createdAt: p.createdAt })),
             },

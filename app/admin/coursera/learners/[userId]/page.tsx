@@ -41,6 +41,7 @@ async function loadIdentityMappingsForUser(userId: string): Promise<IdentityMapp
   // in lib/xapi/mappings.ts only fires on xAPI ingest, not on this page).
   try {
     const rows = await prisma.courseraIdentityMapping.findMany({
+      take: 5000,
       where: { userId },
       orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
       select: {

@@ -51,10 +51,12 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
     },
   }),
     prisma.subgroup.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),
     prisma.partner.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, active: true },
     }),

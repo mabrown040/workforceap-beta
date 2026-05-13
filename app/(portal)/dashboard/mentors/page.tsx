@@ -19,6 +19,7 @@ export default async function MentorsBrowsePage() {
   if (!user) redirect('/login?redirectTo=/dashboard/mentors');
 
   const mentors = await prisma.mentor.findMany({
+    take: 500,
     where: { isActive: true, approvedAt: { not: null } },
     orderBy: { fullName: 'asc' },
     select: { id: true, fullName: true, title: true, company: true, industry: true },

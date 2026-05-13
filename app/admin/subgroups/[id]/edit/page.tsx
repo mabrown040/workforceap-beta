@@ -25,11 +25,13 @@ export default async function EditSubgroupPage({ params }: Props) {
       select: { id: true, name: true, type: true, leaderId: true, partnerId: true, description: true },
     }),
     prisma.user.findMany({
+      take: 5000,
       where: { deletedAt: null },
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: 'asc' },
     }),
     prisma.partner.findMany({
+      take: 5000,
       where: { active: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },

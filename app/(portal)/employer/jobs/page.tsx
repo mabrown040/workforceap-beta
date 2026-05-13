@@ -60,16 +60,19 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       include: { _count: { select: { applications: true } } },
     }),
     prisma.job.findMany({
+      take: 5000,
       where: prismaWhereDeletableInListFilter(employerId, filter),
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.job.findMany({
+      take: 5000,
       where: prismaWhereClosableInListFilter(employerId, filter),
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.job.findMany({
+      take: 5000,
       where: listWhere,
       select: { id: true, title: true },
     }),

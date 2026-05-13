@@ -239,6 +239,7 @@ export async function getTriageQueue(
     });
     if (counselor) {
       const assignments = await prisma.counselorAssignment.findMany({
+        take: 5000,
         where: { counselorId: counselor.id, active: true },
         select: { memberId: true },
       });
@@ -258,6 +259,7 @@ export async function getTriageQueue(
     });
     if (!counselor) return emptyQueue();
     const assignments = await prisma.counselorAssignment.findMany({
+      take: 5000,
       where: { counselorId: counselor.id, active: true },
       select: { memberId: true },
     });
@@ -270,6 +272,7 @@ export async function getTriageQueue(
 
   const [members, lastEventByUser, threads, lastStaffMsgByThread, computerFollowUpEvents, milestoneEvents] = await Promise.all([
     prisma.user.findMany({
+      take: 5000,
       where: { id: { in: memberIds } },
       select: {
         id: true,
@@ -317,6 +320,7 @@ export async function getTriageQueue(
       memberIds,
     ),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: {
         userId: { in: memberIds },
         eventName: { in: ['computer_support_followup_recorded', 'counselor_followup_recorded'] },
@@ -325,6 +329,7 @@ export async function getTriageQueue(
       orderBy: { createdAt: 'desc' },
     }),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: {
         userId: { in: memberIds },
         eventName: { in: ['course_completed', 'certification_earned'] },

@@ -17,11 +17,12 @@ import { getTranslations } from 'next-intl/server';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('admin');
   return buildPageMetadataAsync({
-  title: t('adminMembers'),
-  description: t('memberListAndManagement'),
-  path: '/admin/members',
-});
+    title: t('adminMembers'),
+    description: t('memberListAndManagement'),
+    path: '/admin/members',
+  });
 }
 
 export default async function AdminMembersPage() {
@@ -109,6 +110,7 @@ export default async function AdminMembersPage() {
       _count: { _all: true },
     }),
     prisma.memberProgramProgress.findMany({
+      take: 5000,
       select: {
         userId: true,
         programSlug: true,

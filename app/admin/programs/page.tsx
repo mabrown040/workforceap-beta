@@ -30,6 +30,7 @@ export default async function AdminProgramsPage() {
   // both `it-cyber` and `ai-software` is counted once under each program,
   // not just under their primary `User.enrolledProgram`.
   const enrollmentRows = await prisma.courseEnrollment.findMany({
+    take: 5000,
     where: { user: { deletedAt: null } },
     select: {
       programSlug: true,

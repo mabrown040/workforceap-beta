@@ -621,6 +621,7 @@ export async function syncUserFromB4B(args: {
   // cron calls `updateRollups`, but per-user sync must rebuild too.
   try {
     const slugRows = await prisma.courseProgress.findMany({
+      take: 5000,
       where: { userId: args.wapUserId },
       select: { programSlug: true },
       distinct: ['programSlug'],

@@ -110,6 +110,7 @@ interface EnrolledMemberRow {
 
 async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Promise<EnrolledMemberRow[]> {
   return prisma.user.findMany({
+    take: 5000,
     where: {
       organizationId: orgId,
       deletedAt: null,
@@ -134,6 +135,7 @@ async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Prom
 async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<Set<string>> {
   const [courseCompletions, certCompletions] = await Promise.all([
     prisma.courseProgress.findMany({
+      take: 5000,
       where: {
         completedAt: { gte: start, lte: end },
         user: { organizationId: orgId },
@@ -142,6 +144,7 @@ async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<
       distinct: ['userId'],
     }),
     prisma.userCertification.findMany({
+      take: 5000,
       where: {
         earnedAt: { gte: start, lte: end },
         user: { organizationId: orgId },
@@ -159,6 +162,7 @@ async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<
 
 async function fetchPlacements(orgId: string, start: Date, end: Date) {
   return prisma.placementRecord.findMany({
+    take: 5000,
     where: {
       placedAt: { gte: start, lte: end },
       user: { organizationId: orgId },
@@ -186,6 +190,7 @@ async function fetchPlacements(orgId: string, start: Date, end: Date) {
 async function fetchAiToolUserIds(userIds: string[]): Promise<Set<string>> {
   if (userIds.length === 0) return new Set();
   const results = await prisma.aIToolResult.findMany({
+    take: 5000,
     where: { userId: { in: userIds } },
     select: { userId: true },
     distinct: ['userId'],

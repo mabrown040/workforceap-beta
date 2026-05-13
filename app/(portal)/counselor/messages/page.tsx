@@ -23,6 +23,7 @@ export default async function CounselorMessagesHubPage() {
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
+      take: 200,
         where: { counselorId: counselor.id, active: true },
         include: { member: { select: { id: true, fullName: true, email: true } } },
         orderBy: { assignedAt: 'desc' },

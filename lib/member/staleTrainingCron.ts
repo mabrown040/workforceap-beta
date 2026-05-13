@@ -20,6 +20,7 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
   const cutoff = new Date(Date.now() - STALE_DAYS * 86_400_000);
 
   const enrollments = await prisma.courseEnrollment.findMany({
+    take: 5000,
     where: { user: { deletedAt: null } },
     select: {
       userId: true,

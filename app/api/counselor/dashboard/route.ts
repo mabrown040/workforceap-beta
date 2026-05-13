@@ -41,6 +41,7 @@ export async function GET() {
     // ── 1. Assignments with member data (single query, eager-loaded) ──
     const assignments = counselor
       ? await prisma.counselorAssignment.findMany({
+        take: 500,
           where: {
             counselor: { userId: user.id, active: true },
             active: true,

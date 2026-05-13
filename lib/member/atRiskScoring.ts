@@ -124,7 +124,10 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
       b4bProgress,
     });
 
-    if (!trainingView.hasStartedTraining) {
+    if (!trainingView) {
+      score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
+      factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
+    } else if (!trainingView.hasStartedTraining) {
       score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
       factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
     }
@@ -136,6 +139,7 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
 
     // Job applications (only if placement-ready: completed courses + assessment)
     if (
+      trainingView &&
       trainingView.allCoursesComplete &&
       user.assessmentCompleted &&
       user._count.jobApplications === 0
@@ -205,6 +209,7 @@ function buildRecommendedAction(score: number, factors: AtRiskFactor[]): string 
 
 export async function calculateAllAtRiskScores(): Promise<AtRiskScore[]> {
   const activeMembers = await prisma.user.findMany({
+    take: 5000,
     where: {
       deletedAt: null,
       // Exclude already placed members

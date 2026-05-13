@@ -88,6 +88,7 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
 
     // Batch idempotency check: load all existing surveys for this wave + placement set
     const existingSurveys = await prisma.placementSurvey.findMany({
+      take: 5000,
       where: {
         placementId: { in: placements.map((p) => p.id) },
         wave,

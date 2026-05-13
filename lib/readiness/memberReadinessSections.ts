@@ -23,6 +23,7 @@ export type MemberReadinessSection = {
  */
 export async function getMemberReadinessSections(userId: string): Promise<MemberReadinessSection[]> {
   const items = await prisma.readinessChecklist.findMany({
+    take: 5000,
     where: { userId },
   });
 

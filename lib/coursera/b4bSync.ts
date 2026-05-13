@@ -381,6 +381,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
   // Pre-load all active users by normalized email
   const users = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: null, email: { not: '' } },
     select: { id: true, email: true },
   });
@@ -582,6 +583,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
 async function updateRollups(emails: string[]) {
   const affectedUsers = await prisma.user.findMany({
+    take: 5000,
     where: { email: { in: emails, mode: 'insensitive' }, deletedAt: null },
     select: { id: true, email: true },
   });
@@ -589,6 +591,7 @@ async function updateRollups(emails: string[]) {
   for (const user of affectedUsers) {
     try {
       const rows = await prisma.courseProgress.findMany({
+        take: 5000,
         where: { userId: user.id },
         select: { programSlug: true, status: true, percentComplete: true },
       });

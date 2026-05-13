@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 
@@ -135,9 +135,9 @@ function InviteContent() {
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             {data?.error ?? 'This invitation link is no longer valid.'}
           </p>
-          <Link href="/" className="btn btn-primary">
+          <LocalizedLink href="/" className="btn btn-primary">
             Go to Homepage
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     );
@@ -160,9 +160,9 @@ function InviteContent() {
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Redirecting you to sign in...
           </p>
-          <Link href={postAcceptRedirect} className="btn btn-primary">
+          <LocalizedLink href={postAcceptRedirect} className="btn btn-primary">
             Log In
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     );

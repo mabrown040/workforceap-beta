@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { getTranslations } from 'next-intl/server';
@@ -140,7 +140,7 @@ export default async function WhatWeDoPage() {
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <Link
+            <LocalizedLink
               href="/programs"
               className="wwd-photo-hero__cta-primary"
               style={{
@@ -161,8 +161,8 @@ export default async function WhatWeDoPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
                 arrow_forward
               </span>
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               href="/contact?topic=partnership"
               className="wwd-photo-hero__cta-secondary"
               style={{
@@ -186,7 +186,7 @@ export default async function WhatWeDoPage() {
                 handshake
               </span>
               {t('heroCta2')}
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </section>
@@ -198,9 +198,9 @@ export default async function WhatWeDoPage() {
           <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
             {t('findPathCta')}
           </a>
-          <Link href="/wioa-qualification" className="btn btn-muted btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          <LocalizedLink href="/wioa-qualification" className="btn btn-muted btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
             Check WIOA Options
-          </Link>
+          </LocalizedLink>
         </div>
       </section>
 
@@ -547,7 +547,7 @@ export default async function WhatWeDoPage() {
               {t('ctaBody')}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
-              <Link
+              <LocalizedLink
                 href="/apply"
                 style={{
                   display: 'inline-flex',
@@ -563,8 +563,8 @@ export default async function WhatWeDoPage() {
               >
                 {t('ctaApply')}
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href="/programs"
                 style={{
                   display: 'inline-flex',
@@ -580,7 +580,7 @@ export default async function WhatWeDoPage() {
                 }}
               >
                 {t('ctaPrograms')}
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

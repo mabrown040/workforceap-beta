@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
@@ -122,7 +122,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
         const b = 0;
         const showBadge = b > 0;
         return (
-          <Link
+          <LocalizedLink
             key={href}
             href={href}
             prefetch={prefetchForBottomTab(variant, href)}
@@ -167,7 +167,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
               ) : null}
             </span>
             <span className="marketing-bottom-nav__label">{label}</span>
-          </Link>
+          </LocalizedLink>
         );
       })}
       </nav>

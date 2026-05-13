@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import {
   memberSignupSchema,
   type MemberSignupInput,
@@ -102,9 +102,9 @@ export default function MemberSignupForm() {
         <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
           We&rsquo;ve sent you a verification link. Click it to activate your account, then you can log in.
         </p>
-        <Link href="/login" className="btn btn-primary">
+        <LocalizedLink href="/login" className="btn btn-primary">
           Go to login
-        </Link>
+        </LocalizedLink>
       </div>
     );
   }
@@ -262,13 +262,13 @@ export default function MemberSignupForm() {
             />
             <span className="form-check__text">
               I agree to the{' '}
-              <Link href="/terms" target="_blank" rel="noopener noreferrer">
+              <LocalizedLink href="/terms" target="_blank" rel="noopener noreferrer">
                 Terms of Service
-              </Link>{' '}
+              </LocalizedLink>{' '}
               and{' '}
-              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+              <LocalizedLink href="/privacy" target="_blank" rel="noopener noreferrer">
                 Privacy Policy
-              </Link>{' '}
+              </LocalizedLink>{' '}
               *
             </span>
           </label>
@@ -303,7 +303,7 @@ export default function MemberSignupForm() {
       </button>
 
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.9rem' }}>
-        Already have an account? <Link href="/login">Log in</Link>
+        Already have an account? <LocalizedLink href="/login">Log in</LocalizedLink>
       </p>
     </form>
   );

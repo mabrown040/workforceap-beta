@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 /* ─── portal destination data (unchanged business logic) ─── */
@@ -468,7 +468,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   Create your account to explore programs and start training.
                 </p>
               </div>
-              <Link href={signupHref} style={{
+              <LocalizedLink href={signupHref} style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 padding: '0.6rem 1rem',
@@ -482,7 +482,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 minHeight: 44,
               }}>
                 Get started →
-              </Link>
+              </LocalizedLink>
             </div>
           )}
 
@@ -495,7 +495,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 const href = `/login?redirectTo=${encodeURIComponent(o.redirectTo)}`;
                 const active = destinationActive(o.redirectTo);
                 return (
-                  <Link
+                  <LocalizedLink
                     key={o.redirectTo}
                     href={href}
                     aria-current={active || undefined}
@@ -515,7 +515,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                     }}
                   >
                     {o.title.replace(' portal', '')}
-                  </Link>
+                  </LocalizedLink>
                 );
               })}
               {!showStaffPortals && (
@@ -573,7 +573,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             <div style={s.fieldGroup}>
               <div style={s.passwordRow}>
                 <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>Password</label>
-                <Link href="/forgot-password" style={s.recoverLink}>Forgot password?</Link>
+                <LocalizedLink href="/forgot-password" style={s.recoverLink}>Forgot password?</LocalizedLink>
               </div>
               <div style={s.passwordWrap}>
                 <input
@@ -656,16 +656,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             {isPartnerLogin ? (
               <>
                 Need partner access?{' '}
-                <Link href={partnerSignupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                <LocalizedLink href={partnerSignupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
                   Register your organization
-                </Link>
+                </LocalizedLink>
               </>
             ) : isStaffLikeLogin ? (
               <>
                 Staff account not working?{' '}
-                <Link href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                <LocalizedLink href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
                   Contact support
-                </Link>
+                </LocalizedLink>
               </>
             ) : null}
           </p>

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -35,9 +35,9 @@ export default async function BecomeMentorPage() {
               {t('waitlistCopy')}
             </p>
           </div>
-          <Link href="/mentor/apply" className="btn btn-primary btn-small" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+          <LocalizedLink href="/mentor/apply" className="btn btn-primary btn-small" style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
             {t('waitlistCta')}
-          </Link>
+          </LocalizedLink>
         </div>
       </section>
 
@@ -47,13 +47,13 @@ export default async function BecomeMentorPage() {
         headline={t('heroHeadline')}
         subheadline={t('heroSubheadline')}
         primaryAction={
-          <Link
+          <LocalizedLink
             href="/mentor/apply"
             className="btn"
             style={{ background: "#fff", color: "var(--color-accent)", fontWeight: 700 }}
           >
             {t('heroCta')}
-          </Link>
+          </LocalizedLink>
         }
       />
 
@@ -76,9 +76,9 @@ export default async function BecomeMentorPage() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-          <Link href="/mentor/apply" className="btn btn-primary">
+          <LocalizedLink href="/mentor/apply" className="btn btn-primary">
             {t('applyCta')}
-          </Link>
+          </LocalizedLink>
         </div>
       </section>
     </main>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { PROGRAMS, getProgramBySlug, type Program } from '@/lib/content/programs';
 import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { APPLY_PROGRAM_SLUG_KEY, APPLY_PROGRAM_RANKED_KEY } from '@/lib/apply/applyProgramStorage';
@@ -192,12 +192,12 @@ export default function ApplyResultsClient() {
             {t('resultsMissingDesc')}
           </p>
           <p style={{ marginBottom: '1.25rem' }}>
-            <Link href="/apply" className="btn btn-primary">
+            <LocalizedLink href="/apply" className="btn btn-primary">
               {t('resultsMissingCta')}
-            </Link>
+            </LocalizedLink>
           </p>
           <p className="apply-step-desc" style={{ fontSize: '0.9rem' }}>
-            {t('resultsMissingFootnote')} <Link href="/apply">/apply</Link> {t('resultsMissingFootnoteSuffix')}
+            {t('resultsMissingFootnote')} <LocalizedLink href="/apply">/apply</LocalizedLink> {t('resultsMissingFootnoteSuffix')}
           </p>
         </div>
       </div>
@@ -213,7 +213,7 @@ export default function ApplyResultsClient() {
 
       <div className="apply-step-content">
         <p className="apply-step-back-nav">
-          <Link href="/apply">{t('resultsBackStep1')}</Link>
+          <LocalizedLink href="/apply">{t('resultsBackStep1')}</LocalizedLink>
         </p>
         <p className="apply-step-kicker">{t('resultsKicker')}</p>
         <div className="apply-transition-card" role="note" aria-label={t('resultsTransitionAria')}>
@@ -221,7 +221,7 @@ export default function ApplyResultsClient() {
           <span>
             {' '}
             {t('resultsBeforePick')}{' '}
-            <Link href="/find-your-path">{t('resultsPathfinderQuizLink')}</Link>
+            <LocalizedLink href="/find-your-path">{t('resultsPathfinderQuizLink')}</LocalizedLink>
             {t('resultsBeforeSuffix')}
           </span>
         </div>
@@ -254,10 +254,10 @@ export default function ApplyResultsClient() {
               <ul className="apply-foundational-support__list">
                 <li>
                   <strong>{t('resultsFoundationalLi1Strong')}</strong> {t('resultsFoundationalLi1Rest')}{' '}
-                  <Link href="/find-your-path">{t('resultsTwoMinutePathfinder')}</Link> {t('resultsFoundationalLi1Suffix')}
+                  <LocalizedLink href="/find-your-path">{t('resultsTwoMinutePathfinder')}</LocalizedLink> {t('resultsFoundationalLi1Suffix')}
                 </li>
                 <li>
-                  <strong>{t('resultsFoundationalLi2Strong')}</strong> <Link href="/contact">{t('resultsFoundationalLi2Mid')}</Link> {t('resultsFoundationalLi2Suffix')}{' '}
+                  <strong>{t('resultsFoundationalLi2Strong')}</strong> <LocalizedLink href="/contact">{t('resultsFoundationalLi2Mid')}</LocalizedLink> {t('resultsFoundationalLi2Suffix')}{' '}
                   <a href="tel:+15127771808">(512) 777-1808</a>.
                 </li>
               </ul>

@@ -2,6 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 
+function getShareUrl(): string {
+  if (typeof window === 'undefined') return 'https://www.workforceap.org/apply';
+  return window.location.href;
+}
+
 export default function ShareButtons() {
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -13,7 +18,7 @@ export default function ShareButtons() {
   }, []);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.origin + '/apply');
+    navigator.clipboard.writeText(getShareUrl());
     setCopied(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
@@ -23,12 +28,12 @@ export default function ShareButtons() {
 
   const handleEmail = () => {
     window.location.href =
-      'mailto:?subject=Career Training at No Cost to Members&body=Check out WorkforceAP: ' + window.location.origin;
+      'mailto:?subject=Career Training at No Cost to Members&body=Check out WorkforceAP: ' + encodeURIComponent(getShareUrl());
   };
 
   const handleSms = () => {
     window.location.href =
-      'sms:?body=Check out WorkforceAP career training at no cost to members: ' + window.location.origin;
+      'sms:?body=Check out WorkforceAP career training at no cost to members: ' + encodeURIComponent(getShareUrl());
   };
 
   return (

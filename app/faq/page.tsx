@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -59,36 +59,36 @@ export default async function FAQPage() {
               title={t('faq1q')}
               description={t('faq1a')}
               action={
-                <Link href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                <LocalizedLink href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
                   {t('faq1cta')} →
-                </Link>
+                </LocalizedLink>
               }
             />
             <InfoCard
               title={t('faq2q')}
               description={t('faq2a')}
               action={
-                <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                <LocalizedLink href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
                   {t('faq2cta')} →
-                </Link>
+                </LocalizedLink>
               }
             />
             <InfoCard
               title={t('faq3q')}
               description={t('faq3a')}
               action={
-                <Link href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                <LocalizedLink href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
                   {t('faq3cta')} →
-                </Link>
+                </LocalizedLink>
               }
             />
             <InfoCard
               title={t('faq4q')}
               description={t('faq4a')}
               action={
-                <Link href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                <LocalizedLink href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
                   {t('faq4cta')} →
-                </Link>
+                </LocalizedLink>
               }
             />
           </div>

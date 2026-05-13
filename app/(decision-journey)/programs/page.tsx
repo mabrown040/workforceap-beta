@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
@@ -48,12 +48,12 @@ export default async function ProgramsPage() {
                   {t("heroDesc")}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-                  <Link href="#program-catalog" className="btn btn-primary">
+                  <LocalizedLink href="#program-catalog" className="btn btn-primary">
                     {t("heroCta1")}
-                  </Link>
-                  <Link href="/find-your-path" className="btn btn-outline">
+                  </LocalizedLink>
+                  <LocalizedLink href="/find-your-path" className="btn btn-outline">
                     {t("heroCta2")}
-                  </Link>
+                  </LocalizedLink>
                 </div>
               </>
             }
@@ -101,9 +101,9 @@ export default async function ProgramsPage() {
                   {t('quickStartBody')}
                 </h2>
               </div>
-              <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
+              <LocalizedLink href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
                 {t('notSure')}
-              </Link>
+              </LocalizedLink>
             </div>
 
             <div
@@ -136,7 +136,7 @@ export default async function ProgramsPage() {
                   cta: t('quickStartCard3Cta'),
                 },
               ].map((item) => (
-                <Link
+                <LocalizedLink
                   key={item.title}
                   href={item.href}
                   style={{
@@ -160,7 +160,7 @@ export default async function ProgramsPage() {
                   <span style={{ marginTop: 'auto', color: 'var(--color-accent)', fontWeight: 700 }}>
                     {item.cta} →
                   </span>
-                </Link>
+                </LocalizedLink>
               ))}
             </div>
           </div>
@@ -176,7 +176,7 @@ export default async function ProgramsPage() {
       <section style={{ padding: '3rem 0 0' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
-            <Link
+            <LocalizedLink
               href="/find-your-path"
               style={{
                 display: 'flex',
@@ -194,8 +194,8 @@ export default async function ProgramsPage() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">psychology</span>
               {t('notSure')}
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               href="/program-comparison"
               style={{
                 display: 'flex',
@@ -212,8 +212,8 @@ export default async function ProgramsPage() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">compare_arrows</span>
               {t('toolChipCompare')}
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               href="/salary-guide"
               style={{
                 display: 'flex',
@@ -230,7 +230,7 @@ export default async function ProgramsPage() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">payments</span>
               {t('toolChipSalary')}
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </section>
@@ -289,9 +289,9 @@ export default async function ProgramsPage() {
             </div>
             <p style={{ marginTop: '1.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
               {t('howToChooseFootnotePrefix')}{' '}
-              <Link href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+              <LocalizedLink href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
                 {t('howToChooseFootnoteLink')}
-              </Link>
+              </LocalizedLink>
             </p>
           </div>
         </div>
@@ -350,7 +350,7 @@ export default async function ProgramsPage() {
         headline={t('ctaHeadline')}
         subheadline={t('ctaSubheadline')}
         primaryAction={
-          <Link
+          <LocalizedLink
             href="/apply"
             style={{
               display: 'inline-flex',
@@ -366,10 +366,10 @@ export default async function ProgramsPage() {
           >
             {t('ctaPrimary')}
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
-          </Link>
+          </LocalizedLink>
         }
         secondaryAction={
-          <Link
+          <LocalizedLink
             href="/find-your-path"
             style={{
               display: 'inline-flex',
@@ -384,7 +384,7 @@ export default async function ProgramsPage() {
             }}
           >
             {t('ctaSecondary')}
-          </Link>
+          </LocalizedLink>
         }
       />
 

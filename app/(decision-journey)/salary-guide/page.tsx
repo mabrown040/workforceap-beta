@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 import type { SalaryGuideRow } from '@/lib/content/programSalaryOutcomes';
 import SalaryTableWrapper from '@/components/portal/SalaryTableWrapper';
@@ -234,8 +234,8 @@ export default function SalaryGuidePage() {
               Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp.
             </p>
             <div className="salary-guide-fit-links" style={{ marginTop: '1rem' }}>
-              <Link href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs (2-min quiz)</Link>
-              <Link href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</Link>
+              <LocalizedLink href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs (2-min quiz)</LocalizedLink>
+              <LocalizedLink href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</LocalizedLink>
             </div>
           </div>
 
@@ -349,9 +349,9 @@ export default function SalaryGuidePage() {
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
               Apply with no application fee — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost to members, no obligation.
             </p>
-            <Link href="/apply" className="btn btn-primary">
+            <LocalizedLink href="/apply" className="btn btn-primary">
               Apply Now
-            </Link>
+            </LocalizedLink>
           </div>
 
           <p className="salary-guide-methodology">
@@ -363,10 +363,10 @@ export default function SalaryGuidePage() {
             <h3 className="salary-guide-cta-title">What to do next</h3>
             <p className="salary-guide-cta-desc">Now that you have the numbers, bring in the other factors. Take the quiz to find programs that fit your timeline and experience level, or browse all programs and compare side-by-side. When you are ready — apply.</p>
             <div className="salary-guide-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find Your Path</Link>
-              <Link href="/programs" className="btn btn-outline salary-guide-cta-btn">Explore Programs</Link>
-              <Link href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare Programs</Link>
-              <Link href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</Link>
+              <LocalizedLink href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find Your Path</LocalizedLink>
+              <LocalizedLink href="/programs" className="btn btn-outline salary-guide-cta-btn">Explore Programs</LocalizedLink>
+              <LocalizedLink href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare Programs</LocalizedLink>
+              <LocalizedLink href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</LocalizedLink>
             </div>
           </div>
         </section>

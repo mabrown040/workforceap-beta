@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { FAQ_CATEGORIES as categories, FAQ_DATA as faqData, type FaqCategoryKey } from '@/lib/content/faqData';
 
 const sidebarGroups = [
@@ -94,7 +94,7 @@ export default function FAQContent() {
               <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
                 Reach out and WorkforceAP can help you figure out the right next step.
               </p>
-              <Link href="/contact" style={{
+              <LocalizedLink href="/contact" style={{
                 display: 'block',
                 textAlign: 'center',
                 padding: '0.5rem',
@@ -106,7 +106,7 @@ export default function FAQContent() {
                 textDecoration: 'none',
               }}>
                 Contact Us
-              </Link>
+              </LocalizedLink>
             </div>
           </aside>
 
@@ -128,7 +128,7 @@ export default function FAQContent() {
                 <div>
                   <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', fontSize: '0.95rem' }}>Employer Partnership Inquiries</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                    Looking to hire certified talent? <Link href="/partners" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Learn about our partnership model &rarr;</Link>
+                    Looking to hire certified talent? <LocalizedLink href="/partners" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Learn about our partnership model &rarr;</LocalizedLink>
                   </p>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export default function FAQContent() {
                         <p>{item.a}</p>
                         {item.link && (
                           <p style={{ marginTop: '1rem' }}>
-                            <Link
+                            <LocalizedLink
                               href={item.link.href}
                               style={{
                                 display: 'inline-flex',
@@ -211,7 +211,7 @@ export default function FAQContent() {
                             >
                               {item.link.text}
                               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-                            </Link>
+                            </LocalizedLink>
                           </p>
                         )}
                       </div>
@@ -243,7 +243,7 @@ export default function FAQContent() {
               Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link href="/contact" style={{
+              <LocalizedLink href="/contact" style={{
                 padding: '0.75rem 1.5rem',
                 background: 'var(--color-accent)',
                 color: '#fff',
@@ -253,8 +253,8 @@ export default function FAQContent() {
                 textDecoration: 'none',
               }}>
                 Contact Us
-              </Link>
-              <Link href="/apply" style={{
+              </LocalizedLink>
+              <LocalizedLink href="/apply" style={{
                 padding: '0.75rem 1.5rem',
                 background: 'var(--surface-container-high)',
                 color: 'var(--color-accent)',
@@ -264,7 +264,7 @@ export default function FAQContent() {
                 textDecoration: 'none',
               }}>
                 Apply Now
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
           <div style={{

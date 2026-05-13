@@ -2,7 +2,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldCheck } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import { CTABand, HeroSection, PageSection, PartnershipCard, SectionHeader, ValueCard } from '@/components/marketing/ui';
 import { getRequestLocale } from '@/lib/i18n/server';
@@ -99,7 +99,7 @@ export default async function PartnersPage() {
         }
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginTop: '2.5rem' }}>
-          <Link
+          <LocalizedLink
             href={partnerSignupHref}
             style={{
               display: 'inline-flex',
@@ -115,8 +115,8 @@ export default async function PartnersPage() {
           >
             {t('heroCta')}
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
-          </Link>
-          <Link
+          </LocalizedLink>
+          <LocalizedLink
             href="#partner-types"
             style={{
               display: 'inline-flex',
@@ -130,7 +130,7 @@ export default async function PartnersPage() {
             }}
           >
             {t('heroSecondary')}
-          </Link>
+          </LocalizedLink>
         </div>
       </HeroSection>
 
@@ -189,7 +189,7 @@ export default async function PartnersPage() {
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
                 {t('referralWhy')}
               </p>
-              <Link
+              <LocalizedLink
                 href={partnerSignupHref}
                 style={{
                   display: 'inline-flex',
@@ -204,7 +204,7 @@ export default async function PartnersPage() {
               >
                 {t('referralCta')}
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-              </Link>
+              </LocalizedLink>
             </div>
 
             {/* Training Centers */}
@@ -272,16 +272,16 @@ export default async function PartnersPage() {
           </p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
             {t('signupAlready')}{' '}
-            <Link href={`${withLocalePrefix('/login', locale)}?redirectTo=/partner`} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            <LocalizedLink href={`${withLocalePrefix('/login', locale)}?redirectTo=/partner`} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               {t('signupSignIn')}
-            </Link>
+            </LocalizedLink>
           </p>
           <PartnerSignupForm />
           <p style={{ marginTop: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
             {t('signupOtherPaths')}{' '}
-            <Link href={partnershipContactHref} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            <LocalizedLink href={partnershipContactHref} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               {t('signupContactTeam')}
-            </Link>
+            </LocalizedLink>
           </p>
         </div>
       </section>
@@ -521,7 +521,7 @@ export default async function PartnersPage() {
               {t('ctaCopy')}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', position: 'relative' }}>
-              <Link
+              <LocalizedLink
                 href={partnerSignupHref}
                 style={{
                   display: 'inline-flex',
@@ -537,8 +537,8 @@ export default async function PartnersPage() {
               >
                 {t('ctaCta')}
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href={employersMarketingHref}
                 style={{
                   display: 'inline-flex',
@@ -554,7 +554,7 @@ export default async function PartnersPage() {
                 }}
               >
                 {t('ctaCta2')}
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

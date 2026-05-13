@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -36,14 +36,14 @@ export default function ExperimentedCtaLink({
         variants={variantIds}
         onVariant={setActiveVariantId}
       />
-      <Link
+      <LocalizedLink
         href={selected.href}
         className={selected.className}
         style={selected.style}
         onClick={() => trackCtaExperimentClick(experiment, selected.id, pathname, selected.href)}
       >
         {selected.label}
-      </Link>
+      </LocalizedLink>
     </>
   );
 }

@@ -59,7 +59,8 @@ export type NavBadgeKey =
   | 'employer_queue_stale_48h'
   | 'employer_queue_interview'
   | 'employer_messages_unread'
-  | 'partner_messages_unread';
+  | 'partner_messages_unread'
+  | 'milestones_awaiting_approval';
 
 export type PortalNavItem = {
   href: string;
@@ -338,6 +339,13 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // SessionsIndexBody components are shared with the counselor route
   // — only the URL prefixes for breadcrumbs / "back" links differ.
   { href: '/admin/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
+  {
+    href: '/admin/agent-inbox',
+    label: 'Agent Inbox',
+    group: 'workflows',
+    Icon: Flag,
+    badgeKey: 'milestones_awaiting_approval',
+  },
 
   // ── Content — jobs, blog, invites ──
   { href: '/admin/jobs', label: 'Jobs', group: 'content', Icon: Briefcase },

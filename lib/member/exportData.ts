@@ -5,6 +5,9 @@ import { prisma } from '@/lib/db/prisma';
  * Includes all personal data stored across the platform.
  */
 export async function buildMemberExport(userId: string) {
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -71,7 +74,7 @@ export async function buildMemberExport(userId: string) {
     prisma.goal.findMany({ take: 5000, where: { userId } }),
     prisma.learningProgress.findMany({ take: 5000, where: { userId } }),
     prisma.resourceProgress.findMany({ take: 5000, where: { userId } }),
-    prisma.memberEvent.findMany({ take: 5000, where: { userId } }),
+    prisma.memberEvent.findMany({ take: 5000, where: { userId, createdAt: { gte: ninetyDaysAgo } } }),
     prisma.weeklyRecap.findMany({ take: 5000, where: { userId } }),
     prisma.pathwayStepProgress.findMany({ take: 5000, where: { userId } }),
     prisma.trainingAccessRequest.findMany({ take: 5000, where: { userId } }),
@@ -111,7 +114,7 @@ export async function buildMemberExport(userId: string) {
       include: { mentor: { include: { user: { select: { fullName: true } } } } },
     }),
     prisma.memberPoints.findUnique({ where: { userId } }),
-    prisma.pointsTransaction.findMany({ take: 5000, where: { userId } }),
+    prisma.pointsTransaction.findMany({ take: 5000, where: { userId, createdAt: { gte: oneYearAgo } } }),
     prisma.courseraCourseProgress.findMany({ take: 5000, where: { userId } }),
     prisma.courseraBadgeProgress.findMany({ take: 5000, where: { userId } }),
     prisma.courseraSkillsetProgress.findMany({ take: 5000, where: { userId } }),
@@ -120,7 +123,7 @@ export async function buildMemberExport(userId: string) {
     prisma.placementSurvey.findMany({ take: 5000, where: { userId } }),
     prisma.testimonial.findMany({ take: 5000, where: { memberId: userId } }),
     prisma.memberNextBestAction.findMany({ take: 5000, where: { userId } }),
-    prisma.auditLog.findMany({ take: 5000, where: { actorUserId: userId } }),
+    prisma.auditLog.findMany({ take: 5000, where: { actorUserId: userId, createdAt: { gte: ninetyDaysAgo } } }),
     prisma.jobPostingApplication.findMany({ take: 5000, where: { userId } }),
     prisma.aIJobMatch.findMany({ take: 5000, where: { userId } }),
     prisma.applicationAiFeedback.findMany({ take: 5000, where: { userId } }),

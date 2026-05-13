@@ -243,12 +243,19 @@ export async function getScoreBreakdowns(userIds: string[]): Promise<Map<string,
       prisma.userCertification.findMany({ take: 1000, where: { userId: { in: userIds } } }),
       prisma.memberEvent.findMany({
         take: 1000,
-        where: { userId: { in: userIds }, eventName: 'career_os.interview_practice_completed' },
+        where: {
+          userId: { in: userIds },
+          eventName: 'career_os.interview_practice_completed',
+          createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+        },
         select: { userId: true, id: true },
       }),
       prisma.memberEvent.findMany({
         take: 1000,
-        where: { userId: { in: userIds } },
+        where: {
+          userId: { in: userIds },
+          createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+        },
         orderBy: { createdAt: 'desc' },
         select: { userId: true, createdAt: true },
       }),

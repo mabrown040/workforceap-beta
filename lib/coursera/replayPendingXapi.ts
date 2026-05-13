@@ -68,6 +68,7 @@ export async function replayPendingXapiStatementsForEmail(
 export async function replayUnresolvedXapiStatementsForIdentity(args: {
   courseraEmail?: string | null;
   actorIdentifier?: string | null;
+  sinceDays?: number;
 }): Promise<ReplayPendingXapiResult> {
   const email = args.courseraEmail?.trim().toLowerCase() || null;
   const actor = args.actorIdentifier?.trim() || null;
@@ -75,8 +76,14 @@ export async function replayUnresolvedXapiStatementsForIdentity(args: {
     return _replayRows([]);
   }
 
+  const sinceDays = args.sinceDays ?? 30;
+  const cutoff = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
+
   const rows = await prisma.xapiStatement.findMany({
     take: 500,
+    where: {
+      createdAt: { gte: cutoff },
+    },
     where: {
       OR: [
         ...(email ? [{ actorEmail: email }] : []),

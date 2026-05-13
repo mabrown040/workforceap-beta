@@ -398,7 +398,10 @@ async function loadMemberFullContext(userId: string): Promise<Omit<MemberStateFu
       },
     }),
     prisma.memberEvent.findMany({
-      where: { userId },
+      where: {
+        userId,
+        createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+      },
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {

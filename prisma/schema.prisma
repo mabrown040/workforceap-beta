@@ -1029,6 +1029,7 @@ model PlacementRecord {
   grantReportingNotes String? @map("grant_reporting_notes") @db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placementSurveys PlacementSurvey[]
 
   @@index([placedAt])
   @@map("placement_records")
@@ -2079,6 +2080,7 @@ model PlacementSurvey {
   wave            PlacementSurveyWave @default(thirty_day) @map("wave")
   sentAt          DateTime @default(now()) @map("sent_at")
   completedAt     DateTime? @map("completed_at")
+  escalatedAt     DateTime? @map("escalated_at")
 
   // Core questions (1-5 scale)
   jobSatisfaction   Int? @map("job_satisfaction")     // "How satisfied are you with your job?"
@@ -2096,7 +2098,8 @@ model PlacementSurvey {
   // Consent for testimonial use
   allowTestimonial  Boolean @default(false) @map("allow_testimonial")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placement  PlacementRecord @relation(fields: [placementId], references: [id], onDelete: Cascade)
 
   @@unique([userId, wave])
   @@index([userId])

@@ -54,27 +54,30 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   // Ensure alerts exist for all critical scores so we can track notifiedCounselorAt
-  for (const score of criticalScores) {
+  // Batch: find all existing alerts in one query, then create only missing ones.
+  const existingAlerts = await prisma.atRiskAlert.findMany({
+    where: {
+      userId: { in: criticalScores.map((s) => s.userId) },
+      status: { in: ['open', 'acknowledged'] },
+    },
+    select: { userId: true },
+  });
+  const existingUserIds = new Set(existingAlerts.map((a) => a.userId));
+
+  const alertsToCreate = criticalScores
+    .filter((s) => !existingUserIds.has(s.userId))
+    .map((s) => ({
+      userId: s.userId,
+      score: s.score,
+      factors: s.factors as any,
+      status: 'open' as const,
+    }));
+
+  if (alertsToCreate.length > 0) {
     try {
-      const existing = await prisma.atRiskAlert.findFirst({
-        where: {
-          userId: score.userId,
-          status: { in: ['open', 'acknowledged'] },
-        },
-        select: { id: true },
-      });
-      if (!existing) {
-        await prisma.atRiskAlert.create({
-          data: {
-            userId: score.userId,
-            score: score.score,
-            factors: score.factors as any,
-            status: 'open',
-          },
-        });
-      }
+      await prisma.atRiskAlert.createMany({ data: alertsToCreate });
     } catch (err) {
-      console.error(`[at-risk-alerts] Failed to persist alert for ${score.userId}:`, err);
+      console.error('[at-risk-alerts] Failed to batch-create alerts:', err);
     }
   }
 

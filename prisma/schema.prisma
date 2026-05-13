@@ -391,6 +391,8 @@ model JobApplication {
   @@index([status])
   @@index([curatedJobId])
   @@index([nextInterviewDate])
+  @@index([userId, createdAt])
+  @@index([userId, status, createdAt])
   @@map("job_applications")
 }
 
@@ -510,6 +512,7 @@ model Goal {
 
   @@index([userId])
   @@index([status])
+  @@index([userId, createdAt])
   @@map("goals")
 }
 
@@ -698,6 +701,7 @@ model AIToolResult {
 
   @@index([userId])
   @@index([userId, toolType])
+  @@index([userId, createdAt])
   @@map("ai_tool_results")
 }
 
@@ -870,6 +874,7 @@ model CounselorAssignment {
   @@index([memberId])
   @@index([memberId, active])
   @@index([counselorId, active])
+  @@index([memberId, active, assignedAt(sort: Desc)])
   @@map("counselor_assignments")
 }
 
@@ -922,6 +927,7 @@ model Message {
   author User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([threadId, createdAt])
+  @@index([authorId, createdAt(sort: Desc)])
   @@map("messages")
 }
 
@@ -1455,6 +1461,7 @@ model XapiStatement {
   @@index([createdAt])
   @@index([courseId, courseItemId])
   @@index([actorEmail, courseId])
+  @@index([processed, createdAt])
   @@map("xapi_statements")
 }
 
@@ -1495,6 +1502,7 @@ model CourseProgress {
   // descending sort lets Postgres satisfy ORDER BY last_activity_at DESC LIMIT N
   // for a single user without a sort step.
   @@index([userId, lastActivityAt(sort: Desc)])
+  @@index([userId, courseId, completedAt])
   @@map("course_progress")
 }
 

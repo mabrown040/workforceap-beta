@@ -37,6 +37,8 @@ import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgra
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
 import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
 import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
+import ErrorBoundary from '@/components/error/ErrorBoundary';
+import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
@@ -839,9 +841,11 @@ async function renderMemberDashboard(
         )}
 
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
-        <div style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
-          <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-        </div>
+        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+          <div style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
+            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+          </div>
+        </ErrorBoundary>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
@@ -874,13 +878,14 @@ async function renderMemberDashboard(
         </section>
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-          {memberPoints ? (
-            <PointsWidget
-              total={memberPoints.total}
-              level={memberPoints.level}
-              recent={recentTx}
-            />
+        <ErrorBoundary fallback={<DashboardErrorFallback section="points" />}>
+          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+            {memberPoints ? (
+              <PointsWidget
+                total={memberPoints.total}
+                level={memberPoints.level}
+                recent={recentTx}
+              />
           ) : (
             <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
               <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('yourFirstPointsWaiting')}</p>
@@ -910,7 +915,8 @@ async function renderMemberDashboard(
               </Link>
             </div>
           )}
-        </section>
+          </section>
+        </ErrorBoundary>
 
         {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
@@ -1136,8 +1142,9 @@ async function renderMemberDashboard(
                   />
                 </div>
               )}
-              <Suspense fallback={<DashboardSkeleton />}>
-                <DashboardHomeClient
+              <ErrorBoundary fallback={<DashboardErrorFallback section="profile" />}>
+                <Suspense fallback={<DashboardSkeleton />}>
+                  <DashboardHomeClient
                   recommendedActions={recommendedActions}
                   jobSearchUrl={jobSearchUrl}
                   aiToolsUsedCount={recentTools.length}
@@ -1167,8 +1174,9 @@ async function renderMemberDashboard(
                   noApplicationOnFile={noApplicationOnFile}
                   age={userAge}
                   isMinor={isMinor}
-                />
-              </Suspense>
+                  />
+                </Suspense>
+              </ErrorBoundary>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
               </div>
@@ -1199,9 +1207,11 @@ async function renderMemberDashboard(
               </div>
               <PlacementConfirmationStrip offers={jobOffers} />
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <Suspense fallback={<JobsSkeleton count={4} />}>
-                  <MatchedRoles />
-                </Suspense>
+                <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
+                  <Suspense fallback={<JobsSkeleton count={4} />}>
+                    <MatchedRoles />
+                  </Suspense>
+                </ErrorBoundary>
               )}
               {/* Recent AI Activity is rendered in the mobile view above ΓÇö
                   suppressed here so the same data doesn't appear twice in the DOM

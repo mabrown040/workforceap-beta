@@ -191,6 +191,8 @@ model User {
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
   placementSurveys       PlacementSurvey[]
+  testimonials           Testimonial[]
+  reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2109,6 +2111,55 @@ model PlacementSurvey {
   @@index([sentAt])
   @@index([placementId])
   @@map("placement_surveys")
+}
+
+// --- Testimonials ---
+
+enum TestimonialSource {
+  SURVEY
+  MANUAL
+  INTERVIEW
+
+  @@map("testimonial_source")
+}
+
+enum TestimonialStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PUBLISHED
+
+  @@map("testimonial_status")
+}
+
+model Testimonial {
+  id              String            @id @default(uuid())
+  memberId        String            @map("member_id")
+  content         String            @db.Text
+  rating          Int?
+  programId       String?           @map("program_id")
+  placementId     String?           @map("placement_id")
+  source          TestimonialSource @default(SURVEY)
+  status          TestimonialStatus @default(PENDING)
+  photoUrl        String?           @map("photo_url")
+  consentGiven    Boolean           @default(false) @map("consent_given")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  reviewedBy      String?           @map("reviewed_by")
+  reviewedAt      DateTime?         @map("reviewed_at")
+  rejectionReason String?           @map("rejection_reason") @db.Text
+  deletedAt       DateTime?         @map("deleted_at")
+
+  member   User  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("TestimonialReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([memberId])
+  @@index([status])
+  @@index([source])
+  @@index([reviewedBy])
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@map("testimonials")
 }
 
 // --- Coursera Active-Pull Sync ---

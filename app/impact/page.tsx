@@ -14,6 +14,7 @@ import {
   type ImpactProgramRow,
 } from '@/lib/marketing/publicImpactStats';
 import JsonLdDataset from '@/components/JsonLdDataset';
+import TestimonialsCarousel from '@/components/marketing/TestimonialsCarousel';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.publicImpact');
@@ -258,6 +259,18 @@ export default async function ImpactPage() {
             <StatCard value={formatThousands(stats.jobsPosted)} label={t('jobsPostedLabel')} />
             <StatCard value={formatThousands(stats.hiresMade)} label={t('hiresLabel')} />
           </div>
+        </div>
+      </PageSection>
+
+      <PageSection padding="md" ariaLabel={t('testimonialsTitle') ?? 'Member stories'}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <SectionHeader
+            title="Member Stories"
+            subtitle="Real outcomes from real members"
+            align="left"
+            marginBottom="1.5rem"
+          />
+          <TestimonialsCarousel />
         </div>
       </PageSection>
 

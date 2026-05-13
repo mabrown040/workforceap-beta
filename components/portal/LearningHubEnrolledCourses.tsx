@@ -107,7 +107,7 @@ export default function LearningHubEnrolledCourses({
               {completedInProgram} of {courses.length} courses marked complete · {pct}%
             </p>
           </div>
-          <Link href="/dashboard/training" className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
+          <Link href="/dashboard" className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
             Open Training page
           </Link>
         </div>

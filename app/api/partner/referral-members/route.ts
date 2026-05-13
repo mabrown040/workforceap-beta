@@ -12,7 +12,7 @@ export async function GET() {
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   try {
-    const { members } = await loadPartnerReferralBundle(ctx.partnerId);
+    const { members } = await loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId);
     return NextResponse.json({
       members: members.map((m) => ({ id: m.id, fullName: m.fullName })),
     });

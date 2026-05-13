@@ -10,7 +10,10 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { prisma } from '@/lib/db/prisma';
+import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
+import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import { memberProgramCompleted, memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import SkillsetProgressList from '@/components/portal/SkillsetProgressList';
@@ -60,6 +63,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
     select: {
       id: true,
       fullName: true,
+      email: true,
       enrolledProgram: true,
       enrolledAt: true,
       courseProgress: {
@@ -109,13 +113,37 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
     }),
   ]);
 
+  const courseraProgramId =
+    member.enrolledProgram != null
+      ? DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram]?.courseraProgramId
+      : undefined;
+  const b4bProgress =
+    member.email?.trim() && member.enrolledProgram
+      ? await fetchLearnerProgressFromB4B(member.email, {
+          programId: courseraProgramId,
+        }).catch((err: unknown) => {
+          console.warn('[partner/referred-members] B4B learner progress unavailable:', err);
+          return new Map();
+        })
+      : new Map();
+
+  const trainingView = member.enrolledProgram
+    ? await loadMemberProgramTrainingView({
+        userId: member.id,
+        programSlug: member.enrolledProgram,
+        b4bProgress,
+      })
+    : null;
+
   const program = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const coursesDone = member.enrolledProgram
     ? member.courseProgress
         .filter((row) => row.programSlug === member.enrolledProgram)
         .map((row) => row.courseSlug)
     : [];
-  const progressPct = memberProgramProgressPct(member.enrolledProgram, null, member.memberProgramProgress);
+  const progressPct =
+    trainingView?.progressPercentDisplay ??
+    memberProgramProgressPct(member.enrolledProgram, null, member.memberProgramProgress);
   const skillsetProgress = await loadMemberSkillsetProgress(memberId);
   const certificateCount = member.userCertifications.length;
   const outreachCount = outreachLogs.length;
@@ -125,7 +153,9 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
   const memberStatus = placed ? 'Placed' : pendingPlacement ? 'Offer reported — review pending' : progressPct >= 80 ? 'Course-complete' : 'In training';
 
   const lastCertAt = member.userCertifications[0]?.earnedAt ?? null;
-  const allCoursesDone = memberProgramCompleted(member.enrolledProgram, null, member.memberProgramProgress);
+  const allCoursesDone =
+    trainingView?.allCoursesComplete ??
+    memberProgramCompleted(member.enrolledProgram, null, member.memberProgramProgress);
   const certPhaseLabel = certificateCount > 0 || allCoursesDone ? 'In progress or complete' : 'Pending';
 
   const journey = [

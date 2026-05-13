@@ -716,7 +716,7 @@ export async function sendCourseEnrolledEmail(params: {
     title: `You're Enrolled: ${params.programName}`,
     bodyHtml: courseEnrolledHtml({ firstName: first, programName: params.programName }),
     ctaText: 'View Training',
-    ctaUrl: `${SITE_URL}/dashboard/training`,
+    ctaUrl: `${SITE_URL}/dashboard`,
   });
   try {
     await resend.emails.send({

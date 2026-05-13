@@ -60,6 +60,14 @@ withTenantScope(orgId, async (tx) => {
 });
 ```
 
+Authenticated handlers usually resolve `orgId` with `getActorOrganizationId(sessionUserId)` (admin/counselor acting in their home tenant) or with the **subject** employer/partner row's `organizationId` when the portal context is implied by `employerId` / `partnerId` (see below). Convenience wrapper:
+
+```ts
+import { withActorTenantScope } from '@/lib/tenant/withTenantScope';
+
+await withActorTenantScope(user.id, (db) => db.user.findMany({ ... }));
+```
+
 The helper:
 
 - Takes the resolved `orgId` once (from the authenticated user's `User.organizationId`)
@@ -68,6 +76,20 @@ The helper:
 - Cached lookup so the assertion is cheap
 
 This is the **primary** line of defense. If every endpoint goes through `withTenantScope`, application-layer scoping is enforced and CI tests can prove it.
+
+### High-risk route checklist (Track A batch)
+
+These endpoints historically aggregated or listed rows without an org filter; they are guarded in-code and checked by `npm run check:tenant-routes` (runs in CI).
+
+| Surface | Scope source | Pattern |
+|--------|----------------|---------|
+| `GET /api/admin/members` | `getActorOrganizationId(adminUserId)` | `withTenantScope` on `user.findMany` |
+| `GET /api/admin/metrics` + `getAdminMetrics` | Actor org | All aggregates filter by org; **cache key** includes `orgId` so tenants never share a cached payload |
+| `GET /api/counselor/inactive-members` | Actor org | Raw SQL adds `users.organization_id = $orgId` |
+| `GET /api/employer/jobs` | Employer row | `withTenantScope(employer.organizationId)` on `job.findMany` |
+| Partner referrals (`loadPartnerReferralBundle`, `/api/partner/referral-members`, …) | Partner row | `partner.organizationId` + `member.organizationId` on referral queries; `ctx.partner.organizationId` threaded from `getPartnerForUser` |
+
+**Adding a new high-risk read:** thread `organizationId` from the authenticated actor or from the portal parent row (never from client input alone), use `withTenantScope` for tenant-scoped models, and for FK-scoped models use `where: { user: { organizationId: orgId } }` (or the appropriate parent relation). Register the route in `scripts/verify-high-risk-tenant-routes.cjs` if it bulk-loads PII or aggregates cross-member metrics.
 
 ### Layer 2 — CI test (`tests/tenant-isolation.test.ts`)
 

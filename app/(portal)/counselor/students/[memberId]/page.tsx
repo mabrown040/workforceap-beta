@@ -10,6 +10,8 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
@@ -156,10 +158,25 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   // Program progress — real data from enrolled program courses
   const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const programCourses = programMeta?.courses ?? [];
+  const courseraProgramId =
+    member.enrolledProgram != null
+      ? DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram]?.courseraProgramId
+      : undefined;
+  const b4bProgress =
+    member.email?.trim() && member.enrolledProgram
+      ? await fetchLearnerProgressFromB4B(member.email, {
+          programId: courseraProgramId,
+        }).catch((err: unknown) => {
+          console.warn('[counselor/students] B4B learner progress unavailable:', err);
+          return new Map();
+        })
+      : new Map();
+
   const trainingView = member.enrolledProgram
     ? await loadMemberProgramTrainingView({
         userId: member.id,
         programSlug: member.enrolledProgram,
+        b4bProgress,
       })
     : null;
   const completedSlugs = new Set(trainingView?.completedSlugsAuthoritative ?? []);

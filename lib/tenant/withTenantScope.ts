@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { makeScopedProxy, TenantScopeViolation, TENANT_SCOPED_MODELS } from './scopeProxy';
 
 /**
@@ -61,6 +62,20 @@ export async function withTenantScope<T>(
   }
   const scoped = makeScopedProxy(orgId, prisma) as unknown as ScopedClient;
   return fn(scoped);
+}
+
+/**
+ * Resolves the signed-in user's home organization and runs `fn` with a
+ * tenant-scoped client for that org. Prefer this in authenticated routes
+ * so reads/writes cannot accidentally use `getDefaultOrganizationId()` and
+ * leak another tenant after multi-org goes live.
+ */
+export async function withActorTenantScope<T>(
+  actorUserId: string,
+  fn: (db: ScopedClient) => Promise<T>,
+): Promise<T> {
+  const orgId = await getActorOrganizationId(actorUserId);
+  return withTenantScope(orgId, fn);
 }
 
 /**
@@ -134,6 +149,28 @@ export async function assertSameTenant(
       String(row.organizationId),
     );
   }
+}
+
+// ─── FK-scoped where helpers (models without direct organizationId) ───
+
+/** Build a where clause for models scoped through `User.organizationId`. */
+export function memberInOrg(orgId: string) {
+  return { user: { organizationId: orgId } };
+}
+
+/** Build a where clause for `Counselor` (scoped through `user`). */
+export function counselorInOrg(orgId: string) {
+  return { user: { organizationId: orgId } };
+}
+
+/** Build a where clause for `Invitation` (scoped through `invitedBy`). */
+export function invitationInOrg(orgId: string) {
+  return { invitedBy: { organizationId: orgId } };
+}
+
+/** Build a where clause for `Subgroup` (scoped through `leader`). */
+export function subgroupInOrg(orgId: string) {
+  return { leader: { organizationId: orgId } };
 }
 
 // Re-exports for convenience.

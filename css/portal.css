@@ -3095,6 +3095,29 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
     pointer-events: none;
     background: linear-gradient(to right, transparent, var(--surface, #fff));
   }
+
+  /* Icon-only strip while scrolling — frees vertical space (dashboard / messages / counselor AI route) */
+  html.wap-portal-chrome-compact .member-portal-top-nav__list {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    gap: 0.2rem;
+  }
+  html.wap-portal-chrome-compact .member-portal-top-nav__link {
+    gap: 0;
+    padding: 0.5rem 0.62rem;
+    min-height: 44px;
+  }
+  html.wap-portal-chrome-compact .member-portal-top-nav__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 }
 
 /* Dark mode */

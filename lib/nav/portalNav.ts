@@ -113,7 +113,6 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     tab: 'program',
     Icon: GitBranch,
   },
-  { href: '/dashboard/training', label: 'My Training', group: 'primary', tab: 'program', Icon: GraduationCap },
   { href: '/dashboard/certifications', label: 'My Certificates', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
   { href: '/dashboard/career-brief', label: 'My Career Plan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE

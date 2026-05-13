@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
 import type { Prisma } from '@prisma/client';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 /** List members for admin (e.g. subgroup add-member search). Supports ?q= for search, ?limit= for max results. */
 export async function GET(request: NextRequest) {
@@ -31,12 +32,15 @@ export async function GET(request: NextRequest) {
     ];
   }
 
-  const members = await prisma.user.findMany({
-    where,
-    select: { id: true, fullName: true, email: true },
-    orderBy: { fullName: 'asc' },
-    take: limit,
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const members = await withTenantScope(orgId, (db) =>
+    db.user.findMany({
+      where,
+      select: { id: true, fullName: true, email: true },
+      orderBy: { fullName: 'asc' },
+      take: limit,
+    }),
+  );
 
   return NextResponse.json(members);
 }

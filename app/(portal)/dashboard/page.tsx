@@ -161,8 +161,8 @@ async function renderMemberDashboard(
 
   // Single source of truth for member state (application, training, profile, checklist, next actions).
   // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`
-  // reflects Coursera's authoritative average when every catalog course has
-  // a B4B row (all-or-nothing — see averageProgramProgressFromB4B).
+  // prefers Coursera B4B enrollmentReports per course when available (fallback:
+  // local CourseProgress / xAPI-fed rows).
   const memberState = await getMemberState(user.id, {
     b4bProgress,
     activeProgramSlug: enrolledProgramSlug,
@@ -516,14 +516,7 @@ async function renderMemberDashboard(
     console.error('[dashboard] canBypassMemberAssessment failed', e);
   }
 
-  /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
-  const mobilePct = progressPercentDisplay;
-  const mobileProgressTone = allCoursesComplete ? t('progressCompleted') : completedCount > 0 ? t('progressInProgress') : t('progressGettingStarted');
-  const mobileProgressSummary = totalCourses > 0
-    ? t('coursesComplete', { completed: completedCount, total: totalCourses, plural: totalCourses === 1 ? '' : 's' })
-    : t('coursesWillAppear');
-  const orbCircumference = 251.2;
-  const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
+  /* Mobile hero uses a My Training hub link (states C/D) — training home is now /dashboard */
 
   const AI_TOOL_LABELS: Record<string, string> = {
     job_match_scorer: t('seeHowYouMatch'),
@@ -690,61 +683,59 @@ async function renderMemberDashboard(
                 )}
               </div>
 
-              {/* Progress ring — only shown once training has actually started (state C/D); 0% next to "Getting started" reads as failure */}
-              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', flexShrink: 0, width: '7rem' }}>
+              {/* Training hub CTA — course-level % and Coursera live on My Training */}
+              {(dashboardState === 'C' || dashboardState === 'D') && (
                 <div
-                  className="portal-progress-ring"
                   style={{
-                    position: 'relative',
-                    width: '6rem',
-                    height: '6rem',
                     flexShrink: 0,
-                    margin: '0 auto',
-                    borderRadius: '999px',
-                    background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
-                    boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
+                    width: '7.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'stretch',
+                    gap: '0.5rem',
                   }}
                 >
-                  <svg style={{ width: '100%', height: '100%', display: 'block', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
-                    <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
-                    <circle
-                      cx="48" cy="48" r="40" fill="transparent"
-                      stroke="var(--color-accent)" strokeWidth="7"
-                      strokeDasharray={orbCircumference}
-                      strokeDashoffset={orbDashoffset}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
-                    <span className="wa-text-xl wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
-                    <span className="wa-text-[11px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
-                      {mobileProgressTone}
+                  <Link
+                    href="/dashboard"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.35rem',
+                      padding: '0.65rem 0.5rem',
+                      borderRadius: '1rem',
+                      background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 12%, white) 0%, white 100%)',
+                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, white)',
+                      boxShadow: '0 10px 28px color-mix(in srgb, var(--color-accent) 12%, transparent)',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                      school
                     </span>
-                  </div>
+                    <span className="wa-text-[11px] wa-font-extrabold wa-uppercase wa-tracking-[0.08em] wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1.2 }}>
+                      {t('myTrainingMetricLabel')}
+                    </span>
+                    <span className="wa-text-[10px] wa-font-semibold wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1.3 }}>
+                      {t('myTrainingMetricValue')}
+                    </span>
+                  </Link>
+                  {nextIncompleteCourse ? (
+                    <p style={{ margin: 0, fontSize: '0.65rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+                      {t('myTrainingHubNextUp', { course: nextIncompleteCourse.name })}
+                    </p>
+                  ) : null}
                 </div>
-                <div
-                  style={{
-                    padding: '0.38rem 0.72rem',
-                    borderRadius: '999px',
-                    background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, white)',
-                  }}
-                >
-                  <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
-                    {t('trainingProgress')}
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
-                  {mobileProgressSummary}
-                </p>
-              </div>}
+              )}
             </div>
 
             {(dashboardState === 'C' || dashboardState === 'D') && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                {t('trainingProgressBlends')}
+                {t('dashboardCourseProgressOnTraining')}
               </p>
             </div>
             )}
@@ -957,7 +948,7 @@ async function renderMemberDashboard(
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
                 {t('nextMilestones')}
               </h3>
-              <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
+              <a href="/dashboard" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
                 {t('trainingLink')}
               </a>
             </div>
@@ -967,7 +958,7 @@ async function renderMemberDashboard(
                   eyebrow: program?.title ?? t('yourProgram'),
                   title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : t('continueTraining'),
                   desc: nextIncompleteCourse?.name ? t('pickUpWhereLeftOff') : t('openTrainingTrack'),
-                  href: '/dashboard/training',
+                  href: '/dashboard',
                   icon: 'school',
                 },
                 {
@@ -1024,8 +1015,8 @@ async function renderMemberDashboard(
           </div>
           <div className="portal-quick-grid-2x2">
             {([
+              { icon: 'school', label: t('myTrainingMetricLabel'), href: '/dashboard' },
               { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'support_agent', label: t('myProgress'), href: '/dashboard/readiness' },
               { icon: 'forum', label: t('interviewPrep'), href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: t('aiTools'), href: '/dashboard/ai-tools' },
             ] as const).map((action) => (

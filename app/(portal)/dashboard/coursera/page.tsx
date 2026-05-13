@@ -16,6 +16,6 @@ export default async function CourseraIntegrationPage({
           .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
       ).toString()
     : '';
-  if (!user) redirect('/login?redirectTo=/dashboard/training' + queryString.replace(/^\?/, '&'));
-  redirect('/dashboard/training' + queryString);
+  if (!user) redirect('/login?redirectTo=/dashboard' + queryString.replace(/^\?/, '&'));
+  redirect('/dashboard' + queryString);
 }

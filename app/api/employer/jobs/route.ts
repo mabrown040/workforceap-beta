@@ -8,6 +8,7 @@ import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { trackEvent } from '@/lib/events/track';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 const jobCreateSchema = z.object({
   title: z.string().min(1).max(200),
@@ -53,13 +54,23 @@ export async function GET(request: NextRequest) {
       break;
   }
 
-  const jobs = await prisma.job.findMany({
-    where,
-    orderBy: { updatedAt: 'desc' },
-    include: {
-      applications: { select: { id: true } },
-    },
+  const employerScope = await prisma.employer.findUnique({
+    where: { id: ctx.employerId },
+    select: { organizationId: true },
   });
+  if (!employerScope) {
+    return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
+  }
+
+  const jobs = await withTenantScope(employerScope.organizationId, (db) =>
+    db.job.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      include: {
+        applications: { select: { id: true } },
+      },
+    }),
+  );
 
   const items = jobs.map(({ applications, ...job }) => ({
     ...job,
@@ -83,7 +94,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
     }
 
-    const employer = await prisma.employer.findUnique({
+  const employer = await prisma.employer.findUnique({
       where: { id: ctx.employerId },
       select: { companyName: true, contactEmail: true, organizationId: true },
     });

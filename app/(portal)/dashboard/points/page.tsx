@@ -65,7 +65,7 @@ const EARN_ACTIONS: Array<{
   },
   {
     event: 'course_completed',
-    href: '/dashboard/training',
+    href: '/dashboard',
     blurb: 'Mark a course complete in your training plan.',
   },
   {
@@ -85,7 +85,7 @@ const EARN_ACTIONS: Array<{
   },
   {
     event: 'pathway_step_completed',
-    href: '/dashboard/training',
+    href: '/dashboard',
     blurb: 'Finish a learning step inside your pathway.',
   },
 ];

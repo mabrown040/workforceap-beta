@@ -67,7 +67,7 @@ export default function LearningCivicBotPanel() {
       </div>
       <div style={{ padding: '0 var(--space-4) var(--space-4)', display: 'flex', gap: 'var(--space-2)' }}>
         <Link
-          href="/dashboard/training"
+          href="/dashboard"
           style={{
             flex: 1,
             background: 'var(--color-accent)',

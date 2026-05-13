@@ -1,6 +1,7 @@
 import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { CAREER_OS_WORKFLOW } from '@/lib/workflows/careerOS';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 function logMetricsReason(label: string, reason: unknown) {
   const msg = reason instanceof Error ? reason.message : String(reason);
@@ -15,34 +16,33 @@ const EVENT_ONLY_AI_TOOLS = [
   'partner_voice_session',
 ] as const;
 
-async function countEventOnlyAiRunsBetween(start: Date, end: Date): Promise<number> {
+/** FK-scoped models: always pair tenant id with `user: { organizationId }`. */
+function memberInOrg(orgId: string) {
+  return { user: { organizationId: orgId } };
+}
+
+async function countEventOnlyAiRunsBetween(orgId: string, start: Date, end: Date): Promise<number> {
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
     SELECT COUNT(*)::bigint AS count
-    FROM "member_events"
-    WHERE "created_at" >= ${start}
-      AND "created_at" <= ${end}
-      AND "event_name" = 'ai_tool_run_started'
-      AND "entity_type" = 'ai_tool'
-      AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(EVENT_ONLY_AI_TOOLS)})
+    FROM "member_events" me
+    INNER JOIN "users" u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+    WHERE me.created_at >= ${start}
+      AND me.created_at <= ${end}
+      AND me.event_name = 'ai_tool_run_started'
+      AND me.entity_type = 'ai_tool'
+      AND COALESCE(me.metadata->>'tool', '') IN (${Prisma.join(EVENT_ONLY_AI_TOOLS)})
   `;
 
   const count = rows[0]?.count ?? 0;
   return typeof count === 'bigint' ? Number(count) : count;
 }
 
-async function countAiToolRunsBetween(start: Date, end: Date): Promise<number> {
-  // The earlier `toolType: { notIn: EVENT_ONLY_AI_TOOLS }` filter passed
-  // strings that aren't valid AIToolType enum members to the Postgres
-  // enum column — `invalid input value for enum AIToolType` at runtime,
-  // which rejected this entire function and cascaded up to make
-  // /admin/metrics charts render empty even when data existed. The
-  // filter was also unnecessary: EVENT_ONLY_AI_TOOLS are voice sessions
-  // tracked via member_events (entity_type='ai_tool'), they are never
-  // stored in ai_tool_results.toolType. So count all ai_tool_results
-  // in the window and add the event-only voice counts on top.
+async function countAiToolRunsBetween(orgId: string, start: Date, end: Date): Promise<number> {
   const [savedResults, eventOnlyRuns] = await Promise.all([
-    prisma.aIToolResult.count({ where: { createdAt: { gte: start, lte: end } } }),
-    countEventOnlyAiRunsBetween(start, end),
+    prisma.aIToolResult.count({
+      where: { createdAt: { gte: start, lte: end }, user: { organizationId: orgId } },
+    }),
+    countEventOnlyAiRunsBetween(orgId, start, end),
   ]);
 
   return savedResults + eventOnlyRuns;
@@ -54,31 +54,41 @@ type AiToolBreakdownItem = {
   count: number;
 };
 
-async function countSingleEventOnlyTool(tool: string, start: Date, end: Date): Promise<number> {
+async function countSingleEventOnlyTool(
+  orgId: string,
+  tool: string,
+  start: Date,
+  end: Date,
+): Promise<number> {
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
     SELECT COUNT(*)::bigint AS count
-    FROM "member_events"
-    WHERE "created_at" >= ${start}
-      AND "created_at" <= ${end}
-      AND "event_name" = 'ai_tool_run_started'
-      AND "entity_type" = 'ai_tool'
-      AND COALESCE(metadata->>'tool', '') = ${tool}
+    FROM "member_events" me
+    INNER JOIN "users" u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+    WHERE me.created_at >= ${start}
+      AND me.created_at <= ${end}
+      AND me.event_name = 'ai_tool_run_started'
+      AND me.entity_type = 'ai_tool'
+      AND COALESCE(me.metadata->>'tool', '') = ${tool}
   `;
   const count = rows[0]?.count ?? 0;
   return typeof count === 'bigint' ? Number(count) : count;
 }
 
-async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBreakdownItem[]> {
+async function getAiToolUsageBreakdown(
+  orgId: string,
+  start: Date,
+  end: Date,
+): Promise<AiToolBreakdownItem[]> {
   const [savedBreakdown, voiceCounts] = await Promise.all([
     prisma.aIToolResult.groupBy({
       by: ['toolType'],
-      where: { createdAt: { gte: start, lte: end } },
+      where: { createdAt: { gte: start, lte: end }, user: { organizationId: orgId } },
       _count: { id: true },
     }),
     Promise.all(
       EVENT_ONLY_AI_TOOLS.map(async (tool) => ({
         toolType: tool as typeof EVENT_ONLY_AI_TOOLS[number],
-        count: await countSingleEventOnlyTool(tool, start, end),
+        count: await countSingleEventOnlyTool(orgId, tool, start, end),
       }))
     ),
   ]);
@@ -88,7 +98,6 @@ async function getAiToolUsageBreakdown(start: Date, end: Date): Promise<AiToolBr
     count: r._count.id,
   }));
 
-  // Add each event-only voice tool as its own entry for granular reporting
   for (const voice of voiceCounts) {
     if (voice.count > 0) {
       breakdown.push(voice);
@@ -110,7 +119,10 @@ function isEventOnlyAiToolMetadata(metadata: unknown): boolean {
 }
 
 /** Generate daily activity for the last N days (batched fetches + in-memory bucketing) */
-async function getDailyActivity(days: number): Promise<{ date: string; events: number; aiTools: number; applications: number }[]> {
+async function getDailyActivity(
+  orgId: string,
+  days: number,
+): Promise<{ date: string; events: number; aiTools: number; applications: number }[]> {
   const now = new Date();
   const ranges = Array.from({ length: days }, (_, i) => {
     const start = new Date(now);
@@ -129,6 +141,7 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
   const rangeStart = ranges[0].start;
   const rangeEnd = ranges[ranges.length - 1].end;
   const dayKeySet = new Set(ranges.map((r) => r.dayKey));
+  const userScope = memberInOrg(orgId);
 
   const initSeries = () => {
     const m = new Map<string, number>();
@@ -142,14 +155,13 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
     series.set(key, (series.get(key) ?? 0) + 1);
   };
 
-  // One round-trip: events, AI saved rows, AI event-only rows, applications — replaces 14×3 per-day counts (~42 queries for 14 days).
   const [eventsR, aiSavedR, aiEventsR, applicationsR] = await Promise.allSettled([
     prisma.memberEvent.findMany({
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd } },
+      where: { createdAt: { gte: rangeStart, lte: rangeEnd }, ...userScope },
       select: { createdAt: true },
     }),
     prisma.aIToolResult.findMany({
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd } },
+      where: { createdAt: { gte: rangeStart, lte: rangeEnd }, ...userScope },
       select: { createdAt: true },
     }),
     prisma.memberEvent.findMany({
@@ -157,11 +169,16 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
         createdAt: { gte: rangeStart, lte: rangeEnd },
         eventName: 'ai_tool_run_started',
         entityType: 'ai_tool',
+        ...userScope,
       },
       select: { createdAt: true, metadata: true },
     }),
     prisma.jobApplication.findMany({
-      where: { createdAt: { gte: rangeStart, lte: rangeEnd }, status: { not: 'SAVED' } },
+      where: {
+        createdAt: { gte: rangeStart, lte: rangeEnd },
+        status: { not: 'SAVED' },
+        ...userScope,
+      },
       select: { createdAt: true },
     }),
   ]);
@@ -207,57 +224,70 @@ async function getDailyActivity(days: number): Promise<{ date: string; events: n
 }
 
 /** Get program enrollment breakdown */
-async function getEnrollmentByProgram(): Promise<{ program: string; count: number }[]> {
-  const rows = await prisma.user.groupBy({
-    by: ['enrolledProgram'],
-    where: { enrolledProgram: { not: null }, deletedAt: null },
-    _count: { id: true },
-    orderBy: { _count: { id: 'desc' } },
-    take: 8,
-  });
-  return rows.map(r => ({ program: r.enrolledProgram ?? 'Unknown', count: r._count.id }));
+async function getEnrollmentByProgram(orgId: string): Promise<{ program: string; count: number }[]> {
+  const rows = await withTenantScope(orgId, (db) =>
+    db.user.groupBy({
+      by: ['enrolledProgram'],
+      where: { enrolledProgram: { not: null }, deletedAt: null },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 8,
+    }),
+  );
+  return rows.map((r) => ({ program: r.enrolledProgram ?? 'Unknown', count: r._count.id }));
 }
 
 /** Career OS funnel: completion events received → actions created → real action completion */
-async function getCareerOsMetrics() {
-  const [completionEventsReceived, actionsCreated, actionsCompletedRows, actionsDismissedRows, actionsPendingRows] = await Promise.all([
-    prisma.workflowDiagnostic.count({
-      where: { workflow: CAREER_OS_WORKFLOW, status: 'started' },
-    }),
-    prisma.memberEvent.count({
-      where: {
-        eventName: 'career_os.learning_completion_processed',
-        entityType: 'MemberNextBestAction',
-      },
-    }),
-    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+async function getCareerOsMetrics(orgId: string) {
+  const userScope = memberInOrg(orgId);
+  const [completionEventsReceived, actionsCreated, actionsCompletedRows, actionsDismissedRows, actionsPendingRows] =
+    await Promise.all([
+      prisma.workflowDiagnostic.count({
+        where: {
+          workflow: CAREER_OS_WORKFLOW,
+          status: 'started',
+          actorUserId: { not: null },
+          actor: { organizationId: orgId },
+        },
+      }),
+      prisma.memberEvent.count({
+        where: {
+          eventName: 'career_os.learning_completion_processed',
+          entityType: 'MemberNextBestAction',
+          ...userScope,
+        },
+      }),
+      prisma.$queryRaw<Array<{ count: bigint | number }>>`
       SELECT COUNT(DISTINCT nba.id)::bigint AS count
       FROM member_next_best_actions nba
+      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}::uuid
       INNER JOIN member_events source_event
         ON source_event.entity_id = nba.id
       WHERE nba.status = 'COMPLETED'
         AND source_event.event_name = 'career_os.learning_completion_processed'
         AND source_event.entity_type = 'MemberNextBestAction'
     `,
-    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      prisma.$queryRaw<Array<{ count: bigint | number }>>`
       SELECT COUNT(DISTINCT nba.id)::bigint AS count
       FROM member_next_best_actions nba
+      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}::uuid
       INNER JOIN member_events source_event
         ON source_event.entity_id = nba.id
       WHERE nba.status = 'DISMISSED'
         AND source_event.event_name = 'career_os.learning_completion_processed'
         AND source_event.entity_type = 'MemberNextBestAction'
     `,
-    prisma.$queryRaw<Array<{ count: bigint | number }>>`
+      prisma.$queryRaw<Array<{ count: bigint | number }>>`
       SELECT COUNT(DISTINCT nba.id)::bigint AS count
       FROM member_next_best_actions nba
+      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}::uuid
       INNER JOIN member_events source_event
         ON source_event.entity_id = nba.id
       WHERE nba.status = 'PENDING'
         AND source_event.event_name = 'career_os.learning_completion_processed'
         AND source_event.entity_type = 'MemberNextBestAction'
     `,
-  ]);
+    ]);
 
   const completedCount = actionsCompletedRows[0]?.count ?? 0;
   const dismissedCount = actionsDismissedRows[0]?.count ?? 0;
@@ -280,17 +310,22 @@ async function getCareerOsMetrics() {
 }
 
 /** Get placement rate: members with a placement record / total enrolled */
-async function getPlacementStats() {
+async function getPlacementStats(orgId: string) {
+  const baseMember = { deletedAt: null as const };
   const [enrolled, placed, certifications] = await Promise.all([
-    prisma.user.count({ where: { enrolledProgram: { not: null }, deletedAt: null } }),
-    prisma.placementRecord.count(),
-    prisma.userCertification.count(),
+    withTenantScope(orgId, (db) =>
+      db.user.count({
+        where: { ...baseMember, enrolledProgram: { not: null } },
+      }),
+    ),
+    prisma.placementRecord.count({ where: { user: { organizationId: orgId } } }),
+    prisma.userCertification.count({ where: { user: { organizationId: orgId } } }),
   ]);
   return { enrolled, placed, certifications, placementRate: enrolled > 0 ? Math.round((placed / enrolled) * 100) : 0 };
 }
 
 /** Get AI tool usage stats with trending */
-async function getAiToolStats(days: number) {
+async function getAiToolStats(orgId: string, days: number) {
   const now = new Date();
   const periodStart = new Date(now);
   periodStart.setDate(now.getDate() - days);
@@ -300,10 +335,10 @@ async function getAiToolStats(days: number) {
   prevPeriodStart.setDate(prevPeriodStart.getDate() - days);
 
   const [currentPeriodRuns, prevPeriodRuns, totalRuns, breakdown] = await Promise.all([
-    countAiToolRunsBetween(periodStart, now),
-    countAiToolRunsBetween(prevPeriodStart, periodStart),
-    countAiToolRunsBetween(new Date(0), now),
-    getAiToolUsageBreakdown(periodStart, now),
+    countAiToolRunsBetween(orgId, periodStart, now),
+    countAiToolRunsBetween(orgId, prevPeriodStart, periodStart),
+    countAiToolRunsBetween(orgId, new Date(0), now),
+    getAiToolUsageBreakdown(orgId, periodStart, now),
   ]);
 
   const trend = prevPeriodRuns > 0
@@ -318,11 +353,13 @@ async function getAiToolStats(days: number) {
   };
 }
 
-export async function getAdminMetrics() {
+export async function getAdminMetrics(orgId: string) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const fourteenDaysAgo = new Date();
   fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+  const userScope = memberInOrg(orgId);
 
   const [
     totalMembersResult,
@@ -334,22 +371,22 @@ export async function getAdminMetrics() {
     pathwayStartsResult,
     aiToolStatsResult,
   ] = await Promise.allSettled([
-    prisma.user.count({ where: { deletedAt: null } }),
+    withTenantScope(orgId, (db) => db.user.count({ where: { deletedAt: null } })),
     prisma.memberEvent.findMany({
-      where: { createdAt: { gte: sevenDaysAgo } },
+      where: { createdAt: { gte: sevenDaysAgo }, ...userScope },
       select: { userId: true },
       distinct: ['userId'],
     }),
     prisma.memberEvent.findMany({
-      where: { createdAt: { gte: fourteenDaysAgo } },
+      where: { createdAt: { gte: fourteenDaysAgo }, ...userScope },
       select: { userId: true },
       distinct: ['userId'],
     }),
-    prisma.goal.count({ where: { status: 'ACTIVE' } }),
-    prisma.jobApplication.count({ where: { status: { not: 'SAVED' } } }),
-    prisma.resourceProgress.count({ where: { completedAt: { not: null } } }),
-    prisma.learningProgress.count(),
-    getAiToolStats(7),
+    prisma.goal.count({ where: { status: 'ACTIVE', ...userScope } }),
+    prisma.jobApplication.count({ where: { status: { not: 'SAVED' }, ...userScope } }),
+    prisma.resourceProgress.count({ where: { completedAt: { not: null }, ...userScope } }),
+    prisma.learningProgress.count({ where: userScope }),
+    getAiToolStats(orgId, 7),
   ]);
 
   if (totalMembersResult.status === 'rejected') logMetricsReason('totalMembers', totalMembersResult.reason);
@@ -374,7 +411,7 @@ export async function getAdminMetrics() {
 
   const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
 
-  const allUsersResult = await prisma.user.findMany({ select: { id: true } })
+  const allUsersResult = await withTenantScope(orgId, (db) => db.user.findMany({ select: { id: true } }))
     .then((value) => ({ status: 'fulfilled' as const, value }))
     .catch((reason) => ({ status: 'rejected' as const, reason }));
 
@@ -386,13 +423,13 @@ export async function getAdminMetrics() {
     ? allUsersResult.value.filter((u) => !active14dSet.has(u.id)).map((u) => u.id)
     : [];
 
-  // Parallel fetch for charts + Career OS funnel
-  const [dailyActivityResult, enrollmentByProgramResult, placementStatsResult, careerOsMetricsResult] = await Promise.allSettled([
-    getDailyActivity(14),
-    getEnrollmentByProgram(),
-    getPlacementStats(),
-    getCareerOsMetrics(),
-  ]);
+  const [dailyActivityResult, enrollmentByProgramResult, placementStatsResult, careerOsMetricsResult] =
+    await Promise.allSettled([
+      getDailyActivity(orgId, 14),
+      getEnrollmentByProgram(orgId),
+      getPlacementStats(orgId),
+      getCareerOsMetrics(orgId),
+    ]);
 
   if (dailyActivityResult.status === 'rejected') logMetricsReason('dailyActivity', dailyActivityResult.reason);
   if (enrollmentByProgramResult.status === 'rejected') logMetricsReason('enrollmentByProgram', enrollmentByProgramResult.reason);

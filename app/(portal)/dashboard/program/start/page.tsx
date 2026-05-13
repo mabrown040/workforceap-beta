@@ -37,8 +37,7 @@ export default async function ProgramStartPage() {
 
   const program = getProgramBySlug(enrolledSlug);
   // Multi-program: this page shows the user's primary enrollment workspace
-  // info. /dashboard/training is the multi-tab surface for switching
-  // between primary/secondary programs.
+  // info. /dashboard is the unified training home with program switching.
   const enrollment = await prisma.courseEnrollment.findFirst({
     where: { userId: user.id, isPrimary: true },
     select: {
@@ -84,7 +83,7 @@ export default async function ProgramStartPage() {
               <p style={{ fontWeight: 700, color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>You are on file for training access</p>
               <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                 Your enrollment is connected. Continue in{' '}
-                <Link href="/dashboard/training" className="wa-text-[var(--color-accent-dark)] wa-font-semibold">
+                <Link href="/dashboard" className="wa-text-[var(--color-accent-dark)] wa-font-semibold">
                   My Classes
                 </Link>{' '}
                 or{' '}
@@ -165,7 +164,7 @@ export default async function ProgramStartPage() {
             <Link href="/dashboard/program" className="btn btn-primary">
               Back to My Program
             </Link>
-            <Link href="/dashboard/training" className="btn btn-outline">
+            <Link href="/dashboard" className="btn btn-outline">
               Open My Classes
             </Link>
           </div>

@@ -4,11 +4,7 @@ import { CourseProgressStatus } from '@prisma/client';
 
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { getProgramBySlug } from '@/lib/content/programs';
-import {
-  averageProgramProgressFromB4B,
-  filterRecognizedCourseraCourseIds,
-  type LearnerProgressByContent,
-} from '@/lib/coursera/learnerProgress';
+import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
 import { scoreScaledToDisplayPercent } from '@/lib/coursera/courseGradeDisplay';
 import { prisma } from '@/lib/db/prisma';
 import { loadProgramCourses } from '@/lib/member/loadProgramCourses';
@@ -19,7 +15,7 @@ export const STALE_TRAINING_ACTIVITY_DAYS = 14;
 export type MemberProgramTrainingView = {
   completedCount: number;
   totalCourses: number;
-  /** Blended 0–100: prefers `MemberProgramProgress.averagePercent`, else mean of per-course %, else completion ratio. */
+  /** Blended 0–100: mean of per-course % — prefers B4B `overallProgress` when present, else local/xAPI `CourseProgress`. */
   progressPercentDisplay: number;
   allCoursesComplete: boolean;
   nextIncompleteCourseSlug: string | null;
@@ -37,17 +33,14 @@ export type MemberProgramTrainingView = {
 };
 
 /**
- * Single source of truth for member training counts and activity timestamps.
- * Course rows from xAPI / manual completion are the canonical source.
+ * Single source of truth for member-facing training counts, overall %, and activity timestamps.
  *
- * `b4bProgress` is an optional enrichment from Coursera For Business
- * (`fetchLearnerProgressFromB4B`). When supplied AND every catalog course
- * has a Coursera courseId AND every courseId appears in the B4B map, we
- * use the average B4B `overallProgress` as the program % — Coursera is
- * the authoritative source. We fall back to the local rollup whenever
- * B4B data is incomplete to avoid mixing fresh and stale numbers in the
- * same average. Course-level completion still comes from local rows so
- * existing "Mark complete" + xAPI behavior is unchanged.
+ * Coursera B4B `enrollmentReports` (`overallProgress`, `isCompleted`) is the primary
+ * signal for completion percentage when `b4bProgress` includes a row for that course.
+ * Local `CourseProgress` (fed by xAPI sync, webhooks, CSV, manual actions) supplies
+ * fallback % when B4B has no row, plus grades (`score_scaled`). xAPI remains the audit /
+ * event stream; this helper intentionally prefers B4B for member-visible % so the portal
+ * matches what Coursera shows inside the enterprise shell.
  */
 export async function loadMemberProgramTrainingView(args: {
   userId: string;
@@ -148,17 +141,19 @@ export async function loadMemberProgramTrainingView(args: {
     const b4bEntry =
       args.b4bProgress && courseraId ? args.b4bProgress.get(courseraId) : undefined;
 
-    // Local row wins for completion when present (xAPI / "Mark complete"
-    // are the system of record). B4B is the fallback for users who haven't
-    // been synced yet — first dashboard hit, no local rows, but Coursera
-    // reports progress.
-    const complete =
-      row?.status === CourseProgressStatus.COMPLETED ||
-      (row == null && b4bEntry?.isCompleted === true);
+    const locallyCompleted = row?.status === CourseProgressStatus.COMPLETED;
+    const b4bCompleted = b4bEntry?.isCompleted === true;
+    const complete = locallyCompleted || b4bCompleted;
 
     const localPct = row?.percentComplete ?? 0;
-    const b4bPct = b4bEntry?.overallProgress ?? 0;
-    const pct = Math.max(localPct, row == null ? b4bPct : 0);
+    let pct: number;
+    if (locallyCompleted || b4bCompleted) {
+      pct = 100;
+    } else if (b4bEntry != null) {
+      pct = b4bEntry.overallProgress;
+    } else {
+      pct = localPct;
+    }
     sumPercentForAverage += Math.max(0, Math.min(100, pct));
 
     const gradePct = scoreScaledToDisplayPercent(row?.scoreScaled ?? undefined);
@@ -171,8 +166,7 @@ export async function loadMemberProgramTrainingView(args: {
       complete ||
       row?.status === CourseProgressStatus.IN_PROGRESS ||
       localPct > 0 ||
-      // B4B started signal only counts when no local row exists yet.
-      (row == null && b4bPct > 0);
+      (b4bEntry != null && (b4bEntry.overallProgress > 0 || b4bEntry.isCompleted));
 
     if (started) hasStartedTraining = true;
     if (complete) {
@@ -192,48 +186,22 @@ export async function loadMemberProgramTrainingView(args: {
 
   let progressPercentDisplay = 0;
   if (totalCourses > 0) {
-    // Authoritative B4B average wins when present and complete (every
-    // course in the catalog has a Coursera id AND a row in the B4B
-    // response). See loadMemberProgramTrainingView jsdoc for the
-    // all-or-nothing rationale.
-    const b4bAverage = args.b4bProgress
-      ? averageProgramProgressFromB4B({
-          progress: args.b4bProgress,
-          courseraCourseIds: filterRecognizedCourseraCourseIds(
-            (DISCOVERED_COURSERA_PROGRAMS[args.programSlug]?.courses ?? []).map((c) => c.courseId),
-          ),
-        })
-      : null;
+    const rawMean = sumPercentForAverage / totalCourses;
+    let rounded = Math.round(rawMean);
+    progressPercentDisplay =
+      rounded === 0 && sumPercentForAverage > 0 ? 1 : Math.max(0, Math.min(100, rounded));
 
-    if (b4bAverage != null) {
-      // Same 1% floor as the rows-derived branch: a learner with 0.4%
-      // raw average rounds to 0, but the dashboard then displays "0%
-      // overall" while a course card shows "6%" on the same screen.
-      // Floor at 1% when there's any real progress so the two never
-      // disagree visually.
-      const clamped = Math.max(0, Math.min(100, b4bAverage));
-      progressPercentDisplay = clamped > 0 && clamped < 1 ? 1 : clamped;
-    } else if (rows.length > 0) {
-      // CourseProgress rows are the source of truth — `MemberProgramProgress`
-      // is a denormalized cache that periodically goes stale (the writer in
-      // `refreshMemberProgramProgressRollup` divides by the discovered-catalog
-      // course count, which can disagree with `program.courses.length` here
-      // and produce a 0 even when underlying rows show 6%). When we have
-      // rows, compute from them directly and treat the rollup as a fallback
-      // for the rare case where the writer ran but rows haven't synced into
-      // this read transaction yet.
-      //
-      // Floor at 1% when the learner has any real progress so a member with
-      // 6% on 1 of 16 courses (raw avg = 0.375%, round = 0%) doesn't see
-      // "0% Overall" while their course card simultaneously shows 6%. Capped
-      // at 100; only kicks in when sumPercentForAverage > 0.
-      const raw = sumPercentForAverage / totalCourses;
-      const rounded = Math.round(raw);
-      progressPercentDisplay =
-        rounded === 0 && sumPercentForAverage > 0 ? 1 : Math.max(0, Math.min(100, rounded));
-    } else if (rollup != null) {
+    const noLocalRows = rows.length === 0;
+    const noB4b = !args.b4bProgress || args.b4bProgress.size === 0;
+    if (
+      progressPercentDisplay === 0 &&
+      noLocalRows &&
+      noB4b &&
+      rollup != null &&
+      rollup.averagePercent > 0
+    ) {
       progressPercentDisplay = Math.max(0, Math.min(100, rollup.averagePercent));
-    } else {
+    } else if (progressPercentDisplay === 0 && completedCount > 0) {
       progressPercentDisplay = Math.round((completedCount / totalCourses) * 100);
     }
   }

@@ -6,6 +6,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import PlacementSurveysWhatsThis from '@/components/admin/PlacementSurveysWhatsThis';
 import { ClipboardCheck, Star, Users, MessageSquare, TrendingUp, Clock } from 'lucide-react';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -89,6 +90,8 @@ export default async function PlacementSurveysPage() {
   return (
     <PortalPageFrame>
       <PageHeader title="Placement Surveys" subtitle="Post-placement member feedback and outcomes" />
+
+      <PlacementSurveysWhatsThis />
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">

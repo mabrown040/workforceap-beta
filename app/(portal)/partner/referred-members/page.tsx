@@ -30,7 +30,7 @@ export default async function PartnerReferredMembersPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId);
   const rows = toPartnerMembersListRows(pipelineMembers);
 
   return (

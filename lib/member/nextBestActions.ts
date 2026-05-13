@@ -119,7 +119,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       id: 'continue_training',
       title: `Continue training: ${ctx.nextIncompleteCourseName}`,
       body: 'Open My Training for Coursera links, xAPI sync status, and your course checklist.',
-      href: '/dashboard/training',
+      href: '/dashboard',
       cta: 'Open My Training',
       variant: 'urgent',
       weight: 86,

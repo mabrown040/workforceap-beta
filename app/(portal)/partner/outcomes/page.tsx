@@ -26,7 +26,10 @@ export default async function PartnerOutcomesPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(
+    ctx.partnerId,
+    ctx.partner.organizationId,
+  );
 
   const placements = members.filter((m) => m.placementRecord).length;
   const pendingPlacementCount = pendingPlacements.length;

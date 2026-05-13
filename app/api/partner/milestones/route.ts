@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-  const { members } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { members } = await loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId);
 
   type MilestoneRow = {
     id: string;

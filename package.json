@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "check": "npm run typecheck && npm run lint",
+    "check:tenant-routes": "node scripts/verify-high-risk-tenant-routes.cjs",
     "build:local": "node scripts/prisma-env.js prisma generate && next build",
     "preflight": "npm run typecheck && NODE_OPTIONS=--max-old-space-size=4096 npm run build:local",
     "db:generate": "node scripts/prisma-env.js prisma generate",

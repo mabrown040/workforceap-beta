@@ -95,9 +95,22 @@ export type PipelineRow = {
   allProgramTitles: string[];
 };
 
-export async function loadPartnerReferralBundle(partnerId: string) {
+/**
+ * @param tenantOrganizationId — Partner portal tenant boundary: partner row
+ *   and referred members must belong to this org (defense against orphaned /
+ *   cross-tenant referral rows).
+ */
+export async function loadPartnerReferralBundle(partnerId: string, tenantOrganizationId: string) {
   const referrals = await prisma.partnerReferral.findMany({
-    where: { partnerId, member: { deletedAt: null, ...MEMBER_ONLY_WHERE } },
+    where: {
+      partnerId,
+      partner: { organizationId: tenantOrganizationId },
+      member: {
+        deletedAt: null,
+        organizationId: tenantOrganizationId,
+        ...MEMBER_ONLY_WHERE,
+      },
+    },
     include: {
       member: { select: referralMemberSelect },
     },

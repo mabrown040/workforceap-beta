@@ -455,7 +455,11 @@ export async function listContents(
 }
 
 /**
- * Per-learner per-course progress.
+ * Per-learner per-course progress from Coursera Business (`enrollmentReports`).
+ *
+ * When OAuth/env is missing or Coursera errors, callers such as
+ * `fetchLearnerProgressFromB4B` catch and return an empty map — member UI then
+ * falls back to local `CourseProgress` (xAPI / sync).
  *
  * The Coursera enrollmentReports endpoint supports several `q` filter modes:
  *   - default (no q): returns the full report

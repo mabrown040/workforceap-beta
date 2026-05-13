@@ -65,7 +65,10 @@ export default async function PartnerDashboardPage() {
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
 
-  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(
+    ctx.partnerId,
+    ctx.partner.organizationId,
+  );
   const memberIds = members.map((m) => m.id);
   const pendingPlacementCount = pendingPlacements.length;
 

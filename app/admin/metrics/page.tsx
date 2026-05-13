@@ -6,6 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getAdminMetrics } from '@/lib/admin/metrics';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 
 const AdminAnalyticsCharts = dynamic(
@@ -40,7 +41,8 @@ export default async function AdminMetricsPage() {
   if (!user) redirect('/login?redirectTo=/admin/metrics');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const data = await getAdminMetrics();
+  const orgId = await getActorOrganizationId(user.id);
+  const data = await getAdminMetrics(orgId);
 
   return (
     <div>

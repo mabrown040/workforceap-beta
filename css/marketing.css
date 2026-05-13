@@ -504,6 +504,48 @@ html.dark .marketing-bottom-nav {
   gap: 2px;
 }
 
+/* Workspace portals only: shorter bar while scrolling (marketing keeps captions). */
+@media (max-width: 767px) {
+  html.wap-portal-chrome-compact
+    nav#mobile-bottom-nav.mobile-bottom-nav--employer
+    .marketing-bottom-nav__label,
+  html.wap-portal-chrome-compact
+    nav#mobile-bottom-nav.mobile-bottom-nav--counselor
+    .marketing-bottom-nav__label,
+  html.wap-portal-chrome-compact
+    nav#mobile-bottom-nav.mobile-bottom-nav--partner
+    .marketing-bottom-nav__label,
+  html.wap-portal-chrome-compact
+    nav#mobile-bottom-nav.mobile-bottom-nav--admin
+    .marketing-bottom-nav__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--employer,
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--counselor,
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--partner,
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--admin {
+    padding-top: 0.35rem;
+    padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+  }
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--employer .marketing-bottom-nav__link,
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--counselor .marketing-bottom-nav__link,
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--partner .marketing-bottom-nav__link,
+  html.wap-portal-chrome-compact nav#mobile-bottom-nav.mobile-bottom-nav--admin .marketing-bottom-nav__link {
+    padding-top: 6px;
+    padding-bottom: 8px;
+    min-height: 44px;
+    justify-content: center;
+  }
+}
+
 /*
  * Fixed `MainNav` (default bar height + safe-area-inset-top). In-flow spacer on marketing routes only
  * so `#main-content` starts below the fixed header — desktop and mobile.

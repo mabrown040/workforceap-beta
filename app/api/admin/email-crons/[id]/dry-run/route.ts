@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { buildWeeklyRecapEmailSummary } from '@/lib/recap/buildWeeklyRecapEmailSummary';
 import {
   weeklyRecapHtml,
   inactiveNudgeHtml,
@@ -77,7 +78,22 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       });
       const sample = members[0] ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Alex';
-      const body = weeklyRecapHtml({ firstName, recapSummary: 'You completed 2 lessons this week. Your next step is Module 3: Networking Fundamentals.' });
+      const sampleSummary = buildWeeklyRecapEmailSummary({
+        weekInReview: {
+          applicationsAdded: 2,
+          resourcesCompleted: 1,
+          aiToolsUsed: 2,
+          pathwayStepsCompleted: 0,
+          newLiveJobsThisWeek: 3,
+        },
+        readinessScoreSnapshot: 72,
+        goalsSnapshot: [
+          { title: 'Complete Module 3', status: 'in_progress', currentMetricValue: 2, targetMetricValue: 5 },
+        ],
+        upcomingCounselorSessions: [{ at: 'Mon, Jun 9, 2:00 PM EDT', topic: 'Resume review' }],
+        recommendedActions: ['Build your resume with the Resume Rewriter', 'Practice interview questions'],
+      });
+      const body = weeklyRecapHtml({ firstName, recapSummary: sampleSummary });
       const html = brandedEmailLayout({ title: 'Your Weekly Recap', bodyHtml: body, ctaText: 'View Dashboard', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,

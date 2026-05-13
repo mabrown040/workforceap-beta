@@ -13,6 +13,10 @@ import {
   parseCourseGradeString,
   scoreScaledToDisplayPercent,
 } from '@/lib/coursera/courseGradeDisplay';
+import {
+  fetchLearnerProgressFromB4B,
+  type LearnerProgressByContent,
+} from '@/lib/coursera/learnerProgress';
 
 type CourseraProgressCardProps = {
   /** The subject member's WAP user id. */
@@ -56,7 +60,7 @@ export default async function CourseraProgressCard({
   launchHref = '/api/member/coursera/launch',
   programSlug,
 }: CourseraProgressCardProps) {
-  const [csvRows, canonicalRows] = await Promise.all([
+  const [csvRows, canonicalRows, progressUser] = await Promise.all([
     prisma.courseraCourseProgress.findMany({
       where: { userId, ...(programSlug ? { programSlug } : {}) },
       orderBy: [{ overallProgress: 'desc' }, { lastActivityTime: 'desc' }],
@@ -79,7 +83,27 @@ export default async function CourseraProgressCard({
         lastUpdatedAt: true,
       },
     }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    }),
   ]);
+
+  const courseraProgramId =
+    programSlug != null && programSlug !== ''
+      ? DISCOVERED_COURSERA_PROGRAMS[programSlug]?.courseraProgramId
+      : undefined;
+
+  let b4bProgress: LearnerProgressByContent = new Map();
+  const learnerEmail = progressUser?.email?.trim();
+  if (learnerEmail) {
+    b4bProgress = await fetchLearnerProgressFromB4B(learnerEmail, {
+      programId: courseraProgramId,
+    }).catch((err: unknown) => {
+      console.warn('[CourseraProgressCard] B4B learner progress unavailable:', err);
+      return new Map();
+    });
+  }
 
   // Org-scoped program URL keeps the member inside their Coursera For Business
   // context (cookie-authenticated learners hit the program shell directly;
@@ -106,27 +130,30 @@ export default async function CourseraProgressCard({
   }
 
   const csvViewRows: CourseraProgressRow[] = await Promise.all(
-    csvRows.map(async (row) => ({
-      id: row.id,
-      courseName: row.courseName,
-      university: row.university ?? null,
-      courseraCourseSlug: row.courseraCourseSlug ?? null,
-      overallProgress: Number(row.overallProgress) || 0,
-      gradePercent:
-        parseCourseGradeString(row.courseGrade)
-        ?? gradePercentByCourseraId.get(row.courseraCourseId?.trim() ?? '')
-        ?? null,
-      learningHours: Number(row.learningHours) || 0,
-      isCompleted: row.isCompleted,
-      certificateUrl: row.certificateUrl ?? null,
-      lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
-      // Pre-resolved org-scoped URL so the client view doesn't need to know
-      // about catalog vs B4B. Falls back gracefully when the program slug
-      // is missing (rare — should always be set on CSV-imported rows).
-      viewUrl: row.programSlug
-        ? await getOrgScopedCourseUrl(row.programSlug, row.courseraCourseId)
-        : null,
-    })),
+    csvRows.map(async (row) => {
+      const cid = row.courseraCourseId?.trim() ?? '';
+      const b4b = cid ? b4bProgress.get(cid) : undefined;
+      const csvPct = Number(row.overallProgress) || 0;
+      const locallyCompleted = row.isCompleted === true;
+      const overallProgress =
+        locallyCompleted || b4b?.isCompleted ? 100 : b4b != null ? b4b.overallProgress : csvPct;
+      return {
+        id: row.id,
+        courseName: row.courseName,
+        university: row.university ?? null,
+        courseraCourseSlug: row.courseraCourseSlug ?? null,
+        overallProgress,
+        gradePercent:
+          parseCourseGradeString(row.courseGrade) ?? gradePercentByCourseraId.get(cid) ?? null,
+        learningHours: Number(row.learningHours) || 0,
+        isCompleted: locallyCompleted || b4b?.isCompleted === true,
+        certificateUrl: row.certificateUrl ?? null,
+        lastActivityTime: row.lastActivityTime ? row.lastActivityTime.toISOString() : null,
+        viewUrl: row.programSlug
+          ? await getOrgScopedCourseUrl(row.programSlug, row.courseraCourseId)
+          : null,
+      };
+    }),
   );
 
   const viewRows: CourseraProgressRow[] = [...csvViewRows];
@@ -138,6 +165,15 @@ export default async function CourseraProgressCard({
     const program = c.programSlug ? getProgramBySlug(c.programSlug) : null;
     const course = program?.courses.find((pc) => pc.slug === c.courseSlug);
     const discovered = slugToDiscoveredCourse(c.courseSlug, c.programSlug);
+    const cid =
+      (discovered?.courseId && !discovered.courseId.startsWith('TODO_')
+        ? discovered.courseId
+        : c.courseId?.trim()) ?? '';
+    const b4b = cid ? b4bProgress.get(cid) : undefined;
+    const localPct = c.percentComplete ?? 0;
+    const locallyCompleted = c.status === 'COMPLETED';
+    const overallProgress =
+      locallyCompleted || b4b?.isCompleted ? 100 : b4b != null ? b4b.overallProgress : localPct;
     const viewUrl =
       c.programSlug && discovered?.courseId
         ? await getOrgScopedCourseUrl(c.programSlug, discovered.courseId)
@@ -149,10 +185,10 @@ export default async function CourseraProgressCard({
       courseName: course?.name ?? discovered?.name ?? c.courseSlug,
       university: discovered?.partner ?? null,
       courseraCourseSlug: c.courseSlug,
-      overallProgress: c.percentComplete ?? 0,
+      overallProgress,
       gradePercent: scoreScaledToDisplayPercent(c.scoreScaled),
       learningHours: 0,
-      isCompleted: c.status === 'COMPLETED',
+      isCompleted: locallyCompleted || b4b?.isCompleted === true,
       certificateUrl: null,
       lastActivityTime: c.lastUpdatedAt ? c.lastUpdatedAt.toISOString() : null,
       viewUrl,

@@ -19,11 +19,14 @@ export async function GET(request: NextRequest) {
   const preset = request.nextUrl.searchParams.get('preset');
 
   try {
-  const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId);
   const rows = toPartnerMembersListRows(pipelineMembers);
 
   const emails = await prisma.user.findMany({
-    where: { id: { in: pipelineMembers.map((p) => p.member.id) } },
+    where: {
+      id: { in: pipelineMembers.map((p) => p.member.id) },
+      organizationId: ctx.partner.organizationId,
+    },
     select: { id: true, email: true },
   });
   const emailById = new Map(emails.map((e) => [e.id, e.email]));

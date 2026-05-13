@@ -3,20 +3,26 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope, counselorInOrg, assertSameTenant } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const rows = await prisma.counselor.findMany({
-    take: 500,
-    orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
-    include: {
-      user: { select: { id: true, fullName: true, email: true } },
-      partner: { select: { id: true, name: true } },
-    },
-  });
+  const orgId = await getActorOrganizationId(user.id);
+  const rows = await withTenantScope(orgId, (db) =>
+    db.counselor.findMany({
+      take: 500,
+      orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
+      where: counselorInOrg(orgId),
+      include: {
+        user: { select: { id: true, fullName: true, email: true } },
+        partner: { select: { id: true, name: true } },
+      },
+    }),
+  );
 
   return NextResponse.json({
     counselors: rows.map((c) => ({
@@ -56,19 +62,28 @@ export async function POST(request: NextRequest) {
 
   const { userId, partnerId, title } = parsed.data;
 
-  const existing = await prisma.counselor.findUnique({ where: { userId } });
+  const orgId = await getActorOrganizationId(user.id);
+
+  const existing = await withTenantScope(orgId, (db) =>
+    db.counselor.findUnique({ where: { userId } }),
+  );
   if (existing) {
     return NextResponse.json({ error: 'This user is already a counselor' }, { status: 400 });
   }
 
-  const targetUser = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  });
+  const targetUser = await withTenantScope(orgId, (db) =>
+    db.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    }),
+  );
   if (!targetUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   if (partnerId) {
-    const p = await prisma.partner.findUnique({ where: { id: partnerId }, select: { id: true } });
+    await assertSameTenant('partner', partnerId, orgId);
+    const p = await withTenantScope(orgId, (db) =>
+      db.partner.findUnique({ where: { id: partnerId }, select: { id: true } }),
+    );
     if (!p) return NextResponse.json({ error: 'Partner not found' }, { status: 400 });
   }
 

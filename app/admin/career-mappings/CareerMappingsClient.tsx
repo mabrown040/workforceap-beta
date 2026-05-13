@@ -373,7 +373,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
             </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,340px)', gap: '1.5rem', alignItems: 'start' }}>
+          <div className="career-mappings-layout">
 
             {/* Main: AI matches + existing */}
             <div>

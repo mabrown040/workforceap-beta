@@ -24,14 +24,14 @@ export default async function SurveyPage() {
       id: true,
       fullName: true,
       placementRecord: { select: { id: true } },
-      placementSurvey: { select: { completedAt: true } },
+      placementSurveys: { take: 1, select: { completedAt: true } },
     },
   });
 
   if (!dbUser) redirect('/login');
 
   const placementId = dbUser.placementRecord?.id ?? null;
-  const alreadyCompleted = dbUser.placementSurvey?.completedAt != null;
+  const alreadyCompleted = dbUser.placementSurveys[0]?.completedAt != null;
 
   return (
     <div style={{ maxWidth: '42rem', margin: '0 auto', padding: '0 1rem 2rem' }}>

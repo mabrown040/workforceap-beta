@@ -322,7 +322,7 @@ export default async function AdminMemberDetailPage({
     where: { threadId: chatThread.id },
     orderBy: { createdAt: 'asc' },
   });
-  const chatAuthorIds = [...new Set(chatMsgs.map((m) => m.authorId))];
+  const chatAuthorIds = [...new Set(chatMsgs.map((m) => m.authorId).filter((id): id is string => id !== null))];
   const chatAuthors =
     chatAuthorIds.length > 0
       ? await prisma.user.findMany({
@@ -388,7 +388,7 @@ export default async function AdminMemberDetailPage({
     },
     messages: chatMsgs.map((m) => ({
       ...serializeMessage(m),
-      authorName: chatNameById.get(m.authorId) ?? 'User',
+      authorName: m.authorId != null ? chatNameById.get(m.authorId) ?? 'User' : 'User',
     })),
   };
 

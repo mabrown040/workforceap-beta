@@ -83,6 +83,8 @@ export type B4BProgram = {
   state?: string;
   /** When `excludeContent=false` was passed; we always pass true so this is rare. */
   contents?: unknown[];
+  /** Number of courses/items in the program (present when `excludeContent=false`). */
+  contentCount?: number;
 };
 
 export type B4BContent = {

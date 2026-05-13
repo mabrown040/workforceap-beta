@@ -137,7 +137,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });
-  const authorIds = [...new Set(messages.map((m) => m.authorId))];
+  const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
   const authors =
     authorIds.length > 0
       ? await prisma.user.findMany({ where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
@@ -856,7 +856,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 },
                 messages: messages.map((m) => ({
                   ...serializeMessage(m),
-                  authorName: nameById.get(m.authorId) ?? 'User',
+                  authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
                 })),
               }}
             />

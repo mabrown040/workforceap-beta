@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
 import CounselorCommandCenter from '@/components/portal/counselor/CounselorCommandCenter';
+import AtRiskSummaryWidget from '@/components/portal/counselor/AtRiskSummaryWidget';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
@@ -146,6 +147,11 @@ export default async function CounselorPortalPage() {
           Per /plan-ceo-review (2026-04-26) brutal multi-persona review. ── */}
       <div style={{ padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <CounselorCommandCenter data={commandCenter} />
+      </div>
+
+      {/* ── At-Risk Summary Widget ── */}
+      <div style={{ padding: '0 clamp(1rem, 4vw, 1.5rem)', marginTop: '1.5rem' }}>
+        <AtRiskSummaryWidget />
       </div>
 
       {/* ── Mobile Counselor View (≤640px) ── */}

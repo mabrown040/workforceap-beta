@@ -18,6 +18,7 @@ import DataTable from '@/components/portal/ui/DataTable';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import type { BadgeVariant } from '@/components/portal/StatusBadge';
+import AtRiskDetailModal from './AtRiskDetailModal';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ interface AtRiskMember {
   phone: string | null;
   score: number;
   riskLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-  status: 'open' | 'acknowledged' | 'resolved';
+  status: 'open' | 'acknowledged' | 'resolved' | 'escalated';
   factors: AtRiskFactor[];
   enrolledProgram: string | null;
   enrolledAt: string | null;
@@ -90,6 +91,7 @@ const STATUS_CONFIG: Record<AtRiskMember['status'], { label: string; variant: Ba
   open: { label: 'Open', variant: 'error' },
   acknowledged: { label: 'Acknowledged', variant: 'warning' },
   resolved: { label: 'Resolved', variant: 'success' },
+  escalated: { label: 'Escalated', variant: 'accent' },
 };
 
 /** Hover tooltips for severity chips (matches THRESHOLDS in lib/member/atRiskScoring.ts). */
@@ -104,6 +106,7 @@ const STATUS_TOOLTIP: Record<AtRiskMember['status'], string> = {
   open: 'Not yet acknowledged in the dashboard—triage these first in your weekly pass.',
   acknowledged: 'You or your team started outreach or took ownership; still working the case.',
   resolved: 'Risk mitigated, member exited, or situation documented—use when the case is truly closed.',
+  escalated: 'Escalated to admin for additional support—admin team should review.',
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -162,8 +165,15 @@ export default function AtRiskDashboard() {
   const [unacknowledgedOnly, setUnacknowledgedOnly] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>('risk');
 
+  // Search + program filter
+  const [searchQuery, setSearchQuery] = useState('');
+  const [programFilter, setProgramFilter] = useState<string>('all');
+
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Detail modal
+  const [detailMember, setDetailMember] = useState<AtRiskMember | null>(null);
 
   // Action states
   const [actingIds, setActingIds] = useState<Set<string>>(new Set());
@@ -198,13 +208,32 @@ export default function AtRiskDashboard() {
     fetchData();
   }, [fetchData]);
 
+  const programOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of members) {
+      if (m.enrolledProgram) set.add(m.enrolledProgram);
+    }
+    return Array.from(set).sort();
+  }, [members]);
+
   const filteredMembers = useMemo(() => {
     let rows = members;
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      rows = rows.filter(
+        (m) =>
+          m.name.toLowerCase().includes(q) ||
+          m.email.toLowerCase().includes(q)
+      );
+    }
     if (severityFilter !== 'all') {
       rows = rows.filter((m) => m.riskLevel === severityFilter);
     }
     if (statusFilter !== 'all') {
       rows = rows.filter((m) => m.status === statusFilter);
+    }
+    if (programFilter !== 'all') {
+      rows = rows.filter((m) => m.enrolledProgram === programFilter);
     }
     if (unacknowledgedOnly) {
       rows = rows.filter((m) => m.status === 'open');
@@ -227,7 +256,7 @@ export default function AtRiskDashboard() {
       });
     }
     return ranked;
-  }, [members, severityFilter, statusFilter, unacknowledgedOnly, sortMode]);
+  }, [members, searchQuery, severityFilter, statusFilter, programFilter, unacknowledgedOnly, sortMode]);
 
   const severityCounts = useMemo(() => {
     const counts: Record<AtRiskMember['riskLevel'], number> = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
@@ -236,7 +265,7 @@ export default function AtRiskDashboard() {
   }, [members]);
 
   const statusCounts = useMemo(() => {
-    const counts: Record<AtRiskMember['status'], number> = { open: 0, acknowledged: 0, resolved: 0 };
+    const counts: Record<AtRiskMember['status'], number> = { open: 0, acknowledged: 0, resolved: 0, escalated: 0 };
     for (const m of members) counts[m.status]++;
     return counts;
   }, [members]);
@@ -262,7 +291,7 @@ export default function AtRiskDashboard() {
     setSelectedIds(next);
   }
 
-  async function updateStatus(alertId: string, status: 'acknowledged' | 'resolved') {
+  async function updateStatus(alertId: string, status: 'acknowledged' | 'resolved' | 'escalated') {
     setActingIds((prev) => new Set(prev).add(alertId));
     try {
       const res = await fetch('/api/admin/members/at-risk', {
@@ -324,6 +353,17 @@ export default function AtRiskDashboard() {
     } finally {
       setBulkActionLoading(false);
     }
+  }
+
+  function handleStatusChange(alertId: string, status: 'acknowledged' | 'resolved' | 'escalated') {
+    setMembers((prev) =>
+      prev.map((m) => (m.alertId === alertId ? { ...m, status } : m))
+    );
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(alertId);
+      return next;
+    });
   }
 
   const openSelectedCount = useMemo(() => {
@@ -454,6 +494,57 @@ export default function AtRiskDashboard() {
         </div>
       </div>
 
+      {/* Search + program filter */}
+      <div
+        className="content-card"
+        style={{
+          padding: '0.75rem 1rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          alignItems: 'center',
+        }}
+      >
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by name or email…"
+          style={{
+            flex: 1,
+            minWidth: '12rem',
+            padding: '0.5rem 0.75rem',
+            borderRadius: '0.5rem',
+            border: '1px solid var(--outline-variant)',
+            background: 'var(--surface-container-high)',
+            color: 'inherit',
+            fontSize: '0.85rem',
+          }}
+        />
+        {programOptions.length > 0 && (
+          <select
+            value={programFilter}
+            onChange={(e) => setProgramFilter(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container-high)',
+              color: 'inherit',
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+            }}
+          >
+            <option value="all">All programs</option>
+            {programOptions.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
       {/* Sort + triage toggle */}
       <div
         className="content-card"
@@ -511,7 +602,7 @@ export default function AtRiskDashboard() {
       </div>
 
       {/* Active filter chips */}
-      {(severityFilter !== 'all' || statusFilter !== 'all' || unacknowledgedOnly) && (
+      {(severityFilter !== 'all' || statusFilter !== 'all' || programFilter !== 'all' || unacknowledgedOnly) && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', fontWeight: 600 }}>
             <Filter size={12} style={{ verticalAlign: 'middle', marginRight: '0.25rem' }} />
@@ -529,6 +620,12 @@ export default function AtRiskDashboard() {
               onRemove={() => setStatusFilter('all')}
             />
           )}
+          {programFilter !== 'all' && (
+            <FilterTag
+              label={`Program: ${programFilter}`}
+              onRemove={() => setProgramFilter('all')}
+            />
+          )}
           {unacknowledgedOnly && (
             <FilterTag label="Only open alerts" onRemove={() => setUnacknowledgedOnly(false)} />
           )}
@@ -538,7 +635,9 @@ export default function AtRiskDashboard() {
             onClick={() => {
               setSeverityFilter('all');
               setStatusFilter('all');
+              setProgramFilter('all');
               setUnacknowledgedOnly(false);
+              setSearchQuery('');
             }}
             style={{ fontSize: '0.75rem' }}
           >
@@ -668,12 +767,22 @@ export default function AtRiskDashboard() {
               ),
               cell: (row) => (
                 <div>
-                  <Link
-                    href={`/counselor/students/${row.userId}`}
-                    style={{ fontWeight: 600, color: 'inherit', textDecoration: 'none' }}
+                  <button
+                    type="button"
+                    onClick={() => setDetailMember(row)}
+                    style={{
+                      fontWeight: 600,
+                      color: 'inherit',
+                      textDecoration: 'none',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
                   >
                     {row.name}
-                  </Link>
+                  </button>
                   <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
                     {row.email}
                   </p>
@@ -827,7 +936,9 @@ export default function AtRiskDashboard() {
                 onClick: () => {
                   setSeverityFilter('all');
                   setStatusFilter('all');
+                  setProgramFilter('all');
                   setUnacknowledgedOnly(false);
+                  setSearchQuery('');
                 },
               }}
             />
@@ -835,6 +946,15 @@ export default function AtRiskDashboard() {
           scrollX
         />
       </div>
+
+      {/* Detail Modal */}
+      {detailMember && (
+        <AtRiskDetailModal
+          member={detailMember}
+          onClose={() => setDetailMember(null)}
+          onStatusChange={handleStatusChange}
+        />
+      )}
 
       {/* Mobile cards */}
       <div className="wa-block md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -849,7 +969,9 @@ export default function AtRiskDashboard() {
               onClick: () => {
                 setSeverityFilter('all');
                 setStatusFilter('all');
+                setProgramFilter('all');
                 setUnacknowledgedOnly(false);
+                setSearchQuery('');
               },
             }}
           />

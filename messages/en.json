@@ -784,7 +784,15 @@
     "supportYourMembers": "Support your members from enrollment through employment.",
     "superAdminPreview": "Super admin preview",
     "trainingProgressUnavailable": "Training progress unavailable",
-    "sortedByRecentlyAssigned": "Sorted by most recently assigned."
+    "sortedByRecentlyAssigned": "Sorted by most recently assigned.",
+    "atRiskSummaryTitle": "At-Risk Alerts",
+    "atRiskViewAll": "View all",
+    "atRiskCriticalCount": "Critical",
+    "atRiskHighCount": "High",
+    "atRiskMediumCount": "Medium",
+    "atRiskLoadingNotes": "Loading at-risk summary…",
+    "atRiskNoAlerts": "No at-risk alerts right now. Great work!",
+    "atRiskRecentAlerts": "Recent alerts"
   },
   "workspace": {
     "publicSite": "WorkforceAP site",

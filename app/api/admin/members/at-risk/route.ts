@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       const alerts = await prisma.atRiskAlert.findMany({
         where: {
           score: { gte: threshold },
-          ...(status ? { status } : { status: { in: ['open', 'acknowledged'] } }),
+          ...(status ? { status } : { status: { in: ['open', 'acknowledged', 'escalated'] } }),
         },
         orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
         take: limit,
@@ -122,7 +122,7 @@ export async function PATCH(req: Request) {
   
     try {
       const { alertId, status } = await req.json();
-      if (!alertId || !['acknowledged', 'resolved'].includes(status)) {
+      if (!alertId || !['acknowledged', 'resolved', 'escalated'].includes(status)) {
         return NextResponse.json({ error: 'Invalid alertId or status' }, { status: 400 });
       }
   
@@ -132,7 +132,9 @@ export async function PATCH(req: Request) {
           status,
           ...(status === 'acknowledged'
             ? { acknowledgedAt: new Date(), counselorId: auth.userId }
-            : { resolvedAt: new Date() }),
+            : status === 'resolved'
+              ? { resolvedAt: new Date() }
+              : { escalatedAt: new Date(), counselorId: auth.userId }),
         },
       });
   

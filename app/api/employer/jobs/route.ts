@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { trackEvent } from '@/lib/events/track';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -141,6 +142,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       metadata: { isCreate: true, status: parsed.data.status },
       sourcePage,
     });
+
+    // Invalidate public job listings cache when a job is posted live
+    if (parsed.data.status === 'live') {
+      await invalidateJobListings().catch(() => {});
+    }
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {

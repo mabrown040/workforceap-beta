@@ -1,18 +1,25 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import {
   _resetTokenCacheForTesting,
   _setFetchForTesting,
 } from './b4bClient';
 import {
-  _getLearnerCacheEntryForTesting,
-  _resetLearnerProgressCachesForTesting,
   averageProgramProgressFromB4B,
   fetchLearnerProgressFromB4B,
   getLearnerProgressLastActivity,
   invalidateLearnerProgressCacheForEmail,
 } from './learnerProgress';
+
+const mockCache = {
+  getCacheOrFetch: vi.fn(),
+  invalidateCache: vi.fn(),
+};
+
+vi.mock('@/lib/cache', () => ({
+  getCacheOrFetch: (...args: unknown[]) => mockCache.getCacheOrFetch(...args),
+  invalidateCache: (...args: unknown[]) => mockCache.invalidateCache(...args),
+}));
 
 const ORIGINAL_ENV: Record<string, string | undefined> = {};
 function snapshotEnv() {
@@ -41,13 +48,11 @@ function setupTestEnv() {
   process.env.COURSERA_OAUTH_TOKEN_URL = 'https://api.coursera.com/oauth2/client_credentials/token';
   process.env.COURSERA_ORG_ID = 'TEST_ORG_ID';
   _resetTokenCacheForTesting();
-  _resetLearnerProgressCachesForTesting();
 }
 
 function teardownTestEnv() {
   _setFetchForTesting(null);
   _resetTokenCacheForTesting();
-  _resetLearnerProgressCachesForTesting();
   restoreEnv();
 }
 
@@ -58,318 +63,274 @@ function jsonResponse(payload: unknown, init: { status?: number } = {}): Respons
   });
 }
 
-test('returns a map keyed by contentId with normalized fields', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  _setFetchForTesting(async (url) => {
-    if (url.includes('/oauth2/')) {
-      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
-    }
-    return jsonResponse({
-      elements: [
-        {
-          programId: 'PRG-1',
-          externalId: 'mabrown040@gmail.com',
-          contentId: 'COURSE-A',
-          contentType: 'Course',
-          isCompleted: false,
-          overallProgress: 42.4, // verifies clamp+round
-          lastActivity: 1_700_000_000_000,
-        },
-        {
-          programId: 'PRG-1',
-          externalId: 'mabrown040@gmail.com',
-          contentId: 'SPEC-B',
-          contentType: 'Specialization',
-          isCompleted: true,
-          overallProgress: 100,
-          lastActivity: 1_700_000_500_000,
-        },
-      ],
-      paging: { total: 2 },
-    });
+describe('learnerProgress', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    setupTestEnv();
   });
 
-  const result = await fetchLearnerProgressFromB4B('mabrown040@gmail.com', {
-    programId: 'PRG-1',
+  afterEach(() => {
+    teardownTestEnv();
   });
 
-  assert.equal(result.size, 2);
-  const a = result.get('COURSE-A');
-  assert.ok(a);
-  assert.equal(a!.overallProgress, 42);
-  assert.equal(a!.contentType, 'Course');
-  assert.equal(a!.isCompleted, false);
-  assert.ok(a!.lastActivityAt instanceof Date);
-
-  const b = result.get('SPEC-B');
-  assert.ok(b);
-  assert.equal(b!.contentType, 'Specialization');
-  assert.equal(b!.isCompleted, true);
-  assert.equal(b!.overallProgress, 100);
-});
-
-test('reuses cache within TTL, refetches when skipCache=true', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  let enrollmentCalls = 0;
-  _setFetchForTesting(async (url) => {
-    if (url.includes('/oauth2/')) {
-      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
-    }
-    if (url.includes('/enrollmentReports')) {
-      enrollmentCalls += 1;
+  it('returns a map keyed by contentId with normalized fields', async () => {
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) {
+        return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      }
       return jsonResponse({
         elements: [
           {
             programId: 'PRG-1',
-            externalId: 'a@b.com',
-            contentId: 'C1',
+            externalId: 'mabrown040@gmail.com',
+            contentId: 'COURSE-A',
             contentType: 'Course',
             isCompleted: false,
-            overallProgress: 10,
+            overallProgress: 42.4,
+            lastActivity: 1_700_000_000_000,
           },
-        ],
-        paging: { total: 1 },
-      });
-    }
-    return jsonResponse({});
-  });
-
-  await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1' });
-  await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1' });
-  await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1' });
-  assert.equal(enrollmentCalls, 1, 'second/third call served from cache');
-
-  await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1', skipCache: true });
-  assert.equal(enrollmentCalls, 2, 'skipCache=true forces a refetch');
-});
-
-test('invalidateLearnerProgressCacheForEmail clears entries for that learner only', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  let enrollmentCalls = 0;
-  _setFetchForTesting(async (url) => {
-    if (url.includes('/oauth2/')) {
-      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
-    }
-    if (url.includes('/enrollmentReports')) {
-      enrollmentCalls += 1;
-      return jsonResponse({
-        elements: [
           {
             programId: 'PRG-1',
-            externalId: 'inv@test.com',
-            contentId: 'C1',
-            contentType: 'Course',
-            isCompleted: false,
-            overallProgress: 10,
+            externalId: 'mabrown040@gmail.com',
+            contentId: 'SPEC-B',
+            contentType: 'Specialization',
+            isCompleted: true,
+            overallProgress: 100,
+            lastActivity: 1_700_000_500_000,
           },
-        ],
-        paging: { total: 1 },
-      });
-    }
-    return jsonResponse({});
-  });
-
-  await fetchLearnerProgressFromB4B('inv@test.com', { programId: 'PRG-1' });
-  await fetchLearnerProgressFromB4B('other@test.com', { programId: 'PRG-1' });
-  assert.equal(enrollmentCalls, 2);
-
-  assert.ok(_getLearnerCacheEntryForTesting('inv@test.com', 'PRG-1'));
-  assert.ok(_getLearnerCacheEntryForTesting('other@test.com', 'PRG-1'));
-
-  invalidateLearnerProgressCacheForEmail('inv@test.com');
-  assert.equal(_getLearnerCacheEntryForTesting('inv@test.com', 'PRG-1'), undefined);
-  assert.ok(_getLearnerCacheEntryForTesting('other@test.com', 'PRG-1'));
-
-  await fetchLearnerProgressFromB4B('inv@test.com', { programId: 'PRG-1' });
-  assert.equal(enrollmentCalls, 3);
-});
-
-test('cache TTL elapses → next call refetches', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  let enrollmentCalls = 0;
-  _setFetchForTesting(async (url) => {
-    if (url.includes('/oauth2/')) {
-      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
-    }
-    enrollmentCalls += 1;
-    return jsonResponse({ elements: [], paging: { total: 0 } });
-  });
-
-  await fetchLearnerProgressFromB4B('c@d.com', { programId: 'PRG-1' });
-  assert.equal(enrollmentCalls, 1);
-
-  // Force the entry's fetchedAt to look 90s old.
-  const entry = _getLearnerCacheEntryForTesting('c@d.com', 'PRG-1');
-  assert.ok(entry);
-  entry!.fetchedAt = Date.now() - 90_000;
-
-  await fetchLearnerProgressFromB4B('c@d.com', { programId: 'PRG-1' });
-  assert.equal(enrollmentCalls, 2, 'expired cache triggers refetch');
-});
-
-test('returns empty map and caches it when B4B throws', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  let enrollmentCalls = 0;
-  _setFetchForTesting(async (url) => {
-    if (url.includes('/oauth2/')) {
-      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
-    }
-    enrollmentCalls += 1;
-    return new Response('upstream blew up', { status: 503 });
-  });
-
-  const result = await fetchLearnerProgressFromB4B('e@f.com', { programId: 'PRG-1' });
-  assert.equal(result.size, 0, 'soft-failure produces empty map');
-
-  // Second call within TTL should not retry — the empty result is cached.
-  const result2 = await fetchLearnerProgressFromB4B('e@f.com', { programId: 'PRG-1' });
-  assert.equal(result2.size, 0);
-  assert.equal(enrollmentCalls, 1, 'failure cached for TTL window');
-});
-
-test('queries listPrograms when programId is omitted, then caches the program list', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  let listCalls = 0;
-  let enrollmentCalls = 0;
-  _setFetchForTesting(async (url) => {
-    if (url.includes('/oauth2/')) {
-      return jsonResponse({ access_token: 'tok', expires_in: 1799 });
-    }
-    if (url.includes('/programs')) {
-      listCalls += 1;
-      return jsonResponse({
-        elements: [
-          { id: 'PRG-A', name: 'Program A' },
-          { id: 'PRG-B', name: 'Program B' },
         ],
         paging: { total: 2 },
       });
-    }
-    if (url.includes('/enrollmentReports')) {
+    });
+
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+
+    const result = await fetchLearnerProgressFromB4B('mabrown040@gmail.com', {
+      programId: 'PRG-1',
+    });
+
+    expect(result.size).toBe(2);
+    const a = result.get('COURSE-A');
+    expect(a).toBeDefined();
+    expect(a!.overallProgress).toBe(42);
+    expect(a!.contentType).toBe('Course');
+    expect(a!.isCompleted).toBe(false);
+    expect(a!.lastActivityAt instanceof Date).toBe(true);
+
+    const b = result.get('SPEC-B');
+    expect(b).toBeDefined();
+    expect(b!.contentType).toBe('Specialization');
+    expect(b!.isCompleted).toBe(true);
+    expect(b!.overallProgress).toBe(100);
+
+    expect(mockCache.getCacheOrFetch).toHaveBeenCalledTimes(1);
+    const callArgs = mockCache.getCacheOrFetch.mock.calls[0];
+    expect(callArgs[0]).toContain('coursera:learner:');
+    expect(callArgs[2]).toBe(1800);
+  });
+
+  it('reuses Redis cache on hit, refetches when skipCache=true', async () => {
+    let enrollmentCalls = 0;
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) {
+        return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      }
+      if (url.includes('/enrollmentReports')) {
+        enrollmentCalls += 1;
+        return jsonResponse({
+          elements: [
+            {
+              programId: 'PRG-1',
+              externalId: 'a@b.com',
+              contentId: 'C1',
+              contentType: 'Course',
+              isCompleted: false,
+              overallProgress: 10,
+            },
+          ],
+          paging: { total: 1 },
+        });
+      }
+      return jsonResponse({});
+    });
+
+    // First call: Redis miss
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+    await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1' });
+    expect(enrollmentCalls).toBe(1);
+
+    // Second call: Redis hit
+    mockCache.getCacheOrFetch.mockResolvedValue([
+      ['C1', {
+        contentId: 'C1',
+        contentType: 'Course',
+        programId: 'PRG-1',
+        isCompleted: false,
+        overallProgress: 10,
+        lastActivityAt: null,
+      }],
+    ]);
+    const result2 = await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1' });
+    expect(enrollmentCalls).toBe(1);
+    expect(result2.size).toBe(1);
+
+    // Third call with skipCache
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+    await fetchLearnerProgressFromB4B('a@b.com', { programId: 'PRG-1', skipCache: true });
+    expect(enrollmentCalls).toBe(2);
+  });
+
+  it('returns empty map and caches it when B4B throws', async () => {
+    let enrollmentCalls = 0;
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) {
+        return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      }
       enrollmentCalls += 1;
-      const u = new URL(url);
-      const programId = u.searchParams.get('programId') ?? 'unknown';
-      return jsonResponse({
-        elements: [
-          {
-            programId,
-            externalId: 'g@h.com',
-            contentId: `course-of-${programId}`,
-            contentType: 'Course',
-            isCompleted: false,
-            overallProgress: 25,
-          },
-        ],
-        paging: { total: 1 },
-      });
-    }
-    return jsonResponse({});
+      return new Response('upstream blew up', { status: 503 });
+    });
+
+    // First call: Redis miss → B4B fetch retries 3 times
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
+    const result = await fetchLearnerProgressFromB4B('e@f.com', { programId: 'PRG-1' });
+    expect(result.size).toBe(0);
+    expect(enrollmentCalls).toBe(3);
+
+    // Second call within TTL should use cached empty result
+    mockCache.getCacheOrFetch.mockResolvedValue([]);
+    const result2 = await fetchLearnerProgressFromB4B('e@f.com', { programId: 'PRG-1' });
+    expect(result2.size).toBe(0);
+    expect(enrollmentCalls).toBe(3);
   });
 
-  const result = await fetchLearnerProgressFromB4B('g@h.com');
-  assert.equal(result.size, 2);
-  assert.ok(result.get('course-of-PRG-A'));
-  assert.ok(result.get('course-of-PRG-B'));
-  assert.equal(listCalls, 1);
-  assert.equal(enrollmentCalls, 2, 'one enrollmentReports call per program');
+  it('queries listPrograms when programId is omitted, then caches the program list', async () => {
+    let listCalls = 0;
+    let enrollmentCalls = 0;
+    _setFetchForTesting(async (url) => {
+      if (url.includes('/oauth2/')) {
+        return jsonResponse({ access_token: 'tok', expires_in: 1799 });
+      }
+      if (url.includes('/programs')) {
+        listCalls += 1;
+        return jsonResponse({
+          elements: [
+            { id: 'PRG-A', name: 'Program A' },
+            { id: 'PRG-B', name: 'Program B' },
+          ],
+          paging: { total: 2 },
+        });
+      }
+      if (url.includes('/enrollmentReports')) {
+        enrollmentCalls += 1;
+        const u = new URL(url);
+        const programId = u.searchParams.get('programId') ?? 'unknown';
+        return jsonResponse({
+          elements: [
+            {
+              programId,
+              externalId: 'g@h.com',
+              contentId: `course-of-${programId}`,
+              contentType: 'Course',
+              isCompleted: false,
+              overallProgress: 25,
+            },
+          ],
+          paging: { total: 1 },
+        });
+      }
+      return jsonResponse({});
+    });
 
-  // Second learner under same scope: program list should be cached.
-  await fetchLearnerProgressFromB4B('i@j.com');
-  assert.equal(listCalls, 1, 'listPrograms cached across calls');
-});
+    // First call: let all getCacheOrFetch calls run through
+    mockCache.getCacheOrFetch.mockImplementation(async (_key, fetcher) => fetcher());
 
-test('averageProgramProgressFromB4B requires every courseId to be present', () => {
-  const map = new Map();
-  map.set('C1', {
-    contentId: 'C1',
-    contentType: 'Course' as const,
-    programId: 'PRG-1',
-    isCompleted: false,
-    overallProgress: 50,
-    lastActivityAt: null,
-  });
-  map.set('C2', {
-    contentId: 'C2',
-    contentType: 'Course' as const,
-    programId: 'PRG-1',
-    isCompleted: true,
-    overallProgress: 100,
-    lastActivityAt: null,
-  });
+    const result = await fetchLearnerProgressFromB4B('g@h.com');
+    expect(result.size).toBe(2);
+    expect(listCalls).toBe(1);
+    expect(enrollmentCalls).toBe(2);
 
-  // All present → average.
-  assert.equal(
-    averageProgramProgressFromB4B({ progress: map, courseraCourseIds: ['C1', 'C2'] }),
-    75,
-  );
+    // Second learner: program list should be cached in Redis
+    mockCache.getCacheOrFetch.mockImplementation(async (key, fetcher) => {
+      if (key === 'coursera:program-ids') {
+        return ['PRG-A', 'PRG-B'];
+      }
+      return fetcher();
+    });
 
-  // One missing → null (caller falls back to local rollup).
-  assert.equal(
-    averageProgramProgressFromB4B({ progress: map, courseraCourseIds: ['C1', 'C2', 'C3'] }),
-    null,
-  );
-
-  // No ids → null.
-  assert.equal(
-    averageProgramProgressFromB4B({ progress: map, courseraCourseIds: [] }),
-    null,
-  );
-});
-
-test('getLearnerProgressLastActivity returns the latest timestamp', () => {
-  const map = new Map();
-  map.set('C1', {
-    contentId: 'C1',
-    contentType: 'Course' as const,
-    programId: 'PRG-1',
-    isCompleted: false,
-    overallProgress: 10,
-    lastActivityAt: new Date('2026-05-01T00:00:00Z'),
-  });
-  map.set('C2', {
-    contentId: 'C2',
-    contentType: 'Course' as const,
-    programId: 'PRG-1',
-    isCompleted: false,
-    overallProgress: 20,
-    lastActivityAt: new Date('2026-05-08T12:00:00Z'),
-  });
-  map.set('C3', {
-    contentId: 'C3',
-    contentType: 'Course' as const,
-    programId: 'PRG-1',
-    isCompleted: false,
-    overallProgress: 0,
-    lastActivityAt: null,
+    await fetchLearnerProgressFromB4B('i@j.com');
+    expect(listCalls).toBe(1);
   });
 
-  const latest = getLearnerProgressLastActivity(map);
-  assert.equal(latest?.toISOString(), '2026-05-08T12:00:00.000Z');
-});
+  it('averageProgramProgressFromB4B requires every courseId to be present', () => {
+    const map = new Map();
+    map.set('C1', {
+      contentId: 'C1',
+      contentType: 'Course' as const,
+      programId: 'PRG-1',
+      isCompleted: false,
+      overallProgress: 50,
+      lastActivityAt: null,
+    });
+    map.set('C2', {
+      contentId: 'C2',
+      contentType: 'Course' as const,
+      programId: 'PRG-1',
+      isCompleted: true,
+      overallProgress: 100,
+      lastActivityAt: null,
+    });
 
-test('empty email returns empty map without making API calls', async (t) => {
-  setupTestEnv();
-  t.after(teardownTestEnv);
-
-  let calls = 0;
-  _setFetchForTesting(async () => {
-    calls += 1;
-    return jsonResponse({});
+    expect(averageProgramProgressFromB4B({ progress: map, courseraCourseIds: ['C1', 'C2'] })).toBe(75);
+    expect(averageProgramProgressFromB4B({ progress: map, courseraCourseIds: ['C1', 'C2', 'C3'] })).toBeNull();
+    expect(averageProgramProgressFromB4B({ progress: map, courseraCourseIds: [] })).toBeNull();
   });
 
-  const result = await fetchLearnerProgressFromB4B('');
-  assert.equal(result.size, 0);
-  assert.equal(calls, 0);
+  it('getLearnerProgressLastActivity returns the latest timestamp', () => {
+    const map = new Map();
+    map.set('C1', {
+      contentId: 'C1',
+      contentType: 'Course' as const,
+      programId: 'PRG-1',
+      isCompleted: false,
+      overallProgress: 10,
+      lastActivityAt: new Date('2026-05-01T00:00:00Z'),
+    });
+    map.set('C2', {
+      contentId: 'C2',
+      contentType: 'Course' as const,
+      programId: 'PRG-1',
+      isCompleted: false,
+      overallProgress: 20,
+      lastActivityAt: new Date('2026-05-08T12:00:00Z'),
+    });
+    map.set('C3', {
+      contentId: 'C3',
+      contentType: 'Course' as const,
+      programId: 'PRG-1',
+      isCompleted: false,
+      overallProgress: 0,
+      lastActivityAt: null,
+    });
+
+    const latest = getLearnerProgressLastActivity(map);
+    expect(latest?.toISOString()).toBe('2026-05-08T12:00:00.000Z');
+  });
+
+  it('empty email returns empty map without making API calls', async () => {
+    let calls = 0;
+    _setFetchForTesting(async () => {
+      calls += 1;
+      return jsonResponse({});
+    });
+
+    const result = await fetchLearnerProgressFromB4B('');
+    expect(result.size).toBe(0);
+    expect(calls).toBe(0);
+  });
+
+  it('invalidateLearnerProgressCacheForEmail calls invalidateCache', async () => {
+    mockCache.invalidateCache.mockResolvedValue(undefined);
+    await invalidateLearnerProgressCacheForEmail('test@example.com');
+    expect(mockCache.invalidateCache).toHaveBeenCalledWith('coursera:learner:test@example.com::*');
+  });
 });

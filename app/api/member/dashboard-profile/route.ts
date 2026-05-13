@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const VALID_BARRIER_TYPES = [
@@ -122,6 +123,9 @@ const updateSchema = z.object({
       },
     });
   });
+
+  // Invalidate cached member state so dashboard reflects changes immediately
+  await invalidateMemberState(user.id);
 
   return NextResponse.json({ ok: true });
 

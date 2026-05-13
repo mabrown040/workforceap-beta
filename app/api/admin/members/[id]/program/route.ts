@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
   request: Request,
@@ -77,6 +78,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
   await sendPartnerMilestoneEmail(id, 'Program enrollment', {
     Program: program.title,
   });
+
+  // Invalidate cached member state so dashboard reflects program change immediately
+  await invalidateMemberState(id);
 
   return NextResponse.json({ ok: true });
 

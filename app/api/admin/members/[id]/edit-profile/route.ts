@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const schema = z.object({
@@ -70,6 +71,9 @@ const schema = z.object({
         });
       }
   
+      // Invalidate cached member state so dashboard reflects changes immediately
+      await invalidateMemberState(id);
+
       return NextResponse.json({ success: true, user });
     } catch (e) {
       console.error('[admin/edit-profile]', e);

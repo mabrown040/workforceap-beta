@@ -7,6 +7,7 @@ import { trackEvent } from '@/lib/events/track';
 import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/programCatalog';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import { awardPoints } from '@/lib/member/points';
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -128,6 +129,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     fullName: updatedUser.fullName,
     programName: programTitle,
   }).catch((err) => console.error('Course enrolled email failed:', err));
+
+  // Invalidate cached member state so dashboard reflects enrollment immediately
+  await invalidateMemberState(user.id);
 
   return NextResponse.json({ ok: true, programSlug: slug });
 

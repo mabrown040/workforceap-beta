@@ -27,8 +27,8 @@ export default function Error({
           <Image
             src="/images/wap_logo.png"
             alt=""
-            width={1930}
-            height={985}
+            width={180}
+            height={92}
             className="app-system-page__logo"
             sizes="180px"
             quality={85}

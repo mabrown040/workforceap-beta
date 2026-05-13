@@ -7,7 +7,9 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 
 import { listAwaitingApprovalCascades } from '@/lib/milestoneCascade/queries';
+import { getCascadeMetrics } from '@/lib/milestoneCascade/metrics';
 import { AgentInboxClient } from './AgentInboxClient';
+import { InboxStatsBlock } from './InboxStatsBlock';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +34,10 @@ export default async function AgentInboxPage() {
   ]);
   if (!adminOk && !counselorOk) redirect('/dashboard');
 
-  const cascades = await listAwaitingApprovalCascades({ limit: 100 });
+  const [cascades, metrics] = await Promise.all([
+    listAwaitingApprovalCascades({ limit: 100 }),
+    getCascadeMetrics({ windowDays: 7 }),
+  ]);
 
   return (
     <PortalPageFrame>
@@ -44,6 +49,7 @@ export default async function AgentInboxPage() {
             : `${cascades.length} cascade${cascades.length === 1 ? '' : 's'} awaiting your review`
         }
       />
+      <InboxStatsBlock metrics={metrics} />
       <AgentInboxClient cascades={JSON.parse(JSON.stringify(cascades))} />
     </PortalPageFrame>
   );

@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Filter, Plus } from 'lucide-react';
+import { Filter, Plus, Download, Mail, Users } from 'lucide-react';
+import BulkEmailModal from './BulkEmailModal';
+import BulkUpdateModal from './BulkUpdateModal';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -71,11 +73,6 @@ function formatTraining(m: Member, variant: 'table' | 'card' = 'table'): string 
   return '—';
 }
 
-function csvEscape(s: string) {
-  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-  return s;
-}
-
 function HeaderSelectAll({
   filtered,
   selectedIds,
@@ -115,6 +112,8 @@ export default function MembersTable({ members }: MembersTableProps) {
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkHint, setBulkHint] = useState<string | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const filtered = useMemo(() => {
     return members.filter((m) => {
@@ -198,30 +197,34 @@ export default function MembersTable({ members }: MembersTableProps) {
     });
   }
 
-  function downloadSelectedCsv() {
-    const header = ['fullName', 'email', 'program', 'partner', 'health', 'phone', 'memberUrl'];
-    const lines = [
-      header.join(','),
-      ...selectedRows.map((m) =>
-        [
-          csvEscape(m.fullName ?? ''),
-          csvEscape(m.email ?? ''),
-          csvEscape(m.programTitle ?? ''),
-          csvEscape(m.partnerName ?? ''),
-          csvEscape(m.healthStatus ?? ''),
-          csvEscape(formatPhone(m.profile?.profilePhone ?? m.phone) ?? ''),
-          csvEscape(`${typeof window !== 'undefined' ? window.location.origin : ''}/admin/members/${m.id}`),
-        ].join(','),
-      ),
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `members-selected-${selectedRows.length}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    setBulkHint(`Downloaded ${selectedRows.length} row${selectedRows.length === 1 ? '' : 's'}`);
-    window.setTimeout(() => setBulkHint(null), 3500);
+  async function downloadSelectedCsv() {
+    if (selectedRows.length === 0) return;
+    try {
+      const res = await fetch('/api/admin/members/bulk-export', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberIds: selectedRows.map((m) => m.id) }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setBulkHint(typeof data.error === 'string' ? data.error : 'Export failed');
+        window.setTimeout(() => setBulkHint(null), 3500);
+        return;
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const date = new Date().toISOString().slice(0, 10);
+      a.download = `members-export-${selectedRows.length}-${date}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setBulkHint(`Exported ${selectedRows.length} row${selectedRows.length === 1 ? '' : 's'}`);
+      window.setTimeout(() => setBulkHint(null), 3500);
+    } catch {
+      setBulkHint('Network error during export');
+      window.setTimeout(() => setBulkHint(null), 3500);
+    }
   }
 
   return (
@@ -329,7 +332,16 @@ export default function MembersTable({ members }: MembersTableProps) {
               Copy emails
             </button>
             <button type="button" className="btn btn-outline btn-sm" onClick={() => void downloadSelectedCsv()}>
-              Download CSV
+              <Download size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
+              Export CSV
+            </button>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => setShowEmailModal(true)}>
+              <Mail size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
+              Bulk email
+            </button>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowUpdateModal(true)}>
+              <Users size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
+              Bulk update
             </button>
           </div>
           {bulkHint ? <p className="admin-members-bulk-hint">{bulkHint}</p> : null}
@@ -568,6 +580,31 @@ export default function MembersTable({ members }: MembersTableProps) {
           )}
         </div>
       )}
+
+      <BulkEmailModal
+        open={showEmailModal}
+        memberIds={selectedRows.map((m) => m.id)}
+        onClose={() => setShowEmailModal(false)}
+        onSent={(result) => {
+          const ok = result.sent + result.messagesCreated;
+          const hint = `Sent to ${ok}/${result.total} members${result.errors.length > 0 ? ` (${result.errors.length} failed)` : ''}`;
+          setBulkHint(hint);
+          window.setTimeout(() => setBulkHint(null), 5000);
+        }}
+      />
+
+      <BulkUpdateModal
+        open={showUpdateModal}
+        memberIds={selectedRows.map((m) => m.id)}
+        programs={programs}
+        onClose={() => setShowUpdateModal(false)}
+        onUpdated={(result) => {
+          const hint = `Updated ${result.updated}/${result.total} members${result.errors.length > 0 ? ` (${result.errors.length} failed)` : ''}`;
+          setBulkHint(hint);
+          window.setTimeout(() => setBulkHint(null), 5000);
+          setSelectedIds(new Set());
+        }}
+      />
     </div>
   );
 }

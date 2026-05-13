@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { Download } from 'lucide-react';
 
 const FEEDBACK_TYPES = [
   { value: '', label: 'All types' },
@@ -118,6 +119,11 @@ export default function AdminFeedbackClient() {
     }
   }, [buildSummaryQuery]);
 
+  function exportCsv() {
+    const params = buildQuery();
+    window.open(`/api/admin/feedback/export?${params}`, '_blank');
+  }
+
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { void loadSummary(); }, [loadSummary]);
 
@@ -172,6 +178,15 @@ export default function AdminFeedbackClient() {
 
       {/* Filters */}
       <div className="portal-card portal-card--flat" style={{ padding: '1rem', marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
+        <button
+          type="button"
+          onClick={() => void exportCsv()}
+          className="btn btn-outline btn-sm"
+          title="Export feedback to CSV"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+        >
+          <Download size={14} /> Export CSV
+        </button>
         <div>
           <label style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>Type</label>
           <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setSkip(0); }}

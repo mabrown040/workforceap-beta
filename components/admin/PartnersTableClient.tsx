@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, RotateCcw } from 'lucide-react';
+import { Pencil, Trash2, RotateCcw, Download } from 'lucide-react';
 import PartnerEditModal from './PartnerEditModal';
 import PartnerDeactivateDialog from './PartnerDeactivateDialog';
 import OpenPartnerPortalButton from '@/app/admin/partners/OpenPartnerPortalButton';
@@ -49,6 +49,13 @@ export default function PartnersTableClient({ partners, subgroups, superAdmin }:
     }
     return list;
   }, [partners, filter, search]);
+
+  function exportCsv() {
+    const params = new URLSearchParams();
+    if (filter !== 'all') params.set('status', filter);
+    if (search.trim()) params.set('search', search.trim());
+    window.open(`/api/admin/partners/export?${params.toString()}`, '_blank');
+  }
 
   const columns = useMemo(() => {
     const base = [
@@ -229,6 +236,15 @@ export default function PartnersTableClient({ partners, subgroups, superAdmin }:
             fontSize: '0.9rem',
           }}
         />
+        <button
+          type="button"
+          onClick={() => void exportCsv()}
+          className="btn btn-outline btn-sm"
+          title="Export partners to CSV"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+        >
+          <Download size={14} /> Export CSV
+        </button>
       </div>
 
       <div className="admin-table-scroll admin-partners-desktop">

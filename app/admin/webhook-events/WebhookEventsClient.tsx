@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { Download } from 'lucide-react';
 
 import DataTable from '@/components/portal/ui/DataTable';
 
@@ -96,6 +97,16 @@ export default function WebhookEventsClient({
 
   const start = totalMatching === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalMatching);
+
+  function exportCsv() {
+    const params = new URLSearchParams();
+    if (initialQ.trim()) params.set('q', initialQ.trim());
+    if (initialSource.trim()) params.set('source', initialSource.trim());
+    if (initialStatus.trim()) params.set('status', initialStatus.trim());
+    if (initialDateFrom.trim()) params.set('dateFrom', initialDateFrom.trim());
+    if (initialDateTo.trim()) params.set('dateTo', initialDateTo.trim());
+    window.open(`/api/admin/webhook-events/export?${params.toString()}`, '_blank');
+  }
 
   return (
     <div>
@@ -224,6 +235,26 @@ export default function WebhookEventsClient({
           }}
         >
           Apply
+        </button>
+        <button
+          type="button"
+          onClick={() => void exportCsv()}
+          style={{
+            minHeight: '44px',
+            padding: '0 1.25rem',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--surface-container)',
+            color: 'var(--color-accent)',
+            border: '1px solid var(--outline-variant)',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+          }}
+        >
+          <Download size={14} /> Export CSV
         </button>
       </form>
 

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Redis } from '@upstash/redis';
+import { getCacheOrFetch } from '@/lib/cache';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -171,9 +172,11 @@ async function checkWebhooks(): Promise<WebhookHealth> {
 
 async function checkXapi(): Promise<XapiHealth> {
   try {
-    const pendingStatements = await prisma.xapiStatement.count({
-      where: { processed: false },
-    });
+    const pendingStatements = await getCacheOrFetch(
+      'xapi:counts',
+      () => prisma.xapiStatement.count({ where: { processed: false } }),
+      300,
+    );
 
     const status: SubsystemCheck['status'] =
       pendingStatements > 1000 ? 'fail' : pendingStatements > 500 ? 'degraded' : 'ok';

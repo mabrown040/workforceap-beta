@@ -4,11 +4,11 @@ import { prisma } from '@/lib/db/prisma';
 import { handleApiError } from '@/lib/api/errors';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
 /** Invalidate cached job listings (called after admin approval/rejection) */
 export async function invalidateJobListings(): Promise<void> {
-  // TODO: wire up cache revalidation (revalidatePath / revalidateTag)
-  // when job listing caching is implemented.
+  await invalidateCache('jobs:list:*');
 }
 
 /** Public jobs listing - only live jobs for students */
@@ -102,25 +102,43 @@ export async function GET(request: NextRequest) {
             ? [{ title: 'asc' }]
             : [{ updatedAt: 'desc' }];
 
-    const jobs = await prisma.job.findMany({
-      where,
-      orderBy,
-      include: {
-        employer: { select: { companyName: true, logoUrl: true } },
+    const cacheKeyParts = [
+      keyword || '',
+      locationType || '',
+      jobType || '',
+      program || '',
+      salaryMinNum ?? '',
+      salaryMaxNum ?? '',
+      sort,
+      ageGroup || '',
+    ];
+    const cacheKey = `jobs:list:${cacheKeyParts.join('|')}`;
+
+    const visible = await getCacheOrFetch(
+      cacheKey,
+      async () => {
+        const jobs = await prisma.job.findMany({
+          where,
+          orderBy,
+          include: {
+            employer: { select: { companyName: true, logoUrl: true } },
+          },
+          take: 100,
+        });
+        return jobs
+          .filter(
+            (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+          )
+          .map((job) => ({
+            ...job,
+            employer: {
+              ...job.employer,
+              logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+            },
+          }));
       },
-      take: 100,
-    });
-    const visible = jobs
-      .filter(
-        (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
-      )
-      .map((job) => ({
-        ...job,
-        employer: {
-          ...job.employer,
-          logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
-        },
-      }));
+      900,
+    );
     return NextResponse.json(visible);
   } catch (error) {
     return handleApiError(error, 'GET /api/jobs');

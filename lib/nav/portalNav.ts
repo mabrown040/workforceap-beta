@@ -360,6 +360,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/crons', label: 'Cron Monitor', group: 'insights', Icon: Timer },
   { href: '/admin/health', label: 'System Health', group: 'insights', Icon: HeartPulse },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
+  { href: '/admin/webhook-events', label: 'Webhook events', group: 'insights', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'insights', Icon: ClipboardCheck },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'insights', Icon: MessageSquare },
   // ── Manage ──

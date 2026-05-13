@@ -551,6 +551,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 id="email"
                 type="email"
                 autoComplete="email"
+                inputMode="email"
                 autoFocus
                 placeholder="you@example.com"
                 value={email}
@@ -608,13 +609,13 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </div>
 
             {/* Maintain session checkbox */}
-            <div style={s.checkboxRow}>
+            <div style={{ ...s.checkboxRow, minHeight: 44 }}>
               <input
                 id="remember"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                style={{ accentColor: 'var(--color-accent)' }}
+                style={{ accentColor: 'var(--color-accent)', width: 20, height: 20 }}
               />
               <label htmlFor="remember" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
                 Stay signed in for 7 days

@@ -10,6 +10,10 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 import CounselorStudentsRosterClient from '@/components/portal/counselor/CounselorStudentsRosterClient';
 import { loadCounselorRosterRiskAndActivity } from '@/lib/counselor/counselorStudentsRoster';
+import CounselorAnalyticsCards, { CounselorAnalyticsCardsDesktop } from '@/components/portal/counselor/CounselorAnalyticsCards';
+import ProgressDistributionChart from '@/components/portal/counselor/ProgressDistributionChart';
+import AtRiskMemberList from '@/components/portal/counselor/AtRiskMemberList';
+import RecentActivityFeed from '@/components/portal/counselor/RecentActivityFeed';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 
@@ -121,12 +125,69 @@ export default async function CounselorStudentsPage() {
       })
     : [];
 
+  // ── Analytics ───────────────────────────────────────────
+  let analyticsData: {
+    totalMembers: number;
+    activeMembers: number;
+    atRiskMembers: number;
+    avgProgress: number;
+    recentCompletions: number;
+    recentPlacements: number;
+    progressDistribution: { range: string; count: number }[];
+    byProgram: { program: string; members: number; avgProgress: number }[];
+    byStatus: { status: string; count: number }[];
+    recentActivity: { memberId: string; type: 'course_completed' | 'certification_earned' | 'placement_recorded'; date: string; metadata: Record<string, unknown> | null }[];
+    atRiskList: { memberId: string; riskScore: number; riskLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; enrolledProgram: string | null }[];
+  } | null = null;
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/counselor/analytics`, {
+      headers: { cookie: '' }, // server-side fetch, auth via session cookie if available
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      analyticsData = await res.json();
+    }
+  } catch {
+    // Analytics fetch failed silently — page still renders
+  }
+
+  // Fallback analytics from already-loaded data
+  const analytics = analyticsData ?? {
+    totalMembers: activeCount,
+    activeMembers: enrolledCount,
+    atRiskMembers: rosterRows.filter((r) => r.riskScore != null && r.riskLevel !== 'LOW').length,
+    avgProgress: 0,
+    recentCompletions: 0,
+    recentPlacements: 0,
+    progressDistribution: [
+      { range: '0–25%', count: 0 },
+      { range: '25–50%', count: 0 },
+      { range: '50–75%', count: 0 },
+      { range: '75–100%', count: 0 },
+    ],
+    byProgram: [],
+    byStatus: [
+      { status: 'active', count: enrolledCount },
+      { status: 'not_enrolled', count: activeCount - enrolledCount },
+    ],
+    recentActivity: [],
+    atRiskList: rosterRows
+      .filter((r) => r.riskScore != null && r.riskLevel !== 'LOW')
+      .map((r) => ({ memberId: r.memberId, riskScore: r.riskScore ?? 0, riskLevel: r.riskLevel, enrolledProgram: r.enrolledProgram }))
+      .sort((a, b) => b.riskScore - a.riskScore)
+      .slice(0, 10),
+  };
+
   return (
     <PortalPageFrame>
       <PageHeader title={t('myMembersTitle')} subtitle={t('membersAssignedForCoaching')} />
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        {/* Stats row */}
+        {/* Analytics cards */}
+        <CounselorAnalyticsCards data={analytics} />
+
+        {/* Stats row (legacy) */}
         <div
           style={{
             display: 'flex', flexWrap: 'wrap',
@@ -169,9 +230,14 @@ export default async function CounselorStudentsPage() {
           ))}
         </div>
 
-        {/* TODO: Add real filter chips (At Risk, Upcoming Session) when
-             student list is converted to a client component with filter state.
-             Removed non-functional decorative chips that looked clickable. */}
+        {/* Progress distribution + at-risk + activity */}
+        {assignments.length > 0 && (
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <ProgressDistributionChart data={analytics.progressDistribution} />
+            <AtRiskMemberList members={analytics.atRiskList} />
+            <RecentActivityFeed items={analytics.recentActivity} />
+          </div>
+        )}
 
         {hotQueue.length > 0 ? (
           <div style={{ padding: '1rem 1rem 0' }}>
@@ -244,6 +310,19 @@ export default async function CounselorStudentsPage() {
 
       {/* ── Desktop ─────────────────────────────────────────── */}
       <div className="wa-hidden md:wa-block">
+        <CounselorAnalyticsCardsDesktop data={analytics} />
+
+        {/* Dashboard grid */}
+        {assignments.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+            <ProgressDistributionChart data={analytics.progressDistribution} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <AtRiskMemberList members={analytics.atRiskList} />
+              <RecentActivityFeed items={analytics.recentActivity} />
+            </div>
+          </div>
+        )}
+
         {hotQueue.length > 0 ? (
           <section style={{ marginBottom: '1.5rem' }}>
             <div

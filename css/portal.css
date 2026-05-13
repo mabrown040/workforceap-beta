@@ -44,14 +44,78 @@
   }
 }
 
-/* Touch target minimum 44x44 for icon-only and small buttons */
+/*
+ * Portal mobile tap targets (≤768px): ≥44px per WCAG / platform HIG.
+ * Portal + admin layouts import this sheet — `.btn` remains compact on dense
+ * desktop surfaces via rules scoped to min-width in main.css (e.g. employer cards).
+ */
 @media (max-width: 768px) {
+  .btn,
+  a.btn {
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+
   .btn-sm,
   .btn-small,
   .btn-icon,
   button[aria-label] {
     min-width: 44px;
     min-height: 44px;
+  }
+
+  /* Links styled as section CTAs / alerts */
+  .portal-section-action,
+  .portal-alert__action,
+  .portal-dash-section-header__action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .portal-promo-card__cta {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0.5rem 1rem;
+  }
+
+  .portal-messages-header-btn {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .mobile-bottom-nav a,
+  .mobile-bottom-nav button {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  /* Native buttons in workspace shells; keep dense tables compact for non-.btn controls */
+  .workspace-shell-root button:not(.sr-only) {
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  .workspace-shell-root table button:not(.btn),
+  .workspace-shell-root .admin-table button:not(.btn),
+  .workspace-shell-root .dashboard-table button:not(.btn) {
+    min-height: unset;
+  }
+
+  .import-job-back a,
+  .import-job-back button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
   }
 }
 @media (min-width: 769px) {

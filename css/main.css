@@ -15307,12 +15307,14 @@ td.admin-members-col-select {
     gap: 0.5rem;
     align-items: center;
 }
-.employer-jobs-board__bulk-actions .btn {
-    min-height: 2.5rem;
-}
 @media (max-width: 639px) {
     .employer-jobs-board__bulk-actions {
         justify-content: center;
+    }
+}
+@media (min-width: 769px) {
+    .employer-jobs-board__bulk-actions .btn {
+        min-height: 2.5rem;
     }
 }
 .employer-jobs-board__bulk-delete {
@@ -15609,11 +15611,13 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     gap: 0.5rem;
     margin-top: auto;
 }
-.employer-job-card__actions .btn {
-    min-height: 2.45rem;
-}
-.employer-bulk-modal__actions .btn {
-    min-height: 2.5rem;
+@media (min-width: 769px) {
+    .employer-job-card__actions .btn {
+        min-height: 2.45rem;
+    }
+    .employer-bulk-modal__actions .btn {
+        min-height: 2.5rem;
+    }
 }
 .employer-job-card__actions .btn-accent {
     font-weight: 600;

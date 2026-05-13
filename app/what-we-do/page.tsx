@@ -52,7 +52,7 @@ export default async function WhatWeDoPage() {
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: 'url(/images/austin-skyline.jpg)',
+            backgroundImage: 'url(/images/austin-skyline.webp)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}

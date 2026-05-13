@@ -23,9 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const HERO_IMAGE_SRC = '/images/hero-people.webp';
 const HOMEPAGE_PROGRAM_CARD_IMAGES = {
-  community: '/images/austin-skyline.jpg',
+  community: '/images/austin-skyline.webp',
   technology: '/images/hero-people.webp',
-  handsOn: '/images/AdobeStock_78118914.jpeg',
+  handsOn: '/images/AdobeStock_78118914.webp',
 } as const;
 
 const HOMEPAGE_PROGRAM_ORDER = [
@@ -41,10 +41,10 @@ function getHomepageProgramCardImage(
 ) {
   // Ensure we don't repeat the same image 4 times on the homepage
   const images = [
-    '/images/AdobeStock_78118914.jpeg',
-    '/images/austin-skyline.jpg',
+    '/images/AdobeStock_78118914.webp',
+    '/images/austin-skyline.webp',
     '/images/hero-people.webp',
-    '/images/image-asset.jpeg'
+    '/images/image-asset.webp'
   ];
   return images[index % images.length];
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '@/components/theme/ThemeToggle';
@@ -363,14 +362,14 @@ export default function MainNav() {
             className={`dropdown nav-login-dropdown${isLoginMenuOpen ? ' active' : ''}`}
           >
             <div className="nav-login-split">
-              <Link
+              <LocalizedLink
                 href={portalState.primary.href}
                 prefetch={false}
                 className={`nav-login-primary${portalHrefActive(portalState.primary.href) ? ' active' : ''}`}
                 onClick={closeMobile}
               >
                 {translateLabel(portalState.primary.label)}
-              </Link>
+              </LocalizedLink>
               {loginSubmenuItems.length > 0 ? (
                 <button
                   type="button"
@@ -404,7 +403,7 @@ export default function MainNav() {
               <ul className="dropdown-menu nav-login-flyout-menu" id={loginDropdownId} role="menu">
                 {loginSubmenuItems.map((item) => (
                   <li key={item.href} role="none">
-                    <Link
+                    <LocalizedLink
                       href={item.href}
                       prefetch={false}
                       role="menuitem"
@@ -412,7 +411,7 @@ export default function MainNav() {
                       onClick={closeMobile}
                     >
                       {translateLabel(item.label)}
-                    </Link>
+                    </LocalizedLink>
                   </li>
                 ))}
               </ul>

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 
 export default function NotFound() {
   return (
@@ -8,12 +8,12 @@ export default function NotFound() {
         The page you&rsquo;re looking for doesn&rsquo;t exist.
       </p>
       <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-        <Link href="/login" className="btn btn-primary">
+        <LocalizedLink href="/login" className="btn btn-primary">
           Sign In
-        </Link>
-        <Link href="/" className="btn btn-ghost">
+        </LocalizedLink>
+        <LocalizedLink href="/" className="btn btn-ghost">
           Go Home
-        </Link>
+        </LocalizedLink>
       </div>
     </div>
   );

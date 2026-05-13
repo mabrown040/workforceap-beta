@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
@@ -446,9 +446,9 @@ export default function ApplyCreateAccountForm() {
         <p style={{ fontSize: '0.9rem', color: '#584144', lineHeight: 1.6, marginBottom: '1.5rem' }}>
           {t('accountVerifyInstructions')}
         </p>
-        <Link href="/login" className="btn btn-primary" style={{ display: 'inline-block', marginBottom: '1rem' }}>
+        <LocalizedLink href="/login" className="btn btn-primary" style={{ display: 'inline-block', marginBottom: '1rem' }}>
           {t('accountVerifyLogin')}
-        </Link>
+        </LocalizedLink>
         <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
           {t('accountVerifySpam')}{' '}
           <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
@@ -475,12 +475,12 @@ export default function ApplyCreateAccountForm() {
           {t('accountMissingSessionP1')}
         </p>
         <p style={{ marginBottom: '0.75rem' }}>
-          <Link href="/apply/results" className="btn btn-primary">
+          <LocalizedLink href="/apply/results" className="btn btn-primary">
             {t('accountMissingSessionCta')}
-          </Link>
+          </LocalizedLink>
         </p>
         <p>
-          <Link href="/apply">{t('accountMissingSessionRestart')}</Link>
+          <LocalizedLink href="/apply">{t('accountMissingSessionRestart')}</LocalizedLink>
         </p>
       </div>
     );
@@ -494,7 +494,7 @@ export default function ApplyCreateAccountForm() {
       </div>
 
       <p className="apply-step-back-nav" style={{ marginBottom: '1rem' }}>
-        <Link href="/apply/results">{t('accountBackResults')}</Link>
+        <LocalizedLink href="/apply/results">{t('accountBackResults')}</LocalizedLink>
       </p>
 
       <div className="apply-transition-card" role="note" aria-label={t('accountAriaWhyNow')}>
@@ -823,7 +823,7 @@ export default function ApplyCreateAccountForm() {
         </label>
         <p id="contact-consent-hint" className="apply-field-hint" style={{ margin: '0 0 0.5rem 0' }}>
           {t('accountConsentHint')}{' '}
-          <Link href="/privacy" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{t('privacyPolicy')}</Link>.
+          <LocalizedLink href="/privacy" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{t('privacyPolicy')}</LocalizedLink>.
         </p>
         {fieldErrors.contactConsent ? (
           <p id="contact-consent-error" className="form-error" role="alert" style={{ marginBottom: '0.5rem' }}>

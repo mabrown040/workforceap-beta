@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useTranslations } from 'next-intl';
 import {
   PROGRAMS,
@@ -145,12 +145,12 @@ function ProgramCard({ program }: { program: Program }) {
       >
         <span style={{ fontSize: '.8rem', color: 'var(--color-on-surface-variant)' }}>Partner: {displayPartner}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
-          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+          <LocalizedLink href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program
-          </Link>
-          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+          </LocalizedLink>
+          <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             Get Started →
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     </div>
@@ -230,7 +230,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                     Not sure which one fits? Start with these three.
                   </h3>
                 </div>
-                <Link href="/find-your-path" className="btn btn-primary">Take the 2-minute quiz</Link>
+                <LocalizedLink href="/find-your-path" className="btn btn-primary">Take the 2-minute quiz</LocalizedLink>
               </div>
               <p style={{ fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', maxWidth: '44rem', lineHeight: 1.6, margin: '0.75rem 0 1rem' }}>
                 These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.
@@ -367,14 +367,14 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           ))}
         </div>
         )}
-        <div className="programs-quiz-sticky"><Link href="/find-your-path" className="btn btn-primary">Not sure? Take the 2-minute quiz</Link></div>
+        <div className="programs-quiz-sticky"><LocalizedLink href="/find-your-path" className="btn btn-primary">Not sure? Take the 2-minute quiz</LocalizedLink></div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
-          <Link href="/find-your-path" className="btn btn-primary">Find Your Path — Take the Quiz</Link>
-          <Link href="/program-comparison" className="btn btn-outline">Compare Programs</Link>
-          <Link href="/salary-guide" className="btn btn-ghost">View Salary Guide</Link>
+          <LocalizedLink href="/find-your-path" className="btn btn-primary">Find Your Path — Take the Quiz</LocalizedLink>
+          <LocalizedLink href="/program-comparison" className="btn btn-outline">Compare Programs</LocalizedLink>
+          <LocalizedLink href="/salary-guide" className="btn btn-ghost">View Salary Guide</LocalizedLink>
         </div>
       </div>
     </section>

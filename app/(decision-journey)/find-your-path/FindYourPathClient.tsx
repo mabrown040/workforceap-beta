@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
 import type { Program } from '@/lib/content/programs';
@@ -285,9 +285,9 @@ function QuizResultsView({
           <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
             <strong>Need a reliable computer for training?</strong> Ask your counselor about{' '}
             <strong>loaner or device support</strong> options — we can help you get set up for online coursework.{' '}
-            <Link href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            <LocalizedLink href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               Contact us
-            </Link>{' '}
+            </LocalizedLink>{' '}
             or call <a href="tel:+15127771808">(512) 777-1808</a>.
           </p>
         </div>
@@ -345,19 +345,19 @@ function QuizResultsView({
               <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
                 Partner: {program.partner}
               </div>
-              <Link
+              <LocalizedLink
                 href={getApplyHref(program.slug)}
                 className="btn btn-primary"
                 style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
               >
                 Apply for this path →
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href={`/programs/${program.slug}`}
                 className="quiz-result-detail-link"
               >
                 View full program details →
-              </Link>
+              </LocalizedLink>
             </div>
           );
         })}
@@ -373,12 +373,12 @@ function QuizResultsView({
             Choose the track that fits you best, then we’ll follow up within 1–2 business days.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-            <Link href={topApplyHref} className="btn btn-primary btn-large">
+            <LocalizedLink href={topApplyHref} className="btn btn-primary btn-large">
               Start {topProgram.title} Application →
-            </Link>
-            <Link href="/contact" className="btn btn-outline btn-large">
+            </LocalizedLink>
+            <LocalizedLink href="/contact" className="btn btn-outline btn-large">
               Talk to a counselor first
-            </Link>
+            </LocalizedLink>
           </div>
           {programs.length > 1 && (
             <div style={{ marginTop: '1rem' }}>
@@ -387,7 +387,7 @@ function QuizResultsView({
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
                 {programs.slice(0, 3).map((program) => (
-                  <Link
+                  <LocalizedLink
                     key={program.slug}
                     href={getApplyHref(program.slug)}
                     className="quiz-result-detail-link"
@@ -401,7 +401,7 @@ function QuizResultsView({
                     }}
                   >
                     Apply for {program.title}
-                  </Link>
+                  </LocalizedLink>
                 ))}
               </div>
             </div>
@@ -418,8 +418,8 @@ function QuizResultsView({
           notes. Then use the salary guide for the same published ranges.
         </p>
         <div className="quiz-results-next-links">
-          <Link href="/program-comparison">Compare programs</Link>
-          <Link href="/salary-guide">Salary guide</Link>
+          <LocalizedLink href="/program-comparison">Compare programs</LocalizedLink>
+          <LocalizedLink href="/salary-guide">Salary guide</LocalizedLink>
         </div>
       </div>
 
@@ -439,9 +439,9 @@ function QuizResultsView({
         ) : (
           <>
             <p>Not seeing what you expected?</p>
-            <Link href="/programs" className="btn btn-outline">
+            <LocalizedLink href="/programs" className="btn btn-outline">
               Browse All 19 Programs →
-            </Link>
+            </LocalizedLink>
           </>
         )}
       </div>

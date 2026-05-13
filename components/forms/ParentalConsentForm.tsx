@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 
 type ParentalConsentData = {
   parentGuardianName: string;
@@ -210,13 +210,13 @@ export default function ParentalConsentForm({
             />
             <span style={{ marginLeft: '0.5rem' }}>
               I am the parent or legal guardian of {studentName}, and I have read and agree to the{' '}
-              <Link href="/terms" target="_blank" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
+              <LocalizedLink href="/terms" target="_blank" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
                 Terms of Service
-              </Link>{' '}
+              </LocalizedLink>{' '}
               and{' '}
-              <Link href="/privacy" target="_blank" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
+              <LocalizedLink href="/privacy" target="_blank" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>
                 Privacy Policy
-              </Link>
+              </LocalizedLink>
               . I consent to my child&rsquo;s participation in WorkforceAP programs.{' '}
               <span style={{ color: 'var(--color-accent)' }}>*</span>
             </span>

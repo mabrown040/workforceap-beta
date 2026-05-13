@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import {
   memberSignupSchema,
   type MemberSignupInput,
@@ -296,12 +296,12 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', lineHeight: 'var(--line-height-normal)' }}>
             We&rsquo;ve sent you a verification link. Click it to activate your account, then you can log in.
           </p>
-          <Link
+          <LocalizedLink
             href={loginHref}
             style={{ ...s.primaryBtn, display: 'inline-block', textDecoration: 'none', textAlign: 'center', maxWidth: 280 }}
           >
             Go to login
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     );
@@ -515,9 +515,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 />
                 <span>
                   I agree to the{' '}
-                  <Link href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Terms of Service</Link>{' '}
+                  <LocalizedLink href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Terms of Service</LocalizedLink>{' '}
                   and{' '}
-                  <Link href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Privacy Policy</Link> *
+                  <LocalizedLink href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Privacy Policy</LocalizedLink> *
                 </span>
               </label>
               {errors.consentTerms && <span id="consentTerms-error" role="alert" style={s.fieldError}>{errors.consentTerms.message}</span>}
@@ -545,7 +545,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
             Already have an account?{' '}
-            <Link href={loginHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
+            <LocalizedLink href={loginHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</LocalizedLink>
           </p>
         </div>
       </div>

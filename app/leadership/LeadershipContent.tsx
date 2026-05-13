@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { LEADERS } from '@/lib/content/leadership';
 
 const executives = LEADERS.filter(
@@ -53,7 +53,7 @@ export default function LeadershipContent() {
             }}
           >
             {executives.map((leader, index) => (
-              <Link
+              <LocalizedLink
                 key={leader.slug}
                 href={`/leadership/${leader.slug}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
@@ -162,7 +162,7 @@ export default function LeadershipContent() {
                     </p>
                   </div>
                 </article>
-              </Link>
+              </LocalizedLink>
             ))}
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function LeadershipContent() {
 
           <div className="leadership-board-equal">
             {boardMembers.map((leader) => (
-              <Link
+              <LocalizedLink
                 key={leader.slug}
                 href={`/leadership/${leader.slug}`}
                 style={{
@@ -311,7 +311,7 @@ export default function LeadershipContent() {
                     arrow_forward
                   </span>
                 </article>
-              </Link>
+              </LocalizedLink>
             ))}
           </div>
         </div>
@@ -347,7 +347,7 @@ export default function LeadershipContent() {
               }}
             >
               {leadConsultants.map((leader) => (
-                <Link
+                <LocalizedLink
                   key={leader.slug}
                   href={`/leadership/${leader.slug}`}
                   style={{ textDecoration: 'none', color: 'inherit' }}
@@ -469,7 +469,7 @@ export default function LeadershipContent() {
                       </p>
                     </div>
                   </article>
-                </Link>
+                </LocalizedLink>
               ))}
             </div>
           </div>
@@ -527,7 +527,7 @@ export default function LeadershipContent() {
                 flexWrap: 'wrap',
               }}
             >
-              <Link
+              <LocalizedLink
                 href="/contact"
                 style={{
                   display: 'inline-flex',
@@ -547,8 +547,8 @@ export default function LeadershipContent() {
                   mail
                 </span>
                 Get in Touch
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href="/programs"
                 style={{
                   display: 'inline-flex',
@@ -569,7 +569,7 @@ export default function LeadershipContent() {
                   school
                 </span>
                 View Programs
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

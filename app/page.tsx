@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
@@ -200,7 +200,7 @@ export default async function HomePage() {
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-            <Link
+            <LocalizedLink
               href="/apply"
               className={marketingButtonClasses({
                 variant: 'primary',
@@ -210,8 +210,8 @@ export default async function HomePage() {
               })}
             >
               {t('heroCtaPrimary')}
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               href="/find-your-path"
               className={marketingButtonClasses({
                 variant: 'secondary',
@@ -222,8 +222,8 @@ export default async function HomePage() {
               })}
             >
               {t('heroCta')}
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               href="/programs"
               className={marketingButtonClasses({
                 variant: 'ghost',
@@ -233,7 +233,7 @@ export default async function HomePage() {
               })}
             >
               {t('browsePrograms')}
-            </Link>
+            </LocalizedLink>
           </div>
           <p style={{ marginTop: '0.65rem', marginBottom: 0, fontSize: 'clamp(0.95rem, 0.5vw + 0.88rem, 1.05rem)', fontWeight: 600, color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.92))' }}>
             {t('heroSocialProof')}
@@ -276,9 +276,9 @@ export default async function HomePage() {
             </div>
             {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
             <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
-              <Link href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+              <LocalizedLink href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
                 {t('readyToApply')}
-              </Link>
+              </LocalizedLink>
             </p>
           </div>
 
@@ -443,8 +443,8 @@ export default async function HomePage() {
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                <Link href="/apply" className="btn btn-primary btn-small">{t('memberCardCta')}</Link>
-                <Link href="/wioa-qualification" className="btn btn-secondary btn-small">{t('memberCardCta2')}</Link>
+                <LocalizedLink href="/apply" className="btn btn-primary btn-small">{t('memberCardCta')}</LocalizedLink>
+                <LocalizedLink href="/wioa-qualification" className="btn btn-secondary btn-small">{t('memberCardCta2')}</LocalizedLink>
               </div>
             </div>
 
@@ -469,7 +469,7 @@ export default async function HomePage() {
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/partners" className="btn btn-primary btn-small">{t('partnerCardCta')}</Link>
+                <LocalizedLink href="/partners" className="btn btn-primary btn-small">{t('partnerCardCta')}</LocalizedLink>
               </div>
             </div>
 
@@ -494,7 +494,7 @@ export default async function HomePage() {
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
-                <Link href="/employers" className="btn btn-primary btn-small">{t('employerCardCta')}</Link>
+                <LocalizedLink href="/employers" className="btn btn-primary btn-small">{t('employerCardCta')}</LocalizedLink>
               </div>
             </div>
           </div>
@@ -606,7 +606,7 @@ export default async function HomePage() {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <Link href="/how-it-works" className="btn btn-secondary">{t('journeyCta')}</Link>
+          <LocalizedLink href="/how-it-works" className="btn btn-secondary">{t('journeyCta')}</LocalizedLink>
         </div>
       </section>
 
@@ -623,7 +623,7 @@ export default async function HomePage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
           {homeProgramShowcase.map((p, index) => (
-            <Link
+            <LocalizedLink
               key={p.slug}
               href={`/programs/${p.slug}`}
               className="portal-card portal-card--flat"
@@ -679,13 +679,13 @@ export default async function HomePage() {
                   </span>
                 </div>
               </div>
-            </Link>
+            </LocalizedLink>
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <Link href="/programs" className="btn btn-secondary">
+          <LocalizedLink href="/programs" className="btn btn-secondary">
             {t('programsCta', { count: programCount })}
-          </Link>
+          </LocalizedLink>
         </div>
       </section>
 
@@ -703,9 +703,9 @@ export default async function HomePage() {
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
           {t('aiVoice')}
         </p>
-        <Link href="/apply" className="btn btn-primary">
+        <LocalizedLink href="/apply" className="btn btn-primary">
           {t('aiCta')}
-        </Link>
+        </LocalizedLink>
       </section>
 
       {/* ===== Final CTA ===== */}
@@ -716,15 +716,15 @@ export default async function HomePage() {
             {t('ctaCopy')}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
-            <Link href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
+            <LocalizedLink href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
               {t('ctaApply')}
-            </Link>
-            <Link href="/find-your-path" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '2px solid white', fontWeight: 700 }}>
+            </LocalizedLink>
+            <LocalizedLink href="/find-your-path" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '2px solid white', fontWeight: 700 }}>
               {t('ctaFind')}
-            </Link>
-            <Link href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.55)', fontWeight: 600 }}>
+            </LocalizedLink>
+            <LocalizedLink href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.55)', fontWeight: 600 }}>
               {t('ctaViewPrograms')}
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </section>

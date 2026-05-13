@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 
 interface PricingTierCardProps {
   title: ReactNode;
@@ -62,7 +62,7 @@ export function PricingTierCard({ title, features, ctaText, ctaHref, variant = '
           </li>
         ))}
       </ul>
-      <Link
+      <LocalizedLink
         href={ctaHref}
         style={{
           display: 'block',
@@ -78,7 +78,7 @@ export function PricingTierCard({ title, features, ctaText, ctaHref, variant = '
         }}
       >
         {ctaText}
-      </Link>
+      </LocalizedLink>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { createSupabaseBrowserClient } from '@/lib/auth/client';
 import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 
@@ -147,9 +147,9 @@ function ResetPasswordForm() {
           <div className="page-hero-content">
             <h1>Link invalid or expired</h1>
             <p>{verifyError}</p>
-            <Link href="/forgot-password" className="btn btn-primary" style={{ marginTop: '1rem' }}>
+            <LocalizedLink href="/forgot-password" className="btn btn-primary" style={{ marginTop: '1rem' }}>
               Request a new reset link
-            </Link>
+            </LocalizedLink>
           </div>
         </section>
       </div>
@@ -233,7 +233,7 @@ function ResetPasswordForm() {
                   {stage === 'submitting' ? 'Saving…' : 'Save new password'}
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-                  <Link href="/login">Back to login</Link>
+                  <LocalizedLink href="/login">Back to login</LocalizedLink>
                 </p>
               </form>
             </div>

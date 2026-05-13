@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import FindYourPathClient from './FindYourPathClient';
@@ -61,9 +61,9 @@ export default function FindYourPathPage() {
             <a href="#find-your-path-quiz" className="btn btn-primary">
               Take the 2-minute, 3-question quiz
             </a>
-            <Link href="/apply" className="btn btn-outline">
+            <LocalizedLink href="/apply" className="btn btn-outline">
               Already know your path? Apply now
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </section>
@@ -94,9 +94,9 @@ export default function FindYourPathPage() {
                   </p>
                   <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Not sure where to begin? Start with a common fit.</h2>
                 </div>
-                <Link href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
+                <LocalizedLink href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
                   Browse the full catalog
-                </Link>
+                </LocalizedLink>
               </div>
               <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
                 You can still move forward without the quiz. These are common starting points for beginners, job-seekers who need a faster path, and members exploring business-facing work.
@@ -123,12 +123,12 @@ export default function FindYourPathPage() {
                       {program.duration}
                     </p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                      <Link href={`/programs/${program.slug}`} style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
+                      <LocalizedLink href={`/programs/${program.slug}`} style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'none' }}>
                         View details →
-                      </Link>
-                      <Link href={`/apply?program=${program.slug}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
+                      </LocalizedLink>
+                      <LocalizedLink href={`/apply?program=${program.slug}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
                         Apply
-                      </Link>
+                      </LocalizedLink>
                     </div>
                   </div>
                 ))}

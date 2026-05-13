@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { Suspense } from 'react';
 import Footer from '@/components/Footer';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
@@ -201,9 +201,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             {t('helpBody')}
           </p>
           <div style={sPage.heroFallbackActions}>
-            <Link href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
+            <LocalizedLink href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
               {t('helpCta1')}
-            </Link>
+            </LocalizedLink>
             <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
               {t('helpCta2')}
             </a>
@@ -326,7 +326,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           <div>
             <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h3>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
-              {t('suppCard1Body')} <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>{t('privacyPolicy')}</Link>.
+              {t('suppCard1Body')} <LocalizedLink href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>{t('privacyPolicy')}</LocalizedLink>.
             </p>
           </div>
         </div>

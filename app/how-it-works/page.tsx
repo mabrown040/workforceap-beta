@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { prisma } from '@/lib/db/prisma';
@@ -104,13 +104,13 @@ export default async function HowItWorksPage() {
                 <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{t('whoCanApplyTitle')}</p>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
                   {t('whoCanApplyBody')}{' '}
-                  <Link href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  <LocalizedLink href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
                     {t('wioaLink')}
-                  </Link>
+                  </LocalizedLink>
                 </p>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-                <Link
+                <LocalizedLink
                   href="/find-your-path"
                   style={{
                     display: 'inline-block',
@@ -124,8 +124,8 @@ export default async function HowItWorksPage() {
                   }}
                 >
                   {t('heroCta1')}
-                </Link>
-                <Link
+                </LocalizedLink>
+                <LocalizedLink
                   href="/apply"
                   style={{
                     display: 'inline-block',
@@ -139,8 +139,8 @@ export default async function HowItWorksPage() {
                   }}
                 >
                   {t('heroCta2')}
-                </Link>
-                <Link
+                </LocalizedLink>
+                <LocalizedLink
                   href="/programs"
                   style={{
                     display: 'inline-block',
@@ -155,7 +155,7 @@ export default async function HowItWorksPage() {
                   }}
                 >
                   {t('heroCta3')}
-                </Link>
+                </LocalizedLink>
               </div>
             </div>
           </div>
@@ -237,8 +237,8 @@ export default async function HowItWorksPage() {
               {t('ctaBody')}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <Link href="/apply" className="btn btn-primary">{t('ctaApply')}</Link>
-              <Link href="/find-your-path" className="btn btn-muted">{t('heroCta1')}</Link>
+              <LocalizedLink href="/apply" className="btn btn-primary">{t('ctaApply')}</LocalizedLink>
+              <LocalizedLink href="/find-your-path" className="btn btn-muted">{t('heroCta1')}</LocalizedLink>
             </div>
           </div>
         </div>
@@ -363,7 +363,7 @@ export default async function HowItWorksPage() {
         headline={t('ctaTitle')}
         subheadline={t('ctaBody')}
         primaryAction={
-          <Link
+          <LocalizedLink
             href="/apply"
             style={{
               background: 'var(--color-gold)',
@@ -376,10 +376,10 @@ export default async function HowItWorksPage() {
             }}
           >
             {t('ctaApply')}
-          </Link>
+          </LocalizedLink>
         }
         secondaryAction={
-          <Link
+          <LocalizedLink
             href="/contact"
             style={{
               background: 'rgba(255,255,255,0.1)',
@@ -392,7 +392,7 @@ export default async function HowItWorksPage() {
             }}
           >
             {t('ctaContact')}
-          </Link>
+          </LocalizedLink>
         }
       />
 

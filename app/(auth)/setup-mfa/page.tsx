@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 function getMfaSetupNextPath() {
@@ -90,7 +90,7 @@ export default function SetupMfaPage() {
           <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-error)', marginBottom: '0.5rem' }}>error</span>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Setup Failed</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>{error}</p>
-          <Link href={nextPath} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Continue</Link>
+          <LocalizedLink href={nextPath} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Continue</LocalizedLink>
         </div>
       </div>
     );
@@ -105,7 +105,7 @@ export default function SetupMfaPage() {
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
             Two-factor authentication is now active on your account. You'll need your authenticator app each time you sign in.
           </p>
-          <Link
+          <LocalizedLink
             href={nextPath}
             style={{
               display: 'inline-block',
@@ -118,7 +118,7 @@ export default function SetupMfaPage() {
             }}
           >
             Continue
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     );

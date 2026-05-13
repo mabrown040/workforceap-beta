@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -73,8 +73,8 @@ export default function ProgramComparisonPage() {
               Our career advisors can help you map a custom program sequence based on your background, goals, and timeline. No cost, no obligation.
             </p>
             <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <Link href="/find-your-path" className="btn btn-primary btn-small">Take the Quiz</Link>
-              <Link href="/programs" className="btn btn-outline btn-small">Explore Programs</Link>
+              <LocalizedLink href="/find-your-path" className="btn btn-primary btn-small">Take the Quiz</LocalizedLink>
+              <LocalizedLink href="/programs" className="btn btn-outline btn-small">Explore Programs</LocalizedLink>
             </div>
           </div>
 
@@ -91,12 +91,12 @@ export default function ProgramComparisonPage() {
               WorkforceAP programs are offered at no cost for qualifying members. Training is available through WorkforceAP and partner-backed pathways.
             </p>
             <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <Link href="/salary-guide" className="btn btn-small" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
+              <LocalizedLink href="/salary-guide" className="btn btn-small" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
                 View Salary Guide
-              </Link>
-              <Link href="/apply" className="btn btn-small" style={{ border: '1px solid rgba(255,255,255,0.35)', color: '#fff' }}>
+              </LocalizedLink>
+              <LocalizedLink href="/apply" className="btn btn-small" style={{ border: '1px solid rgba(255,255,255,0.35)', color: '#fff' }}>
                 Apply Now
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

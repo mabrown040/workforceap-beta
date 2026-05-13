@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 
 function ForgotPasswordForm() {
   const searchParams = useSearchParams();
@@ -55,9 +55,9 @@ function ForgotPasswordForm() {
           <div className="page-hero-content">
             <h1>Check your email</h1>
             <p>{successMessage}</p>
-            <Link href="/login" className="btn btn-primary" style={{ marginTop: '1rem' }}>
+            <LocalizedLink href="/login" className="btn btn-primary" style={{ marginTop: '1rem' }}>
               Back to login
-            </Link>
+            </LocalizedLink>
           </div>
         </section>
       </div>
@@ -104,7 +104,7 @@ function ForgotPasswordForm() {
                   {status === 'loading' ? 'Sending…' : 'Send reset link'}
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-                  <Link href="/login">Back to login</Link>
+                  <LocalizedLink href="/login">Back to login</LocalizedLink>
                 </p>
               </form>
             </div>

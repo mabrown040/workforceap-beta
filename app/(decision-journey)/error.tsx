@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 
 export default function DecisionJourneyError({
   error,
@@ -28,9 +28,9 @@ export default function DecisionJourneyError({
         <button type="button" className="btn btn-primary" onClick={() => reset()}>
           Try again
         </button>
-        <Link href="/" className="btn btn-ghost">
+        <LocalizedLink href="/" className="btn btn-ghost">
           Go Home
-        </Link>
+        </LocalizedLink>
       </div>
     </div>
   );

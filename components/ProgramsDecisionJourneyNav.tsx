@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -61,7 +61,7 @@ export default function ProgramsDecisionJourneyNav({
             (isQuizInProgress ? s.id === 'quiz' : resolved === s.id);
           return (
             <li key={s.id}>
-              <Link
+              <LocalizedLink
                 href={s.href}
                 prefetch={s.id === 'quiz' || s.id === 'programs'}
                 scroll={false}
@@ -78,7 +78,7 @@ export default function ProgramsDecisionJourneyNav({
                   {s.icon}
                 </span>
                 <span className="pdj-nav__label">{s.label}</span>
-              </Link>
+              </LocalizedLink>
             </li>
           );
         })}

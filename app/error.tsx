@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { useEffect } from 'react';
 import * as Sentry from '@sentry/nextjs';
@@ -23,7 +23,7 @@ export default function Error({
   return (
     <div className="app-system-page">
       <div className="app-system-page__inner container">
-        <Link href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
+        <LocalizedLink href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
             src="/images/wap_logo.png"
             alt="WorkforceAP logo"
@@ -33,7 +33,7 @@ export default function Error({
             sizes="180px"
             quality={85}
           />
-        </Link>
+        </LocalizedLink>
         <p className="app-system-page__eyebrow">Something went wrong</p>
         <h1 className="app-system-page__title">We couldn&rsquo;t load this page</h1>
         <p className="app-system-page__text">
@@ -52,12 +52,12 @@ export default function Error({
           <button type="button" onClick={() => reset()} className="btn btn-primary">
             Try again
           </button>
-          <Link href="/" className="btn btn-outline">
+          <LocalizedLink href="/" className="btn btn-outline">
             Back to home
-          </Link>
-          <Link href="/contact" className="btn btn-ghost">
+          </LocalizedLink>
+          <LocalizedLink href="/contact" className="btn btn-ghost">
             Contact us
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
       <Footer />

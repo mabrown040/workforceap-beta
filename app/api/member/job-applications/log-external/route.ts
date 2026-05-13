@@ -9,6 +9,8 @@ import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread
 import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
 import { awardPoints } from '@/lib/member/points';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Log an external job application — Member Apply Loop.
  *
@@ -51,9 +53,7 @@ const SOURCE_DETAIL_LABELS = {
 function toCanonicalSource(source: keyof typeof SOURCE_DETAIL_LABELS): 'INDEED' | 'LINKEDIN' | 'DIRECT' | 'OTHER' {
   if (source === 'INDEED' || source === 'LINKEDIN' || source === 'DIRECT') return source;
   return 'OTHER';
-}
-
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -140,4 +140,4 @@ export async function POST(req: NextRequest) {
     captureApiError(error, { route: 'POST /api/member/job-applications/log-external' });
     return NextResponse.json({ error: 'Failed to log application' }, { status: 500 });
   }
-}
+});

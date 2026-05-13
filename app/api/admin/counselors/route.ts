@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, counselorInOrg, assertSameTenant } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -43,15 +43,14 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);
 
 
 const createBody = z.object({
   userId: z.string().uuid(),
   partnerId: z.string().uuid().nullable().optional(),
   title: z.string().max(120).optional().nullable(),
-});
-
-export async function POST(request: NextRequest) {
+});async function _POST(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -125,4 +124,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 

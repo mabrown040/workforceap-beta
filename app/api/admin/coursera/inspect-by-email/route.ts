@@ -16,6 +16,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * GET /api/admin/coursera/inspect-by-email?email=<email>
  *
@@ -132,9 +134,7 @@ function epochToIso(value: number | null | undefined): string | null {
   } catch {
     return null;
   }
-}
-
-export async function GET(request: NextRequest) {
+}export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -546,4 +546,4 @@ export async function GET(request: NextRequest) {
     console.error('/admin/coursera/inspect-by-email:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

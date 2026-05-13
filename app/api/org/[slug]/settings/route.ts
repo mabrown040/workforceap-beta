@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { clearOrganizationBrandingCache } from '@/lib/tenant/organizationBranding';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const hexColor = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a 6-digit hex like #1a5f7a')
@@ -17,9 +19,7 @@ const settingsSchema = z.object({
   logo: z.string().max(2000).optional().nullable(),
   customDomain: z.string().max(253).optional().nullable(),
   overviewVideoUrl: z.string().url().max(2000).optional().nullable(),
-});
-
-export async function GET(
+});async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
@@ -54,8 +54,7 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function PUT(
+export const GET = withApiGuc(_GET);async function _PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
@@ -104,3 +103,4 @@ export async function PUT(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PUT = withApiGuc(_PUT);

@@ -8,6 +8,8 @@ import { logWebhookEvent } from '@/lib/webhooks/logEvent';
 import { markWebhookForRetry } from '@/lib/webhooks/retry';
 import { prisma } from '@/lib/db/prisma';
 
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
+
 export const webhookSchema = z.object({
   memberId: z.string().trim().min(1),
   courseName: z.string().trim().min(1),
@@ -75,9 +77,7 @@ export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'al
     }
     throw error;
   }
-}
-
-export async function POST(req: Request) {
+}export const POST = withSystemGuc(async (req: Request) => {
   const startTime = Date.now();
   let rawBody = '';
   let eventId: string | undefined;
@@ -235,4 +235,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+});

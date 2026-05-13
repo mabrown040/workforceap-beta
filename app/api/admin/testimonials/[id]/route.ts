@@ -4,12 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
 
-/**
- * PATCH /api/admin/testimonials/[id]
- * Admin API: update testimonial status (approve/reject/publish), content, rating, etc.
- * Body: { status?, content?, rating?, rejectionReason?, photoUrl? }
- */
-export async function PATCH(
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -125,12 +120,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-/**
- * DELETE /api/admin/testimonials/[id]
- * Admin API: soft-delete a testimonial.
- */
-export async function DELETE(
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -158,3 +148,4 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);

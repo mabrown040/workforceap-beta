@@ -5,6 +5,8 @@ import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const FILE_RESUME_MAX = 6000;
 const LIVE_DRAFT_MAX = 6000;
 /** Align with `getMemberResumePlainText` (substantive extract). Below this, treat as no usable resume text for voice branching. */
@@ -50,16 +52,7 @@ async function getResumeCoachDynamicVariables(
     console.error('[resume-coach] context fetch error:', err);
     return {};
   }
-}
-
-
-/**
- * POST — signed URL for resume-focused voice coach.
- * Body (optional): `{ liveResumeDraft?: string }` — snapshot from the live editor at session start.
- * Dynamic variables: `resume_text`, `live_resume_draft`, `has_resume` (usable text/draft ≥40 chars),
- * `resume_file_on_profile` (stored path exists), plus member/program fields.
- */
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -89,4 +82,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/resume-coach/session:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

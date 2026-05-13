@@ -4,12 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
 
-/**
- * GET /api/admin/members/merge?primaryId=...&secondaryId=...
- *
- * Returns a preview of what would happen if the two members were merged.
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,16 +31,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-
-/**
- * POST /api/admin/members/merge
- *
- * Body: { primaryId: string, secondaryId: string }
- *
- * Merges secondary member into primary.
- * Returns: { ok: true, primaryId, secondaryId, repointed: string[], mergedFields: string[] }
- */
-export async function POST(req: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -70,3 +56,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

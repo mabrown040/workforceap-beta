@@ -84,11 +84,11 @@ export function withAnonymousGuc<T>(fn: () => Promise<T>): Promise<T> {
  *   export const GET = withApiGuc(async (request) => { ... });
  */
 export function withApiGuc<T, R extends Request = Request>(
-  handler: (request: R) => Promise<T>,
-): (request: R) => Promise<T> {
-  return async (request: R) => {
+  handler: (request: R, context?: { params: Promise<Record<string, string>> }) => Promise<T>,
+): (request: R, context?: { params: Promise<Record<string, string>> }) => Promise<T> {
+  return async (request: R, context?: { params: Promise<Record<string, string>> }) => {
     const ctx = await resolveAuthGucContext();
-    return runWithGucContext(ctx, () => handler(request));
+    return runWithGucContext(ctx, () => handler(request, context));
   };
 }
 
@@ -97,13 +97,13 @@ export function withApiGuc<T, R extends Request = Request>(
  * Returns 401 if no user is present; otherwise runs with the user's GUC context.
  */
 export function withAuthenticatedApiGuc<T, R extends Request = Request>(
-  handler: (request: R, userId: string) => Promise<T>,
-): (request: R) => Promise<T> {
-  return async (request: R) => {
+  handler: (request: R, userId: string, context?: { params: Promise<Record<string, string>> }) => Promise<T>,
+): (request: R, context?: { params: Promise<Record<string, string>> }) => Promise<T> {
+  return async (request: R, context?: { params: Promise<Record<string, string>> }) => {
     const ctx = await resolveAuthGucContext();
     if (ctx.role === 'anonymous') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 }) as unknown as T;
     }
-    return runWithGucContext(ctx, () => handler(request, ctx.userId!));
+    return runWithGucContext(ctx, () => handler(request, ctx.userId!, context));
   };
 }

@@ -23,6 +23,8 @@ import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { trackEvent } from '@/lib/events/track';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bulkSchema = z
   .object({
     jobUrls: z.array(z.string().url()).max(15).optional(),
@@ -97,9 +99,7 @@ async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; p
     extracted: normalizeImportedParsedJob(extractedRaw),
     provider: parsed ? 'ai+per-job' : 'scrape+fallback',
   };
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -334,4 +334,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 function deriveEnrollmentStatus(progress: { status: string }[]): string {
   if (progress.length === 0) return 'NOT_STARTED';
   if (progress.every((p) => p.status === 'COMPLETED')) return 'COMPLETED';
   if (progress.some((p) => p.status === 'IN_PROGRESS')) return 'IN_PROGRESS';
   return 'NOT_STARTED';
-}
-
-export async function GET(request: Request) {
+}export const GET = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -65,4 +65,4 @@ export async function GET(request: Request) {
     console.error('/member/enrollments error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

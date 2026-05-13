@@ -6,23 +6,7 @@ import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * The member lookup is wrapped in `withTenantScope` so a counselor from
- * Org A cannot resolve an Org B member's email/name by guessing the
- * UUID. The `MemberEvent` insert stays on raw `prisma.$executeRaw`
- * because it inherits tenancy via FK to `User` — the membership gate
- * before that insert prevents cross-tenant attribution.
- */
-
-/**
- * POST /api/counselor/remind-member
- * Sends an inactive-nudge email to the member and logs the action.
- * Body: { userId, daysInactive }
- */
-export async function POST(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) {
@@ -91,5 +75,5 @@ export async function POST(request: Request) {
     console.error('/counselor/remind-member error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

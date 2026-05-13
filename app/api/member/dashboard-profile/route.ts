@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const VALID_BARRIER_TYPES = [
   'justice_involved',
   'employment_gap',
@@ -47,9 +49,7 @@ const updateSchema = z.object({
   hasEmploymentBarrier: z.boolean().optional(),
   barrierTypes: z.array(z.enum(VALID_BARRIER_TYPES)).optional(),
   employmentStatusAtEnroll: z.enum(VALID_EMPLOYMENT_STATUS_AT_ENROLL).optional().nullable(),
-});
-
-export async function PATCH(request: Request) {
+});export const PATCH = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -129,5 +129,5 @@ export async function PATCH(request: Request) {
     console.error('/member/dashboard-profile error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

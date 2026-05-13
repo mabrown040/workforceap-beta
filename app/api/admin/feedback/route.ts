@@ -4,6 +4,8 @@ import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const querySchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']).optional(),
   rating: z.coerce.number().int().min(1).max(5).optional(),
@@ -11,9 +13,7 @@ const querySchema = z.object({
   to: z.string().datetime().optional(),
   take: z.coerce.number().int().min(1).max(500).default(100),
   skip: z.coerce.number().int().min(0).default(0),
-});
-
-export async function GET(request: NextRequest) {
+});export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const auth = await requireAdminOrCounselor(request);
     if (!auth.ok) {
@@ -82,4 +82,4 @@ export async function GET(request: NextRequest) {
     console.error('/admin/feedback:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

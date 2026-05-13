@@ -15,6 +15,8 @@ import {
 import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Extract job description from URL using provider-aware logic.
  * Tier 1: Use ATS provider APIs (Greenhouse, Lever, Ashby) for known job URLs
@@ -185,9 +187,7 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
     quickWins: quickWins.length > 0 ? quickWins : ['Tailor resume keywords to job posting'],
     rawText: aiOutput,
   };
-}
-
-export async function POST(request: Request) {
+}export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -382,4 +382,4 @@ export async function POST(request: Request) {
     console.error('/ai/job-match-scorer:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

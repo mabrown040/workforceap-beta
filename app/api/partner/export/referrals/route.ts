@@ -4,12 +4,12 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 function csvEscape(value: string): string {
   if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
   return value;
-}
-
-export async function GET(request: NextRequest) {
+}export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -137,4 +137,4 @@ export async function GET(request: NextRequest) {
     console.error('/partner/export/referrals:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

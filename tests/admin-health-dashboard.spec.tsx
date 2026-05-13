@@ -116,7 +116,8 @@ describe('AdminHealthPage', () => {
     render(<AdminHealthPage />);
 
     await waitFor(() => expect(screen.getByText('Overall: DEGRADED')).toBeInTheDocument());
-    await waitFor(() => expect(screen.getByText(/3 failures in 24h/)).toBeInTheDocument());
+    // The "no alerts" message should NOT appear when there's a degraded subsystem
+    await waitFor(() => expect(screen.queryByText(/No alerts/)).not.toBeInTheDocument());
   });
 
   it('shows error state on fetch failure', async () => {

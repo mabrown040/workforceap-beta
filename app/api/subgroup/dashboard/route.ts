@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -91,5 +91,5 @@ export async function GET() {
     console.error('/subgroup/dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

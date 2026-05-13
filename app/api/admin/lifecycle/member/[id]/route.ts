@@ -3,19 +3,10 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * Admin lifecycle timeline for a single member.
- *
- * Returns:
- * - User enrollment state (enrolledProgram, enrolledAt) and canonical training progress
- * - CourseEnrollment record (if exists)
- * - Drift detection: whether User.enrolledProgram matches CourseEnrollment.programSlug
- * - Full MemberEvent timeline (last 200 events)
- */
-export async function GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -107,5 +98,5 @@ export async function GET(
     console.error('/admin/lifecycle/member/[id] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -9,6 +9,8 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 import { Prisma } from '@prisma/client';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 type InviteTx = Prisma.TransactionClient;
 type AcceptInvitation = {
   id: string;
@@ -256,9 +258,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
       active: true,
     },
   });
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkInviteAcceptRateLimit(ip);
@@ -354,7 +354,7 @@ export async function POST(request: NextRequest) {
     console.error('/invite/accept:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 async function acceptExistingUser(
   user: { id: string; fullName: string; email: string },

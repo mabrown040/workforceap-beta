@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { sendPreScreeningReadyEmail } from '@/lib/email';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const schema = z.object({
   employmentStatus: z.enum(['Employed', 'Unemployed', 'Underemployed', 'Student']),
   primaryGoal: z.enum(['New career', 'Promotion', 'Certification', 'Exploring options']),
@@ -15,9 +17,7 @@ const schema = z.object({
   workforceAssistance: z.boolean(),
   phone: z.string().trim().min(10).max(50),
   address: z.string().trim().min(5).max(500),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -32,9 +32,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -126,4 +124,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 

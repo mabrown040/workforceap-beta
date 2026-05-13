@@ -15,6 +15,8 @@ import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@
 import { logWebhookEvent } from '@/lib/webhooks/logEvent';
 import { markWebhookForRetry } from '@/lib/webhooks/retry';
 
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Coursera REST completion / progress webhook.
  *
@@ -87,9 +89,7 @@ function buildSyntheticParsed(
     resultProgressPercent: data.progressPercent ?? null,
     rawStatement: rawForAudit,
   };
-}
-
-export async function POST(request: Request) {
+}export const POST = withSystemGuc(async (request: Request) => {
   const startTime = Date.now();
   let rawBody = '';
   let payloadSize = 0;
@@ -471,4 +471,4 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

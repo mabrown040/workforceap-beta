@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Redis } from '@upstash/redis';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export const dynamic = 'force-dynamic';
 
 export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
@@ -262,11 +264,7 @@ async function checkEmail(): Promise<EmailHealth> {
       note: err instanceof Error ? err.message : 'Email check failed',
     };
   }
-}
-
-/* ─── Route handlers ─── */
-
-export async function GET() {
+}export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -335,4 +333,4 @@ export async function GET() {
       { status: 500, headers: { 'Cache-Control': 'no-store' } },
     );
   }
-}
+});

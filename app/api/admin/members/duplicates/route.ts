@@ -3,13 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * GET /api/admin/members/duplicates
- *
- * Returns groups of active (non-deleted) members who share the same
- * lower-case email. Each group sorted by createdAt desc (newest first).
- */
-export async function GET(_req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (_req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -112,5 +106,5 @@ export async function GET(_req: NextRequest) {
     console.error('/admin/members/duplicates error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

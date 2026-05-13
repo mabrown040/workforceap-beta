@@ -5,10 +5,10 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 
-export async function PATCH(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
   request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -84,5 +84,5 @@ export async function PATCH(
     console.error('/admin/members/[id]/program error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

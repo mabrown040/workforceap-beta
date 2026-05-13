@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const { searchParams } = new URL(req.url);
   const industry = searchParams.get('industry');
@@ -32,5 +32,5 @@ export async function GET(req: NextRequest) {
     console.error('/mentors error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

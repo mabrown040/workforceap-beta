@@ -9,6 +9,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -22,9 +24,7 @@ import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeB
  */
 
 const BUCKET = 'member-resumes';
-const MAX_SIZE = 5 * 1024 * 1024;
-
-export async function POST(request: Request) {
+const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -104,4 +104,4 @@ export async function POST(request: Request) {
     console.error('/counselor/sessions/upload-resume:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

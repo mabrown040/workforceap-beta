@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET(request: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const auth = await requireAdminOrCounselor(request);
     if (!auth.ok) {
@@ -68,4 +68,4 @@ export async function GET(request: NextRequest) {
     console.error('/admin/feedback/summary:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

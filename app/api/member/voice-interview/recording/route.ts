@@ -5,6 +5,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { trackEvent } from '@/lib/events/track';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /** Same private bucket as resumes; path prefix isolates mock interview videos. */
 const BUCKET = 'member-resumes';
 
@@ -23,10 +25,7 @@ function storageErrorMessage(error: { message?: string } | null, action: 'prepar
     return 'Storage is not configured. Create the member-resumes bucket in Supabase (Storage).';
   }
   return action === 'prepare' ? 'Failed to prepare upload' : 'Could not create recording playback link';
-}
-
-/** POST JSON: prepare | complete. GET: signed download URL for own recording. */
-export async function GET(req: NextRequest) {
+}async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,8 +48,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -156,3 +154,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

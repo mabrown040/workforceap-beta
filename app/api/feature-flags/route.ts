@@ -4,9 +4,9 @@ import { getUserRoles, getProfileRole } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { filterVisibleFlags } from '@/lib/feature-flags/publicApi';
 
-export { filterVisibleFlags };
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET() {
+export { filterVisibleFlags };export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -38,4 +38,4 @@ export async function GET() {
     console.error('[feature-flags GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

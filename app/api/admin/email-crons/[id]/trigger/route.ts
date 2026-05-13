@@ -4,16 +4,10 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * POST /api/admin/email-crons/[id]/trigger
- *
- * Manually triggers a cron job by forwarding the request to its API path
- * with the CRON_SECRET header. Records result in WorkflowDiagnostic.
- */
-export async function POST(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -89,4 +83,4 @@ export async function POST(
     console.error('/admin/email-crons/[id]/trigger:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

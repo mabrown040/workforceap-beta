@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const updateSchema = z.object({
   fullName: z.string().min(1).max(200).optional(),
   phone: z.string().max(50).optional().nullable(),
@@ -10,9 +12,7 @@ const updateSchema = z.object({
   city: z.string().max(100).optional().nullable(),
   state: z.string().max(50).optional().nullable(),
   zip: z.string().max(20).optional().nullable(),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -45,9 +45,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(request: Request) {
+export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -125,4 +123,5 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 

@@ -5,18 +5,18 @@ import { prisma } from '@/lib/db/prisma';
 import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-notify';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const patchSchema = z.object({
   /** Clear with null; empty string from forms coerces to null */
   partnerId: z.preprocess(
     (v) => (v === '' || v === undefined ? null : v),
     z.string().uuid().nullable()
   ),
-});
-
-export async function PATCH(
+});export const PATCH = withApiGuc(async (
   request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -86,4 +86,4 @@ export async function PATCH(
     console.error('/admin/members/[id]/partner:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

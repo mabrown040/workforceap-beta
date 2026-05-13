@@ -5,15 +5,15 @@ import { prisma } from '@/lib/db/prisma';
 import { parseXapiStatement, isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statementModel';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 async function requireAdminUser() {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return null;
   }
   return user;
-}
-
-export async function GET(request: Request) {
+}async function _GET(request: Request) {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -32,8 +32,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -58,6 +57,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 
 async function runBackfill(email: string) {  const member = await prisma.user.findFirst({
     where: { email: { mode: 'insensitive', equals: email } },

@@ -3,8 +3,9 @@ import { prisma } from '@/lib/db/prisma';
 import { FALLBACK_REFERRAL_SOURCES, PUBLIC_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { isExcludedPublicPartnerName } from '@/lib/public/publicDataFilters';
 
-const STATIC_SOURCES = [...PUBLIC_REFERRAL_SOURCE_OPTIONS];
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+const STATIC_SOURCES = [...PUBLIC_REFERRAL_SOURCE_OPTIONS];export const GET = withApiGuc(async () => {
   try {
     const partners = await prisma.partner.findMany({
       where: { active: true },
@@ -24,4 +25,4 @@ export async function GET() {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
     });
   }
-}
+});

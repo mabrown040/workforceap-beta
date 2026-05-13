@@ -6,13 +6,13 @@ import { prisma } from '@/lib/db/prisma';
 import { sendCounselorAssignedEmail } from '@/lib/email';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   counselorUserId: z.string().uuid(),
 });
 
-type Props = { params: Promise<{ id: string }> };
-
-export async function POST(request: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(async (request: NextRequest, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -95,5 +95,5 @@ export async function POST(request: NextRequest, { params }: Props) {
     console.error('/admin/members/[id]/counselor error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

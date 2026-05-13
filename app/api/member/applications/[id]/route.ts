@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { awardPoints } from '@/lib/member/points';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const updateSchema = z.object({
   company: z.string().min(1).max(200).optional(),
   role: z.string().min(1).max(200).optional(),
@@ -12,9 +14,7 @@ const updateSchema = z.object({
   appliedAt: z.string().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   url: z.string().url().optional().nullable().or(z.literal('')),
-});
-
-export async function PATCH(
+});async function _PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -81,8 +81,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function DELETE(
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -111,3 +110,4 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-export async function GET(request: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -125,4 +125,4 @@ export async function GET(request: NextRequest) {
     console.error('/partner/milestones:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

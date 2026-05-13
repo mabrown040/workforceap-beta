@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,4 +23,4 @@ export async function GET() {
     console.error('[admin/program-change-requests] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

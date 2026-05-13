@@ -6,12 +6,11 @@ import { prisma } from '@/lib/db/prisma';
 import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   jobId: z.string().uuid(),
-});
-
-/** Add a live curated job to the member Application Tracker without submitting an employer application. */
-export async function POST(req: NextRequest) {
+});export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -40,4 +39,4 @@ export async function POST(req: NextRequest) {
     captureApiError(error, { route: 'POST /api/member/job-applications/track-curated' });
     return NextResponse.json({ error: 'Failed to add to tracker' }, { status: 500 });
   }
-}
+});

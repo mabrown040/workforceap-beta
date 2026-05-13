@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
   _request: Request,
   context: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -47,4 +47,4 @@ export async function GET(
     console.error('/member/enrollments/[id] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

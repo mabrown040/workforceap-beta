@@ -1,13 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  getCache,
-  setCache,
-  deleteCache,
-  getCacheOrFetch,
-  invalidateCache,
-} from './cache';
 
-// Mock @upstash/redis
+// Mock @upstash/redis before importing cache.ts
 const mockRedis = {
   get: vi.fn(),
   set: vi.fn(),
@@ -16,15 +9,22 @@ const mockRedis = {
 };
 
 vi.mock('@upstash/redis', () => ({
-  Redis: vi.fn(() => mockRedis),
+  Redis: function MockRedis() { return mockRedis; },
 }));
 
+// Dynamically import cache.ts after env vars are set
+let cacheModule: typeof import('./cache');
+
 describe('cache helpers', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetAllMocks();
+    // Reset module cache so getRedis() re-evaluates its singleton
+    vi.resetModules();
     // Ensure UPSTASH env vars are set for tests
     process.env.UPSTASH_REDIS_REST_URL = 'https://test.upstash.io';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+    // Re-import cache.ts so the singleton is fresh
+    cacheModule = await import('./cache');
   });
 
   afterEach(() => {
@@ -35,27 +35,30 @@ describe('cache helpers', () => {
   describe('getCache', () => {
     it('returns null when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
-      const result = await getCache('foo');
+      // Re-import without env vars
+      vi.resetModules();
+      const fresh = await import('./cache');
+      const result = await fresh.getCache('foo');
       expect(result).toBeNull();
     });
 
     it('returns parsed value on hit', async () => {
       mockRedis.get.mockResolvedValue({ hello: 'world' });
-      const result = await getCache('foo');
+      const result = await cacheModule.getCache('foo');
       expect(mockRedis.get).toHaveBeenCalledWith('cache:foo');
       expect(result).toEqual({ hello: 'world' });
     });
 
     it('returns null on miss', async () => {
       mockRedis.get.mockResolvedValue(null);
-      const result = await getCache('foo');
+      const result = await cacheModule.getCache('foo');
       expect(result).toBeNull();
     });
 
     it('returns null on error and logs warning', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockRedis.get.mockRejectedValue(new Error('redis down'));
-      const result = await getCache('foo');
+      const result = await cacheModule.getCache('foo');
       expect(result).toBeNull();
       expect(warnSpy).toHaveBeenCalledWith('[cache] get failed:', expect.any(Error));
       warnSpy.mockRestore();
@@ -65,19 +68,21 @@ describe('cache helpers', () => {
   describe('setCache', () => {
     it('no-ops when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
-      await setCache('foo', 'bar', 60);
+      vi.resetModules();
+      const fresh = await import('./cache');
+      await fresh.setCache('foo', 'bar', 60);
       expect(mockRedis.set).not.toHaveBeenCalled();
     });
 
     it('stores value with TTL', async () => {
-      await setCache('foo', 'bar', 60);
+      await cacheModule.setCache('foo', 'bar', 60);
       expect(mockRedis.set).toHaveBeenCalledWith('cache:foo', 'bar', { ex: 60 });
     });
 
     it('warns on error without throwing', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockRedis.set.mockRejectedValue(new Error('redis down'));
-      await setCache('foo', 'bar', 60);
+      await cacheModule.setCache('foo', 'bar', 60);
       expect(warnSpy).toHaveBeenCalledWith('[cache] set failed:', expect.any(Error));
       warnSpy.mockRestore();
     });
@@ -86,13 +91,15 @@ describe('cache helpers', () => {
   describe('deleteCache', () => {
     it('deletes a key', async () => {
       mockRedis.del.mockResolvedValue(1);
-      await deleteCache('foo');
+      await cacheModule.deleteCache('foo');
       expect(mockRedis.del).toHaveBeenCalledWith('cache:foo');
     });
 
     it('no-ops when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
-      await deleteCache('foo');
+      vi.resetModules();
+      const fresh = await import('./cache');
+      await fresh.deleteCache('foo');
       expect(mockRedis.del).not.toHaveBeenCalled();
     });
   });
@@ -101,7 +108,7 @@ describe('cache helpers', () => {
     it('returns cached value on hit without calling fetcher', async () => {
       mockRedis.get.mockResolvedValue({ cached: true });
       const fetcher = vi.fn().mockResolvedValue({ fetched: true });
-      const result = await getCacheOrFetch('foo', fetcher, 60);
+      const result = await cacheModule.getCacheOrFetch('foo', fetcher, 60);
       expect(result).toEqual({ cached: true });
       expect(fetcher).not.toHaveBeenCalled();
     });
@@ -110,7 +117,7 @@ describe('cache helpers', () => {
       mockRedis.get.mockResolvedValue(null);
       mockRedis.set.mockResolvedValue('OK');
       const fetcher = vi.fn().mockResolvedValue({ fetched: true });
-      const result = await getCacheOrFetch('foo', fetcher, 60);
+      const result = await cacheModule.getCacheOrFetch('foo', fetcher, 60);
       expect(result).toEqual({ fetched: true });
       expect(fetcher).toHaveBeenCalledTimes(1);
       expect(mockRedis.set).toHaveBeenCalledWith('cache:foo', { fetched: true }, { ex: 60 });
@@ -124,7 +131,7 @@ describe('cache helpers', () => {
         .mockResolvedValueOnce(['0', []]);
       mockRedis.del.mockResolvedValue(2);
 
-      await invalidateCache('programs:list:*');
+      await cacheModule.invalidateCache('programs:list:*');
 
       expect(mockRedis.scan).toHaveBeenCalledWith('0', {
         match: 'cache:programs:list:*',
@@ -142,7 +149,7 @@ describe('cache helpers', () => {
         .mockResolvedValueOnce(['0', ['cache:programs:list:2']]);
       mockRedis.del.mockResolvedValue(1);
 
-      await invalidateCache('programs:list:*');
+      await cacheModule.invalidateCache('programs:list:*');
 
       expect(mockRedis.scan).toHaveBeenCalledTimes(2);
       expect(mockRedis.del).toHaveBeenCalledWith(
@@ -153,13 +160,15 @@ describe('cache helpers', () => {
 
     it('no-ops when no keys match', async () => {
       mockRedis.scan.mockResolvedValue(['0', []]);
-      await invalidateCache('nothing:*');
+      await cacheModule.invalidateCache('nothing:*');
       expect(mockRedis.del).not.toHaveBeenCalled();
     });
 
     it('no-ops when Redis is not configured', async () => {
       delete process.env.UPSTASH_REDIS_REST_URL;
-      await invalidateCache('foo:*');
+      vi.resetModules();
+      const fresh = await import('./cache');
+      await fresh.invalidateCache('foo:*');
       expect(mockRedis.scan).not.toHaveBeenCalled();
     });
   });

@@ -138,8 +138,8 @@ function transformFile(filePath: string): { changed: boolean; newContent: string
     const fullStart = h.getFullStart(); // includes leading trivia (comments)
     const fullEnd = h.getEnd();
 
-    const body = result.slice(h.body!.pos + 1, h.body!.end - 1); // inside braces
-    const signatureText = result.slice(h.name!.end, h.body!.pos).trimStart(); // from name end to body start, includes parameters and maybe type annotation
+    const body = result.slice(h.body!.getStart(shiftedSource) + 1, h.body!.end - 1); // inside braces
+    const signatureText = result.slice(h.name!.end, h.body!.getStart(shiftedSource)).trimStart(); // from name end to body start, includes parameters and maybe type annotation
 
     // signatureText looks like "(request: NextRequest) {" or "(request: NextRequest): Promise<Response> {"
     // We want just the parameter list: "(request: NextRequest)" or "(request: NextRequest): Promise<Response>"

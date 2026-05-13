@@ -10,6 +10,8 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const BUCKET = 'member-resumes';
 
 function buildFallbackResume(params: {
@@ -70,9 +72,7 @@ function buildFallbackResume(params: {
   ]
     .filter(Boolean)
     .join('\n');
-}
-
-export async function POST(request: Request) {
+}export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -242,4 +242,4 @@ export async function POST(request: Request) {
     console.error('/member/resume/generate:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

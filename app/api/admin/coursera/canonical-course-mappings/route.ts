@@ -5,13 +5,13 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 async function requireAdminUser() {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) return null;
   return user;
-}
-
-export async function POST(request: Request) {
+}async function _POST(request: Request) {
   try {
   const user = await requireAdminUser();
   if (!user) {
@@ -116,9 +116,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function DELETE(request: Request) {
+export const POST = withApiGuc(_POST);async function _DELETE(request: Request) {
   try {
   const user = await requireAdminUser();
   if (!user) {
@@ -142,4 +140,5 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 

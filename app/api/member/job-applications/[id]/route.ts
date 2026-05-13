@@ -12,6 +12,8 @@ import {
 } from '@/lib/member/jobApplicationKanban';
 import { updateJobApplicationSchema } from '@/lib/validation/jobApplication';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 type Props = { params: Promise<{ id: string }> };
 
 const DB_STATUSES: JobApplicationDbStatus[] = [
@@ -35,9 +37,7 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
     return getDbStatusForStage(rawStatus as ReturnType<typeof getJobApplicationStage>);
   }
   return undefined;
-}
-
-export async function PATCH(request: Request, { params }: Props) {
+}export const PATCH = withApiGuc(async (request: Request, { params }: Props) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -174,4 +174,4 @@ export async function PATCH(request: Request, { params }: Props) {
     console.error('/member/job-applications/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

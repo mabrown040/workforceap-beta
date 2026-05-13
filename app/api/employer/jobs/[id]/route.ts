@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   location: z.string().max(200).optional(),
@@ -22,9 +24,7 @@ const jobUpdateSchema = z.object({
   preferredCertifications: z.array(z.string()).optional(),
   suggestedPrograms: z.array(z.string()).optional(),
   status: z.enum(['draft', 'pending', 'approved', 'live', 'filled', 'closed']).optional(),
-});
-
-export async function GET(
+});async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -55,9 +55,7 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(
+export const GET = withApiGuc(_GET);async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -156,8 +154,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function DELETE(
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -194,4 +191,5 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 

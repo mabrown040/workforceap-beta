@@ -4,7 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -60,4 +60,4 @@ export async function GET() {
     console.error('/admin/analytics/programs error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

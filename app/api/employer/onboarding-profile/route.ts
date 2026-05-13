@@ -4,14 +4,14 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const schema = z.object({
   companyName: z.string().min(1).max(200),
   industry: z.string().max(100).optional().nullable(),
   companySize: z.string().max(50).optional().nullable(),
   companyWebsite: z.string().url().max(500).optional().nullable().or(z.literal('')),
-});
-
-export async function PATCH(request: NextRequest) {
+});export const PATCH = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -50,5 +50,5 @@ export async function PATCH(request: NextRequest) {
     console.error('/employer/onboarding-profile error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

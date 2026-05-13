@@ -22,6 +22,7 @@ vi.mock('next/server', () => {
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
@@ -57,10 +58,12 @@ vi.mock('@/lib/db/prisma', () => {
   };
 });
 
+function MockRedis() {
+  return { ping: vi.fn().mockResolvedValue('PONG') };
+}
+
 vi.mock('@upstash/redis', () => ({
-  Redis: vi.fn(() => ({
-    ping: vi.fn(),
-  })),
+  Redis: MockRedis,
 }));
 
 /* ─── Imports after mocks ─── */

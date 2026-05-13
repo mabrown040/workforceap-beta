@@ -6,6 +6,8 @@ import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const createSchema = z.object({
   goalType: z.string().min(1).max(100),
   title: z.string().min(1).max(200),
@@ -13,9 +15,7 @@ const createSchema = z.object({
   targetMetricType: z.string().max(50).optional(),
   targetMetricValue: z.number().int().min(0).optional(),
   targetDate: z.string().datetime().optional().nullable(),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,8 +37,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -88,3 +87,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

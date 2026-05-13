@@ -7,6 +7,8 @@ import { trackEvent } from '@/lib/events/track';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   employerName: z.string().min(1).max(300).trim(),
   jobTitle: z.string().min(1).max(300).trim(),
@@ -22,20 +24,7 @@ const bodySchema = z.object({
   grantReportingNotes: z.string().max(8000).optional().nullable(),
 });
 
-type Props = { params: Promise<{ id: string }> };
-
-/**
- * POST /api/admin/members/[id]/placed-outcome
- *
- * Unified placement write — updates PlacementRecord (canonical) AND
- * PlacedOutcome (legacy, kept in sync during migration period).
- *
- * INVARIANT: PlacementRecord is the single source of truth for placements.
- * This route writes to both models to avoid breaking any surface that still
- * reads PlacedOutcome. Once PlacedOutcome is fully retired, remove the
- * legacy upsert below.
- */
-export async function POST(request: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(async (request: NextRequest, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -171,5 +160,5 @@ export async function POST(request: NextRequest, { params }: Props) {
     console.error('/admin/members/[id]/placed-outcome error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

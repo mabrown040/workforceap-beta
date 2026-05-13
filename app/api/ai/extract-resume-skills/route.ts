@@ -6,6 +6,8 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * POST /api/ai/extract-resume-skills
  *
@@ -51,9 +53,7 @@ Output format (JSON only):
   ],
   "topSkills": ["Python", "Project Management", "Data Analysis", "AWS", "Team Leadership"],
   "suggestedOccupations": ["Software Developer", "Data Analyst"]
-}`;
-
-export async function POST() {
+}`;export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -147,4 +147,4 @@ export async function POST() {
     console.error('/ai/extract-resume-skills:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

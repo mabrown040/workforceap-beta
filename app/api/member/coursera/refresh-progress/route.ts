@@ -5,16 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 
-/**
- * Manual cache-bust for `/dashboard/training`. The page render path uses
- * a 60s memo on per-learner B4B progress; this endpoint re-pulls with
- * `skipCache: true` so the next render sees fresh numbers immediately.
- *
- * NB: this route never writes to the DB — that's still the background
- * sync job's responsibility (#1076). All it does is warm the cache so
- * the subsequent server-component render reads up-to-date data.
- */
-export async function POST() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -50,4 +41,4 @@ export async function POST() {
     console.error('/member/coursera/refresh-progress:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { getGucContext, runWithGucContext, inTransactionStorage } from './gucContext';
+import { getGucContext, runWithGucContext, inTransactionStorage, buildGucContext, ANONYMOUS_GUC_CONTEXT } from './gucContext';
 import { buildGucSql } from './prisma';
 
 test('buildGucSql generates SET LOCAL statements', () => {
@@ -50,4 +50,23 @@ test('runWithGucContext works alongside inTransactionStorage', async () => {
       assert.equal(inTransactionStorage.getStore(), true);
     });
   });
+});
+
+test('buildGucContext maps forwarded user to member role by default', () => {
+  const ctx = buildGucContext({ userId: 'fwd-user-1', orgId: null });
+  assert.equal(ctx.userId, 'fwd-user-1');
+  assert.equal(ctx.role, 'anonymous');
+});
+
+test('buildGucContext maps admin profileRole', () => {
+  const ctx = buildGucContext({ userId: 'fwd-user-2', orgId: 'o-2', profileRole: 'admin' });
+  assert.equal(ctx.role, 'admin');
+  assert.equal(ctx.orgId, 'o-2');
+});
+
+test('ANONYMOUS_GUC_CONTEXT produces empty GUC sql', () => {
+  const sql = buildGucSql(ANONYMOUS_GUC_CONTEXT);
+  assert.ok(sql.includes("app.current_user_id = ''"));
+  assert.ok(sql.includes("app.current_org_id = ''"));
+  assert.ok(sql.includes("app.current_role = 'anonymous'"));
 });

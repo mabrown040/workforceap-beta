@@ -36,7 +36,7 @@ export interface GucContext {
   partnerId?: string | null;
 }
 
-const gucContextStorage = new AsyncLocalStorage<GucContext>();
+export const gucContextStorage = new AsyncLocalStorage<GucContext>();
 
 /** Read the active GUC context for the current async call stack. */
 export function getGucContext(): GucContext | undefined {

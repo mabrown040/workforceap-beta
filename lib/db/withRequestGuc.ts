@@ -42,13 +42,15 @@ export function buildGucContextFromUser(user: User | null): GucContext {
 export function withUserGuc<T>(
   user: User | null,
   fn: () => Promise<T>,
-  options?: { orgId?: string | null; profileRole?: string | null },
+  options?: { orgId?: string | null; profileRole?: string | null; employerId?: string | null; partnerId?: string | null },
 ): Promise<T> {
   const ctx = user
     ? buildGucContext({
         userId: user.id,
         orgId: options?.orgId ?? null,
         profileRole: options?.profileRole ?? null,
+        employerId: options?.employerId ?? null,
+        partnerId: options?.partnerId ?? null,
       })
     : ANONYMOUS_GUC_CONTEXT;
   return runWithGucContext(ctx, fn);

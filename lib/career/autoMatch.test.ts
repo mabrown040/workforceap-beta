@@ -73,7 +73,7 @@ test('scoreProgram: full-overlap reasoning lists matched terms', () => {
   const result = scoreProgram(prog, new Set(keywords));
   assert.equal(result.score, 1);
   assert.equal(result.recommendationType, 'primary');
-  assert.match(result.reason, /keyword match/);
+  assert.match(result.reason, /Shares \d+ keywords? including/);
 });
 
 // ── rankPrograms — known O*NET → expected program ─────────────────────────────

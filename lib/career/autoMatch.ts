@@ -21,6 +21,7 @@ export type OccupationForMatch = {
   outlookSummary?: string | null;
   skills: { skillName: string }[];
   tasks: { taskText: string }[];
+  technologies?: { technologyName: string }[];
 };
 
 export type AutoMatchResult = {
@@ -41,7 +42,7 @@ export function tokenize(text: string): string[] {
   return text
     .toLowerCase()
     .split(/\W+/)
-    .filter((w) => w.length > MIN_TOKEN_LENGTH - 1);
+    .filter((w) => w.length >= MIN_TOKEN_LENGTH);
 }
 
 /** Build the occupation token set used for overlap scoring. */
@@ -53,6 +54,7 @@ export function buildOccupationTokens(occ: OccupationForMatch): Set<string> {
     occ.outlookSummary ?? '',
     occ.skills.map((s) => s.skillName).join(' '),
     occ.tasks.map((t) => t.taskText).join(' '),
+    occ.technologies?.map((t) => t.technologyName).join(' ') ?? '',
   ].join(' ');
   return new Set(tokenize(blob));
 }
@@ -61,6 +63,61 @@ export function buildOccupationTokens(occ: OccupationForMatch): Set<string> {
 export function buildProgramKeywords(prog: Program): string[] {
   const raw = [prog.title, prog.category, prog.categoryLabel, ...prog.skills, prog.partner].join(' ');
   return [...new Set(tokenize(raw))];
+}
+
+/**
+ * Check whether two tokens are similar enough to count as a partial match.
+ * Handles common stem variations: network ↔ networking, troubleshoot ↔ troubleshooting,
+ * security ↔ cybersecurity, etc.
+ */
+function isPartialMatch(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (a.length < 4 || b.length < 4) return false;
+  // One is a prefix of the other (network / networking)
+  if (a.startsWith(b) || b.startsWith(a)) return true;
+  // One contains the other as a whole word segment
+  if (a.includes(b) || b.includes(a)) return true;
+  return false;
+}
+
+/** Count exact and partial keyword matches against an occupation token set. */
+function countMatches(
+  keywords: string[],
+  occTokens: Set<string>
+): { exact: number; partial: number; matchedTerms: string[] } {
+  const exactTerms: string[] = [];
+  const partialTerms: string[] = [];
+
+  for (const kw of keywords) {
+    let foundExact = false;
+    for (const token of occTokens) {
+      if (token === kw) {
+        foundExact = true;
+        break;
+      }
+    }
+    if (foundExact) {
+      exactTerms.push(kw);
+      continue;
+    }
+
+    let foundPartial = false;
+    for (const token of occTokens) {
+      if (isPartialMatch(token, kw)) {
+        foundPartial = true;
+        break;
+      }
+    }
+    if (foundPartial) {
+      partialTerms.push(kw);
+    }
+  }
+
+  return {
+    exact: exactTerms.length,
+    partial: partialTerms.length,
+    matchedTerms: [...exactTerms, ...partialTerms],
+  };
 }
 
 /**
@@ -73,26 +130,42 @@ export function scoreToRecommendationType(score: number): AutoMatchResult['recom
   return 'stretch';
 }
 
-/** Score a single program against an occupation token set. */
-export function scoreProgram(prog: Program, occTokens: Set<string>): AutoMatchResult {
-  const keywords = buildProgramKeywords(prog);
-  const hits = keywords.filter((kw) => occTokens.has(kw));
-  const score = keywords.length > 0 ? hits.length / keywords.length : 0;
-  const recommendationType = scoreToRecommendationType(score);
+/** Infer an experience band from the occupation title and description tokens. */
+function inferExperienceBand(occ: OccupationForMatch): AutoMatchResult['experienceBand'] {
+  const text = [occ.title, occ.description ?? ''].join(' ').toLowerCase();
+  if (/\b(entry[- ]?level|junior|trainee|assistant|intern|beginner)\b/.test(text)) return 'beginner';
+  if (/\b(senior|lead|principal|manager|director|expert|specialist)\b/.test(text)) return 'experienced';
+  return 'some_experience';
+}
 
-  const matchedTerms = hits.slice(0, 5);
-  const reason =
-    hits.length > 0
-      ? `${hits.length} keyword match${hits.length !== 1 ? 'es' : ''}: ${matchedTerms.join(', ')}${hits.length > 5 ? ', …' : ''}.`
-      : 'Low keyword overlap — stretch recommendation based on adjacent skills.';
+/** Score a single program against an occupation token set. */
+export function scoreProgram(prog: Program, occTokens: Set<string>, occ?: OccupationForMatch): AutoMatchResult {
+  const keywords = buildProgramKeywords(prog);
+  const { exact, partial, matchedTerms } = countMatches(keywords, occTokens);
+  const rawScore = keywords.length > 0 ? (exact + partial * 0.5) / keywords.length : 0;
+  const score = Math.min(1, Math.round(rawScore * 1000) / 1000);
+  const recommendationType = scoreToRecommendationType(score);
+  const experienceBand = occ ? inferExperienceBand(occ) : 'beginner';
+
+  const matchedDisplay = matchedTerms.slice(0, 5);
+  let reason: string;
+  if (exact > 0 && partial > 0) {
+    reason = `Shares ${exact} exact keyword${exact !== 1 ? 's' : ''} and ${partial} related term${partial !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
+  } else if (exact > 0) {
+    reason = `Shares ${exact} keyword${exact !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
+  } else if (partial > 0) {
+    reason = `Partial overlap on ${partial} related term${partial !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
+  } else {
+    reason = 'Low keyword overlap — stretch recommendation based on adjacent career pathway.';
+  }
 
   return {
     programSlug: prog.slug,
     programTitle: prog.title,
-    score: Math.round(score * 1000) / 1000,
+    score,
     reason,
     recommendationType,
-    experienceBand: 'beginner',
+    experienceBand,
   };
 }
 
@@ -101,15 +174,82 @@ export const MIN_INCLUDED_SCORE = 0.04;
 /** Maximum number of matches returned to the admin UI. */
 export const TOP_N = 8;
 
+/**
+ * Fallback title-only matcher when the full occupation record yields no results.
+ * Compares occupation title tokens against program title + skills for quick matches.
+ */
+function rankProgramsByTitle(
+  occ: OccupationForMatch,
+  programs: ReadonlyArray<Program>
+): AutoMatchResult[] {
+  const titleTokens = new Set(tokenize(occ.title));
+  if (titleTokens.size === 0) return [];
+
+  return programs
+    .map((p) => {
+      const progTitleTokens = new Set(tokenize(p.title));
+      const progSkillTokens = new Set(tokenize(p.skills.join(' ')));
+      const allProgTokens = new Set([...progTitleTokens, ...progSkillTokens]);
+
+      let exact = 0;
+      let partial = 0;
+      const matched: string[] = [];
+
+      for (const token of titleTokens) {
+        let hit = false;
+        for (const pt of allProgTokens) {
+          if (pt === token) {
+            exact++;
+            hit = true;
+            break;
+          }
+          if (isPartialMatch(pt, token)) {
+            partial++;
+            hit = true;
+            break;
+          }
+        }
+        if (hit) matched.push(token);
+      }
+
+      const totalProgTokens = allProgTokens.size || 1;
+      const score = Math.min(1, Math.round(((exact + partial * 0.5) / totalProgTokens) * 1000) / 1000);
+      const matchedDisplay = matched.slice(0, 5);
+      const reason =
+        exact + partial > 0
+          ? `Title match: shares ${exact + partial} term${exact + partial !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`
+          : 'Low title overlap — stretch recommendation.';
+
+      return {
+        programSlug: p.slug,
+        programTitle: p.title,
+        score,
+        reason,
+        recommendationType: scoreToRecommendationType(score),
+        experienceBand: inferExperienceBand(occ),
+      };
+    })
+    .filter((m) => m.score >= MIN_INCLUDED_SCORE)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, TOP_N);
+}
+
 /** Run the full auto-match pipeline for an occupation against a program list. */
 export function rankPrograms(
   occ: OccupationForMatch,
   programs: ReadonlyArray<Program>
 ): AutoMatchResult[] {
   const occTokens = buildOccupationTokens(occ);
-  return programs
-    .map((p) => scoreProgram(p, occTokens))
+  const ranked = programs
+    .map((p) => scoreProgram(p, occTokens, occ))
     .filter((m) => m.score >= MIN_INCLUDED_SCORE)
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_N);
+
+  // If full-data scoring yields nothing useful, fall back to title-only matching.
+  if (ranked.length === 0) {
+    return rankProgramsByTitle(occ, programs);
+  }
+
+  return ranked;
 }

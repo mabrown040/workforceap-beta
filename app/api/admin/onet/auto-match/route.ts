@@ -9,7 +9,8 @@ import { rankPrograms } from '@/lib/career/autoMatch';
  * GET /api/admin/onet/auto-match?onetCode=xx-xxxx.xx
  *
  * Returns a scored list of WorkforceAP program matches for the given O*NET
- * occupation code, using the locally-cached occupation description and skills.
+ * occupation code, using the locally-cached occupation description, skills,
+ * tasks, and technology skills.
  *
  * Scoring logic lives in `lib/career/autoMatch.ts` so it can be unit tested.
  */
@@ -25,12 +26,13 @@ export async function GET(request: NextRequest) {
   const onetCode = request.nextUrl.searchParams.get('onetCode')?.trim();
   if (!onetCode) return NextResponse.json({ error: 'onetCode required' }, { status: 400 });
 
-  // Load occupation with related skills and tasks from local cache
+  // Load occupation with related skills, tasks, and technologies from local cache
   const occ = await prisma.onetOccupation.findUnique({
     where: { onetCode },
     include: {
       skills: { select: { skillName: true } },
       tasks: { select: { taskText: true } },
+      technologies: { select: { technologyName: true } },
     },
   });
 

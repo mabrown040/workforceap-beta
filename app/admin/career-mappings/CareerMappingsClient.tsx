@@ -105,6 +105,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
   const [syncLoading, setSyncLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const [approvingSlug, setApprovingSlug] = useState<string | null>(null);
+  const [rejectedSlugs, setRejectedSlugs] = useState<Set<string>>(new Set());
   const searchRef = useRef<HTMLInputElement>(null);
 
   // Manual form state
@@ -219,11 +220,17 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Sync failed');
       setMessage({ type: 'ok', text: data.errors?.length ? `Synced with notes: ${data.errors.join('; ')}` : 'Synced from O*NET.' });
+      // Refresh AI matches after successful sync
+      await loadAutoMatches(selectedOcc.code);
     } catch (e) {
       setMessage({ type: 'err', text: e instanceof Error ? e.message : 'Error' });
     } finally {
       setSyncLoading(false);
     }
+  };
+
+  const rejectAutoMatch = (match: AutoMatchResult) => {
+    setRejectedSlugs((prev) => new Set(prev).add(match.programSlug));
   };
 
   const alreadyMapped = new Set(mappings.map((m) => m.programSlug));
@@ -401,7 +408,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                    {autoMatches.map((match) => {
+                    {autoMatches.filter((m) => !rejectedSlugs.has(m.programSlug)).map((match) => {
                       const prog = PROGRAMS.find((p) => p.slug === match.programSlug);
                       const already = alreadyMapped.has(match.programSlug);
                       return (
@@ -437,18 +444,28 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                                 Mapped
                               </span>
                             ) : (
-                              <button
-                                type="button"
-                                onClick={() => void approveAutoMatch(match)}
-                                disabled={loading || approvingSlug === match.programSlug}
-                                style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.875rem', borderRadius: '0.5rem', background: 'var(--color-accent)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
-                              >
-                                {approvingSlug === match.programSlug ? (
-                                  <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', animation: 'spin 1s linear infinite' }}>progress_activity</span>Approving…</>
-                                ) : (
-                                  <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check</span>Approve</>
-                                )}
-                              </button>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => void approveAutoMatch(match)}
+                                  disabled={loading || approvingSlug === match.programSlug}
+                                  style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.875rem', borderRadius: '0.5rem', background: 'var(--color-accent)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
+                                >
+                                  {approvingSlug === match.programSlug ? (
+                                    <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', animation: 'spin 1s linear infinite' }}>progress_activity</span>Approving…</>
+                                  ) : (
+                                    <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check</span>Approve</>
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => rejectAutoMatch(match)}
+                                  title="Dismiss suggestion"
+                                  style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.625rem', borderRadius: '0.5rem', background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                                >
+                                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>close</span>
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>

@@ -146,6 +146,7 @@ export default function DashboardProfileForm({
             id="firstName"
             type="text"
             autoComplete="given-name"
+            inputMode="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
@@ -157,6 +158,7 @@ export default function DashboardProfileForm({
             id="lastName"
             type="text"
             autoComplete="family-name"
+            inputMode="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
@@ -179,6 +181,7 @@ export default function DashboardProfileForm({
             id="address"
             type="text"
             autoComplete="street-address"
+            inputMode="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
@@ -188,11 +191,11 @@ export default function DashboardProfileForm({
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
           <div className="form-group">
             <label htmlFor="city">City</label>
-            <input id="city" type="text" value={city} onChange={(e) => setCity(e.target.value)} autoComplete="address-level2" />
+            <input id="city" type="text" inputMode="text" value={city} onChange={(e) => setCity(e.target.value)} autoComplete="address-level2" />
           </div>
           <div className="form-group">
             <label htmlFor="state">State</label>
-            <input id="state" type="text" value={state} onChange={(e) => setState(e.target.value)} autoComplete="address-level1" maxLength={50} />
+            <input id="state" type="text" inputMode="text" value={state} onChange={(e) => setState(e.target.value)} autoComplete="address-level1" maxLength={50} />
           </div>
           <div className="form-group">
             <label htmlFor="zip">ZIP code</label>
@@ -218,6 +221,7 @@ export default function DashboardProfileForm({
           <input
             id="linkedin"
             type="url"
+            inputMode="url"
             value={linkedin}
             onChange={(e) => setLinkedin(e.target.value)}
             placeholder="https://linkedin.com/in/..."
@@ -292,6 +296,7 @@ export default function DashboardProfileForm({
                     fontSize: '0.875rem',
                     color: 'var(--color-on-surface)',
                     cursor: 'pointer',
+                    minHeight: 44,
                   }}
                 >
                   <input

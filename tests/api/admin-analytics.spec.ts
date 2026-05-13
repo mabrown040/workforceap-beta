@@ -15,6 +15,10 @@ vi.mock('next/headers', () => ({
   cookies: vi.fn(() => ({ get: vi.fn(), getAll: vi.fn(() => []), set: vi.fn() })),
 }));
 
+vi.mock('next/cache', () => ({
+  unstable_cache: vi.fn((fn: () => Promise<unknown>) => fn),
+}));
+
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
 }));
@@ -31,9 +35,13 @@ vi.mock('@/lib/db/prisma', () => {
   const user = {
     count: vi.fn(),
     groupBy: vi.fn(),
+    findMany: vi.fn(),
   };
   const placementRecord = {
     count: vi.fn(),
+    findMany: vi.fn(),
+  };
+  const aIToolResult = {
     findMany: vi.fn(),
   };
   const program = {
@@ -43,7 +51,7 @@ vi.mock('@/lib/db/prisma', () => {
     groupBy: vi.fn(),
   };
   const $queryRaw = vi.fn();
-  return { prisma: { user, placementRecord, program, courseEnrollment, $queryRaw } };
+  return { prisma: { user, placementRecord, aIToolResult, program, courseEnrollment, $queryRaw } };
 });
 
 // ─── Imports after mocks ───
@@ -51,6 +59,7 @@ import { GET as getDashboard } from '@/app/api/admin/analytics/dashboard/route';
 import { GET as getMembers } from '@/app/api/admin/analytics/members/route';
 import { GET as getPrograms } from '@/app/api/admin/analytics/programs/route';
 import { GET as getPlacements } from '@/app/api/admin/analytics/placements/route';
+import { GET as getAiEfficacy } from '@/app/api/admin/analytics/ai-efficacy/route';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -368,6 +377,88 @@ describe('GET /api/admin/analytics/placements', () => {
     vi.mocked(isAdmin).mockResolvedValue(false);
 
     const res = await getPlacements();
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+});
+
+// ─────────────────────────────────────────────
+// GET /api/admin/analytics/ai-efficacy
+// ─────────────────────────────────────────────
+describe('GET /api/admin/analytics/ai-efficacy', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns efficacy report for admin', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin, email: 'admin@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(getActorOrganizationId).mockResolvedValue(UUIDS.orgId);
+
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      {
+        id: 'u1',
+        enrolledAt: new Date('2026-04-01'),
+        placementRecord: { placedAt: new Date('2026-04-30'), salaryOffered: 50000 },
+        _count: { jobApplications: 3 },
+      },
+      {
+        id: 'u2',
+        enrolledAt: new Date('2026-04-01'),
+        placementRecord: null,
+        _count: { jobApplications: 1 },
+      },
+    ] as any);
+
+    vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([
+      { userId: 'u1', toolType: 'resume_rewriter' },
+    ] as any);
+
+    const res = await getAiEfficacy(makeRequest('http://localhost:3000/api/admin/analytics/ai-efficacy'));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+
+    expect(body.overall.anyTool.usersWithTool).toBe(1);
+    expect(body.overall.anyTool.usersWithoutTool).toBe(1);
+    expect(body.overall.anyTool.placementRateWith).toBe(100);
+    expect(body.overall.anyTool.placementRateWithout).toBe(0);
+    expect(body.byTool).toHaveLength(1);
+    expect(body.byTool[0].toolType).toBe('resume_rewriter');
+    expect(body.topTools).toHaveLength(0); // < 3 users
+  });
+
+  it('filters by date range', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin, email: 'admin@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(getActorOrganizationId).mockResolvedValue(UUIDS.orgId);
+
+    vi.mocked(prisma.user.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([]);
+
+    const res = await getAiEfficacy(
+      makeRequest('http://localhost:3000/api/admin/analytics/ai-efficacy?startDate=2026-01-01&endDate=2026-01-31')
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+
+    expect(body.dateRange.start).toBe('2026-01-01');
+    expect(body.dateRange.end).toBe('2026-01-31');
+    expect(body.overall.anyTool.usersWithTool).toBe(0);
+  });
+
+  it('returns 401 for unauthenticated', async () => {
+    vi.mocked(getUser).mockResolvedValue(null);
+
+    const res = await getAiEfficacy(makeRequest('http://localhost:3000/api/admin/analytics/ai-efficacy'));
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+  });
+
+  it('returns 403 for non-admin', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.nonAdmin, email: 'member@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+
+    const res = await getAiEfficacy(makeRequest('http://localhost:3000/api/admin/analytics/ai-efficacy'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });

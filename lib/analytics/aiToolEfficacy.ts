@@ -1,31 +1,61 @@
 import { prisma } from '@/lib/db/prisma';
+import type { Prisma } from '@prisma/client';
 
 /**
  * AI Tool Efficacy Analysis
- * 
- * Questions this answers:
- * 1. Did members who used resume rewriter get more interviews?
- * 2. Did members who used interview practice get placed faster?
- * 3. Which AI tools correlate with placement?
- * 4. What's the completion rate by tool usage?
- * 
- * This is the data feedback loop Mike envisioned — using member data
- * to improve the product and demonstrate value to funders.
+ *
+ * Measures whether members who use AI tools (resume builder, interview prep,
+ * job matcher, etc.) have better placement outcomes than those who don't.
+ *
+ * Deterministic: same data + same date range = same output.
  */
 
-interface ToolEfficacyResult {
+export interface AIEfficacyDateRange {
+  start: Date;
+  end: Date;
+}
+
+export interface ToolCohortMetrics {
   toolType: string;
   toolLabel: string;
   usersWithTool: number;
   usersWithoutTool: number;
-  avgJobApplicationsWith: number;
-  avgJobApplicationsWithout: number;
-  placementRateWith: number; // percentage
-  placementRateWithout: number; // percentage
+  placedWithTool: number;
+  placedWithoutTool: number;
+  placementRateWith: number; // 0-100
+  placementRateWithout: number; // 0-100
   avgDaysToPlacementWith: number | null;
   avgDaysToPlacementWithout: number | null;
-  courseCompletionRateWith: number;
-  courseCompletionRateWithout: number;
+  avgSalaryWith: number | null;
+  avgSalaryWithout: number | null;
+  avgJobApplicationsWith: number;
+  avgJobApplicationsWithout: number;
+}
+
+export interface OverallCohortMetrics {
+  anyTool: {
+    usersWithTool: number;
+    usersWithoutTool: number;
+    placedWithTool: number;
+    placedWithoutTool: number;
+    placementRateWith: number;
+    placementRateWithout: number;
+    avgDaysToPlacementWith: number | null;
+    avgDaysToPlacementWithout: number | null;
+    avgSalaryWith: number | null;
+    avgSalaryWithout: number | null;
+    avgJobApplicationsWith: number;
+    avgJobApplicationsWithout: number;
+  };
+}
+
+export interface AIEfficacyReport {
+  dateRange: { start: string; end: string };
+  generatedAt: string;
+  overall: OverallCohortMetrics;
+  byTool: ToolCohortMetrics[];
+  topTools: { toolType: string; toolLabel: string; placementLift: number }[];
+  summaryText: string;
 }
 
 const TOOL_LABELS: Record<string, string> = {
@@ -44,212 +74,386 @@ const TOOL_LABELS: Record<string, string> = {
   skill_assessment: 'Skill Assessment',
 };
 
-const USER_EFFICACY_SELECT = {
-  _count: {
-    select: {
-      jobApplications: true,
-      courseProgress: true,
-    },
-  },
-  placementRecord: {
-    select: {
-      placedAt: true,
-    },
-  },
-  enrolledAt: true,
-  assessmentCompleted: true,
-} as const;
+function formatDate(d: Date): string {
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
-function computeToolEfficacyResult(
+function avg(arr: number[]): number | null {
+  if (arr.length === 0) return null;
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+function round1(n: number | null): number | null {
+  if (n === null) return null;
+  return Math.round(n * 10) / 10;
+}
+
+function round0(n: number | null): number | null {
+  if (n === null) return null;
+  return Math.round(n);
+}
+
+function pct(part: number, whole: number): number {
+  if (whole === 0) return 0;
+  return Math.round((part / whole) * 100);
+}
+
+interface EnrolledMemberRow {
+  id: string;
+  enrolledAt: Date | null;
+  placementRecord: { placedAt: Date; salaryOffered: number | null } | null;
+  _count: { jobApplications: number };
+}
+
+async function fetchEnrolledMembers(
+  orgId: string,
+  dateRange: AIEfficacyDateRange
+): Promise<EnrolledMemberRow[]> {
+  return prisma.user.findMany({
+    where: {
+      deletedAt: null,
+      organizationId: orgId,
+      enrolledProgram: { not: null },
+      enrolledAt: { gte: dateRange.start, lte: dateRange.end },
+    },
+    select: {
+      id: true,
+      enrolledAt: true,
+      placementRecord: {
+        select: {
+          placedAt: true,
+          salaryOffered: true,
+        },
+      },
+      _count: {
+        select: {
+          jobApplications: true,
+        },
+      },
+    },
+  });
+}
+
+async function fetchToolUsageMap(
+  orgId: string,
+  userIds: string[],
+  dateRange: AIEfficacyDateRange
+): Promise<Map<string, Set<string>>> {
+  const usage = await prisma.aIToolResult.findMany({
+    where: {
+      userId: { in: userIds },
+      createdAt: { gte: dateRange.start, lte: dateRange.end },
+    },
+    select: {
+      userId: true,
+      toolType: true,
+    },
+    distinct: ['userId', 'toolType'],
+  });
+
+  const map = new Map<string, Set<string>>();
+  for (const row of usage) {
+    const toolType = row.toolType as string;
+    const set = map.get(toolType) ?? new Set<string>();
+    set.add(row.userId);
+    map.set(toolType, set);
+  }
+  return map;
+}
+
+function buildCohortMetrics(
   toolType: string,
-  usersWithToolRows: Array<{
-    id: string;
-    _count: { jobApplications: number; courseProgress: number };
-    placementRecord: { placedAt: Date } | null;
-    enrolledAt: Date | null;
-    assessmentCompleted: boolean | null;
-  }>,
-  usersWithoutTool: Array<{
-    id: string;
-    _count: { jobApplications: number; courseProgress: number };
-    placementRecord: { placedAt: Date } | null;
-    enrolledAt: Date | null;
-    assessmentCompleted: boolean | null;
-  }>
-): ToolEfficacyResult {
-  const usersWithTool = usersWithToolRows.map((row) => ({
-    userId: row.id,
-    user: {
-      _count: row._count,
-      placementRecord: row.placementRecord,
-      enrolledAt: row.enrolledAt,
-      assessmentCompleted: row.assessmentCompleted,
-    },
-  }));
+  toolUserIds: Set<string>,
+  allMembers: EnrolledMemberRow[]
+): ToolCohortMetrics {
+  const withTool = allMembers.filter((m) => toolUserIds.has(m.id));
+  const withoutTool = allMembers.filter((m) => !toolUserIds.has(m.id));
 
-  const withToolJobApps = usersWithTool.map((u) => u.user._count.jobApplications);
-  const withoutToolJobApps = usersWithoutTool.map((u) => u._count.jobApplications);
+  const placedWith = withTool.filter((m) => m.placementRecord !== null);
+  const placedWithout = withoutTool.filter((m) => m.placementRecord !== null);
 
-  const withToolPlacements = usersWithTool.filter((u) => u.user.placementRecord).length;
-  const withoutToolPlacements = usersWithoutTool.filter((u) => u.placementRecord).length;
+  const daysToPlacement = (rows: EnrolledMemberRow[]) =>
+    rows
+      .filter((m) => m.placementRecord && m.enrolledAt)
+      .map((m) => {
+        const enrolled = m.enrolledAt!.getTime();
+        const placed = m.placementRecord!.placedAt.getTime();
+        return Math.max(0, Math.round((placed - enrolled) / (1000 * 60 * 60 * 24)));
+      });
 
-  const withToolDaysToPlacement = usersWithTool
-    .filter((u) => u.user.placementRecord && u.user.enrolledAt)
-    .map((u) => {
-      const enrolled = u.user.enrolledAt!.getTime();
-      const placed = u.user.placementRecord!.placedAt.getTime();
-      return Math.round((placed - enrolled) / (1000 * 60 * 60 * 24));
-    });
+  const salaries = (rows: EnrolledMemberRow[]) =>
+    rows
+      .filter((m) => m.placementRecord?.salaryOffered != null)
+      .map((m) => m.placementRecord!.salaryOffered!);
 
-  const withoutToolDaysToPlacement = usersWithoutTool
-    .filter((u) => u.placementRecord && u.enrolledAt)
-    .map((u) => {
-      const enrolled = u.enrolledAt!.getTime();
-      const placed = u.placementRecord!.placedAt.getTime();
-      return Math.round((placed - enrolled) / (1000 * 60 * 60 * 24));
-    });
-
-  const withToolCourseCompletion = usersWithTool.filter((u) => u.user._count.courseProgress > 0).length;
-  const withoutToolCourseCompletion = usersWithoutTool.filter((u) => u._count.courseProgress > 0).length;
-
-  const avg = (arr: number[]) => (arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+  const jobApps = (rows: EnrolledMemberRow[]) =>
+    rows.map((m) => m._count.jobApplications);
 
   return {
     toolType,
     toolLabel: TOOL_LABELS[toolType] ?? toolType,
-    usersWithTool: usersWithTool.length,
-    usersWithoutTool: usersWithoutTool.length,
-    avgJobApplicationsWith: Math.round(avg(withToolJobApps) * 10) / 10,
-    avgJobApplicationsWithout: Math.round(avg(withoutToolJobApps) * 10) / 10,
-    placementRateWith: usersWithTool.length > 0 ? Math.round((withToolPlacements / usersWithTool.length) * 100) : 0,
-    placementRateWithout: usersWithoutTool.length > 0 ? Math.round((withoutToolPlacements / usersWithoutTool.length) * 100) : 0,
-    avgDaysToPlacementWith: withToolDaysToPlacement.length > 0 ? Math.round(avg(withToolDaysToPlacement)) : null,
-    avgDaysToPlacementWithout: withoutToolDaysToPlacement.length > 0 ? Math.round(avg(withoutToolDaysToPlacement)) : null,
-    courseCompletionRateWith: usersWithTool.length > 0 ? Math.round((withToolCourseCompletion / usersWithTool.length) * 100) : 0,
-    courseCompletionRateWithout: usersWithoutTool.length > 0 ? Math.round((withoutToolCourseCompletion / usersWithoutTool.length) * 100) : 0,
+    usersWithTool: withTool.length,
+    usersWithoutTool: withoutTool.length,
+    placedWithTool: placedWith.length,
+    placedWithoutTool: placedWithout.length,
+    placementRateWith: pct(placedWith.length, withTool.length),
+    placementRateWithout: pct(placedWithout.length, withoutTool.length),
+    avgDaysToPlacementWith: round0(avg(daysToPlacement(withTool))),
+    avgDaysToPlacementWithout: round0(avg(daysToPlacement(withoutTool))),
+    avgSalaryWith: round0(avg(salaries(withTool))),
+    avgSalaryWithout: round0(avg(salaries(withoutTool))),
+    avgJobApplicationsWith: round1(avg(jobApps(withTool))) ?? 0,
+    avgJobApplicationsWithout: round1(avg(jobApps(withoutTool))) ?? 0,
   };
 }
 
-export async function analyzeToolEfficacy(): Promise<ToolEfficacyResult[]> {
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+function buildOverallMetrics(
+  anyToolUserIds: Set<string>,
+  allMembers: EnrolledMemberRow[]
+): OverallCohortMetrics {
+  const withTool = allMembers.filter((m) => anyToolUserIds.has(m.id));
+  const withoutTool = allMembers.filter((m) => !anyToolUserIds.has(m.id));
 
-  const oneEightyDaysAgo = new Date();
-  oneEightyDaysAgo.setDate(oneEightyDaysAgo.getDate() - 180);
+  const placedWith = withTool.filter((m) => m.placementRecord !== null);
+  const placedWithout = withoutTool.filter((m) => m.placementRecord !== null);
 
-  // Tool types observed in the last 90 days (bounded scope for this report).
-  const toolTypes = await prisma.aIToolResult.groupBy({
-    by: ['toolType'],
-    where: { createdAt: { gte: ninetyDaysAgo } },
-    _count: { userId: true },
-    orderBy: { _count: { userId: 'desc' } },
-  });
+  const daysToPlacement = (rows: EnrolledMemberRow[]) =>
+    rows
+      .filter((m) => m.placementRecord && m.enrolledAt)
+      .map((m) => {
+        const enrolled = m.enrolledAt!.getTime();
+        const placed = m.placementRecord!.placedAt.getTime();
+        return Math.max(0, Math.round((placed - enrolled) / (1000 * 60 * 60 * 24)));
+      });
 
-  const usagePairs =
-    toolTypes.length === 0
-      ? []
-      : await prisma.aIToolResult.findMany({
-          where: { createdAt: { gte: ninetyDaysAgo } },
-          select: { toolType: true, userId: true },
-          distinct: ['toolType', 'userId'],
-        });
+  const salaries = (rows: EnrolledMemberRow[]) =>
+    rows
+      .filter((m) => m.placementRecord?.salaryOffered != null)
+      .map((m) => m.placementRecord!.salaryOffered!);
 
-  const userIdsByTool = new Map<string, string[]>();
-  for (const row of usagePairs) {
-    const arr = userIdsByTool.get(row.toolType) ?? [];
-    arr.push(row.userId);
-    userIdsByTool.set(row.toolType, arr);
-  }
+  const jobApps = (rows: EnrolledMemberRow[]) =>
+    rows.map((m) => m._count.jobApplications);
 
-  const results = await Promise.all(
-    toolTypes.map(async ({ toolType }) => {
-      if (!toolType) return null;
-
-      const withToolUserIds = userIdsByTool.get(toolType) ?? [];
-
-      const usersWithoutWhere = {
-        deletedAt: null,
-        enrolledProgram: { not: null },
-        enrolledAt: { gte: oneEightyDaysAgo },
-        ...(withToolUserIds.length > 0 ? { id: { notIn: withToolUserIds } } : {}),
-      };
-
-      const [usersWithToolRows, usersWithoutTool] = await Promise.all([
-        withToolUserIds.length === 0
-          ? []
-          : prisma.user.findMany({
-              where: { id: { in: withToolUserIds } },
-              select: { id: true, ...USER_EFFICACY_SELECT },
-            }),
-        prisma.user.findMany({
-          where: usersWithoutWhere,
-          select: { id: true, ...USER_EFFICACY_SELECT },
-        }),
-      ]);
-
-      return computeToolEfficacyResult(toolType, usersWithToolRows, usersWithoutTool);
-    })
-  );
-
-  return results.filter((r): r is ToolEfficacyResult => r !== null);
+  return {
+    anyTool: {
+      usersWithTool: withTool.length,
+      usersWithoutTool: withoutTool.length,
+      placedWithTool: placedWith.length,
+      placedWithoutTool: placedWithout.length,
+      placementRateWith: pct(placedWith.length, withTool.length),
+      placementRateWithout: pct(placedWithout.length, withoutTool.length),
+      avgDaysToPlacementWith: round0(avg(daysToPlacement(withTool))),
+      avgDaysToPlacementWithout: round0(avg(daysToPlacement(withoutTool))),
+      avgSalaryWith: round0(avg(salaries(withTool))),
+      avgSalaryWithout: round0(avg(salaries(withoutTool))),
+      avgJobApplicationsWith: round1(avg(jobApps(withTool))) ?? 0,
+      avgJobApplicationsWithout: round1(avg(jobApps(withoutTool))) ?? 0,
+    },
+  };
 }
 
-/**
- * Generate a markdown report for stakeholders/funders
- */
-export function formatEfficacyReport(results: ToolEfficacyResult[]): string {
+export async function analyzeAIEfficacy(
+  orgId: string,
+  dateRange: AIEfficacyDateRange
+): Promise<AIEfficacyReport> {
+  const members = await fetchEnrolledMembers(orgId, dateRange);
+
+  if (members.length === 0) {
+    return {
+      dateRange: { start: formatDate(dateRange.start), end: formatDate(dateRange.end) },
+      generatedAt: new Date().toISOString(),
+      overall: {
+        anyTool: {
+          usersWithTool: 0,
+          usersWithoutTool: 0,
+          placedWithTool: 0,
+          placedWithoutTool: 0,
+          placementRateWith: 0,
+          placementRateWithout: 0,
+          avgDaysToPlacementWith: null,
+          avgDaysToPlacementWithout: null,
+          avgSalaryWith: null,
+          avgSalaryWithout: null,
+          avgJobApplicationsWith: 0,
+          avgJobApplicationsWithout: 0,
+        },
+      },
+      byTool: [],
+      topTools: [],
+      summaryText: 'No enrolled members found in the selected date range.',
+    };
+  }
+
+  const userIds = members.map((m) => m.id);
+  const toolUsageMap = await fetchToolUsageMap(orgId, userIds, dateRange);
+
+  // Collect all users who used *any* tool
+  const anyToolUserIds = new Set<string>();
+  for (const set of toolUsageMap.values()) {
+    for (const uid of set) anyToolUserIds.add(uid);
+  }
+
+  const overall = buildOverallMetrics(anyToolUserIds, members);
+
+  const byTool: ToolCohortMetrics[] = [];
+  for (const [toolType, toolUserIds] of toolUsageMap) {
+    byTool.push(buildCohortMetrics(toolType, toolUserIds, members));
+  }
+
+  // Sort by placement lift (descending)
+  byTool.sort((a, b) => (b.placementRateWith - b.placementRateWithout) - (a.placementRateWith - a.placementRateWithout));
+
+  const topTools = byTool
+    .filter((t) => t.usersWithTool >= 3) // Require minimum sample size
+    .map((t) => ({
+      toolType: t.toolType,
+      toolLabel: t.toolLabel,
+      placementLift: t.placementRateWith - t.placementRateWithout,
+    }))
+    .slice(0, 5);
+
+  const summaryLines: string[] = [
+    `Analyzed ${members.length} enrolled members from ${formatDate(dateRange.start)} to ${formatDate(dateRange.end)}.`,
+  ];
+
+  const any = overall.anyTool;
+  if (any.usersWithTool > 0) {
+    summaryLines.push(
+      `${any.usersWithTool} members used AI tools; ${any.placementRateWith}% were placed.`,
+      `${any.usersWithoutTool} members did not use AI tools; ${any.placementRateWithout}% were placed.`
+    );
+    if (any.avgDaysToPlacementWith != null && any.avgDaysToPlacementWithout != null) {
+      const faster = any.avgDaysToPlacementWithout - any.avgDaysToPlacementWith;
+      summaryLines.push(
+        faster > 0
+          ? `Tool users placed ${faster} days faster on average.`
+          : faster < 0
+            ? `Tool users placed ${Math.abs(faster)} days slower on average.`
+            : `Time-to-placement was equal between cohorts.`
+      );
+    }
+    if (any.avgSalaryWith != null && any.avgSalaryWithout != null) {
+      const delta = any.avgSalaryWith - any.avgSalaryWithout;
+      summaryLines.push(
+        delta > 0
+          ? `Tool users earned $${delta.toLocaleString()} more on average.`
+          : delta < 0
+            ? `Tool users earned $${Math.abs(delta).toLocaleString()} less on average.`
+            : `Average salary was equal between cohorts.`
+      );
+    }
+  } else {
+    summaryLines.push('No AI tool usage recorded in the selected date range.');
+  }
+
+  if (topTools.length > 0) {
+    summaryLines.push(`Top tool by placement lift: ${topTools[0].toolLabel} (+${topTools[0].placementLift}pp).`);
+  }
+
+  return {
+    dateRange: { start: formatDate(dateRange.start), end: formatDate(dateRange.end) },
+    generatedAt: new Date().toISOString(),
+    overall,
+    byTool,
+    topTools,
+    summaryText: summaryLines.join(' '),
+  };
+}
+
+export function formatEfficacyReportMarkdown(report: AIEfficacyReport): string {
   const lines: string[] = [
     '# AI Tool Efficacy Report',
     '',
-    `Generated: ${new Date().toISOString()}`,
+    `**Date range:** ${report.dateRange.start} → ${report.dateRange.end}`,
+    `**Generated:** ${report.generatedAt}`,
     '',
     '## Executive Summary',
     '',
-    'This report compares member outcomes (job applications, placements, course completion)',
-    'between members who used AI tools vs. those who did not.',
+    report.summaryText,
+    '',
+    '## Overall Cohort Comparison',
+    '',
+    '| Metric | AI Tool Users | Non-Users |',
+    '|--------|--------------|-----------|',
+    `| Members | ${report.overall.anyTool.usersWithTool} | ${report.overall.anyTool.usersWithoutTool} |`,
+    `| Placed | ${report.overall.anyTool.placedWithTool} | ${report.overall.anyTool.placedWithoutTool} |`,
+    `| Placement Rate | ${report.overall.anyTool.placementRateWith}% | ${report.overall.anyTool.placementRateWithout}% |`,
+    `| Avg Days to Placement | ${report.overall.anyTool.avgDaysToPlacementWith ?? 'N/A'} | ${report.overall.anyTool.avgDaysToPlacementWithout ?? 'N/A'} |`,
+    `| Avg Salary | ${report.overall.anyTool.avgSalaryWith != null ? '$' + report.overall.anyTool.avgSalaryWith.toLocaleString() : 'N/A'} | ${report.overall.anyTool.avgSalaryWithout != null ? '$' + report.overall.anyTool.avgSalaryWithout.toLocaleString() : 'N/A'} |`,
+    `| Avg Job Applications | ${report.overall.anyTool.avgJobApplicationsWith} | ${report.overall.anyTool.avgJobApplicationsWithout} |`,
     '',
     '## Results by Tool',
     '',
   ];
 
-  for (const r of results) {
-    lines.push(`### ${r.toolLabel}`);
+  for (const t of report.byTool) {
+    lines.push(`### ${t.toolLabel}`);
     lines.push('');
-    lines.push(`- **Users with tool:** ${r.usersWithTool} | **Without:** ${r.usersWithoutTool}`);
-    lines.push(`- **Avg job applications:** ${r.avgJobApplicationsWith} (with) vs ${r.avgJobApplicationsWithout} (without)`);
-    lines.push(`- **Placement rate:** ${r.placementRateWith}% (with) vs ${r.placementRateWithout}% (without)`);
-    if (r.avgDaysToPlacementWith && r.avgDaysToPlacementWithout) {
-      lines.push(`- **Avg days to placement:** ${r.avgDaysToPlacementWith} (with) vs ${r.avgDaysToPlacementWithout} (without)`);
+    lines.push(`- **Users:** ${t.usersWithTool} (with) vs ${t.usersWithoutTool} (without)`);
+    lines.push(`- **Placement rate:** ${t.placementRateWith}% vs ${t.placementRateWithout}%`);
+    if (t.avgDaysToPlacementWith != null && t.avgDaysToPlacementWithout != null) {
+      lines.push(`- **Avg days to placement:** ${t.avgDaysToPlacementWith} vs ${t.avgDaysToPlacementWithout}`);
     }
-    lines.push(`- **Course completion:** ${r.courseCompletionRateWith}% (with) vs ${r.courseCompletionRateWithout}% (without)`);
+    if (t.avgSalaryWith != null && t.avgSalaryWithout != null) {
+      lines.push(`- **Avg salary:** $${t.avgSalaryWith.toLocaleString()} vs $${t.avgSalaryWithout.toLocaleString()}`);
+    }
+    lines.push(`- **Avg job applications:** ${t.avgJobApplicationsWith} vs ${t.avgJobApplicationsWithout}`);
     lines.push('');
   }
 
-  // Find the best performing tool
-  const bestTool = results.reduce((best, current) => 
-    (current.placementRateWith - current.placementRateWithout) > (best.placementRateWith - best.placementRateWithout) 
-      ? current : best,
-    results[0]
-  );
-
-  if (bestTool) {
-    lines.push('## Key Insight');
+  if (report.topTools.length > 0) {
+    lines.push('## Top Performing Tools');
     lines.push('');
-    lines.push(`**${bestTool.toolLabel}** shows the strongest correlation with placement outcomes:`);
-    lines.push(`- ${bestTool.placementRateWith}% placement rate for users vs ${bestTool.placementRateWithout}% for non-users`);
-    lines.push(`- That's a **${bestTool.placementRateWith - bestTool.placementRateWithout} percentage point improvement**`);
+    for (const t of report.topTools) {
+      lines.push(`1. **${t.toolLabel}** — +${t.placementLift}pp placement rate`);
+    }
     lines.push('');
   }
 
   return lines.join('\n');
 }
 
-// CLI usage: npx tsx scripts/analyze-ai-tool-efficacy.ts
-async function main() {
-  const results = await analyzeToolEfficacy();
-  console.log(formatEfficacyReport(results));
-}
+/** Build a flat CSV-compatible array of objects for export. */
+export function efficacyReportToCsvRows(report: AIEfficacyReport): Record<string, string | number>[] {
+  const rows: Record<string, string | number>[] = [];
 
-if (require.main === module) {
-  main().catch(console.error).finally(() => prisma.$disconnect());
+  // Overall row
+  rows.push({
+    tool: 'Any AI Tool',
+    users_with: report.overall.anyTool.usersWithTool,
+    users_without: report.overall.anyTool.usersWithoutTool,
+    placed_with: report.overall.anyTool.placedWithTool,
+    placed_without: report.overall.anyTool.placedWithoutTool,
+    placement_rate_with: `${report.overall.anyTool.placementRateWith}%`,
+    placement_rate_without: `${report.overall.anyTool.placementRateWithout}%`,
+    avg_days_with: report.overall.anyTool.avgDaysToPlacementWith ?? 'N/A',
+    avg_days_without: report.overall.anyTool.avgDaysToPlacementWithout ?? 'N/A',
+    avg_salary_with: report.overall.anyTool.avgSalaryWith ?? 'N/A',
+    avg_salary_without: report.overall.anyTool.avgSalaryWithout ?? 'N/A',
+    avg_apps_with: report.overall.anyTool.avgJobApplicationsWith,
+    avg_apps_without: report.overall.anyTool.avgJobApplicationsWithout,
+  });
+
+  for (const t of report.byTool) {
+    rows.push({
+      tool: t.toolLabel,
+      users_with: t.usersWithTool,
+      users_without: t.usersWithoutTool,
+      placed_with: t.placedWithTool,
+      placed_without: t.placedWithoutTool,
+      placement_rate_with: `${t.placementRateWith}%`,
+      placement_rate_without: `${t.placementRateWithout}%`,
+      avg_days_with: t.avgDaysToPlacementWith ?? 'N/A',
+      avg_days_without: t.avgDaysToPlacementWithout ?? 'N/A',
+      avg_salary_with: t.avgSalaryWith ?? 'N/A',
+      avg_salary_without: t.avgSalaryWithout ?? 'N/A',
+      avg_apps_with: t.avgJobApplicationsWith,
+      avg_apps_without: t.avgJobApplicationsWithout,
+    });
+  }
+
+  return rows;
 }

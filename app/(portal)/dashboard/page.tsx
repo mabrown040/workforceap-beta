@@ -40,6 +40,7 @@ import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
+import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
@@ -1040,8 +1041,9 @@ async function renderMemberDashboard(
               </a>
             ))}
           </div>
-          <div style={{ marginTop: '0.75rem' }}>
+          <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <RequestHelpButton />
+            <MemberFeedbackButton />
           </div>
         </section>
 
@@ -1190,8 +1192,9 @@ async function renderMemberDashboard(
               >
                 <MemberProgressStrip {...progressStripProps} />
               </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem' }}>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <RequestHelpButton />
+                <MemberFeedbackButton />
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />

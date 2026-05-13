@@ -2,15 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
-/**
- * POST /api/gdpr/delete
- * Initiates account deletion for the authenticated user.
- * Implements GDPR Article 17 — Right to erasure (right to be forgotten).
- * 
- * Deletion is soft (anonymized) not hard delete — preserves aggregate stats
- * while removing personal identifiers.
- */
-export async function POST() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) {
@@ -74,5 +66,5 @@ export async function POST() {
     console.error('/gdpr/delete error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

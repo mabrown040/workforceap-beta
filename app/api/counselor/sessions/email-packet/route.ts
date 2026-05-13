@@ -12,6 +12,8 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A - Tenant Isolation Hardening (Sprint A.2 batch 5).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -156,9 +158,7 @@ async function generatePdfBuffer(title: string, text: string): Promise<Buffer> {
 
   const pdfBytes = await pdfDoc.save();
   return Buffer.from(pdfBytes);
-}
-
-export async function POST(request: Request) {
+}export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -379,4 +379,4 @@ export async function POST(request: Request) {
     console.error('/counselor/sessions/email-packet:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

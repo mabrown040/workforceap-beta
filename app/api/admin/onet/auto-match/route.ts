@@ -5,16 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import { rankPrograms } from '@/lib/career/autoMatch';
 
-/**
- * GET /api/admin/onet/auto-match?onetCode=xx-xxxx.xx
- *
- * Returns a scored list of WorkforceAP program matches for the given O*NET
- * occupation code, using the locally-cached occupation description, skills,
- * tasks, and technology skills.
- *
- * Scoring logic lives in `lib/career/autoMatch.ts` so it can be unit tested.
- */
-export async function GET(request: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,5 +42,5 @@ export async function GET(request: NextRequest) {
     console.error('/admin/onet/auto-match error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

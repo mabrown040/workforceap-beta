@@ -5,6 +5,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import type { AIJobMatchStatus } from '@prisma/client';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const patchSchema = z.object({
   status: z.enum([
     'suggested',
@@ -15,9 +17,7 @@ const patchSchema = z.object({
     'interviewing',
     'hired',
   ]),
-});
-
-export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string; studentId: string }> }) {
+});export const PATCH = withApiGuc(async (request: NextRequest, ctx: { params: Promise<{ id: string; studentId: string }> }) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -57,5 +57,5 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
     console.error('/employer/jobs/[id]/matches/[studentId] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

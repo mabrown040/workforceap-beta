@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,9 +21,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const GET = withApiGuc(_GET);async function _POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -48,4 +46,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 

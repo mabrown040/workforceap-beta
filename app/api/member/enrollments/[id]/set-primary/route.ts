@@ -3,27 +3,10 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * POST /api/member/enrollments/{id}/set-primary
- *
- * Marks the given CourseEnrollment row as `isPrimary = true` for the calling
- * user. The partial unique index `course_enrollments_user_primary_uidx`
- * enforces the at-most-one-primary invariant per user, so we demote any
- * other primary first inside a transaction.
- *
- * Multi-program scope: this just toggles which row is primary for the
- * dashboard view. It does NOT switch the user out of any program (the
- * "switch program" UX is queued backlog) and it does NOT change xAPI
- * crediting — that still gates on `User.enrolledProgram` (see
- * lib/xapi/inboundStatementPipeline.ts). To keep the existing pipeline
- * working we keep `User.enrolledProgram` in lockstep with the primary slug.
- *
- * Auth: caller must own the enrollment row.
- */
-export async function POST(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _request: Request,
   context: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) {
@@ -89,5 +72,5 @@ export async function POST(
     console.error('/member/enrollments/[id]/set-primary error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

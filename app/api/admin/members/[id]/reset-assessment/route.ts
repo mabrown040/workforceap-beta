@@ -5,21 +5,10 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * Switched the `prisma.user.update` to a scoped `updateMany` so the
- * proxy injects `organizationId` into the where clause. An admin from
- * Org A cannot reset an Org B member's assessment by guessing the UUID
- * — the updateMany simply matches zero rows. We use `updateMany`
- * (instead of `update`) because Prisma's `update` requires a unique
- * where input that the proxy can't extend.
- */
-export async function POST(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,4 +40,4 @@ export async function POST(
     console.error('[admin/members/[id]/reset-assessment POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -6,9 +6,9 @@ import { ONET_CODE_PATTERN, resolveOccupationTitle } from '@/lib/onet/occupation
 import { checkPublicCareersGetRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
-type Params = { params: Promise<{ onetCode: string }> };
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(request: NextRequest, { params }: Params) {
+type Params = { params: Promise<{ onetCode: string }> };export const GET = withApiGuc(async (request: NextRequest, { params }: Params) => {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkPublicCareersGetRateLimit(ip);
@@ -101,4 +101,4 @@ export async function GET(request: NextRequest, { params }: Params) {
     console.error('/careers/occupation/[onetCode]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

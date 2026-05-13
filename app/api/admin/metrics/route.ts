@@ -6,6 +6,8 @@ import { getAdminMetrics } from '@/lib/admin/metrics';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 async function computeAdminRouteMetricsPayload(orgId: string) {
   const metrics = await getAdminMetrics(orgId);
 
@@ -167,9 +169,7 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       dashboardViews: weeklyDashboardViews,
     },
   };
-}
-
-export async function GET() {
+}export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -192,4 +192,4 @@ export async function GET() {
     console.error('/admin/metrics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

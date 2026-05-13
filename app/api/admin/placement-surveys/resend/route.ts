@@ -5,15 +5,9 @@ import { prisma } from '@/lib/db/prisma';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail } from '@/lib/email';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-/**
- * POST /api/admin/placement-surveys/resend
- *
- * Manually re-send a placement survey for a given placementId.
- * Finds the most recent pending survey for the placement and sends a fresh link.
- */
-export async function POST(req: NextRequest) {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -95,4 +89,4 @@ export async function POST(req: NextRequest) {
     console.error('/admin/placement-surveys/resend error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

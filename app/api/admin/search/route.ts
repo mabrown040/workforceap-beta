@@ -3,13 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * GET /api/admin/search?q=keyword&limit=8
- *
- * Fast cross-entity search for admin global search (Cmd+K).
- * Searches members (name/email), employers (company), partners (name), and jobs (title).
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -92,5 +86,5 @@ export async function GET(req: NextRequest) {
     console.error('/admin/search error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

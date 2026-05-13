@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sanitizePublicPartnerLabel, sanitizePublicSubgroupLabel } from '@/lib/public/publicDataFilters';
 
-export async function GET(request: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
@@ -78,4 +78,4 @@ export async function GET(request: NextRequest) {
     console.error('/invite/validate:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -4,14 +4,14 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   action: z.enum(['mark_interviewed', 'clear_request']),
-});
-
-export async function PATCH(
+});export const PATCH = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const admin = await getUser();
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,4 +51,4 @@ export async function PATCH(
     console.error('[admin/members/[id]/interview PATCH] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

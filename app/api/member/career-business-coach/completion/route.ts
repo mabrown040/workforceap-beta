@@ -5,6 +5,8 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 type TranscriptTurn = { role: 'agent' | 'user'; text: string };
 
 function normalizeTranscript(input: unknown): TranscriptTurn[] {
@@ -28,9 +30,7 @@ function buildHistoryOutput(transcript: TranscriptTurn[]) {
     lines.push(`${turn.role === 'agent' ? 'Coach' : 'Member'}: ${turn.text}`);
   });
   return lines.join('\n').slice(0, 16000);
-}
-
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -86,4 +86,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/career-business-coach/completion:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

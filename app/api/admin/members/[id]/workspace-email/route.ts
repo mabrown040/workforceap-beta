@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { getWorkspaceEmailProvider } from '@/lib/workspace-email/provider';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const provisionBody = z.object({
   requestedLocalPart: z.string().trim().min(1).max(64).optional(),
 });
@@ -23,9 +25,7 @@ async function loadMemberOr404(memberId: string) {
       workspaceEmailProvisioned: true,
     },
   });
-}
-
-export async function POST(request: NextRequest, { params }: Props) {
+}async function _POST(request: NextRequest, { params }: Props) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -102,8 +102,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function DELETE(_request: NextRequest, { params }: Props) {
+export const POST = withApiGuc(_POST);async function _DELETE(_request: NextRequest, { params }: Props) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -155,3 +154,4 @@ export async function DELETE(_request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);

@@ -5,12 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * GET /api/counselor/inactive-members?days=7|14|30
- * Returns members (role='member') who haven't had a dashboard_viewed event in N days.
- * Counselor/admin only. Scoped to the actor organization (counselor roster).
- */
-export async function GET(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) {
@@ -100,5 +95,5 @@ export async function GET(request: Request) {
     console.error('/counselor/inactive-members error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

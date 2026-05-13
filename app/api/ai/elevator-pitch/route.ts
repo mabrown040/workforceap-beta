@@ -9,18 +9,13 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prefillElevatorPitch } from '@/lib/ai/prefillFromMemberState';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 import {
   getVoiceCoachTranscriptRecipients,
   sendElevatorSpeechEmail,
   sendVoiceCoachArtifactEmail,
-} from '@/lib/email';
-
-/**
- * POST /api/ai/elevator-pitch
- * Body: { name, targetRole, strengths, certifications, industry, language }
- * Returns: { pitch: string, emailSent?: boolean } — a 10-20 second elevator statement
- */
-export async function POST(request: Request) {
+} from '@/lib/email';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -177,4 +172,4 @@ export async function POST(request: Request) {
     console.error('/ai/elevator-pitch:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -4,11 +4,11 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   reassignToPartnerId: z.string().uuid().optional().nullable(),
-});
-
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+});export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -78,5 +78,5 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.error('/admin/partners/[id]/deactivate error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

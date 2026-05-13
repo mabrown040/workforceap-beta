@@ -7,6 +7,8 @@ import { getSlaStatusForThreads, getThreadIdsBreachingSla } from '@/lib/messages
 import type { MessageThreadKind, Prisma } from '@prisma/client';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 50;
 const HOURS_48_MS = 48 * 60 * 60 * 1000;
@@ -16,9 +18,7 @@ type InboxFilter = 'member' | 'employer' | 'partner' | 'all';
 function parseInbox(raw: string | null): InboxFilter {
   if (raw === 'employer' || raw === 'partner' || raw === 'all') return raw;
   return 'member';
-}
-
-export async function GET(request: NextRequest) {
+}async function _GET(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -202,6 +202,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);
 
 function mapThreadRow(
   t: {
@@ -294,14 +295,7 @@ function mapThreadRow(
       breached72h: false,
     },
   };
-}
-
-/**
- * POST /api/admin/messages/threads
- * Body: { memberId: string }
- * Creates or retrieves the member's counselor thread so admin can message them.
- */
-export async function POST(request: NextRequest) {
+}async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -335,3 +329,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

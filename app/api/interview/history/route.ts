@@ -7,6 +7,8 @@ import { prisma } from '@/lib/db/prisma';
 import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const ALLOWED_TYPES = ['technical', 'behavioral', 'general'] as const;
 type InterviewType = (typeof ALLOWED_TYPES)[number];
 
@@ -84,9 +86,7 @@ async function generateFeedback(params: {
   if (groqResult) return groqResult;
 
   throw new Error('No AI provider configured — set ANTHROPIC_API_KEY or GROQ_API_KEY');
-}
-
-export async function GET(req: NextRequest) {
+}async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -133,8 +133,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(req: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -255,3 +254,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

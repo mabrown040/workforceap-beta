@@ -5,15 +5,11 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import mammoth from 'mammoth';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const BUCKET = 'member-resumes';
 
-type Props = { params: Promise<{ memberId: string }> };
-
-/**
- * DOC/DOCX → HTML for same-origin iframe preview.
- * POST /api/counselor/members/:memberId/resume/docx-html?variant=original|enhanced
- */
-export async function POST(req: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ memberId: string }> };export const POST = withApiGuc(async (req: NextRequest, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,5 +61,5 @@ export async function POST(req: NextRequest, { params }: Props) {
     console.error('/counselor/members/[memberId]/resume/docx-html error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

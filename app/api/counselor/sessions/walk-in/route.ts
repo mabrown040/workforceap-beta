@@ -11,6 +11,8 @@ import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { trackEvent } from '@/lib/events/track';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -53,9 +55,7 @@ const walkInSchema = z.object({
   email: z.string().email().max(254),
   phone: z.string().max(40).optional().default(''),
   targetRole: z.string().max(200).optional().default(''),
-});
-
-export async function POST(request: Request) {
+});export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -304,4 +304,4 @@ export async function POST(request: Request) {
     console.error('/counselor/sessions/walk-in:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

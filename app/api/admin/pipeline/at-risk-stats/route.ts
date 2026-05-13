@@ -4,15 +4,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { THRESHOLDS } from '@/lib/member/atRiskScoring';
 
-/**
- * GET /api/admin/pipeline/at-risk-stats
- *
- * Returns at-risk alert stats for the admin pipeline dashboard:
- * - criticalCount: number of CRITICAL at-risk alerts today
- * - alertsSentToday: counselor alerts sent today (notifiedCounselorAt)
- * - counselorsWithPending: list of counselors with pending critical alerts
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -91,4 +83,4 @@ export async function GET(req: NextRequest) {
     console.error('/admin/pipeline/at-risk-stats error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

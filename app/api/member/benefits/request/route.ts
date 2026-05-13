@@ -3,9 +3,9 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { benefitRequestSchema } from '@/lib/validation/benefitRequest';
 
-const BENEFIT_COOLDOWN_DAYS = 30;
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(request: Request) {
+const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -79,5 +79,5 @@ export async function POST(request: Request) {
     console.error('/member/benefits/request error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

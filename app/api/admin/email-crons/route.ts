@@ -4,17 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 
-/**
- * GET /api/admin/email-crons
- *
- * Returns all cron definitions enriched with:
- * - lastRunAt: timestamp of most recent WorkflowDiagnostic entry
- * - lastRunStatus: 'ok' | 'error' | 'inspection' etc.
- * - lastRunSummary: human-readable summary
- * - recentRuns: last 5 run records
- * - enabled: from WorkflowDiagnostic metadata (soft-toggle stored there)
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -73,5 +63,5 @@ export async function GET() {
     console.error('/admin/email-crons error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

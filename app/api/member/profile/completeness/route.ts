@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const PROFILE_FIELDS = [
   'address',
   'city',
@@ -24,9 +26,7 @@ const PROFILE_FIELDS = [
   'financialAidInterest',
 ] as const;
 
-const USER_FIELDS = ['email', 'fullName', 'phone'] as const;
-
-export async function GET() {
+const USER_FIELDS = ['email', 'fullName', 'phone'] as const;export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -74,4 +74,4 @@ export async function GET() {
     console.error('/member/profile/completeness error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

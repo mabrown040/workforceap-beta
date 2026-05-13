@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export interface CronSummary {
   totalJobs: number;
   currentlyRunning: number;
@@ -82,9 +84,7 @@ export async function fetchCronSummary(): Promise<{ summary: CronSummary; lastRu
       successRate: j.success_rate,
     })),
   };
-}
-
-export async function GET() {
+}export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -97,4 +97,4 @@ export async function GET() {
     console.error('[admin/crons/summary] Error:', error);
     return NextResponse.json({ error: 'Failed to load cron summary' }, { status: 500 });
   }
-}
+});

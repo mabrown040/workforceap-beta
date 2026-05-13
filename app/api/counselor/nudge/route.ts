@@ -16,6 +16,8 @@ import {
 } from '@/lib/counselor/nudgeTemplates';
 import { getProgramBySlug } from '@/lib/content/programs';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -28,26 +30,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
  * is the gate.
  */
 
-const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'milestone_celebrate'];
-
-/**
- * POST /api/counselor/nudge
- *
- * Send a templated nudge from a counselor to one assigned member. Creates a
- * Message in the member's counselor thread (creating the thread if one
- * doesn't exist yet) and writes a `counselor_nudge_sent` MemberEvent so the
- * triage queue picks up the change immediately and outcomes can later
- * attribute retention to nudge cadence.
- *
- * Body:
- *   {
- *     memberId: string,
- *     templateId: 'check_in' | 'stalled_step' | 'milestone_celebrate',
- *     overrideBody?: string,   // counselor edited the rendered body before sending
- *     milestone?: string       // human-readable milestone for milestone_celebrate
- *   }
- */
-export async function POST(request: Request) {
+const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'milestone_celebrate'];export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -147,5 +130,5 @@ export async function POST(request: Request) {
     console.error('/counselor/nudge error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

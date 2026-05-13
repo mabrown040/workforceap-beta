@@ -6,6 +6,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   email: z.string().email(),
 });
@@ -64,8 +66,7 @@ async function ensurePartnerInviteUser(params: {
     },
     select: { id: true },
   });
-}
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+}export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const adminUser = await getUser();
     if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -126,4 +127,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.error('/admin/partners/[id]/invite:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -4,14 +4,14 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const schema = z.object({
   name: z.string().min(1).max(200),
   organizationType: z.string().max(100).optional().nullable(),
   contactName: z.string().max(200).optional().nullable(),
   contactPhone: z.string().max(50).optional().nullable(),
-});
-
-export async function PATCH(request: NextRequest) {
+});export const PATCH = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,5 +49,5 @@ export async function PATCH(request: NextRequest) {
     console.error('/partner/onboarding-profile error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

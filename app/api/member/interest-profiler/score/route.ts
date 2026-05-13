@@ -9,14 +9,14 @@ import { mapIpCareerRowsToProgramSlugs } from '@/lib/onet/ipMapToPrograms';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   answers: z
     .string()
     .length(30)
     .regex(/^[1-5]{30}$/, 'Each answer must be a digit from 1 (strongly dislike) to 5 (strongly like).'),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -96,4 +96,4 @@ export async function POST(request: NextRequest) {
     console.error('/member/interest-profiler/score:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

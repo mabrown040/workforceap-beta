@@ -3,18 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * Admin drift detection endpoint.
- *
- * Returns members where User.enrolledProgram and CourseEnrollment.programSlug
- * are out of sync. Two categories:
- *
- * 1. enrolled_no_record: User.enrolledProgram is set but no CourseEnrollment exists
- * 2. slug_mismatch: Both exist but programSlug values differ
- *
- * Limited to 100 results. Used by admin lifecycle audit dashboard.
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -87,5 +76,5 @@ export async function GET() {
     console.error('/admin/lifecycle/drift error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

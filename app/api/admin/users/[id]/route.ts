@@ -8,18 +8,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * Both DELETE and PATCH go through `withTenantScope` so a (super)admin
- * from Org A cannot delete or rename an Org B user by guessing their
- * UUID. `findUnique` becomes `findFirst` and `update` becomes
- * `updateMany` so the proxy can inject the `organizationId` filter
- * (Prisma's `update` requires a unique-only where input).
- */
-
-export async function DELETE(
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -75,14 +64,13 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 
 const schema = z.object({
   fullName: z.string().trim().min(1).max(200),
   email: z.string().trim().email().max(200),
   role: z.enum(ADMIN_USER_ROLES).optional(),
-});
-
-export async function PATCH(
+});async function _PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -184,3 +172,4 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);

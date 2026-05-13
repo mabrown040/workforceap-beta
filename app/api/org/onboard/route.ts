@@ -5,6 +5,8 @@ import { getStripe } from '@/lib/stripe/client';
 import { checkOrgOnboardRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -38,9 +40,7 @@ const onboardSchema = z.object({
     .nullable(),
   email: z.string().email(),
   tier: z.enum(['starter', 'growth', 'enterprise']).default('starter'),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkOrgOnboardRateLimit(ip);
@@ -132,4 +132,4 @@ export async function POST(request: NextRequest) {
     console.error('[org/onboard] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

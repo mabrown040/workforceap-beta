@@ -6,31 +6,10 @@ import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * Restore a soft-deleted user. Clears `deletedAt` and, if the email
- * was rewritten to the sentinel form by the delete route or the
- * "free email" admin action, restores the original email if it isn't
- * currently colliding with another user.
- *
- * NOTE: this does NOT recreate the Supabase auth user — auth is hard-
- * deleted on the original delete. A restored member needs a fresh
- * invite to actually sign in. The page-level success message tells
- * the admin this.
- *
- * Sentinel form (must match app/api/admin/members/[id]/delete/route.ts):
- *   deleted_{userId}_{timestampMs}_{originalEmail}@deleted.invalid
- *
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
- * Target lookup + update go through `withTenantScope`. The collision
- * pre-check uses `crossTenantOK` because `User.email` is `@unique`
- * GLOBALLY in the schema — a scoped check would miss a collision in
- * another tenant and the update would 500 on Prisma's P2002 instead
- * of returning 409. The route still catches P2002 as belt-and-braces.
- */
-export async function POST(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
     const actor = await getUser();
     if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -100,4 +79,4 @@ export async function POST(
     console.error('/admin/users/[id]/restore:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

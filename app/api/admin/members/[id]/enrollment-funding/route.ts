@@ -5,6 +5,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { FundingSource } from '@prisma/client';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   fundingSource: z.nativeEnum(FundingSource).optional().nullable(),
   fundingNotes: z.string().max(8000).optional().nullable(),
@@ -12,9 +14,7 @@ const bodySchema = z.object({
   workspaceEmailProvisioned: z.boolean().optional(),
 });
 
-type Props = { params: Promise<{ id: string }> };
-
-export async function POST(request: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(async (request: NextRequest, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,5 +77,5 @@ export async function POST(request: NextRequest, { params }: Props) {
     console.error('/admin/members/[id]/enrollment-funding error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -5,6 +5,8 @@ import { mapSkillsToRadarAxes } from '@/lib/ai/onetSkills';
 import type { OnetSkill } from '@/lib/ai/onetSkills';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * GET /api/member/skill-profile
  *
@@ -240,9 +242,7 @@ function mergeProfiles(
     // Take the higher of cert or resume signal
     return { axis, value: Math.min(1, Math.max(certVal, resumeVal)) };
   });
-}
-
-export async function GET() {
+}export const GET = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -430,5 +430,5 @@ export async function GET() {
     console.error('/member/skill-profile error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

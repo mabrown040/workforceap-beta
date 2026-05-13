@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
 import type { AbstractIntlMessages } from 'next-intl';
@@ -17,6 +18,12 @@ import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavL
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
@@ -87,7 +94,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const reserveMobileBottomNav = h.get(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER) === '1';
   const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
   return (
-    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={htmlClassName}>
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${inter.variable}${htmlClassName ? ' ' + htmlClassName : ''}`}>
       <head>
         <ThemeInitScript />
         <script

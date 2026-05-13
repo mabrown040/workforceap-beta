@@ -191,6 +191,7 @@ model User {
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
   placementSurveys       PlacementSurvey[]
+  milestoneCascades        MilestoneCascade[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2130,4 +2131,61 @@ model CourseraSkillsetProgress {
   @@unique([userId, skillsetId])
   @@index([programId])
   @@map("coursera_skillset_progress")
+}
+
+// --- Milestone Cascades ---
+
+/// Counselor-reviewable bundles of suggested actions triggered by significant
+/// member events (initially: course completion). The row is created at
+/// detection time; LLM drafting, approval UI, and outbound actions are
+/// layered on in follow-up PRs.
+///
+/// Idempotent on (userId, milestoneType, milestoneRef) — re-firing detection
+/// for the same milestone is a no-op. Status is plain text + CHECK constraint
+/// (not Prisma enum) to mirror AtRiskAlert.status and keep new statuses cheap.
+model MilestoneCascade {
+  id                  String    @id @default(uuid())
+  userId              String    @map("user_id")
+
+  /// "course_completed" today. Future: "cert_earned", "streak_7day", etc.
+  milestoneType       String    @map("milestone_type")
+  /// For course_completed: the course slug. Combined with milestoneType to
+  /// form the idempotency key.
+  milestoneRef        String    @map("milestone_ref")
+  /// pending_draft | awaiting_approval | approved | sent | dismissed | expired
+  status              String    @default("pending_draft")
+
+  programSlug         String?   @map("program_slug")
+  /// Snapshot of state at detection time (course name, completedCount,
+  /// source, etc.) so the LLM draft step can rebuild context deterministically.
+  contextSnapshot     Json      @map("context_snapshot")
+  /// xAPI statement_id when known, for traceability back to the trigger event.
+  sourceEventId       String?   @map("source_event_id")
+
+  // LLM-produced fields (populated by the drafting cron in a follow-up PR)
+  counselorBrief      String?   @map("counselor_brief") @db.Text
+  drafts              Json?
+  draftModel          String?   @map("draft_model")
+  draftPromptVersion  String?   @map("draft_prompt_version")
+  draftedAt           DateTime? @map("drafted_at")
+
+  // Approval flow (populated by counselor actions in a follow-up PR)
+  approvedByUserId    String?   @map("approved_by_user_id")
+  approvedAt          DateTime? @map("approved_at")
+  dismissedAt         DateTime? @map("dismissed_at")
+  dismissedReason     String?   @map("dismissed_reason") @db.Text
+  sentAt              DateTime? @map("sent_at")
+
+  /// 72h TTL after creation. Stale celebrations don't get sent.
+  expiresAt           DateTime  @map("expires_at")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, milestoneType, milestoneRef], name: "milestone_cascade_idempotency")
+  @@index([status, expiresAt])
+  @@index([userId, createdAt])
+  @@map("milestone_cascades")
 }

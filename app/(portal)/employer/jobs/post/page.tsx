@@ -5,9 +5,11 @@ import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import EmployerJobPostForm from '@/components/employer/EmployerJobPostForm';
+import { EMPLOYER_TIERS } from '@/lib/stripe/client';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -23,6 +25,23 @@ export default async function EmployerJobPostPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const employer = await prisma.employer.findUnique({
+    where: { id: ctx.employerId },
+    select: { tier: true },
+  });
+  const tierKey = (employer?.tier ?? 'basic') as keyof typeof EMPLOYER_TIERS;
+  const tierConfig = EMPLOYER_TIERS[tierKey] ?? EMPLOYER_TIERS.basic;
+  const jobLimit = tierConfig.jobLimit;
+
+  const activeJobCount = await prisma.job.count({
+    where: {
+      employerId: ctx.employerId,
+      status: { in: ['live', 'pending', 'draft'] },
+    },
+  });
+
+  const atLimit = jobLimit !== Infinity && activeJobCount >= jobLimit;
 
   return (
     <PortalPageFrame>
@@ -48,6 +67,20 @@ export default async function EmployerJobPostPage() {
           </Link>
         }
       />
+
+      {atLimit && (
+        <div className="portal-card portal-card--flat portal-card--padded" style={{ marginBottom: '1.5rem', borderLeft: '4px solid var(--color-gold)', background: 'rgba(234,179,8,0.06)' }}>
+          <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>
+            Job limit reached
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 1rem' }}>
+            You have {activeJobCount} active job{activeJobCount !== 1 ? 's' : ''} on the {tierConfig.name} plan (limit: {jobLimit}). Upgrade to post more.
+          </p>
+          <Link href="/employer/billing" className="btn btn-primary">
+            Upgrade plan
+          </Link>
+        </div>
+      )}
 
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '1rem' }}>

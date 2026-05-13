@@ -780,6 +780,8 @@ model Partner {
   onboardingCompletedAt DateTime? @map("onboarding_completed_at")
   tourCompletedAt       DateTime? @map("tour_completed_at")
   organizationType      String?   @map("organization_type")
+  stripeConnectId       String?   @map("stripe_connect_id")
+  stripeConnectStatus   String?   @map("stripe_connect_status")
 
   counselors           Counselor[]
   referrals            PartnerReferral[]
@@ -1174,6 +1176,9 @@ model Employer {
   updatedAt                DateTime  @updatedAt @map("updated_at")
   onboardingCompletedAt    DateTime? @map("onboarding_completed_at")
   tourCompletedAt          DateTime? @map("tour_completed_at")
+  stripeCustomerId         String?   @map("stripe_customer_id")
+  stripeSubscriptionId     String?   @map("stripe_subscription_id")
+  stripeSubscriptionStatus String?   @map("stripe_subscription_status")
 
   user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)

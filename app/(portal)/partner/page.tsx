@@ -58,6 +58,8 @@ export default async function PartnerDashboardPage() {
       contactName: true,
       contactPhone: true,
       tourCompletedAt: true,
+      stripeConnectId: true,
+      stripeConnectStatus: true,
     },
   });
 
@@ -274,6 +276,45 @@ export default async function PartnerDashboardPage() {
         </div>
       </div>
 
+      {/* Mobile Connect payout section */}
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PortalCard title="Payouts" subtitle="Get paid directly to your bank account.">
+          {partnerRow.stripeConnectStatus === 'active' ? (
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+                Bank account connected. Payouts are sent automatically when placements are verified.
+              </p>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
+                Ready for payouts
+              </span>
+            </div>
+          ) : (
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+                Connect your bank account to receive payouts automatically.
+              </p>
+              <form
+                action="/api/partner/connect"
+                method="POST"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/partner/connect', { method: 'POST' });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                  else alert(data.error || 'Something went wrong');
+                }}
+              >
+                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
+                  Connect bank account
+                </button>
+              </form>
+            </div>
+          )}
+        </PortalCard>
+      </div>
+
       <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
         <PortalCard
           title="Referral link"
@@ -487,6 +528,47 @@ export default async function PartnerDashboardPage() {
           <PortalKpiCard accent="green" label="Members placed" value={placements} hint="Verified hires" href="/partner/outcomes" />
           <PortalKpiCard accent="gold" label="Est. payout" value={fmtMoney(estimatedPayout)} hint="Placement estimate" />
         </div>
+      </section>
+
+      {/* Desktop Connect payout section */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <PortalCard title="Payouts" subtitle="Get paid directly to your bank account when placements are verified.">
+          {partnerRow.stripeConnectStatus === 'active' ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                  Bank account connected. Payouts are sent automatically when placements are verified.
+                </p>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
+                  Ready for payouts
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                Connect your bank account to receive payouts automatically.
+              </p>
+              <form
+                action="/api/partner/connect"
+                method="POST"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/partner/connect', { method: 'POST' });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                  else alert(data.error || 'Something went wrong');
+                }}
+              >
+                <button type="submit" className="btn btn-primary">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
+                  Connect bank account
+                </button>
+              </form>
+            </div>
+          )}
+        </PortalCard>
       </section>
 
       <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">

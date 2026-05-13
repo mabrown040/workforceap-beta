@@ -43,6 +43,11 @@ vi.mock('@/lib/db/prisma', () => ({
     employer: {
       findUnique: vi.fn(),
     },
+    jobPostingApplication: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+    },
   },
 }));
 
@@ -79,7 +84,8 @@ vi.mock('@/lib/portal/workflowEvents', () => ({
 
 // ─── Imports after mocks ───
 import { GET as listJobs, POST as createJob } from '@/app/api/employer/jobs/route';
-import { GET as getJob, PATCH as updateJob } from '@/app/api/employer/jobs/[id]/route';
+import { GET as getJob, PATCH as updateJob, DELETE as deleteJob } from '@/app/api/employer/jobs/[id]/route';
+import { GET as listApplicants, PATCH as updateApplicant } from '@/app/api/employer/jobs/[id]/applicants/route';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -114,7 +120,7 @@ function makeJob(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function makeRequest(url: string, opts?: RequestInit) {
+function makeRequest(url: string, opts?: ConstructorParameters<typeof NextRequest>[1]) {
   return new NextRequest(url, opts);
 }
 
@@ -507,8 +513,239 @@ describe('PATCH /api/employer/jobs/[id]', () => {
 });
 
 // ─────────────────────────────────────────────
-// DELETE /api/employer/jobs/[id] — NOT IMPLEMENTED
+// DELETE /api/employer/jobs/[id]
 // ─────────────────────────────────────────────
 describe('DELETE /api/employer/jobs/[id]', () => {
-  it.skip('no DELETE handler exists in app/api/employer/jobs/[id]/route.ts', () => {});
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const makeParams = (id: string) => Promise.resolve({ id });
+
+  function makeDeleteRequest(id: string) {
+    return makeRequest(`http://localhost:3000/api/employer/jobs/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  it('returns 401 when user is not authenticated', async () => {
+    vi.mocked(getUser).mockResolvedValue(null as any);
+
+    const res = await deleteJob(makeDeleteRequest(UUIDS.job1), {
+      params: makeParams(UUIDS.job1),
+    });
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+  });
+
+  it('returns 403 when user has no employer context', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(null);
+
+    const res = await deleteJob(makeDeleteRequest(UUIDS.job1), {
+      params: makeParams(UUIDS.job1),
+    });
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+
+  it('returns 404 for missing job', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue(null);
+
+    const res = await deleteJob(makeDeleteRequest(UUIDS.job1), {
+      params: makeParams(UUIDS.job1),
+    });
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Job not found' });
+  });
+
+  it('soft-deletes (closes) job for authenticated employer', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue(makeJob() as any);
+    vi.mocked(prisma.job.update).mockResolvedValue(makeJob({ status: 'closed' }) as any);
+
+    const res = await deleteJob(makeDeleteRequest(UUIDS.job1), {
+      params: makeParams(UUIDS.job1),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.job.status).toBe('closed');
+    expect(prisma.job.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: UUIDS.job1 },
+        data: { status: 'closed' },
+      })
+    );
+  });
+});
+
+// ─────────────────────────────────────────────
+// GET /api/employer/jobs/[id]/applicants
+// ─────────────────────────────────────────────
+describe('GET /api/employer/jobs/[id]/applicants', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const makeParams = (id: string) => Promise.resolve({ id });
+
+  it('returns 401 when user is not authenticated', async () => {
+    vi.mocked(getUser).mockResolvedValue(null as any);
+
+    const res = await listApplicants(
+      makeRequest(`http://localhost:3000/api/employer/jobs/${UUIDS.job1}/applicants`),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+  });
+
+  it('returns 403 when user has no employer context', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(null);
+
+    const res = await listApplicants(
+      makeRequest(`http://localhost:3000/api/employer/jobs/${UUIDS.job1}/applicants`),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+
+  it('returns 404 for missing job', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue(null);
+
+    const res = await listApplicants(
+      makeRequest(`http://localhost:3000/api/employer/jobs/${UUIDS.job1}/applicants`),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Job not found' });
+  });
+
+  it('returns applicants for owned job', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue({ id: UUIDS.job1, title: 'Software Engineer' } as any);
+    vi.mocked(prisma.jobPostingApplication.findMany).mockResolvedValue([
+      {
+        id: 'app-1',
+        status: 'pending',
+        appliedAt: new Date('2025-01-15'),
+        employerNotes: null,
+        student: { id: 's1', fullName: 'Alice', email: 'alice@example.com' },
+      },
+    ] as any);
+
+    const res = await listApplicants(
+      makeRequest(`http://localhost:3000/api/employer/jobs/${UUIDS.job1}/applicants`),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.job.id).toBe(UUIDS.job1);
+    expect(body.applicants).toHaveLength(1);
+    expect(body.applicants[0].student.fullName).toBe('Alice');
+  });
+});
+
+// ─────────────────────────────────────────────
+// PATCH /api/employer/jobs/[id]/applicants
+// ─────────────────────────────────────────────
+describe('PATCH /api/employer/jobs/[id]/applicants', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const makeParams = (id: string) => Promise.resolve({ id });
+
+  function makeApplicantPatchRequest(id: string, applicantId: string, body: Record<string, unknown>) {
+    return makeRequest(
+      `http://localhost:3000/api/employer/jobs/${id}/applicants?applicantId=${applicantId}`,
+      {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      }
+    );
+  }
+
+  it('returns 401 when user is not authenticated', async () => {
+    vi.mocked(getUser).mockResolvedValue(null as any);
+
+    const res = await updateApplicant(
+      makeApplicantPatchRequest(UUIDS.job1, 'app-1', { status: 'reviewing' }),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+  });
+
+  it('returns 403 when user has no employer context', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(null);
+
+    const res = await updateApplicant(
+      makeApplicantPatchRequest(UUIDS.job1, 'app-1', { status: 'reviewing' }),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+
+  it('returns 404 for missing job', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue(null);
+
+    const res = await updateApplicant(
+      makeApplicantPatchRequest(UUIDS.job1, 'app-1', { status: 'reviewing' }),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Job not found' });
+  });
+
+  it('returns 400 for invalid status', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue({ id: UUIDS.job1 } as any);
+
+    const res = await updateApplicant(
+      makeApplicantPatchRequest(UUIDS.job1, 'app-1', { status: 'invalid' }),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('updates applicant status for owned job', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue({ id: UUIDS.job1 } as any);
+    vi.mocked(prisma.jobPostingApplication.findFirst).mockResolvedValue({ id: 'app-1' } as any);
+    vi.mocked(prisma.jobPostingApplication.update).mockResolvedValue({
+      id: 'app-1',
+      status: 'reviewing',
+    } as any);
+
+    const res = await updateApplicant(
+      makeApplicantPatchRequest(UUIDS.job1, 'app-1', { status: 'reviewing' }),
+      { params: makeParams(UUIDS.job1) }
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(prisma.jobPostingApplication.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'app-1' },
+        data: expect.objectContaining({ status: 'reviewing' }),
+      })
+    );
+  });
 });

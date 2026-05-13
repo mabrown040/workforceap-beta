@@ -21,7 +21,7 @@ import {
   prismaWhereDeletableInListFilter,
   prismaWhereEmployerJobList,
 } from '@/lib/employer/employerJobsListQuery';
-import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
+import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel, employerJobStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');

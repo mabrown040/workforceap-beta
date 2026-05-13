@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 export async function fetchFeatureFlags() {
   return prisma.featureFlag.findMany({
     orderBy: { createdAt: 'desc' },
+    take: 500,
   });
 }
 

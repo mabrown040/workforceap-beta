@@ -22,6 +22,7 @@ export async function GET() {
 
     const flags = await prisma.featureFlag.findMany({
       where: { enabled: true },
+      take: 500,
     });
 
     const visibleFlags = filterVisibleFlags(flags, user.id, allRoles);

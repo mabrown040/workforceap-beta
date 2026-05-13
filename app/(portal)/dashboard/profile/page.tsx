@@ -14,6 +14,7 @@ import SettingsForm from "@/components/portal/SettingsForm";
 import DeleteAccountButton from "@/components/portal/DeleteAccountButton";
 import StartTourButton from "@/components/onboarding/StartTourButton";
 import LanguageToggle from "@/components/portal/LanguageToggle";
+import DownloadMyDataButton from "@/components/portal/DownloadMyDataButton";
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
@@ -738,6 +739,19 @@ export default async function DashboardProfilePage() {
                   Language
                 </h3>
                 <LanguageToggle />
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Data Privacy
+                </h3>
+                <DownloadMyDataButton />
               </section>
               <section>
                 <h3

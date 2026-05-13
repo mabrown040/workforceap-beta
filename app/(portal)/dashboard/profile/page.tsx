@@ -14,6 +14,7 @@ import DeleteAccountButton from "@/components/portal/DeleteAccountButton";
 import StartTourButton from "@/components/onboarding/StartTourButton";
 import ResumeClient from "@/app/(portal)/dashboard/resume/ResumeClient";
 import ResumeCoachWorkspace from "@/components/portal/ResumeCoachWorkspace";
+import LanguageToggle from "@/components/portal/LanguageToggle";
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
@@ -695,6 +696,19 @@ export default async function DashboardProfilePage() {
                   </Link>
                   <StartTourButton />
                 </div>
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Language
+                </h3>
+                <LanguageToggle />
               </section>
               <section>
                 <h3

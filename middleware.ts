@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import type { AppLocale } from '@/lib/i18n/config';
 import {
   WAP_LOCALE_COOKIE,
   WAP_LOCALE_HEADER,
@@ -62,10 +63,14 @@ function requestedPathWithSearch(request: NextRequest) {
   return `${request.nextUrl.pathname}${request.nextUrl.search}`;
 }
 
-function resolvePreferredLocale(request: NextRequest) {
+function resolvePreferredLocale(request: NextRequest): { locale: AppLocale; fromQuery: boolean } {
+  const queryLang = request.nextUrl.searchParams.get('lang');
+  if (queryLang && isAppLocale(queryLang)) {
+    return { locale: queryLang, fromQuery: true };
+  }
   const cookieVal = request.cookies.get(WAP_LOCALE_COOKIE)?.value;
-  if (cookieVal && isAppLocale(cookieVal)) return cookieVal;
-  return pickLocaleFromAcceptLanguage(request.headers.get('accept-language'));
+  if (cookieVal && isAppLocale(cookieVal)) return { locale: cookieVal, fromQuery: false };
+  return { locale: pickLocaleFromAcceptLanguage(request.headers.get('accept-language')), fromQuery: false };
 }
 
 export async function middleware(request: NextRequest) {
@@ -85,7 +90,7 @@ export async function middleware(request: NextRequest) {
   const effectivePath = prefixLocale ? pathnameWithoutLocale : pathname;
   requestHeaders.set('x-pathname', effectivePath);
 
-  const inferredLocale = resolvePreferredLocale(request);
+  const { locale: inferredLocale, fromQuery: localeFromQuery } = resolvePreferredLocale(request);
   requestHeaders.set(WAP_LOCALE_HEADER, prefixLocale ?? inferredLocale);
 
   if (shouldReserveMobileBottomNavClearance(effectivePath)) {
@@ -112,6 +117,17 @@ export async function middleware(request: NextRequest) {
   if (!prefixLocale && !isLocaleBypassPath(pathname) && isLocaleableMarketingPath(pathname)) {
     const loc = inferredLocale;
     const target = new URL(withLocalePrefix(pathname, loc), request.url);
+    // Persist explicit ?lang= choice and strip it from the URL for cleanliness
+    if (localeFromQuery) {
+      target.searchParams.delete('lang');
+      const redirectResponse = NextResponse.redirect(target, 308);
+      redirectResponse.cookies.set(WAP_LOCALE_COOKIE, loc, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+      });
+      return redirectResponse;
+    }
     target.search = request.nextUrl.search;
     return NextResponse.redirect(target, 308);
   }

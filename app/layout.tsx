@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale } from '@/lib/i18n/config';
+import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
 import type { AbstractIntlMessages } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -82,11 +82,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const orgBranding = await getRequestOrgBranding(h);
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
+  const htmlDir = isRtlLocale(htmlLang) ? 'rtl' : 'ltr';
   const messages = pickRootClientMessages(await getMessages());
   const reserveMobileBottomNav = h.get(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER) === '1';
   const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
   return (
-    <html lang={htmlLang} suppressHydrationWarning className={htmlClassName}>
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={htmlClassName}>
       <head>
         <ThemeInitScript />
         <script

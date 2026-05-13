@@ -13,6 +13,13 @@ export function isAppLocale(value: string): value is AppLocale {
   return (APP_LOCALES as readonly string[]).includes(value);
 }
 
+/** RTL languages (future: ar, he, ur). Currently none. */
+export const RTL_LOCALES: readonly string[] = [];
+
+export function isRtlLocale(locale: AppLocale): boolean {
+  return RTL_LOCALES.includes(locale);
+}
+
 /** Public paths that use /{locale}/… URLs (redirect if prefix missing). */
 export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
   '/',

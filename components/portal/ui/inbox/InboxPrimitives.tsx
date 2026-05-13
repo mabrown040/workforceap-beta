@@ -146,11 +146,13 @@ export function InboxRowLink({
 
 export function InboxRowLayout({
   title,
+  subtitle,
   preview,
   meta,
   badge,
 }: {
   title: React.ReactNode;
+  subtitle?: React.ReactNode;
   preview?: React.ReactNode;
   meta?: React.ReactNode;
   badge?: React.ReactNode;
@@ -162,6 +164,7 @@ export function InboxRowLayout({
           <div className="portal-inbox-row__title">{title}</div>
           {meta ? <div className="portal-inbox-row__meta">{meta}</div> : null}
         </div>
+        {subtitle ? <div className="portal-inbox-row__subtitle">{subtitle}</div> : null}
         {preview ? <div className="portal-inbox-row__preview">{preview}</div> : null}
       </div>
       {badge ? <div className="portal-inbox-row__badge">{badge}</div> : null}

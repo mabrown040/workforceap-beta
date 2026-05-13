@@ -39,6 +39,7 @@ export type EventName =
   | 'employer_import_fallback_used'
   | 'employer_job_draft_saved'
   | 'employer_job_submitted_for_review'
+  | 'employer_job_posted_live'
   | 'admin_review_queue_viewed'
   | 'admin_job_review_viewed'
   | 'admin_recommendations_inspected'

@@ -311,7 +311,7 @@ async function getCareerOsMetrics(orgId: string) {
 
 /** Get placement rate: members with a placement record / total enrolled */
 async function getPlacementStats(orgId: string) {
-  const baseMember = { deletedAt: null as const };
+  const baseMember = { deletedAt: null };
   const [enrolled, placed, certifications] = await Promise.all([
     withTenantScope(orgId, (db) =>
       db.user.count({

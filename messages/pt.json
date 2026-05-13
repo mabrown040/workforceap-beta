@@ -784,7 +784,15 @@
     "supportYourMembers": "Apoie seus membros da inscrição ao emprego.",
     "superAdminPreview": "Visualização de super admin",
     "trainingProgressUnavailable": "Progresso do treinamento indisponível",
-    "sortedByRecentlyAssigned": "Ordenados por atribuição mais recente."
+    "sortedByRecentlyAssigned": "Ordenados por atribuição mais recente.",
+    "activeRoster": "Lista ativa",
+    "available": "Disponível",
+    "membersAppearOnceAssignedMobile": "Os membros aparecerão aqui assim que forem atribuídos por um administrador. Enquanto isso, explore o guia do conselheiro.",
+    "hotQueueHoursAgo": "{count}h",
+    "hotQueueDaysAgo": "{count}d",
+    "messages": "Mensagens",
+    "unknownProgram": "Programa desconhecido",
+    "counselorNameFallback": "Conselheiro"
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",

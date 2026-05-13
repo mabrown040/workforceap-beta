@@ -13,12 +13,12 @@ import { loadCounselorRosterRiskAndActivity } from '@/lib/counselor/counselorStu
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 
-function formatHotQueueTime(date: Date): string {
+function formatHotQueueTime(date: Date, translate: (key: string, values?: { count: number }) => string): string {
   const diffMs = Date.now() - date.getTime();
   const diffHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffHours < 24) return translate('hotQueueHoursAgo', { count: diffHours });
   const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
-  return `${diffDays}d ago`;
+  return translate('hotQueueDaysAgo', { count: diffDays });
 }
 
 export default async function CounselorStudentsPage() {
@@ -184,10 +184,10 @@ export default async function CounselorStudentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
-                    Hot member queue
+                    {t('hotMemberQueue')}
                   </p>
                   <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-                    Fresh completions that need counselor follow-up
+                    {t('freshCompletionsNeedFollowup')}
                   </h2>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
@@ -212,7 +212,7 @@ export default async function CounselorStudentsPage() {
                           {action.member.fullName ?? t('member')}
                         </p>
                         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)', whiteSpace: 'nowrap' }}>
-                          {formatHotQueueTime(action.createdAt)}
+                          {formatHotQueueTime(action.createdAt, t)}
                         </span>
                       </div>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
@@ -255,10 +255,10 @@ export default async function CounselorStudentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
-                    Hot member queue
+                    {t('hotMemberQueue')}
                   </p>
                   <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-                    Members who just became actionable
+                    {t('membersWhoJustBecameActionable')}
                   </h2>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
@@ -290,7 +290,7 @@ export default async function CounselorStudentsPage() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
-                        {formatHotQueueTime(action.createdAt)}
+                        {formatHotQueueTime(action.createdAt, t)}
                       </p>
                       <span className="btn btn-primary btn-sm">{t('openMember')}</span>
                     </div>

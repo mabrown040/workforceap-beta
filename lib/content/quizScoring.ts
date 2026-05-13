@@ -45,6 +45,17 @@ export type QuizAnswers = {
   q6: Q6Answer;
 };
 
+/** Neutral defaults for a shortened 3-question quiz (API + weighting still expect full answers). */
+export const QUIZ_SHORT_FORM_DEFAULTS: Pick<QuizAnswers, 'q4' | 'q5' | 'q6'> = {
+  q4: 'stability',
+  q5: 'comfortable',
+  q6: 'yes_computer',
+};
+
+export function mergeQuizShortAnswers(partial: Pick<QuizAnswers, 'q1' | 'q2' | 'q3'>): QuizAnswers {
+  return { ...partial, ...QUIZ_SHORT_FORM_DEFAULTS };
+}
+
 export function scoreQuiz(answers: QuizAnswers): CategoryWeights {
   const w = createEmptyWeights();
 

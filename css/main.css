@@ -7271,6 +7271,86 @@ body { animation: fadeIn 0.4s ease; }
     margin-top: 0.5rem;
     margin-bottom: 0;
 }
+.apply-social-proof {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+    margin: 0 0 0.75rem;
+    line-height: 1.45;
+}
+.apply-personal-block {
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.15rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+}
+.apply-personal-block__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.85rem;
+    color: var(--color-primary);
+}
+.apply-personal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+.apply-form-group--full {
+    margin-bottom: 0;
+}
+.apply-step1-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+.apply-step1-actions__primary { width: 100%; min-height: 48px; font-weight: 700; }
+.apply-step1-actions__secondary { width: 100%; min-height: 48px; }
+.apply-save-notice {
+    font-size: 0.9rem;
+    color: var(--color-on-surface-variant);
+    margin: 0.75rem 0 0;
+}
+.apply-account-field-row {
+    grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+    .apply-account-field-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 768px) {
+    .apply-flow .form-radio-card {
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+        align-items: center;
+    }
+    .apply-flow .form-radio-cards {
+        gap: 0.65rem;
+    }
+    .apply-flow input[type="text"],
+    .apply-flow input[type="email"],
+    .apply-flow input[type="tel"],
+    .apply-flow input[type="password"],
+    .apply-flow select,
+    .apply-flow textarea,
+    .apply-form input[type="text"],
+    .apply-form input[type="email"],
+    .apply-form input[type="tel"],
+    .apply-form input[type="password"],
+    .apply-form select,
+    .apply-form textarea {
+        font-size: 1rem;
+    }
+    .apply-flow .btn,
+    .apply-form .btn {
+        min-height: 48px;
+    }
+    .apply-results-program-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
 .apply-step-content { max-width: 720px; }
 .apply-step-kicker {
     font-size: 0.8rem;

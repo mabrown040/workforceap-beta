@@ -215,13 +215,19 @@ export default async function HomePage() {
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-            <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
+            <Link href="/apply" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)', fontWeight: 800 }}>
+              {t('heroCtaPrimary')}
+            </Link>
+            <Link href="/find-your-path" className="btn btn-outline btn-large" style={{ fontSize: 'clamp(1.02rem, 0.9vw + 0.88rem, 1.15rem)', borderColor: 'rgba(255,255,255,0.35)', color: 'var(--home-hero-fg, #f2f2f5)' }}>
               {t('heroCta')}
             </Link>
             <Link href="/programs" className="home-hero-outline-cta" style={{ fontSize: '0.95rem', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.88))', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
               {t('browsePrograms')}
             </Link>
           </div>
+          <p style={{ marginTop: '0.65rem', marginBottom: 0, fontSize: 'clamp(0.95rem, 0.5vw + 0.88rem, 1.05rem)', fontWeight: 600, color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.92))' }}>
+            {t('heroSocialProof')}
+          </p>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
               <span>✓ {t('trustGrant')}</span>

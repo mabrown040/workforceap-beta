@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminProgramCatalogClient from '@/components/admin/AdminProgramCatalogClient';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -77,7 +78,7 @@ export default async function AdminProgramsPage() {
   });
 
   return (
-    <div>
+    <PortalPageFrame>
       <PageHeader
         title="Programs"
         subtitle="Manage the program catalog (homepage, enrollment, employer filters). Enrollment stats below."
@@ -100,7 +101,7 @@ export default async function AdminProgramsPage() {
             data-program-stats-tree="single-responsive-tree"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))',
               gap: '0.75rem',
             }}
           >
@@ -117,7 +118,7 @@ export default async function AdminProgramsPage() {
                     <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
                       {program.category ?? 'Program'}
                     </p>
-                    <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>
+                    <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3, wordBreak: 'break-word' }}>
                       {program.title}
                     </p>
                   </div>
@@ -187,6 +188,6 @@ export default async function AdminProgramsPage() {
         </div>
         <AdminProgramCatalogClient />
       </section>
-    </div>
+    </PortalPageFrame>
   );
 }

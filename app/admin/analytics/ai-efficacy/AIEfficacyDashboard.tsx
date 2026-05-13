@@ -378,7 +378,7 @@ export default function AIEfficacyDashboard() {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="name" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} />
                       <YAxis tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} />
-                      <Tooltip {...tooltipStyle} formatter={(value: number) => `$${value.toLocaleString()}`} />
+                      <Tooltip {...tooltipStyle} formatter={((value: number) => `$${value.toLocaleString()}`) as any} />
                       <Bar dataKey="salary" name="Avg Salary" fill={GOLD} radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -393,7 +393,7 @@ export default function AIEfficacyDashboard() {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
                       <XAxis type="number" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} unit="pp" />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: MUTED }} tickLine={false} axisLine={false} width={130} />
-                      <Tooltip {...tooltipStyle} formatter={(value: number) => `+${value}pp`} />
+                      <Tooltip {...tooltipStyle} formatter={((value: number) => `+${value}pp`) as any} />
                       <Bar dataKey="lift" name="Placement Lift" radius={[0, 4, 4, 0]} fill={ACCENT}>
                         {topToolsData.map((_, i) => (
                           <Cell key={i} fill={[ACCENT, BLUE, GREEN, GOLD, MUTED][i % 5]} fillOpacity={0.85} />

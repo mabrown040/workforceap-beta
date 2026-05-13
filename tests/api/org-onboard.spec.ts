@@ -136,12 +136,12 @@ describe('POST /api/org/onboard', () => {
 
   it('handles duplicate slugs by appending a numeric suffix', async () => {
     let callCount = 0;
-    vi.mocked(prisma.organization.findUnique).mockImplementation(({ where }: any) => {
+    vi.mocked(prisma.organization.findUnique).mockImplementation((({ where }: any) => {
       callCount++;
       if (where.slug === 'test-org') return Promise.resolve({ id: 'existing-1' } as any);
       if (where.slug === 'test-org-1') return Promise.resolve({ id: 'existing-2' } as any);
       return Promise.resolve(null);
-    });
+    }) as any);
 
     vi.mocked(prisma.organization.create).mockResolvedValue({
       id: 'org-3',
@@ -235,10 +235,10 @@ describe('POST /api/org/onboard', () => {
   });
 
   it('returns 409 when custom domain is already claimed', async () => {
-    vi.mocked(prisma.organization.findUnique).mockImplementation(({ where }: any) => {
+    vi.mocked(prisma.organization.findUnique).mockImplementation((({ where }: any) => {
       if (where.customDomain) return Promise.resolve({ id: 'other-org' } as any);
       return Promise.resolve(null);
-    });
+    }) as any);
 
     const res = await onboardPOST(makeRequest({
       name: 'New Org',

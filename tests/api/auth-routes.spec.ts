@@ -195,6 +195,9 @@ function resetLoginMocks() {
         enroll: vi.fn(),
         challenge: vi.fn(),
         verify: vi.fn(),
+        unenroll: vi.fn(),
+        challengeAndVerify: vi.fn(),
+        webauthn: { challenge: vi.fn(), verify: vi.fn(), enroll: vi.fn(), unenroll: vi.fn() },
       },
     },
   }));
@@ -230,6 +233,9 @@ function resetMfaMocks() {
         enroll: vi.fn(),
         challenge: vi.fn(),
         verify: vi.fn(),
+        unenroll: vi.fn(),
+        challengeAndVerify: vi.fn(),
+        webauthn: { challenge: vi.fn(), verify: vi.fn(), enroll: vi.fn(), unenroll: vi.fn() },
       },
     },
   }));

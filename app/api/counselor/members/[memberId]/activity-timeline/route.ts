@@ -14,7 +14,7 @@ export async function GET(
   { params }: { params: Promise<{ memberId: string }> }
 ) {
   try {
-    const user = await getUser(req);
+    const user = await getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

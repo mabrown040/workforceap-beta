@@ -30,7 +30,7 @@ function isPortalRoute(pathname: string): boolean {
   return portalPrefixes.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
-let captureRouterTransitionStart: ((href: string) => void) | undefined;
+let captureRouterTransitionStart: ((href: string, navigationType?: string) => void) | undefined;
 let initPromise: Promise<void> | null = null;
 
 async function initSentry() {

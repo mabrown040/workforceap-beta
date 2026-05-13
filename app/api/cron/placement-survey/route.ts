@@ -39,7 +39,7 @@ async function handle(_request: Request) {
         : 'error';
 
   await setCronRecordsProcessed(totalSent);
-  await logCronRun('cron_placement_survey', runResult, status);
+  await logCronRun('cron_placement_survey', runResult, status as 'ok' | 'error');
 
   return NextResponse.json(runResult);
 }

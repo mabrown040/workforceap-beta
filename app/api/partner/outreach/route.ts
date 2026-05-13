@@ -37,7 +37,7 @@ export async function GET() {
       channel: l.channel,
       note: l.note,
       createdAt: l.createdAt.toISOString(),
-      createdByName: l.createdBy.fullName,
+      createdByName: l.createdBy?.fullName ?? 'Unknown',
     })),
   });
 

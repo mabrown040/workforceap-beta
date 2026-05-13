@@ -17,7 +17,7 @@ async function handle(_request: Request) {
   try {
     const xapi = await replayPendingXapiStatements(200);
     const runResult = { xapi };
-    await setCronRecordsProcessed(xapi.replayed ?? xapi.processed ?? 0);
+    await setCronRecordsProcessed(xapi.replayed ?? 0);
     await logCronRun('cron_coursera_training_sync', runResult, 'ok');
     return NextResponse.json(runResult);
   } catch (err) {

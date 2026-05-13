@@ -3,6 +3,8 @@ import { createServerClient } from '@supabase/ssr';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { checkAuthRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 /**
  * POST /api/auth/setup-mfa
@@ -15,6 +17,15 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
  */
 export async function POST(request: Request) {
   try {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkAuthRateLimit(`setup-mfa:${ip}`);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }
@@ -66,6 +77,15 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkAuthRateLimit(`setup-mfa:${ip}`);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }

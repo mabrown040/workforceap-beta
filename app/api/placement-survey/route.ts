@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken';
+import { checkPlacementSurveyRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 /**
  * POST /api/placement-survey
@@ -13,6 +15,15 @@ import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken'
  */
 export async function POST(req: Request) {
   try {
+    const ip = getClientIpFromRequest(req);
+    const { success: withinLimit } = await checkPlacementSurveyRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
+    }
+
     let body: Record<string, unknown>;
     try {
       body = await req.json();
@@ -146,6 +157,15 @@ export async function POST(req: Request) {
  */
 export async function GET(req: Request) {
   try {
+    const ip = getClientIpFromRequest(req);
+    const { success: withinLimit } = await checkPlacementSurveyRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
 

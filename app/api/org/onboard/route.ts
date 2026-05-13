@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe } from '@/lib/stripe/client';
+import { checkOrgOnboardRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 function slugify(name: string): string {
   return name
@@ -40,6 +42,15 @@ const onboardSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIpFromRequest(request);
+    const { success: withinLimit } = await checkOrgOnboardRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
+    }
+
     const body = await request.json().catch(() => null);
     const parsed = onboardSchema.safeParse(body);
     if (!parsed.success) {

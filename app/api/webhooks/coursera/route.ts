@@ -1,6 +1,8 @@
 import { createHash } from 'crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { checkWebhookRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 import { getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
 import { verifyCourseraRestWebhookAuth } from '@/lib/coursera/webhookAuth';
@@ -87,6 +89,15 @@ function buildSyntheticParsed(
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIpFromRequest(request);
+    const { success: withinLimit } = await checkWebhookRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      );
+    }
+
     const readiness = getCourseraReadiness(null);
     if (!readiness.canReceiveWebhooks) {
       return NextResponse.json({ error: 'Coursera webhook is not configured' }, { status: 503 });

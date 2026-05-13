@@ -20,6 +20,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try { await requireAdmin(user.id); } catch {
@@ -49,4 +50,10 @@ export async function POST(
   });
 
   return NextResponse.json({ ok: true, id, enabled });
+
+  } catch (error) {
+    console.error('/admin/email-crons/[id]/toggle error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -88,6 +88,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         where: { createdAt: { gte: fourteenDaysAgo } },
         select: { userId: true },
         distinct: ['userId'],
+        take: 100,
       });
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
       const members = await prisma.user.findMany({

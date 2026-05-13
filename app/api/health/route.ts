@@ -145,6 +145,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: Request) {
+  try {
   const ip = getClientIpFromRequest(request);
   const { success: withinHealthLimit } = await checkPublicHealthRateLimit(ip);
   if (!withinHealthLimit) {
@@ -190,4 +191,10 @@ export async function GET(request: Request) {
       headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' },
     },
   );
+
+  } catch (error) {
+    console.error('/health error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

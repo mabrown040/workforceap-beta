@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -75,4 +76,10 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json({ counts });
+
+  } catch (error) {
+    console.error('/admin/pipeline error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

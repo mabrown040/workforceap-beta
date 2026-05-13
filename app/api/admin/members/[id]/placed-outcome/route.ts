@@ -36,6 +36,7 @@ type Props = { params: Promise<{ id: string }> };
  * legacy upsert below.
  */
 export async function POST(request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -165,4 +166,10 @@ export async function POST(request: NextRequest, { params }: Props) {
       grantReportingNotes: placement.grantReportingNotes,
     },
   });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/placed-outcome error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

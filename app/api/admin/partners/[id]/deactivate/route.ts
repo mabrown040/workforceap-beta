@@ -9,6 +9,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       const referrals = await tx.partnerReferral.findMany({
         where: { partnerId },
         select: { memberId: true },
+        take: 100,
       });
       for (const r of referrals) {
         const existing = await tx.partnerReferral.findUnique({
@@ -71,4 +73,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   });
 
   return NextResponse.json({ ok: true, active: false });
+
+  } catch (error) {
+    console.error('/admin/partners/[id]/deactivate error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

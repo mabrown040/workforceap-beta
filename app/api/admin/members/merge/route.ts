@@ -18,6 +18,7 @@ import { CourseProgressStatus } from '@prisma/client';
  * Returns: { ok: true, primaryId, secondaryId, repointed: string[], mergedFields: string[] }
  */
 export async function POST(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try { await requireAdmin(user.id); } catch {
@@ -119,6 +120,7 @@ export async function POST(req: NextRequest) {
     };
     const secondaryCourseProgress = await tx.courseProgress.findMany({
       where: { userId: secondaryId },
+      take: 100,
     });
     let mergedCourseProgress = 0;
     for (const row of secondaryCourseProgress) {
@@ -161,6 +163,8 @@ export async function POST(req: NextRequest) {
     }
     if (mergedCourseProgress > 0) repointed.push(`courseProgress(${mergedCourseProgress})`);
 
+    const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId },
+    const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId }   take: 100
     const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId } });
     let mergedRollups = 0;
     for (const row of secondaryRollups) {
@@ -259,5 +263,11 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ ok: true, primaryId, secondaryId, repointed, mergedFields });
+
+  } catch (error) {
+    console.error('/admin/members/merge error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 

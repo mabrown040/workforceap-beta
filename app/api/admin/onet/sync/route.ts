@@ -10,6 +10,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -49,4 +50,10 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ error: 'Provide onetCodes or allMapped: true' }, { status: 400 });
+
+  } catch (error) {
+    console.error('/admin/onet/sync error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

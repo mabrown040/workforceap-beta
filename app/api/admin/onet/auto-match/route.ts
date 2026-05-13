@@ -15,6 +15,7 @@ import { rankPrograms } from '@/lib/career/autoMatch';
  * Scoring logic lives in `lib/career/autoMatch.ts` so it can be unit tested.
  */
 export async function GET(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -45,4 +46,10 @@ export async function GET(request: NextRequest) {
 
   const ranked = rankPrograms(occ, PROGRAMS);
   return NextResponse.json({ matches: ranked });
+
+  } catch (error) {
+    console.error('/admin/onet/auto-match error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

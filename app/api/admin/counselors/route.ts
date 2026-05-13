@@ -7,6 +7,7 @@ import { withTenantScope, counselorInOrg, assertSameTenant } from '@/lib/tenant/
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -36,7 +37,13 @@ export async function GET() {
       partnerName: c.partner?.name ?? null,
     })),
   });
+
+  } catch (error) {
+    console.error('/admin/counselors error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 const createBody = z.object({
   userId: z.string().uuid(),
@@ -45,6 +52,7 @@ const createBody = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -111,4 +119,10 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/admin/counselors error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

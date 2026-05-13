@@ -28,7 +28,7 @@ export async function POST(req: Request) {
           gte: new Date(thirtyDaysAgo.getTime() - 24 * 60 * 60 * 1000),
           lte: new Date(thirtyDaysAgo.getTime() + 24 * 60 * 60 * 1000),
         },
-        user: { placementSurvey: { is: null } },
+        user: { placementSurveys: { none: {} } },
       },
       include: {
         user: {
@@ -40,6 +40,7 @@ export async function POST(req: Request) {
           },
         },
       },
+      take: 100,
     });
 
     const sent: Array<{ userId: string; email: string }> = [];
@@ -53,9 +54,8 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // PlacementSurvey.userId is @unique; if a row exists for this user
-      // we silently skip rather than crash the whole batch.
-      const existing = await prisma.placementSurvey.findUnique({
+      // Skip if a survey row already exists for this user.
+      const existing = await prisma.placementSurvey.findFirst({
         where: { userId: placement.userId },
         select: { id: true },
       });

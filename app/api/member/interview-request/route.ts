@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { awardPoints } from '@/lib/member/points';
 
 export async function POST() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -50,4 +51,10 @@ export async function POST() {
   } catch {
     return NextResponse.json({ error: 'Failed to process interview request' }, { status: 500 });
   }
+
+  } catch (error) {
+    console.error('/member/interview-request error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -7,6 +7,7 @@ import { awardPoints } from '@/lib/member/points';
 type Props = { params: Promise<{ memberId: string }> };
 
 export async function POST(request: Request, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -38,4 +39,10 @@ export async function POST(request: Request, { params }: Props) {
   });
 
   return NextResponse.json({ ok: true, ...result });
+
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/award-points error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

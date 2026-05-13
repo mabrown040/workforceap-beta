@@ -13,6 +13,7 @@ import {
 type Props = { params: Promise<{ id: string }> };
 
 export async function GET(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -36,8 +37,9 @@ export async function GET(_request: NextRequest, { params }: Props) {
   });
 
   const names = await prisma.user.findMany({
-    where: { id: { in: [...new Set(messages.map((m) => m.authorId))] } },
+    where: { id: { in: [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))] } },
     select: { id: true, fullName: true },
+    take: 100,
   });
   const nameById = new Map(names.map((n) => [n.id, n.fullName]));
 
@@ -52,12 +54,19 @@ export async function GET(_request: NextRequest, { params }: Props) {
     },
     messages: messages.map((m) => ({
       ...serializeMessage(m),
-      authorName: nameById.get(m.authorId) ?? 'User',
+      authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
     })),
   });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -106,9 +115,16 @@ export async function POST(request: NextRequest, { params }: Props) {
   });
 
   return NextResponse.json({ message: serializeMessage(msg) });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -135,4 +151,10 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
   });
 
   return NextResponse.json({ ok: true, counselorLastReadAt: now.toISOString() });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

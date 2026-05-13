@@ -16,6 +16,7 @@ import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
  * Admin-only. Streams text/csv as an attachment.
  */
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -188,4 +189,10 @@ export async function GET(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Export failed' }, { status: 500 });
   }
+
+  } catch (error) {
+    console.error('/admin/cohort-export error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

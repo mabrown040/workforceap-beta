@@ -64,6 +64,7 @@ const getOutcomes = unstable_cache(
 );
 
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -72,4 +73,10 @@ export async function GET(req: NextRequest) {
   const orgId = await getActorOrganizationId(user.id);
   const data = await getOutcomes(orgId);
   return NextResponse.json(data);
+
+  } catch (error) {
+    console.error('/admin/outcomes error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

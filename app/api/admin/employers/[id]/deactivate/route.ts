@@ -13,6 +13,7 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
  * B employer by guessing its UUID.
  */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -40,4 +41,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   );
 
   return NextResponse.json({ ok: true, status: 'inactive' });
+
+  } catch (error) {
+    console.error('/admin/employers/[id]/deactivate error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

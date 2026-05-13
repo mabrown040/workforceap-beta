@@ -33,6 +33,7 @@ export async function POST() {
         NOT: { email: { endsWith: '@deleted.invalid' } },
       },
       select: { id: true, email: true },
+      take: 100,
     }),
   );
 

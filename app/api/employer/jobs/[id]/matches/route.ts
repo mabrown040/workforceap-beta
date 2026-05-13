@@ -4,6 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET(_request: Request, ctx: { params: Promise<{ id: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -24,7 +25,14 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
     include: {
       student: { select: { id: true, fullName: true, email: true, enrolledProgram: true } },
     },
+    take: 100,
   });
 
   return NextResponse.json({ job, matches });
+
+  } catch (error) {
+    console.error('/employer/jobs/[id]/matches error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

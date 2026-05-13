@@ -39,6 +39,7 @@ export async function GET(request: NextRequest, { params }: Params) {
         },
       },
       orderBy: [{ onetCode: 'asc' }, { experienceBand: 'asc' }, { priority: 'asc' }],
+      take: 100,
     });
 
     return NextResponse.json({

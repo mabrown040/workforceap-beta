@@ -9,6 +9,7 @@ import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import { awardPoints } from '@/lib/member/points';
 
 export async function POST(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -129,4 +130,10 @@ export async function POST(request: Request) {
   }).catch((err) => console.error('Course enrolled email failed:', err));
 
   return NextResponse.json({ ok: true, programSlug: slug });
+
+  } catch (error) {
+    console.error('/member/enroll error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

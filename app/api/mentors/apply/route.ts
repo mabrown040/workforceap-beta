@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
 export async function POST(req: NextRequest) {
+  try {
   const user = await getUser();
   const body = await req.json() as {
     fullName: string;
@@ -45,4 +46,10 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error('/mentors/apply error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

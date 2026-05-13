@@ -10,6 +10,7 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ memberId: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -63,4 +64,10 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ membe
   });
 
   return NextResponse.json({ ok: true, assignedPartnerUserId, assignedToName: assignee?.fullName ?? null });
+
+  } catch (error) {
+    console.error('/partner/referrals/[memberId] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

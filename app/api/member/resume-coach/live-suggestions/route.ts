@@ -8,6 +8,7 @@ import { parseResumeCoachSuggestionsFromTranscript } from '@/lib/ai/parseResumeC
  * Output: { suggestions: Array<{ original?: string; suggested: string; context: string }> }
  */
 export async function POST(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -21,4 +22,10 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ suggestions });
+
+  } catch (error) {
+    console.error('/member/resume-coach/live-suggestions error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

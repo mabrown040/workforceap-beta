@@ -18,6 +18,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -63,12 +64,19 @@ export async function PATCH(
     },
   });
   return NextResponse.json(updated);
+
+  } catch (error) {
+    console.error('/admin/subgroups/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -83,4 +91,10 @@ export async function DELETE(
 
   await prisma.subgroup.delete({ where: { id } });
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/admin/subgroups/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

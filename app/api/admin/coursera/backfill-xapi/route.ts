@@ -63,6 +63,7 @@ async function runBackfill(email: string) {  const member = await prisma.user.fi
   const statements = await prisma.xapiStatement.findMany({
     where: { actorEmail: email },
     orderBy: { createdAt: 'asc' },
+    take: 100,
   });
 
   if (statements.length === 0) {

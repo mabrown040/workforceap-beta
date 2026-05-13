@@ -11,6 +11,7 @@ import { getUser } from '@/lib/auth/server';
  * while removing personal identifiers.
  */
 export async function POST() {
+  try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -68,4 +69,10 @@ export async function POST() {
     ok: true, 
     message: 'Your account has been deleted. Personal data has been anonymized.' 
   });
+
+  } catch (error) {
+    console.error('/gdpr/delete error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

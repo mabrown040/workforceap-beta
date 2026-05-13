@@ -24,6 +24,7 @@ async function requireAdminUser() {
  *    so User.coursesCompleted JSON is up to date for counselor/partner views.
  */
 export async function POST() {
+  try {
   const admin = await requireAdminUser();
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -39,6 +40,7 @@ export async function POST() {
     where: { userId: { not: undefined } },
     select: { userId: true, programSlug: true },
     distinct: ['userId', 'programSlug'],
+    take: 100,
   });
 
   let rollupsRun = 0;
@@ -58,4 +60,10 @@ export async function POST() {
     csvPromotion,
     rollups: { run: rollupsRun, errors: rollupErrors, total: membersWithProgress.length },
   });
+
+  } catch (error) {
+    console.error('/admin/coursera/sync-progress error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

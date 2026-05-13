@@ -12,6 +12,7 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
  * Used by the verify-mfa page to guard access.
  */
 export async function GET(request: Request) {
+  try {
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({
       mfaRequired: false,
@@ -82,4 +83,10 @@ export async function GET(request: Request) {
     { mfaRequired, mfaEnforcement: true, currentAal: aalData.currentLevel, nextAal: aalData.nextLevel },
     { headers: { 'Cache-Control': 'no-store' } }
   );
+
+  } catch (error) {
+    console.error('/auth/check-mfa-required error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

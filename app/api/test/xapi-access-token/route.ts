@@ -10,6 +10,7 @@ import { issueXapiAccessToken } from '@/lib/xapi/token';
  * deployed production).
  */
 export async function GET() {
+  try {
   const allowByNodeEnv = process.env.NODE_ENV === 'test';
   const allowForLocalE2E =
     process.env.E2E_ISSUE_XAPI_TOKEN === '1' && process.env.NODE_ENV !== 'production';
@@ -21,4 +22,10 @@ export async function GET() {
     accessToken: issueXapiAccessToken(),
     usage: 'POST /api/xapi/statements with Authorization: Bearer <accessToken>',
   });
+
+  } catch (error) {
+    console.error('/test/xapi-access-token error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

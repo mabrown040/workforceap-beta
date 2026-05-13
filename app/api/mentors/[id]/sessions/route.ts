@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id: mentorId } = await params;
@@ -10,12 +11,20 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const sessions = await prisma.mentorSession.findMany({
     where: { mentorId, memberId: user.id },
     orderBy: { scheduledAt: 'desc' },
+    take: 100,
   });
 
   return NextResponse.json({ sessions });
+
+  } catch (error) {
+    console.error('/mentors/[id]/sessions error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id: mentorId } = await params;
@@ -33,4 +42,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   return NextResponse.json({ session }, { status: 201 });
+
+  } catch (error) {
+    console.error('/mentors/[id]/sessions error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

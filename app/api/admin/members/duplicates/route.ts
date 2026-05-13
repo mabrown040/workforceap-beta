@@ -10,6 +10,7 @@ import { prisma } from '@/lib/db/prisma';
  * lower-case email. Each group sorted by createdAt desc (newest first).
  */
 export async function GET(_req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try { await requireAdmin(user.id); } catch {
@@ -75,6 +76,7 @@ export async function GET(_req: NextRequest) {
             },
           },
         },
+        take: 100,
       })
     : [];
 
@@ -105,4 +107,10 @@ export async function GET(_req: NextRequest) {
   });
 
   return NextResponse.json({ groups, totalGroups: groups.length, totalDuplicates: groups.reduce((s, g) => s + g.members.length, 0) });
+
+  } catch (error) {
+    console.error('/admin/members/duplicates error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

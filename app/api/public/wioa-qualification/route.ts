@@ -10,6 +10,7 @@ const publicLeadSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  try {
   let body: unknown;
   try {
     body = await request.json();
@@ -52,4 +53,10 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ ok: true, snapshot, emailSent });
+
+  } catch (error) {
+    console.error('/public/wioa-qualification error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

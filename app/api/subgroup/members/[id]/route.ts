@@ -10,6 +10,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -100,4 +101,10 @@ export async function GET(
     userCertifications: m.userCertifications,
     coursesCompleted,
   });
+
+  } catch (error) {
+    console.error('/subgroup/members/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

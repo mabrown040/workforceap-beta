@@ -7,6 +7,7 @@ import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
  * Returns the prep bundle data for display (no email sent).
  */
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -21,4 +22,10 @@ export async function GET() {
     generatedAt: bundle.generatedAt.toISOString(),
     empty: bundle.empty,
   });
+
+  } catch (error) {
+    console.error('/member/prep-bundle error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

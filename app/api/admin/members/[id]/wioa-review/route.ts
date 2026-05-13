@@ -25,6 +25,7 @@ const bodySchema = z.object({
 type Props = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: NextRequest, { params }: Props) {
+  try {
   const actor = await getUser();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(actor.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -75,4 +76,10 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     wioaReviewedByUserId: actor.id,
     wioaReviewNotes: parsed.data.notes?.trim() || null,
   });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/wioa-review error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

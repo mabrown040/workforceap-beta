@@ -140,6 +140,7 @@ export async function GET(request: NextRequest) {
       const matching = await prisma.messageThread.findMany({
         where: { id: { in: breachIds }, ...baseWhereForInbox() },
         select: { id: true },
+        take: 100,
       });
       const allow = new Set(matching.map((m) => m.id));
       breachIds = breachIds.filter((id) => allow.has(id));
@@ -158,6 +159,7 @@ export async function GET(request: NextRequest) {
     const threads = await prisma.messageThread.findMany({
       where: { id: { in: pageIds } },
       select: selectList,
+      take: 100,
     });
     const order = new Map(pageIds.map((id, i) => [id, i]));
     threads.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
@@ -214,7 +216,7 @@ function mapThreadRow(
     employer: { id: string; companyName: string; contactEmail: string; userId: string } | null;
     partner: { id: string; name: string; partnerUsers: { userId: string }[] } | null;
     counselor: { id: string; fullName: string } | null;
-    messages: Array<{ id: string; body: string; createdAt: Date; authorId: string }>;
+    messages: Array<{ id: string; body: string; createdAt: Date; authorId: string | null }>;
   },
   slaMap: Map<string, import('@/lib/messages/superAdminMessageQueries').ThreadSlaRow>
 ) {
@@ -269,7 +271,7 @@ function mapThreadRow(
 
   if (t.kind === 'partner' && t.partner) {
     const partnerUserIds = t.partner.partnerUsers.map((p) => p.userId);
-    const needsStaffReply = last ? partnerUserIds.includes(last.authorId) : false;
+    const needsStaffReply = last ? last.authorId != null && partnerUserIds.includes(last.authorId) : false;
     return {
       ...base,
       partnerId: t.partnerId,

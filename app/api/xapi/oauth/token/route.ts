@@ -5,13 +5,21 @@ import { checkXapiOAuthTokenRateLimit } from '@/lib/rate-limit';
 import { issueXapiAccessToken, parseBasicAuth } from '@/lib/xapi/token';
 
 export async function GET() {
+  try {
   return NextResponse.json(
     { error: 'Method not allowed' },
     { status: 405, headers: { Allow: 'POST' } },
   );
+
+  } catch (error) {
+    console.error('/xapi/oauth/token error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: Request) {
+  try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkXapiOAuthTokenRateLimit(ip);
   if (!withinLimit) {
@@ -53,4 +61,10 @@ export async function POST(request: Request) {
     expires_in: config.tokenTtlSeconds,
     scope: 'statements:write',
   });
+
+  } catch (error) {
+    console.error('/xapi/oauth/token error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

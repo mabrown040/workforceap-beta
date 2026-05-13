@@ -39,6 +39,7 @@ async function handle(_request: Request) {
     },
     orderBy: { createdAt: 'desc' },
     select: { workflow: true, createdAt: true, status: true },
+    take: 100,
   });
 
   const lastRunByWorkflow = new Map<string, (typeof runs)[number]>();

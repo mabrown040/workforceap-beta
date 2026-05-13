@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 const PAYOUT_PER_PLACEMENT = 500;
 
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
           },
         },
       },
+      take: 100,
     })
   );
 
@@ -49,4 +51,10 @@ export async function GET(req: NextRequest) {
   });
 
   return NextResponse.json({ payouts });
+
+  } catch (error) {
+    console.error('/admin/partner-payouts error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

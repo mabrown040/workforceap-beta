@@ -20,6 +20,7 @@ const TOOL_LABELS: Record<string, string> = {
 };
 
 export async function GET(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -57,4 +58,10 @@ export async function GET(request: Request) {
   } catch {
     return NextResponse.json({ error: 'Failed to load AI history' }, { status: 500 });
   }
+
+  } catch (error) {
+    console.error('/member/ai-history error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

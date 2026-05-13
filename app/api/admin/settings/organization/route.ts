@@ -19,6 +19,7 @@ const patchSchema = z.object({
 });
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -40,9 +41,16 @@ export async function GET() {
     ...org,
     logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),
   });
+
+  } catch (error) {
+    console.error('/admin/settings/organization error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -75,4 +83,10 @@ export async function PATCH(request: NextRequest) {
     ...org,
     logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),
   });
+
+  } catch (error) {
+    console.error('/admin/settings/organization error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

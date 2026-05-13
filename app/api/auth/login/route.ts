@@ -9,6 +9,7 @@ import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 export async function POST(request: Request) {
+  try {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
   try {
     body = await request.json();
@@ -154,4 +155,10 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
+
+  } catch (error) {
+    console.error('/auth/login error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

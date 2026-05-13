@@ -209,6 +209,7 @@ export async function POST(request: Request) {
     },
     orderBy: { createdAt: 'asc' },
     select: { entityId: true, createdAt: true },
+    take: 100,
   });
 
   if (events.length === 0) {
@@ -222,6 +223,7 @@ export async function POST(request: Request) {
   const results = await prisma.aIToolResult.findMany({
     where: { id: { in: resultIds }, userId: memberId },
     select: { id: true, toolType: true, inputSummary: true, output: true, createdAt: true },
+    take: 100,
   });
   
   const orderedResults = events

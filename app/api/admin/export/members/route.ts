@@ -20,6 +20,7 @@ import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
  * WIOA qualification, certifications, and placement outcomes.
  */
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -273,4 +274,10 @@ export async function GET(req: NextRequest) {
   }
 
   return new NextResponse(csv, { status: 200, headers });
+
+  } catch (error) {
+    console.error('/admin/export/members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

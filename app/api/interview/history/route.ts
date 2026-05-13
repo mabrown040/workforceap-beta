@@ -205,6 +205,7 @@ export async function POST(req: NextRequest) {
           },
         },
         select: { email: true },
+        take: 100,
       });
 
       const configuredRecipients = (process.env.VOICE_INTERVIEW_TRANSCRIPT_EMAILS ?? '')

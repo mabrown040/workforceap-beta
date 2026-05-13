@@ -11,6 +11,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  * Counselor/admin only. Scoped to the actor organization (counselor roster).
  */
 export async function GET(request: Request) {
+  try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -94,4 +95,10 @@ export async function GET(request: Request) {
     count: formatted.length,
     members: formatted,
   });
+
+  } catch (error) {
+    console.error('/counselor/inactive-members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

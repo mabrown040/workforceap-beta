@@ -122,6 +122,7 @@ async function handle(_req: NextRequest) {
     },
     select: { id: true, email: true, enrolledProgram: true },
     orderBy: { createdAt: 'asc' },
+    take: 100,
   });
 
   // Empty-state guard: if NO program (across all members' enrolled programs +

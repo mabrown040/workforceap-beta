@@ -14,6 +14,7 @@ const toggleSchema = z.object({
 });
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -22,14 +23,22 @@ export async function GET() {
   const certs = await prisma.userCertification.findMany({
     where: { userId: user.id },
     select: { certName: true, earnedAt: true },
+    take: 100,
   });
 
   return NextResponse.json({
     certifications: certs.map((c) => ({ certName: c.certName, earnedAt: c.earnedAt })),
   });
+
+  } catch (error) {
+    console.error('/member/certifications error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -92,4 +101,10 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error('/member/certifications error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

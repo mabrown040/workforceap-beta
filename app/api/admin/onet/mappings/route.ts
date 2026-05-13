@@ -59,6 +59,7 @@ function snapshot(row: {
 }
 
 export async function GET(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -81,9 +82,16 @@ export async function GET(request: NextRequest) {
   });
 
   return NextResponse.json({ mappings: rows });
+
+  } catch (error) {
+    console.error('/admin/onet/mappings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -177,9 +185,16 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ mapping: row });
+
+  } catch (error) {
+    console.error('/admin/onet/mappings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function DELETE(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -219,4 +234,10 @@ export async function DELETE(request: NextRequest) {
   });
 
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/admin/onet/mappings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

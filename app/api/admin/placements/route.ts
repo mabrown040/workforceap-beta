@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -30,9 +31,16 @@ export async function GET(req: NextRequest) {
   }));
 
   return NextResponse.json({ placements: enriched });
+
+  } catch (error) {
+    console.error('/admin/placements error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -58,9 +66,16 @@ export async function POST(req: NextRequest) {
   );
 
   return NextResponse.json({ placement });
+
+  } catch (error) {
+    console.error('/admin/placements error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -76,7 +91,13 @@ export async function PATCH(req: NextRequest) {
   );
 
   return NextResponse.json({ placement });
+
+  } catch (error) {
+    console.error('/admin/placements error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 function daysSince(date: Date) {
   return Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));

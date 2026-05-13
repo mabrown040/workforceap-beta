@@ -13,6 +13,7 @@ import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgre
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 
 export async function GET(request: Request) {
+  try {
   const user = await getUser();
   if (!user) {
     const loginUrl = new URL('/login', request.url);
@@ -188,4 +189,10 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.redirect(safeUrl);
+
+  } catch (error) {
+    console.error('/member/coursera/launch error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

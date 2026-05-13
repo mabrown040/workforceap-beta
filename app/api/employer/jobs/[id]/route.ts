@@ -28,6 +28,7 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -48,12 +49,19 @@ export async function GET(
 
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   return NextResponse.json(job);
+
+  } catch (error) {
+    console.error('/employer/jobs/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -142,4 +150,10 @@ export async function PATCH(
   }
 
   return NextResponse.json(job);
+
+  } catch (error) {
+    console.error('/employer/jobs/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

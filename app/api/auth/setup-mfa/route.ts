@@ -14,6 +14,7 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
  * Body: { factorId, code }
  */
 export async function POST(request: Request) {
+  try {
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }
@@ -55,9 +56,16 @@ export async function POST(request: Request) {
     { factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret, uri: data.totp.uri },
     { headers: { 'Cache-Control': 'no-store' } }
   );
+
+  } catch (error) {
+    console.error('/auth/setup-mfa error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH(request: Request) {
+  try {
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA setup is currently disabled.' }, { status: 404 });
   }
@@ -105,4 +113,10 @@ export async function PATCH(request: Request) {
   }
 
   return NextResponse.json({ ok: true, message: 'MFA enabled successfully.' }, { headers: { 'Cache-Control': 'no-store' } });
+
+  } catch (error) {
+    console.error('/auth/setup-mfa error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

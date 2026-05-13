@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 
 export async function POST(req: Request) {
   try {
     const { memberId, courseName, secret } = await req.json();
 
-    if (secret !== process.env.WEBHOOK_SECRET) {
+    const expected = Buffer.from(process.env.WEBHOOK_SECRET || '');
+    const actual = Buffer.from(secret);
+    if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

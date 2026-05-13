@@ -9,6 +9,7 @@ const BUCKET = 'employer-logos';
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 export async function POST(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -25,8 +26,8 @@ export async function POST(request: Request) {
   }
 
   const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-  if (!['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext)) {
-    return NextResponse.json({ error: 'Use PNG, JPG, WebP, SVG, or GIF' }, { status: 400 });
+  if (!['png', 'jpg', 'jpeg'].includes(ext)) {
+    return NextResponse.json({ error: 'Use PNG or JPG only' }, { status: 400 });
   }
 
   const supabase = getSupabaseAdmin();
@@ -52,4 +53,10 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ ok: true, logoUrl: resolveSupabasePublicAssetUrl(BUCKET, path) });
+
+  } catch (error) {
+    console.error('/employer/logo error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

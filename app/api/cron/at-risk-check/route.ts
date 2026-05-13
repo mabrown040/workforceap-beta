@@ -45,6 +45,7 @@ async function handle(_request: Request) {
       userId: { notIn: Array.from(activeAlertUserIds) },
     },
     select: { id: true },
+    take: 100,
   });
 
   if (staleAlerts.length > 0) {
@@ -65,6 +66,7 @@ async function handle(_request: Request) {
       ? await prisma.user.findMany({
           where: { id: { in: digestScores.map((s) => s.userId) } },
           select: { id: true, email: true, fullName: true },
+          take: 100,
         })
       : [];
   const userById = new Map(userRows.map((u) => [u.id, u]));

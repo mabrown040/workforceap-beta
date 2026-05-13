@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
         job: { select: { id: true, title: true } },
         student: { select: { id: true, fullName: true, email: true } },
       },
+      take: 100,
     });
     return NextResponse.json(applications);
   } catch (err) {

@@ -8,6 +8,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -85,12 +86,19 @@ export async function GET(
   }));
 
   return NextResponse.json({ sections, memberId: userId, lastUpdatedBy, lastUpdatedAt: lastUpdatedAt?.toISOString() ?? null });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/readiness error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -162,4 +170,10 @@ export async function PATCH(
     select: { fullName: true },
   });
   return NextResponse.json({ ok: true, counselorName: dbUser?.fullName ?? (user.user_metadata?.full_name as string) ?? user.email });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/readiness error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

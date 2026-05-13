@@ -12,6 +12,7 @@ const bodySchema = z.object({
  * Upserts program interest for onboarding (latest application or new draft row).
  */
 export async function PATCH(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -57,4 +58,10 @@ export async function PATCH(request: Request) {
   });
 
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/member/application-onboarding error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

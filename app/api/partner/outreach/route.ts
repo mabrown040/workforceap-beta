@@ -12,6 +12,7 @@ const postSchema = z.object({
 });
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -39,9 +40,16 @@ export async function GET() {
       createdByName: l.createdBy.fullName,
     })),
   });
+
+  } catch (error) {
+    console.error('/partner/outreach error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -92,4 +100,10 @@ export async function POST(request: NextRequest) {
     note: log.note,
     createdAt: log.createdAt.toISOString(),
   });
+
+  } catch (error) {
+    console.error('/partner/outreach error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

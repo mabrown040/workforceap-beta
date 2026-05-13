@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
       include: {
         applications: { select: { id: true } },
       },
+      take: 100,
     }),
   );
 

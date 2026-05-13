@@ -8,6 +8,7 @@ import { getUser } from '@/lib/auth/server';
  * Implements GDPR Article 20 — Right to data portability.
  */
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -75,4 +76,10 @@ export async function GET() {
   };
 
   return NextResponse.json(exportData);
+
+  } catch (error) {
+    console.error('/gdpr/export error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -36,6 +36,7 @@ export async function GET() {
     db.organizationProgramCatalog.findMany({
       where: { status: 'active' },
       orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      take: 100,
     }),
   );
 

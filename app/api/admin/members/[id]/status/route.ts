@@ -26,6 +26,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const ip = getClientIp(request);
   const { success: rateOk } = await checkAuthRateLimit(`admin:${ip}`);
   if (!rateOk) {
@@ -119,4 +120,10 @@ export async function PATCH(
   });
 
   return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/status error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

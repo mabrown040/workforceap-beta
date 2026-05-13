@@ -52,6 +52,7 @@ export async function GET() {
   let rows = await withTenantScope(organizationId, (db) =>
     db.organizationProgramCatalog.findMany({
       orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+      take: 100,
     }),
   );
   // Auto-seed from static PROGRAMS list if catalog is empty (first load).
@@ -62,6 +63,7 @@ export async function GET() {
     rows = await withTenantScope(organizationId, (db) =>
       db.organizationProgramCatalog.findMany({
         orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+        take: 100,
       }),
     );
   }

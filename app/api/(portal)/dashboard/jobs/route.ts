@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
       include: {
         employer: { select: { companyName: true, logoUrl: true } },
       },
+      take: 100,
     });
     const visible = jobs
       .filter(

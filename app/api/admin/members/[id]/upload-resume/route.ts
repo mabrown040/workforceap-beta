@@ -15,6 +15,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -106,4 +107,10 @@ export async function POST(
   }
 
   return NextResponse.json({ ok: true, originalPath, enhancedPath });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/upload-resume error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -7,6 +7,7 @@ import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@/lib/pipeline/stage';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -86,4 +87,10 @@ export async function GET() {
     subgroups: subgroups.map((s) => s.subgroup),
     members,
   });
+
+  } catch (error) {
+    console.error('/subgroup/members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

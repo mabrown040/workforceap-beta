@@ -22,6 +22,7 @@ async function handle(_req: NextRequest) {
     where: { createdAt: { gte: fourteenDaysAgo } },
     select: { userId: true },
     distinct: ['userId'],
+    take: 100,
   });
   const activeSet = new Set(recentActiveUserIds.map(r => r.userId));
 

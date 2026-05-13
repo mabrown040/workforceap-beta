@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -16,4 +17,10 @@ export async function GET() {
     return acc;
   }, {} as Record<string, typeof progress>);
   return NextResponse.json({ progress: byPathway });
+
+  } catch (error) {
+    console.error('/member/pathway-steps/progress error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

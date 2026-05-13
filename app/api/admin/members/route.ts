@@ -7,6 +7,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 /** List members for admin (e.g. subgroup add-member search). Supports ?q= for search, ?limit= for max results. */
 export async function GET(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -43,4 +44,10 @@ export async function GET(request: NextRequest) {
   );
 
   return NextResponse.json(members);
+
+  } catch (error) {
+    console.error('/admin/members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

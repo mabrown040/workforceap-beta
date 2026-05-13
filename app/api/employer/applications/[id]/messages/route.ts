@@ -12,6 +12,7 @@ const messageSchema = z.object({
 type Props = { params: Promise<{ id: string }> };
 
 export async function GET(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -56,9 +57,16 @@ export async function GET(_request: NextRequest, { params }: Props) {
       readAt: m.readAt?.toISOString() ?? null,
     })),
   });
+
+  } catch (error) {
+    console.error('/employer/applications/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -123,10 +131,17 @@ export async function POST(request: NextRequest, { params }: Props) {
       isFromEmployer: true,
     },
   });
+
+  } catch (error) {
+    console.error('/employer/applications/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 /** Mark applicant messages as read for the employer viewer. */
 export async function PATCH(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -158,4 +173,10 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
   });
 
   return NextResponse.json({ ok: true, readAt: now.toISOString() });
+
+  } catch (error) {
+    console.error('/employer/applications/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

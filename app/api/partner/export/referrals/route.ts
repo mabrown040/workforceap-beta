@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
       organizationId: ctx.partner.organizationId,
     },
     select: { id: true, email: true },
+    take: 100,
   });
   const emailById = new Map(emails.map((e) => [e.id, e.email]));
 

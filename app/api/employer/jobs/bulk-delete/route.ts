@@ -17,6 +17,7 @@ const BULK_DELETABLE = new Set(['draft', 'pending', 'filled', 'closed']);
 const BULK_CLOSABLE = new Set(['live', 'approved']);
 
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
     const candidates = await prisma.job.findMany({
       where: { id: { in: uniqueIds }, employerId: ctx.employerId },
       select: { id: true, status: true, title: true },
+      take: 100,
     });
 
     const blocked = candidates.filter((j) => !BULK_CLOSABLE.has(j.status));
@@ -79,6 +81,7 @@ export async function POST(request: NextRequest) {
   const candidates = await prisma.job.findMany({
     where: { id: { in: uniqueIds }, employerId: ctx.employerId },
     select: { id: true, status: true, title: true },
+    take: 100,
   });
 
   const blocked = candidates.filter((j) => !BULK_DELETABLE.has(j.status));
@@ -104,4 +107,10 @@ export async function POST(request: NextRequest) {
     deleted: result.count,
     titles: candidates.map((c) => c.title),
   });
+
+  } catch (error) {
+    console.error('/employer/jobs/bulk-delete error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

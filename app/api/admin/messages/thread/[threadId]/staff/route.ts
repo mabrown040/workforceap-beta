@@ -7,6 +7,7 @@ import { assertStaffCanPost, normalizeMessageBody, serializeMessage } from '@/li
 type Props = { params: Promise<{ threadId: string }> };
 
 export async function POST(request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -49,9 +50,16 @@ export async function POST(request: NextRequest, { params }: Props) {
   });
 
   return NextResponse.json({ message: serializeMessage(msg) });
+
+  } catch (error) {
+    console.error('/admin/messages/thread/[threadId]/staff error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -71,4 +79,10 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
   });
 
   return NextResponse.json({ ok: true, staffLastReadAt: now.toISOString() });
+
+  } catch (error) {
+    console.error('/admin/messages/thread/[threadId]/staff error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

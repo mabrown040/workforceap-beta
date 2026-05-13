@@ -17,6 +17,7 @@ import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
  * Requires active session with aal1 (from password login).
  */
 export async function POST(request: Request) {
+  try {
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA verification is currently disabled.' }, { status: 404 });
   }
@@ -106,4 +107,10 @@ export async function POST(request: Request) {
 
   // Success — session now has aal2
   return NextResponse.json({ ok: true, aal: 'aal2' }, { headers: { 'Cache-Control': 'no-store' } });
+
+  } catch (error) {
+    console.error('/auth/verify-mfa error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

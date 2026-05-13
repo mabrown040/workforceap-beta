@@ -1,0 +1,124 @@
+/**
+ * WIOA monthly report generator.
+ *
+ * Computes active members, completers, placements, and average wage by program
+ * for a given date range. Called by /api/cron/wioa-report and
+ * /api/admin/reports/wioa/generate.
+ */
+
+import { prisma } from '@/lib/db/prisma';
+
+export type WioaReportProgram = {
+  programSlug: string;
+  activeMembers: number;
+  completers: number;
+  placements: number;
+  avgWage: number | null;
+};
+
+export type WioaReport = {
+  generatedAt: string;
+  periodStart: string;
+  periodEnd: string;
+  totalActiveMembers: number;
+  totalCompleters: number;
+  totalPlacements: number;
+  overallAvgWage: number | null;
+  programs: WioaReportProgram[];
+  rawJson: Record<string, unknown>;
+};
+
+function getPreviousMonthRange(now = new Date()): { start: Date; end: Date } {
+  const d = new Date(now.getFullYear(), now.getMonth(), 1);
+  d.setMonth(d.getMonth() - 1);
+  const start = new Date(d.getFullYear(), d.getMonth(), 1);
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+  return { start, end };
+}
+
+export async function generateWioaReport(
+  period?: { start: Date; end: Date },
+): Promise<WioaReport> {
+  const { start, end } = period ?? getPreviousMonthRange();
+  const dateRange = { gte: start, lte: end };
+
+  const totalActiveMembers = await prisma.user.count({
+    where: { deletedAt: null, role: 'member', createdAt: dateRange },
+  });
+
+  const completers = await prisma.courseProgress.groupBy({
+    by: ['userId'],
+    where: { status: 'COMPLETED', updatedAt: dateRange },
+    _count: { userId: true },
+  });
+  const totalCompleters = completers.length;
+
+  const totalPlacements = await prisma.placementRecord.count({
+    where: { placedAt: dateRange },
+  });
+
+  const overallAvgWageAgg = await prisma.placementRecord.aggregate({
+    where: { placedAt: dateRange },
+    _avg: { salaryOffered: true },
+  });
+  const overallAvgWage = overallAvgWageAgg._avg.salaryOffered ?? null;
+
+  // Enrollments by program in the period
+  const enrollmentsByProgram = await prisma.courseEnrollment.groupBy({
+    by: ['programSlug'],
+    where: { enrolledAt: dateRange },
+    _count: { programSlug: true },
+  });
+
+  // Completers by program in the period
+  const completersByProgram = await prisma.courseProgress.groupBy({
+    by: ['programSlug'],
+    where: { status: 'COMPLETED', updatedAt: dateRange },
+    _count: { programSlug: true },
+  });
+
+  // Placements by program in the period
+  const placementsByProgram = await prisma.placementRecord.groupBy({
+    by: ['programSlug'],
+    where: { placedAt: dateRange },
+    _count: { programSlug: true },
+  });
+
+  // Avg wage by program in the period
+  const wageByProgram = await prisma.placementRecord.groupBy({
+    by: ['programSlug'],
+    where: { placedAt: dateRange },
+    _avg: { salaryOffered: true },
+  });
+
+  const programSlugs = new Set([
+    ...enrollmentsByProgram.map((e) => e.programSlug),
+    ...completersByProgram.map((c) => c.programSlug),
+    ...placementsByProgram.map((p) => p.programSlug),
+  ]);
+
+  const programs: WioaReportProgram[] = Array.from(programSlugs)
+    .sort()
+    .map((programSlug) => ({
+      programSlug,
+      activeMembers: enrollmentsByProgram.find((e) => e.programSlug === programSlug)?._count?.programSlug ?? 0,
+      completers: completersByProgram.find((c) => c.programSlug === programSlug)?._count?.programSlug ?? 0,
+      placements: placementsByProgram.find((p) => p.programSlug === programSlug)?._count?.programSlug ?? 0,
+      avgWage: wageByProgram.find((w) => w.programSlug === programSlug)?._avg?.salaryOffered ?? null,
+    }));
+
+  const report: WioaReport = {
+    generatedAt: new Date().toISOString(),
+    periodStart: start.toISOString(),
+    periodEnd: end.toISOString(),
+    totalActiveMembers,
+    totalCompleters,
+    totalPlacements,
+    overallAvgWage,
+    programs,
+    rawJson: {},
+  };
+
+  report.rawJson = JSON.parse(JSON.stringify(report));
+  return report;
+}

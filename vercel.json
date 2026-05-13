@@ -16,6 +16,7 @@
     { "path": "/api/cron/coursera-b4b-sync", "schedule": "0 */6 * * *" },
     { "path": "/api/cron/coursera-auto-heal", "schedule": "15 * * * *" },
     { "path": "/api/cron/stale-training-check", "schedule": "30 12 * * *" },
-    { "path": "/api/cron/placement-survey", "schedule": "0 14 * * *" }
+    { "path": "/api/cron/placement-survey", "schedule": "0 14 * * *" },
+    { "path": "/api/cron/at-risk-alerts", "schedule": "0 13 * * *" }
   ]
 }

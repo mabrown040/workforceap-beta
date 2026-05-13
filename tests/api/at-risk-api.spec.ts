@@ -114,7 +114,7 @@ describe('GET /api/admin/members/at-risk', () => {
           profile: null,
         },
       },
-    ]);
+    ] as any);
     vi.mocked(prisma.memberEvent.groupBy).mockResolvedValue([]);
 
     const req = makeRequest('http://localhost/api/admin/members/at-risk?threshold=0&limit=20');
@@ -293,7 +293,7 @@ describe('GET /api/counselor/members/:memberId/activity-timeline', () => {
         metadata: { courseSlug: 'intro-to-data' },
         createdAt: new Date('2026-05-09T14:00:00Z'),
       },
-    ]);
+    ] as any);
 
     const req = makeRequest('http://localhost/api/counselor/members/member-1/activity-timeline?limit=10');
     const res = await getActivityTimeline(req, { params: Promise.resolve({ memberId: 'member-1' }) });

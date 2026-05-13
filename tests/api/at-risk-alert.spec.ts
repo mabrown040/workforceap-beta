@@ -191,7 +191,7 @@ describe('GET /api/cron/at-risk-alerts', () => {
     it('returns empty result when no critical members', async () => {
       vi.mocked(calculateAllAtRiskScores).mockResolvedValue([
         { userId: 'user-1', score: 45, factors: [], recommendedAction: 'Monitor' },
-      ]);
+      ] as any);
 
       const req = makeRequest({ authorization: 'Bearer super-secret-cron-key' });
       const result = await runAtRiskAlerts(req);
@@ -222,7 +222,7 @@ describe('GET /api/cron/at-risk-alerts', () => {
           { id: 'alert-1', userId: 'user-1', notifiedCounselorAt: oneHourAgo },
           { id: 'alert-2', userId: 'user-2', notifiedCounselorAt: null },
           { id: 'alert-3', userId: 'user-3', notifiedCounselorAt: null },
-        ]);
+        ] as any);
 
       vi.mocked(prisma.atRiskAlert.createMany).mockResolvedValue({ count: 3 } as any);
       vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 1 } as any);
@@ -253,7 +253,7 @@ describe('GET /api/cron/at-risk-alerts', () => {
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce([
           { id: 'alert-1', userId: 'user-1', notifiedCounselorAt: thirtyHoursAgo },
-        ]);
+        ] as any);
 
       vi.mocked(prisma.atRiskAlert.createMany).mockResolvedValue({ count: 1 } as any);
       vi.mocked(prisma.atRiskAlert.updateMany).mockResolvedValue({ count: 1 } as any);
@@ -354,7 +354,7 @@ describe('GET /api/cron/at-risk-alerts', () => {
       ]));
       vi.mocked(prisma.atRiskAlert.findMany)
         .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([{ id: 'alert-1', userId: 'user-1', notifiedCounselorAt: null }]);
+        .mockResolvedValueOnce([{ id: 'alert-1', userId: 'user-1', notifiedCounselorAt: null }] as any);
       vi.mocked(prisma.atRiskAlert.createMany).mockResolvedValue({ count: 1 } as any);
       vi.mocked(sendCounselorAtRiskAlertEmail).mockResolvedValue({ ok: false, error: 'SMTP down' });
 

@@ -34,7 +34,7 @@ function mockMember(opts: {
   placedAt?: Date;
   salary?: number;
   jobApps?: number;
-}) {
+}): any {
   return {
     id: opts.id,
     enrolledAt: opts.enrolledAt ?? new Date('2026-04-01'),

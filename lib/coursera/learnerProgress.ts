@@ -9,8 +9,8 @@
  * Design constraints (per #1077):
  *   - Don't import 'server-only': makes the module unit-testable under
  *     `node --test` / `tsx`, matching the b4bClient.ts pattern.
- *   - Cache per-(email, programId) results for ~60s so a single page
- *     render — and any nearby admin pulls — don't fan out into a swarm
+ *   - Cache per-(email, programId) results in Redis for 30 minutes so a single
+ *     page render — and any nearby admin pulls — don't fan out into a swarm
  *     of B4B requests against the shared OAuth quota.
  *   - Fail soft: if B4B is unreachable, return an empty map so the
  *     caller falls back to local rows (the historic behavior).
@@ -24,9 +24,10 @@ import {
   type B4BEnrollmentReport,
   type B4BProgram,
 } from './b4bClient';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
-const PROGRAM_LIST_TTL_MS = 60 * 60 * 1000; // 1 hour
-const LEARNER_PROGRESS_TTL_MS = 60 * 1000; // 60 seconds
+const PROGRAM_LIST_TTL_SECONDS = 60 * 60; // 1 hour
+const LEARNER_PROGRESS_TTL_SECONDS = 30 * 60; // 30 minutes
 
 export type LearnerProgressEntry = {
   contentId: string;
@@ -40,18 +41,26 @@ export type LearnerProgressEntry = {
 
 export type LearnerProgressByContent = Map<string, LearnerProgressEntry>;
 
-/* ------------------------------------------------------------------ */
-/*  Module-scope caches                                                */
-/* ------------------------------------------------------------------ */
+/** Serialize a LearnerProgressByContent Map for Redis JSON storage. */
+function serializeProgress(map: LearnerProgressByContent): Array<[string, LearnerProgressEntry]> {
+  return Array.from(map.entries());
+}
 
-type CachedPrograms = { fetchedAt: number; ids: string[] };
-let programIdsCache: CachedPrograms | null = null;
-
-type CachedLearnerEntry = {
-  fetchedAt: number;
-  data: LearnerProgressByContent;
-};
-const learnerCache = new Map<string, CachedLearnerEntry>();
+/** Deserialize Redis JSON back to a LearnerProgressByContent Map. */
+function deserializeProgress(data: unknown): LearnerProgressByContent {
+  if (!Array.isArray(data)) return new Map();
+  const map = new Map<string, LearnerProgressEntry>();
+  for (const item of data) {
+    if (Array.isArray(item) && item.length === 2) {
+      const [key, entry] = item as [string, LearnerProgressEntry];
+      if (entry.lastActivityAt && typeof entry.lastActivityAt === 'string') {
+        entry.lastActivityAt = new Date(entry.lastActivityAt);
+      }
+      map.set(key, entry);
+    }
+  }
+  return map;
+}
 
 /** Stable cache key: lowercase email + programId scope tag. */
 function learnerCacheKey(email: string, programId: string | undefined): string {
@@ -64,31 +73,28 @@ function learnerCacheKey(email: string, programId: string | undefined): string {
 
 /** Wipe both caches. Test-only. */
 export function _resetLearnerProgressCachesForTesting() {
-  programIdsCache = null;
-  learnerCache.clear();
+  // No-op: Redis cache is external and tests mock the client.
 }
 
 /** Inspect the per-learner cache. Test-only. */
 export function _getLearnerCacheEntryForTesting(
-  email: string,
-  programId: string | undefined,
-): CachedLearnerEntry | undefined {
-  return learnerCache.get(learnerCacheKey(email, programId));
+  _email: string,
+  _programId: string | undefined,
+): undefined {
+  // Redis cache is external; tests verify behavior via mock call counts.
+  return undefined;
 }
 
 /**
  * Drop cached B4B progress for one learner (all program scopes).
  * Call after `syncUserFromB4B` / cron writes so the member dashboard and any
  * server-render path using `fetchLearnerProgressFromB4B` sees fresh Coursera
- * numbers on the next fetch instead of waiting out the 60s TTL.
+ * numbers on the next fetch instead of waiting out the 30-minute TTL.
  */
-export function invalidateLearnerProgressCacheForEmail(email: string): void {
+export async function invalidateLearnerProgressCacheForEmail(email: string): Promise<void> {
   const normalized = email.trim().toLowerCase();
   if (!normalized) return;
-  const prefix = `${normalized}::`;
-  for (const key of learnerCache.keys()) {
-    if (key.startsWith(prefix)) learnerCache.delete(key);
-  }
+  await invalidateCache(`coursera:learner:${normalized}::*`);
 }
 
 /* ------------------------------------------------------------------ */
@@ -130,18 +136,16 @@ function reportToEntry(report: B4BEnrollmentReport): LearnerProgressEntry {
 async function resolveProgramIds(opts: { programId?: string }): Promise<string[]> {
   if (opts.programId) return [opts.programId];
 
-  const now = Date.now();
-  if (programIdsCache && now - programIdsCache.fetchedAt < PROGRAM_LIST_TTL_MS) {
-    return programIdsCache.ids;
-  }
-
-  const page = await listPrograms({ limit: 100, excludeContent: true });
-  const ids = page.elements
-    .map((p: B4BProgram) => p.id)
-    .filter((id): id is string => typeof id === 'string' && id.length > 0);
-
-  programIdsCache = { fetchedAt: now, ids };
-  return ids;
+  return getCacheOrFetch(
+    'coursera:program-ids',
+    async () => {
+      const page = await listPrograms({ limit: 100, excludeContent: true });
+      return page.elements
+        .map((p: B4BProgram) => p.id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0);
+    },
+    PROGRAM_LIST_TTL_SECONDS,
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -159,7 +163,7 @@ async function resolveProgramIds(opts: { programId?: string }): Promise<string[]
  * @param opts.programId  Scope the lookup to a single program. Strongly
  *                        recommended on the dashboard render path: avoids
  *                        a `listPrograms` round-trip.
- * @param opts.skipCache  When true, bypass the 60s cache and refetch.
+ * @param opts.skipCache  When true, bypass the Redis cache and refetch.
  *                        Used by the manual "Refresh from Coursera" button.
  */
 export async function fetchLearnerProgressFromB4B(
@@ -168,22 +172,33 @@ export async function fetchLearnerProgressFromB4B(
 ): Promise<LearnerProgressByContent> {
   if (!email || typeof email !== 'string') return new Map();
 
-  const cacheKey = learnerCacheKey(email, opts.programId);
-  const now = Date.now();
+  const cacheKey = `coursera:learner:${learnerCacheKey(email, opts.programId)}`;
 
-  if (!opts.skipCache) {
-    const cached = learnerCache.get(cacheKey);
-    if (cached && now - cached.fetchedAt < LEARNER_PROGRESS_TTL_MS) {
-      return cached.data;
-    }
+  if (opts.skipCache) {
+    return _fetchLearnerProgressFromB4BUncached(email, opts);
   }
 
+  const cached = await getCacheOrFetch(
+    cacheKey,
+    async () => {
+      const result = await _fetchLearnerProgressFromB4BUncached(email, opts);
+      return serializeProgress(result);
+    },
+    LEARNER_PROGRESS_TTL_SECONDS,
+  );
+
+  return deserializeProgress(cached);
+}
+
+async function _fetchLearnerProgressFromB4BUncached(
+  email: string,
+  opts: { programId?: string } = {},
+): Promise<LearnerProgressByContent> {
   const result: LearnerProgressByContent = new Map();
 
   try {
     const programIds = await resolveProgramIds({ programId: opts.programId });
     if (programIds.length === 0) {
-      learnerCache.set(cacheKey, { fetchedAt: now, data: result });
       return result;
     }
 
@@ -227,12 +242,10 @@ export async function fetchLearnerProgressFromB4B(
       `[learnerProgress] B4B unavailable for email=${email}:`,
       err instanceof Error ? err.message : err,
     );
-    // Fall through and cache the empty map so we don't hammer a failing
-    // upstream — the caller falls back to local rows. Cache TTL still
-    // applies: a single transient outage clears within 60s.
+    // Fall through and return the empty map so the caller falls back to
+    // local rows. Redis caching is handled by the caller.
   }
 
-  learnerCache.set(cacheKey, { fetchedAt: now, data: result });
   return result;
 }
 

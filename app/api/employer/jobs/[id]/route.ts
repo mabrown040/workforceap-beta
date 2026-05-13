@@ -6,6 +6,7 @@ import { sendJobSubmittedEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
+import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
 
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -138,6 +139,11 @@ export async function PATCH(
     });
   }
 
+  // Invalidate public job listings cache when a live job is modified
+  if (existing.status === 'live' || job.status === 'live') {
+    await invalidateJobListings().catch(() => {});
+  }
+
   if (parsed.data.status === 'pending' || parsed.data.status === 'draft' || parsed.data.status === undefined) {
     await trackEvent({
       userId: user.id,
@@ -187,6 +193,11 @@ export async function DELETE(
       entityType: 'Job',
       entityId: job.id,
     });
+
+    // Invalidate public job listings cache when a live job is closed
+    if (existing.status === 'live') {
+      await invalidateJobListings().catch(() => {});
+    }
 
     return NextResponse.json({ ok: true, job });
   } catch (error) {

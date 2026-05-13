@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { invalidateMemberState } from '@/lib/member/getMemberState';
+
 const VALID_BARRIER_TYPES = [
   'justice_involved',
   'employment_gap',
@@ -122,6 +124,9 @@ export async function PATCH(request: Request) {
       },
     });
   });
+
+  // Invalidate cached member state so dashboard reflects changes immediately
+  await invalidateMemberState(user.id);
 
   return NextResponse.json({ ok: true });
 

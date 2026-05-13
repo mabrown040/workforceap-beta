@@ -15,34 +15,39 @@ import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
  * the subsequent server-component render reads up-to-date data.
  */
 export async function POST() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!user.email) {
-    return NextResponse.json({ error: 'No email on file' }, { status: 400 });
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { enrolledProgram: true },
-  });
-
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  const courseraProgramId = enrolledProgram
-    ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.courseraProgramId
-    : undefined;
-
   try {
-    const progress = await fetchLearnerProgressFromB4B(user.email, {
-      programId: courseraProgramId,
-      skipCache: true,
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user.email) {
+      return NextResponse.json({ error: 'No email on file' }, { status: 400 });
+    }
+  
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { enrolledProgram: true },
     });
-
-    return NextResponse.json({
-      refreshedAt: new Date().toISOString(),
-      coursesWithProgress: progress.size,
-    });
+  
+    const enrolledProgram = dbUser?.enrolledProgram ?? null;
+    const courseraProgramId = enrolledProgram
+      ? DISCOVERED_COURSERA_PROGRAMS[enrolledProgram]?.courseraProgramId
+      : undefined;
+  
+    try {
+      const progress = await fetchLearnerProgressFromB4B(user.email, {
+        programId: courseraProgramId,
+        skipCache: true,
+      });
+  
+      return NextResponse.json({
+        refreshedAt: new Date().toISOString(),
+        coursesWithProgress: progress.size,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to refresh from Coursera';
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to refresh from Coursera';
-    return NextResponse.json({ error: message }, { status: 502 });
+    console.error('/member/coursera/refresh-progress:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

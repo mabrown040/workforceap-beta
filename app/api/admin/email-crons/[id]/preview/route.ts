@@ -19,21 +19,26 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  try { await requireAdmin(user.id); } catch {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const { id } = await params;
-  const cron = CRON_REGISTRY.find(c => c.id === id);
-  if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
-
   try {
-    const result = await getPreviewRecipients(id);
-    return NextResponse.json(result);
-  } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'Preview failed' }, { status: 500 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    try { await requireAdmin(user.id); } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const { id } = await params;
+    const cron = CRON_REGISTRY.find(c => c.id === id);
+    if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
+  
+    try {
+      const result = await getPreviewRecipients(id);
+      return NextResponse.json(result);
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : 'Preview failed' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/admin/email-crons/[id]/preview:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

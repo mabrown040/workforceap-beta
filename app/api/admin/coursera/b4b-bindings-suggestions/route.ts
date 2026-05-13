@@ -23,40 +23,45 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  * Auth: super_admin OR admin in the actor's org.
  */
 export async function GET() {
-  const actor = await getUser();
-  if (!actor) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let orgId: string;
   try {
-    orgId = await getActorOrganizationId(actor.id);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/b4b-bindings-suggestions' });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const superAdmin = await isSuperAdmin(actor.id);
-  if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  try {
-    const report = await getBindingSuggestions();
-    return NextResponse.json({
-      ...report,
-      patchHint: renderPatchHint(report),
-    });
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/b4b-bindings-suggestions' });
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Failed to compute B4B binding suggestions',
-      },
-      { status: 502 },
-    );
+    const actor = await getUser();
+    if (!actor) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(actor.id);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/b4b-bindings-suggestions' });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const superAdmin = await isSuperAdmin(actor.id);
+    if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    try {
+      const report = await getBindingSuggestions();
+      return NextResponse.json({
+        ...report,
+        patchHint: renderPatchHint(report),
+      });
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/b4b-bindings-suggestions' });
+      return NextResponse.json(
+        {
+          error:
+            err instanceof Error
+              ? err.message
+              : 'Failed to compute B4B binding suggestions',
+        },
+        { status: 502 },
+      );
+    }
+  } catch (error) {
+    console.error('/admin/coursera/b4b-bindings-suggestions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

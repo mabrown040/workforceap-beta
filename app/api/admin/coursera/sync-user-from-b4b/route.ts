@@ -36,77 +36,82 @@ function normEmail(value: string | null | undefined): string {
 }
 
 export async function POST(request: NextRequest) {
-  const actor = await getUser();
-  if (!actor) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let orgId: string;
   try {
-    orgId = await getActorOrganizationId(actor.id);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/sync-user-from-b4b' });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const superAdmin = await isSuperAdmin(actor.id);
-  if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const json = await request.json().catch(() => null);
-  const parsed = bodySchema.safeParse(json);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
-      { status: 400 },
+    const actor = await getUser();
+    if (!actor) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(actor.id);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/sync-user-from-b4b' });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const superAdmin = await isSuperAdmin(actor.id);
+    if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const json = await request.json().catch(() => null);
+    const parsed = bodySchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
+        { status: 400 },
+      );
+    }
+    const email = normEmail(parsed.data.email);
+  
+    // Find the WAP user (tenant-scoped) — same gate as before; we never
+    // auto-provision a WAP account here.
+    const wapUser = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({
+        where: {
+          deletedAt: null,
+          email: { equals: email, mode: 'insensitive' },
+        },
+        select: {
+          id: true,
+          email: true,
+          organizationId: true,
+          enrolledProgram: true,
+        },
+      }),
     );
-  }
-  const email = normEmail(parsed.data.email);
-
-  // Find the WAP user (tenant-scoped) — same gate as before; we never
-  // auto-provision a WAP account here.
-  const wapUser = await withTenantScope(orgId, (db) =>
-    db.user.findFirst({
-      where: {
-        deletedAt: null,
-        email: { equals: email, mode: 'insensitive' },
-      },
-      select: {
-        id: true,
-        email: true,
-        organizationId: true,
-        enrolledProgram: true,
-      },
-    }),
-  );
-
-  if (!wapUser) {
-    return NextResponse.json(
-      { error: 'user does not exist in WAP — use Add to WAP first' },
-      { status: 404 },
-    );
-  }
-
-  try {
-    const result = await syncUserFromB4B({
-      email,
-      wapUserId: wapUser.id,
-      orgId,
-      enrolledByAdmin: actor.id,
-      existingEnrolledProgram: wapUser.enrolledProgram,
-    });
-    return NextResponse.json(result);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/sync-user-from-b4b' });
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Coursera sync failed',
-      },
-      { status: 502 },
-    );
+  
+    if (!wapUser) {
+      return NextResponse.json(
+        { error: 'user does not exist in WAP — use Add to WAP first' },
+        { status: 404 },
+      );
+    }
+  
+    try {
+      const result = await syncUserFromB4B({
+        email,
+        wapUserId: wapUser.id,
+        orgId,
+        enrolledByAdmin: actor.id,
+        existingEnrolledProgram: wapUser.enrolledProgram,
+      });
+      return NextResponse.json(result);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/sync-user-from-b4b' });
+      return NextResponse.json(
+        {
+          error:
+            err instanceof Error
+              ? err.message
+              : 'Coursera sync failed',
+        },
+        { status: 502 },
+      );
+    }
+  } catch (error) {
+    console.error('/admin/coursera/sync-user-from-b4b:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

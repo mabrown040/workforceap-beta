@@ -170,21 +170,26 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
 }
 
 export async function GET() {
-  const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const orgId = await getActorOrganizationId(user.id);
-    const body = await unstable_cache(
-      async () => computeAdminRouteMetricsPayload(orgId),
-      ['admin-api-metrics-v1', orgId],
-      { revalidate: 60 },
-    )();
-    return NextResponse.json(body);
-  } catch (e) {
-    console.error('[admin/metrics]', e);
-    return NextResponse.json({ error: 'Failed to load metrics' }, { status: 500 });
+    const user = await getUser();
+    if (!user || !(await isAdmin(user.id))) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    try {
+      const orgId = await getActorOrganizationId(user.id);
+      const body = await unstable_cache(
+        async () => computeAdminRouteMetricsPayload(orgId),
+        ['admin-api-metrics-v1', orgId],
+        { revalidate: 60 },
+      )();
+      return NextResponse.json(body);
+    } catch (e) {
+      console.error('[admin/metrics]', e);
+      return NextResponse.json({ error: 'Failed to load metrics' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/admin/metrics:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

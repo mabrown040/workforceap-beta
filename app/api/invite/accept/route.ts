@@ -259,95 +259,100 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
 }
 
 export async function POST(request: NextRequest) {
-  const ip = getClientIpFromRequest(request);
-  const { success: withinLimit } = await checkInviteAcceptRateLimit(ip);
-  if (!withinLimit) {
-    return NextResponse.json({ error: 'Too many attempts. Please try again in an hour.' }, { status: 429 });
-  }
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-  }
-
-  const o = body as Record<string, unknown>;
-  const token = typeof o.token === 'string' ? o.token.trim() : '';
-  const fullName = typeof o.fullName === 'string' ? o.fullName.trim() : '';
-  const phone = typeof o.phone === 'string' ? o.phone.trim() || null : null;
-  const password = typeof o.password === 'string' ? o.password : '';
-
-  if (!token || token.length < 32) {
-    return NextResponse.json({ error: 'Invalid or missing token' }, { status: 400 });
-  }
-
-  try {
-    const invitation = await prisma.invitation.findFirst({
-      where: { token },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        invitedById: true,
-        subgroupId: true,
-        partnerId: true,
-        programSlug: true,
-        status: true,
-        expiresAt: true,
-      },
-    });
-
-    if (!invitation) {
-      return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
+    const ip = getClientIpFromRequest(request);
+    const { success: withinLimit } = await checkInviteAcceptRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Too many attempts. Please try again in an hour.' }, { status: 429 });
     }
-
-    if (invitation.status !== 'pending') {
-      return NextResponse.json(
-        { error: invitation.status === 'accepted' ? 'Already accepted' : 'Invitation no longer valid' },
-        { status: 400 }
-      );
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
-
-    if (new Date() > invitation.expiresAt) {
-      await prisma.invitation.update({
-        where: { id: invitation.id },
-        data: { status: 'expired' },
+  
+    const o = body as Record<string, unknown>;
+    const token = typeof o.token === 'string' ? o.token.trim() : '';
+    const fullName = typeof o.fullName === 'string' ? o.fullName.trim() : '';
+    const phone = typeof o.phone === 'string' ? o.phone.trim() || null : null;
+    const password = typeof o.password === 'string' ? o.password : '';
+  
+    if (!token || token.length < 32) {
+      return NextResponse.json({ error: 'Invalid or missing token' }, { status: 400 });
+    }
+  
+    try {
+      const invitation = await prisma.invitation.findFirst({
+        where: { token },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          invitedById: true,
+          subgroupId: true,
+          partnerId: true,
+          programSlug: true,
+          status: true,
+          expiresAt: true,
+        },
       });
-      return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
-    }
-
-    // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:
-    // accept flow does not read userRoles; a broken roles join would 500 both branches here.
-    const inviteEmail = String(invitation.email).trim().toLowerCase();
-    const existingUser = await prisma.user.findFirst({
-      where: { email: inviteEmail },
-      select: { id: true, fullName: true, email: true },
-    });
-
-    if (existingUser) {
-      if (!fullName) {
-        return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+  
+      if (!invitation) {
+        return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
       }
-      return await acceptExistingUser(existingUser, invitation, fullName, request);
-    }
-
-    if (!fullName || !password || password.length < 8) {
+  
+      if (invitation.status !== 'pending') {
+        return NextResponse.json(
+          { error: invitation.status === 'accepted' ? 'Already accepted' : 'Invitation no longer valid' },
+          { status: 400 }
+        );
+      }
+  
+      if (new Date() > invitation.expiresAt) {
+        await prisma.invitation.update({
+          where: { id: invitation.id },
+          data: { status: 'expired' },
+        });
+        return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
+      }
+  
+      // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:
+      // accept flow does not read userRoles; a broken roles join would 500 both branches here.
+      const inviteEmail = String(invitation.email).trim().toLowerCase();
+      const existingUser = await prisma.user.findFirst({
+        where: { email: inviteEmail },
+        select: { id: true, fullName: true, email: true },
+      });
+  
+      if (existingUser) {
+        if (!fullName) {
+          return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+        }
+        return await acceptExistingUser(existingUser, invitation, fullName, request);
+      }
+  
+      if (!fullName || !password || password.length < 8) {
+        return NextResponse.json(
+          { error: 'Name and password (min 8 chars) are required for new accounts' },
+          { status: 400 }
+        );
+      }
+  
+      inviteAcceptLog('route:before_createNewUser', { invitationId: invitation.id });
+      return await createNewUserAndAccept(invitation, fullName, phone, password, request);
+    } catch (e) {
+      inviteAcceptLog('route:outer_catch', { err: e });
+      console.error('[api/invite/accept]', e);
       return NextResponse.json(
-        { error: 'Name and password (min 8 chars) are required for new accounts' },
-        { status: 400 }
+        { error: 'Something went wrong accepting this invitation. Please try again.' },
+        { status: 500 }
       );
     }
-
-    inviteAcceptLog('route:before_createNewUser', { invitationId: invitation.id });
-    return await createNewUserAndAccept(invitation, fullName, phone, password, request);
-  } catch (e) {
-    inviteAcceptLog('route:outer_catch', { err: e });
-    console.error('[api/invite/accept]', e);
-    return NextResponse.json(
-      { error: 'Something went wrong accepting this invitation. Please try again.' },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error('/invite/accept:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

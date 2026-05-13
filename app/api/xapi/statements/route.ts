@@ -86,134 +86,144 @@ function extractRawStatementActorFields(raw: Record<string, unknown>): {
 }
 
 export async function POST(request: Request) {
-  const ip = getClientIpFromRequest(request);
-  const { success: withinLimit } = await checkXapiStatementsPostRateLimit(ip);
-  if (!withinLimit) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
-  }
-
-  const token = parseBearerToken(request.headers.get('authorization'));
-  if (!token) {
-    return NextResponse.json({ error: 'Missing bearer token' }, { status: 401 });
-  }
-
   try {
-    verifyXapiAccessToken(token, { request });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Invalid bearer token';
-    return NextResponse.json({ error: message }, { status: 401 });
-  }
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const rawStatements = flattenXapiStatementPayload(body);
-  if (rawStatements.length === 0) {
-    return NextResponse.json({ received: true, processed: 0, completions: [] });
-  }
-
-  const completions: Array<Record<string, unknown>> = [];
-  let statementsHandled = 0;
-  const ingestErrors: Array<{ statementId?: string; message: string }> = [];
-
-  for (const raw of rawStatements) {
-    const sidHint =
-      typeof raw.id === 'string' ? raw.id : '(no statement id)';
-    try {
-      const parsed = parseXapiStatement(raw);
-      if (!parsed) {
-        const act = extractRawStatementActorFields(raw);
-        try {
-          await persistXapiStatement({
-            statementId: act.statementId,
-            actorEmail: act.actorEmail,
-            actorAccountName: act.actorAccountName,
-            actorHomePage: act.actorHomePage,
-            verb: UNPARSED_VERB,
-            courseId: null,
-            courseName: null,
-            resultScoreScaled: null,
-            resultScoreRaw: null,
-            resultCompletion: null,
-            resultSuccess: null,
-            payload: raw as Record<string, never>,
-            courseItemId: null,
-            itemType: null,
-          });
-        } catch (persistErr) {
-          captureApiError(persistErr, {
-            route: 'api/xapi/statements',
-            extra: { step: 'persist-unparsed', statementId: act.statementId },
-          });
-          ingestErrors.push({
-            statementId: act.statementId ?? undefined,
-            message:
-              persistErr instanceof Error ? persistErr.message : 'persist unparsed failed',
-          });
-        }
-        continue;
-      }
-
-      const verb = parsed.verbId?.trim() || 'unknown';
-
-      const persisted = await persistXapiStatement({
-        statementId: parsed.statementId,
-        actorEmail: parsed.email,
-        actorAccountName: parsed.actorIdentifier,
-        actorHomePage: parsed.actorHomePage,
-        verb,
-        courseId: parsed.courseraCourseId ?? tailFromObjectId(parsed.courseObjectId),
-        courseName: parsed.courseName ?? null,
-        resultScoreScaled: parsed.resultScoreScaled,
-        resultScoreRaw: parsed.resultScoreRaw,
-        resultCompletion: parsed.resultCompletion,
-        resultSuccess: parsed.resultSuccess,
-        payload: raw as Record<string, never>, // raw is a parsed xAPI JSON object — Prisma.InputJsonValue at runtime
-        courseItemId: itemIdFromObjectId(parsed.courseObjectId),
-        itemType: parsed.itemType ?? null,
-      });
-
-      // Duplicate statementId (retries / races): row exists — skip completion side effects.
-      if (persisted === 'skipped') continue;
-
-      const { completions: batch } = await handleInboundParsedStatement(parsed);
-      completions.push(...batch);
-      statementsHandled += 1;
-    } catch (err) {
-      captureApiError(err, {
-        route: 'api/xapi/statements',
-        extra: { statementId: sidHint },
-      });
-      ingestErrors.push({
-        statementId: typeof raw.id === 'string' ? raw.id : undefined,
-        message: err instanceof Error ? err.message : 'statement pipeline failed',
-      });
+    const ip = getClientIpFromRequest(request);
+    const { success: withinLimit } = await checkXapiStatementsPostRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
+  
+    const token = parseBearerToken(request.headers.get('authorization'));
+    if (!token) {
+      return NextResponse.json({ error: 'Missing bearer token' }, { status: 401 });
+    }
+  
+    try {
+      verifyXapiAccessToken(token, { request });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Invalid bearer token';
+      return NextResponse.json({ error: message }, { status: 401 });
+    }
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const rawStatements = flattenXapiStatementPayload(body);
+    if (rawStatements.length === 0) {
+      return NextResponse.json({ received: true, processed: 0, completions: [] });
+    }
+  
+    const completions: Array<Record<string, unknown>> = [];
+    let statementsHandled = 0;
+    const ingestErrors: Array<{ statementId?: string; message: string }> = [];
+  
+    for (const raw of rawStatements) {
+      const sidHint =
+        typeof raw.id === 'string' ? raw.id : '(no statement id)';
+      try {
+        const parsed = parseXapiStatement(raw);
+        if (!parsed) {
+          const act = extractRawStatementActorFields(raw);
+          try {
+            await persistXapiStatement({
+              statementId: act.statementId,
+              actorEmail: act.actorEmail,
+              actorAccountName: act.actorAccountName,
+              actorHomePage: act.actorHomePage,
+              verb: UNPARSED_VERB,
+              courseId: null,
+              courseName: null,
+              resultScoreScaled: null,
+              resultScoreRaw: null,
+              resultCompletion: null,
+              resultSuccess: null,
+              payload: raw as Record<string, never>,
+              courseItemId: null,
+              itemType: null,
+            });
+          } catch (persistErr) {
+            captureApiError(persistErr, {
+              route: 'api/xapi/statements',
+              extra: { step: 'persist-unparsed', statementId: act.statementId },
+            });
+            ingestErrors.push({
+              statementId: act.statementId ?? undefined,
+              message:
+                persistErr instanceof Error ? persistErr.message : 'persist unparsed failed',
+            });
+          }
+          continue;
+        }
+  
+        const verb = parsed.verbId?.trim() || 'unknown';
+  
+        const persisted = await persistXapiStatement({
+          statementId: parsed.statementId,
+          actorEmail: parsed.email,
+          actorAccountName: parsed.actorIdentifier,
+          actorHomePage: parsed.actorHomePage,
+          verb,
+          courseId: parsed.courseraCourseId ?? tailFromObjectId(parsed.courseObjectId),
+          courseName: parsed.courseName ?? null,
+          resultScoreScaled: parsed.resultScoreScaled,
+          resultScoreRaw: parsed.resultScoreRaw,
+          resultCompletion: parsed.resultCompletion,
+          resultSuccess: parsed.resultSuccess,
+          payload: raw as Record<string, never>, // raw is a parsed xAPI JSON object — Prisma.InputJsonValue at runtime
+          courseItemId: itemIdFromObjectId(parsed.courseObjectId),
+          itemType: parsed.itemType ?? null,
+        });
+  
+        // Duplicate statementId (retries / races): row exists — skip completion side effects.
+        if (persisted === 'skipped') continue;
+  
+        const { completions: batch } = await handleInboundParsedStatement(parsed);
+        completions.push(...batch);
+        statementsHandled += 1;
+      } catch (err) {
+        captureApiError(err, {
+          route: 'api/xapi/statements',
+          extra: { statementId: sidHint },
+        });
+        ingestErrors.push({
+          statementId: typeof raw.id === 'string' ? raw.id : undefined,
+          message: err instanceof Error ? err.message : 'statement pipeline failed',
+        });
+      }
+    }
+  
+    trackXapiBatchProcessed({
+      statementsHandled,
+      completionCount: completions.filter((c) => (c as { ok?: boolean }).ok === true).length,
+    });
+  
+    return NextResponse.json({
+      received: true,
+      processed: statementsHandled,
+      completions,
+      ...(ingestErrors.length > 0 ? { errors: ingestErrors } : {}),
+    });
+  } catch (error) {
+    console.error('/xapi/statements:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  trackXapiBatchProcessed({
-    statementsHandled,
-    completionCount: completions.filter((c) => (c as { ok?: boolean }).ok === true).length,
-  });
-
-  return NextResponse.json({
-    received: true,
-    processed: statementsHandled,
-    completions,
-    ...(ingestErrors.length > 0 ? { errors: ingestErrors } : {}),
-  });
 }
 
 export async function GET() {
-  return NextResponse.json(
-    {
-      error: 'Use POST to submit xAPI statements',
-      endpoint: '/api/xapi/statements',
-    },
-    { status: 405, headers: { Allow: 'POST' } },
-  );
+  try {
+    return NextResponse.json(
+      {
+        error: 'Use POST to submit xAPI statements',
+        endpoint: '/api/xapi/statements',
+      },
+      { status: 405, headers: { Allow: 'POST' } },
+    );
+  } catch (error) {
+    console.error('/xapi/statements:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

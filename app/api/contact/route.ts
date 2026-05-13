@@ -16,108 +16,113 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { success: rateOk } = await checkContactRateLimit(ip);
-  if (!rateOk) {
-    return NextResponse.json(
-      { error: 'Too many submissions. Please try again in an hour.' },
-      { status: 429 }
-    );
-  }
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  }
-
-  const parsed = parseBody(body);
-  if (!parsed) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-  }
-
-  const { firstName, lastName, email, phone, topic, message, smsPreferred, turnstileToken } = parsed;
-
-  const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
-  if (captchaEnabled) {
-    const secret = process.env.TURNSTILE_SECRET_KEY;
-    if (!secret?.trim()) {
-      console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+    const ip = getClientIp(request);
+    const { success: rateOk } = await checkContactRateLimit(ip);
+    if (!rateOk) {
       return NextResponse.json(
-        { error: 'Contact form is temporarily unavailable. Please try again later.' },
+        { error: 'Too many submissions. Please try again in an hour.' },
+        { status: 429 }
+      );
+    }
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
+  
+    const parsed = parseBody(body);
+    if (!parsed) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+  
+    const { firstName, lastName, email, phone, topic, message, smsPreferred, turnstileToken } = parsed;
+  
+    const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+    if (captchaEnabled) {
+      const secret = process.env.TURNSTILE_SECRET_KEY;
+      if (!secret?.trim()) {
+        console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Contact form is temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
+      }
+      const tok = turnstileToken?.trim() ?? '';
+      if (!tok) {
+        return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
+      }
+      const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+      if (!ok) {
+        return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+      }
+    }
+  
+    const resendKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
+  
+    if (!resendKey) {
+      console.error('RESEND_API_KEY not configured');
+      return NextResponse.json(
+        { error: 'Email service is not configured. Please try again later.' },
         { status: 503 }
       );
     }
-    const tok = turnstileToken?.trim() ?? '';
-    if (!tok) {
-      return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
-    }
-    const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
-    if (!ok) {
-      return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
-    }
-  }
-
-  const resendKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
-
-  if (!resendKey) {
-    console.error('RESEND_API_KEY not configured');
-    return NextResponse.json(
-      { error: 'Email service is not configured. Please try again later.' },
-      { status: 503 }
-    );
-  }
-
-  const subject = `Contact Form: ${topic} — ${firstName} ${lastName}`;
-  const text = [
-    `From: ${firstName} ${lastName}`,
-    `Email: ${email}`,
-    `Phone: ${phone || 'Not provided'}`,
-    `Prefer SMS: ${smsPreferred ? 'Yes' : 'No'}`,
-    `Topic: ${topic}`,
-    '',
-    'Message:',
-    message,
-    '',
-    `Submitted: ${new Date().toISOString()}`,
-  ].join('\n');
-
-  const html = brandedEmailLayout({
-    title: `Contact: ${topic}`,
-    bodyHtml: `
-      <p><strong>From:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
-      <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
-      <p><strong>Phone:</strong> ${escapeHtml(phone || 'Not provided')}</p>
-      <p><strong>Prefer SMS:</strong> ${smsPreferred ? 'Yes' : 'No'}</p>
-      <p><strong>Topic:</strong> ${escapeHtml(topic)}</p>
-      <hr style="border: none; border-top: 1px solid #eee; margin: 1rem 0;" />
-      <p><strong>Message:</strong></p>
-      <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
-      <p style="color: #888; font-size: 0.85rem; margin-top: 1.5rem;">Submitted: ${new Date().toISOString()}</p>
-    `,
-  });
-
-  try {
-    const resend = new Resend(resendKey);
-    await resend.emails.send({
-      from: emailFrom,
-      to: CONTACT_EMAIL_TO,
-      replyTo: email,
-      subject,
-      text,
-      html,
+  
+    const subject = `Contact Form: ${topic} — ${firstName} ${lastName}`;
+    const text = [
+      `From: ${firstName} ${lastName}`,
+      `Email: ${email}`,
+      `Phone: ${phone || 'Not provided'}`,
+      `Prefer SMS: ${smsPreferred ? 'Yes' : 'No'}`,
+      `Topic: ${topic}`,
+      '',
+      'Message:',
+      message,
+      '',
+      `Submitted: ${new Date().toISOString()}`,
+    ].join('\n');
+  
+    const html = brandedEmailLayout({
+      title: `Contact: ${topic}`,
+      bodyHtml: `
+        <p><strong>From:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+        <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+        <p><strong>Phone:</strong> ${escapeHtml(phone || 'Not provided')}</p>
+        <p><strong>Prefer SMS:</strong> ${smsPreferred ? 'Yes' : 'No'}</p>
+        <p><strong>Topic:</strong> ${escapeHtml(topic)}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 1rem 0;" />
+        <p><strong>Message:</strong></p>
+        <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
+        <p style="color: #888; font-size: 0.85rem; margin-top: 1.5rem;">Submitted: ${new Date().toISOString()}</p>
+      `,
     });
-  } catch (err) {
-    console.error('Contact form email failed:', err);
-    return NextResponse.json(
-      { error: 'Failed to send message. Please try again later.' },
-      { status: 500 }
-    );
+  
+    try {
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
+        from: emailFrom,
+        to: CONTACT_EMAIL_TO,
+        replyTo: email,
+        subject,
+        text,
+        html,
+      });
+    } catch (err) {
+      console.error('Contact form email failed:', err);
+      return NextResponse.json(
+        { error: 'Failed to send message. Please try again later.' },
+        { status: 500 }
+      );
+    }
+  
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('/contact:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }
 
 function parseBody(body: unknown): {

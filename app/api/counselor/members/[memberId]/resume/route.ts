@@ -25,71 +25,76 @@ type Props = { params: Promise<{ memberId: string }> };
 
 /** GET — resume metadata + signed URLs for assigned counselor / admin (same shape as `/api/member/resume`). */
 export async function GET(_req: NextRequest, { params }: Props) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { memberId } = await params;
-
-  const allowed = await assertStaffCanAccessMemberRecord(user.id, memberId);
-  if (!allowed) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
   try {
-    const profile = await prisma.profile.findUnique({
-      where: { userId: memberId },
-      select: { resumeOriginalPath: true, resumeEnhancedPath: true },
-    });
-
-    const originalPath = profile?.resumeOriginalPath ?? null;
-    const enhancedPath = profile?.resumeEnhancedPath ?? null;
-
-    const supabase = getSupabaseAdmin();
-    let originalUrl: string | null = null;
-    let enhancedUrl: string | null = null;
-
-    if (originalPath) {
-      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
-      if (error || !data?.signedUrl) {
-        console.error('[counselor/members/.../resume] createSignedUrl original failed:', error);
-        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
-      }
-      originalUrl = data.signedUrl;
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const { memberId } = await params;
+  
+    const allowed = await assertStaffCanAccessMemberRecord(user.id, memberId);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    if (enhancedPath) {
-      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
-      if (error || !data?.signedUrl) {
-        console.error('[counselor/members/.../resume] createSignedUrl enhanced failed:', error);
-        return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+  
+    try {
+      const profile = await prisma.profile.findUnique({
+        where: { userId: memberId },
+        select: { resumeOriginalPath: true, resumeEnhancedPath: true },
+      });
+  
+      const originalPath = profile?.resumeOriginalPath ?? null;
+      const enhancedPath = profile?.resumeEnhancedPath ?? null;
+  
+      const supabase = getSupabaseAdmin();
+      let originalUrl: string | null = null;
+      let enhancedUrl: string | null = null;
+  
+      if (originalPath) {
+        const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(originalPath, 3600);
+        if (error || !data?.signedUrl) {
+          console.error('[counselor/members/.../resume] createSignedUrl original failed:', error);
+          return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+        }
+        originalUrl = data.signedUrl;
       }
-      enhancedUrl = data.signedUrl;
-    }
-
-    let enhancedText: string | null = null;
-    if (enhancedPath) {
-      const { data: fileData, error } = await supabase.storage.from(BUCKET).download(enhancedPath);
-      if (error || !fileData) {
-        console.error('[counselor/members/.../resume] download enhanced failed:', error);
-        return NextResponse.json({ error: storageErrorMessage(error, 'download') }, { status: 502 });
+      if (enhancedPath) {
+        const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(enhancedPath, 3600);
+        if (error || !data?.signedUrl) {
+          console.error('[counselor/members/.../resume] createSignedUrl enhanced failed:', error);
+          return NextResponse.json({ error: storageErrorMessage(error, 'sign') }, { status: 502 });
+        }
+        enhancedUrl = data.signedUrl;
       }
-      enhancedText = await fileData.text();
+  
+      let enhancedText: string | null = null;
+      if (enhancedPath) {
+        const { data: fileData, error } = await supabase.storage.from(BUCKET).download(enhancedPath);
+        if (error || !fileData) {
+          console.error('[counselor/members/.../resume] download enhanced failed:', error);
+          return NextResponse.json({ error: storageErrorMessage(error, 'download') }, { status: 502 });
+        }
+        enhancedText = await fileData.text();
+      }
+  
+      const base = `/api/counselor/members/${encodeURIComponent(memberId)}/resume`;
+  
+      return NextResponse.json({
+        hasOriginal: !!originalPath,
+        hasEnhanced: !!enhancedPath,
+        originalUrl,
+        enhancedUrl,
+        enhancedText,
+        originalExt: extOf(originalPath),
+        enhancedExt: extOf(enhancedPath),
+        previewOriginalPath: originalPath ? `${base}/preview?variant=original` : null,
+        previewEnhancedPath: enhancedPath ? `${base}/preview?variant=enhanced` : null,
+      });
+    } catch (err) {
+      console.error('[counselor/members/.../resume]', err);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-
-    const base = `/api/counselor/members/${encodeURIComponent(memberId)}/resume`;
-
-    return NextResponse.json({
-      hasOriginal: !!originalPath,
-      hasEnhanced: !!enhancedPath,
-      originalUrl,
-      enhancedUrl,
-      enhancedText,
-      originalExt: extOf(originalPath),
-      enhancedExt: extOf(enhancedPath),
-      previewOriginalPath: originalPath ? `${base}/preview?variant=original` : null,
-      previewEnhancedPath: enhancedPath ? `${base}/preview?variant=enhanced` : null,
-    });
-  } catch (err) {
-    console.error('[counselor/members/.../resume]', err);
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/resume:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

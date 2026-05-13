@@ -45,279 +45,284 @@ const applySignupSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { success: rateOk } = await checkApplySignupRateLimit(ip);
-  if (!rateOk) {
-    return NextResponse.json(
-      { error: 'We received a lot of signup attempts from this connection in a short window. Please wait a moment and try again.' },
-      { status: 429 }
-    );
-  }
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'We could not read your signup details. Please refresh the page and try again.' }, { status: 400 });
-  }
-
-  const parsed = applySignupSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Please review your information and try again.' }, { status: 400 });
-  }
-
-  const {
-    firstName,
-    lastName,
-    email,
-    phone,
-    addressLine1,
-    addressLine2,
-    city,
-    state,
-    zip,
-    smsOptIn,
-    password,
-    programRankedSlugs,
-    referralRef,
-    recommendedOnetCode,
-    recommendedCareerTitle,
-    careerRecommendationJson,
-    needsComputerSupportFollowUp,
-  } = parsed.data;
-
-  const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];
-  const profileAddress = profileAddressParts.length > 0 ? profileAddressParts.join(', ') : null;
-
-  const programSlug = programRankedSlugs[0];
-  const program = getProgramBySlug(programSlug);
-  if (!program) {
-    return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
-  }
-  const secondaryTitles = programRankedSlugs
-    .slice(1)
-    .map((s) => getProgramBySlug(s)?.title)
-    .filter(Boolean) as string[];
-  const programInterestSummary =
-    secondaryTitles.length > 0 ? `${program.title} (preferences: ${secondaryTitles.join(', ')})` : program.title;
-
-  let referralPartnerId: string | null = null;
-  let referralSource: string | null = null;
-  const refRaw = referralRef?.trim().toLowerCase();
-  if (refRaw) {
-    const partner = await prisma.partner.findFirst({
-      where: {
-        active: true,
-        OR: [{ referralCode: refRaw }, { slug: refRaw }],
-      },
-      select: { id: true },
-    });
-    if (partner) {
-      referralPartnerId = partner.id;
-      referralSource = `partner_ref:${refRaw}`;
-    }
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return NextResponse.json({ error: 'Our signup service is temporarily unavailable. Please try again shortly.' }, { status: 500 });
-  }
-
-  const cookieStore = await cookies();
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookieOptions: getSupabaseCookieOptions(),
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, (options ?? {}) as Record<string, unknown>);
-        });
-      },
-    },
-  });
-
-  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: email.toLowerCase().trim(),
-    password,
-    options: {
-      data: { full_name: fullName, phone },
-      emailRedirectTo: `${new URL(request.url).origin}/auth/callback`,
-    },
-  });
-
-  if (authError) {
-    if (authError.message.includes('already registered') || authError.code === 'user_already_exists') {
+    const ip = getClientIp(request);
+    const { success: rateOk } = await checkApplySignupRateLimit(ip);
+    if (!rateOk) {
       return NextResponse.json(
-        { error: 'An account with this email already exists. Log in to continue, or use password reset if you are returning.' },
-        { status: 400 }
+        { error: 'We received a lot of signup attempts from this connection in a short window. Please wait a moment and try again.' },
+        { status: 429 }
       );
     }
-    return NextResponse.json({ error: 'We could not create your account just yet. Please try again in a moment.' }, { status: 400 });
-  }
-
-  const user = authData.user;
-  if (!user) {
-    return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
-  }
-
-  const organizationId = await getDefaultOrganizationId();
-  const priorUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { enrolledAt: true },
-  });
-
-  let createdApplicationId: string | null = null;
-  try {
-    await prisma.$transaction(async (tx) => {
-      await tx.user.upsert({
-        where: { id: user.id },
-        create: {
-          id: user.id,
-          organizationId,
-          email: user.email!,
-          fullName,
-          phone,
-          enrolledProgram: programSlug,
-          enrolledAt: new Date(),
-          needsComputerSupportFollowUp: needsComputerSupportFollowUp === true,
-          careerRecommendationJson: careerRecommendationJson ?? undefined,
-        },
-        update: {
-          fullName,
-          phone,
-          enrolledProgram: programSlug,
-          ...(priorUser && !priorUser.enrolledAt ? { enrolledAt: new Date() } : {}),
-          ...(needsComputerSupportFollowUp === true ? { needsComputerSupportFollowUp: true } : {}),
-          ...(careerRecommendationJson !== undefined && careerRecommendationJson !== null
-            ? { careerRecommendationJson }
-            : {}),
-        },
-      });
-
-      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
-      // Self-serve enroll (POST /api/member/enroll) and admin create both do this.
-      // Signup must do the same so inactivity crons and reporting see consistent state.
-      if (programSlug) {
-        // Multi-program: signup creates the user's first enrollment, mark
-        // it primary. Composite-keyed upsert ensures retries don't create
-        // duplicate (userId, programSlug) rows.
-        await tx.courseEnrollment.upsert({
-          where: { userId_programSlug: { userId: user.id, programSlug } },
-          create: {
-            organizationId,
-            userId: user.id,
-            programSlug,
-            isPrimary: true,
-            enrolledAt: new Date(),
-          },
-          update: {
-            isPrimary: true,
-            enrolledAt: new Date(),
-          },
-        });
-      }
-
-      await tx.profile.upsert({
-        where: { userId: user.id },
-        create: {
-          userId: user.id,
-          profilePhone: phone,
-          profileAddress,
-          city: city?.trim() || null,
-          state: state?.trim() || null,
-          zip: zip?.trim() || null,
-          smsOptIn: smsOptIn ?? false,
-          role: 'member',
-        },
-        update: {
-          profilePhone: phone,
-          profileAddress,
-          city: city?.trim() || null,
-          state: state?.trim() || null,
-          zip: zip?.trim() || null,
-          smsOptIn: smsOptIn ?? false,
-          role: 'member',
-        },
-      });
-
-      const application = await tx.application.create({
-        data: {
-          userId: user.id,
-          status: ApplicationStatus.PENDING,
-          programInterest: programInterestSummary,
-          programRankedSlugs,
-          recommendedOnetCode: recommendedOnetCode ?? null,
-          recommendedCareerTitle: recommendedCareerTitle ?? null,
-          submittedAt: new Date(),
-          referralSource,
-          referralPartnerId,
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'We could not read your signup details. Please refresh the page and try again.' }, { status: 400 });
+    }
+  
+    const parsed = applySignupSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Please review your information and try again.' }, { status: 400 });
+    }
+  
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      zip,
+      smsOptIn,
+      password,
+      programRankedSlugs,
+      referralRef,
+      recommendedOnetCode,
+      recommendedCareerTitle,
+      careerRecommendationJson,
+      needsComputerSupportFollowUp,
+    } = parsed.data;
+  
+    const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];
+    const profileAddress = profileAddressParts.length > 0 ? profileAddressParts.join(', ') : null;
+  
+    const programSlug = programRankedSlugs[0];
+    const program = getProgramBySlug(programSlug);
+    if (!program) {
+      return NextResponse.json({ error: 'We could not match that program choice. Please go back and choose your program again.' }, { status: 400 });
+    }
+    const secondaryTitles = programRankedSlugs
+      .slice(1)
+      .map((s) => getProgramBySlug(s)?.title)
+      .filter(Boolean) as string[];
+    const programInterestSummary =
+      secondaryTitles.length > 0 ? `${program.title} (preferences: ${secondaryTitles.join(', ')})` : program.title;
+  
+    let referralPartnerId: string | null = null;
+    let referralSource: string | null = null;
+    const refRaw = referralRef?.trim().toLowerCase();
+    if (refRaw) {
+      const partner = await prisma.partner.findFirst({
+        where: {
+          active: true,
+          OR: [{ referralCode: refRaw }, { slug: refRaw }],
         },
         select: { id: true },
       });
-      createdApplicationId = application.id;
-
-      // Create partner referral record so the member shows in partner's referred members list
-      if (referralPartnerId) {
-        await tx.partnerReferral.create({
-          data: { partnerId: referralPartnerId, memberId: user.id },
+      if (partner) {
+        referralPartnerId = partner.id;
+        referralSource = `partner_ref:${refRaw}`;
+      }
+    }
+  
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json({ error: 'Our signup service is temporarily unavailable. Please try again shortly.' }, { status: 500 });
+    }
+  
+    const cookieStore = await cookies();
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookieOptions: getSupabaseCookieOptions(),
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, (options ?? {}) as Record<string, unknown>);
+          });
+        },
+      },
+    });
+  
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: email.toLowerCase().trim(),
+      password,
+      options: {
+        data: { full_name: fullName, phone },
+        emailRedirectTo: `${new URL(request.url).origin}/auth/callback`,
+      },
+    });
+  
+    if (authError) {
+      if (authError.message.includes('already registered') || authError.code === 'user_already_exists') {
+        return NextResponse.json(
+          { error: 'An account with this email already exists. Log in to continue, or use password reset if you are returning.' },
+          { status: 400 }
+        );
+      }
+      return NextResponse.json({ error: 'We could not create your account just yet. Please try again in a moment.' }, { status: 400 });
+    }
+  
+    const user = authData.user;
+    if (!user) {
+      return NextResponse.json({ error: 'Your account could not be created. Please try again.' }, { status: 500 });
+    }
+  
+    const organizationId = await getDefaultOrganizationId();
+    const priorUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { enrolledAt: true },
+    });
+  
+    let createdApplicationId: string | null = null;
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.user.upsert({
+          where: { id: user.id },
+          create: {
+            id: user.id,
+            organizationId,
+            email: user.email!,
+            fullName,
+            phone,
+            enrolledProgram: programSlug,
+            enrolledAt: new Date(),
+            needsComputerSupportFollowUp: needsComputerSupportFollowUp === true,
+            careerRecommendationJson: careerRecommendationJson ?? undefined,
+          },
+          update: {
+            fullName,
+            phone,
+            enrolledProgram: programSlug,
+            ...(priorUser && !priorUser.enrolledAt ? { enrolledAt: new Date() } : {}),
+            ...(needsComputerSupportFollowUp === true ? { needsComputerSupportFollowUp: true } : {}),
+            ...(careerRecommendationJson !== undefined && careerRecommendationJson !== null
+              ? { careerRecommendationJson }
+              : {}),
+          },
+        });
+  
+        // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+        // Self-serve enroll (POST /api/member/enroll) and admin create both do this.
+        // Signup must do the same so inactivity crons and reporting see consistent state.
+        if (programSlug) {
+          // Multi-program: signup creates the user's first enrollment, mark
+          // it primary. Composite-keyed upsert ensures retries don't create
+          // duplicate (userId, programSlug) rows.
+          await tx.courseEnrollment.upsert({
+            where: { userId_programSlug: { userId: user.id, programSlug } },
+            create: {
+              organizationId,
+              userId: user.id,
+              programSlug,
+              isPrimary: true,
+              enrolledAt: new Date(),
+            },
+            update: {
+              isPrimary: true,
+              enrolledAt: new Date(),
+            },
+          });
+        }
+  
+        await tx.profile.upsert({
+          where: { userId: user.id },
+          create: {
+            userId: user.id,
+            profilePhone: phone,
+            profileAddress,
+            city: city?.trim() || null,
+            state: state?.trim() || null,
+            zip: zip?.trim() || null,
+            smsOptIn: smsOptIn ?? false,
+            role: 'member',
+          },
+          update: {
+            profilePhone: phone,
+            profileAddress,
+            city: city?.trim() || null,
+            state: state?.trim() || null,
+            zip: zip?.trim() || null,
+            smsOptIn: smsOptIn ?? false,
+            role: 'member',
+          },
+        });
+  
+        const application = await tx.application.create({
+          data: {
+            userId: user.id,
+            status: ApplicationStatus.PENDING,
+            programInterest: programInterestSummary,
+            programRankedSlugs,
+            recommendedOnetCode: recommendedOnetCode ?? null,
+            recommendedCareerTitle: recommendedCareerTitle ?? null,
+            submittedAt: new Date(),
+            referralSource,
+            referralPartnerId,
+          },
+          select: { id: true },
+        });
+        createdApplicationId = application.id;
+  
+        // Create partner referral record so the member shows in partner's referred members list
+        if (referralPartnerId) {
+          await tx.partnerReferral.create({
+            data: { partnerId: referralPartnerId, memberId: user.id },
+          });
+        }
+      });
+      await trackEvent({
+        userId: user.id,
+        eventName: 'apply_signup_completed',
+        entityType: 'program',
+        entityId: programSlug,
+        metadata: { smsOptIn: smsOptIn ?? false, program_ranked_slugs: programRankedSlugs },
+        sourcePage: '/apply/create-account',
+      });
+  
+      // Fire-and-forget post-signup notifications. Email failures (Resend
+      // outage, missing env, transient network) must NOT block account
+      // creation — the user is already authenticated and their record is
+      // committed. Errors are logged and surfaced via captureApiError so we
+      // can spot patterns without losing the signup.
+      sendApplicationConfirmationEmail({
+        to: user.email!,
+        fullName,
+      }).catch((err) => {
+        console.error('Member application confirmation email failed:', err);
+        captureApiError(err, {
+          route: 'POST /api/apply/signup#applicationConfirmation',
+          extra: { userId: user.id },
+        });
+      });
+  
+      if (createdApplicationId) {
+        sendNewApplicationAdminEmail({
+          applicantName: fullName,
+          applicantEmail: user.email!,
+          programInterest: programInterestSummary,
+          applicationId: createdApplicationId,
+        }).catch((err) => {
+          console.error('Admin new-application alert email failed:', err);
+          captureApiError(err, {
+            route: 'POST /api/apply/signup#newApplicationAdmin',
+            extra: { userId: user.id, applicationId: createdApplicationId },
+          });
         });
       }
-    });
-    await trackEvent({
-      userId: user.id,
-      eventName: 'apply_signup_completed',
-      entityType: 'program',
-      entityId: programSlug,
-      metadata: { smsOptIn: smsOptIn ?? false, program_ranked_slugs: programRankedSlugs },
-      sourcePage: '/apply/create-account',
-    });
-
-    // Fire-and-forget post-signup notifications. Email failures (Resend
-    // outage, missing env, transient network) must NOT block account
-    // creation — the user is already authenticated and their record is
-    // committed. Errors are logged and surfaced via captureApiError so we
-    // can spot patterns without losing the signup.
-    sendApplicationConfirmationEmail({
-      to: user.email!,
-      fullName,
-    }).catch((err) => {
-      console.error('Member application confirmation email failed:', err);
-      captureApiError(err, {
-        route: 'POST /api/apply/signup#applicationConfirmation',
-        extra: { userId: user.id },
-      });
-    });
-
-    if (createdApplicationId) {
-      sendNewApplicationAdminEmail({
-        applicantName: fullName,
-        applicantEmail: user.email!,
-        programInterest: programInterestSummary,
-        applicationId: createdApplicationId,
-      }).catch((err) => {
-        console.error('Admin new-application alert email failed:', err);
-        captureApiError(err, {
-          route: 'POST /api/apply/signup#newApplicationAdmin',
-          extra: { userId: user.id, applicationId: createdApplicationId },
-        });
-      });
+    } catch (dbError) {
+      captureApiError(dbError, { route: 'POST /api/apply/signup' });
+      return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
     }
-  } catch (dbError) {
-    captureApiError(dbError, { route: 'POST /api/apply/signup' });
-    return NextResponse.json({ error: 'We started your account, but could not finish setup. Try logging in once, then use password reset if needed. If that does not work, contact us and we will finish your setup.' }, { status: 500 });
+  
+    if (authData.session) {
+      return NextResponse.json({ success: true, redirectTo: '/dashboard' });
+    }
+  
+    return NextResponse.json({
+      success: true,
+      message: 'Please verify your email, then log in to view your dashboard and next steps.',
+      redirectTo: '/login',
+    });
+  } catch (error) {
+    console.error('/apply/signup:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  if (authData.session) {
-    return NextResponse.json({ success: true, redirectTo: '/dashboard' });
-  }
-
-  return NextResponse.json({
-    success: true,
-    message: 'Please verify your email, then log in to view your dashboard and next steps.',
-    redirectTo: '/login',
-  });
 }

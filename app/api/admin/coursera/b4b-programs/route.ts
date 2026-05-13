@@ -42,42 +42,47 @@ const querySchema = z.object({
 type B4BProgramWithUrl = B4BProgram & { url?: string; contentCount?: number };
 
 export async function GET(request: Request) {
-  const actor = await getUser();
-  if (!actor) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  if (!(await isAdmin(actor.id))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const url = new URL(request.url);
-  const parsed = querySchema.safeParse({ limit: url.searchParams.get('limit') ?? undefined });
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid query' }, { status: 400 });
-  }
-
   try {
-    const page = await listPrograms({ excludeContent: true, limit: parsed.data.limit ?? 100 });
-    const programs = (page.elements as B4BProgramWithUrl[]).map((p) => ({
-      id: p.id ?? '',
-      slug: p.slug ?? null,
-      name: p.name ?? '',
-      url: p.url?.trim() ? p.url.trim() : null,
-      contentCount: typeof p.contentCount === 'number' ? p.contentCount : null,
-    }));
-    return NextResponse.json({
-      ok: true,
-      count: programs.length,
-      programs,
-    });
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/b4b-programs' });
-    return NextResponse.json(
-      {
-        ok: false,
-        error: err instanceof Error ? err.message : 'B4B listPrograms failed',
-      },
-      { status: 502 },
-    );
+    const actor = await getUser();
+    if (!actor) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!(await isAdmin(actor.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const url = new URL(request.url);
+    const parsed = querySchema.safeParse({ limit: url.searchParams.get('limit') ?? undefined });
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid query' }, { status: 400 });
+    }
+  
+    try {
+      const page = await listPrograms({ excludeContent: true, limit: parsed.data.limit ?? 100 });
+      const programs = (page.elements as B4BProgramWithUrl[]).map((p) => ({
+        id: p.id ?? '',
+        slug: p.slug ?? null,
+        name: p.name ?? '',
+        url: p.url?.trim() ? p.url.trim() : null,
+        contentCount: typeof p.contentCount === 'number' ? p.contentCount : null,
+      }));
+      return NextResponse.json({
+        ok: true,
+        count: programs.length,
+        programs,
+      });
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/b4b-programs' });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: err instanceof Error ? err.message : 'B4B listPrograms failed',
+        },
+        { status: 502 },
+      );
+    }
+  } catch (error) {
+    console.error('/admin/coursera/b4b-programs:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

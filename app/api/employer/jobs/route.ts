@@ -29,56 +29,61 @@ const jobCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const ctx = await getEmployerForUser(user.id);
-  if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
-
-  const { searchParams } = new URL(request.url);
-  const filter = searchParams.get('filter') || 'all';
-
-  const where: Prisma.JobWhereInput = { employerId: ctx.employerId };
-  switch (filter) {
-    case 'pending':
-      where.status = { in: ['pending'] };
-      break;
-    case 'live':
-      where.status = { in: ['live'] };
-      break;
-    case 'filled':
-      where.status = { in: ['filled', 'closed'] };
-      break;
-    case 'draft':
-      where.status = { in: ['draft'] };
-      break;
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
+  
+    const { searchParams } = new URL(request.url);
+    const filter = searchParams.get('filter') || 'all';
+  
+    const where: Prisma.JobWhereInput = { employerId: ctx.employerId };
+    switch (filter) {
+      case 'pending':
+        where.status = { in: ['pending'] };
+        break;
+      case 'live':
+        where.status = { in: ['live'] };
+        break;
+      case 'filled':
+        where.status = { in: ['filled', 'closed'] };
+        break;
+      case 'draft':
+        where.status = { in: ['draft'] };
+        break;
+    }
+  
+    const employerScope = await prisma.employer.findUnique({
+      where: { id: ctx.employerId },
+      select: { organizationId: true },
+    });
+    if (!employerScope) {
+      return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
+    }
+  
+    const jobs = await withTenantScope(employerScope.organizationId, (db) =>
+      db.job.findMany({
+        where,
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          applications: { select: { id: true } },
+        },
+        take: 100,
+      }),
+    );
+  
+    const items = jobs.map(({ applications, ...job }) => ({
+      ...job,
+      applicationsCount: applications.length,
+    }));
+  
+    return NextResponse.json(items);
+  } catch (error) {
+    console.error('/employer/jobs:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const employerScope = await prisma.employer.findUnique({
-    where: { id: ctx.employerId },
-    select: { organizationId: true },
-  });
-  if (!employerScope) {
-    return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
-  }
-
-  const jobs = await withTenantScope(employerScope.organizationId, (db) =>
-    db.job.findMany({
-      where,
-      orderBy: { updatedAt: 'desc' },
-      include: {
-        applications: { select: { id: true } },
-      },
-      take: 100,
-    }),
-  );
-
-  const items = jobs.map(({ applications, ...job }) => ({
-    ...job,
-    applicationsCount: applications.length,
-  }));
-
-  return NextResponse.json(items);
 }
 
 export async function POST(request: NextRequest) {

@@ -24,21 +24,26 @@ export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  try { await requireAdmin(user.id); } catch {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const { id } = await params;
-  const cron = CRON_REGISTRY.find(c => c.id === id);
-  if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
-
   try {
-    const result = await simulateCron(id);
-    return NextResponse.json(result);
-  } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'Dry-run failed' }, { status: 500 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    try { await requireAdmin(user.id); } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const { id } = await params;
+    const cron = CRON_REGISTRY.find(c => c.id === id);
+    if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
+  
+    try {
+      const result = await simulateCron(id);
+      return NextResponse.json(result);
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : 'Dry-run failed' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/admin/email-crons/[id]/dry-run:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -130,8 +135,6 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'inactivity-nudge': {
       const fourteenDaysAgo = new Date();
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      const recentActiveIds = await prisma.memberEvent.findMany({ where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'],
-      const recentActiveIds = await prisma.memberEvent.findMany({ where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId']   take: 100
       const recentActiveIds = await prisma.memberEvent.findMany({ where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
       // Mirror the production inactivity-nudge recipient filter: a user

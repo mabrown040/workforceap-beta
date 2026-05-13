@@ -15,27 +15,32 @@ export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const admin = await getUser();
-  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(admin.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const { id } = await params;
-  const orgId = await getActorOrganizationId(admin.id);
-
-  const user = await withTenantScope(orgId, (db) =>
-    db.user.findFirst({
-      where: { id },
-      select: { email: true },
-    }),
-  );
-  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-
   try {
-    const { error } = await sendPasswordResetEmail(user.email, '/reset-password', { orgId });
-    if (error) throw error;
-    return NextResponse.json({ success: true, message: `Password reset email sent to ${user.email}` });
+    const admin = await getUser();
+    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(admin.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const { id } = await params;
+    const orgId = await getActorOrganizationId(admin.id);
+  
+    const user = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({
+        where: { id },
+        select: { email: true },
+      }),
+    );
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  
+    try {
+      const { error } = await sendPasswordResetEmail(user.email, '/reset-password', { orgId });
+      if (error) throw error;
+      return NextResponse.json({ success: true, message: `Password reset email sent to ${user.email}` });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send password reset email';
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to send password reset email';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('/admin/users/[id]/reset-password:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

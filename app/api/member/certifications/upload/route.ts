@@ -26,62 +26,67 @@ function storageErrorMessage(error: { message?: string } | null): string {
  * instead of pretending the file was attached.
  */
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let formData: FormData;
   try {
-    formData = await req.formData();
-  } catch {
-    return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
-  }
-
-  const file = formData.get('file') as File | null;
-  const certName = formData.get('certName') as string | null;
-
-  if (!file || !certName) {
-    return NextResponse.json({ error: 'file and certName are required' }, { status: 400 });
-  }
-
-  if (file.size > MAX_SIZE_BYTES) {
-    return NextResponse.json({ error: 'File too large (max 10MB)' }, { status: 413 });
-  }
-
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-  if (!['pdf', 'png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
-    return NextResponse.json({ error: 'Only PDF and image files are accepted' }, { status: 400 });
-  }
-
-  // Verify the cert exists for this user
-  const cert = await prisma.userCertification.findUnique({
-    where: { userId_certName: { userId: user.id, certName } },
-  });
-  if (!cert) {
-    return NextResponse.json({ error: 'Certificate not found — add it first' }, { status: 404 });
-  }
-
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const storagePath = `cert-files/${user.id}/${cert.id}.${ext}`;
-    const supabase = getSupabaseAdmin();
-
-    const { error } = await supabase.storage.from(BUCKET).upload(storagePath, arrayBuffer, {
-      upsert: true,
-      contentType: file.type || 'application/octet-stream',
-    });
-
-    if (error) {
-      console.error('[cert-upload] storage upload failed', error);
-      return NextResponse.json({ error: storageErrorMessage(error) }, { status: 500 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch {
+      return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
     }
-
-    return NextResponse.json({ success: true, storagePath });
-  } catch (e) {
-    console.error('[cert-upload] storage upload failed', e);
-    const error =
-      e instanceof Error && e.message.includes('SUPABASE_SERVICE_ROLE_KEY')
-        ? 'Server configuration error (Supabase)'
-        : 'Failed to attach certificate file';
-    return NextResponse.json({ error }, { status: 500 });
+  
+    const file = formData.get('file') as File | null;
+    const certName = formData.get('certName') as string | null;
+  
+    if (!file || !certName) {
+      return NextResponse.json({ error: 'file and certName are required' }, { status: 400 });
+    }
+  
+    if (file.size > MAX_SIZE_BYTES) {
+      return NextResponse.json({ error: 'File too large (max 10MB)' }, { status: 413 });
+    }
+  
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!['pdf', 'png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+      return NextResponse.json({ error: 'Only PDF and image files are accepted' }, { status: 400 });
+    }
+  
+    // Verify the cert exists for this user
+    const cert = await prisma.userCertification.findUnique({
+      where: { userId_certName: { userId: user.id, certName } },
+    });
+    if (!cert) {
+      return NextResponse.json({ error: 'Certificate not found — add it first' }, { status: 404 });
+    }
+  
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const storagePath = `cert-files/${user.id}/${cert.id}.${ext}`;
+      const supabase = getSupabaseAdmin();
+  
+      const { error } = await supabase.storage.from(BUCKET).upload(storagePath, arrayBuffer, {
+        upsert: true,
+        contentType: file.type || 'application/octet-stream',
+      });
+  
+      if (error) {
+        console.error('[cert-upload] storage upload failed', error);
+        return NextResponse.json({ error: storageErrorMessage(error) }, { status: 500 });
+      }
+  
+      return NextResponse.json({ success: true, storagePath });
+    } catch (e) {
+      console.error('[cert-upload] storage upload failed', e);
+      const error =
+        e instanceof Error && e.message.includes('SUPABASE_SERVICE_ROLE_KEY')
+          ? 'Server configuration error (Supabase)'
+          : 'Failed to attach certificate file';
+      return NextResponse.json({ error }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/member/certifications/upload:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

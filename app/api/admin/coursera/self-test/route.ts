@@ -389,160 +389,165 @@ function buildRecommendations(result: SelfTestResult): string[] {
 }
 
 export async function GET() {
-  const user = await requireAdmin();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const readiness = getXapiReadiness();
-  const xapiConfig = getXapiConfig();
-
-  // Inbound target. The chain matters:
-  //   1. Explicit COURSERA_TARGET_BASE_URL — operator override
-  //   2. NEXT_PUBLIC_SITE_URL — canonical site URL (typically prod)
-  //   3. Hardcoded www.workforceap.org — safe prod fallback
-  // We deliberately do NOT fall back to VERCEL_URL: that returns the
-  // per-deployment URL like `workforceap-beta-<sha>-...vercel.app`,
-  // which on preview deployments sits behind Vercel's password protection
-  // wall and returns 401 "Authentication Required" before ever reaching
-  // our route. The inbound test only makes sense against the same domain
-  // Coursera POSTs to in production.
-  const targetBase = (
-    process.env.COURSERA_TARGET_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    'https://www.workforceap.org'
-  ).replace(/\/$/, '');
-  const orgId = process.env.COURSERA_ORG_ID?.trim() || DEFAULT_ORG_ID;
-  const orgSlug = process.env.COURSERA_ORG_SLUG?.trim() || DEFAULT_ORG_SLUG;
-  const oauthUrl = process.env.COURSERA_OAUTH_TOKEN_URL?.trim() || DEFAULT_COURSERA_OAUTH_URL;
-  const apiBase = (process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_COURSERA_API_BASE).replace(/\/$/, '');
-
-  const xapiId = process.env.COURSERA_XAPI_CLIENT_ID?.trim() || xapiConfig.clientId;
-  const xapiSecret = process.env.COURSERA_XAPI_CLIENT_SECRET?.trim() || xapiConfig.clientSecret;
-  const b4bId = process.env.COURSERA_B4B_CLIENT_ID?.trim() || '';
-  const b4bSecret = process.env.COURSERA_B4B_CLIENT_SECRET?.trim() || '';
-
-  const xapiPairComplete = Boolean(xapiId && xapiSecret);
-  const b4bPairComplete = Boolean(b4bId && b4bSecret);
-
-  const result: SelfTestResult = {
-    ok: false,
-    ranAt: new Date().toISOString(),
-    targetBaseUrl: targetBase,
-    inbound: {
-      tokenOk: null,
-      tokenDetail: '',
-      statementOk: null,
-      statementDetail: '',
-    },
-    outbound: {
-      tokenOk: null,
-      tokenScope: null,
-      tokenDetail: '',
-      endpoints: [],
-    },
-    config: {
-      xapiClientIdPreview: obfuscate(xapiId),
-      xapiSecretSet: Boolean(xapiSecret),
-      b4bClientIdPreview: obfuscate(b4bId),
-      b4bSecretSet: Boolean(b4bSecret),
-      orgId,
-      orgSlug,
-      oauthUrl,
-      apiBase,
-    },
-    recommendations: [],
-  };
-
-  // ----- inbound xAPI -----
-  if (!xapiPairComplete) {
-    result.inbound.tokenOk = false;
-    result.inbound.tokenDetail = 'incomplete xAPI credential pair (set COURSERA_XAPI_CLIENT_ID + COURSERA_XAPI_CLIENT_SECRET, or rely on XAPI_CLIENT_ID / COURSERA_APP_ID env vars)';
-    result.inbound.statementOk = false;
-    result.inbound.statementDetail = result.inbound.tokenDetail;
-  } else {
-    const tokenResult = await runInboundTokenTest(targetBase, xapiId, xapiSecret);
-    result.inbound.tokenOk = tokenResult.ok;
-    result.inbound.tokenDetail = tokenResult.detail;
-
-    if (tokenResult.token) {
-      const stmtResult = await runInboundStatementTest(targetBase, tokenResult.token);
-      result.inbound.statementOk = stmtResult.ok;
-      result.inbound.statementDetail = stmtResult.detail;
-    } else {
+  try {
+    const user = await requireAdmin();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    const readiness = getXapiReadiness();
+    const xapiConfig = getXapiConfig();
+  
+    // Inbound target. The chain matters:
+    //   1. Explicit COURSERA_TARGET_BASE_URL — operator override
+    //   2. NEXT_PUBLIC_SITE_URL — canonical site URL (typically prod)
+    //   3. Hardcoded www.workforceap.org — safe prod fallback
+    // We deliberately do NOT fall back to VERCEL_URL: that returns the
+    // per-deployment URL like `workforceap-beta-<sha>-...vercel.app`,
+    // which on preview deployments sits behind Vercel's password protection
+    // wall and returns 401 "Authentication Required" before ever reaching
+    // our route. The inbound test only makes sense against the same domain
+    // Coursera POSTs to in production.
+    const targetBase = (
+      process.env.COURSERA_TARGET_BASE_URL?.trim() ||
+      process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+      'https://www.workforceap.org'
+    ).replace(/\/$/, '');
+    const orgId = process.env.COURSERA_ORG_ID?.trim() || DEFAULT_ORG_ID;
+    const orgSlug = process.env.COURSERA_ORG_SLUG?.trim() || DEFAULT_ORG_SLUG;
+    const oauthUrl = process.env.COURSERA_OAUTH_TOKEN_URL?.trim() || DEFAULT_COURSERA_OAUTH_URL;
+    const apiBase = (process.env.COURSERA_API_BASE_URL?.trim() || DEFAULT_COURSERA_API_BASE).replace(/\/$/, '');
+  
+    const xapiId = process.env.COURSERA_XAPI_CLIENT_ID?.trim() || xapiConfig.clientId;
+    const xapiSecret = process.env.COURSERA_XAPI_CLIENT_SECRET?.trim() || xapiConfig.clientSecret;
+    const b4bId = process.env.COURSERA_B4B_CLIENT_ID?.trim() || '';
+    const b4bSecret = process.env.COURSERA_B4B_CLIENT_SECRET?.trim() || '';
+  
+    const xapiPairComplete = Boolean(xapiId && xapiSecret);
+    const b4bPairComplete = Boolean(b4bId && b4bSecret);
+  
+    const result: SelfTestResult = {
+      ok: false,
+      ranAt: new Date().toISOString(),
+      targetBaseUrl: targetBase,
+      inbound: {
+        tokenOk: null,
+        tokenDetail: '',
+        statementOk: null,
+        statementDetail: '',
+      },
+      outbound: {
+        tokenOk: null,
+        tokenScope: null,
+        tokenDetail: '',
+        endpoints: [],
+      },
+      config: {
+        xapiClientIdPreview: obfuscate(xapiId),
+        xapiSecretSet: Boolean(xapiSecret),
+        b4bClientIdPreview: obfuscate(b4bId),
+        b4bSecretSet: Boolean(b4bSecret),
+        orgId,
+        orgSlug,
+        oauthUrl,
+        apiBase,
+      },
+      recommendations: [],
+    };
+  
+    // ----- inbound xAPI -----
+    if (!xapiPairComplete) {
+      result.inbound.tokenOk = false;
+      result.inbound.tokenDetail = 'incomplete xAPI credential pair (set COURSERA_XAPI_CLIENT_ID + COURSERA_XAPI_CLIENT_SECRET, or rely on XAPI_CLIENT_ID / COURSERA_APP_ID env vars)';
       result.inbound.statementOk = false;
-      result.inbound.statementDetail = 'token endpoint did not return a usable token';
+      result.inbound.statementDetail = result.inbound.tokenDetail;
+    } else {
+      const tokenResult = await runInboundTokenTest(targetBase, xapiId, xapiSecret);
+      result.inbound.tokenOk = tokenResult.ok;
+      result.inbound.tokenDetail = tokenResult.detail;
+  
+      if (tokenResult.token) {
+        const stmtResult = await runInboundStatementTest(targetBase, tokenResult.token);
+        result.inbound.statementOk = stmtResult.ok;
+        result.inbound.statementDetail = stmtResult.detail;
+      } else {
+        result.inbound.statementOk = false;
+        result.inbound.statementDetail = 'token endpoint did not return a usable token';
+      }
     }
-  }
-
-  // ----- outbound B4B -----
-  let outboundToken: string | null = null;
-  if (!b4bPairComplete) {
-    result.outbound.tokenOk = false;
-    result.outbound.tokenDetail = 'incomplete B4B credential pair (set COURSERA_B4B_CLIENT_ID + COURSERA_B4B_CLIENT_SECRET)';
-  } else {
-    const oauthResult = await runOutboundOauth(b4bId, b4bSecret, oauthUrl);
-    result.outbound.tokenOk = oauthResult.ok;
-    result.outbound.tokenDetail = oauthResult.detail;
-    result.outbound.tokenScope = oauthResult.scope;
-    outboundToken = oauthResult.token;
-  }
-
-  if (outboundToken) {
-    const catalog = buildEndpointCatalog(apiBase, orgId, orgSlug);
-    for (const entry of catalog) {
-      const probe = await probeEndpoint(entry.label, entry.url, outboundToken);
-      result.outbound.endpoints.push(probe);
+  
+    // ----- outbound B4B -----
+    let outboundToken: string | null = null;
+    if (!b4bPairComplete) {
+      result.outbound.tokenOk = false;
+      result.outbound.tokenDetail = 'incomplete B4B credential pair (set COURSERA_B4B_CLIENT_ID + COURSERA_B4B_CLIENT_SECRET)';
+    } else {
+      const oauthResult = await runOutboundOauth(b4bId, b4bSecret, oauthUrl);
+      result.outbound.tokenOk = oauthResult.ok;
+      result.outbound.tokenDetail = oauthResult.detail;
+      result.outbound.tokenScope = oauthResult.scope;
+      outboundToken = oauthResult.token;
     }
-  }
-
-  // (g) — exercise the b4bClient end-to-end. Only meaningful when the
-  // direct-fetch outbound probes returned 200, since the client uses the
-  // same credentials/host. Skip otherwise to keep the report fast.
-  const anyEndpointOk = result.outbound.endpoints.some(
-    (e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300,
-  );
-  if (b4bPairComplete && anyEndpointOk) {
-    const programId = process.env.COURSERA_PROGRAM_ID?.trim() || 'TpIlAogTQ8-SJQKIE8PP9w';
-    try {
-      const probes = await runClientProbes(programId);
+  
+    if (outboundToken) {
+      const catalog = buildEndpointCatalog(apiBase, orgId, orgSlug);
+      for (const entry of catalog) {
+        const probe = await probeEndpoint(entry.label, entry.url, outboundToken);
+        result.outbound.endpoints.push(probe);
+      }
+    }
+  
+    // (g) — exercise the b4bClient end-to-end. Only meaningful when the
+    // direct-fetch outbound probes returned 200, since the client uses the
+    // same credentials/host. Skip otherwise to keep the report fast.
+    const anyEndpointOk = result.outbound.endpoints.some(
+      (e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300,
+    );
+    if (b4bPairComplete && anyEndpointOk) {
+      const programId = process.env.COURSERA_PROGRAM_ID?.trim() || 'TpIlAogTQ8-SJQKIE8PP9w';
+      try {
+        const probes = await runClientProbes(programId);
+        result.client = {
+          ok: probes.every((p) => p.ok),
+          probes,
+        };
+      } catch (error) {
+        result.client = {
+          ok: false,
+          skipped: error instanceof Error ? error.message : String(error),
+          probes: [],
+        };
+      }
+    } else {
       result.client = {
-        ok: probes.every((p) => p.ok),
-        probes,
-      };
-    } catch (error) {
-      result.client = {
-        ok: false,
-        skipped: error instanceof Error ? error.message : String(error),
+        ok: null,
+        skipped: !b4bPairComplete
+          ? 'B4B credentials not configured'
+          : 'Skipped — direct-fetch probes did not return any 2xx',
         probes: [],
       };
     }
-  } else {
-    result.client = {
-      ok: null,
-      skipped: !b4bPairComplete
-        ? 'B4B credentials not configured'
-        : 'Skipped — direct-fetch probes did not return any 2xx',
-      probes: [],
-    };
+  
+    result.recommendations = buildRecommendations(result);
+  
+    const anyEndpointSuccess = result.outbound.endpoints.some(
+      (e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300
+    );
+    const outboundTokenIssuedButNoEndpointWorks =
+      result.outbound.tokenOk === true && result.outbound.endpoints.length > 0 && !anyEndpointSuccess;
+  
+    const hadFail =
+      result.inbound.tokenOk === false ||
+      result.inbound.statementOk === false ||
+      result.outbound.tokenOk === false ||
+      outboundTokenIssuedButNoEndpointWorks ||
+      result.client?.ok === false;
+  
+    result.ok = !hadFail;
+  
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('/admin/coursera/self-test:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  result.recommendations = buildRecommendations(result);
-
-  const anyEndpointSuccess = result.outbound.endpoints.some(
-    (e) => typeof e.status === 'number' && e.status >= 200 && e.status < 300
-  );
-  const outboundTokenIssuedButNoEndpointWorks =
-    result.outbound.tokenOk === true && result.outbound.endpoints.length > 0 && !anyEndpointSuccess;
-
-  const hadFail =
-    result.inbound.tokenOk === false ||
-    result.inbound.statementOk === false ||
-    result.outbound.tokenOk === false ||
-    outboundTokenIssuedButNoEndpointWorks ||
-    result.client?.ok === false;
-
-  result.ok = !hadFail;
-
-  return NextResponse.json(result);
 }

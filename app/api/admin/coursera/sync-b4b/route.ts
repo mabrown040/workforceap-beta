@@ -20,19 +20,24 @@ async function requireAdminUser() {
  * Auth: requires an active admin session (same as /admin/coursera).
  */
 export async function POST() {
-  const user = await requireAdminUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const result = await syncCourseraB4BEnrollmentReports();
-    return NextResponse.json({ ok: true, result });
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/sync-b4b' });
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Sync failed' },
-      { status: 500 },
-    );
+    const user = await requireAdminUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    try {
+      const result = await syncCourseraB4BEnrollmentReports();
+      return NextResponse.json({ ok: true, result });
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/sync-b4b' });
+      return NextResponse.json(
+        { error: err instanceof Error ? err.message : 'Sync failed' },
+        { status: 500 },
+      );
+    }
+  } catch (error) {
+    console.error('/admin/coursera/sync-b4b:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

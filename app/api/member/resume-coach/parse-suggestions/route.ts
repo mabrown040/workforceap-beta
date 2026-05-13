@@ -47,56 +47,61 @@ function buildHistoryOutput(transcript: ResumeTranscriptTurn[], suggestions: Arr
  * Output: { suggestions: Array<{ original?: string; suggested: string; context: string }> }
  */
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { transcript: rawTranscript } = (await req.json()) as {
-    transcript: Array<{ speaker: string; text: string }>;
-  };
-
-  const transcript = normalizeResumeCoachTranscript(rawTranscript ?? []);
-  if (!transcript?.length) {
-    return NextResponse.json({ suggestions: [] });
-  }
-
-  const suggestions = await parseResumeCoachSuggestionsFromTranscript(transcript);
-
   try {
-    await ensureUserInDb(user);
-    const inputSummary = `Resume Helper voice session (${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'})`;
-    const output = buildHistoryOutput(transcript, suggestions);
-    await saveAIToolResult(user.id, 'resume_rewriter', inputSummary, output);
-
-    try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { fullName: true, email: true },
-      });
-
-      const recipients = getVoiceCoachTranscriptRecipients();
-      if (recipients.length > 0) {
-        await sendVoiceCoachTranscriptEmail({
-          to: recipients,
-          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
-          memberEmail: dbUser?.email?.trim() || user.email || null,
-          coachLabel: 'Resume Coach',
-          transcriptTurns: transcript.map((turn) => ({
-            role: turn.speaker === 'agent' ? 'agent' : 'user',
-            text: turn.text,
-          })),
-          highlights: suggestions.map((suggestion) => {
-            const original = suggestion.original?.trim();
-            if (original) return `Replace "${original}" with "${suggestion.suggested}". Why: ${suggestion.context}`;
-            return `Add "${suggestion.suggested}". Why: ${suggestion.context}`;
-          }),
-        });
-      }
-    } catch (emailErr) {
-      console.error('[parse-suggestions] failed to email session transcript', emailErr);
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const { transcript: rawTranscript } = (await req.json()) as {
+      transcript: Array<{ speaker: string; text: string }>;
+    };
+  
+    const transcript = normalizeResumeCoachTranscript(rawTranscript ?? []);
+    if (!transcript?.length) {
+      return NextResponse.json({ suggestions: [] });
     }
-  } catch (saveErr) {
-    console.error('[parse-suggestions] failed to persist session transcript', saveErr);
+  
+    const suggestions = await parseResumeCoachSuggestionsFromTranscript(transcript);
+  
+    try {
+      await ensureUserInDb(user);
+      const inputSummary = `Resume Helper voice session (${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'})`;
+      const output = buildHistoryOutput(transcript, suggestions);
+      await saveAIToolResult(user.id, 'resume_rewriter', inputSummary, output);
+  
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { fullName: true, email: true },
+        });
+  
+        const recipients = getVoiceCoachTranscriptRecipients();
+        if (recipients.length > 0) {
+          await sendVoiceCoachTranscriptEmail({
+            to: recipients,
+            memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+            memberEmail: dbUser?.email?.trim() || user.email || null,
+            coachLabel: 'Resume Coach',
+            transcriptTurns: transcript.map((turn) => ({
+              role: turn.speaker === 'agent' ? 'agent' : 'user',
+              text: turn.text,
+            })),
+            highlights: suggestions.map((suggestion) => {
+              const original = suggestion.original?.trim();
+              if (original) return `Replace "${original}" with "${suggestion.suggested}". Why: ${suggestion.context}`;
+              return `Add "${suggestion.suggested}". Why: ${suggestion.context}`;
+            }),
+          });
+        }
+      } catch (emailErr) {
+        console.error('[parse-suggestions] failed to email session transcript', emailErr);
+      }
+    } catch (saveErr) {
+      console.error('[parse-suggestions] failed to persist session transcript', saveErr);
+    }
+  
+    return NextResponse.json({ suggestions });
+  } catch (error) {
+    console.error('/member/resume-coach/parse-suggestions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json({ suggestions });
 }

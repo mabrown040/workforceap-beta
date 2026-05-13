@@ -7,18 +7,23 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   try {
-    const job = await prisma.job.findFirst({
-      where: { id, status: 'live' },
-      include: {
-        employer: { select: { companyName: true } },
-      },
-    });
-    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-    return NextResponse.json(job);
-  } catch (err) {
-    captureApiError(err, { route: 'dashboard/jobs/[id]' });
+    const { id } = await params;
+    try {
+      const job = await prisma.job.findFirst({
+        where: { id, status: 'live' },
+        include: {
+          employer: { select: { companyName: true } },
+        },
+      });
+      if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      return NextResponse.json(job);
+    } catch (err) {
+      captureApiError(err, { route: 'dashboard/jobs/[id]' });
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/(portal)/dashboard/jobs/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

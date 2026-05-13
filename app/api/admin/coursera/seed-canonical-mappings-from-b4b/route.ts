@@ -22,38 +22,43 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  * still need attention (manual `courseraB4BProgramId` binding).
  */
 export async function POST(_request: NextRequest) {
-  const actor = await getUser();
-  if (!actor) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let orgId: string;
   try {
-    orgId = await getActorOrganizationId(actor.id);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const superAdmin = await isSuperAdmin(actor.id);
-  if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  try {
-    const contents = await loadB4BContents();
-    const summary = await seedCanonicalMappingsFromB4B({ actorUserId: actor.id, contents });
-    return NextResponse.json(summary);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Seed canonical mappings from B4B failed',
-      },
-      { status: 500 },
-    );
+    const actor = await getUser();
+    if (!actor) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(actor.id);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const superAdmin = await isSuperAdmin(actor.id);
+    if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    try {
+      const contents = await loadB4BContents();
+      const summary = await seedCanonicalMappingsFromB4B({ actorUserId: actor.id, contents });
+      return NextResponse.json(summary);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });
+      return NextResponse.json(
+        {
+          error:
+            err instanceof Error
+              ? err.message
+              : 'Seed canonical mappings from B4B failed',
+        },
+        { status: 500 },
+      );
+    }
+  } catch (error) {
+    console.error('/admin/coursera/seed-canonical-mappings-from-b4b:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

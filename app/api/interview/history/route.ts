@@ -87,161 +87,171 @@ async function generateFeedback(params: {
 }
 
 export async function GET(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const limit = parseInt(new URL(req.url).searchParams.get('limit') ?? '10') || 10;
-
-  const results = await prisma.aIToolResult.findMany({
-    where: { userId: user.id, toolType: 'interview_coach' },
-    orderBy: { createdAt: 'desc' },
-    take: Math.min(limit, 50),
-    select: { id: true, inputSummary: true, output: true, createdAt: true },
-  });
-
-  const sessions = results.map(r => {
-    try {
-      const data = JSON.parse(r.output) as {
-        role?: string;
-        interviewType?: string;
-        feedback?: string;
-        questions?: string[];
-        answers?: string[];
-        sessionId?: string;
-        transcriptTurns?: { role: 'agent' | 'user'; text: string }[];
-      };
-      return {
-        id: r.id,
-        createdAt: r.createdAt.toISOString(),
-        role: data.role || r.inputSummary,
-        interviewType: data.interviewType || 'behavioral',
-        feedback: data.feedback || '',
-        questions: data.questions || [],
-        answers: data.answers || [],
-        sessionId: data.sessionId || r.id,
-        transcriptTurns: Array.isArray(data.transcriptTurns) ? data.transcriptTurns : [],
-      };
-    } catch {
-      return null;
-    }
-  }).filter(Boolean);
-
-  return NextResponse.json({ sessions });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const limit = parseInt(new URL(req.url).searchParams.get('limit') ?? '10') || 10;
+  
+    const results = await prisma.aIToolResult.findMany({
+      where: { userId: user.id, toolType: 'interview_coach' },
+      orderBy: { createdAt: 'desc' },
+      take: Math.min(limit, 50),
+      select: { id: true, inputSummary: true, output: true, createdAt: true },
+    });
+  
+    const sessions = results.map(r => {
+      try {
+        const data = JSON.parse(r.output) as {
+          role?: string;
+          interviewType?: string;
+          feedback?: string;
+          questions?: string[];
+          answers?: string[];
+          sessionId?: string;
+          transcriptTurns?: { role: 'agent' | 'user'; text: string }[];
+        };
+        return {
+          id: r.id,
+          createdAt: r.createdAt.toISOString(),
+          role: data.role || r.inputSummary,
+          interviewType: data.interviewType || 'behavioral',
+          feedback: data.feedback || '',
+          questions: data.questions || [],
+          answers: data.answers || [],
+          sessionId: data.sessionId || r.id,
+          transcriptTurns: Array.isArray(data.transcriptTurns) ? data.transcriptTurns : [],
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+  
+    return NextResponse.json({ sessions });
+  } catch (error) {
+    console.error('/interview/history:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let body: HistoryBody;
   try {
-    body = (await req.json()) as HistoryBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
-
-  const role = body.role?.trim() ?? '';
-  const interviewTypeRaw = body.interviewType?.trim().toLowerCase() ?? '';
-  const sessionId = body.sessionId?.trim() ?? '';
-
-  if (!sessionId) {
-    return NextResponse.json({ error: 'sessionId is required' }, { status: 400 });
-  }
-
-  if (!role) {
-    return NextResponse.json({ error: 'role is required' }, { status: 400 });
-  }
-
-  if (!ALLOWED_TYPES.includes(interviewTypeRaw as InterviewType)) {
-    return NextResponse.json({ error: 'interviewType must be Technical, Behavioral, or General' }, { status: 400 });
-  }
-
-  const answers = Array.isArray(body.answers)
-    ? body.answers.map((answer) => answer.trim()).filter((answer) => answer.length > 0)
-    : [];
-  if (answers.length === 0) {
-    return NextResponse.json({ error: 'answers are required' }, { status: 400 });
-  }
-
-  const questions = Array.isArray(body.questions)
-    ? body.questions.map((question) => question.trim()).filter((question) => question.length > 0)
-    : [];
-  const transcriptTurns: { role: 'agent' | 'user'; text: string }[] = Array.isArray(body.transcriptTurns)
-    ? body.transcriptTurns
-        .map((turn): { role: 'agent' | 'user'; text: string } => ({
-          role: turn?.role === 'agent' ? 'agent' : 'user',
-          text: typeof turn?.text === 'string' ? turn.text.trim() : '',
-        }))
-        .filter((turn) => turn.text.length > 0)
-    : [];
-
-  const interviewType = interviewTypeRaw as InterviewType;
-
-  try {
-    const feedback = await generateFeedback({ role, interviewType, answers, questions });
-
-    await ensureUserInDb(user);
-    await saveAIToolResult(
-      user.id,
-      'interview_coach',
-      `${interviewType} interview feedback for ${role}`,
-      JSON.stringify({ sessionId, role, interviewType, answers, questions, transcriptTurns, feedback })
-    );
-
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let body: HistoryBody;
     try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { fullName: true, email: true },
-      });
-
-      const adminUsers = await prisma.user.findMany({
-        where: {
-          profile: {
-            is: {
-              role: { in: ['admin', 'super_admin'] },
+      body = (await req.json()) as HistoryBody;
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+  
+    const role = body.role?.trim() ?? '';
+    const interviewTypeRaw = body.interviewType?.trim().toLowerCase() ?? '';
+    const sessionId = body.sessionId?.trim() ?? '';
+  
+    if (!sessionId) {
+      return NextResponse.json({ error: 'sessionId is required' }, { status: 400 });
+    }
+  
+    if (!role) {
+      return NextResponse.json({ error: 'role is required' }, { status: 400 });
+    }
+  
+    if (!ALLOWED_TYPES.includes(interviewTypeRaw as InterviewType)) {
+      return NextResponse.json({ error: 'interviewType must be Technical, Behavioral, or General' }, { status: 400 });
+    }
+  
+    const answers = Array.isArray(body.answers)
+      ? body.answers.map((answer) => answer.trim()).filter((answer) => answer.length > 0)
+      : [];
+    if (answers.length === 0) {
+      return NextResponse.json({ error: 'answers are required' }, { status: 400 });
+    }
+  
+    const questions = Array.isArray(body.questions)
+      ? body.questions.map((question) => question.trim()).filter((question) => question.length > 0)
+      : [];
+    const transcriptTurns: { role: 'agent' | 'user'; text: string }[] = Array.isArray(body.transcriptTurns)
+      ? body.transcriptTurns
+          .map((turn): { role: 'agent' | 'user'; text: string } => ({
+            role: turn?.role === 'agent' ? 'agent' : 'user',
+            text: typeof turn?.text === 'string' ? turn.text.trim() : '',
+          }))
+          .filter((turn) => turn.text.length > 0)
+      : [];
+  
+    const interviewType = interviewTypeRaw as InterviewType;
+  
+    try {
+      const feedback = await generateFeedback({ role, interviewType, answers, questions });
+  
+      await ensureUserInDb(user);
+      await saveAIToolResult(
+        user.id,
+        'interview_coach',
+        `${interviewType} interview feedback for ${role}`,
+        JSON.stringify({ sessionId, role, interviewType, answers, questions, transcriptTurns, feedback })
+      );
+  
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { fullName: true, email: true },
+        });
+  
+        const adminUsers = await prisma.user.findMany({
+          where: {
+            profile: {
+              is: {
+                role: { in: ['admin', 'super_admin'] },
+              },
             },
           },
-        },
-        select: { email: true },
-        take: 100,
-      });
-
-      const configuredRecipients = (process.env.VOICE_INTERVIEW_TRANSCRIPT_EMAILS ?? '')
-        .split(',')
-        .map((email) => email.trim())
-        .filter(Boolean);
-
-      const defaultRecipients = ['Michael.brown@workforceap.org', 'michael.brown2@workforceap.org', 'interviews@workforceap.org'];
-
-      const recipientEmails = Array.from(
-        new Set([
-          ...defaultRecipients,
-          ...configuredRecipients,
-          ...adminUsers.map((entry) => entry.email).filter(Boolean),
-        ])
-      );
-
-      if (recipientEmails.length > 0) {
-        await sendVoiceInterviewTranscriptEmail({
-          to: recipientEmails,
-          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
-          memberEmail: dbUser?.email?.trim() || user.email || null,
-          role,
-          interviewType,
-          transcriptTurns,
-          feedback,
-          sessionId,
+          select: { email: true },
+          take: 100,
         });
+  
+        const configuredRecipients = (process.env.VOICE_INTERVIEW_TRANSCRIPT_EMAILS ?? '')
+          .split(',')
+          .map((email) => email.trim())
+          .filter(Boolean);
+  
+        const defaultRecipients = ['Michael.brown@workforceap.org', 'michael.brown2@workforceap.org', 'interviews@workforceap.org'];
+  
+        const recipientEmails = Array.from(
+          new Set([
+            ...defaultRecipients,
+            ...configuredRecipients,
+            ...adminUsers.map((entry) => entry.email).filter(Boolean),
+          ])
+        );
+  
+        if (recipientEmails.length > 0) {
+          await sendVoiceInterviewTranscriptEmail({
+            to: recipientEmails,
+            memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+            memberEmail: dbUser?.email?.trim() || user.email || null,
+            role,
+            interviewType,
+            transcriptTurns,
+            feedback,
+            sessionId,
+          });
+        }
+      } catch (emailErr) {
+        captureApiError(emailErr, { route: 'interview/history transcript email' });
       }
-    } catch (emailErr) {
-      captureApiError(emailErr, { route: 'interview/history transcript email' });
+  
+      return NextResponse.json({ feedback });
+    } catch (error) {
+      captureApiError(error, { route: 'interview/history' });
+      return NextResponse.json({ error: 'Failed to generate feedback' }, { status: 500 });
     }
-
-    return NextResponse.json({ feedback });
   } catch (error) {
-    captureApiError(error, { route: 'interview/history' });
-    return NextResponse.json({ error: 'Failed to generate feedback' }, { status: 500 });
+    console.error('/interview/history:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

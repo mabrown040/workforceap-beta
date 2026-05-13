@@ -163,8 +163,6 @@ export async function POST(req: NextRequest) {
     }
     if (mergedCourseProgress > 0) repointed.push(`courseProgress(${mergedCourseProgress})`);
 
-    const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId },
-    const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId }   take: 100
     const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId } });
     let mergedRollups = 0;
     for (const row of secondaryRollups) {

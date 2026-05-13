@@ -302,31 +302,36 @@ function mapThreadRow(
  * Creates or retrieves the member's counselor thread so admin can message them.
  */
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  let body: unknown;
-  try { body = await request.json(); } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    let body: unknown;
+    try { body = await request.json(); } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const memberId = typeof (body as { memberId?: unknown }).memberId === 'string'
+      ? (body as { memberId: string }).memberId
+      : '';
+    if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
+  
+    const member = await prisma.user.findFirst({
+      where: {
+        id: memberId,
+        deletedAt: null,
+        profile: { role: 'member' },
+      },
+      select: { id: true, fullName: true },
+    });
+    if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  
+    const thread = await getOrCreateMemberCounselorThread(memberId);
+  
+    return NextResponse.json({ threadId: thread.id, memberName: member.fullName });
+  } catch (error) {
+    console.error('/admin/messages/threads:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const memberId = typeof (body as { memberId?: unknown }).memberId === 'string'
-    ? (body as { memberId: string }).memberId
-    : '';
-  if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
-
-  const member = await prisma.user.findFirst({
-    where: {
-      id: memberId,
-      deletedAt: null,
-      profile: { role: 'member' },
-    },
-    select: { id: true, fullName: true },
-  });
-  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
-
-  const thread = await getOrCreateMemberCounselorThread(memberId);
-
-  return NextResponse.json({ threadId: thread.id, memberName: member.fullName });
 }

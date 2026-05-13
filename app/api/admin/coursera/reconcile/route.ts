@@ -59,194 +59,199 @@ function normEmail(value: string | null | undefined) {
 }
 
 export async function GET(request: NextRequest) {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let orgId: string;
   try {
-    orgId = await getActorOrganizationId(user.id);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/reconcile' });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  if (!(await isAdminInOrg(user.id, orgId))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const url = new URL(request.url);
-  const programId =
-    url.searchParams.get('programId')?.trim() ||
-    process.env.COURSERA_PROGRAM_ID?.trim() ||
-    DEFAULT_PROGRAM_ID;
-  const rawLimit = Number(url.searchParams.get('limit') ?? DEFAULT_ROW_LIMIT);
-  const limit =
-    Number.isFinite(rawLimit) && rawLimit > 0
-      ? Math.min(Math.floor(rawLimit), MAX_ROW_LIMIT)
-      : DEFAULT_ROW_LIMIT;
-
-  let courseraUsers: B4BUser[] = [];
-  try {
-    const drained = await listAllUsers({ pageLimit: 1000 });
-    courseraUsers = drained.elements;
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/reconcile' });
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error
-            ? `Coursera roster fetch failed: ${err.message}`
-            : 'Coursera roster fetch failed',
-      },
-      { status: 502 },
-    );
-  }
-
-  // Build Coursera-side index keyed by lowercased email.
-  const courseraByEmail = new Map<string, B4BUser>();
-  for (const u of courseraUsers) {
-    const email = normEmail(u.email);
-    if (!email) continue;
-    if (!courseraByEmail.has(email)) courseraByEmail.set(email, u);
-  }
-
-  // Pull all WAP users + their CourseEnrollment for this org.
-  // Both reads pinned to the actor's org via withTenantScope.
-  const wapUsers = await withTenantScope(orgId, (db) =>
-    db.user.findMany({
-      where: { deletedAt: null },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        enrolledProgram: true,
-        // Multi-program: use the primary enrollment's slug for the reconcile
-        // comparison. Secondary enrollments aren't surfaced in this view.
-        courseEnrollments: {
-          where: { isPrimary: true },
-          select: { programSlug: true },
-          take: 1,
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(user.id);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/reconcile' });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    if (!(await isAdminInOrg(user.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const url = new URL(request.url);
+    const programId =
+      url.searchParams.get('programId')?.trim() ||
+      process.env.COURSERA_PROGRAM_ID?.trim() ||
+      DEFAULT_PROGRAM_ID;
+    const rawLimit = Number(url.searchParams.get('limit') ?? DEFAULT_ROW_LIMIT);
+    const limit =
+      Number.isFinite(rawLimit) && rawLimit > 0
+        ? Math.min(Math.floor(rawLimit), MAX_ROW_LIMIT)
+        : DEFAULT_ROW_LIMIT;
+  
+    let courseraUsers: B4BUser[] = [];
+    try {
+      const drained = await listAllUsers({ pageLimit: 1000 });
+      courseraUsers = drained.elements;
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/reconcile' });
+      return NextResponse.json(
+        {
+          error:
+            err instanceof Error
+              ? `Coursera roster fetch failed: ${err.message}`
+              : 'Coursera roster fetch failed',
         },
-      },
-    }),
-  );
-
-  const wapByEmail = new Map<
-    string,
-    { id: string; email: string; fullName: string; programSlug: string | null }
-  >();
-  for (const u of wapUsers) {
-    const email = normEmail(u.email);
-    if (!email) continue;
-    wapByEmail.set(email, {
-      id: u.id,
-      email: u.email,
-      fullName: u.fullName,
-      programSlug: u.courseEnrollments[0]?.programSlug ?? u.enrolledProgram ?? null,
-    });
-  }
-
-  // Build the union of emails on either side.
-  const allEmails = new Set<string>([...courseraByEmail.keys(), ...wapByEmail.keys()]);
-
-  let matched = 0;
-  let courseraOnly = 0;
-  let wapOnly = 0;
-  let wrongCourse = 0;
-  const rows: ReconcileRow[] = [];
-
-  for (const email of allEmails) {
-    const cu = courseraByEmail.get(email);
-    const wu = wapByEmail.get(email);
-
-    if (cu && wu) {
-      // Both sides present. Determine course alignment: if the Coursera
-      // user's `membershipProgramIds` doesn't include the requested
-      // programId AND the WAP user has a non-null programSlug, flag as
-      // wrong-course. Otherwise count as matched.
-      const courseraProgramIds = Array.isArray(cu.membershipProgramIds)
-        ? cu.membershipProgramIds
-        : [];
-      const courseraInRequestedProgram = courseraProgramIds.includes(programId);
-      const wapHasProgram = Boolean(wu.programSlug);
-
-      if (!courseraInRequestedProgram && wapHasProgram) {
-        wrongCourse += 1;
-        const otherList = courseraProgramIds.length
-          ? courseraProgramIds.join(', ')
-          : '(none)';
-        rows.push({
-          email: wu.email,
-          fullName: wu.fullName ?? cu.fullName ?? null,
-          courseraExternalId: cu.externalId ?? cu.id ?? null,
-          wapUserId: wu.id,
-          status: 'wrong-course',
-          detail: `WAP enrolled in "${wu.programSlug}"; Coursera membershipProgramIds=[${otherList}], expected ${programId}`,
-        });
-      } else {
-        matched += 1;
-        rows.push({
-          email: wu.email,
-          fullName: wu.fullName ?? cu.fullName ?? null,
-          courseraExternalId: cu.externalId ?? cu.id ?? null,
-          wapUserId: wu.id,
-          status: 'matched',
-        });
-      }
-    } else if (cu) {
-      courseraOnly += 1;
-      rows.push({
-        email: cu.email ?? email,
-        fullName: cu.fullName ?? null,
-        courseraExternalId: cu.externalId ?? cu.id ?? null,
-        wapUserId: null,
-        status: 'coursera-only',
-        detail: 'Learner exists in Coursera roster but not in WorkforceAP',
-      });
-    } else if (wu) {
-      wapOnly += 1;
-      rows.push({
-        email: wu.email,
-        fullName: wu.fullName,
-        courseraExternalId: null,
-        wapUserId: wu.id,
-        status: 'wap-only',
-        detail: wu.programSlug
-          ? `WAP enrolled in "${wu.programSlug}" but learner is not in Coursera roster`
-          : 'WAP user is not in Coursera roster',
+        { status: 502 },
+      );
+    }
+  
+    // Build Coursera-side index keyed by lowercased email.
+    const courseraByEmail = new Map<string, B4BUser>();
+    for (const u of courseraUsers) {
+      const email = normEmail(u.email);
+      if (!email) continue;
+      if (!courseraByEmail.has(email)) courseraByEmail.set(email, u);
+    }
+  
+    // Pull all WAP users + their CourseEnrollment for this org.
+    // Both reads pinned to the actor's org via withTenantScope.
+    const wapUsers = await withTenantScope(orgId, (db) =>
+      db.user.findMany({
+        where: { deletedAt: null },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          enrolledProgram: true,
+          // Multi-program: use the primary enrollment's slug for the reconcile
+          // comparison. Secondary enrollments aren't surfaced in this view.
+          courseEnrollments: {
+            where: { isPrimary: true },
+            select: { programSlug: true },
+            take: 1,
+          },
+        },
+      }),
+    );
+  
+    const wapByEmail = new Map<
+      string,
+      { id: string; email: string; fullName: string; programSlug: string | null }
+    >();
+    for (const u of wapUsers) {
+      const email = normEmail(u.email);
+      if (!email) continue;
+      wapByEmail.set(email, {
+        id: u.id,
+        email: u.email,
+        fullName: u.fullName,
+        programSlug: u.courseEnrollments[0]?.programSlug ?? u.enrolledProgram ?? null,
       });
     }
+  
+    // Build the union of emails on either side.
+    const allEmails = new Set<string>([...courseraByEmail.keys(), ...wapByEmail.keys()]);
+  
+    let matched = 0;
+    let courseraOnly = 0;
+    let wapOnly = 0;
+    let wrongCourse = 0;
+    const rows: ReconcileRow[] = [];
+  
+    for (const email of allEmails) {
+      const cu = courseraByEmail.get(email);
+      const wu = wapByEmail.get(email);
+  
+      if (cu && wu) {
+        // Both sides present. Determine course alignment: if the Coursera
+        // user's `membershipProgramIds` doesn't include the requested
+        // programId AND the WAP user has a non-null programSlug, flag as
+        // wrong-course. Otherwise count as matched.
+        const courseraProgramIds = Array.isArray(cu.membershipProgramIds)
+          ? cu.membershipProgramIds
+          : [];
+        const courseraInRequestedProgram = courseraProgramIds.includes(programId);
+        const wapHasProgram = Boolean(wu.programSlug);
+  
+        if (!courseraInRequestedProgram && wapHasProgram) {
+          wrongCourse += 1;
+          const otherList = courseraProgramIds.length
+            ? courseraProgramIds.join(', ')
+            : '(none)';
+          rows.push({
+            email: wu.email,
+            fullName: wu.fullName ?? cu.fullName ?? null,
+            courseraExternalId: cu.externalId ?? cu.id ?? null,
+            wapUserId: wu.id,
+            status: 'wrong-course',
+            detail: `WAP enrolled in "${wu.programSlug}"; Coursera membershipProgramIds=[${otherList}], expected ${programId}`,
+          });
+        } else {
+          matched += 1;
+          rows.push({
+            email: wu.email,
+            fullName: wu.fullName ?? cu.fullName ?? null,
+            courseraExternalId: cu.externalId ?? cu.id ?? null,
+            wapUserId: wu.id,
+            status: 'matched',
+          });
+        }
+      } else if (cu) {
+        courseraOnly += 1;
+        rows.push({
+          email: cu.email ?? email,
+          fullName: cu.fullName ?? null,
+          courseraExternalId: cu.externalId ?? cu.id ?? null,
+          wapUserId: null,
+          status: 'coursera-only',
+          detail: 'Learner exists in Coursera roster but not in WorkforceAP',
+        });
+      } else if (wu) {
+        wapOnly += 1;
+        rows.push({
+          email: wu.email,
+          fullName: wu.fullName,
+          courseraExternalId: null,
+          wapUserId: wu.id,
+          status: 'wap-only',
+          detail: wu.programSlug
+            ? `WAP enrolled in "${wu.programSlug}" but learner is not in Coursera roster`
+            : 'WAP user is not in Coursera roster',
+        });
+      }
+    }
+  
+    // Sort rows: issues first (wrong-course → coursera-only → wap-only),
+    // matched last; within group, by email for stability.
+    const order: Record<RowStatus, number> = {
+      'wrong-course': 0,
+      'coursera-only': 1,
+      'wap-only': 2,
+      matched: 3,
+    };
+    rows.sort((a, b) => {
+      const diff = order[a.status] - order[b.status];
+      if (diff !== 0) return diff;
+      return a.email.localeCompare(b.email);
+    });
+  
+    const response: ReconcileResponse = {
+      ranAt: new Date().toISOString(),
+      programId,
+      summary: {
+        courseraUsers: courseraByEmail.size,
+        wapUsers: wapByEmail.size,
+        matched,
+        courseraOnly,
+        wapOnly,
+        wrongCourse,
+      },
+      rows: rows.slice(0, limit),
+    };
+  
+    return NextResponse.json(response);
+  } catch (error) {
+    console.error('/admin/coursera/reconcile:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  // Sort rows: issues first (wrong-course → coursera-only → wap-only),
-  // matched last; within group, by email for stability.
-  const order: Record<RowStatus, number> = {
-    'wrong-course': 0,
-    'coursera-only': 1,
-    'wap-only': 2,
-    matched: 3,
-  };
-  rows.sort((a, b) => {
-    const diff = order[a.status] - order[b.status];
-    if (diff !== 0) return diff;
-    return a.email.localeCompare(b.email);
-  });
-
-  const response: ReconcileResponse = {
-    ranAt: new Date().toISOString(),
-    programId,
-    summary: {
-      courseraUsers: courseraByEmail.size,
-      wapUsers: wapByEmail.size,
-      matched,
-      courseraOnly,
-      wapOnly,
-      wrongCourse,
-    },
-    rows: rows.slice(0, limit),
-  };
-
-  return NextResponse.json(response);
 }

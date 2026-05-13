@@ -497,6 +497,9 @@ export default function AdminHealthPage() {
           <Link href="/admin/email-crons" className="btn btn-outline btn-sm">
             Email &amp; Crons
           </Link>
+          <Link href="/admin/email-templates" className="btn btn-outline btn-sm">
+            Email Templates
+          </Link>
           <Link href="/api/health" target="_blank" className="btn btn-outline btn-sm">
             Public Health JSON
           </Link>

@@ -14,12 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function BecomeMentorPage() {
   return (
     <main style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
-      {/* ── Pre-launch mentor waitlist banner ──
-          Per /plan-ceo-review (2026-04-26): with 12 cohort members, mentor
-          supply far exceeds demand. We accept applications but match
-          mentors as members reach the interview-prep stage of their program
-          (typically 4-8 weeks in). Setting honest expectations here is
-          better than recruiting mentors who churn before pairing. */}
+      {/* ── Mentor invitation banner ── */}
       <section
         aria-label="Mentor waitlist"
         style={{

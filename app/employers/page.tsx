@@ -32,13 +32,9 @@ export default async function EmployersPage() {
 
   return (
     <div className="inner-page">
-      {/* ── Pre-launch hiring partner banner ──
-          Per /plan-ceo-review (2026-04-26): WorkforceAP has 12 cohort
-          members in mid-training, not 1,000+ certified job-ready candidates.
-          The marketing content below was written for the 1,000-member state.
-          This banner sets honest expectations until cohort 3+. */}
+      {/* ── Hiring partner banner ── */}
       <section
-        aria-label="Hiring partner waitlist"
+        aria-label="Hiring partner invitation"
         style={{
           background: 'var(--surface-container-high)',
           borderBottom: '1px solid var(--outline-variant)',

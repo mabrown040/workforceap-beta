@@ -25,7 +25,7 @@ const jobCreateSchema = z.object({
   requirements: z.array(z.string()).default([]),
   preferredCertifications: z.array(z.string()).default([]),
   suggestedPrograms: z.array(z.string()).default([]),
-  status: z.enum(['draft', 'pending']).default('draft'),
+  status: z.enum(['draft', 'pending', 'live']).default('draft'),
 });
 
 export async function GET(request: NextRequest) {
@@ -115,13 +115,26 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const eventName =
+      parsed.data.status === 'pending'
+        ? 'employer_job_submitted_for_review'
+        : parsed.data.status === 'live'
+          ? 'employer_job_posted_live'
+          : 'employer_job_draft_saved';
+    const sourcePage =
+      parsed.data.status === 'pending'
+        ? '/employer/jobs/new?submit=review'
+        : parsed.data.status === 'live'
+          ? '/employer/jobs/post'
+          : '/employer/jobs/new';
+
     await trackEvent({
       userId: user.id,
-      eventName: parsed.data.status === 'pending' ? 'employer_job_submitted_for_review' : 'employer_job_draft_saved',
+      eventName,
       entityType: 'job',
       entityId: job.id,
       metadata: { isCreate: true, status: parsed.data.status },
-      sourcePage: parsed.data.status === 'pending' ? '/employer/jobs/new?submit=review' : '/employer/jobs/new',
+      sourcePage,
     });
 
     return NextResponse.json(job, { status: 201 });

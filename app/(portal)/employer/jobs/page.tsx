@@ -8,6 +8,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerJobsBoard from '@/components/employer/EmployerJobsBoard';
+import EmployerJobQuickActions from '@/components/employer/EmployerJobQuickActions';
 import { assessJobPostingReadiness } from '@/lib/employer/jobReadiness';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
@@ -19,7 +20,7 @@ import {
   prismaWhereDeletableInListFilter,
   prismaWhereEmployerJobList,
 } from '@/lib/employer/employerJobsListQuery';
-import { employerJobStatusBadgeVariant, employerJobStatusLabel } from '@/lib/employer/jobStatusDisplay';
+import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -127,7 +128,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           subtitle="Manage your job postings and review candidate activity."
           action={(
             <Link
-              href="/employer/jobs/new"
+              href="/employer/jobs/post"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
@@ -180,7 +181,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No jobs yet</p>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>Post your first role to start receiving matched candidates.</p>
               <Link
-                href="/employer/jobs/new"
+                href="/employer/jobs/post"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
@@ -200,31 +201,16 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   <h3 className="wa-truncate" style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, flex: 1, paddingRight: '0.5rem' }}>
                     {job.title}
                   </h3>
-                  <StatusBadge label={job.statusLabel} variant={employerJobStatusBadgeVariant(job.status)} />
+                  <StatusBadge label={employerJobPortalStatusLabel(job.status)} variant={employerJobPortalBadgeVariant(job.status)} />
                 </div>
                 <p style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>{job.location}</p>
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontSize: '0.775rem', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>person</span>
-                    {job.applicationsCount} applicants
+                    {job.applicationsCount} application{job.applicationsCount === 1 ? '' : 's'}
                   </span>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Link
-                    href={`/employer/jobs/${job.id}`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-                    className="active:wa-scale-95 wa-transition-transform"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    href={`/employer/applications?job=${job.id}`}
-                    style={{ flex: 1, textAlign: 'center', padding: '0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.375rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-                    className="active:wa-scale-95 wa-transition-transform"
-                  >
-                    Applications
-                  </Link>
-                </div>
+                <EmployerJobQuickActions jobId={job.id} title={job.title} status={job.status} />
               </div>
             ))
           )}
@@ -254,7 +240,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                   Import Jobs
                 </Link>
                 <Link
-                  href="/employer/jobs/new"
+                  href="/employer/jobs/post"
                   style={{
                     padding: '0.625rem 1.5rem',
                     background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark, #670024) 100%)',
@@ -279,7 +265,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 Post a single role or import multiple jobs to start receiving matched candidates.
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-                <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+                <Link href="/employer/jobs/post" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
                   Post your first job
                 </Link>
                 <Link href="/employer/jobs/import" style={{ padding: '0.625rem 1.25rem', border: '1px solid var(--outline-variant)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>

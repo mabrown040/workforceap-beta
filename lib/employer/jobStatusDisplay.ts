@@ -13,6 +13,20 @@ export function employerJobStatusLabel(status: string): string {
   return LABELS[status] ?? status;
 }
 
+export function employerJobPortalStatusLabel(status: string): string {
+  if (status === 'live') return 'Active';
+  if (status === 'approved') return 'Paused';
+  if (status === 'closed' || status === 'filled') return 'Closed';
+  return employerJobStatusLabel(status);
+}
+
+export function employerJobPortalBadgeVariant(status: string): BadgeVariant {
+  if (status === 'live') return 'success';
+  if (status === 'approved') return 'warning';
+  if (status === 'closed' || status === 'filled') return 'neutral';
+  return employerJobStatusBadgeVariant(status);
+}
+
 export function employerJobStatusBadgeVariant(status: string): BadgeVariant {
   if (status === 'live') return 'success';
   if (status === 'filled') return 'info';

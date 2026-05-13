@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const result = await prisma.job.updateMany({
       where: { id: { in: uniqueIds }, employerId: ctx.employerId },
-      data: { status: 'filled' },
+      data: { status: 'closed' },
     });
 
     return NextResponse.json({

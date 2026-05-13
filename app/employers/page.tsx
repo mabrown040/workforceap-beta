@@ -145,6 +145,24 @@ export default async function EmployersPage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <Link
+              href="/employer/jobs/post"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'rgba(255,255,255,0.12)',
+                color: '#fff',
+                padding: '1rem 2rem',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 700,
+                textDecoration: 'none',
+                border: '1px solid rgba(255,255,255,0.28)',
+              }}
+            >
+              {t('postJobCta')}
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>post_add</span>
+            </Link>
+            <Link
               href="#employer-contact-form"
               style={{
                 display: 'inline-flex',
@@ -611,16 +629,21 @@ export default async function EmployersPage() {
         headline={t('ctaTitle')}
         subheadline={t('ctaCopy')}
         primaryAction={
-          <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
-            {t('ctaCta')}
+          <a href="/employer/jobs/post" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+            {t('postJobCta')}
           </a>
         }
         secondaryAction={
-          !user ? (
-            <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
-              {t('heroSignIn')}
-            </Link>
-          ) : null
+          <>
+            <a href="#employer-contact-form" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+              {t('ctaCta')}
+            </a>
+            {!user ? (
+              <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+                {t('heroSignIn')}
+              </Link>
+            ) : null}
+          </>
         }
       />
 

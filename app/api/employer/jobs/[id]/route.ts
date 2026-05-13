@@ -21,7 +21,7 @@ const jobUpdateSchema = z.object({
   requirements: z.array(z.string()).optional(),
   preferredCertifications: z.array(z.string()).optional(),
   suggestedPrograms: z.array(z.string()).optional(),
-  status: z.enum(['draft', 'pending', 'filled', 'closed']).optional(),
+  status: z.enum(['draft', 'pending', 'approved', 'live', 'filled', 'closed']).optional(),
 });
 
 export async function GET(
@@ -79,7 +79,7 @@ export async function PATCH(
   }
   if (status === 'filled' || status === 'closed') {
     if (existing.status !== 'live' && existing.status !== 'approved') {
-      return NextResponse.json({ error: 'Only live jobs can be marked filled/closed' }, { status: 400 });
+      return NextResponse.json({ error: 'Only active or paused jobs can be closed' }, { status: 400 });
     }
   }
 

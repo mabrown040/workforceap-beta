@@ -23,11 +23,12 @@ import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringInten
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: t('employerOverview'),
-  description: t('manageJobPostings'),
-  path: '/employer',
-});
+    title: t('employerOverview'),
+    description: t('manageJobPostings'),
+    path: '/employer',
+  });
 }
 
 export default async function EmployerDashboardPage() {
@@ -158,20 +159,20 @@ export default async function EmployerDashboardPage() {
     {
       label: t('totalCandidates'),
       value: totalApplications.toString(),
-      trend: applicationsLast30d > 0 ? `${applicationsLast30d} in last 30d` : t('noRecentApplicants'),
+      trend: applicationsLast30d > 0 ? t('candidateCountLast30d', { count: applicationsLast30d }) : t('noRecentApplicants'),
       trendColor: 'var(--color-on-surface-variant)',
       borderAccent: true,
     },
     {
       label: t('activeTracks'),
       value: activeJobs.toString(),
-      trend: inReview > 0 ? `${inReview} awaiting go-live` : t('allLiveOrClosed'),
+      trend: inReview > 0 ? t('awaitingGoLiveCount', { count: inReview }) : t('allLiveOrClosed'),
       trendColor: 'var(--color-on-surface-variant)',
     },
     {
       label: t('verifiedHires'),
       value: hiresTotal.toString(),
-      trend: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : t('noOpenOffers'),
+      trend: offerStageCount > 0 ? t('offersOutCount', { count: offerStageCount }) : t('noOpenOffers'),
       trendColor: 'var(--color-on-surface-variant)',
     },
     {
@@ -179,7 +180,7 @@ export default async function EmployerDashboardPage() {
       value: avgMatchToHireDays === null ? '\u2014' : `${avgMatchToHireDays}d`,
       trend:
         avgMatchToHireDays !== null
-          ? `Match → hire (when tracked)`
+          ? t('matchToHireTracked')
           : t('addHiresToSeeTiming'),
       trendColor: 'var(--color-on-surface-variant)',
     },
@@ -219,10 +220,10 @@ export default async function EmployerDashboardPage() {
             className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold"
             style={{ marginBottom:"0.25rem", color: 'var(--color-accent)' }}
           >
-            Employer Portal
+            {t('employerPortal')}
           </p>
           <h2 className="wa-text-2xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
-            {totalApplications > 0 ? `${totalApplications} candidate${totalApplications !== 1 ? 's' : ''} waiting` : 'Your talent pipeline'}
+            {t('heroHeadline', { count: totalApplications })}
           </h2>
         </div>
         {/* Stats row - horizontal scroll */}
@@ -386,7 +387,7 @@ export default async function EmployerDashboardPage() {
           <PortalVoiceSessionLazy
             sessionEndpoint="/api/employer/voice-session"
             title={t('employerVoiceAssistant')}
-            description="Ask about posting roles, reviewing applicants, or navigating this portal."
+            description={t('askAboutPostingRoles')}
             accent="var(--color-blue)"
             accentDark="var(--color-blue)"
             speakingLabel={t('assistantIsSpeaking')}
@@ -411,10 +412,10 @@ export default async function EmployerDashboardPage() {
       {/* ── KPI Metric Strip ── */}
       <section className="portal-metric-strip" style={{ marginBottom: '2rem' }}>
         {[
-          { label: t('totalCandidates'), value: totalApplications, hint: applicationsLast30d > 0 ? `${applicationsLast30d} last 30d` : 'No recent', icon: 'groups', accent: 'accent' as const },
-          { label: 'Active Roles', value: activeJobs, hint: inReview > 0 ? `${inReview} awaiting go-live` : t('allLiveOrClosed'), icon: 'work', accent: 'blue' as const },
-          { label: t('verifiedHires'), value: hiresTotal, hint: offerStageCount > 0 ? `${offerStageCount} offer${offerStageCount === 1 ? '' : 's'} out` : t('noOpenOffers'), icon: 'person_check', accent: 'green' as const },
-          { label: t('avgTimeToHire'), value: avgMatchToHireDays === null ? '—' : `${avgMatchToHireDays}d`, hint: avgMatchToHireDays !== null ? 'Match → hire' : 'Add hires to see', icon: 'timer', accent: 'gold' as const },
+          { label: t('totalCandidates'), value: totalApplications, hint: applicationsLast30d > 0 ? t('candidateCountLast30dShort', { count: applicationsLast30d }) : t('noRecentActivity'), icon: 'groups', accent: 'accent' as const },
+          { label: t('activeRoles'), value: activeJobs, hint: inReview > 0 ? t('awaitingGoLiveCount', { count: inReview }) : t('allLiveOrClosed'), icon: 'work', accent: 'blue' as const },
+          { label: t('verifiedHires'), value: hiresTotal, hint: offerStageCount > 0 ? t('offersOutCount', { count: offerStageCount }) : t('noOpenOffers'), icon: 'person_check', accent: 'green' as const },
+          { label: t('avgTimeToHire'), value: avgMatchToHireDays === null ? '—' : `${avgMatchToHireDays}d`, hint: avgMatchToHireDays !== null ? t('matchToHire') : t('addHiresToSee'), icon: 'timer', accent: 'gold' as const },
         ].map((card) => (
           <div key={card.label} className="portal-metric-card">
             <div className={`portal-metric-card__icon-wrap portal-metric-card__icon-wrap--${card.accent}`}>
@@ -520,7 +521,7 @@ export default async function EmployerDashboardPage() {
         <div className="portal-section-header">
           <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>{t('latestApplicants')}</h2>
           <Link href="/employer/applications" className="portal-section-action">
-            View all
+            {t('viewAll')}
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
           </Link>
         </div>

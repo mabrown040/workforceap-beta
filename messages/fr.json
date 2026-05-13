@@ -1560,6 +1560,16 @@
     "upgradePlan": "Mettre à niveau",
     "importJobsBtn": "Importer des offres",
     "appliedTo": "A postulé à",
-    "reviewApplicants": "Examiner les candidats"
+    "reviewApplicants": "Examiner les candidats",
+    "heroHeadline": "{count, plural, =0 {Votre vivier de talents} one {# candidat en attente} other {# candidats en attente}}",
+    "candidateCountLast30d": "{count} sur 30j",
+    "candidateCountLast30dShort": "{count} sur 30j",
+    "activeRoles": "Offres actives",
+    "noRecentActivity": "Aucun récent",
+    "awaitingGoLiveCount": "{count} en attente de publication",
+    "offersOutCount": "{count} offre{count, plural, =1 {} other {s}} en cours",
+    "matchToHireTracked": "Correspondance → embauche (quand suivi)",
+    "matchToHire": "Correspondance → embauche",
+    "addHiresToSee": "Ajoutez des embauches pour voir"
   }
 }

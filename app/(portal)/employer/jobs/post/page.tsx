@@ -50,10 +50,10 @@ export default async function EmployerJobPostPage() {
     <PortalPageFrame>
       <PageHeader
         title={t('postAJobTitle')}
-        subtitle="{t('publishToJobBoard')}"
+        subtitle={t('publishToJobBoard')}
         breadcrumbs={[
-          { label: 'Job Postings', href: '/employer/jobs' },
-          { label: 'Post a job' },
+          { label: t('jobPostings'), href: '/employer/jobs' },
+          { label: t('postAJobTitle') },
         ]}
         action={
           <Link

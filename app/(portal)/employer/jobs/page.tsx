@@ -24,11 +24,12 @@ import {
 import { employerJobPortalBadgeVariant, employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: t('myJobs'),
-  description: t('manageYourJobPostings'),
-  path: '/employer/jobs',
-});
+    title: t('myJobs'),
+    description: t('manageYourJobPostings'),
+    path: '/employer/jobs',
+  });
 }
 
 type SearchProps = { searchParams: Promise<{ page?: string; filter?: string }> };
@@ -123,7 +124,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   return (
     <>
-      <h1 className="wa-sr-only">Job Postings</h1>
+      <h1 className="wa-sr-only">{t('jobPostings')}</h1>
       {/* ── Mobile section ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader

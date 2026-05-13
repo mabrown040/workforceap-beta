@@ -341,7 +341,7 @@ export async function generateQuarterlyOutcomes(
     metrics: {
       totalEnrolled,
       completions: completedMembers.length,
-      placements: placedMembers.length,
+      placements: placements.length,
       activeMembers: activeMembers.length,
       dropOffs: dropOffMembers.length,
       dropOffRate: totalEnrolled > 0 ? Math.round((dropOffMembers.length / totalEnrolled) * 100) : 0,

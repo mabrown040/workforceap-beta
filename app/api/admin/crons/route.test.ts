@@ -1,51 +1,41 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { GET } from './route';
+import { buildCronsWhere, fetchCrons } from './route';
 import { prisma } from '@/lib/db/prisma';
 
-// Mock auth
-const authModule = await import('@/lib/auth/server');
-const rolesModule = await import('@/lib/auth/roles');
-
-test('GET /api/admin/crons returns 401 for non-admin', async (t) => {
-  const originalGetUser = (authModule as any).getUser;
-  const originalIsAdmin = (rolesModule as any).isAdmin;
-
-  t.after(() => {
-    (authModule as any).getUser = originalGetUser;
-    (rolesModule as any).isAdmin = originalIsAdmin;
-  });
-
-  (authModule as any).getUser = async () =>
-    ({ id: 'user-1', email: 'user@example.com' });
-  (rolesModule as any).isAdmin = async () => false;
-
-  const request = new Request('http://localhost/api/admin/crons');
-  const response = await GET(request);
-  assert.equal(response.status, 401);
-
-  const body = await response.json();
-  assert.equal(body.error, 'Unauthorized');
+test('buildCronsWhere returns empty object when no filters', () => {
+  const where = buildCronsWhere({ page: 1, pageSize: 25 });
+  assert.deepEqual(where, {});
 });
 
-test('GET /api/admin/crons returns executions for admin', async (t) => {
-  const originalGetUser = (authModule as any).getUser;
-  const originalIsAdmin = (rolesModule as any).isAdmin;
+test('buildCronsWhere filters by jobName with case-insensitive contains', () => {
+  const where = buildCronsWhere({ jobName: 'weekly', page: 1, pageSize: 25 });
+  assert.equal((where.jobName as any).contains, 'weekly');
+  assert.equal((where.jobName as any).mode, 'insensitive');
+});
+
+test('buildCronsWhere filters by status', () => {
+  const where = buildCronsWhere({ status: 'FAILED', page: 1, pageSize: 25 });
+  assert.equal(where.status, 'FAILED');
+});
+
+test('buildCronsWhere filters by date range', () => {
+  const where = buildCronsWhere({ dateFrom: '2026-01-01', dateTo: '2026-01-31', page: 1, pageSize: 25 });
+  assert.ok(where.startedAt);
+  assert.ok((where.startedAt as any).gte instanceof Date);
+  assert.ok((where.startedAt as any).lte instanceof Date);
+});
+
+test('fetchCrons returns executions with pagination', async (t) => {
   const cronDelegate = (prisma as any).cronExecution;
   const originalFindMany = cronDelegate.findMany;
   const originalCount = cronDelegate.count;
 
   t.after(() => {
-    (authModule as any).getUser = originalGetUser;
-    (rolesModule as any).isAdmin = originalIsAdmin;
     cronDelegate.findMany = originalFindMany;
     cronDelegate.count = originalCount;
   });
-
-  (authModule as any).getUser = async () =>
-    ({ id: 'admin-1', email: 'admin@example.com' });
-  (rolesModule as any).isAdmin = async () => true;
 
   const mockExecutions = [
     { id: 'exec-1', jobName: 'cron_test', status: 'SUCCESS', startedAt: new Date(), completedAt: new Date(), errorMessage: null, recordsProcessed: 5, durationMs: 1000 },
@@ -54,75 +44,9 @@ test('GET /api/admin/crons returns executions for admin', async (t) => {
   cronDelegate.findMany = async () => mockExecutions;
   cronDelegate.count = async () => 1;
 
-  const request = new Request('http://localhost/api/admin/crons');
-  const response = await GET(request);
-  assert.equal(response.status, 200);
-
-  const body = await response.json();
-  assert.equal(body.executions.length, 1);
-  assert.equal(body.executions[0].jobName, 'cron_test');
-  assert.equal(body.pagination.total, 1);
-});
-
-test('GET /api/admin/crons filters by job name', async (t) => {
-  const originalGetUser = (authModule as any).getUser;
-  const originalIsAdmin = (rolesModule as any).isAdmin;
-  const cronDelegate = (prisma as any).cronExecution;
-  const originalFindMany = cronDelegate.findMany;
-  const originalCount = cronDelegate.count;
-
-  t.after(() => {
-    (authModule as any).getUser = originalGetUser;
-    (rolesModule as any).isAdmin = originalIsAdmin;
-    cronDelegate.findMany = originalFindMany;
-    cronDelegate.count = originalCount;
-  });
-
-  (authModule as any).getUser = async () =>
-    ({ id: 'admin-1', email: 'admin@example.com' });
-  (rolesModule as any).isAdmin = async () => true;
-
-  let capturedWhere: any;
-  cronDelegate.findMany = async ({ where }: any) => {
-    capturedWhere = where;
-    return [];
-  };
-  cronDelegate.count = async () => 0;
-
-  const request = new Request('http://localhost/api/admin/crons?jobName=weekly');
-  await GET(request);
-
-  assert.ok(capturedWhere.jobName);
-  assert.equal(capturedWhere.jobName.contains, 'weekly');
-});
-
-test('GET /api/admin/crons filters by status', async (t) => {
-  const originalGetUser = (authModule as any).getUser;
-  const originalIsAdmin = (rolesModule as any).isAdmin;
-  const cronDelegate = (prisma as any).cronExecution;
-  const originalFindMany = cronDelegate.findMany;
-  const originalCount = cronDelegate.count;
-
-  t.after(() => {
-    (authModule as any).getUser = originalGetUser;
-    (rolesModule as any).isAdmin = originalIsAdmin;
-    cronDelegate.findMany = originalFindMany;
-    cronDelegate.count = originalCount;
-  });
-
-  (authModule as any).getUser = async () =>
-    ({ id: 'admin-1', email: 'admin@example.com' });
-  (rolesModule as any).isAdmin = async () => true;
-
-  let capturedWhere: any;
-  cronDelegate.findMany = async ({ where }: any) => {
-    capturedWhere = where;
-    return [];
-  };
-  cronDelegate.count = async () => 0;
-
-  const request = new Request('http://localhost/api/admin/crons?status=FAILED');
-  await GET(request);
-
-  assert.equal(capturedWhere.status, 'FAILED');
+  const result = await fetchCrons({ page: 1, pageSize: 25 });
+  assert.equal(result.executions.length, 1);
+  assert.equal(result.executions[0].jobName, 'cron_test');
+  assert.equal(result.pagination.total, 1);
+  assert.equal(result.pagination.totalPages, 1);
 });

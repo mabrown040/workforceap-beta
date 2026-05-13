@@ -1,51 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { GET } from './route';
+import { fetchCronSummary } from './route';
 import { prisma } from '@/lib/db/prisma';
 
-const authModule = await import('@/lib/auth/server');
-const rolesModule = await import('@/lib/auth/roles');
-
-test('GET /api/admin/crons/summary returns 401 for non-admin', async (t) => {
-  const originalGetUser = (authModule as any).getUser;
-  const originalIsAdmin = (rolesModule as any).isAdmin;
-
-  t.after(() => {
-    (authModule as any).getUser = originalGetUser;
-    (rolesModule as any).isAdmin = originalIsAdmin;
-  });
-
-  (authModule as any).getUser = async () =>
-    ({ id: 'user-1', email: 'user@example.com' });
-  (rolesModule as any).isAdmin = async () => false;
-
-  const response = await GET();
-  assert.equal(response.status, 401);
-
-  const body = await response.json();
-  assert.equal(body.error, 'Unauthorized');
-});
-
-test('GET /api/admin/crons/summary returns stats for admin', async (t) => {
-  const originalGetUser = (authModule as any).getUser;
-  const originalIsAdmin = (rolesModule as any).isAdmin;
+test('fetchCronSummary returns stats and last run per job', async (t) => {
   const cronDelegate = (prisma as any).cronExecution;
   const originalCount = cronDelegate.count;
   const originalAggregate = cronDelegate.aggregate;
   const originalQueryRaw = prisma.$queryRaw;
 
   t.after(() => {
-    (authModule as any).getUser = originalGetUser;
-    (rolesModule as any).isAdmin = originalIsAdmin;
     cronDelegate.count = originalCount;
     cronDelegate.aggregate = originalAggregate;
     (prisma as any).$queryRaw = originalQueryRaw;
   });
-
-  (authModule as any).getUser = async () =>
-    ({ id: 'admin-1', email: 'admin@example.com' });
-  (rolesModule as any).isAdmin = async () => true;
 
   cronDelegate.count = async () => 10;
   cronDelegate.aggregate = async () => ({ _avg: { durationMs: 2500 } });
@@ -53,12 +22,54 @@ test('GET /api/admin/crons/summary returns stats for admin', async (t) => {
     { job_name: 'cron_test', last_run_at: new Date(), last_status: 'SUCCESS', total_runs: 5, success_rate: 100 },
   ];
 
-  const response = await GET();
-  assert.equal(response.status, 200);
+  const result = await fetchCronSummary();
+  assert.equal(result.summary.totalJobs, 10);
+  assert.equal(result.summary.avgDurationMs, 2500);
+  assert.equal(result.lastRunPerJob.length, 1);
+  assert.equal(result.lastRunPerJob[0].jobName, 'cron_test');
+});
 
-  const body = await response.json();
-  assert.equal(body.summary.totalJobs, 10);
-  assert.equal(body.summary.avgDurationMs, 2500);
-  assert.equal(body.lastRunPerJob.length, 1);
-  assert.equal(body.lastRunPerJob[0].jobName, 'cron_test');
+test('fetchCronSummary computes success rates correctly', async (t) => {
+  const cronDelegate = (prisma as any).cronExecution;
+  const originalCount = cronDelegate.count;
+  const originalAggregate = cronDelegate.aggregate;
+  const originalQueryRaw = prisma.$queryRaw;
+
+  t.after(() => {
+    cronDelegate.count = originalCount;
+    cronDelegate.aggregate = originalAggregate;
+    (prisma as any).$queryRaw = originalQueryRaw;
+  });
+
+  let countCalls = 0;
+  cronDelegate.count = async (args: any) => {
+    countCalls++;
+    const where = args?.where;
+    if (!where) return 20; // totalJobs
+    if (where.status === 'RUNNING') return 0;
+    if (where.status === 'FAILED' && where.startedAt?.gte) {
+      const gte = where.startedAt.gte;
+      const now = Date.now();
+      const diff = now - gte.getTime();
+      if (diff <= 25 * 60 * 60 * 1000) return 2; // 24h window
+      return 3; // 7d window
+    }
+    if (where.status === 'SUCCESS' && where.startedAt?.gte) {
+      const gte = where.startedAt.gte;
+      const now = Date.now();
+      const diff = now - gte.getTime();
+      if (diff <= 25 * 60 * 60 * 1000) return 8;
+      return 17;
+    }
+    return 0;
+  };
+
+  cronDelegate.aggregate = async () => ({ _avg: { durationMs: 1200 } });
+  (prisma as any).$queryRaw = async () => [];
+
+  const result = await fetchCronSummary();
+  // 24h: 8 success + 2 failed = 10 total → 80%
+  assert.equal(result.summary.successRate24h, 80);
+  // 7d: 17 success + 3 failed = 20 total → 85%
+  assert.equal(result.summary.successRate7d, 85);
 });

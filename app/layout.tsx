@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
+import Script from 'next/script';
 import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
@@ -16,10 +16,7 @@ import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavL
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
-
-const SafeVercelMetrics = dynamic(() => import('@/components/SafeVercelMetrics'), { ssr: false });
-const ConversionMetrics = dynamic(() => import('@/components/analytics/ConversionMetrics'), { ssr: false });
-const PortalMetrics = dynamic(() => import('@/components/analytics/PortalMetrics'), { ssr: false });
+import DeferredAnalytics from '@/components/DeferredAnalytics';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -115,7 +112,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {/* Material Symbols Outlined is self-hosted via @font-face in main.css */}
         {/* Register service worker — updateViaCache:'none' ensures browser always fetches fresh sw.js */}
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}` }} />
+        <Script id="sw-register" strategy="lazyOnload">
+          {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}`}
+        </Script>
       </head>
       <body>
         <OrgBrandingStyle branding={orgBranding} />
@@ -138,7 +137,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 style={{ display: 'none', visibility: 'hidden' }}
               />
             </noscript>
-            <script
+            <Script
+              id="gtm"
+              strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -155,9 +156,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
         <ScrollAnimationsWrapper />
-        <ConversionMetrics />
-        <PortalMetrics />
-        <SafeVercelMetrics />
+        <DeferredAnalytics />
       </body>
     </html>
   );

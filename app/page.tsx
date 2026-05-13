@@ -392,8 +392,8 @@ export default async function HomePage() {
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
             <span style={{ fontSize: "1.25rem", fontWeight: 700 }}>AT&T</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
-            <Image className="home-cred-logo" src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
-            <Image className="home-cred-logo" src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
+            <Image className="home-cred-logo" src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} loading="lazy" />
+            <Image className="home-cred-logo" src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} loading="lazy" />
           </div>
         </div>
       </section>
@@ -647,6 +647,7 @@ export default async function HomePage() {
                   src={getHomepageProgramCardImage(p, index)}
                   alt={p.static?.title ?? p.name}
                   fill
+                  loading="lazy"
                   sizes="(max-width: 768px) 100vw, 33vw"
                   style={{ objectFit: 'cover', opacity: 0.7 }}
                 />

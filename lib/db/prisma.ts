@@ -84,7 +84,7 @@ function createPrismaClient(): PrismaClient {
    * Override `$transaction` so that GUCs are set *inside* the transaction
    * boundary where `SET LOCAL` is guaranteed to be visible to every query.
    */
-  const originalTransaction = client.$transaction.bind(client);
+  const originalTransaction = client.$transaction.bind(client) as any;
   (client as any).$transaction = async function (...args: unknown[]) {
     const ctx = getGucContext();
     if (!ctx) {

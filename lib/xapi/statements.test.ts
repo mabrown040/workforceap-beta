@@ -1,5 +1,4 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, test } from 'vitest';
 import {
   flattenXapiStatementPayload,
   isXapiCompletionVerb,
@@ -7,50 +6,58 @@ import {
   parseXapiStatement,
 } from './statementModel';
 
-test('flattenXapiStatementPayload: single object and array', () => {
-  const one = { id: 'a' };
-  assert.equal(flattenXapiStatementPayload(one).length, 1);
-  assert.equal(flattenXapiStatementPayload([one, { id: 'b' }]).length, 2);
-  assert.equal(flattenXapiStatementPayload(null).length, 0);
-});
-
-test('parseXapiStatement: mbox email, verb, course slug, progress percent', () => {
-  const parsed = parseXapiStatement({
-    id: 'stmt-1',
-    actor: { mbox: 'mailto:Learner@Example.COM' },
-    verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
-    object: {
-      id: 'https://www.coursera.org/learn/my-course-slug',
-      definition: { name: { 'en-US': 'My Course' } },
-    },
-    result: { progress: 0.33 },
+describe('xapi statement model', () => {
+  test('flattenXapiStatementPayload: single object and array', () => {
+    const one = { id: 'a' };
+    expect(flattenXapiStatementPayload(one).length).toBe(1);
+    expect(flattenXapiStatementPayload([one, { id: 'b' }]).length).toBe(2);
+    expect(flattenXapiStatementPayload(null).length).toBe(0);
   });
-  assert.ok(parsed);
-  assert.equal(parsed.email, 'learner@example.com');
-  assert.equal(parsed.statementId, 'stmt-1');
-  assert.equal(parsed.verbId, 'http://adlnet.gov/expapi/verbs/progressed');
-  assert.equal(parsed.courseSlug, 'my-course-slug');
-  assert.equal(parsed.resultProgressPercent, 33);
-});
 
-test('isXapiCompletionVerb and isXapiCourseProgressVerb', () => {
-  const progressed = parseXapiStatement({
-    id: 'p',
-    actor: { mbox: 'mailto:a@b.co' },
-    verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
-    object: { id: 'https://x/y' },
+  test('parseXapiStatement: mbox email, verb, course slug, progress percent', () => {
+    const parsed = parseXapiStatement({
+      id: 'stmt-1',
+      actor: { mbox: 'mailto:Learner@Example.COM' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
+      object: {
+        id: 'https://www.coursera.org/learn/my-course-slug',
+        definition: { name: { 'en-US': 'My Course' } },
+      },
+      result: { progress: 0.33 },
+    });
+    expect(parsed).toBeTruthy();
+    expect(parsed!.email).toBe('learner@example.com');
+    expect(parsed!.statementId).toBe('stmt-1');
+    expect(parsed!.verbId).toBe('http://adlnet.gov/expapi/verbs/progressed');
+    expect(parsed!.courseSlug).toBe('my-course-slug');
+    expect(parsed!.resultProgressPercent).toBe(33);
   });
-  assert.ok(progressed);
-  assert.equal(isXapiCompletionVerb(progressed), false);
-  assert.equal(isXapiCourseProgressVerb(progressed), true);
 
-  const completed = parseXapiStatement({
-    id: 'c',
-    actor: { mbox: 'mailto:a@b.co' },
-    verb: { id: 'http://adlnet.gov/expapi/verbs/completed' },
-    object: { id: 'https://x/y' },
+  test('isXapiCompletionVerb and isXapiCourseProgressVerb', () => {
+    const progressed = parseXapiStatement({
+      id: 'p',
+      actor: { mbox: 'mailto:a@b.co' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/progressed' },
+      object: {
+        id: 'https://x/y',
+        definition: { type: 'http://adlnet.gov/expapi/activities/course' },
+      },
+    });
+    expect(progressed).toBeTruthy();
+    expect(isXapiCompletionVerb(progressed!)).toBe(false);
+    expect(isXapiCourseProgressVerb(progressed!)).toBe(true);
+
+    const completed = parseXapiStatement({
+      id: 'c',
+      actor: { mbox: 'mailto:a@b.co' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/completed' },
+      object: {
+        id: 'https://x/y',
+        definition: { type: 'http://adlnet.gov/expapi/activities/course' },
+      },
+    });
+    expect(completed).toBeTruthy();
+    expect(isXapiCompletionVerb(completed!)).toBe(true);
+    expect(isXapiCourseProgressVerb(completed!)).toBe(true);
   });
-  assert.ok(completed);
-  assert.equal(isXapiCompletionVerb(completed), true);
-  assert.equal(isXapiCourseProgressVerb(completed), true);
 });

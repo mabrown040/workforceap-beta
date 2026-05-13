@@ -1,156 +1,157 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, test } from 'vitest';
 import { buildNextBestActions } from './nextBestActions';
 
-test('buildNextBestActions prioritizes new application on file', () => {
-  const actions = buildNextBestActions({
-    state: 'A',
-    noApplicationOnFile: true,
-    enrolledProgram: null,
-    assessmentCompleted: false,
-    starterProfileReviewRequired: false,
-    hasResume: false,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 20,
-    jobApplicationCount: 0,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
-  });
-  assert.equal(actions[0]?.id, 'submit_application');
-});
-
-test('buildNextBestActions prioritizes counselor unread when application exists', () => {
-  const actions = buildNextBestActions({
-    state: 'C',
-    noApplicationOnFile: false,
-    enrolledProgram: 'ai-software',
-    assessmentCompleted: true,
-    completedCourseCount: 0,
-    starterProfileReviewRequired: false,
-    hasResume: true,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 80,
-    jobApplicationCount: 2,
-    counselorUnreadCount: 3,
-    weeklyRecapUnopened: false,
-  });
-  assert.equal(actions[0]?.id, 'counselor_messages');
-});
-
-test('buildNextBestActions suggests tracker when eligible and no applications', () => {
-  const actions = buildNextBestActions({
-    state: 'D',
-    noApplicationOnFile: false,
-    enrolledProgram: 'ai-software',
-    assessmentCompleted: true,
-    completedCourseCount: 1,
-    starterProfileReviewRequired: false,
-    hasResume: true,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 90,
-    jobApplicationCount: 0,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
-  });
-  assert.ok(actions.some((a) => a.id === 'job_tracker'));
-});
-
-test('buildNextBestActions adds state-D readiness actions', () => {
-  const actions = buildNextBestActions({
-    state: 'D',
-    noApplicationOnFile: false,
-    enrolledProgram: 'ai-software',
-    assessmentCompleted: true,
-    completedCourseCount: 2,
-    starterProfileReviewRequired: false,
-    hasResume: true,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 90,
-    jobApplicationCount: 1,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
+describe('buildNextBestActions', () => {
+  test('prioritizes new application on file', () => {
+    const actions = buildNextBestActions({
+      state: 'A',
+      noApplicationOnFile: true,
+      enrolledProgram: null,
+      assessmentCompleted: false,
+      starterProfileReviewRequired: false,
+      hasResume: false,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 20,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+    expect(actions[0]?.id).toBe('submit_application');
   });
 
-  assert.ok(actions.some((a) => a.id === 'interview_practice'));
-  assert.ok(actions.some((a) => a.id === 'career_readiness'));
-});
-
-test('buildNextBestActions routes missing resume to resume rewriter', () => {
-  const actions = buildNextBestActions({
-    state: 'D',
-    noApplicationOnFile: false,
-    enrolledProgram: 'ai-software',
-    assessmentCompleted: true,
-    completedCourseCount: 2,
-    starterProfileReviewRequired: false,
-    hasResume: false,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 90,
-    jobApplicationCount: 1,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
+  test('prioritizes counselor unread when application exists', () => {
+    const actions = buildNextBestActions({
+      state: 'C',
+      noApplicationOnFile: false,
+      enrolledProgram: 'ai-software',
+      assessmentCompleted: true,
+      completedCourseCount: 0,
+      starterProfileReviewRequired: false,
+      hasResume: true,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 80,
+      jobApplicationCount: 2,
+      counselorUnreadCount: 3,
+      weeklyRecapUnopened: false,
+    });
+    expect(actions[0]?.id).toBe('counselor_messages');
   });
 
-  const resumeAction = actions.find((a) => a.id === 'upload_resume');
-  assert.equal(resumeAction?.href, '/dashboard/ai-tools/resume-rewriter');
-});
-
-test('buildNextBestActions prioritizes starter profile review for counselor-created members', () => {
-  const actions = buildNextBestActions({
-    state: 'B',
-    noApplicationOnFile: false,
-    enrolledProgram: 'it-support',
-    assessmentCompleted: false,
-    completedCourseCount: 0,
-    starterProfileReviewRequired: true,
-    starterProfileMissingFields: ['ZIP code', 'referral source'],
-    hasResume: false,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 40,
-    jobApplicationCount: 0,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
+  test('suggests tracker when eligible and no applications', () => {
+    const actions = buildNextBestActions({
+      state: 'D',
+      noApplicationOnFile: false,
+      enrolledProgram: 'ai-software',
+      assessmentCompleted: true,
+      completedCourseCount: 1,
+      starterProfileReviewRequired: false,
+      hasResume: true,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 90,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+    expect(actions.some((a) => a.id === 'job_tracker')).toBe(true);
   });
 
-  assert.equal(actions[0]?.id, 'review_starter_profile');
-  assert.equal(actions[0]?.href, '/dashboard/profile');
-});
+  test('adds state-D readiness actions', () => {
+    const actions = buildNextBestActions({
+      state: 'D',
+      noApplicationOnFile: false,
+      enrolledProgram: 'ai-software',
+      assessmentCompleted: true,
+      completedCourseCount: 2,
+      starterProfileReviewRequired: false,
+      hasResume: true,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 90,
+      jobApplicationCount: 1,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
 
-test('buildNextBestActions hides interview practice after true completion', () => {
-  const actions = buildNextBestActions({
-    state: 'D',
-    noApplicationOnFile: false,
-    enrolledProgram: 'ai-software',
-    assessmentCompleted: true,
-    completedCourseCount: 2,
-    starterProfileReviewRequired: false,
-    hasResume: true,
-    hasCompletedInterviewPractice: true,
-    profileCompletenessPct: 90,
-    jobApplicationCount: 1,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
+    expect(actions.some((a) => a.id === 'interview_practice')).toBe(true);
+    expect(actions.some((a) => a.id === 'career_readiness')).toBe(true);
   });
 
-  assert.ok(!actions.some((a) => a.id === 'interview_practice'));
-});
+  test('routes missing resume to resume rewriter', () => {
+    const actions = buildNextBestActions({
+      state: 'D',
+      noApplicationOnFile: false,
+      enrolledProgram: 'ai-software',
+      assessmentCompleted: true,
+      completedCourseCount: 2,
+      starterProfileReviewRequired: false,
+      hasResume: false,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 90,
+      jobApplicationCount: 1,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
 
-test('buildNextBestActions adds first-course launch guidance before training starts', () => {
-  const actions = buildNextBestActions({
-    state: 'C',
-    noApplicationOnFile: false,
-    enrolledProgram: 'it-support',
-    assessmentCompleted: true,
-    completedCourseCount: 0,
-    starterProfileReviewRequired: false,
-    hasResume: true,
-    hasCompletedInterviewPractice: false,
-    profileCompletenessPct: 70,
-    jobApplicationCount: 0,
-    counselorUnreadCount: 0,
-    weeklyRecapUnopened: false,
+    const resumeAction = actions.find((a) => a.id === 'upload_resume');
+    expect(resumeAction?.href).toBe('/dashboard/ai-tools/resume-rewriter?prefill=true');
   });
 
-  assert.ok(actions.some((a) => a.id === 'launch_first_course'));
-  assert.ok(actions.some((a) => a.id === 'see_training_plan'));
+  test('prioritizes starter profile review for counselor-created members', () => {
+    const actions = buildNextBestActions({
+      state: 'B',
+      noApplicationOnFile: false,
+      enrolledProgram: 'it-support',
+      assessmentCompleted: false,
+      completedCourseCount: 0,
+      starterProfileReviewRequired: true,
+      starterProfileMissingFields: ['ZIP code', 'referral source'],
+      hasResume: false,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 40,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+
+    expect(actions[0]?.id).toBe('review_starter_profile');
+    expect(actions[0]?.href).toBe('/dashboard/profile');
+  });
+
+  test('hides interview practice after true completion', () => {
+    const actions = buildNextBestActions({
+      state: 'D',
+      noApplicationOnFile: false,
+      enrolledProgram: 'ai-software',
+      assessmentCompleted: true,
+      completedCourseCount: 2,
+      starterProfileReviewRequired: false,
+      hasResume: true,
+      hasCompletedInterviewPractice: true,
+      profileCompletenessPct: 90,
+      jobApplicationCount: 1,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+
+    expect(actions.some((a) => a.id === 'interview_practice')).toBe(false);
+  });
+
+  test('adds first-course launch guidance before training starts', () => {
+    const actions = buildNextBestActions({
+      state: 'C',
+      noApplicationOnFile: false,
+      enrolledProgram: 'it-support',
+      assessmentCompleted: true,
+      completedCourseCount: 0,
+      starterProfileReviewRequired: false,
+      hasResume: true,
+      hasCompletedInterviewPractice: false,
+      profileCompletenessPct: 70,
+      jobApplicationCount: 0,
+      counselorUnreadCount: 0,
+      weeklyRecapUnopened: false,
+    });
+
+    expect(actions.some((a) => a.id === 'launch_first_course')).toBe(true);
+    expect(actions.some((a) => a.id === 'see_training_plan')).toBe(true);
+  });
 });

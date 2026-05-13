@@ -418,7 +418,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               {/* Strength bars */}
               <div style={s.strengthRow}>
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strengthColor(pwStrength, i), transition: 'background 0.3s' }} />
+                  <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strengthColor(pwStrength, i), transition: 'background 0.3s' }} aria-hidden="true" />
                 ))}
               </div>
               <p style={s.hint}>Uppercase, lowercase, and a number required</p>

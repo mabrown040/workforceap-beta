@@ -214,7 +214,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       {/* ── 12-col grid: sidebar + form ── */}
       <div className="apply-grid-layout" style={sPage.grid}>
         {/* Sidebar (4-col) */}
-        <aside className="apply-sidebar" style={sPage.sidebar}>
+        <aside className="apply-sidebar" aria-label="Application steps" style={sPage.sidebar}>
           {/* Progress steps */}
           <div style={sPage.sidebarSteps}>
             <h2 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
@@ -268,7 +268,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         </aside>
 
         {/* Main form area (8-col) */}
-        <div className="apply-main-form" style={sPage.mainCard}>
+        <div className="apply-main-form" role="region" aria-label="Application form" style={sPage.mainCard}>
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
           <Suspense fallback={<ApplyPageSkeleton />}>
@@ -320,7 +320,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       </div>
 
       {/* ── Supplemental cards ── */}
-      <div className="apply-supp-row" style={sPage.suppRow}>
+      <div className="apply-supp-row" role="region" aria-label="Program information" style={sPage.suppRow}>
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>

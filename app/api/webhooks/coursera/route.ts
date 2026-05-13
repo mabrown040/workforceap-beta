@@ -12,6 +12,8 @@ import { prisma } from '@/lib/db/prisma';
 import { recordXapiEvent, resolveXapiUser } from '@/lib/xapi/mappings';
 import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/statements';
 import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@/lib/xapi/storage';
+import { logWebhookEvent } from '@/lib/webhooks/logEvent';
+import { markWebhookForRetry } from '@/lib/webhooks/retry';
 
 /**
  * Coursera REST completion / progress webhook.
@@ -88,10 +90,23 @@ function buildSyntheticParsed(
 }
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  let rawBody = '';
+  let payloadSize = 0;
+  let eventId: string | undefined;
+
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkWebhookRateLimit(ip);
     if (!withinLimit) {
+      await logWebhookEvent({
+        source: 'coursera',
+        status: 'failed',
+        payloadSize: 0,
+        httpStatusCode: 429,
+        errorMessage: 'Rate limited',
+        processingTimeMs: Date.now() - startTime,
+      });
       return NextResponse.json(
         { error: 'Too many requests' },
         { status: 429, headers: { 'Retry-After': '60' } }
@@ -102,28 +117,55 @@ export async function POST(request: Request) {
     if (!readiness.canReceiveWebhooks) {
       return NextResponse.json({ error: 'Coursera webhook is not configured' }, { status: 503 });
     }
-  
+
     const expectedSecret = getCourseraConfig().webhookSecret;
-  
-    let rawBody: string;
+
     try {
       rawBody = await request.text();
+      payloadSize = Buffer.byteLength(rawBody, 'utf8');
     } catch {
+      await logWebhookEvent({
+        source: 'coursera',
+        status: 'failed',
+        payloadSize: 0,
+        httpStatusCode: 400,
+        errorMessage: 'Unable to read body',
+        processingTimeMs: Date.now() - startTime,
+      });
       return NextResponse.json({ error: 'Unable to read body' }, { status: 400 });
     }
-  
+
     let body: unknown;
     try {
       body = rawBody ? JSON.parse(rawBody) : null;
     } catch {
+      await logWebhookEvent({
+        source: 'coursera',
+        status: 'failed',
+        payloadSize,
+        httpStatusCode: 400,
+        errorMessage: 'Invalid JSON',
+        processingTimeMs: Date.now() - startTime,
+      });
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-  
+
     const parsed = webhookSchema.safeParse(body);
     if (!parsed.success) {
+      await logWebhookEvent({
+        source: 'coursera',
+        status: 'failed',
+        payloadSize,
+        httpStatusCode: 400,
+        errorMessage: `Validation failed: ${JSON.stringify(parsed.error.flatten())}`,
+        processingTimeMs: Date.now() - startTime,
+      });
       return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
     }
-  
+
+    const data = parsed.data;
+    eventId = data.eventId ?? data.deliveryId;
+
     const auth = verifyCourseraRestWebhookAuth({
       request,
       rawBody,
@@ -131,17 +173,25 @@ export async function POST(request: Request) {
       bodySecret: parsed.data.secret,
     });
     if (!auth.ok) {
+      await logWebhookEvent({
+        source: 'coursera',
+        eventId,
+        status: 'failed',
+        payloadSize,
+        httpStatusCode: 401,
+        errorMessage: 'Unauthorized',
+        processingTimeMs: Date.now() - startTime,
+      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  
-    const data = parsed.data;
+
     const rawAudit = redactBodyForAudit(body as Record<string, unknown>);
     const dedupeKey = buildDedupeStatementId(data, rawBody);
-  
+
     let memberId: string | null = null;
     let mappingMethod: string | undefined;
     let resolvedEmail: string | undefined;
-  
+
     if (data.externalUserId) {
       const byId = await prisma.user.findUnique({
         where: { id: data.externalUserId },
@@ -153,7 +203,7 @@ export async function POST(request: Request) {
         resolvedEmail = byId.email.trim().toLowerCase();
       }
     }
-  
+
     if (!memberId) {
       const resolved = await resolveXapiUser({
         email: data.email ?? undefined,
@@ -166,13 +216,13 @@ export async function POST(request: Request) {
         resolvedEmail = resolved.email.trim().toLowerCase();
       }
     }
-  
+
     const identity = {
       email: data.email ?? resolvedEmail,
       actorIdentifier: data.actorIdentifier,
       actorHomePage: data.actorHomePage,
     };
-  
+
     if (!memberId) {
       await recordXapiEvent({
         statementId: dedupeKey,
@@ -183,6 +233,15 @@ export async function POST(request: Request) {
         error: 'No matching member identity found',
         rawPayload: rawAudit,
       });
+      await logWebhookEvent({
+        source: 'coursera',
+        eventType: 'coursera.rest.webhook',
+        eventId,
+        payloadSize,
+        status: 'success',
+        httpStatusCode: 200,
+        processingTimeMs: Date.now() - startTime,
+      });
       // 200: avoid endless partner retries for permanently unknown learners (same rationale as xAPI batch ack).
       return NextResponse.json({
         received: true,
@@ -190,9 +249,18 @@ export async function POST(request: Request) {
         dedupeKey,
       });
     }
-  
+
     const claim = await claimCourseraRestWebhookStatement(dedupeKey);
     if (claim === 'already_processed') {
+      await logWebhookEvent({
+        source: 'coursera',
+        eventType: 'coursera.rest.webhook',
+        eventId,
+        payloadSize,
+        status: 'success',
+        httpStatusCode: 200,
+        processingTimeMs: Date.now() - startTime,
+      });
       return NextResponse.json({
         received: true,
         duplicate: true,
@@ -200,16 +268,16 @@ export async function POST(request: Request) {
         userId: memberId,
       });
     }
-  
+
     const dbUser = await prisma.user.findUnique({
       where: { id: memberId },
       select: { enrolledProgram: true },
     });
     const enrolledProgram = dbUser?.enrolledProgram ?? null;
-  
+
     const synthetic = buildSyntheticParsed(data, resolvedEmail, rawAudit);
     const shouldComplete = isXapiCompletionVerb(synthetic);
-  
+
     try {
       if (!enrolledProgram) {
         await recordXapiEvent({
@@ -224,6 +292,15 @@ export async function POST(request: Request) {
           rawPayload: rawAudit,
         });
         await markXapiStatementProcessed(dedupeKey);
+        await logWebhookEvent({
+          source: 'coursera',
+          eventType: 'coursera.rest.webhook',
+          eventId,
+          payloadSize,
+          status: 'success',
+          httpStatusCode: 200,
+          processingTimeMs: Date.now() - startTime,
+        });
         if (shouldComplete) {
           return NextResponse.json(
             {
@@ -245,13 +322,13 @@ export async function POST(request: Request) {
           dedupeKey,
         });
       }
-  
+
       await upsertCourseProgressFromXapiStatement({
         userId: memberId,
         enrolledProgramSlug: enrolledProgram,
         parsed: synthetic,
       });
-  
+
       if (!shouldComplete) {
         await recordXapiEvent({
           statementId: dedupeKey,
@@ -264,6 +341,15 @@ export async function POST(request: Request) {
           rawPayload: rawAudit,
         });
         await markXapiStatementProcessed(dedupeKey);
+        await logWebhookEvent({
+          source: 'coursera',
+          eventType: 'coursera.rest.webhook',
+          eventId,
+          payloadSize,
+          status: 'success',
+          httpStatusCode: 200,
+          processingTimeMs: Date.now() - startTime,
+        });
         return NextResponse.json({
           received: true,
           matched: true,
@@ -273,14 +359,14 @@ export async function POST(request: Request) {
           dedupeKey,
         });
       }
-  
+
       const result = await completeMemberCourse({
         userId: memberId,
         courseSlug: data.courseSlug,
         courseName: data.courseName,
         source: 'coursera-webhook',
       });
-  
+
       await recordXapiEvent({
         statementId: dedupeKey,
         identity,
@@ -292,7 +378,16 @@ export async function POST(request: Request) {
         rawPayload: rawAudit,
       });
       await markXapiStatementProcessed(dedupeKey);
-  
+      await logWebhookEvent({
+        source: 'coursera',
+        eventType: 'coursera.rest.webhook',
+        eventId,
+        payloadSize,
+        status: 'success',
+        httpStatusCode: 200,
+        processingTimeMs: Date.now() - startTime,
+      });
+
       return NextResponse.json({
         received: true,
         matched: true,
@@ -315,22 +410,65 @@ export async function POST(request: Request) {
         error: message,
         rawPayload: rawAudit,
       });
-  
+
       const permanentClientFailure =
         message.includes('Course not found in member program')
         || message.includes('Invalid program')
         || message.includes('No program enrolled');
-  
+
       if (permanentClientFailure) {
         await markXapiStatementProcessed(dedupeKey);
+        await logWebhookEvent({
+          source: 'coursera',
+          eventType: 'coursera.rest.webhook',
+          eventId,
+          payloadSize,
+          status: 'success',
+          httpStatusCode: 422,
+          errorMessage: message,
+          processingTimeMs: Date.now() - startTime,
+        });
         return NextResponse.json({ received: true, matched: true, userId: memberId, ok: false, error: message, dedupeKey }, { status: 422 });
       }
-  
+
+      // Transient failure — log for retry and return 5xx so Coursera retries
+      const logEntry = await prisma.webhookEvent.create({
+        data: {
+          source: 'coursera',
+          eventType: 'coursera.rest.webhook',
+          eventId: eventId ?? null,
+          payloadSize,
+          processingTimeMs: Date.now() - startTime,
+          status: 'failed',
+          httpStatusCode: 500,
+          errorMessage: message,
+          retryCount: 0,
+        },
+      });
+      await markWebhookForRetry(logEntry.id, 0, message);
+
       // Leave `processed` false so Coursera retries can replay after a transient failure (5xx).
       return NextResponse.json({ error: message, dedupeKey }, { status: 500 });
     }
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Internal server error';
     console.error('/webhooks/coursera:', error);
+
+    const logEntry = await prisma.webhookEvent.create({
+      data: {
+        source: 'coursera',
+        eventType: 'coursera.rest.webhook',
+        eventId: eventId ?? null,
+        payloadSize,
+        processingTimeMs: Date.now() - startTime,
+        status: 'failed',
+        httpStatusCode: 500,
+        errorMessage: message,
+        retryCount: 0,
+      },
+    });
+    await markWebhookForRetry(logEntry.id, 0, message);
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

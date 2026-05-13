@@ -45,7 +45,7 @@ const DEFAULT_VOICE_COACH_TRANSCRIPT_RECIPIENTS = [
   'michael.brown2@workforceap.org',
 ];
 
-function getResend(): Resend | null {
+export function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
   return new Resend(key);

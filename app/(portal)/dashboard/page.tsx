@@ -35,7 +35,8 @@ import { maybeAutoSyncCourseraOnDashboard } from '@/lib/coursera/dashboardAutoSy
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
-import PortalLoadingState from '@/components/portal/PortalLoadingState';
+import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
+import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
@@ -1087,7 +1088,7 @@ async function renderMemberDashboard(
       {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}
       <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
-          <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
+          <Suspense fallback={<DashboardSkeleton />}>
             <PortalEntryClient
               portal="member"
               tourStorageUserId={user.id}
@@ -1135,7 +1136,7 @@ async function renderMemberDashboard(
                   />
                 </div>
               )}
-              <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
+              <Suspense fallback={<DashboardSkeleton />}>
                 <DashboardHomeClient
                   recommendedActions={recommendedActions}
                   jobSearchUrl={jobSearchUrl}
@@ -1198,7 +1199,7 @@ async function renderMemberDashboard(
               </div>
               <PlacementConfirmationStrip offers={jobOffers} />
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
+                <Suspense fallback={<JobsSkeleton count={4} />}>
                   <MatchedRoles />
                 </Suspense>
               )}

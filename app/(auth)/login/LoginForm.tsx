@@ -633,9 +633,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             <button
               type="submit"
               disabled={loading}
+              aria-busy={loading}
               style={{ ...s.primaryBtn, opacity: loading ? 0.7 : 1 }}
             >
-              {loading ? 'Signing in…' : 'Sign In'}
+              <span aria-live="polite">{loading ? 'Signing in…' : 'Sign In'}</span>
             </button>
           </form>
 

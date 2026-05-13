@@ -10,8 +10,8 @@
  * mobile whenever the bar is mounted (keeps layout in sync with the DOM).
  */
 :root {
-  /* ~64px tab row + icon/label stack + device home indicator; keeps CTAs tappable above fixed nav */
-  --wap-mobile-bottom-nav-clearance: calc(5rem + env(safe-area-inset-bottom, 0px));
+  /* Fixed MobileBottomNav row (~56–72px) + labels + device home indicator; generous buffer keeps CTAs above the bar */
+  --wap-mobile-bottom-nav-clearance: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   /*
    * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
    * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
@@ -44,8 +44,9 @@ html {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
-  html.wap-reserve-mobile-bottom-nav #main-content,
-  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) #main-content {
+  html.wap-reserve-mobile-bottom-nav main#main-content,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content {
+    box-sizing: border-box;
     padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }

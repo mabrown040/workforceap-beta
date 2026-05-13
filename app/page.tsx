@@ -129,8 +129,9 @@ export default async function HomePage() {
           src={HERO_IMAGE_SRC}
           alt="Collaborative workspace"
           fill
-          priority={true}
-          sizes="(min-width: 1921px) 1920px, 100vw"
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 1920px) 100vw, 1920px"
           quality={85}
           placeholder="blur"
           blurDataURL={HERO_IMAGE_BLUR}

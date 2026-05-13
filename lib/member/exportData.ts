@@ -82,7 +82,6 @@ export async function buildMemberExport(userId: string) {
     prisma.messageThread.findMany({
       take: 5000,
       where: { memberId: userId },
-      include: { messages: true },
     }),
     prisma.placementRecord.findUnique({ where: { userId } }),
     prisma.placedOutcome.findUnique({ where: { userId } }),

@@ -413,7 +413,7 @@ export async function executeMemberMerge(
   if (mergedCourseProgress > 0) repointed.push(`courseProgress(${mergedCourseProgress})`);
 
   // 3. MemberProgramProgress — merge or repoint
-  const secondaryRollups = await tx.memberProgramProgress.findMany({ where: { userId: secondaryId } });
+  const secondaryRollups = await tx.memberProgramProgress.findMany({ take: 500, where: { userId: secondaryId } });
   let mergedRollups = 0;
   for (const row of secondaryRollups) {
     const existing = await tx.memberProgramProgress.findUnique({

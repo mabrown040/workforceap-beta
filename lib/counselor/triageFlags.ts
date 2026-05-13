@@ -292,6 +292,7 @@ export async function getTriageQueue(
       memberIds,
     ),
     prisma.messageThread.findMany({
+      take: 500,
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: {
         id: true,

@@ -83,7 +83,7 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
             {t.photoUrl ? (
               <img
                 src={t.photoUrl}
-                alt=""
+                alt={t.member.fullName ? `${t.member.fullName} photo` : 'Member photo'}
                 style={{
                   width: '2.5rem',
                   height: '2.5rem',

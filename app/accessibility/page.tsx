@@ -27,6 +27,7 @@ export default async function AccessibilityPage() {
 
   return (
     <div className="inner-page">
+      <h1 className="wa-sr-only">{t('heading')}</h1>
       <section className="content-section">
         <div style={sectionStyle}>
           <SectionHeader

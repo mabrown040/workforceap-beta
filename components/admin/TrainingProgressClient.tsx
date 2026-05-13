@@ -466,7 +466,13 @@ export default function TrainingProgressClient({
   }, [rawRows, filter, sortKey, sortDir]);
 
   const sortHeader = (label: string, key: string) => (
-    <span onClick={() => handleSort(key)}>
+    <span
+      role="button"
+      tabIndex={0}
+      onClick={() => handleSort(key)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort(key); } }}
+      aria-label={`Sort by ${label}`}
+    >
       <SortLabel label={label} active={sortKey === key} dir={sortDir} />
     </span>
   );

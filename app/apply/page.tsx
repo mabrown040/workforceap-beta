@@ -217,9 +217,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <aside className="apply-sidebar" style={sPage.sidebar}>
           {/* Progress steps */}
           <div style={sPage.sidebarSteps}>
-            <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
+            <h2 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
               {t('applicationProgress')}
-            </h3>
+            </h2>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {[
                 { labelKey: 'stepPersonalInfo', icon: 'person' },
@@ -253,7 +253,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           {/* Info card */}
           <div style={sPage.infoCard}>
-            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h4>
+            <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h3>
             <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
               <li>{t('nextStep1')}</li>
               <li>{t('nextStep2')}</li>
@@ -276,9 +276,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           </Suspense>
 
           <div className="apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
-            <h3 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
+            <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
               {t('docsChecklistTitle')}
-            </h3>
+            </h2>
             <p
               style={{
                 fontSize: '0.9rem',
@@ -324,7 +324,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h4>
+            <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h3>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
               {t('suppCard1Body')} <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>{t('privacyPolicy')}</Link>.
             </p>
@@ -333,7 +333,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">bolt</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard2Title')}</h4>
+            <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard2Title')}</h3>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
               {t('suppCard2Body')}
             </p>

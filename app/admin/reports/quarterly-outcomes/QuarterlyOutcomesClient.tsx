@@ -349,16 +349,16 @@ export default function QuarterlyOutcomesClient() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                      <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Program
                       </th>
-                      <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Enrolled
                       </th>
-                      <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Completions
                       </th>
-                      <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Placements
                       </th>
                     </tr>
@@ -397,19 +397,19 @@ export default function QuarterlyOutcomesClient() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--outline-variant)' }}>
-                      <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Job Title
                       </th>
-                      <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Employer
                       </th>
-                      <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Salary
                       </th>
-                      <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         Days to Place
                       </th>
-                      <th style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
+                      <th scope="col" style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
                         AI Tools
                       </th>
                     </tr>

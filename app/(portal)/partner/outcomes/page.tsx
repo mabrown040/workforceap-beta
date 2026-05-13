@@ -13,9 +13,10 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Outcomes snapshot',
-  description: 'High-level outcomes for your referrals.',
+  title: t('outcomesSnapshotTitle'),
+  description: t('outcomesSnapshotDescription'),
   path: '/partner/outcomes',
 });
 }
@@ -104,7 +105,7 @@ export default async function PartnerOutcomesPage() {
               <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>{t('pendingPlacementReviews')}</span>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-              {pendingPlacementCount} member{pendingPlacementCount !== 1 ? 's' : ''} self-reported accepting a job offer. WorkforceAP staff are reviewing these reports before marking them as verified placements. You will see them move to "{t('placed')}" once confirmed.
+              {t('pendingPlacementDesc', { count: pendingPlacementCount })}
             </p>
           </div>
         )}

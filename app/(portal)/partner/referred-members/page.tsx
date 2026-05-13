@@ -15,9 +15,10 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Referred members',
-  description: 'All members referred by your organization.',
+  title: t('referredMembers'),
+  description: t('referredMembersDescription'),
   path: '/partner/referred-members',
 });
 }
